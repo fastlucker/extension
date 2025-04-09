@@ -3,7 +3,6 @@ import React, { Fragment, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SocketAPIStep } from '@ambire-common/interfaces/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
@@ -13,6 +12,8 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 
+import { SwapAndBridgeStep } from '@ambire-common/interfaces/swapAndBridge'
+import Spinner from '@common/components/Spinner'
 import RouteStepsArrow from '../RouteStepsArrow'
 import RouteStepsToken from '../RouteStepsToken'
 import styles from './styles'
@@ -22,13 +23,17 @@ const RouteStepsPreview = ({
   totalGasFeesInUsd,
   estimationInSeconds,
   currentStep = 0,
-  loadingEnabled
+  loadingEnabled,
+  isEstimationLoading,
+  isSelected
 }: {
-  steps: SocketAPIStep[]
+  steps: SwapAndBridgeStep[]
   totalGasFeesInUsd?: number
   estimationInSeconds?: number
   currentStep?: number
   loadingEnabled?: boolean
+  isSelected?: boolean
+  isEstimationLoading: boolean
 }) => {
   const { t } = useTranslation()
 
@@ -171,7 +176,7 @@ const RouteStepsPreview = ({
         })}
       </View>
       {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
           {!!estimationInSeconds && (
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               {!!shouldWarnForLongEstimation && (
@@ -192,6 +197,12 @@ const RouteStepsPreview = ({
                   time: formatTime(estimationInSeconds)
                 })}
               </Text>
+            </View>
+          )}
+
+          {isSelected && isEstimationLoading && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Spinner style={{ width: 15, height: 15 }} />
             </View>
           )}
         </View>

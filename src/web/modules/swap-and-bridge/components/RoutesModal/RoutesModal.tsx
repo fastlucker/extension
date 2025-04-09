@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { SwapAndBridgeRoute } from '@ambire-common/interfaces/swapAndBridge'
@@ -17,6 +17,7 @@ import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStep
 import { SWAP_AND_BRIDGE_FORM_WIDTH } from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen/styles'
 import { getUiType } from '@web/utils/uiType'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import getStyles from './styles'
 
 const FLAT_LIST_ITEM_HEIGHT = 138.5
@@ -32,17 +33,30 @@ const RoutesModal = ({
 }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
-  const { quote, shouldEnableRoutesSelection } = useSwapAndBridgeControllerState()
+  const { quote, shouldEnableRoutesSelection, signAccountOpController } =
+    useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
   const scrollRef: any = useRef(null)
-  const selectedRoute = quote?.selectedRoute
   const { height } = useWindowSize()
+  // there's a small discrepancy between ticks and we want to capture that
+  const [userSelectedRoute, setUserSelectedRoute] = useState<SwapAndBridgeRoute | undefined>(
+    undefined
+  )
+  const [isEstimationLoading, setIsEstimationLoading] = useState<boolean>(false)
+
+  const persistedSelectedRoute = useMemo(() => {
+    return quote?.selectedRoute
+  }, [quote?.selectedRoute])
+
+  useEffect(() => {
+    setUserSelectedRoute(persistedSelectedRoute)
+  }, [persistedSelectedRoute])
 
   const handleSelectRoute = useCallback(
     (route: SwapAndBridgeRoute) => {
       if (!route) return
 
-      if (route.routeId === selectedRoute?.routeId) {
+      if (route.routeId === persistedSelectedRoute?.routeId) {
         closeBottomSheet()
         return
       }
@@ -51,10 +65,34 @@ const RoutesModal = ({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE',
         params: { route }
       })
-      closeBottomSheet()
+      setUserSelectedRoute(route)
+      setIsEstimationLoading(true)
     },
-    [closeBottomSheet, dispatch, selectedRoute]
+    [closeBottomSheet, dispatch, persistedSelectedRoute]
   )
+
+  // TODO:
+  // if the estimation has failed, disable the selected route, display the error
+  // and make the user select a different route
+  useEffect(() => {
+    if (!signAccountOpController) return
+    if (!isEstimationLoading) return
+    if (!userSelectedRoute || !persistedSelectedRoute) return
+
+    if (
+      userSelectedRoute.routeId === persistedSelectedRoute.routeId &&
+      signAccountOpController.estimation.status === EstimationStatus.Success
+    ) {
+      setIsEstimationLoading(false)
+      closeBottomSheet()
+    }
+  }, [
+    userSelectedRoute,
+    signAccountOpController,
+    closeBottomSheet,
+    persistedSelectedRoute,
+    isEstimationLoading
+  ])
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
@@ -67,7 +105,7 @@ const RoutesModal = ({
           style={[
             styles.selectableItemContainer,
             index + 1 === quote?.routes?.length && spacings.mb0,
-            item.routeId === selectedRoute?.routeId && styles.selectableItemSelected
+            item.routeId === userSelectedRoute?.routeId && styles.selectableItemSelected
           ]}
           onPress={() => handleSelectRoute(item)}
         >
@@ -75,6 +113,8 @@ const RoutesModal = ({
             steps={steps}
             totalGasFeesInUsd={item.totalGasFeesInUsd}
             estimationInSeconds={item.serviceTime}
+            isEstimationLoading={isEstimationLoading}
+            isSelected={item.routeId === userSelectedRoute?.routeId}
           />
         </Pressable>
       )
@@ -82,21 +122,22 @@ const RoutesModal = ({
     [
       handleSelectRoute,
       quote?.routes?.length,
-      selectedRoute?.routeId,
+      userSelectedRoute?.routeId,
       styles.selectableItemContainer,
-      styles.selectableItemSelected
+      styles.selectableItemSelected,
+      isEstimationLoading
     ]
   )
 
   const selectedRouteIndex = useMemo(() => {
     if (!quote?.routes || !quote.routes.length) return 0
-    if (!selectedRoute) return 0
-    const selectedRouteIdx = quote.routes.findIndex((r) => r.routeId === selectedRoute.routeId)
+    if (!userSelectedRoute) return 0
+    const selectedRouteIdx = quote.routes.findIndex((r) => r.routeId === userSelectedRoute.routeId)
 
     if (selectedRouteIdx === -1) return 0
 
     return selectedRouteIdx
-  }, [quote?.routes, selectedRoute])
+  }, [quote?.routes, userSelectedRoute])
 
   if (!quote?.routes || !quote.routes.length || !shouldEnableRoutesSelection) return null
 

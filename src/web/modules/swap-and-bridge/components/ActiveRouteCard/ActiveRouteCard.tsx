@@ -128,6 +128,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
             (activeRoute.routeStatus === 'in-progress' ||
               activeRoute.routeStatus === 'waiting-approval-to-resolve')
           }
+          isEstimationLoading={false}
         />
       </View>
 
