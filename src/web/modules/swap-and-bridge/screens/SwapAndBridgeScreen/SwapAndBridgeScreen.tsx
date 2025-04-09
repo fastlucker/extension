@@ -1,3 +1,4 @@
+import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
@@ -7,6 +8,7 @@ import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridg
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import FlipIcon from '@common/assets/svg/FlipIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
@@ -95,6 +97,7 @@ const SwapAndBridgeScreen = () => {
     fromAmountFieldMode,
     maxFromAmount,
     quote,
+    toChainId,
     formStatus,
     validateFromAmount,
     isSwitchFromAndToTokensEnabled,
@@ -192,6 +195,34 @@ const SwapAndBridgeScreen = () => {
     shouldConfirmFollowUpTransactions,
     updateQuoteStatus
   ])
+
+  const toTokenInPortfolio = useMemo(() => {
+    const [address] = toTokenValue.value.split('.')
+
+    if (!address || !toChainId) return null
+
+    const bigintChainId = BigInt(toChainId)
+
+    const tokenInPortfolio = portfolio?.tokens.find(
+      (token) =>
+        token.address === address &&
+        token.chainId === bigintChainId &&
+        !token.flags.onGasTank &&
+        !token.flags.rewardsType
+    )
+
+    if (!tokenInPortfolio) return null
+
+    const amountFormatted = formatDecimals(
+      parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
+      'amount'
+    )
+
+    return {
+      ...tokenInPortfolio,
+      amountFormatted
+    }
+  }, [portfolio?.tokens, toChainId, toTokenValue.value])
 
   const handleHighPriceImpactCheckboxPress = useCallback(() => {
     setHighPriceImpactConfirmed((p) => !p)
@@ -439,6 +470,24 @@ const SwapAndBridgeScreen = () => {
                     </Text>
                   </View>
                 </View>
+                {toTokenInPortfolio && (
+                  <View
+                    style={[flexbox.directionRow, spacings.ptSm, spacings.pl, flexbox.alignCenter]}
+                  >
+                    <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
+                    <Text
+                      testID="max-available-amount"
+                      numberOfLines={1}
+                      fontSize={12}
+                      style={spacings.mlMi}
+                      weight="medium"
+                      appearance="tertiaryText"
+                      ellipsizeMode="tail"
+                    >
+                      {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
 
