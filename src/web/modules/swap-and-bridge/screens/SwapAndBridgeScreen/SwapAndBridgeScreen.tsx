@@ -27,6 +27,7 @@ import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatTime from '@common/utils/formatTime'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -563,7 +564,21 @@ const SwapAndBridgeScreen = () => {
                       </Text>
                     </View>
                   ) : (
-                    <View />
+                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                      <Text appearance="tertiaryText" fontSize={14} weight="medium">
+                        {t('Ambire fee: 0.05%')}
+                      </Text>
+                      {quote?.selectedRoute?.serviceTime ? (
+                        <Text
+                          appearance="tertiaryText"
+                          fontSize={14}
+                          weight="medium"
+                          style={spacings.mlLg}
+                        >
+                          {t('Time: ~')} {formatTime(quote?.selectedRoute?.serviceTime)}
+                        </Text>
+                      ) : null}
+                    </View>
                   )}
 
                   <Pressable
