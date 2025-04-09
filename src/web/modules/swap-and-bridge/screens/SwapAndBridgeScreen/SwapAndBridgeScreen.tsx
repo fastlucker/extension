@@ -268,7 +268,7 @@ const SwapAndBridgeScreen = () => {
               <View
                 style={[
                   styles.secondaryContainer,
-                  spacings.prLg,
+                  spacings.pr2Xl,
                   !!validateFromAmount.message && styles.secondaryContainerWarning
                 ]}
               >
@@ -324,45 +324,56 @@ const SwapAndBridgeScreen = () => {
                       onMaxButtonPress={handleSetMaxFromAmount}
                     />
                   )}
-                  <View>
-                    {fromSelectedToken?.priceIn.length !== 0 ? (
+                  {fromSelectedToken?.priceIn.length !== 0 ? (
+                    <>
                       <Pressable
                         onPress={handleSwitchFromAmountFieldMode}
-                        style={[flexbox.directionRow, flexbox.alignCenter, flexbox.alignSelfStart]}
+                        style={[
+                          flexbox.directionRow,
+                          flexbox.alignCenter,
+                          flexbox.alignSelfStart,
+                          {
+                            position: 'absolute',
+                            right: -32,
+                            top: -8
+                          }
+                        ]}
                         disabled={fromTokenAmountSelectDisabled}
                       >
-                        <View
-                          style={{
-                            backgroundColor: theme.infoBackground,
-                            borderRadius: 50,
-                            paddingHorizontal: 5,
-                            paddingVertical: 5,
-                            ...spacings.mrTy
-                          }}
-                        >
-                          <FlipIcon width={11} height={11} color={theme.primary} />
-                        </View>
-                        <Text
-                          fontSize={12}
-                          appearance="primary"
-                          weight="medium"
-                          testID="switch-currency-sab"
-                        >
-                          {fromAmountFieldMode === 'token'
-                            ? `≈ ${
-                                fromAmountInFiat
-                                  ? formatDecimals(parseFloat(fromAmountInFiat), 'value')
-                                  : 0
-                              } USD`
-                            : `${
-                                fromAmount ? formatDecimals(parseFloat(fromAmount), 'amount') : 0
-                              } ${fromSelectedToken?.symbol}`}
-                        </Text>
+                        {({ hovered }: any) => (
+                          <View
+                            style={{
+                              backgroundColor: hovered ? '#6000FF14' : theme.infoBackground,
+                              borderRadius: 50,
+                              paddingHorizontal: 5,
+                              paddingVertical: 5,
+                              ...spacings.mrTy
+                            }}
+                          >
+                            <FlipIcon width={11} height={11} color={theme.primary} />
+                          </View>
+                        )}
                       </Pressable>
-                    ) : (
-                      <View />
-                    )}
-                  </View>
+                      <Text
+                        fontSize={12}
+                        appearance="primary"
+                        weight="medium"
+                        testID="switch-currency-sab"
+                      >
+                        {fromAmountFieldMode === 'token'
+                          ? `$${
+                              fromAmountInFiat
+                                ? formatDecimals(parseFloat(fromAmountInFiat), 'value')
+                                : 0
+                            }`
+                          : `${fromAmount ? formatDecimals(parseFloat(fromAmount), 'amount') : 0} ${
+                              fromSelectedToken?.symbol
+                            }`}
+                      </Text>
+                    </>
+                  ) : (
+                    <View />
+                  )}
                 </View>
               </View>
             </View>
