@@ -134,6 +134,33 @@
 
         }
 
+        .streak {
+          display: flex;
+          align-items: center;
+          width: 8.375rem;
+          height: 1.9375rem;
+          background-color: $purple-600;
+          justify-content: space-between;
+          border-radius: 3.125rem;
+          padding: .375rem .5rem;
+          gap: .1875rem;
+       
+          .streakNumber {
+            font-size: 1rem;
+            line-height: 1rem;
+            font-weight: 800;
+            color: $yellowText;
+          }
+      
+          .streakLabel {
+            font-size: .75rem;
+            font-weight: 500;
+            line-height: 1rem;
+            letter-spacing: 0.1;
+            text-align: center;
+            color: $neutral-300;
+          }
+        }
        
       }
     }
