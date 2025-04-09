@@ -1,5 +1,5 @@
 import React from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 import ErrorPage from '@legends/components/ErrorPage'
 import NonV2Modal from '@legends/components/NonV2Modal'
@@ -12,25 +12,28 @@ const PrivateRoute = () => {
   const { connectedAccount, nonV2Account, allowNonV2Connection, isLoading } = useAccountContext()
   const { character, error: characterError, isLoading: isCharacterLoading } = useCharacterContext()
 
-  if (!connectedAccount) return <Navigate to="/" />
+  const { pathname } = useLocation()
 
-  if (isLoading || (!character && isCharacterLoading)) return <Spinner isCentered />
-
-  // If a wallet isn't connected a v2 account,redirect to the welcome screen.
+  // TODO: Test properly here.
+  const isConnectedAccountV2 = !!connectedAccount && (!nonV2Account || allowNonV2Connection)
+  // If a wallet isn't connected or the acc is not v2 account,redirect to the welcome screen.
   // Once a v2 account has been connected once,
   // the user should be able to access screens which will display the state of the v2 account.
+  if (!connectedAccount && !nonV2Account) {
+    if (pathname !== LEGENDS_ROUTES.home && pathname !== '/') {
+      return <Navigate to="/" />
+    }
+  }
+
+  if (isConnectedAccountV2 && (isLoading || (!character && isCharacterLoading)))
+    return <Spinner isCentered />
 
   if (characterError) return <ErrorPage title="Character loading error" error={characterError} />
 
   // Don't allow loading the Outlet component if the character is not loaded or is in the process of loading.
   if (!character && !isCharacterLoading) return <Navigate to={LEGENDS_ROUTES.characterSelect} />
 
-  return (
-    <>
-      <NonV2Modal isOpen={!allowNonV2Connection && !!nonV2Account} />
-      <Outlet />
-    </>
-  )
+  return <Outlet />
 }
 
 export default PrivateRoute

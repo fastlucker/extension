@@ -57,54 +57,51 @@ const CharacterSelect = () => {
   const isButtonDisabled = isMinting || isLoading || isMinted
 
   return (
-    <>
-      <NonV2Modal isOpen={!!nonV2Account} />
-      <div className={styles.wrapper}>
-        <div
-          className={styles.backgroundEffect}
-          style={{ backgroundImage: `url(${blurredLights})` }}
+    <div className={styles.wrapper}>
+      <div
+        className={styles.backgroundEffect}
+        style={{ backgroundImage: `url(${blurredLights})` }}
+      />
+      <h1 className={styles.title}>Mint Your NFT</h1>
+      <p className={styles.description}>
+        Pick your profile avatar and mint a soulbound NFT for free
+      </p>
+      <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
+      {isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
+        <Alert
+          type="error"
+          title="Character is already minted"
+          message="Character is already minted but could not be retrieved. Please contact Ambire support."
         />
-        <h1 className={styles.title}>Mint Your NFT</h1>
-        <p className={styles.description}>
-          Pick your profile avatar and mint a soulbound NFT for free
-        </p>
-        <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
-        {isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
-          <Alert
-            type="error"
-            title="Character is already minted"
-            message="Character is already minted but could not be retrieved. Please contact Ambire support."
-          />
-        )}
-        {!isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
-          <button
-            onClick={() => {
-              !isButtonDisabled && mintCharacter(characterId)
-            }}
-            type="button"
-            disabled={isButtonDisabled}
-            className={styles.saveButton}
-          >
-            {isMinting ? 'Please wait...' : 'Mint NFT'}
-          </button>
-        )}
-        {isCheckingMintStatus && <Spinner />}
+      )}
+      {!isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
+        <button
+          onClick={() => {
+            !isButtonDisabled && mintCharacter(characterId)
+          }}
+          type="button"
+          disabled={isButtonDisabled}
+          className={styles.saveButton}
+        >
+          {isMinting ? 'Please wait...' : 'Mint NFT'}
+        </button>
+      )}
+      {isCheckingMintStatus && <Spinner />}
 
-        <CharacterLoadingModal
-          isOpen={
-            !!character ||
-            // Currently minting
-            isMinting ||
-            // Minted a short time ago and not caught by the relayer
-            (isMinted && !character && !isMintedAndNotCaughtByRelayer)
-          }
-          loadingMessage={loadingMessage}
-          errorMessage={errorMessage}
-          showOnMintModal={!!(character || (character && isMinted))}
-          onButtonClick={redirectToCharacterPage}
-        />
-      </div>
-    </>
+      <CharacterLoadingModal
+        isOpen={
+          !!character ||
+          // Currently minting
+          isMinting ||
+          // Minted a short time ago and not caught by the relayer
+          (isMinted && !character && !isMintedAndNotCaughtByRelayer)
+        }
+        loadingMessage={loadingMessage}
+        errorMessage={errorMessage}
+        showOnMintModal={!!(character || (character && isMinted))}
+        onButtonClick={redirectToCharacterPage}
+      />
+    </div>
   )
 }
 

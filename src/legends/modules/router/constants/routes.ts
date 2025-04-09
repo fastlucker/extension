@@ -1,5 +1,4 @@
 const LEGENDS_ROUTES = {
-  landing: '/',
   quests: '/quests',
   home: '/home',
   characterSelect: '/character-select',
