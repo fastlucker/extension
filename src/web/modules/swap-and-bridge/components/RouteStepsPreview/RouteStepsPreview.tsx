@@ -25,7 +25,8 @@ const RouteStepsPreview = ({
   currentStep = 0,
   loadingEnabled,
   isEstimationLoading,
-  isSelected
+  isSelected,
+  isDisabled
 }: {
   steps: SwapAndBridgeStep[]
   totalGasFeesInUsd?: number
@@ -34,6 +35,7 @@ const RouteStepsPreview = ({
   loadingEnabled?: boolean
   isSelected?: boolean
   isEstimationLoading: boolean
+  isDisabled?: boolean
 }) => {
   const { t } = useTranslation()
 
@@ -203,6 +205,14 @@ const RouteStepsPreview = ({
           {isSelected && isEstimationLoading && (
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <Spinner style={{ width: 15, height: 15 }} />
+            </View>
+          )}
+
+          {isDisabled && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text fontSize={12} appearance="errorText">
+                {t('Route failed. Please choose another')}
+              </Text>
             </View>
           )}
         </View>

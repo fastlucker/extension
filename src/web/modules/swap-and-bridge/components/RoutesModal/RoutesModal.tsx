@@ -43,6 +43,7 @@ const RoutesModal = ({
     undefined
   )
   const [isEstimationLoading, setIsEstimationLoading] = useState<boolean>(false)
+  const [disabledRoutes, setDisabledRoutes] = useState<string[]>([])
 
   const persistedSelectedRoute = useMemo(() => {
     return quote?.selectedRoute
@@ -55,6 +56,7 @@ const RoutesModal = ({
   const handleSelectRoute = useCallback(
     (route: SwapAndBridgeRoute) => {
       if (!route) return
+      if (disabledRoutes.indexOf(route.routeId) !== -1) return
 
       if (route.routeId === persistedSelectedRoute?.routeId) {
         closeBottomSheet()
@@ -68,16 +70,22 @@ const RoutesModal = ({
       setUserSelectedRoute(route)
       setIsEstimationLoading(true)
     },
-    [closeBottomSheet, dispatch, persistedSelectedRoute]
+    [closeBottomSheet, dispatch, persistedSelectedRoute, disabledRoutes]
   )
 
-  // TODO:
-  // if the estimation has failed, disable the selected route, display the error
-  // and make the user select a different route
   useEffect(() => {
     if (!signAccountOpController) return
     if (!isEstimationLoading) return
     if (!userSelectedRoute || !persistedSelectedRoute) return
+
+    if (
+      userSelectedRoute.routeId === persistedSelectedRoute.routeId &&
+      signAccountOpController.estimation.status === EstimationStatus.Error
+    ) {
+      setIsEstimationLoading(false)
+      disabledRoutes.push(persistedSelectedRoute.routeId)
+      setDisabledRoutes(disabledRoutes)
+    }
 
     if (
       userSelectedRoute.routeId === persistedSelectedRoute.routeId &&
@@ -91,13 +99,15 @@ const RoutesModal = ({
     signAccountOpController,
     closeBottomSheet,
     persistedSelectedRoute,
-    isEstimationLoading
+    isEstimationLoading,
+    disabledRoutes
   ])
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item, index }: { item: SwapAndBridgeRoute; index: number }) => {
       const { steps } = item
+      const isDisabled = disabledRoutes.indexOf(item.routeId) !== -1
 
       return (
         <Pressable
@@ -105,7 +115,10 @@ const RoutesModal = ({
           style={[
             styles.selectableItemContainer,
             index + 1 === quote?.routes?.length && spacings.mb0,
-            item.routeId === userSelectedRoute?.routeId && styles.selectableItemSelected
+            item.routeId === userSelectedRoute?.routeId &&
+              !isDisabled &&
+              styles.selectableItemSelected,
+            isDisabled && styles.disabledItem
           ]}
           onPress={() => handleSelectRoute(item)}
         >
@@ -115,6 +128,7 @@ const RoutesModal = ({
             estimationInSeconds={item.serviceTime}
             isEstimationLoading={isEstimationLoading}
             isSelected={item.routeId === userSelectedRoute?.routeId}
+            isDisabled={isDisabled}
           />
         </Pressable>
       )
@@ -125,7 +139,9 @@ const RoutesModal = ({
       userSelectedRoute?.routeId,
       styles.selectableItemContainer,
       styles.selectableItemSelected,
-      isEstimationLoading
+      styles.disabledItem,
+      isEstimationLoading,
+      disabledRoutes
     ]
   )
 

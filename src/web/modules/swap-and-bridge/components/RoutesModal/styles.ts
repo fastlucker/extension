@@ -7,6 +7,7 @@ import common from '@common/styles/utils/common'
 interface Style {
   selectableItemContainer: ViewStyle
   selectableItemSelected: ViewStyle
+  disabledItem: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -23,6 +24,10 @@ const getStyles = (theme: ThemeProps) =>
     selectableItemSelected: {
       borderWidth: 1,
       borderColor: theme.primary
+    },
+    disabledItem: {
+      borderWidth: 1,
+      borderColor: theme.errorText
     }
   })
 
