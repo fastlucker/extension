@@ -42,13 +42,6 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
 
   const isSignLoading = getIsSignLoading(signAccountOpController?.status)
 
-  const handleRejectAccountOp = useCallback(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
-    })
-    closeEstimationModal()
-  }, [closeEstimationModal, dispatch])
-
   const handleBroadcastAccountOp = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
@@ -89,10 +82,10 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
           />
           <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
             <Button
-              testID="transaction-button-reject"
-              type="danger"
-              text={t('Reject')}
-              onPress={handleRejectAccountOp}
+              testID="swap-button-back"
+              type="secondary"
+              text={t('Back')}
+              onPress={closeEstimationModal}
               hasBottomSpacing={false}
               size="large"
               disabled={isSignLoading}
