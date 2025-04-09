@@ -5,11 +5,7 @@ import { Dimensions, NativeScrollEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
-import {
-  Account as AccountInterface,
-  AccountOnPage,
-  ImportStatus
-} from '@ambire-common/interfaces/account'
+import { Account as AccountInterface, AccountOnPage } from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
 import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import BottomSheet from '@common/components/BottomSheet'
@@ -18,8 +14,8 @@ import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -39,11 +35,21 @@ import {
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
-import styles from './styles'
+import getStyles from './styles'
 
 const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
   const paddingToBottom = 20
   return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
+}
+
+type Props = {
+  state: AccountPickerController
+  setPage: (page: number) => void
+  keyType: AccountPickerController['type']
+  subType: AccountPickerController['subType']
+  lookingForLinkedAccounts: boolean
+  children?: any
+  withTitle?: boolean
 }
 
 const AccountsOnPageList = ({
@@ -51,14 +57,10 @@ const AccountsOnPageList = ({
   setPage,
   keyType,
   subType,
-  lookingForLinkedAccounts
-}: {
-  state: AccountPickerController
-  setPage: (page: number) => void
-  keyType: AccountPickerController['type']
-  subType: AccountPickerController['subType']
-  lookingForLinkedAccounts: boolean
-}) => {
+  lookingForLinkedAccounts,
+  children,
+  withTitle = true
+}: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
@@ -71,7 +73,7 @@ const AccountsOnPageList = ({
   const [contentHeight, setContentHeight] = useState(0)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
+  const { styles } = useTheme(getStyles)
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -138,17 +140,19 @@ const AccountsOnPageList = ({
       accounts,
       shouldCheckForLastAccountInTheList,
       slotIndex,
-      byType = ['basic', 'smart']
+      byType = ['basic', 'smart'],
+      withQuaternaryBackground = false
     }: {
       accounts: AccountOnPage[]
       shouldCheckForLastAccountInTheList?: boolean
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
+      withQuaternaryBackground?: boolean
     }) => {
       const filteredAccounts = accounts.filter(
         (a) =>
           byType.includes(getType(a)) &&
-          !(hideEmptyAccounts && getType(a) === 'basic' && !a.account.usedOnNetworks.length)
+          !(getType(a) === 'smart' && !a.account.usedOnNetworks.length)
       )
 
       if (filteredAccounts.some((a) => getType(a) === 'basic') && onlySmartAccountsVisible) {
@@ -166,6 +170,7 @@ const AccountsOnPageList = ({
 
         return (
           <Account
+            withQuaternaryBackground={withQuaternaryBackground}
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
@@ -181,6 +186,7 @@ const AccountsOnPageList = ({
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
             displayTypeBadge={false}
+            displayTypePill={false}
           />
         )
       })
@@ -188,7 +194,6 @@ const AccountsOnPageList = ({
     [
       onlySmartAccountsVisible,
       getType,
-      hideEmptyAccounts,
       state.selectedAccounts,
       isImportingFromPrivateKey,
       handleSelectAccount,
@@ -251,8 +256,7 @@ const AccountsOnPageList = ({
     state.accountsLoading,
     slots
   ])
-  const disableHideEmptyAccountsToggle =
-    state.accountsLoading || !!state.pageError || isAccountPickerEmpty
+
   const shouldDisplayChangeHdPath = !!(
     subType === 'seed' ||
     // TODO: Disabled for Trezor, because the flow that retrieves accounts
@@ -280,30 +284,39 @@ const AccountsOnPageList = ({
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
       <View style={flexbox.flex1} nativeID="account-picker-page-list">
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
-          <Text
-            fontSize={maxWidthSize('xl') ? 20 : 18}
-            weight="medium"
-            appearance="primaryText"
-            numberOfLines={1}
-            style={[spacings.mrTy, flexbox.flex1]}
-          >
-            {setTitle()}
-          </Text>
-          {!!numberOfSelectedLinkedAccounts && (
-            <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
-              <Text fontSize={16} appearance="successText">
-                {numberOfSelectedLinkedAccounts === 1
-                  ? t('Selected ({{numOfAccounts}}) linked account on this page', {
-                      numOfAccounts: numberOfSelectedLinkedAccounts
-                    })
-                  : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
-                      numOfAccounts: numberOfSelectedLinkedAccounts
-                    })}
-              </Text>
-            </Alert>
-          )}
-        </View>
+        {withTitle ||
+          (!!numberOfSelectedLinkedAccounts && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
+              {withTitle && (
+                <Text
+                  fontSize={maxWidthSize('xl') ? 20 : 18}
+                  weight="medium"
+                  appearance="primaryText"
+                  numberOfLines={1}
+                  style={[spacings.mrTy, flexbox.flex1]}
+                >
+                  {setTitle()}
+                </Text>
+              )}
+              {!!numberOfSelectedLinkedAccounts && (
+                <Alert
+                  type="success"
+                  size="sm"
+                  style={{ ...spacings.pvTy, ...flexbox.alignCenter }}
+                >
+                  <Text fontSize={16} appearance="successText">
+                    {numberOfSelectedLinkedAccounts === 1
+                      ? t('Selected ({{numOfAccounts}}) linked account on this page', {
+                          numOfAccounts: numberOfSelectedLinkedAccounts
+                        })
+                      : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
+                          numOfAccounts: numberOfSelectedLinkedAccounts
+                        })}
+                  </Text>
+                </Alert>
+              )}
+            </View>
+          ))}
 
         {!lookingForLinkedAccounts && !!linkedAccounts.length && (
           <Alert type="info" style={spacings.mbXl}>
@@ -381,23 +394,12 @@ const AccountsOnPageList = ({
               flexbox.justifySpaceBetween,
               { width: '100%' }
             ]}
-            {...(!!hideEmptyAccounts && onlySmartAccountsVisible
+            {...(onlySmartAccountsVisible
               ? {
                   nativeID: BasicAccountIntroId
                 }
               : {})}
           >
-            {!isImportingFromPrivateKey && (
-              <Toggle
-                isOn={hideEmptyAccounts}
-                onToggle={() => setHideEmptyAccounts((p) => !p)}
-                disabled={disableHideEmptyAccountsToggle}
-                label={t('Hide empty Basic Accounts')}
-                testID="hide-empty-accounts-toggle"
-                labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
-                style={flexbox.alignSelfStart}
-              />
-            )}
             {shouldDisplayChangeHdPath && <ChangeHdPath />}
           </View>
         )}
@@ -445,7 +447,8 @@ const AccountsOnPageList = ({
                     {getAccounts({
                       accounts: slots[key],
                       shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                      slotIndex: i
+                      slotIndex: 1,
+                      byType: ['basic']
                     })}
                   </View>
                 )
@@ -453,6 +456,32 @@ const AccountsOnPageList = ({
             )}
           </ScrollableWrapper>
           <AnimatedDownArrow isVisible={shouldDisplayAnimatedDownArrow} />
+        </View>
+        <View
+          style={[
+            styles.smartAccountWrapper,
+            { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
+          ]}
+        >
+          <Text fontSize={16} weight="semiBold" style={spacings.mbSm}>
+            {t('Smart Accounts')}
+            {/* TODO: Add an info icon here with a tooltip */}
+          </Text>
+          <ScrollableWrapper>
+            {Object.keys(slots).map((key, i) => {
+              return (
+                <View key={key}>
+                  {getAccounts({
+                    accounts: slots[key],
+                    shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                    slotIndex: 1,
+                    byType: ['smart'],
+                    withQuaternaryBackground: true
+                  })}
+                </View>
+              )
+            })}
+          </ScrollableWrapper>
         </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <View
@@ -469,6 +498,8 @@ const AccountsOnPageList = ({
               </Text>
             </View>
           </View>
+        </View>
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           {!isImportingFromPrivateKey && (
             <Pagination
               page={state.page}
@@ -478,6 +509,7 @@ const AccountsOnPageList = ({
               hideLastPage
             />
           )}
+          {children}
         </View>
       </View>
     </AccountPickerIntroStepsProvider>

@@ -21,8 +21,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.ph,
       ...spacings.pv,
       width: '100%',
-      height: 52,
-      backgroundColor: theme.secondaryBackground
+      height: 52
     },
     networkIcon: {
       borderRadius: 50,

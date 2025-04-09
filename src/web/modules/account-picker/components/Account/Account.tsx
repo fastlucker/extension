@@ -9,11 +9,10 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import BadgeWithPreset from '@common/components/BadgeWithPreset'
-import Checkbox from '@common/components/Checkbox'
-import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useReverseLookup from '@common/hooks/useReverseLookup'
@@ -43,7 +42,9 @@ const Account = ({
   onDeselect,
   isDisabled,
   importStatus,
-  displayTypeBadge = true
+  displayTypeBadge = true,
+  withQuaternaryBackground = false,
+  displayTypePill = true
 }: {
   account: AccountInterface & { usedOnNetworks: Network[] }
   type: 'basic' | 'smart' | 'linked'
@@ -56,6 +57,8 @@ const Account = ({
   isDisabled?: boolean
   importStatus: ImportStatus
   displayTypeBadge?: boolean
+  withQuaternaryBackground?: boolean
+  displayTypePill?: boolean
 }) => {
   const { isLoading: isDomainResolving, ens } = useReverseLookup({ address: account.addr })
   const domainName = ens
@@ -116,13 +119,19 @@ const Account = ({
       ]}
       onPress={isDisabled ? undefined : toggleSelectedState}
     >
-      <View style={styles.container}>
-        <Checkbox
-          style={{ marginBottom: 0 }}
-          value={isSelected}
-          onValueChange={toggleSelectedState}
-          uncheckedBorderColor={theme.primaryText}
-          isDisabled={isDisabled}
+      <View
+        style={[
+          styles.container,
+          withQuaternaryBackground
+            ? { backgroundColor: theme.quaternaryBackground }
+            : { backgroundColor: theme.secondaryBackground }
+        ]}
+      >
+        <Toggle
+          isOn={isSelected}
+          onToggle={toggleSelectedState}
+          disabled={isDisabled}
+          style={flexbox.alignSelfStart}
         />
 
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
@@ -190,31 +199,34 @@ const Account = ({
                 </Pressable>
               )}
             </View>
-            {type === 'basic' ? (
-              <BadgeWithPreset
-                withRightSpacing
-                preset="basic-account"
-                {...(shouldAddIntroStepsIds
-                  ? {
-                      nativeID: BasicAccountIntroId
-                    }
-                  : {})}
-              />
-            ) : (
-              <BadgeWithPreset
-                withRightSpacing
-                preset="smart-account"
-                {...(shouldAddIntroStepsIds
-                  ? {
-                      nativeID: SmartAccountIntroId
-                    }
-                  : {})}
-              />
-            )}
-            {type === 'linked' && <BadgeWithPreset preset="linked" withRightSpacing />}
-            {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-              <BadgeWithPreset preset="ambire-v1" withRightSpacing />
-            )}
+            {displayTypePill ? (
+              <>
+                {type === 'basic' && (
+                  <BadgeWithPreset
+                    withRightSpacing
+                    preset="basic-account"
+                    {...(shouldAddIntroStepsIds && { nativeID: BasicAccountIntroId })}
+                  />
+                )}
+
+                {type === 'smart' && (
+                  <BadgeWithPreset
+                    withRightSpacing
+                    preset="smart-account"
+                    {...(shouldAddIntroStepsIds && { nativeID: SmartAccountIntroId })}
+                  />
+                )}
+
+                {type === 'linked' && (
+                  <>
+                    <BadgeWithPreset preset="linked" withRightSpacing />
+                    {isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+                      <BadgeWithPreset preset="ambire-v1" withRightSpacing />
+                    )}
+                  </>
+                )}
+              </>
+            ) : null}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {!!account.usedOnNetworks.length && (
@@ -245,7 +257,7 @@ const Account = ({
           </View>
         </View>
       </View>
-      {[
+      {/* {[
         ImportStatus.ImportedWithSomeOfTheKeys,
         ImportStatus.ImportedWithTheSameKeys,
         ImportStatus.ImportedWithDifferentKeys,
@@ -295,7 +307,7 @@ const Account = ({
             />
           )}
         </View>
-      )}
+      )} */}
     </Pressable>
   )
 }

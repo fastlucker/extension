@@ -1,16 +1,29 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-interface Styles {
+import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
+
+interface Style {
   spinner: ViewStyle
+  smartAccountWrapper: ViewStyle
 }
 
-const styles = StyleSheet.create<Styles>({
-  spinner: {
-    width: 28,
-    height: 28,
-    // Prevents the spinner from overflowing the container, causing an annoying vertical scrollbar
-    overflow: 'hidden'
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    spinner: {
+      width: 28,
+      height: 28,
+      // Prevents the spinner from overflowing the container, causing an annoying vertical scrollbar
+      overflow: 'hidden'
+    },
+    smartAccountWrapper: {
+      ...common.borderRadiusPrimary,
+      ...common.shadowPrimary,
+      ...spacings.phSm,
+      ...spacings.pvSm,
+      borderColor: `${String(theme.primary)}14`
+    }
+  })
 
-export default styles
+export default getStyles
