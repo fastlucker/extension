@@ -79,10 +79,13 @@ const useSwapAndBridgeForm = () => {
 
   const mainAccountOpActions = useMemo(() => {
     if (!account) return []
+    if (!fromSelectedToken) return []
     return (actionsQueue.filter((a) => a.type === 'accountOp') as AccountOpAction[]).filter(
-      (action) => action.accountOp.accountAddr === account.addr
+      (action) =>
+        action.accountOp.accountAddr === account.addr &&
+        action.accountOp.chainId.toString() === fromSelectedToken.chainId.toString()
     )
-  }, [account, actionsQueue])
+  }, [account, fromSelectedToken, actionsQueue])
   const isOneClickModeAllowed = useMemo(() => {
     return mainAccountOpActions.length === 0
   }, [mainAccountOpActions])
