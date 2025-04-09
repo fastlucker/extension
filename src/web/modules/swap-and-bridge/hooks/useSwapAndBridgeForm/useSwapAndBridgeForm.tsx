@@ -427,10 +427,7 @@ const useSwapAndBridgeForm = () => {
         openEstimationModal()
       } else {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
-          params: {
-            activeRouteId: quote.selectedRoute.routeId
-          }
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
         })
       }
     },
