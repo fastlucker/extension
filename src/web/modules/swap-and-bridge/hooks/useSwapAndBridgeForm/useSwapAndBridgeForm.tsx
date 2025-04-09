@@ -55,7 +55,6 @@ const useSwapAndBridgeForm = () => {
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
-  const [highPriceImpactConfirmed, setHighPriceImpactConfirmed] = useState<boolean>(false)
   const [isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled] = useState<boolean>(false)
   /**
    * @deprecated - the settings menu is not used anymore
@@ -72,6 +71,11 @@ const useSwapAndBridgeForm = () => {
     ref: estimationModalRef,
     open: openEstimationModal,
     close: closeEstimationModal
+  } = useModalize()
+  const {
+    ref: priceImpactModalRef,
+    open: openPriceImpactModal,
+    close: closePriceImpactModal
   } = useModalize()
   const { actionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
@@ -199,15 +203,6 @@ const useSwapAndBridgeForm = () => {
       setFollowUpTransactionConfirmed(false)
     }
   }, [followUpTransactionConfirmed, formStatus, updateQuoteStatus])
-
-  useEffect(() => {
-    if (
-      highPriceImpactConfirmed &&
-      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
-    ) {
-      setHighPriceImpactConfirmed(false)
-    }
-  }, [highPriceImpactConfirmed, formStatus, updateQuoteStatus])
 
   const {
     options: fromTokenOptions,
@@ -420,8 +415,17 @@ const useSwapAndBridgeForm = () => {
     }
   }, [quote, formStatus, fromAmount, fromAmountInFiat, fromSelectedToken, updateQuoteStatus])
 
+  const acknowledgeHighPriceImpact = useCallback(() => {
+    closePriceImpactModal()
+    openEstimationModal()
+  }, [closePriceImpactModal, openEstimationModal])
+
   const handleSubmitForm = useCallback(
     (isOneClickMode: boolean) => {
+      if (highPriceImpactInPercentage) {
+        openPriceImpactModal()
+        return
+      }
       if (!quote || !quote.selectedRoute) return
 
       // open the estimation modal on one click method;
@@ -434,7 +438,7 @@ const useSwapAndBridgeForm = () => {
         })
       }
     },
-    [dispatch, openEstimationModal, quote]
+    [dispatch, highPriceImpactInPercentage, openEstimationModal, openPriceImpactModal, quote]
   )
 
   /**
@@ -476,8 +480,9 @@ const useSwapAndBridgeForm = () => {
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
     highPriceImpactInPercentage,
-    highPriceImpactConfirmed,
-    setHighPriceImpactConfirmed,
+    priceImpactModalRef,
+    closePriceImpactModal,
+    acknowledgeHighPriceImpact,
     settingModalVisible,
     handleToggleSettingsMenu,
     handleSwitchFromAndToTokens,
