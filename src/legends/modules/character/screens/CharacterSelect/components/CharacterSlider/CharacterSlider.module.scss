@@ -33,7 +33,7 @@ $smallerSlideSize: 12rem;
       align-items: center;
       justify-content: center;
       transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-      filter: brightness(0) drop-shadow(0 0 0 #101114); // Simulate $primaryText color with background
+      filter: brightness(0) contrast(90%); // Simulate $primaryText color with background
       flex-shrink: 0;
       width: $smallerSlideSize;
       height: $smallerSlideSize;
