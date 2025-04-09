@@ -5,7 +5,6 @@ import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
@@ -89,6 +88,10 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
+    if (signAccountOpState?.estimationRetryError) {
+      setSlowRequest(false)
+      return
+    }
     const timeout = setTimeout(() => {
       // set the request to slow if the state is not init (no estimation)
       // or the gas prices haven't been fetched
@@ -105,7 +108,11 @@ const SignAccountOpScreen = () => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [signAccountOpState?.isInitialized, signAccountOpState?.gasPrices])
+  }, [
+    signAccountOpState?.isInitialized,
+    signAccountOpState?.gasPrices,
+    signAccountOpState?.estimationRetryError
+  ])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -139,8 +146,8 @@ const SignAccountOpScreen = () => {
   }, [accountOpAction?.id, dispatch])
 
   const network = useMemo(() => {
-    return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
-  }, [networks, signAccountOpState?.accountOp?.networkId])
+    return networks.find((n) => n.chainId === signAccountOpState?.accountOp?.chainId)
+  }, [networks, signAccountOpState?.accountOp?.chainId])
 
   const handleRejectAccountOp = useCallback(() => {
     if (!accountOpAction) return
@@ -371,9 +378,7 @@ const SignAccountOpScreen = () => {
           <Footer
             onReject={handleRejectAccountOp}
             onAddToCart={handleAddToCart}
-            isAddToCartDisplayed={
-              !!signAccountOpState && isSmartAccount(signAccountOpState.account)
-            }
+            isAddToCartDisplayed={!!signAccountOpState && !!network}
             isSignLoading={isSignLoading}
             isSignDisabled={
               isViewOnly ||

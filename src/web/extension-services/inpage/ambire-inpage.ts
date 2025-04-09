@@ -5,11 +5,6 @@ import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvide
 
 const ambireId = nanoid()
 
-export interface Interceptor {
-  onRequest?: (data: any) => any
-  onResponse?: (res: any, data: any) => any
-}
-
 interface EIP6963ProviderInfo {
   uuid: string
   name: string
@@ -28,44 +23,6 @@ interface EIP6963AnnounceProviderEvent extends CustomEvent {
 
 interface EIP6963RequestProviderEvent extends Event {
   type: 'eip6963:requestProvider'
-}
-
-// keep isMetaMask and remove isAmbire
-const impersonateMetamaskWhitelist = [
-  // layerzero
-  'bitcoinbridge.network',
-  'bridge.liquidswap.com',
-  'theaptosbridge.com',
-  'app.actafi.org',
-
-  // rainbow
-  'goal3.xyz',
-  'enso.finance',
-  'telx.network',
-  'link3.to',
-  'hypercerts.org',
-  'quickswap.exchange'
-]
-
-// keep isAmbire and remove isMetaMask
-const ambireHostList: string[] = []
-
-const isIncludesHost = (current: string, target: string) => {
-  return current === target || current.endsWith(`.${target}`)
-}
-
-const isInHostList = (list: string[], host: string) => {
-  return list.some((target) => isIncludesHost(host, target))
-}
-
-export const getProviderMode = (host: string) => {
-  if (isInHostList(impersonateMetamaskWhitelist, host)) {
-    return 'metamask'
-  }
-  if (isInHostList(ambireHostList, host)) {
-    return 'ambire'
-  }
-  return 'default'
 }
 
 declare global {
@@ -163,7 +120,7 @@ export async function forwardRpcRequests(url: string, method: any, params: any) 
 const provider = new EthereumProvider(forwardRpcRequests, () => foundDappRpcUrls)
 const ambireProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
-    if (typeof prop === 'string' && ['on', 'isAmbire', 'isMetaMask', '_isAmbire'].includes(prop)) {
+    if (typeof prop === 'string' && ['on', 'isAmbire', 'isMetaMask'].includes(prop)) {
       // @ts-ignore
       delete target[prop]
     }

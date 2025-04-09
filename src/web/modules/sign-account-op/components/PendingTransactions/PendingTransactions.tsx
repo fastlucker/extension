@@ -32,7 +32,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
     if (!accountOp) return
     const actualDependencyArrayAsString = stringify([
       accountOp.calls,
-      accountOp.networkId,
+      accountOp.chainId,
       accountOp.accountAddr
     ])
     const newAccountOpRelevantInfoHash = keccak256(toUtf8Bytes(actualDependencyArrayAsString))
@@ -60,7 +60,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
                 key={call.id}
                 style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                 call={call}
-                networkId={network.id}
+                chainId={network.chainId}
                 index={i}
               />
             )

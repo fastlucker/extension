@@ -28,7 +28,7 @@ const Header: FC<Props> = ({ openAddTokenBottomSheet }) => {
     >
       <View style={{ maxWidth: 512 }}>
         <Text appearance="primaryText" fontSize={20} style={spacings.mbMi} weight="medium">
-          {t('Manage Tokens')}
+          {t('Custom and hidden tokens')}
         </Text>
         <Text appearance="secondaryText">
           {t(

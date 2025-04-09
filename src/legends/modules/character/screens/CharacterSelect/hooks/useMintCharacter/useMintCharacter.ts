@@ -8,6 +8,7 @@ import { RETRY_OR_SUPPORT_MESSAGE } from '@legends/constants/errors/messages'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
+import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
@@ -59,6 +60,7 @@ const useMintCharacter = () => {
   const { connectedAccount } = useAccountContext()
   const { getCharacter, character } = useCharacterContext()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
+  const switchNetwork = useSwitchNetwork()
 
   const [isCheckingMintStatus, setIsCheckingMintStatus] = useState(true)
   const [isMinting, setIsMinting] = useState(false)
@@ -147,12 +149,7 @@ const useMintCharacter = () => {
   const mintCharacter = useCallback(
     async (type: number) => {
       try {
-        // Switch to Base chain
-        await window.ambire.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId }] // chainId must be in hexadecimal numbers
-        })
-
+        await switchNetwork()
         setIsMinting(true)
         setLoadingMessage(CharacterLoadingMessage.Signing)
 

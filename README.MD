@@ -1,6 +1,27 @@
 # Ambire Wallet
 
-Ambire is a Web3 wallet that makes self-custody easy and secure. It's the first hybrid Account abstraction wallet to support Basic (EOA) and Smart Accounts, improving security and user experience. [Read more.](https://www.ambire.com/)
+<div align="center">
+  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
+    <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
+  </a>
+
+  <p>
+    The secure & easy-to-use Web3 wallet. EIP-7702 ready.<br />
+    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
+      <strong>Download Extension for Webkit Browsers 🔥</strong>
+    </a>
+    <br />
+    <em>(Chrome, Brave, Opera, Edge, Arc)</em>
+    <br /><br />
+    💌 Request Invite Code:
+    <a href="https://discord.com/invite/Ambire" target="_blank">Discord</a> |
+    <a href="https://t.me/AmbireOfficial" target="_blank">Telegram</a>
+    <br />
+    🐞
+    <a href="https://github.com/AmbireTech/extension/issues">Report a Bug</a> ·
+    <a href="https://forum.ambire.com/" target="_blank">Request Features</a>
+  </p>
+</div>
 
 ## Environment Setup
 

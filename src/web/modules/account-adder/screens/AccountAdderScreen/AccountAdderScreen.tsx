@@ -20,7 +20,6 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
-import Stepper from '@web/modules/router/components/Stepper'
 
 export interface Account {
   type: string
@@ -63,11 +62,7 @@ const AccountAdderScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="lg"
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={
         <>
           {showBackButton && <BackButton onPress={handleGoBack} />}

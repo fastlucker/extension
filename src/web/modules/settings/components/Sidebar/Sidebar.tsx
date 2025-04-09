@@ -97,7 +97,7 @@ export const SETTINGS_LINKS = [
   {
     key: 'manage-tokens',
     Icon: React.memo(CustomTokensIcon),
-    label: 'Manage Tokens',
+    label: 'Custom Tokens',
     path: ROUTES.manageTokens
   }
 ]

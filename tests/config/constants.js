@@ -10,19 +10,18 @@ const parseEnvVariables = (envVariables, prefix) => {
 
   const params = {
     parsedKeystoreAccounts: JSON.parse(envVariables[`${prefix}_ACCOUNTS`]),
-    parsedIsDefaultWallet: envVariables[`${prefix}_IS_DEFAULT_WALLET`],
-    parsedKeyPreferences: JSON.parse(envVariables[`${prefix}_KEY_PREFERENCES`]),
     parsedKeystoreUID: envVariables[`${prefix}_KEYSTORE_UID`],
     parsedKeystoreKeys: JSON.parse(envVariables[`${prefix}_KEYS`]),
     parsedKeystoreSecrets: JSON.parse(envVariables[`${prefix}_SECRETS`]),
-    parsedNetworkPreferences: JSON.parse(envVariables[`${prefix}_NETWORK_PREFERENCES`]),
+    parsedKeystoreSeeds: JSON.parse(envVariables[`${prefix}_SEEDS`]),
     parsedNetworksWithAssetsByAccount: JSON.parse(envVariables[`${prefix}_NETWORK_WITH_ASSETS`]),
+    parsedNetworksWithPositionsByAccount: JSON.parse(
+      envVariables[`${prefix}_NETWORK_WITH_POSITIONS`]
+    ),
     parsedOnboardingState: JSON.parse(envVariables[`${prefix}_ONBOARDING_STATE`]),
-    envPermission: envVariables[`${prefix}_PERMISSION`],
     parsedPreviousHints: JSON.parse(envVariables[`${prefix}_PREVIOUSHINTS`]),
     envSelectedAccount: envVariables[`${prefix}_SELECTED_ACCOUNT`],
     envTermState: envVariables[`${prefix}_TERMSTATE`],
-    parsedTokenItems: JSON.parse(envVariables[`${prefix}_TOKEN_ITEMS`]),
     invite: JSON.stringify(INVITE_STORAGE_ITEM),
     ...(prefix === 'SA' && { parsedIsOnBoarded: envVariables[`${prefix}_IS_ONBOARDED`] })
   }

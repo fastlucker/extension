@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
 
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle'
@@ -63,4 +63,4 @@ const Toast = ({ message, type, id }: ToastProps) => {
   )
 }
 
-export default Toast
+export default memo(Toast)

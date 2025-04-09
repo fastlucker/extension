@@ -79,7 +79,7 @@ export class ProviderController {
   }
 
   getDappNetwork = (origin: string) => {
-    const defaultNetwork = this.mainCtrl.networks.networks.find((n) => n.id === 'ethereum')
+    const defaultNetwork = this.mainCtrl.networks.networks.find((n) => n.chainId === 1n)
     if (!defaultNetwork)
       throw new Error(
         'Missing default network data, which should never happen. Please contact support.'
@@ -101,8 +101,8 @@ export class ProviderController {
       session: { origin }
     } = request
 
-    const networkId = this.getDappNetwork(origin).id
-    const provider = this.mainCtrl.providers.providers[networkId]
+    const chainId = this.getDappNetwork(origin).chainId
+    const provider = this.mainCtrl.providers.providers[chainId.toString()]
 
     if (!this.mainCtrl.dapps.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
@@ -118,7 +118,7 @@ export class ProviderController {
 
     const account = this._internalGetAccounts(origin)
 
-    this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
+    await this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
   }
@@ -144,7 +144,8 @@ export class ProviderController {
         )
         if (!network) return
 
-        const portfolioNetwork = this.mainCtrl.selectedAccount.portfolio.pending[network.id]
+        const portfolioNetwork =
+          this.mainCtrl.selectedAccount.portfolio.pending[network.chainId.toString()]
         if (!portfolioNetwork) return
 
         totalBalance += portfolioNetwork.result?.total.usd || 0
@@ -192,10 +193,10 @@ export class ProviderController {
 
       tokens.forEach((requestedTokenAddress) => {
         const token = (tokensInPortfolio || []).find(
-          ({ address, networkId, amount, amountPostSimulation }) => {
+          ({ address, chainId: tChainId, amount, amountPostSimulation }) => {
             return (
               address === requestedTokenAddress &&
-              networkId === network.id &&
+              tChainId === network.chainId &&
               (typeof amount === 'bigint' || typeof amountPostSimulation === 'bigint')
             )
           }
@@ -208,8 +209,7 @@ export class ProviderController {
           metadata: {
             symbol: token.symbol,
             decimals: token.decimals,
-            // @NOTE: by the ERC7811 standard this should be name, not symbol, but we do not store token names
-            name: token.symbol
+            name: token.name
           }
         })
       })
@@ -303,7 +303,7 @@ export class ProviderController {
       return true
     }
   ])
-  walletAddEthereumChain = ({
+  walletAddEthereumChain = async ({
     params: [chainParams],
     session: { origin, name }
   }: ProviderRequest) => {
@@ -326,7 +326,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.mainCtrl.dapps.broadcastDappSessionEvent(
+    await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: `0x${network.chainId.toString(16)}`,
@@ -356,16 +356,19 @@ export class ProviderController {
 
     const capabilities: any = {}
     this.mainCtrl.networks.networks.forEach((network) => {
+      const accountState =
+        this.mainCtrl.accounts.accountStates[accountAddr][network.chainId.toString()]
+      const isSmart = !accountState.isEOA || accountState.isSmarterEoa
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
-          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+          supported: true
         },
         auxiliaryFunds: {
-          supported: !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA
+          supported: isSmart
         },
         paymasterService: {
           supported:
-            !this.mainCtrl.accounts.accountStates[accountAddr][network.id].isEOA &&
+            isSmart &&
             // enabled: obvious, it means we're operaring with 4337
             // hasBundlerSupport means it might not be 4337 but we support it
             // our default may be the relayer but we will broadcast an userOp
@@ -407,7 +410,9 @@ export class ProviderController {
     }
 
     const dappNetwork = this.getDappNetwork(data.session.origin)
-    const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const network = this.mainCtrl.networks.networks.filter(
+      (n) => n.chainId === dappNetwork.chainId
+    )[0]
     const txnIdData = await fetchTxnId(
       identifiedBy,
       network,
@@ -482,7 +487,9 @@ export class ProviderController {
     }
 
     const dappNetwork = this.getDappNetwork(data.session.origin)
-    const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const network = this.mainCtrl.networks.networks.filter(
+      (n) => n.chainId === dappNetwork.chainId
+    )[0]
     const chainId = Number(network.chainId)
 
     const link = `https://benzin.ambire.com/${getBenzinUrlParams({
@@ -521,7 +528,7 @@ export class ProviderController {
       return true
     }
   ])
-  walletSwitchEthereumChain = ({
+  walletSwitchEthereumChain = async ({
     params: [chainParams],
     session: { origin, name }
   }: ProviderRequest) => {
@@ -543,7 +550,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.mainCtrl.dapps.broadcastDappSessionEvent(
+    await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: `0x${network.chainId.toString(16)}`,

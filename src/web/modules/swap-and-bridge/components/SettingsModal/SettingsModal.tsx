@@ -110,7 +110,7 @@ const SettingsModal: React.FC<Props> = ({ handleToggleSettingsMenu, settingModal
 
   return (
     <>
-      <View ref={settingButtonRef}>
+      <View ref={settingButtonRef} testID="route-priority-sab">
         <Pressable onPress={handleToggleSettingsMenu} {...bindAnim}>
           <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate || '0deg' }] }}>
             <SettingsIcon

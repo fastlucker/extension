@@ -1,45 +1,44 @@
 // @ts-nocheck
 
 import { ethErrors } from 'eth-rpc-errors'
-import { toBeHex } from 'ethers'
 
 class PushEventHandlers {
-  provider
+  #provider
 
   constructor(provider) {
-    this.provider = provider
+    this.#provider = provider
   }
 
   _emit(event, data) {
-    if (this.provider._initialized) {
-      this.provider.emit(event, data)
+    if (this.#provider._initialized) {
+      this.#provider.emit(event, data)
     }
   }
 
   connect = (data) => {
-    if (!this.provider._isConnected) {
-      this.provider._isConnected = true
-      this.provider._state.isConnected = true
+    if (!this.#provider._isConnected) {
+      this.#provider._isConnected = true
+      this.#provider._state.isConnected = true
       this._emit('connect', data)
     }
   }
 
   unlock = (accounts) => {
-    this.provider._isUnlocked = true
-    this.provider._state.isUnlocked = true
+    this.#provider._isUnlocked = true
+    this.#provider._state.isUnlocked = true
     this._emit('accountsChanged', accounts)
   }
 
   lock = () => {
-    this.provider._isUnlocked = false
+    this.#provider._isUnlocked = false
     this._emit('accountsChanged', [])
   }
 
   disconnect = () => {
-    this.provider._isConnected = false
-    this.provider._state.isConnected = false
-    this.provider._state.accounts = null
-    this.provider.selectedAddress = null
+    this.#provider._isConnected = false
+    this.#provider._state.isConnected = false
+    this.#provider._state.accounts = null
+    this.#provider.selectedAddress = null
     const disconnectError = ethErrors.provider.disconnected()
 
     this._emit('accountsChanged', [])
@@ -48,32 +47,26 @@ class PushEventHandlers {
   }
 
   accountsChanged = (accounts) => {
-    if (accounts?.[0] === this.provider.selectedAddress) {
+    if (accounts?.[0] === this.#provider.selectedAddress) {
       return
     }
 
-    this.provider.selectedAddress = accounts?.[0]
-    this.provider._state.accounts = accounts
+    this.#provider.selectedAddress = accounts?.[0]
+    this.#provider._state.accounts = accounts
     this._emit('accountsChanged', accounts)
   }
 
   chainChanged = ({ chain, networkVersion }) => {
     this.connect({ chainId: chain })
 
-    if (chain !== this.provider.chainId) {
-      this.provider.chainId = chain
+    if (chain !== this.#provider.chainId) {
+      this.#provider.chainId = chain
       this._emit('chainChanged', chain)
     }
 
-    if (networkVersion !== this.provider.networkVersion) {
-      this.provider.networkVersion = networkVersion
+    if (networkVersion !== this.#provider.networkVersion) {
+      this.#provider.networkVersion = networkVersion
       this._emit('networkChanged', networkVersion)
-    }
-  }
-
-  'ambire:chainChanged' = (network) => {
-    if (network && toBeHex(network?.chainId) !== this.provider.chainId?.toLowerCase()) {
-      this._emit('ambire:chainChanged', network)
     }
   }
 }

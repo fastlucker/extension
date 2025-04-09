@@ -3,7 +3,6 @@ import { Animated, Pressable, View } from 'react-native'
 
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -20,7 +19,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import GasTankButton from '../DashboardHeader/GasTankButton'
@@ -83,7 +81,7 @@ const DashboardOverview: FC<Props> = ({
 
     if (!account) return 0
 
-    return Number(portfolio?.latest?.[dashboardNetworkFilter]?.result?.total?.usd) || 0
+    return Number(portfolio?.latest?.[dashboardNetworkFilter.toString()]?.result?.total?.usd) || 0
   }, [portfolio, dashboardNetworkFilter, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
@@ -95,7 +93,7 @@ const DashboardOverview: FC<Props> = ({
     dispatch({
       type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT',
       params: {
-        networkId: dashboardNetworkFilter ?? undefined
+        chainId: dashboardNetworkFilter ?? undefined
       }
     })
   }, [dashboardNetworkFilter, dispatch])

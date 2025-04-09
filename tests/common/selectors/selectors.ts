@@ -67,6 +67,8 @@ export const TEST_IDS = {
   collectibleRow: 'collectible-row',
   addressBookMyWalletContactDyn: 'address-book-my-wallet-contact',
   dashboardButtonSend: 'dashboard-button-send',
+  dashboardButtonSwapAndBridge: 'dashboard-button-swap-and-bridge',
+  continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
   transferButtonConfirm: 'transfer-button-confirm',
@@ -88,12 +90,29 @@ export const TEST_IDS = {
   proceedBtn: 'proceed-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
-  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-base',
+  nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-8453',
   bannerButtonOpen: 'banner-button-open',
   confettiModalActionButton: 'confetti-modal-action-button',
   refreshButton: 'refresh-button',
   dashboardGasTankButton: 'dashboard-gas-tank-button',
-  createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button'
+  createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button',
+  recieveNetworkBase: 'option-8453',
+  recieveNetworkOptimism: 'option-10',
+  confirmFollowUpTxn: 'confirm-follow-up-txns-checkbox',
+  USDC: 'option-0x0b2c639c533813f4aa9d7837caf62653d097ff85.usdc',
+  signTransactionButton: 'transaction-button-sign',
+  maxAvailableAmount: 'max-available-amount',
+  searchInput: 'search-input',
+  // Swap & Bridge selectors
+  sendTokenSab: 'from-token-select',
+  receiveTokenSab: 'to-token-select',
+  routeLoadingTextSab: 'route-loading-text-sab',
+  fromAmountInputSab: 'from-amount-input-sab',
+  switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
+  switchCurrencySab: 'switch-currency-sab',
+  routePrioritySab: 'route-priority-sab',
+  highPriceImpactSab: 'high-price-impact-sab',
+  signButtonSab: 'button-sign'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

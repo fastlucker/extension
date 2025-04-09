@@ -5,7 +5,6 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 import AutoLockDeviceControlOption from './components/AutoLockDeviceControlOption'
-import DefaultWalletControlOption from './components/DefaultWalletControlOption'
 import LockAmbireControlOption from './components/LockAmbireControlOption'
 
 const GeneralSettingsScreen = () => {
@@ -21,7 +20,6 @@ const GeneralSettingsScreen = () => {
       <View>
         <LockAmbireControlOption />
         <AutoLockDeviceControlOption />
-        <DefaultWalletControlOption />
       </View>
     </>
   )

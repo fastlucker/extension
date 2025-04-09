@@ -1,15 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Linking, Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import CloseIcon from '@common/assets/svg/CloseIcon'
-import Alert from '@common/components/Alert'
+import ToastComponent from '@common/components/Toast'
 import { isWeb } from '@common/config/env'
-import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
+import { SPACING_TY } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'
-import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
@@ -23,16 +20,14 @@ export interface ToastOptions {
   sticky?: boolean
   badge?: string
   isTypeLabelHidden?: boolean
-}
-
-interface Toast extends ToastOptions {
-  id: number
-  text: string
   url?: string
   onClick?: () => void
 }
 
-const { isPopup } = getUiType()
+export interface Toast extends ToastOptions {
+  id: number
+  text: string
+}
 
 // Magic spacing for positioning the toast list
 // to match exactly the area of the header + its bottom spacing
@@ -55,7 +50,6 @@ const defaultOptions = {
 let nextToastId = 0
 
 const ToastProvider = ({ children }: Props) => {
-  const { theme } = useTheme()
   const [toasts, setToasts] = useState<Toast[]>([])
   const insets = useSafeAreaInsets()
 
@@ -88,14 +82,6 @@ const ToastProvider = ({ children }: Props) => {
     [setToasts, removeToast]
   )
 
-  const onToastPress = useCallback(
-    (_id: number, onClick?: () => void, url?: string) => {
-      if (url) Linking.openURL(url)
-      onClick ? onClick() : removeToast(_id)
-    },
-    [removeToast]
-  )
-
   const topInset = insets.top + HEADER_HEIGHT + (isWeb ? 0 : ADDITIONAL_TOP_SPACING_MOBILE)
 
   return (
@@ -110,30 +96,17 @@ const ToastProvider = ({ children }: Props) => {
     >
       <Portal hostName="global">
         <View style={[styles.container, { top: topInset }]}>
-          {toasts.map(({ id, url, type = 'success', sticky, text, onClick, isTypeLabelHidden }) => (
-            <Pressable
-              onPress={() => onToastPress(id, onClick, url)}
-              style={styles.toastWrapper}
+          {toasts.map(({ id, type, text, url, onClick, isTypeLabelHidden = true }) => (
+            <ToastComponent
               key={id}
-              testID={`${type}-${id}`}
-            >
-              <Alert
-                size={isPopup ? 'sm' : 'md'}
-                title={text}
-                type={type}
-                style={{ borderWidth: 2 }}
-                isTypeLabelHidden={isTypeLabelHidden}
-              >
-                {!!sticky && (
-                  <Pressable
-                    style={{ marginLeft: 'auto', ...spacings.mtMi }}
-                    onPress={() => removeToast(id)}
-                  >
-                    <CloseIcon color={theme[`${type}Decorative`]} />
-                  </Pressable>
-                )}
-              </Alert>
-            </Pressable>
+              id={id}
+              text={text}
+              type={type}
+              removeToast={removeToast}
+              isTypeLabelHidden={isTypeLabelHidden}
+              url={url}
+              onClick={onClick}
+            />
           ))}
         </View>
       </Portal>

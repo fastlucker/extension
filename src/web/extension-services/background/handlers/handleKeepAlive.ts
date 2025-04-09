@@ -44,4 +44,12 @@ export const handleKeepAlive = () => {
     const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
     setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
   }
+
+  browser.runtime.onMessage.addListener(
+    (message: any, _: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+      if (message === 'ping') sendResponse('pong')
+    }
+  )
+  // Notifies all open extension tabs/windows/popups that the service worker/background script has reactivated
+  browser.runtime.sendMessage({ action: 'sw-started' })
 }

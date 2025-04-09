@@ -1,6 +1,8 @@
 export type ActivityTransaction = {
   txId: string
+  userOpHash?: string
   network: string
+  chainId: number
   submittedAt: string
   txns: { id: string; amount: number; status: string }[][] | null
   legends: {

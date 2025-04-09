@@ -16,13 +16,11 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import {
   TabLayoutContainer,
-  tabLayoutWidths,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import storage from '@web/extension-services/background/webapi/storage'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
-import Stepper from '@web/modules/router/components/Stepper'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
@@ -106,11 +104,7 @@ const KeyStoreSetupScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="xs"
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={
         <>
           <BackButton />

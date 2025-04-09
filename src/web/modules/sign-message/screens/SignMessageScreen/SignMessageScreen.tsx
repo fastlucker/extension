@@ -9,23 +9,12 @@ import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRe
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
 import { EIP_1271_NOT_SUPPORTED_BY } from '@ambire-common/libs/signMessage/signMessage'
-import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
-import Alert from '@common/components/Alert'
-import ExpandableCard from '@common/components/ExpandableCard'
-import HumanizedVisualization from '@common/components/HumanizedVisualization'
-import NetworkBadge from '@common/components/NetworkBadge'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
-import {
-  TabLayoutContainer,
-  TabLayoutWrapperMainContent
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -33,13 +22,11 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
-import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
-import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
-import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
-import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 
+import Authorization7702 from './Contents/authorization7702'
+import Main from './Contents/main'
 import getStyles from './styles'
 
 const SignMessageScreen = () => {
@@ -54,9 +41,10 @@ const SignMessageScreen = () => {
   const { isLedgerConnected } = useLedger()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
+  const [makeItSmartConfirmed, setMakeItSmartConfirmed] = useState(false)
+  const [doNotAskMeAgain, setDoNotAskMeAgain] = useState(false)
   const actionState = useActionsControllerState()
-  const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { styles } = useTheme(getStyles)
 
   const signMessageAction = useMemo(() => {
     if (actionState.currentAction?.type !== 'signMessage') return undefined
@@ -66,10 +54,22 @@ const SignMessageScreen = () => {
 
   const userRequest = useMemo(() => {
     if (!signMessageAction) return undefined
-    if (!['typedMessage', 'message'].includes(signMessageAction.userRequest.action.kind))
+    if (
+      !['typedMessage', 'message', 'authorization-7702'].includes(
+        signMessageAction.userRequest.action.kind
+      )
+    )
       return undefined
 
     return signMessageAction.userRequest
+  }, [signMessageAction])
+
+  const isAuthorization = useMemo(() => {
+    if (!signMessageAction) return false
+    if (signMessageAction.userRequest.action.kind !== 'authorization-7702') return false
+    if (!signMessageAction.userRequest.meta.show7702Info) return false
+
+    return true
   }, [signMessageAction])
 
   const selectedAccountKeyStoreKeys = useMemo(
@@ -83,7 +83,7 @@ const SignMessageScreen = () => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
           ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
-          : n.id === signMessageState.messageToSign?.networkId
+          : n.chainId === signMessageState.messageToSign?.chainId
       }),
     [networks, signMessageState.messageToSign]
   )
@@ -109,14 +109,6 @@ const SignMessageScreen = () => {
     [hasReachedBottom, visualizeHumanized]
   )
 
-  const shouldDisplayEIP1271Warning = useMemo(() => {
-    const dappOrigin = userRequest?.session?.origin
-
-    if (!dappOrigin || !isSmartAccount(account)) return false
-
-    return EIP_1271_NOT_SUPPORTED_BY.some((origin) => dappOrigin.includes(origin))
-  }, [account, userRequest?.session?.origin])
-
   useEffect(() => {
     if (!userRequest || !signMessageAction) return
 
@@ -129,7 +121,7 @@ const SignMessageScreen = () => {
         },
         messageToSign: {
           accountAddr: userRequest.meta.accountAddr,
-          networkId: userRequest.meta.networkId,
+          chainId: userRequest.meta.chainId,
           content: userRequest.action as PlainTextMessage | TypedMessage,
           fromActionId: signMessageAction.id,
           signature: null
@@ -149,12 +141,21 @@ const SignMessageScreen = () => {
 
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.'), id: userRequest.id }
+      params: {
+        err: t('User rejected the request.'),
+        id: userRequest.id
+      }
     })
   }
 
   const handleSign = useCallback(
     (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
+      if (isAuthorization && !makeItSmartConfirmed) {
+        setMakeItSmartConfirmed(true)
+        setDoNotAskMeAgain(false)
+        return
+      }
+
       // Has more than one key, should first choose the key to sign with
       const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
       const hasMultipleKeys = selectedAccountKeyStoreKeys.length > 1
@@ -180,7 +181,13 @@ const SignMessageScreen = () => {
         params: { keyAddr, keyType }
       })
     },
-    [dispatch, isLedgerConnected, selectedAccountKeyStoreKeys]
+    [
+      dispatch,
+      isLedgerConnected,
+      selectedAccountKeyStoreKeys,
+      makeItSmartConfirmed,
+      isAuthorization
+    ]
   )
 
   const resolveButtonText = useMemo(() => {
@@ -188,17 +195,37 @@ const SignMessageScreen = () => {
 
     if (signStatus === 'LOADING') return t('Signing...')
 
+    if (isAuthorization && !makeItSmartConfirmed) return 'Add smart features'
+
     return t('Sign')
-  }, [isScrollToBottomForced, signStatus, t])
+  }, [isScrollToBottomForced, signStatus, t, isAuthorization, makeItSmartConfirmed])
+
+  const rejectButtonText = useMemo(() => {
+    if (isAuthorization && doNotAskMeAgain) return 'Skip'
+    if (isAuthorization) return 'Skip for now'
+    return 'Reject'
+  }, [isAuthorization, doNotAskMeAgain])
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setShouldDisplayLedgerConnectModal(false)
   }, [])
 
+  const shouldDisplayEIP1271Warning = useMemo(() => {
+    const dappOrigin = userRequest?.session?.origin
+
+    if (!dappOrigin || !isSmartAccount(account)) return false
+
+    return EIP_1271_NOT_SUPPORTED_BY.some((origin) => dappOrigin.includes(origin))
+  }, [account, userRequest?.session?.origin])
+
+  const onDoNotAskMeAgainChange = useCallback(() => {
+    setDoNotAskMeAgain(!doNotAskMeAgain)
+  }, [doNotAskMeAgain])
+
   // In the split second when the action window opens, but the state is not yet
   // initialized, to prevent a flash of the fallback visualization, show a
   // loading spinner instead (would better be a skeleton, but whatever).
-  if (!signMessageState.isInitialized || !account) {
+  if (!signMessageState.isInitialized || !account || !signMessageAction) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
@@ -217,6 +244,7 @@ const SignMessageScreen = () => {
           resolveButtonText={resolveButtonText}
           resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
           resolveButtonTestID="button-sign"
+          rejectButtonText={rejectButtonText}
         />
       }
     >
@@ -238,107 +266,22 @@ const SignMessageScreen = () => {
           />
         </View>
       )}
-      <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            flexbox.justifySpaceBetween,
-            spacings.mbLg
-          ]}
-        >
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Text weight="medium" fontSize={24} style={[spacings.mrSm]}>
-              {t('Sign message')}
-            </Text>
-            <NetworkBadge
-              style={{ borderRadius: 25, ...spacings.pv0 }}
-              networkId={signMessageState.messageToSign?.networkId}
-              withOnPrefix
-            />
-          </View>
-          {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
-          <View style={styles.kindOfMessage}>
-            <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
-              {t(
-                signMessageState.messageToSign?.content.kind === 'typedMessage'
-                  ? 'EIP-712'
-                  : 'Standard'
-              )}{' '}
-              {t('Type')}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.container}>
-          <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
-            <Info />
-            {shouldDisplayEIP1271Warning && (
-              <Alert
-                type="error"
-                title="This app has been flagged to not support Smart Account signatures."
-                text="If you encounter issues, please use a Basic Account and contact the app to resolve this."
-              />
-            )}
-          </View>
-          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
-          <View style={flexbox.flex1}>
-            <ExpandableCard
-              enableToggleExpand={!!visualizeHumanized}
-              isInitiallyExpanded={!visualizeHumanized}
-              hasArrow={!!visualizeHumanized}
-              style={{ ...spacings.mbTy, maxHeight: '100%' }}
-              content={
-                visualizeHumanized &&
-                // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
-                humanizedMessage?.fullVisualization &&
-                signMessageState.messageToSign?.content.kind ? (
-                  <HumanizedVisualization
-                    data={humanizedMessage.fullVisualization}
-                    networkId={network?.id || 'ethereum'}
-                  />
-                ) : (
-                  <>
-                    <View style={spacings.mrTy}>
-                      <ErrorOutlineIcon width={24} height={24} />
-                    </View>
-                    <Text fontSize={maxWidthSize('xl') ? 16 : 12} appearance="warningText">
-                      <Text
-                        fontSize={maxWidthSize('xl') ? 16 : 12}
-                        appearance="warningText"
-                        weight="semiBold"
-                      >
-                        {t('Warning: ')}
-                      </Text>
-                      {t('Please read the whole message as we are unable to translate it!')}
-                    </Text>
-                  </>
-                )
-              }
-              expandedContent={
-                <FallbackVisualization
-                  setHasReachedBottom={setHasReachedBottom}
-                  hasReachedBottom={!!hasReachedBottom}
-                  messageToSign={signMessageState.messageToSign}
-                />
-              }
-            />
-          </View>
-          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
-            <HardwareWalletSigningModal
-              keyType={signMessageState.signingKeyType}
-              isVisible={signStatus === 'LOADING'}
-            />
-          )}
-          {shouldDisplayLedgerConnectModal && (
-            <LedgerConnectModal
-              isVisible={!isLedgerConnected}
-              handleOnConnect={handleDismissLedgerConnectModal}
-              handleClose={handleDismissLedgerConnectModal}
-              displayOptionToAuthorize={false}
-            />
-          )}
-        </View>
-      </TabLayoutWrapperMainContent>
+      {isAuthorization && !makeItSmartConfirmed ? (
+        <Authorization7702
+          onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
+          doNotAskMeAgain={doNotAskMeAgain}
+          displayFullInformation
+        />
+      ) : (
+        <Main
+          shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+          isLedgerConnected={isLedgerConnected}
+          handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+          hasReachedBottom={hasReachedBottom}
+          setHasReachedBottom={setHasReachedBottom}
+          shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
+        />
+      )}
     </TabLayoutContainer>
   )
 }

@@ -83,7 +83,7 @@ const InnerToken: FC<Props> = ({
         <TokenIcon
           width={24 * sizeMultiplierSize}
           height={24 * sizeMultiplierSize}
-          networkId={network?.id}
+          chainId={network?.chainId}
           address={address}
           withNetworkIcon={false}
         />

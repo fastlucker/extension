@@ -26,7 +26,6 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
-import Stepper from '@web/modules/router/components/Stepper'
 
 const CreateSeedPhraseConfirmScreen = () => {
   const {
@@ -84,11 +83,7 @@ const CreateSeedPhraseConfirmScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={
         <>
           <BackButton

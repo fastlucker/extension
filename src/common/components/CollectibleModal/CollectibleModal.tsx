@@ -23,7 +23,7 @@ const { isTab } = getUiType()
 export type SelectedCollectible = {
   address: string
   name: string
-  networkId: string
+  chainId: bigint
   lastPrice: string
   id: bigint
   image: string
@@ -48,8 +48,8 @@ const CollectibleModal = ({
   const ModalInner = useCallback(() => {
     if (!selectedCollectible) return null
 
-    const { address, image, name, collectionName, networkId, id, lastPrice } = selectedCollectible
-    const networkData = networks.find(({ id: nId }) => networkId === nId)
+    const { address, image, name, collectionName, chainId, id, lastPrice } = selectedCollectible
+    const networkData = networks.find(({ chainId: networkChainId }) => chainId === networkChainId)
     return (
       <>
         <ManifestImage

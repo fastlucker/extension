@@ -186,7 +186,7 @@ export async function checkTokenBalanceClickOnGivenActionInDashboard(
   page,
   selectedToken,
   selectedAction,
-  minBalance = 0.0001
+  minBalance = 0.00001
 ) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
@@ -265,12 +265,12 @@ async function prepareSwapLegacy(page) {
   // Select USDT and USDC tokens for swap
   await clickOnElement(page, 'xpath///span[contains(text(), "POL")]')
 
-  await selectTokenInUni(page, 'common-base-USDT')
+  await selectTokenInUni(page, 'common-8453-USDT')
 
   // Click on 'Select token' and select 'USDC' token
   await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
-  await selectTokenInUni(page, 'common-base-USDC')
+  await selectTokenInUni(page, 'common-8453-USDC')
 }
 
 async function prepareSwap(page) {

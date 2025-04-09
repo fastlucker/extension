@@ -23,7 +23,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
   const {
@@ -92,11 +91,7 @@ const PrivateKeyImportScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="md"
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={
         <>
           <BackButton fallbackBackRoute={ROUTES.dashboard} />

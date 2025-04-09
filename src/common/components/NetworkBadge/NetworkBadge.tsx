@@ -2,7 +2,7 @@ import React, { FC, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Text, { TextWeight } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -10,34 +10,36 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-import NetworkIcon from '../NetworkIcon'
-
 interface Props {
-  networkId?: Network['id']
+  chainId?: bigint
   withOnPrefix?: boolean
   style?: ViewStyle
   fontSize?: number
   weight?: TextWeight
   iconSize?: number
+  renderNetworkName?: (networkName: string) => React.ReactNode
 }
 
 const NetworkBadge: FC<Props> = ({
-  networkId,
+  chainId,
   withOnPrefix,
   style,
   fontSize = 16,
   weight,
-  iconSize = 32
+  iconSize = 32,
+  renderNetworkName
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { networks } = useNetworksControllerState()
 
-  const networkName = useMemo(() => {
-    return networks.find((network) => network.id === networkId)?.name
-  }, [networkId, networks])
+  const network = useMemo(() => {
+    return networks.find((n) => n.chainId === chainId)
+  }, [chainId, networks])
 
-  if (!networkId) return null
+  const networkName = useMemo(() => network?.name || t('Unknown network'), [network?.name, t])
+
+  if (!chainId) return null
 
   return (
     <View
@@ -58,9 +60,13 @@ const NetworkBadge: FC<Props> = ({
             on{' '}
           </Text>
         ) : null}
-        {networkName || t('Unknown network')}
+        {!renderNetworkName ? networkName : renderNetworkName(networkName)}
       </Text>
-      <NetworkIcon style={{ backgroundColor: 'transparent' }} id={networkId} size={iconSize} />
+      <NetworkIcon
+        style={{ backgroundColor: 'transparent' }}
+        id={network?.chainId.toString() || ''}
+        size={iconSize}
+      />
     </View>
   )
 }

@@ -1,12 +1,10 @@
 import { formatUnits } from 'ethers'
 
-import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import {
   FeeSpeed,
   SignAccountOpController
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { Network } from '@ambire-common/interfaces/network'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 
 import PayOption from './components/PayOption'
@@ -69,45 +67,8 @@ const sortFeeOptions = (
   return 0
 }
 
-const getDummyFeeOptions = (
-  networkId: Network['id'],
-  accountAddr: string
-): (FeePaymentOption & { dummy: boolean })[] => {
-  const feeOptions = []
-  const networkGasTankFeeTokens = gasTankFeeTokens.filter((token) => token.networkId === networkId)
-  const limit = networkGasTankFeeTokens.length < 4 ? networkGasTankFeeTokens.length : 4
-  for (let i = 0; i < limit; i++) {
-    const token = networkGasTankFeeTokens[i]
-    const shouldPushAsGasTankToken = i < 2
-    // Push 2 tokens as gas tank tokens and 2 as regular ERC20 tokens
-    feeOptions.push({
-      dummy: true,
-      addedNative: 0n,
-      availableAmount: 0n,
-      gasUsed: 0n,
-      paidBy: accountAddr,
-      token: {
-        networkId,
-        decimals: token.decimals,
-        symbol: token.symbol.toUpperCase(),
-        address: token.address,
-        amount: 0n,
-        flags: {
-          onGasTank: shouldPushAsGasTankToken,
-          canTopUpGasTank: false,
-          isFeeToken: true,
-          rewardsType: null
-        },
-        priceIn: []
-      }
-    })
-  }
-
-  return feeOptions
-}
-
 const mapFeeOptions = (
-  feeOption: FeePaymentOption & { dummy?: boolean },
+  feeOption: FeePaymentOption,
   signAccountOpState: SignAccountOpController
 ) => {
   let disabledReason: string | undefined
@@ -125,10 +86,6 @@ const mapFeeOptions = (
 
   if (!speedCoverage.includes(FeeSpeed.Slow)) {
     disabledReason = 'Insufficient amount'
-  }
-
-  if (feeOption.dummy) {
-    disabledReason = 'Only available on Smart Accounts'
   }
 
   return {
@@ -162,4 +119,4 @@ const getDefaultFeeOption = (
   return NO_FEE_OPTIONS as FeeOption
 }
 
-export { sortFeeOptions, mapFeeOptions, getDefaultFeeOption, getDummyFeeOptions }
+export { getDefaultFeeOption, mapFeeOptions, sortFeeOptions }

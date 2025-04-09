@@ -1,7 +1,8 @@
 import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
-import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { Hex } from '@ambire-common/interfaces/hex'
+import { ExternalKey, KeystoreSignerInterface } from '@ambire-common/interfaces/keystore'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
@@ -11,7 +12,7 @@ import LedgerController, {
   ledgerService
 } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
-class LedgerSigner implements KeystoreSigner {
+class LedgerSigner implements KeystoreSignerInterface {
   key: ExternalKey
 
   controller: LedgerController | null = null
@@ -66,7 +67,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+  signRawTransaction: KeystoreSignerInterface['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
     // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
@@ -117,23 +118,16 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  signTypedData: KeystoreSigner['signTypedData'] = async ({
-    domain,
-    types,
-    message,
-    primaryType
-  }) => {
+  signTypedData: KeystoreSignerInterface['signTypedData'] = async (signTypedData) => {
     await this.#prepareForSigning()
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const rsvRes = await LedgerController.withDisconnectProtection(() =>
         this.#withNormalizedError(() =>
-          this.controller!.walletSDK!.signEIP712Message(path, {
-            domain,
-            types,
-            message,
-            primaryType
+          this.controller!.signEIP712MessageWithHashFallback({
+            path,
+            signTypedData
           })
         )
       )
@@ -148,7 +142,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
+  signMessage: KeystoreSignerInterface['signMessage'] = async (hex) => {
     if (!stripHexPrefix(hex)) {
       throw new ExternalSignerError(
         'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
@@ -173,6 +167,11 @@ class LedgerSigner implements KeystoreSigner {
           'Signing the message failed. Please try again or contact Ambire support if issue persists.'
       )
     }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  sign7702(hex: string): { yParity: Hex; r: Hex; s: Hex } {
+    throw new Error('not support', { cause: hex })
   }
 }
 

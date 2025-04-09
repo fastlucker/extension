@@ -28,7 +28,7 @@ const StakeWallet = () => {
 
   const { addToast } = useToast()
   const { connectedAccount } = useAccountContext()
-  const switchNetwork = useSwitchNetwork(ETHEREUM_CHAIN_ID)
+  const switchNetwork = useSwitchNetwork()
 
   const [walletBalance, setWalletBalance] = useState(null)
 
@@ -36,7 +36,7 @@ const StakeWallet = () => {
     const provider = new BrowserProvider(window.ambire)
     const walletContract = new Contract(WALLET_TOKEN, walletIface, provider)
     // @TODO use the pending $WALLET balance in the future
-    switchNetwork()
+    switchNetwork(ETHEREUM_CHAIN_ID)
       .then(() =>
         walletContract
           .balanceOf(connectedAccount)

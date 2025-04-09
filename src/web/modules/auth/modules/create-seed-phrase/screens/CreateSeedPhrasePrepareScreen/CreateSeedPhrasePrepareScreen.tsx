@@ -30,7 +30,6 @@ import {
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
-import Stepper from '@web/modules/router/components/Stepper'
 
 const CHECKBOXES = [
   {
@@ -94,11 +93,7 @@ const CreateSeedPhrasePrepareScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={
         <>
           <BackButton

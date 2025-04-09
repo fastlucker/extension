@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
 
@@ -52,8 +53,6 @@ export class EthereumProvider extends EventEmitter {
 
   #configuredDappRpcUrls: string[] = []
 
-  #shouldReloadOnFocus: boolean = false
-
   /**
    * The network ID of the currently connected Ethereum chain.
    * @deprecated
@@ -63,8 +62,6 @@ export class EthereumProvider extends EventEmitter {
   isAmbire = true
 
   isMetaMask = true
-
-  _isAmbire = true
 
   _isConnected = false
 
@@ -88,9 +85,9 @@ export class EthereumProvider extends EventEmitter {
     }
   }
 
-  requestId = 0
+  #requestId = 0
 
-  backgroundMessenger: Messenger
+  #backgroundMessenger: Messenger
 
   constructor(
     forwardRpcRequests?: (url: string, method: any, params: any) => Promise<any>,
@@ -98,7 +95,7 @@ export class EthereumProvider extends EventEmitter {
   ) {
     super()
 
-    this.backgroundMessenger = initializeMessenger({ connect: 'background' })
+    this.#backgroundMessenger = initializeMessenger({ connect: 'background' })
 
     this.#forwardRpcRequests = forwardRpcRequests
     this.#getFoundRpcUrls = getFoundRpcUrls
@@ -107,34 +104,31 @@ export class EthereumProvider extends EventEmitter {
     this.initialize()
     this.shimLegacy()
     this.#pushEventHandlers = new PushEventHandlers(this)
-    this.backgroundMessenger.reply('broadcast', this.#handleBackgroundMessage)
-
-    window.addEventListener('focus', () => {
-      if (this.#shouldReloadOnFocus) window.location.reload()
-    })
+    this.#backgroundMessenger.reply('broadcast', this.#handleBackgroundMessage)
   }
 
   initialize = async () => {
     document.addEventListener('visibilitychange', this.#requestPromiseCheckVisibility)
 
+    const id = this.#requestId++
     domReadyCall(() => {
-      const origin = location.origin
-      const icon =
-        ($('head > link[rel~="icon"]') as HTMLLinkElement)?.href ||
-        ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content
-
-      const name =
-        document.title ||
-        ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
-        location.hostname ||
-        origin
-
-      const id = this.requestId++
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
         {
           id,
           method: 'tabCheckin',
-          params: { icon, name, origin }
+          params: {
+            // @ts-ignore
+            icon:
+              ($('head > link[rel~="icon"]') as HTMLLinkElement)?.href ||
+              ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content,
+            name:
+              document.title ||
+              ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+              location.hostname ||
+              location.origin,
+            origin: location.origin
+          }
         },
         { id }
       )
@@ -144,9 +138,7 @@ export class EthereumProvider extends EventEmitter {
 
     try {
       const { chainId, accounts, networkVersion, isUnlocked }: any =
-        await this.requestInternalMethods({
-          method: 'getProviderState'
-        })
+        await this.requestInternalMethods({ method: 'getProviderState' })
 
       if (isUnlocked) {
         this._isUnlocked = true
@@ -179,6 +171,50 @@ export class EthereumProvider extends EventEmitter {
   }
 
   #handleBackgroundMessage = ({ event, data }: any) => {
+    if (event === 'tabCheckin') {
+      const id = this.#requestId++
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      providerRequestTransport.send(
+        {
+          id,
+          method: 'tabCheckin',
+          params: {
+            // @ts-ignore
+            icon:
+              ($('head > link[rel~="icon"]') as HTMLLinkElement)?.href ||
+              ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content,
+            name:
+              document.title ||
+              ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+              location.hostname ||
+              location.origin,
+            origin: location.origin
+          }
+        },
+        { id }
+      )
+
+      return
+    }
+
+    if (event === 'setProviderState') {
+      try {
+        const { chainId, accounts, networkVersion, isUnlocked }: any = data
+
+        if (isUnlocked) {
+          this._isUnlocked = true
+          this._state.isUnlocked = true
+        }
+        this.chainId = chainId
+        this.networkVersion = networkVersion
+        this.emit('connect', { chainId })
+        this.#pushEventHandlers.chainChanged({ chain: chainId, networkVersion })
+        this.#pushEventHandlers.accountsChanged(accounts)
+      } catch {
+        // silent fail
+      }
+    }
+
     if ((this.#pushEventHandlers as any)[event]) {
       return (this.#pushEventHandlers as any)[event](data)
     }
@@ -260,7 +296,7 @@ export class EthereumProvider extends EventEmitter {
         logInfoWithPrefix('[request]', data)
       }
 
-      const id = this.requestId++
+      const id = this.#requestId++
       const response = await providerRequestTransport.send(
         {
           id,
@@ -359,6 +395,7 @@ export class EthereumProvider extends EventEmitter {
       ['net_version', 'net_version']
     ]
 
+    // eslint-disable-next-line @typescript-eslint/naming-convention, no-restricted-syntax
     for (const [_method, method] of legacyMethods) {
       this[_method] = () => this.request({ method })
     }

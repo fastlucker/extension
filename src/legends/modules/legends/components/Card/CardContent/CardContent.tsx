@@ -13,7 +13,7 @@ import Rewards from './Rewards'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'flavor' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
+  'title' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
 > & {
   openActionModal: () => void
   disabled: boolean

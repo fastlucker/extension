@@ -2,6 +2,7 @@ import { TFunction } from 'i18next'
 import React, { FC, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { useSearchParams } from 'react-router-dom'
 
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import Search from '@common/components/Search'
@@ -39,23 +40,10 @@ interface Props {
   sessionId: string
 }
 
-// We want to change the query param without refreshing the page.
-const handleChangeQuery = (tab: string, sessionId: string) => {
-  if (window.location.href.includes('?tab=')) {
-    window.history.pushState(
-      null,
-      '',
-      `${window.location.href.split('?')[0]}?tab=${tab}&sessionId=${sessionId}`
-    )
-    return
-  }
-
-  window.history.pushState(null, '', `${window.location.href}?tab=${tab}&sessionId=${sessionId}`)
-}
-
-const TABS = ['tokens', 'collectibles', 'defi']
+const TABS = ['tokens', 'collectibles', 'defi', 'activity']
 
 const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId }) => {
+  const [, setSearchParams] = useSearchParams()
   const searchRef = useRef<any>(null)
   const searchButtonRef = useRef<any>(null)
   const { styles, theme } = useTheme(getStyles)
@@ -106,31 +94,33 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
   return (
     <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs
-        handleChangeQuery={(tab) => handleChangeQuery(tab, sessionId)}
+        handleChangeQuery={(tab) => setSearchParams({ tab, sessionId })}
         setOpenTab={setOpenTab}
         openTab={openTab}
       />
       {TABS.includes(openTab) && (
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <SelectNetwork />
-          <AnimatedPressable
-            onPress={toggleSearchVisibility}
-            ref={searchButtonRef}
-            style={[
-              styles.searchIconWrapper,
-              controlPositionStyles,
-              {
-                ...(isSearchVisible && {
-                  borderColor: theme.primary,
-                  backgroundColor: theme.infoBackground
-                })
-              }
-            ]}
-            onHoverIn={bindControlPositionAnim.onHoverIn}
-            onHoverOut={bindControlPositionAnim.onHoverOut}
-          >
-            <SearchIcon color={theme.tertiaryText} width={16} />
-          </AnimatedPressable>
+          {searchControl && (
+            <AnimatedPressable
+              onPress={toggleSearchVisibility}
+              ref={searchButtonRef}
+              style={[
+                styles.searchIconWrapper,
+                controlPositionStyles,
+                {
+                  ...(isSearchVisible && {
+                    borderColor: theme.primary,
+                    backgroundColor: theme.infoBackground
+                  })
+                }
+              ]}
+              onHoverIn={bindControlPositionAnim.onHoverIn}
+              onHoverOut={bindControlPositionAnim.onHoverOut}
+            >
+              <SearchIcon color={theme.tertiaryText} width={16} />
+            </AnimatedPressable>
+          )}
           {isSearchVisible && (
             <View style={[styles.searchContainer]} ref={searchRef}>
               <Search

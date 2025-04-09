@@ -46,7 +46,12 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
       )
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.linkAccount) {
-      return <LinkAcc alreadyLinkedAccounts={meta?.alreadyLinkedAccounts || []} />
+      return (
+        <LinkAcc
+          alreadyLinkedAccounts={meta?.alreadyLinkedAccounts || []}
+          accountLinkingHistory={meta?.accountLinkingHistory || []}
+        />
+      )
     }
     if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
       return <StakeWallet />

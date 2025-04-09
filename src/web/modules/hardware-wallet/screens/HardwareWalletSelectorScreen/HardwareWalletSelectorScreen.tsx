@@ -20,7 +20,6 @@ import { isSafari } from '@web/constants/browserapi'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import Stepper from '@web/modules/router/components/Stepper'
 
 import HardwareWalletSelectorItem from '../../components/HardwareWalletSelectorItem'
 import LedgerConnectModal from '../../components/LedgerConnectModal'
@@ -87,11 +86,7 @@ const HardwareWalletSelectorScreen = () => {
     <TabLayoutContainer
       width="lg"
       backgroundColor={theme.secondaryBackground}
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>

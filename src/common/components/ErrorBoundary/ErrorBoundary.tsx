@@ -1,23 +1,28 @@
+import * as Clipboard from 'expo-clipboard'
 import React, { useCallback } from 'react'
+import { Trans } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
-import useTheme from '@common/hooks/useTheme'
-import { useTranslation } from '@common/config/localization'
+
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
+import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { PortalHost } from '@gorhom/portal'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import { Trans } from 'react-i18next'
-import CopyIcon from '@common/assets/svg/CopyIcon'
-import * as Clipboard from 'expo-clipboard'
-import useToast from '@common/hooks/useToast'
+import { getUiType } from '@web/utils/uiType'
+
 import AmbireLogoHorizontal from '../AmbireLogoHorizontal'
 import Button from '../Button'
 import Text from '../Text'
+
+const { isPopup } = getUiType()
 
 interface Props {
   error: Error
@@ -39,7 +44,7 @@ const ErrorBoundary = ({ error }: Props) => {
         type: 'error'
       })
     }
-  }, [addToast, error])
+  }, [addToast, error.stack, t])
 
   // Please note that we also need to render `<PortalHost name="global" />` here.
   // If an error occurs, AppInit -> PortalHost will not be rendered because `ErrorBoundary` is a top-level component,
@@ -59,7 +64,7 @@ const ErrorBoundary = ({ error }: Props) => {
         shouldBeClosableOnDrag={false}
         style={{
           overflow: 'hidden',
-          width: 512
+          width: isPopup ? 512 : 712
         }}
         scrollViewProps={{
           contentContainerStyle: { flex: 1 },
@@ -158,26 +163,37 @@ const ErrorBoundary = ({ error }: Props) => {
           <Text
             fontSize={20}
             weight="medium"
-            style={[text.center, spacings.mbMd, { maxWidth: 360 }]}
+            style={[text.center, spacings.mbSm, { maxWidth: 360 }]}
           >
             {t('Something went wrong, but your funds are safe!')}
           </Text>
           <View
             style={{
-              maxWidth: 296,
+              maxWidth: 360,
+              ...spacings.mb,
               marginHorizontal: 'auto'
             }}
           >
-            <Text fontSize={14} style={[text.center, spacings.mbMd]}>
-              {t('If the problem persists, please contact us via our')}
+            <Text fontSize={14} style={text.center}>
+              {t('Try reloading the page. If the issue persists, restart your browser or ')}
               <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
                 <Text fontSize={14} weight="medium" color={theme.primary}>
-                  {' '}
-                  {t('Help Center')}
+                  {t('contact Support')}
                 </Text>
               </TouchableOpacity>
+              {t(' for assistance.')}
             </Text>
           </View>
+          <TouchableOpacity
+            style={{
+              ...spacings.mbXl
+            }}
+            onPress={() => openBottomSheet()}
+          >
+            <Text fontSize={12} underline>
+              {t('Show Details')}
+            </Text>
+          </TouchableOpacity>
 
           <Button
             style={{
@@ -187,17 +203,6 @@ const ErrorBoundary = ({ error }: Props) => {
             onPress={() => window.location.reload()}
             hasBottomSpacing={false}
           />
-
-          <TouchableOpacity
-            style={{
-              ...spacings.mtXl
-            }}
-            onPress={() => openBottomSheet()}
-          >
-            <Text fontSize={12} underline>
-              {t('Show Details')}
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
     </>

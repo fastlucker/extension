@@ -141,17 +141,17 @@ export const handleActions = async (
 
       return await mainCtrl.accountAdder.setPage({ page: 1 })
     }
-    case 'MAIN_CONTROLLER_TRACE_CALL': {
-      return await mainCtrl.traceCall(params.estimation)
-    }
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
     }
     case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-      return await mainCtrl.removeNetwork(params)
+      return await mainCtrl.removeNetwork(params.chainId)
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
+    }
+    case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
+      return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
     }
     case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
       return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
@@ -163,7 +163,7 @@ export const handleActions = async (
       return await mainCtrl.keystore.updateKeyPreferences(params)
     }
     case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
-      return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
+      return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
@@ -300,8 +300,6 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
-    case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
-      return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
     case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
       return mainCtrl.rejectAccountOpAction(
         params.err,
@@ -384,8 +382,6 @@ export const handleActions = async (
       return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
       return mainCtrl.actions.focusActionWindow()
-    case 'ACTIONS_CONTROLLER_CLOSE_ACTION_WINDOW':
-      return mainCtrl.actions.closeActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
       return mainCtrl.actions.setCurrentActionById(params.actionId)
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
@@ -395,7 +391,7 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        networkId: params?.networkId
+        chainId: params?.chainId ? BigInt(params?.chainId) : undefined
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
@@ -407,7 +403,7 @@ export const handleActions = async (
 
       return await mainCtrl.portfolio.getTemporaryTokens(
         mainCtrl.selectedAccount.account.addr,
-        params.networkId,
+        params.chainId,
         params.additionalHint
       )
     }
@@ -527,9 +523,6 @@ export const handleActions = async (
       return await mainCtrl.domains.reverseLookup(params.address)
     case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
       return mainCtrl.domains.saveResolvedReverseLookup(params)
-    case 'SET_IS_DEFAULT_WALLET': {
-      return await walletStateCtrl.setDefaultWallet(params.isDefaultWallet)
-    }
     case 'SET_ONBOARDING_STATE': {
       walletStateCtrl.onboardingState = params
       break
@@ -562,13 +555,13 @@ export const handleActions = async (
     }
 
     case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
-      mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+      await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       mainCtrl.dapps.updateDapp(params, { isConnected: false })
       break
     }
     case 'CHANGE_CURRENT_DAPP_NETWORK': {
       mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
-      mainCtrl.dapps.broadcastDappSessionEvent(
+      await mainCtrl.dapps.broadcastDappSessionEvent(
         'chainChanged',
         {
           chain: `0x${params.chainId.toString(16)}`,
@@ -585,7 +578,7 @@ export const handleActions = async (
       return mainCtrl.dapps.updateDapp(params.url, params.dapp)
     }
     case 'DAPP_CONTROLLER_REMOVE_DAPP': {
-      mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+      await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
       return mainCtrl.dapps.removeDapp(params)
     }
     case 'PHISHING_CONTROLLER_GET_IS_BLACKLISTED_AND_SEND_TO_UI': {
@@ -597,6 +590,7 @@ export const handleActions = async (
     }
 
     default:
+      // eslint-disable-next-line no-console
       return console.error(
         `Dispatched ${type} action, but handler in the extension background process not found!`
       )

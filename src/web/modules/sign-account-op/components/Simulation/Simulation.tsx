@@ -35,61 +35,77 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
   const { styles } = useTheme(getStyles)
   const signAccountOpState = useSignAccountOpControllerState()
   const {
-    portfolio: { tokens, collections, pending }
+    portfolio: { tokens, collections, pending, networkSimulatedAccountOp }
   } = useSelectedAccountControllerState()
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
   const { networks } = useNetworksControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
-      const pendingData = pending[network.id]
+      const pendingData = pending[network.chainId.toString()]
 
       if (!pendingData || !pendingData.isReady || !pendingData.result) return []
 
-      return tokens.filter((token) => token.networkId === network.id && !!token.simulationAmount)
+      return tokens.filter((token) => token.chainId === network.chainId && !!token.simulationAmount)
     }
     return []
   }, [network, pending, signAccountOpState?.accountOp, tokens])
 
   const portfolioStatePending = useMemo(() => {
-    if (!signAccountOpState?.accountOp || !network?.id) return null
+    if (!signAccountOpState?.accountOp || !network?.chainId) return null
 
-    return pending[network.id]
-  }, [network?.id, pending, signAccountOpState?.accountOp])
+    return pending[network.chainId.toString()]
+  }, [network?.chainId, pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! < 0),
     [pendingTokens]
   )
   const pendingSendCollection = useMemo(() => {
-    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.chainId)
       return (
         collections?.filter(
           (i) => i.postSimulation?.sending && i.postSimulation.sending.length > 0
         ) || []
       )
     return []
-  }, [collections, network?.id, signAccountOpState?.accountOp?.accountAddr])
+  }, [collections, network?.chainId, signAccountOpState?.accountOp?.accountAddr])
 
   const pendingReceiveCollection = useMemo(() => {
-    if (signAccountOpState?.accountOp?.accountAddr && network?.id)
+    if (signAccountOpState?.accountOp?.accountAddr && network?.chainId)
       return (
         collections?.filter(
           (i) => i.postSimulation?.receiving && i.postSimulation.receiving.length > 0
         ) || []
       )
     return []
-  }, [signAccountOpState?.accountOp?.accountAddr, network?.id, collections])
+  }, [signAccountOpState?.accountOp?.accountAddr, network?.chainId, collections])
 
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.simulationAmount! > 0),
     [pendingTokens]
   )
 
-  const isReloading = useMemo(
-    () => initialSimulationLoaded && !isEstimationComplete,
-    [isEstimationComplete, initialSimulationLoaded]
-  )
+  const isReloading = useMemo(() => {
+    if (!network?.id || !initialSimulationLoaded) return false
+
+    if (!isEstimationComplete) return true
+
+    const portfolioAccountOpCalls = networkSimulatedAccountOp[network.id]?.calls
+    const signAccountOpCalls = signAccountOpState?.accountOp.calls
+
+    // New calls are reflected immediately in the signAccountOpState,
+    // while the portfolio update takes some time to reflect the changes.
+    // The interval between the two updates is the time it takes for the
+    // simulation to reload.
+    return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
+  }, [
+    initialSimulationLoaded,
+    isEstimationComplete,
+    network?.id,
+    networkSimulatedAccountOp,
+    signAccountOpState?.accountOp.calls
+  ])
 
   const simulationErrorMsg = useMemo(() => {
     if (portfolioStatePending?.isLoading && !initialSimulationLoaded) return ''
@@ -182,7 +198,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
         ]}
       >
         <SectionHeading withMb={false}>{t('Transaction simulation')}</SectionHeading>
-        <NetworkBadge networkId={network?.id} withOnPrefix />
+        <NetworkBadge chainId={network?.chainId} withOnPrefix />
       </View>
       {simulationView === 'changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1]}>
@@ -204,7 +220,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network?.id || ''}
+                      chainId={network?.chainId}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )
@@ -250,7 +266,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network?.id || ''}
+                      chainId={network?.chainId}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )

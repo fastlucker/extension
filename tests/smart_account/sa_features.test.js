@@ -1,7 +1,7 @@
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
-import { saParams } from '../config/constants'
+import { baParams, saParams } from '../config/constants'
 import { triggerTransaction } from '../common-helpers/triggerTransaction'
 import { signTransaction } from '../common-helpers/signTransaction'
 import { confirmTransactionStatus } from '../common-helpers/confirmTransactionStatus'
@@ -34,14 +34,14 @@ describe('sa_features', () => {
     // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
+      '[data-testid="token-0x0000000000000000000000000000000000000000-10"]',
       0.00000001
     )
 
     // Click on ETH (not Gas Tank token)
     await clickOnElement(
       page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]'
+      '[data-testid="token-0x0000000000000000000000000000000000000000-10"]'
     )
 
     const buttonSelector = '[data-testid="top-up-button"]'
@@ -97,11 +97,9 @@ describe('sa_features', () => {
       '[data-testid="transfer-button-confirm"]'
     )
 
+    const baFeeTokenSelector = `[data-testid="option-${baParams.envSelectedAccount.toLowerCase()}0x0000000000000000000000000000000000000000eth"]`
     // Check if select fee token is visible and select the token
-    await selectFeeToken(
-      newPage,
-      '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000eth"]'
-    )
+    await selectFeeToken(newPage, baFeeTokenSelector)
     // Sign and confirm the transaction
     await signTransaction(newPage, transactionRecorder)
     await confirmTransactionStatus(newPage, 'optimism', 10, transactionRecorder)
@@ -112,7 +110,7 @@ describe('sa_features', () => {
     // Check if ETH in optimism are under 0.0000001
     await checkBalanceOfToken(
       page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
+      '[data-testid="token-0x0000000000000000000000000000000000000000-10"]',
       0.0000001
     )
     // Check if ETH on Base are under 0.02
@@ -120,7 +118,7 @@ describe('sa_features', () => {
     // Check if USDC on Gas Tank are under 0.01
     await checkBalanceOfToken(
       page,
-      '[data-testid="token-0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48-ethereum-gastank"]',
+      '[data-testid="token-0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48-1-gastank"]',
       0.01
     )
   })

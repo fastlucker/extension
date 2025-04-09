@@ -490,3 +490,4 @@ credentials.json
 
 # Puppeteer tests recording
 /recorder
+/tests/reports

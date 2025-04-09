@@ -112,7 +112,9 @@ const FallbackVisualization: FC<{
                 </div>
               )
             })}
-          {content.kind !== 'typedMessage' &&
+          {content.kind === 'authorization-7702' && getMessageAsText(content.message)}
+
+          {content.kind === 'message' &&
             (getMessageAsText(content.message) || t('(Empty message)'))}
         </Text>
       </ScrollView>

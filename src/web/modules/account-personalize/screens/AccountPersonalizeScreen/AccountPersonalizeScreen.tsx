@@ -25,7 +25,6 @@ import {
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
-import Stepper from '@web/modules/router/components/Stepper'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
@@ -83,11 +82,7 @@ const AccountPersonalizeScreen = () => {
     <TabLayoutContainer
       width="md"
       backgroundColor={theme.secondaryBackground}
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
           <Button

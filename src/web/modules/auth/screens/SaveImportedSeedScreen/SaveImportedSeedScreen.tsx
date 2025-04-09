@@ -23,7 +23,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
   const { t } = useTranslation()
@@ -78,11 +77,7 @@ const PrivateKeyImportScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="md"
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Save your seed')}>

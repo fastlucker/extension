@@ -1,8 +1,10 @@
-import React from 'react'
-import { Outlet, Route, Routes } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Outlet, Route, Routes, useLocation } from 'react-router-dom'
 
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
+import routesConfig from '@common/modules/router/config/routesConfig'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
@@ -43,6 +45,7 @@ import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsR
 import AboutSettingsScreen from '@web/modules/settings/screens/AboutSettingsScreen'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
+import BasicToSmartSettingsScreen from '@web/modules/settings/screens/BasicToSmartSettingsScreen'
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
@@ -69,6 +72,17 @@ const stepperProvider = (
 )
 
 const MainRoutes = () => {
+  const location = useLocation()
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    const trimmedPathName = location.pathname.replace(/^\/|\/$/g, '')
+    const routeConfig = routesConfig[trimmedPathName as keyof typeof routesConfig]
+    const title = `Ambire ${routeConfig?.name || t('Wallet')}`
+
+    document.title = title
+  }, [location.pathname, t])
+
   return (
     <Routes>
       <Route element={<InviteVerifiedRoute />}>
@@ -157,6 +171,10 @@ const MainRoutes = () => {
                     element={<SecurityAndPrivacyScreen />}
                   />
                   <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
+                  <Route
+                    path={WEB_ROUTES.basicToSmartSettingsScreen}
+                    element={<BasicToSmartSettingsScreen />}
+                  />
                   <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
                   <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
                   <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />

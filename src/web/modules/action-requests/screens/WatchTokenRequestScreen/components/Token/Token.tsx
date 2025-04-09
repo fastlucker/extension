@@ -41,7 +41,7 @@ const Token = ({
     [temporaryToken, networks]
   )
 
-  if (!tokenNetwork?.id) return null
+  if (!tokenNetwork?.chainId) return null
 
   return (
     <>
@@ -65,7 +65,7 @@ const Token = ({
           <View style={[flexbox.directionRow]}>
             <TokenIcon
               withContainer
-              networkId={tokenNetwork?.id}
+              chainId={tokenNetwork?.chainId}
               containerHeight={40}
               containerWidth={40}
               address={tokenData?.address}

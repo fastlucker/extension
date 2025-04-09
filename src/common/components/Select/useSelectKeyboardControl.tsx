@@ -43,7 +43,7 @@ const useSelectKeyboardControl = ({
       for (let optionIndex = 0; optionIndex < section.data.length; optionIndex++) {
         const option = section.data[optionIndex]
 
-        if (option.value === value.value) {
+        if (option.value === value?.value) {
           index = { sectionIndex, optionIndex }
           break
         }
@@ -285,7 +285,7 @@ const useSelectKeyboardControl = ({
           index={optionIndex}
           item={item}
           height={optionHeight}
-          isSelected={item.value === value.value}
+          isSelected={item.value === value?.value}
           isHighlighted={isHighlighted}
           onPress={handleOptionSelect}
           onHoverIn={onHoverIn}
@@ -297,7 +297,7 @@ const useSelectKeyboardControl = ({
     },
     [
       optionHeight,
-      value.value,
+      value?.value,
       handleOptionSelect,
       size,
       highlightedItemIndex,

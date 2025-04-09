@@ -359,7 +359,11 @@ module.exports = async function (env, argv) {
         ...config.optimization.splitChunks,
         chunks(chunk) {
           // do not split into chunks the files that should be injected
-          return chunk.name !== 'ambire-inpage' && chunk.name !== 'ethereum-inpage'
+          return (
+            chunk.name !== 'ambire-inpage' &&
+            chunk.name !== 'ethereum-inpage' &&
+            chunk.name !== 'content-script'
+          )
         }
       }
     }

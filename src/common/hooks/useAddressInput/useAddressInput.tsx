@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
-import { resolveUDomain } from '@ambire-common/services/unstoppableDomains'
 import { ToastOptions } from '@common/contexts/toastContext'
 
 import getAddressInputValidation from './utils/validation'
@@ -13,7 +12,7 @@ interface Props {
   overwriteError?: string
   overwriteValidLabel?: string
   addToast: (message: string, options?: ToastOptions) => void
-  handleCacheResolvedDomain: (address: string, domain: string, type: 'ens' | 'ud') => void
+  handleCacheResolvedDomain: (address: string, domain: string, type: 'ens') => void
   // handleRevalidate is required when the address input is used
   // together with react-hook-form. It is used to trigger the revalidation of the input.
   // !!! Must be memoized with useCallback
@@ -42,7 +41,6 @@ const useAddressInput = ({
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
         isValidEns: !!addressState.ensAddress,
-        isValidUDomain: !!addressState.udAddress,
         overwriteError,
         overwriteValidLabel
       }),
@@ -50,7 +48,6 @@ const useAddressInput = ({
       addressState.fieldValue,
       addressState.isDomainResolving,
       addressState.ensAddress,
-      addressState.udAddress,
       overwriteError,
       overwriteValidLabel
     ]
@@ -59,22 +56,9 @@ const useAddressInput = ({
   const resolveDomains = useCallback(
     (trimmedAddress: string) => {
       let ensAddress = ''
-      let udAddress = ''
 
+      // Keep the promise all as we may add more domain resolvers in the future
       Promise.all([
-        resolveUDomain(trimmedAddress)
-          .then((newUDAddress: string) => {
-            udAddress = newUDAddress
-
-            // Don't save the resolved UD address because it won't be used anywhere for now
-            // https://github.com/AmbireTech/ambire-app/issues/2681#issuecomment-2299460748
-          })
-          .catch(() => {
-            udAddress = ''
-            addToast('Something went wrong while resolving Unstoppable domains® domain.', {
-              type: 'error'
-            })
-          }),
         resolveENSDomain(trimmedAddress)
           .then((newEnsAddress: string) => {
             ensAddress = newEnsAddress
@@ -92,7 +76,6 @@ const useAddressInput = ({
       ])
         .catch(() => {
           ensAddress = ''
-          udAddress = ''
           addToast('Something went wrong while resolving domain.', { type: 'error' })
         })
         .finally(() => {
@@ -101,7 +84,6 @@ const useAddressInput = ({
 
           setAddressState({
             ensAddress,
-            udAddress,
             isDomainResolving: false
           })
         })
@@ -118,9 +100,8 @@ const useAddressInput = ({
     const shouldDebounce =
       // Both validations are errors
       isError === debouncedIsError &&
-      // There is no UD or ENS address
+      // There is no ENS address
       !addressState.ensAddress &&
-      !addressState.udAddress &&
       // The message is not empty
       latestMessage
 
@@ -139,7 +120,6 @@ const useAddressInput = ({
     }
   }, [
     addressState.ensAddress,
-    addressState.udAddress,
     debouncedValidation,
     debouncedValidation.isError,
     debouncedValidation.message,
@@ -150,15 +130,14 @@ const useAddressInput = ({
     const trimmedAddress = fieldValue.trim()
     const dotIndexInAddress = trimmedAddress.indexOf('.')
     // There is a dot and it is not the first or last character
-    const canBeEnsOrUd =
+    const canBeDomain =
       dotIndexInAddress !== -1 &&
       dotIndexInAddress !== 0 &&
       dotIndexInAddress !== trimmedAddress.length - 1
 
-    if (!trimmedAddress || !canBeEnsOrUd) {
+    if (!trimmedAddress || !canBeDomain) {
       setAddressState({
         ensAddress: '',
-        udAddress: '',
         isDomainResolving: false
       })
       return
@@ -192,7 +171,6 @@ const useAddressInput = ({
     setAddressState({
       fieldValue: '',
       ensAddress: '',
-      udAddress: '',
       isDomainResolving: false
     })
   }, [setAddressState])
@@ -218,7 +196,7 @@ const useAddressInput = ({
     validation: debouncedValidation,
     RHFValidate,
     resetAddressInput: reset,
-    address: addressState.ensAddress || addressState.udAddress || fieldValue
+    address: addressState.ensAddress || fieldValue
   }
 }
 

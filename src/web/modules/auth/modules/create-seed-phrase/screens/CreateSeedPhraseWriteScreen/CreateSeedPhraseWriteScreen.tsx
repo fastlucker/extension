@@ -22,7 +22,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
-import Stepper from '@web/modules/router/components/Stepper'
 
 const generateConfirmationWords = (seed: string[]) => {
   // Split the input array into groups of three words
@@ -74,11 +73,7 @@ const CreateSeedPhraseWriteScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
+      header={<Header withAmbireLogo />}
       footer={
         <>
           <BackButton

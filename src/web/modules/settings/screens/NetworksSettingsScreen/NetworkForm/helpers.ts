@@ -26,14 +26,9 @@ const getAreDefaultsChanged = (values: any, selectedNetwork?: Network) => {
         !values[key].length
       )
     }
-    if (key === 'force4337') {
-      const force4337Value =
-        selectedNetwork.force4337 !== undefined ? selectedNetwork.force4337 : false
-      return force4337Value !== values[key]
-    }
 
     return key in selectedNetwork && values[key] !== selectedNetwork[key as keyof Network]
   })
 }
 
-export { handleErrors, getAreDefaultsChanged }
+export { getAreDefaultsChanged, handleErrors }
