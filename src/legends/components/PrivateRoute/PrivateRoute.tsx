@@ -16,14 +16,6 @@ const PrivateRoute = () => {
 
   // TODO: Test properly here.
   const isConnectedAccountV2 = !!connectedAccount && (!nonV2Account || allowNonV2Connection)
-  // If a wallet isn't connected or the acc is not v2 account,redirect to the welcome screen.
-  // Once a v2 account has been connected once,
-  // the user should be able to access screens which will display the state of the v2 account.
-  if (!connectedAccount && !nonV2Account) {
-    if (pathname !== LEGENDS_ROUTES.home && pathname !== '/') {
-      return <Navigate to="/" />
-    }
-  }
 
   if (isConnectedAccountV2 && (isLoading || (!character && isCharacterLoading)))
     return <Spinner isCentered />
