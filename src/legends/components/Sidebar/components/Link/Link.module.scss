@@ -20,9 +20,6 @@
     opacity: 0.6;
   }
 
-  span {
-    color: $secondaryText;
-  }
 
   &.active {
     padding-left: 0.75rem;
@@ -56,5 +53,6 @@
   span {
     line-height: 1;
     padding-top: 0.125rem;
+    color: $secondaryText;
   }
 }

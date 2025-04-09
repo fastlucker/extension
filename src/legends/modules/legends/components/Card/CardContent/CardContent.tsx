@@ -38,9 +38,9 @@ const CardContent: FC<Props> = ({
   treasureChestStreak
 }) => {
   const isCompleted = card.status === CardStatus.completed
-  // TODO: apply the treasure chest streak badge
+
   const isTreasureChestCard = isMatchingPredefinedId(action, CARD_PREDEFINED_ID.chest)
-  console.log(isTreasureChestCard, treasureChestStreak)
+
   return (
     <div
       className={`${styles.wrapper} ${(disabled || isCompleted) && styles.disabled}`}
