@@ -30,7 +30,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
 import SwapAndBridgeEstimation from '@web/modules/swap-and-bridge/components/Estimation'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
@@ -235,13 +234,6 @@ const SwapAndBridgeScreen = () => {
               )}
               style={spacings.mb}
             />
-          )}
-          {!!pendingRoutes.length && (
-            <View style={spacings.mbLg}>
-              {pendingRoutes.map((activeRoute) => (
-                <ActiveRouteCard key={activeRoute.activeRouteId} activeRoute={activeRoute} />
-              ))}
-            </View>
           )}
 
           <View
