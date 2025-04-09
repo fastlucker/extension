@@ -394,10 +394,6 @@ export const handleActions = async (
       await mainCtrl.swapAndBridge.initSignAccountOp()
       break
     }
-    case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP': {
-      await mainCtrl.swapAndBridge.destroySignAccountOp()
-      break
-    }
     case 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM':
       return mainCtrl.swapAndBridge.resetForm()
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
