@@ -52,7 +52,6 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { dispatch } = useBackgroundService()
   const { isSetupComplete } = useWalletStateController()
   const { isInitialized } = useAccountPickerControllerState()
-  const { accounts } = useAccountsControllerState()
   const isOnboardingRoute = useMemo(
     () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
     [path]
@@ -115,7 +114,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized, accounts])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized])
 
   const loadHistory = () => {
     try {
@@ -197,6 +196,12 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     }
   }, [path, prevPath, params, deepSearchRouteNode, navigate, onboardingRoutesTree, history])
 
+  useEffect(() => {
+    if (path === '/' && history.length) {
+      setHistory([])
+    }
+  }, [history.length, path])
+
   const goToNextRoute = useCallback(
     (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => {
       const currentRoute = path?.substring(1)
@@ -268,7 +273,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       window.removeEventListener('hashchange', handleBackButton)
     }
   }, [goToPrevRoute, history, deepSearchRouteNode, onboardingRoutesTree])
-
+  console.log(history)
   const value = useMemo(
     () => ({ isOnboardingRoute, goToNextRoute, goToPrevRoute }),
     [isOnboardingRoute, goToPrevRoute, goToNextRoute]
