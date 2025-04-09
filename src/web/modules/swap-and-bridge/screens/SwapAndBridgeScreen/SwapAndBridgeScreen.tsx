@@ -301,8 +301,8 @@ const SwapAndBridgeScreen = () => {
                     disabled={fromTokenAmountSelectDisabled}
                     containerStyle={[spacings.mb0, flexbox.flex1]}
                     leftIcon={dollarIcon}
-                    leftIconStyle={spacings.pl0}
-                    inputStyle={spacings.pr0}
+                    leftIconStyle={spacings.plXl}
+                    inputStyle={spacings.ph0}
                     error={validateFromAmount.message || ''}
                     errorType="warning"
                     testID="from-amount-input-sab"
