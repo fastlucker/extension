@@ -211,7 +211,6 @@ const SwapAndBridgeScreen = () => {
           mode="title"
           customTitle={t('Swap & Bridge')}
           withAmbireLogo
-          forceBack // TODO: this shouldn't be needed
         />
       }
       withHorizontalPadding={false}

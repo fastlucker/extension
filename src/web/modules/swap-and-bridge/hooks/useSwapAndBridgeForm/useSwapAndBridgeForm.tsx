@@ -18,6 +18,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
+import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
@@ -63,6 +64,7 @@ const useSwapAndBridgeForm = () => {
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
+  const { searchParams, setSearchParams } = useNavigation()
   const { theme } = useTheme()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
@@ -72,7 +74,6 @@ const useSwapAndBridgeForm = () => {
     open: openEstimationModal,
     close: closeEstimationModal
   } = useModalize()
-  const [searchParams, setSearchParams] = useSearchParams()
   const { actionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
