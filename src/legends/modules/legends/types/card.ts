@@ -70,6 +70,16 @@ export enum CardGroup {
   MiniGame = 'mini-game'
 }
 
+export enum CardGroupNameMapping {
+  'show' = 'Show',
+  'swap-and-bridge' = 'Swap And Bridge',
+  'supporter' = 'Supporter',
+  'gas-tank' = 'Gas Tank',
+  'transactions' = 'Transactions',
+  'seasonal' = 'Seasonal',
+  'mini-game' = 'Mini Game'
+}
+
 export interface CardFromResponse {
   id: string
   title: string

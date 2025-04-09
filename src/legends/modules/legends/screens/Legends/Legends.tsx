@@ -4,37 +4,47 @@ import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import Card from '@legends/modules/legends/components/Card'
+import { CardGroup, CardGroupNameMapping } from '@legends/modules/legends/types'
 
 import styles from './Legends.module.scss'
 
-enum CardGroup {
-  'show' = 'Show',
-  'swap-and-bridge' = 'Swap And Bridge',
-  'supporter' = 'Supporter',
-  'gas-tank' = 'Gas Tank',
-  'transactions' = 'Transactions',
-  'seasonal' = 'Seasonal',
-  'mini-game' = 'Mini Game'
-}
+const GROUP_SORT = [
+  CardGroup.MiniGame,
+  CardGroup.Show,
+  CardGroup.Supporter,
+  CardGroup.GasTank,
+  CardGroup.SwapAndBridge,
+  CardGroup.Transactions,
+  CardGroup.Seasonal
+]
 
 const Legends = () => {
   const { legends, isLoading } = useLegendsContext()
 
-  const groupedLegends = legends.reduce((groups, card) => {
-    const group = card.group || 'Ungrouped'
-    return {
-      ...groups,
-      [group]: [...(groups[group] || []), card]
-    }
-  }, {} as Record<string, typeof legends>)
+  const processedLegends = legends
+    .sort((a, b) => {
+      const indexA = GROUP_SORT.indexOf(a.group)
+      const indexB = GROUP_SORT.indexOf(b.group)
+
+      return indexA - indexB
+    })
+    .reduce((groups, card) => {
+      const group = card.group || 'Ungrouped'
+      return {
+        ...groups,
+        [group]: [...(groups[group] || []), card]
+      }
+    }, {} as Record<string, typeof legends>)
 
   return (
     <Page containerSize="lg">
       {!isLoading ? (
         <div>
-          {Object.entries(groupedLegends).map(([groupName, cards]) => (
+          {Object.entries(processedLegends).map(([groupName, cards]) => (
             <div key={groupName} className={styles.group}>
-              <h2 className={styles.groupName}>{CardGroup[groupName as keyof typeof CardGroup]}</h2>
+              <h2 className={styles.groupName}>
+                {CardGroupNameMapping[groupName as keyof typeof CardGroupNameMapping]}
+              </h2>
               <div className={styles.cards}>
                 {cards.map((card) => (
                   <Card key={card.title + card.card.type} cardData={card} action={card.action} />
