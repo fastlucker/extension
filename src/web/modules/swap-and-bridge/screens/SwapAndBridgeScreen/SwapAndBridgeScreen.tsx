@@ -115,14 +115,6 @@ const SwapAndBridgeScreen = () => {
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    if (formStatus === SwapAndBridgeFormStatus.ReadyToEstimate && !signAccountOpController) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP'
-      })
-    }
-  }, [formStatus, dispatch, signAccountOpController])
-
-  useEffect(() => {
     if (!signAccountOpController || isAutoSelectRouteDisabled) return
     if (signAccountOpController.estimation.status === EstimationStatus.Error) {
       dispatch({
@@ -549,16 +541,21 @@ const SwapAndBridgeScreen = () => {
                   ]}
                 >
                   {formStatus === SwapAndBridgeFormStatus.NoRoutesFound ? (
-                    <View>
+                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <WarningIcon width={14} height={14} color={theme.warningDecorative} />
-                      <Text fontSize={14} weight="medium" appearance="warningText">
-                        {t('No routes found.')}
+                      <Text
+                        fontSize={14}
+                        weight="medium"
+                        appearance="warningText"
+                        style={spacings.mlMi}
+                      >
+                        {t('No routes found!')}
                       </Text>
                     </View>
                   ) : (
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <Text appearance="tertiaryText" fontSize={14} weight="medium">
-                        {t('Ambire fee: 0.05%')}
+                        {t('Ambire fee: 0.025%')}
                       </Text>
                       {quote?.selectedRoute?.serviceTime ? (
                         <Text
