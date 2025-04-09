@@ -1,8 +1,11 @@
 import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { DERIVATION_OPTIONS, HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import InformationIcon from '@common/assets/svg/InformationIcon'
+import SettingsIcon from '@common/assets/svg/SettingsIcon'
+import Button from '@common/components/Button'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
@@ -13,6 +16,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
+import AdvancedModeBottomSheet from './AdvancedModeBottomSheet'
 import styles from './styles'
 
 interface Props {}
@@ -21,6 +25,8 @@ const ChangeHdPath: React.FC<Props> = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { hdPathTemplate, isPageLocked, pageError } = useAccountPickerControllerState()
+
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const value = useMemo(
     () => DERIVATION_OPTIONS.find((o) => o.value === hdPathTemplate),
@@ -65,6 +71,18 @@ const ChangeHdPath: React.FC<Props> = () => {
         options={DERIVATION_OPTIONS}
         value={value}
         withSearch={false}
+      />
+      <Button type="ghost" onPress={() => openBottomSheet()}>
+        <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+          {t('Advanced mode')}
+        </Text>
+        <SettingsIcon width={14} />
+      </Button>
+
+      <AdvancedModeBottomSheet
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        onConfirm={() => console.log('Confirm')}
       />
     </View>
   )
