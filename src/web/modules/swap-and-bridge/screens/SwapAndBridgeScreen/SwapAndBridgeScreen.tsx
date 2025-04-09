@@ -82,7 +82,9 @@ const SwapAndBridgeScreen = () => {
     openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
-    closeEstimationModal
+    closeEstimationModal,
+    isAutoSelectRouteDisabled,
+    setIsAutoSelectRouteDisabled
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -116,7 +118,7 @@ const SwapAndBridgeScreen = () => {
   }, [formStatus, dispatch, signAccountOpController])
 
   useEffect(() => {
-    if (!signAccountOpController) return
+    if (!signAccountOpController || isAutoSelectRouteDisabled) return
     if (signAccountOpController.estimation.status === EstimationStatus.Error) {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
@@ -556,7 +558,11 @@ const SwapAndBridgeScreen = () => {
           </View>
         </View>
       </TabLayoutWrapperMainContent>
-      <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
+      <RoutesModal
+        sheetRef={routesModalRef}
+        closeBottomSheet={closeRoutesModal}
+        setIsAutoSelectRouteDisabled={(disabled: boolean) => setIsAutoSelectRouteDisabled(disabled)}
+      />
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModal}
         estimationModalRef={estimationModalRef}

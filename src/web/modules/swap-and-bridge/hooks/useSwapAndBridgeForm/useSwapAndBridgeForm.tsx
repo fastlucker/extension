@@ -54,6 +54,7 @@ const useSwapAndBridgeForm = () => {
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const [highPriceImpactConfirmed, setHighPriceImpactConfirmed] = useState<boolean>(false)
+  const [isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled] = useState<boolean>(false)
   /**
    * @deprecated - the settings menu is not used anymore
    */
@@ -72,6 +73,11 @@ const useSwapAndBridgeForm = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
+
+  const handleSetFromAmount = (val: string) => {
+    setFromAmountValue(val)
+    setIsAutoSelectRouteDisabled(false)
+  }
 
   useEffect(() => {
     if (
@@ -139,13 +145,13 @@ const useSwapAndBridgeForm = () => {
       prevFromAmountInFiat !== fromAmountInFiat &&
       fromAmountInFiat !== fromAmountValue
     ) {
-      setFromAmountValue(fromAmountInFiat)
+      handleSetFromAmount(fromAmountInFiat)
     }
   }, [fromAmountInFiat, fromAmountValue, prevFromAmountInFiat, fromAmountFieldMode])
 
   useEffect(() => {
-    if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
-    if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
+    if (fromAmountFieldMode === 'token') handleSetFromAmount(fromAmount)
+    if (fromAmountFieldMode === 'fiat') handleSetFromAmount(fromAmountInFiat)
   }, [fromAmountFieldMode, fromAmount, fromAmountInFiat])
 
   useEffect(() => {
@@ -154,13 +160,13 @@ const useSwapAndBridgeForm = () => {
       prevFromAmount !== fromAmount &&
       fromAmount !== fromAmountValue
     ) {
-      setFromAmountValue(fromAmount)
+      handleSetFromAmount(fromAmount)
     }
   }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
-      setFromAmountValue(value)
+      handleSetFromAmount(value)
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { fromAmount: value }
@@ -205,6 +211,8 @@ const useSwapAndBridgeForm = () => {
         (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
 
+      setIsAutoSelectRouteDisabled(false)
+
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { fromSelectedToken: tokenToSelect }
@@ -231,6 +239,8 @@ const useSwapAndBridgeForm = () => {
       const tokenToSelect = toTokenList.find(
         (t: SwapAndBridgeToToken) => getTokenId(t, networks) === value
       )
+
+      setIsAutoSelectRouteDisabled(false)
 
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
@@ -463,7 +473,9 @@ const useSwapAndBridgeForm = () => {
     openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
-    closeEstimationModal
+    closeEstimationModal,
+    isAutoSelectRouteDisabled,
+    setIsAutoSelectRouteDisabled
   }
 }
 

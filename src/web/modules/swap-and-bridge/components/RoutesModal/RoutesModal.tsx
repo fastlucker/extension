@@ -26,10 +26,12 @@ const { isPopup } = getUiType()
 
 const RoutesModal = ({
   sheetRef,
-  closeBottomSheet
+  closeBottomSheet,
+  setIsAutoSelectRouteDisabled
 }: {
   sheetRef: React.RefObject<any>
   closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
+  setIsAutoSelectRouteDisabled: (disable: boolean) => void
 }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
@@ -69,8 +71,15 @@ const RoutesModal = ({
       })
       setUserSelectedRoute(route)
       setIsEstimationLoading(true)
+      setIsAutoSelectRouteDisabled(true)
     },
-    [closeBottomSheet, dispatch, persistedSelectedRoute, disabledRoutes]
+    [
+      closeBottomSheet,
+      dispatch,
+      persistedSelectedRoute,
+      disabledRoutes,
+      setIsAutoSelectRouteDisabled
+    ]
   )
 
   useEffect(() => {
