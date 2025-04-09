@@ -29,8 +29,6 @@ import OnboardingCompletedScreen from '@web/modules/auth/screens/OnboardingCompl
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
-import HardwareWalletReconnectScreen from '@web/modules/hardware-wallet/screens/HardwareWalletReconnectScreen'
-import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import LedgerConnectScreen from '@web/modules/hardware-wallet/screens/LedgerConnectScreen/LedgerConnectScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -90,15 +88,6 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
             <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
             <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />
-            <Route
-              path={WEB_ROUTES.hardwareWalletSelect}
-              element={<HardwareWalletSelectorScreen />}
-            />
-            <Route
-              path={WEB_ROUTES.hardwareWalletReconnect}
-              element={<HardwareWalletReconnectScreen />}
-            />
-
             <Route
               path={WEB_ROUTES.viewOnlyAccountAdder}
               element={<ViewOnlyAccountAdderScreen />}

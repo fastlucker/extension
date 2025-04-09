@@ -33,12 +33,12 @@ const getAddKeyOptions = ({
   }
 
   return [
-    {
-      key: 'hw',
-      text: t('Connect a Hardware Wallet'),
-      icon: HWIcon,
-      onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect, 'hw', false)
-    },
+    // {
+    //   key: 'hw',
+    //   text: t('Connect a Hardware Wallet'),
+    //   icon: HWIcon,
+    //   onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect, 'hw', false)
+    // },
     {
       key: 'private-key',
       text: t('Private Key'),

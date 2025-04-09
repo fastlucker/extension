@@ -34,8 +34,6 @@ const WEB_ROUTES = {
   watchAsset: 'watch-asset',
   addChain: 'add-chain',
   switchAccount: 'switch-account',
-  hardwareWalletSelect: 'hardware-wallet/select',
-  hardwareWalletReconnect: 'hardware-wallet/reconnect',
   authEmailAccount: 'auth-email-account',
   authEmailLogin: 'auth-email-login',
   authEmailRegister: 'auth-email-register',
