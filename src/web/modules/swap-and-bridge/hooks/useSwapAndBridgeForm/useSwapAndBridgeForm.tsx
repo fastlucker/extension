@@ -3,7 +3,6 @@ import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
-import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { AccountOpAction } from '@ambire-common/interfaces/actions'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
@@ -51,7 +50,6 @@ const useSwapAndBridgeForm = () => {
     updateToTokenListStatus,
     supportedChainIds,
     updateQuoteStatus,
-    signAccountOpController,
     sessionIds
   } = useSwapAndBridgeControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
@@ -359,20 +357,13 @@ const useSwapAndBridgeForm = () => {
   }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
 
   const formattedToAmount = useMemo(() => {
-    if (
-      !quote ||
-      !quote.selectedRoute ||
-      !quote?.toAsset?.decimals ||
-      !signAccountOpController?.estimation ||
-      signAccountOpController?.estimation.status === EstimationStatus.Loading
-    )
-      return '0'
+    if (!quote || !quote.selectedRoute || !quote?.toAsset?.decimals) return '0'
 
     return `${formatDecimals(
       Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
       'precise'
     )}`
-  }, [quote, signAccountOpController?.estimation])
+  }, [quote])
 
   const shouldConfirmFollowUpTransactions = useMemo(() => {
     if (!quote?.selectedRoute) return false

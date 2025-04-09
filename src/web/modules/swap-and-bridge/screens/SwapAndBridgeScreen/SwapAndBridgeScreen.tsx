@@ -16,6 +16,7 @@ import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import NumberInput from '@common/components/NumberInput'
 import Select from '@common/components/Select'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useNavigation from '@common/hooks/useNavigation'
@@ -280,7 +281,7 @@ const SwapAndBridgeScreen = () => {
               spacings.ph,
               spacings.pb,
               spacings.ptMd,
-              spacings.mbXl,
+              spacings.mbMd,
               {
                 borderRadius: 12,
                 backgroundColor: theme.primaryBackground,
@@ -288,7 +289,7 @@ const SwapAndBridgeScreen = () => {
                 shadowOffset: { width: 0, height: 12 },
                 shadowOpacity: 0.3,
                 shadowRadius: 24,
-                elevation: 10 // for Android
+                elevation: 10
               }
             ]}
           >
@@ -408,7 +409,7 @@ const SwapAndBridgeScreen = () => {
                 </View>
               </View>
             </View>
-            <View style={spacings.mbTy}>
+            <View>
               <View
                 style={[
                   flexbox.directionRow,
@@ -447,27 +448,36 @@ const SwapAndBridgeScreen = () => {
                     handleAddToTokenByAddress={handleAddToTokenByAddress}
                   />
                   <View style={[flexbox.flex1]}>
-                    <Text
-                      fontSize={20}
-                      weight="medium"
-                      numberOfLines={1}
-                      appearance={
-                        formattedToAmount && formattedToAmount !== '0'
-                          ? 'primaryText'
-                          : 'secondaryText'
-                      }
-                      style={{ ...spacings.mr, textAlign: 'right' }}
-                    >
-                      {formattedToAmount}
-                      {!!formattedToAmount &&
-                        formattedToAmount !== '0' &&
-                        !!quote?.selectedRoute && (
-                          <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
-                            quote.selectedRoute.outputValueInUsd,
-                            'price'
-                          )})`}</Text>
-                        )}
-                    </Text>
+                    {!isEstimatingRoute ? (
+                      <Text
+                        fontSize={20}
+                        weight="medium"
+                        numberOfLines={1}
+                        appearance={
+                          formattedToAmount && formattedToAmount !== '0'
+                            ? 'primaryText'
+                            : 'secondaryText'
+                        }
+                        style={{ ...spacings.mr, textAlign: 'right' }}
+                      >
+                        {formattedToAmount}
+                        {!!formattedToAmount &&
+                          formattedToAmount !== '0' &&
+                          !!quote?.selectedRoute && (
+                            <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
+                              quote.selectedRoute.outputValueInUsd,
+                              'price'
+                            )})`}</Text>
+                          )}
+                      </Text>
+                    ) : (
+                      <SkeletonLoader
+                        appearance="tertiaryBackground"
+                        width={100}
+                        height={32}
+                        style={{ marginLeft: 'auto' }}
+                      />
+                    )}
                   </View>
                 </View>
                 {toTokenInPortfolio && (
@@ -491,49 +501,95 @@ const SwapAndBridgeScreen = () => {
               </View>
             </View>
 
+            {!!highPriceImpactInPercentage && (
+              <View style={spacings.mbTy} testID="high-price-impact-sab">
+                <Alert type="error" withIcon={false}>
+                  <Checkbox
+                    value={highPriceImpactConfirmed}
+                    style={{ ...spacings.mb0 }}
+                    onValueChange={handleHighPriceImpactCheckboxPress}
+                    uncheckedBorderColor={theme.errorDecorative}
+                    checkedColor={theme.errorDecorative}
+                  >
+                    <Text
+                      fontSize={16}
+                      appearance="errorText"
+                      weight="medium"
+                      onPress={handleHighPriceImpactCheckboxPress}
+                    >
+                      {t('Warning: ')}
+                      <Text
+                        fontSize={16}
+                        appearance="errorText"
+                        onPress={handleHighPriceImpactCheckboxPress}
+                      >
+                        {t(
+                          'The price impact is too high (-{{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
+                          {
+                            highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1)
+                          }
+                        )}
+                      </Text>
+                    </Text>
+                  </Checkbox>
+                </Alert>
+              </View>
+            )}
+          </View>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
             {[
               SwapAndBridgeFormStatus.FetchingRoutes,
               SwapAndBridgeFormStatus.NoRoutesFound,
               SwapAndBridgeFormStatus.InvalidRouteSelected,
               SwapAndBridgeFormStatus.ReadyToEstimate,
               SwapAndBridgeFormStatus.ReadyToSubmit
-            ].includes(formStatus) && (
-              <View
-                style={[
-                  spacings.mtTy,
-                  spacings.mbTy,
-                  flexbox.directionRow,
-                  flexbox.alignCenter,
-                  flexbox.justifySpaceBetween,
-                  flexbox.flex1
-                ]}
-              >
-                {formStatus === SwapAndBridgeFormStatus.NoRoutesFound ? (
-                  <View>
-                    <WarningIcon width={14} height={14} color={theme.warningDecorative} />
-                    <Text fontSize={14} weight="medium" appearance="warningText">
-                      {t('No routes found.')}
-                    </Text>
-                  </View>
-                ) : (
-                  <View />
-                )}
-
-                <Pressable
-                  style={{
-                    ...styles.selectAnotherRouteButton,
-                    opacity: shouldEnableRoutesSelection ? 1 : 0.5
-                  }}
-                  onPress={openRoutesModal as any}
-                  disabled={!shouldEnableRoutesSelection}
+            ].includes(formStatus) &&
+              signAccountOpController?.estimation &&
+              !isEstimatingRoute && (
+                <View
+                  style={[
+                    spacings.mbLg,
+                    flexbox.directionRow,
+                    flexbox.alignCenter,
+                    flexbox.justifySpaceBetween,
+                    flexbox.flex1
+                  ]}
                 >
-                  <Text fontSize={12} weight="medium" appearance="primary" style={spacings.mrTy}>
-                    {t('Select route')}
-                  </Text>
-                  <RightArrowIcon color={theme.primary} />
-                </Pressable>
-              </View>
-            )}
+                  {formStatus === SwapAndBridgeFormStatus.NoRoutesFound ? (
+                    <View>
+                      <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+                      <Text fontSize={14} weight="medium" appearance="warningText">
+                        {t('No routes found.')}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View />
+                  )}
+
+                  <Pressable
+                    style={{
+                      ...styles.selectAnotherRouteButton,
+                      opacity: shouldEnableRoutesSelection ? 1 : 0.5
+                    }}
+                    onPress={openRoutesModal as any}
+                    disabled={!shouldEnableRoutesSelection}
+                  >
+                    <Text
+                      fontSize={14}
+                      weight="medium"
+                      appearance="primary"
+                      style={{
+                        ...spacings.mr,
+                        textDecorationColor: theme.primary,
+                        textDecorationLine: 'underline'
+                      }}
+                    >
+                      {t('Select route')}
+                    </Text>
+                    <RightArrowIcon weight="2" width={5} height={16} color={theme.primary} />
+                  </Pressable>
+                </View>
+              )}
 
             {(formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
               formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
@@ -570,41 +626,6 @@ const SwapAndBridgeScreen = () => {
                   </Checkbox>
                 </View>
               )}
-
-            {!!highPriceImpactInPercentage && (
-              <View style={spacings.mbTy} testID="high-price-impact-sab">
-                <Alert type="error" withIcon={false}>
-                  <Checkbox
-                    value={highPriceImpactConfirmed}
-                    style={{ ...spacings.mb0 }}
-                    onValueChange={handleHighPriceImpactCheckboxPress}
-                    uncheckedBorderColor={theme.errorDecorative}
-                    checkedColor={theme.errorDecorative}
-                  >
-                    <Text
-                      fontSize={16}
-                      appearance="errorText"
-                      weight="medium"
-                      onPress={handleHighPriceImpactCheckboxPress}
-                    >
-                      {t('Warning: ')}
-                      <Text
-                        fontSize={16}
-                        appearance="errorText"
-                        onPress={handleHighPriceImpactCheckboxPress}
-                      >
-                        {t(
-                          'The price impact is too high (-{{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
-                          {
-                            highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1)
-                          }
-                        )}
-                      </Text>
-                    </Text>
-                  </Checkbox>
-                </Alert>
-              </View>
-            )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
             <Button
