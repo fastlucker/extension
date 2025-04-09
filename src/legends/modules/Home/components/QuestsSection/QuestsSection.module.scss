@@ -55,6 +55,13 @@
   @include breakpoint-down-from(medium-desktop) {
     padding-left: 3rem;
 
+    .titleAndButtons {
+      margin-left: 0;
+      margin-right: 3rem;
+      box-sizing: border-box;
+      width: auto;
+    }
+
     :global(.swiper) {
       margin-left: 0;
     }
