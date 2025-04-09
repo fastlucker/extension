@@ -392,7 +392,7 @@ const SwapAndBridgeScreen = () => {
                         testID="switch-currency-sab"
                       >
                         {fromAmountFieldMode === 'token'
-                          ? `$${
+                          ? `${
                               fromAmountInFiat
                                 ? formatDecimals(parseFloat(fromAmountInFiat), 'value')
                                 : 0
