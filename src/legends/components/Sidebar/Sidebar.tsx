@@ -10,13 +10,13 @@ import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Leader from '@legends/common/assets/svg/Leader'
+import useAccountContext from '@legends/hooks/useAccountContext'
 import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import LeaderModal from '@legends/modules/legends/components/LeaderModal'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
-import AccountInfo from '../AccountInfo'
 import Link from './components/Link'
 import Socials from './components/Socials'
 import styles from './Sidebar.module.scss'
@@ -45,7 +45,9 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
   const { pathname } = useLocation()
   const { legends } = useLegendsContext()
   const containerRef = useRef(null)
-  const legendLeader = legends.find((legend) => legend.id === 'referral')
+  const { connectedAccount } = useAccountContext()
+
+  const legendLeader = connectedAccount && legends.find((legend) => legend.id === 'referral')
   const [isLeaderModalOpen, setIsLeaderModalOpen] = useState(false)
   const { startPolling, stopPolling } = useDataPollingContext()
 
@@ -74,13 +76,15 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
         <img className={styles.logo} src="/images/logo.png" alt="Ambire Legends" />
-        <AccountInfo />
+        {/* {connectedAccount && <AccountInfo />} */}
         <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
 
         <div className={styles.links}>
           {NAVIGATION_LINKS.map((link) => (
             <Link
-              isActive={pathname === link.to}
+              isActive={
+                pathname === link.to || (pathname === '/' && link.to === LEGENDS_ROUTES.home)
+              }
               key={link.to}
               to={link.to}
               text={link.text}

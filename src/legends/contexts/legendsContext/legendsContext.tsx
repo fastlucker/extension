@@ -46,7 +46,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const treasureChestOpenedForToday = useMemo(
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
-        ?.card.status === CardStatus.completed ||  legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
+        ?.card.status === CardStatus.completed ||
+      legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
         ?.card.status === CardStatus.disabled,
     [legends]
   )
@@ -61,8 +62,9 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const getLegends = useCallback(async () => {
     setError(null)
     try {
-      const rawCards = await fetch(`${RELAYER_URL}/legends/cards?identity=${connectedAccount}`)
-
+      const rawCards = await fetch(
+        `${RELAYER_URL}/legends/cards${connectedAccount ? `?identity=${connectedAccount}` : ''}`
+      )
       const cards = await rawCards.json()
       const sortedCards = sortCards(cards)
       setLegends(sortedCards)

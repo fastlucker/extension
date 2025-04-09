@@ -22,15 +22,17 @@ const QuestsSection = () => {
   const { legends, isLoading } = useLegendsContext()
   const sliderRef = useRef(null)
 
-  const sortedLegends = legends.sort((a, b) => {
-    if (a.card.type === CardType.daily && b.card.type !== CardType.daily) return -1
-    if (a.card.type !== CardType.daily && b.card.type === CardType.daily) return 1
+  const sortedLegends =
+    legends &&
+    legends.sort((a, b) => {
+      if (a.card.type === CardType.daily && b.card.type !== CardType.daily) return -1
+      if (a.card.type !== CardType.daily && b.card.type === CardType.daily) return 1
 
-    if (a.card.status === CardStatus.active && b.card.status !== CardStatus.active) return -1
-    if (a.card.status !== CardStatus.active && b.card.status === CardStatus.active) return 1
+      if (a.card.status === CardStatus.active && b.card.status !== CardStatus.active) return -1
+      if (a.card.status !== CardStatus.active && b.card.status === CardStatus.active) return 1
 
-    return 0
-  })
+      return 0
+    })
 
   // Handler to go to the next character
   const handleNext = () => {
@@ -45,7 +47,7 @@ const QuestsSection = () => {
     sliderRef.current.swiper.slidePrev()
   }
 
-  if (isLoading) return null
+  if (isLoading || !legends) return null
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleAndButtons}>

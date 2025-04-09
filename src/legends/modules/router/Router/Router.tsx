@@ -58,11 +58,6 @@ const router = createHashRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: LEGENDS_ROUTES.landing,
-        element: <Landing />,
-        index: true
-      },
-      {
         path: LEGENDS_ROUTES.characterSelect,
         element: <CharacterSelect />
       },
@@ -88,6 +83,10 @@ const router = createHashRouter([
           {
             path: LEGENDS_ROUTES.staking,
             element: <Staking />
+          },
+          {
+            path: '/',
+            element: <Home />
           }
         ]
       }
