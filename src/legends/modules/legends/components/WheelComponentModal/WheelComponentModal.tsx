@@ -186,7 +186,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
       case 'unlocking':
         return 'Unlocking...'
       case 'unlocked':
-        return 'Spin the Wheel'
+        return 'Spin The Wheel'
       case 'error':
         return 'Close'
       case 'spinning':
@@ -195,7 +195,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
         if (!prizeNumber) return 'We are unable to retrieve your prize at the moment'
         return 'Close'
       default:
-        return 'Unlock the Wheel'
+        return 'Unlock The Wheel'
     }
   }, [wheelState, prizeNumber])
 

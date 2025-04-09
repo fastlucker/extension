@@ -100,7 +100,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       case 'unlocking':
         return 'Unlocking...'
       case 'unlocked':
-        return 'Open chest'
+        return 'Open The Chest'
       case 'error':
         return 'Close'
       case 'opening':
@@ -108,7 +108,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       case 'opened':
         return <MidnightTimer type="minutes" />
       default:
-        return 'Unlock chest'
+        return 'Unlock The Chest'
     }
   }, [chestState])
 
