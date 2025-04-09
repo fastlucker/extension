@@ -11,7 +11,7 @@ import QuestsSection from './components/QuestsSection'
 
 const Character = () => {
   const { nonV2Account, connectedAccount, allowNonV2Connection } = useAccountContext()
-  // console.log('connectedAccount', connectedAccount, 'nonV2Account', nonV2Account)
+
   return (
     <Page containerSize="full">
       {!allowNonV2Connection && !!nonV2Account ? (
