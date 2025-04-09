@@ -2,7 +2,6 @@ import { formatUnits, getAddress, isAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
-import { useSearchParams } from 'react-router-dom'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { AccountOpAction } from '@ambire-common/interfaces/actions'

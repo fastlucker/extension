@@ -62,11 +62,8 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pvSm
     },
     selectAnotherRouteButton: {
-      backgroundColor: '#6000FF14',
-      ...common.borderRadiusPrimary,
-      paddingVertical: 3,
+      paddingVertical: 2,
       ...spacings.phTy,
-      ...common.borderRadiusPrimary,
       ...flexbox.directionRow,
       ...flexbox.alignCenter
     },
