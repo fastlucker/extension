@@ -23,7 +23,7 @@ interface Props {
   withAmbireLogo?: boolean
   image?: string
   children?: any
-  backgroundColor?: ColorValue
+  backgroundColor?: string
   forceBack?: boolean
   onGoBackPress?: () => void
   width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'

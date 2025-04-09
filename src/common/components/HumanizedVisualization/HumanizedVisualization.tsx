@@ -1,7 +1,6 @@
 import React, { FC, memo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import HumanizerAddress from '@common/components/HumanizerAddress'
 import Text from '@common/components/Text'
@@ -32,7 +31,7 @@ interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize?: number
   textSize?: number
-  networkId: NetworkId
+  chainId: bigint
   isHistory?: boolean
   testID?: string
   hasPadding?: boolean
@@ -43,7 +42,7 @@ const HumanizedVisualization: FC<Props> = ({
   data = [],
   sizeMultiplierSize = 1,
   textSize = 16,
-  networkId,
+  chainId,
   isHistory,
   testID,
   hasPadding = true,
@@ -75,8 +74,7 @@ const HumanizedVisualization: FC<Props> = ({
               value={item.value}
               address={item.address!}
               textSize={textSize}
-              chainId={item.chainId}
-              networkId={networkId}
+              chainId={chainId}
             />
           )
         }
@@ -87,7 +85,7 @@ const HumanizedVisualization: FC<Props> = ({
               <HumanizerAddress
                 fontSize={textSize}
                 address={item.address}
-                explorerNetworkId={networkId}
+                explorerChainId={chainId}
               />
             </View>
           )

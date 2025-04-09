@@ -7,9 +7,8 @@ import AccountKey from '@common/components/AccountKey'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
+import { SPACING_LG } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'
-import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import getStyles from './styles'
@@ -32,7 +31,6 @@ const SigningKeySelect = ({
   account
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
   const { keys } = useKeystoreControllerState()
 
   if (!isVisible) return null
@@ -44,7 +42,7 @@ const SigningKeySelect = ({
         style={[
           styles.container,
           {
-            right: getTabLayoutPadding(maxWidthSize).paddingHorizontal
+            right: SPACING_LG
           }
         ]}
       >

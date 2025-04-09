@@ -38,7 +38,7 @@ const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
             Embark on your journey to becoming a Legend! 🌟
           </p>
           <div className={styles.stackedWrapper}>
-            <Stacked chains={['ethereum', 'base', 'arbitrum', 'scroll', 'optimism']} />
+            <Stacked chains={['1', '8453', '42161', '534352', '10']} />
           </div>
           <button onClick={onButtonClick} type="button" className={styles.button}>
             Continue

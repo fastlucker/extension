@@ -23,7 +23,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -34,13 +33,13 @@ import getStyles from './styles'
 
 const AddChainScreen = () => {
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
   const { statuses, networkToAddOrUpdate } = useNetworksControllerState()
-  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
+  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const actionButtonPressedRef = useRef(false)
 
@@ -106,8 +105,8 @@ const AddChainScreen = () => {
   }, [dispatch, rpcUrlIndex, networkDetails])
 
   useEffect(() => {
-    setFeatures(getFeatures(networkToAddOrUpdate?.info))
-  }, [networkToAddOrUpdate?.info])
+    setFeatures(getFeatures(networkToAddOrUpdate?.info, undefined))
+  }, [networkToAddOrUpdate?.info, networkDetails])
 
   useEffect(() => {
     if (!dappAction) return
@@ -204,12 +203,13 @@ const AddChainScreen = () => {
               <NetworkDetails
                 name={userRequest?.action?.params?.[0]?.chainName}
                 iconUrls={networkDetails?.iconUrls || []}
-                chainId={Number(networkDetails.chainId).toString()}
+                chainId={networkDetails.chainId}
                 rpcUrls={networkDetails.rpcUrls}
                 selectedRpcUrl={rpcUrls[rpcUrlIndex]}
                 nativeAssetSymbol={networkDetails.nativeAssetSymbol}
                 nativeAssetName={networkDetails.nativeAssetName}
                 explorerUrl={networkDetails.explorerUrl}
+                predefined={false}
               />
             </ScrollableWrapper>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
@@ -241,7 +241,7 @@ const AddChainScreen = () => {
               {!!networkDetails && (
                 <NetworkAvailableFeatures
                   features={features}
-                  networkId={networkDetails.name.toLowerCase()}
+                  chainId={networkDetails.chainId}
                   withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
                   handleRetry={handleRetryWithDifferentRpcUrl}
                 />

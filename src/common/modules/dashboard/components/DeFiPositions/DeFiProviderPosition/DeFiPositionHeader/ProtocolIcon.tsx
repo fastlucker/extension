@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
 import AaveIcon from '@common/assets/svg/AaveIcon'
 import UniswapIcon from '@common/assets/svg/UniswapIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -18,13 +17,7 @@ const POSITION_TO_ICON: {
   'AAVE v1': AaveIcon
 }
 
-const ProtocolIcon = ({
-  providerName,
-  networkId
-}: {
-  providerName: string
-  networkId: Network['id']
-}) => {
+const ProtocolIcon = ({ providerName, chainId }: { providerName: string; chainId: bigint }) => {
   const { theme } = useTheme()
   const Icon = POSITION_TO_ICON[providerName]
 
@@ -39,7 +32,7 @@ const ProtocolIcon = ({
           top: -4
         }}
         scale={1}
-        id={networkId}
+        id={chainId.toString()}
         size={20}
       />
     </View>

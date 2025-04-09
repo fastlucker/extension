@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
@@ -15,7 +14,7 @@ import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
 interface Props {
-  networkId: NetworkId
+  chainId: bigint
   activeStep: ActiveStepType
   txnId: string | null
   userOpHash: string | null
@@ -23,7 +22,7 @@ interface Props {
   summary: any
 }
 
-const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, networkId, stepsState, summary }) => {
+const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, chainId, stepsState, summary }) => {
   const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
 
   const stepRows: any = [
@@ -45,7 +44,8 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, networkId, stepsState
               spacings.phSm,
               {
                 backgroundColor: '#6000FF14',
-                borderRadius: 20
+                borderRadius: 20,
+                width: 'fit-content'
               }
             ]}
           >
@@ -56,7 +56,7 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, networkId, stepsState
             <TokenIcon
               containerStyle={{ marginLeft: 4 }}
               address={feePaidWith.address}
-              networkId={networkId}
+              chainId={chainId}
               containerHeight={32}
               containerWidth={32}
               width={18}

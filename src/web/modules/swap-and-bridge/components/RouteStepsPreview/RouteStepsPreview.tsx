@@ -88,7 +88,7 @@ const RouteStepsPreview = ({
                 <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
                   <RouteStepsToken
                     uri={step.fromAsset.icon}
-                    networkIdOrChainId={step.fromAsset.chainId}
+                    chainId={BigInt(step.fromAsset.chainId)}
                     address={step.fromAsset.address}
                     symbol={step.fromAsset.symbol}
                     amount={isOnlyOneStep ? formattedFromAmount : ''}
@@ -120,7 +120,7 @@ const RouteStepsPreview = ({
                 </View>
                 <RouteStepsToken
                   address={step.toAsset.address}
-                  networkIdOrChainId={step.toAsset.chainId}
+                  chainId={BigInt(step.toAsset.chainId)}
                   uri={step.toAsset.icon}
                   symbol={step.toAsset.symbol}
                   amount={formattedToAmount}
@@ -137,7 +137,7 @@ const RouteStepsPreview = ({
             >
               <RouteStepsToken
                 address={step.fromAsset.address}
-                networkIdOrChainId={step.fromAsset.chainId}
+                chainId={BigInt(step.fromAsset.chainId)}
                 uri={step.fromAsset.icon}
                 symbol={step.fromAsset.symbol}
                 amount={isFirst ? formattedFromAmount : ''}

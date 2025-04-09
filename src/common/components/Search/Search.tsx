@@ -71,6 +71,7 @@ const Search = ({
             onChange('')
             if (onSearchCleared) onSearchCleared()
           }}
+          testID="search-input"
           {...rest}
         />
       )}

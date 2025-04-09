@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 
-import { Network as NetworkInterface, NetworkId } from '@ambire-common/interfaces/network'
+import { Network as NetworkInterface } from '@ambire-common/interfaces/network'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -11,11 +11,11 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
   network: NetworkInterface
-  selectedNetworkId?: NetworkId
-  handleSelectNetwork: (networkId: NetworkId) => void
+  selectedChainId?: bigint
+  handleSelectNetwork: (chainId: bigint) => void
 }
 
-const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork }) => {
+const Network: FC<Props> = ({ network, selectedChainId, handleSelectNetwork }) => {
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -23,13 +23,13 @@ const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork })
       from: `${String(theme.secondaryBackground)}00`,
       to: theme.secondaryBackground
     },
-    forceHoveredStyle: network.id === selectedNetworkId
+    forceHoveredStyle: network.chainId === selectedChainId
   })
 
   return (
     <AnimatedPressable
-      key={network.id}
-      onPress={() => handleSelectNetwork(network.id)}
+      key={network.chainId.toString()}
+      onPress={() => handleSelectNetwork(network.chainId)}
       style={[
         flexbox.directionRow,
         flexbox.alignCenter,
@@ -41,7 +41,7 @@ const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork })
       ]}
       {...bindAnim}
     >
-      <NetworkIcon id={network.id} />
+      <NetworkIcon id={network.chainId.toString()} />
       <Text fontSize={16} weight="regular" style={spacings.mlMi} numberOfLines={1}>
         {network.name}
       </Text>

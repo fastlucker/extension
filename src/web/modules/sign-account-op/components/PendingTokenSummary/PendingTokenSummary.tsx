@@ -2,7 +2,6 @@ import { formatUnits } from 'ethers'
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import Text from '@common/components/Text'
@@ -11,19 +10,21 @@ import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { BigIntMath } from '@common/utils/bigint'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import getStyles from './styles'
 
 interface Props {
   token: TokenResult
-  networkId: NetworkId
+  chainId: bigint | undefined
   hasBottomSpacing?: boolean
 }
 
-const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Props) => {
+const PendingTokenSummary = ({ token, chainId, hasBottomSpacing = true }: Props) => {
   const { styles } = useTheme(getStyles)
-  const tokenId = getTokenId(token)
+  const { networks } = useNetworksControllerState()
+  const tokenId = getTokenId(token, networks)
   const amount = formatUnits(BigIntMath.abs(token.simulationAmount!), token.decimals || 18)
 
   const priceInUsd = useMemo(() => {
@@ -60,7 +61,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
         <TokenIcon
           width={20}
           height={20}
-          networkId={networkId}
+          chainId={chainId}
           address={token.address}
           withNetworkIcon={false}
         />

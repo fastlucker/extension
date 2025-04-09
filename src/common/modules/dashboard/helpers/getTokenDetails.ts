@@ -58,7 +58,7 @@ const formatPendingAmounts = (
 const getAndFormatTokenDetails = (
   {
     flags: { rewardsType },
-    networkId,
+    chainId,
     priceIn,
     latestAmount,
     pendingAmount,
@@ -72,7 +72,7 @@ const getAndFormatTokenDetails = (
 ) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
-  const networkData = networks.find(({ id }) => networkId === id)
+  const networkData = networks.find(({ chainId: nChainId }) => chainId === nChainId)
   const amountish = BigInt(amount)
   const amountishLatest = BigInt(latestAmount || 0n)
 

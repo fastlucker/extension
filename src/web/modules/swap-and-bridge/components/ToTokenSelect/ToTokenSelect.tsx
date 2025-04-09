@@ -126,7 +126,7 @@ const ToTokenSelect: React.FC<Props> = ({
         const isInPortfolioAndEligible = portfolio.tokens.some(
           (pt) =>
             pt.address === option.address &&
-            pt.networkId === option.networkId &&
+            pt.chainId.toString() === option.chainId.toString() &&
             getIsTokenEligibleForSwapAndBridge(pt)
         )
 

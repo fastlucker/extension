@@ -84,7 +84,7 @@ const AddressField: FC<Props> = ({
   }, [index, isLoading, trigger])
 
   const handleCacheResolvedDomain = useCallback(
-    (address: string, domain: string, type: 'ens' | 'ud') => {
+    (address: string, domain: string, type: 'ens') => {
       dispatch({
         type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
         params: {
@@ -126,7 +126,6 @@ const AddressField: FC<Props> = ({
             autoFocus
             disabled={isLoading}
             ensAddress={value.ensAddress}
-            udAddress={value.udAddress}
             isRecipientDomainResolving={value.isDomainResolving}
             onSubmitEditing={disabled ? undefined : handleSubmit}
             button={accounts.length > 1 ? <DeleteIcon /> : null}

@@ -19,7 +19,7 @@ const ActionsPagination = () => {
   const currentActionIndex = useMemo(() => {
     if (!state.currentAction) return undefined
 
-    const idx = state.visibleActionsQueue.findIndex((a) => a.id === state.currentAction.id)
+    const idx = state.visibleActionsQueue.findIndex((a) => a.id === state.currentAction?.id)
 
     if (idx === -1) return undefined
 
@@ -29,6 +29,7 @@ const ActionsPagination = () => {
   if (state?.visibleActionsQueue?.length <= 1) return null
 
   const handleSmallPageStepDecrement = () => {
+    if (typeof currentActionIndex !== 'number') return
     dispatch({
       type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX',
       params: { index: currentActionIndex - 1 }
@@ -36,6 +37,7 @@ const ActionsPagination = () => {
   }
 
   const handleSmallPageStepIncrement = () => {
+    if (typeof currentActionIndex !== 'number') return
     dispatch({
       type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX',
       params: { index: currentActionIndex + 1 }
@@ -55,6 +57,8 @@ const ActionsPagination = () => {
       params: { index: state.visibleActionsQueue.length - 1 }
     })
   }
+
+  if (typeof currentActionIndex !== 'number') return null
 
   return (
     <View
@@ -77,7 +81,7 @@ const ActionsPagination = () => {
         </View>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[spacings.ml, currentActionIndex === 0 && { opacity: 0.4 }]}
+        style={[spacings.mlTy, currentActionIndex === 0 && { opacity: 0.4 }]}
         disabled={currentActionIndex === 0}
         onPress={handleSmallPageStepDecrement}
       >
@@ -86,14 +90,14 @@ const ActionsPagination = () => {
         </View>
       </TouchableOpacity>
       <Text fontSize={14} appearance="primary" underline style={[text.center, spacings.mh]}>
-        {t('Request {{currentActionIndex}} out of {{numberOfAllActions}}', {
+        {t('Request {{currentActionIndex}} of {{numberOfAllActions}}', {
           currentActionIndex: currentActionIndex + 1,
           numberOfAllActions: state.visibleActionsQueue.length
         })}
       </Text>
       <TouchableOpacity
         style={[
-          spacings.mr,
+          spacings.mrTy,
           currentActionIndex === state.visibleActionsQueue.length - 1 && { opacity: 0.4 }
         ]}
         disabled={currentActionIndex === state.visibleActionsQueue.length - 1}
