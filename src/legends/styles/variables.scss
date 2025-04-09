@@ -24,6 +24,7 @@ $neutral-500: #7d84A4;
 $neutral-600: #6A6F86;
 $neutral-700: #191A1F;
 $neutral-800: #101114;
+$neutral-900: #23242B;
 
 // Purple Shades
 $purple-100: #f0ebff;
@@ -34,14 +35,15 @@ $purple-500: #855dff;
 $purple-600: #6735ff;
 $purple-700: #5e30e8;
 $purple-800: #4926b5;
+$purple-850: #6C2B99;
 $purple-900: #391d8c;
 $purple-1000: #2b166b;
 
 $dark-purple: #350586;
 
 // Blue Shades
-$blue-50: #f4f4f7;
-$blue-100: #dcdee5;
+// $blue-50: #f4f4f7;
+// $blue-100: #dcdee5;
 $blue-200: #cbcdd9;
 // $blue-300: #b3b7c7;
 // $blue-400: #a4a9bd;
@@ -103,17 +105,27 @@ $secondaryBackground: $neutral-700;
 $tertiaryBackground:$neutral-700;
 
 $whiteText: #FFFFFF;
+$purpleText: #A670FF;
+$blackText: #000000;
 
 $accent: $purple-600;
 $secondaryAccent: $green-500;
-
 $bronzeDecorative: $yellow-700;
 $silverDecorative: $neutral-400;
 $goldDecorative: $yellow-300;
+$backdrop: rgba($blackText, 0.5);
+
+// One time used colors
+$hover-dark: #373B43;
+$charcoal: #1E1F24;
+$blackText: #000000;
+$backdrop: rgba($blackText, 0.5);
+
+$primaryBorder: $hover-dark;
 
 // Old colors
 $alternativeText: #efefef;
-$primaryBorder: #ebdeca;
+// $primaryBorder: #ebdeca;
 $secondaryBorder: #c9c5be;
 $tertiaryBorder: #706048;
 // $tertiaryBackground: #efe3d3;
@@ -126,8 +138,6 @@ $goldBackground: #f8e3b7;
 $goldText: #b67d02;
 $yellowText: #F7BA2F;
 
-$blackText: #000000;
-$backdrop: rgba($blackText, 0.5);
 $primaryBadgeBackground: #2c567d;
 $primaryBadgeDecorative: #113a60;
 $secondaryBadgeBackground: #7d2c2d;

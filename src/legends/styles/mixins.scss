@@ -54,6 +54,10 @@
   margin: 0 auto;
 }
 
+@mixin containerLg {
+  max-width: 75rem;
+}
+
 @mixin on-mobile {
   @media (max-width: 599px) {
     @content;
