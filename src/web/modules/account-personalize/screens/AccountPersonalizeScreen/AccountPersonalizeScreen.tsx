@@ -1,8 +1,10 @@
+/* eslint-disable prettier/prettier */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import wait from '@ambire-common/utils/wait'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -14,6 +16,7 @@ import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -23,6 +26,8 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
+import AccountsLoadingAnimation from '../../components/AccountsLoadingAnimation'
+import AccountsLoadingDotsAnimation from '../../components/AccountsLoadingDotsAnimation'
 import getStyles from './styles'
 
 export const CARD_WIDTH = 400
@@ -43,6 +48,26 @@ const AccountPersonalizeScreen = () => {
 
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
   const personalizeReady = useRef(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      if (accountPickerState.isInitialized) await wait(1000)
+      if (
+        (accountPickerState.isInitialized &&
+          accountsToPersonalize.length > 0 &&
+          accountPickerState.addAccountsStatus === 'INITIAL') ||
+        (!accountPickerState.isInitialized && accountsToPersonalize.length > 0)
+      ) {
+        setIsLoading(false)
+      }
+    })()
+  }, [
+    accountPickerState.isInitialized,
+    accountsToPersonalize,
+    accountPickerState.addAccountsStatus
+  ])
 
   useEffect(() => {
     if (accountPickerState.isInitialized) {
@@ -87,6 +112,12 @@ const AccountPersonalizeScreen = () => {
     }
   }, [goToNextRoute, accounts])
 
+  useEffect(() => {
+    if (!isLoading && !accountsToPersonalize.length) {
+      goToNextRoute()
+    }
+  }, [goToNextRoute, isLoading, accountsToPersonalize.length])
+
   return (
     <TabLayoutContainer
       width="md"
@@ -95,16 +126,33 @@ const AccountPersonalizeScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel type="onboarding" spacingsSize="small" style={spacings.ptXl}>
-          <View style={[flexbox.alignCenter, spacings.mb2Xl]}>
-            <View style={styles.checkIconOuterWrapper}>
-              <View style={styles.checkIconInnerWrapper}>
-                <CheckIcon color={theme.successDecorative} width={28} height={28} />
+          {isLoading ? (
+            <View style={[flexbox.alignCenter]}>
+              <View style={spacings.mbLg}>
+                <AccountsLoadingAnimation />
+              </View>
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <View style={flexbox.flex1} />
+                <Text fontSize={20} weight="semiBold" style={[text.center, spacings.phMi]}>
+                  {t('Loading accounts')}
+                </Text>
+                <View style={[flexbox.flex1, flexbox.justifyEnd, { height: '75%' }]}>
+                  <AccountsLoadingDotsAnimation />
+                </View>
               </View>
             </View>
-            <Text weight="semiBold" fontSize={20}>
-              {t('Added Successfully')}
-            </Text>
-            {/* <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
+          ) : (
+            <>
+              <View style={[flexbox.alignCenter, spacings.mb2Xl]}>
+                <View style={styles.checkIconOuterWrapper}>
+                  <View style={styles.checkIconInnerWrapper}>
+                    <CheckIcon color={theme.successDecorative} width={28} height={28} />
+                  </View>
+                </View>
+                <Text weight="semiBold" fontSize={20}>
+                  {t('Added Successfully')}
+                </Text>
+                {/* <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
               <Text fontSize={16} appearance="successText">
                 {newAccounts.length === 1
                   ? t('Successfully added {{numOfAccounts}} account', {
@@ -115,42 +163,44 @@ const AccountPersonalizeScreen = () => {
                     })}
               </Text>
             </Alert> */}
-          </View>
-          <ScrollView style={spacings.mbLg}>
-            {accountsToPersonalize.map((acc, index) => (
-              <AccountPersonalizeCard
-                key={acc.addr}
-                control={control}
-                index={index}
-                account={acc}
-                hasBottomSpacing={index !== fields.length - 1}
-                onSave={handleSave as any}
-              />
-            ))}
-          </ScrollView>
-          <Button
-            testID="button-save-and-continue"
-            size="large"
-            onPress={handleGetStarted}
-            hasBottomSpacing={false}
-            text={t('Get Started')}
-          />
-          {accountPickerState.subType === 'seed' && (
-            <View style={spacings.ptLg}>
+              </View>
+              <ScrollView style={spacings.mbLg}>
+                {accountsToPersonalize.map((acc, index) => (
+                  <AccountPersonalizeCard
+                    key={acc.addr}
+                    control={control}
+                    index={index}
+                    account={acc}
+                    hasBottomSpacing={index !== fields.length - 1}
+                    onSave={handleSave as any}
+                  />
+                ))}
+              </ScrollView>
               <Button
-                type="ghost"
-                text={t('Add more accounts from this Recovery Phrase')}
-                onPress={() => goToNextRoute(WEB_ROUTES.accountPicker)}
-                textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
-                style={{ ...spacings.ph0, height: 22 }}
+                testID="button-save-and-continue"
+                size="large"
+                onPress={handleGetStarted}
                 hasBottomSpacing={false}
-                childrenPosition="left"
-              >
-                <Text fontSize={24} weight="light" style={spacings.mrTy} color={theme.primary}>
-                  +
-                </Text>
-              </Button>
-            </View>
+                text={t('Get Started')}
+              />
+              {accountPickerState.subType === 'seed' && (
+                <View style={spacings.ptLg}>
+                  <Button
+                    type="ghost"
+                    text={t('Add more accounts from this Recovery Phrase')}
+                    onPress={() => goToNextRoute(WEB_ROUTES.accountPicker)}
+                    textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
+                    style={{ ...spacings.ph0, height: 22 }}
+                    hasBottomSpacing={false}
+                    childrenPosition="left"
+                  >
+                    <Text fontSize={24} weight="light" style={spacings.mrTy} color={theme.primary}>
+                      +
+                    </Text>
+                  </Button>
+                </View>
+              )}
+            </>
           )}
         </Panel>
       </TabLayoutWrapperMainContent>
