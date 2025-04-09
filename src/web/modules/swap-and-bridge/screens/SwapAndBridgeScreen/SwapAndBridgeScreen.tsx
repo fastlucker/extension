@@ -42,6 +42,7 @@ import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToTokenSelect
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
 import getStyles from './styles'
 
 const SWAP_AND_BRIDGE_HC_URL = 'https://help.ambire.com/hc/en-us/articles/16748050198428'
@@ -77,8 +78,9 @@ const SwapAndBridgeScreen = () => {
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
     highPriceImpactInPercentage,
-    highPriceImpactConfirmed,
-    setHighPriceImpactConfirmed,
+    priceImpactModalRef,
+    closePriceImpactModal,
+    acknowledgeHighPriceImpact,
     handleSwitchFromAndToTokens,
     pendingRoutes,
     routesModalRef,
@@ -173,7 +175,6 @@ const SwapAndBridgeScreen = () => {
       (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit &&
         formStatus !== SwapAndBridgeFormStatus.ReadyToEstimate) ||
       shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
-      (!!highPriceImpactInPercentage && !highPriceImpactConfirmed) ||
       mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
       updateQuoteStatus === 'LOADING' ||
       isEstimatingRoute
@@ -182,8 +183,6 @@ const SwapAndBridgeScreen = () => {
     followUpTransactionConfirmed,
     isEstimatingRoute,
     formStatus,
-    highPriceImpactInPercentage,
-    highPriceImpactConfirmed,
     mainCtrlStatuses.buildSwapAndBridgeUserRequest,
     shouldConfirmFollowUpTransactions,
     updateQuoteStatus
@@ -217,10 +216,6 @@ const SwapAndBridgeScreen = () => {
     }
   }, [portfolio?.tokens, toChainId, toTokenValue.value])
 
-  const handleHighPriceImpactCheckboxPress = useCallback(() => {
-    setHighPriceImpactConfirmed((p) => !p)
-  }, [setHighPriceImpactConfirmed])
-
   const handleOpenReadMore = useCallback(() => Linking.openURL(SWAP_AND_BRIDGE_HC_URL), [])
 
   if (!sessionIds.includes(sessionId)) return null
@@ -228,7 +223,6 @@ const SwapAndBridgeScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      // header={<HeaderAccountAndNetworkInfo withOG />}
       header={
         <Header
           displayBackButtonIn="popup"
@@ -485,41 +479,6 @@ const SwapAndBridgeScreen = () => {
                 )}
               </View>
             </View>
-
-            {!!highPriceImpactInPercentage && (
-              <View style={spacings.mbTy} testID="high-price-impact-sab">
-                <Alert type="error" withIcon={false}>
-                  <Checkbox
-                    value={highPriceImpactConfirmed}
-                    style={{ ...spacings.mb0 }}
-                    onValueChange={handleHighPriceImpactCheckboxPress}
-                    uncheckedBorderColor={theme.errorDecorative}
-                    checkedColor={theme.errorDecorative}
-                  >
-                    <Text
-                      fontSize={16}
-                      appearance="errorText"
-                      weight="medium"
-                      onPress={handleHighPriceImpactCheckboxPress}
-                    >
-                      {t('Warning: ')}
-                      <Text
-                        fontSize={16}
-                        appearance="errorText"
-                        onPress={handleHighPriceImpactCheckboxPress}
-                      >
-                        {t(
-                          'The price impact is too high (-{{highPriceImpactInPercentage}}%). If you continue with this trade, you will lose a significant portion of your funds. Please tick the box to acknowledge that you have read and understood this warning.',
-                          {
-                            highPriceImpactInPercentage: highPriceImpactInPercentage.toFixed(1)
-                          }
-                        )}
-                      </Text>
-                    </Text>
-                  </Checkbox>
-                </Alert>
-              </View>
-            )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
             {[
@@ -643,15 +602,12 @@ const SwapAndBridgeScreen = () => {
             <Button
               text={
                 mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' || isEstimatingRoute
-                  ? t('Loading...') // prev Building Transaction
-                  : highPriceImpactInPercentage
-                  ? t('Proceed anyway')
-                  : t('Proceed') // prev Proceed
+                  ? t('Loading...')
+                  : t('Proceed')
               }
               disabled={isNotReadyToProceed || !isOneClickModeAllowed}
               style={{ minWidth: 160, ...spacings.mlLg }}
               hasBottomSpacing={false}
-              type={highPriceImpactInPercentage ? 'error' : 'primary'}
               onPress={() => handleSubmitForm(true)}
             />
           </View>
@@ -665,6 +621,12 @@ const SwapAndBridgeScreen = () => {
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModal}
         estimationModalRef={estimationModalRef}
+      />
+      <PriceImpactWarningModal
+        sheetRef={priceImpactModalRef}
+        closeBottomSheet={closePriceImpactModal}
+        acknowledgeHighPriceImpact={acknowledgeHighPriceImpact}
+        highPriceImpactInPercentage={highPriceImpactInPercentage}
       />
     </TabLayoutContainer>
   )
