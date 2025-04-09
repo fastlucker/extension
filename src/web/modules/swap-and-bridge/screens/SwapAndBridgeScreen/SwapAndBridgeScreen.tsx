@@ -593,7 +593,7 @@ const SwapAndBridgeScreen = () => {
           <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
             <Button
               hasBottomSpacing={false}
-              text={t('Start a Batch')}
+              text={isOneClickModeAllowed ? t('Start a batch') : t('Add to batch')}
               disabled={isNotReadyToProceed}
               type="secondary"
               style={{ minWidth: 160 }}
