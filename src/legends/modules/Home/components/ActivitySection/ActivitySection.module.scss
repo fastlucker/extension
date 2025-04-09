@@ -1,5 +1,16 @@
 @import '@legends/styles/base.scss';
 
+.wrapper {
+  @include container;
+  margin: 0 auto;
+
+  @include breakpoint-down-from(medium-desktop) {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    margin: 0;
+  }
+}
+
 .table {
   width: 100%;
   text-align: left;
@@ -27,7 +38,7 @@
 
   td {
     padding: 2rem 0 2rem;
-    border-bottom: .0938rem solid $tertiaryBackground;
+    border-bottom: 0.0938rem solid $tertiaryBackground;
   }
   tr {
     display: flex;
@@ -36,7 +47,7 @@
   thead {
     font-weight: 700;
     font-size: 1.25rem;
-    color:rgb($secondaryText, 0.4);
+    color: rgb($secondaryText, 0.4);
     font-weight: 500;
   }
 
@@ -93,7 +104,7 @@
     color: $quinaryText;
     border-radius: $secondaryBorderRadius;
     background-color: $tertiaryBackground;
-    font-size: .875rem;
+    font-size: 0.875rem;
     font-weight: 500;
   }
 

@@ -15,8 +15,9 @@ const Page = ({
   children: React.ReactNode | React.ReactNode[]
   pageRef?: React.RefObject<HTMLDivElement>
   style?: React.CSSProperties
-  containerSize?: 'md' | 'lg'
+  containerSize?: 'md' | 'lg' | 'full'
 }) => {
+  const customContainerSizeClass = styles[`container${containerSize}`] || ''
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const openSidebar = () => setIsSidebarOpen(true)
@@ -25,8 +26,8 @@ const Page = ({
   return (
     <div className={styles.wrapper}>
       <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
-      <div ref={pageRef} className={styles.scroll} style={style}>
-        <div className={`${styles.container} ${styles[`container${containerSize}`]}`}>
+      <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
+        <div className={`${styles.container} ${customContainerSizeClass}`}>
           <div className={styles.header}>
             <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
               <FontAwesomeIcon icon={faBars} />

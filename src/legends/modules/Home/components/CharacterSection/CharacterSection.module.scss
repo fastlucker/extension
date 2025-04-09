@@ -4,16 +4,20 @@
   margin-bottom: 1.5rem;
 }
 
-
 .wrapper {
+  @include container;
   display: flex;
   position: relative;
   margin-bottom: 3rem;
-  background: linear-gradient(147.96deg, $secondaryBackground 43.03%, rgba(19, 43, 37, 0.988) 87.21%);
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(19, 43, 37, 0.988) 87.21%
+  );
   border-radius: 1rem;
   padding: 2.75rem 2.5rem 1.25rem 2.375rem;
+  margin: 0 auto;
   margin-bottom: 8.5rem;
-
 
   .logoAndBalanceWrapper {
     display: inline-block;
@@ -85,7 +89,7 @@
         .characterItem {
           display: flex;
           flex-direction: column;
-          font-size: .875rem;
+          font-size: 0.875rem;
           font-weight: 400;
           line-height: 1.5rem;
           color: $secondaryText;
@@ -97,7 +101,7 @@
           flex-direction: column;
 
           .levelInfoTop {
-            margin-bottom: .125rem;
+            margin-bottom: 0.125rem;
           }
 
           .levelInfo {
@@ -124,7 +128,7 @@
 
           .levelProgress {
             flex: 1;
-            padding: .125rem .3125rem;
+            padding: 0.125rem 0.3125rem;
             border-radius: $secondaryBorderRadius;
             background-color: rgba($tertiaryText, 0.3);
             overflow: hidden;
@@ -161,7 +165,7 @@
 
       .item {
         min-width: 8.75rem;
-        padding: .5rem 1.5rem;
+        padding: 0.5rem 1.5rem;
         border-radius: $secondaryBorderRadius;
         background-color: $secondaryBackground;
         background-color: rgba($tertiaryText, 0.3);
@@ -220,14 +224,12 @@
         width: 18.75rem;
         height: 25.9375rem;
 
-
         width: 21.75rem;
         height: 28.9375rem;
         object-fit: contain;
       }
     }
   }
-
 
   .characterBlurEffect {
     position: absolute;
@@ -241,6 +243,12 @@
     background-repeat: no-repeat;
     right: 0;
     transform: scaleX(-1);
+  }
+
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+    margin-right: 3rem;
+    width: calc(100% - 6rem);
   }
 
   @include breakpoint-down-from(small-desktop) {

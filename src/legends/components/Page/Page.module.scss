@@ -39,6 +39,9 @@
     .containerlg {
       @include containerLg;
     }
+    .containerfull {
+      max-width: 100%;
+    }
   }
 
   @include breakpoint-from(large-tablet) {
@@ -60,7 +63,11 @@
 
   @include breakpoint-down-from(medium-desktop) {
     .scroll {
-      padding: 0 4rem;
+      padding: 0 3rem;
+
+      &.containerfull {
+        padding: 0;
+      }
     }
   }
 }
