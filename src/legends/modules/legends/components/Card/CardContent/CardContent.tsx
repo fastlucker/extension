@@ -1,8 +1,11 @@
 import React, { FC } from 'react'
 
 import LockIcon from '@legends/common/assets/svg/LockIcon'
+import ZapIcon from '@legends/common/assets/svg/ZapIcon'
 import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
 import styles from './CardContent.module.scss'
 import cardImage from './cardImage.png'
@@ -29,13 +32,15 @@ const CardContent: FC<Props> = ({
   xp,
   image,
   card,
+  action,
   openActionModal,
   disabled,
   treasureChestStreak
 }) => {
   const isCompleted = card.status === CardStatus.completed
   // TODO: apply the treasure chest streak badge
-
+  const isTreasureChestCard = isMatchingPredefinedId(action, CARD_PREDEFINED_ID.chest)
+  console.log(isTreasureChestCard, treasureChestStreak)
   return (
     <div
       className={`${styles.wrapper} ${(disabled || isCompleted) && styles.disabled}`}
@@ -85,13 +90,23 @@ const CardContent: FC<Props> = ({
         </div>
         <div className={styles.actionAndRewards}>
           <div className={styles.rewardFrequencyWrapper}>
-            <span
-              className={`${styles.rewardFrequency} ${
-                styles[`rewardFrequency${CARD_FREQUENCY[card.type]}`]
-              }`}
-            >
-              {CARD_FREQUENCY[card.type]}
-            </span>
+            {isTreasureChestCard && treasureChestStreak ? (
+              <div className={styles.streak}>
+                <ZapIcon width={14} height={19} />
+                <p className={styles.streakNumber}>{treasureChestStreak}</p>
+                <p className={styles.streakLabel}>
+                  {treasureChestStreak === 1 ? 'Day' : 'Days'} Streak
+                </p>
+              </div>
+            ) : (
+              <span
+                className={`${styles.rewardFrequency} ${
+                  styles[`rewardFrequency${CARD_FREQUENCY[card.type]}`]
+                }`}
+              >
+                {CARD_FREQUENCY[card.type]}
+              </span>
+            )}
           </div>
           <div>
             <div className={styles.rewardTitle}>

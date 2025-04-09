@@ -37,7 +37,7 @@ const Legends = () => {
               <h2 className={styles.groupName}>{CardGroup[groupName as keyof typeof CardGroup]}</h2>
               <div className={styles.cards}>
                 {cards.map((card) => (
-                  <Card key={card.title + card.card.type} cardData={card} />
+                  <Card key={card.title + card.card.type} cardData={card} action={card.action} />
                 ))}
               </div>
             </div>
