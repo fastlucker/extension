@@ -23,7 +23,8 @@ const Select = ({
     // we wrap non-sectioned list data in a default single section
     data: [{ data: options, title: '', key: 'default' }] as SectionedSelectProps['sections'],
     menuOptionHeight,
-    attemptToFetchMoreOptions
+    attemptToFetchMoreOptions,
+    mode: props.mode
   })
   const {
     listRef,
