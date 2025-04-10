@@ -427,7 +427,7 @@ const SwapAndBridgeScreen = () => {
                     handleAddToTokenByAddress={handleAddToTokenByAddress}
                   />
                   <View style={[flexbox.flex1]}>
-                    {!isEstimatingRoute ? (
+                    {!isEstimatingRoute && formStatus !== SwapAndBridgeFormStatus.FetchingRoutes ? (
                       <Text
                         fontSize={20}
                         weight="medium"
@@ -601,7 +601,9 @@ const SwapAndBridgeScreen = () => {
             />
             <Button
               text={
-                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' || isEstimatingRoute
+                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
+                isEstimatingRoute ||
+                formStatus === SwapAndBridgeFormStatus.FetchingRoutes
                   ? t('Loading...')
                   : t('Proceed')
               }
