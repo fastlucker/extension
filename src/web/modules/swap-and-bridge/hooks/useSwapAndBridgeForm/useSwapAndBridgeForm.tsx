@@ -1,32 +1,20 @@
-import { formatUnits, getAddress, isAddress, parseUnits } from 'ethers'
+import { getAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { AccountOpAction } from '@ambire-common/interfaces/actions'
-import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
-import { TokenResult } from '@ambire-common/libs/portfolio'
-import {
-  getIsNetworkSupported,
-  getIsTokenEligibleForSwapAndBridge
-} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import NetworkIcon from '@common/components/NetworkIcon'
-import { SelectValue } from '@common/components/Select/types'
-import Text from '@common/components/Text'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
-import useTheme from '@common/hooks/useTheme'
-import flexbox from '@common/styles/utils/flexbox'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -39,18 +27,12 @@ const useSwapAndBridgeForm = () => {
     fromAmount,
     fromSelectedToken,
     fromAmountFieldMode,
-    toSelectedToken,
     portfolioTokenList,
     isTokenListLoading,
-    toTokenList,
-    maxFromAmount,
-    maxFromAmountInFiat,
     quote,
     fromAmountInFiat,
     activeRoutes,
     formStatus,
-    toChainId,
-    updateToTokenListStatus,
     supportedChainIds,
     updateQuoteStatus,
     sessionIds
@@ -66,7 +48,6 @@ const useSwapAndBridgeForm = () => {
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { searchParams, setSearchParams } = useNavigation()
-  const { theme } = useTheme()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
@@ -223,153 +204,6 @@ const useSwapAndBridgeForm = () => {
     supportedChainIds
   })
 
-  const handleChangeFromToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = portfolioTokenList.find(
-        (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
-      )
-
-      setIsAutoSelectRouteDisabled(false)
-
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { fromSelectedToken: tokenToSelect }
-      })
-    },
-    [dispatch, portfolioTokenList, networks]
-  )
-
-  const {
-    options: toTokenOptions,
-    value: toTokenValue,
-    amountSelectDisabled: toTokenAmountSelectDisabled
-  } = useGetTokenSelectProps({
-    tokens: toTokenList,
-    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
-    networks,
-    supportedChainIds,
-    isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
-    isToToken: true
-  })
-
-  const handleChangeToToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find(
-        (t: SwapAndBridgeToToken) => getTokenId(t, networks) === value
-      )
-
-      setIsAutoSelectRouteDisabled(false)
-
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { toSelectedToken: tokenToSelect }
-      })
-    },
-    [dispatch, toTokenList, networks]
-  )
-
-  const handleAddToTokenByAddress = useCallback(
-    (searchTerm: string) => {
-      const isValidTokenAddress = isAddress(searchTerm)
-      if (!isValidTokenAddress) return
-
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS',
-        params: { address: searchTerm }
-      })
-    },
-    [dispatch]
-  )
-
-  const toNetworksOptions: SelectValue[] = useMemo(
-    () =>
-      networks.map((n) => {
-        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
-        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
-
-        return {
-          value: String(n.chainId),
-          extraSearchProps: [n.name],
-          disabled: !isNetworkSupported,
-          label: (
-            <>
-              <Text
-                fontSize={14}
-                weight="medium"
-                dataSet={{ tooltipId }}
-                style={flexbox.flex1}
-                numberOfLines={1}
-              >
-                {n.name}
-              </Text>
-              {!isNetworkSupported && (
-                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
-              )}
-            </>
-          ),
-          icon: (
-            <NetworkIcon
-              key={n.chainId.toString()}
-              id={n.chainId.toString()}
-              style={{ backgroundColor: theme.primaryBackground }}
-              size={18}
-            />
-          )
-        }
-      }),
-    [networks, supportedChainIds, theme.primaryBackground]
-  )
-
-  const getToNetworkSelectValue = useMemo(() => {
-    const network = networks.find((n) => Number(n.chainId) === toChainId)
-    if (!network) return toNetworksOptions[0]
-
-    return toNetworksOptions.filter((opt) => opt.value === String(network.chainId))[0]
-  }, [networks, toChainId, toNetworksOptions])
-
-  const handleSetToNetworkValue = useCallback(
-    (networkOption: SelectValue) => {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: {
-          toChainId: networks.filter((n) => String(n.chainId) === networkOption.value)[0].chainId
-        }
-      })
-    },
-    [networks, dispatch]
-  )
-
-  const handleSwitchFromAmountFieldMode = useCallback(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-      params: { fromAmountFieldMode: fromAmountFieldMode === 'token' ? 'fiat' : 'token' }
-    })
-  }, [fromAmountFieldMode, dispatch])
-
-  const handleSwitchFromAndToTokens = useCallback(
-    () =>
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
-      }),
-    [dispatch]
-  )
-
-  const handleSetMaxFromAmount = useCallback(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-      params: { fromAmount: fromAmountFieldMode === 'token' ? maxFromAmount : maxFromAmountInFiat }
-    })
-  }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
-
-  const formattedToAmount = useMemo(() => {
-    if (!quote || !quote.selectedRoute || !quote?.toAsset?.decimals) return '0'
-
-    return `${formatDecimals(
-      Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
-      'amount'
-    )}`
-  }, [quote])
-
   /**
    * @deprecated - no operations should require follow up transactions
    */
@@ -473,19 +307,7 @@ const useSwapAndBridgeForm = () => {
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
     fromTokenValue,
-    handleChangeFromToken,
-    toNetworksOptions,
-    getToNetworkSelectValue,
-    handleSetToNetworkValue,
-    toTokenAmountSelectDisabled,
-    toTokenOptions,
-    toTokenValue,
-    handleAddToTokenByAddress,
-    handleChangeToToken,
-    handleSwitchFromAmountFieldMode,
-    handleSetMaxFromAmount,
     handleSubmitForm,
-    formattedToAmount,
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
     setFollowUpTransactionConfirmed,
@@ -495,7 +317,6 @@ const useSwapAndBridgeForm = () => {
     acknowledgeHighPriceImpact,
     settingModalVisible,
     handleToggleSettingsMenu,
-    handleSwitchFromAndToTokens,
     pendingRoutes,
     routesModalRef,
     openRoutesModal,
