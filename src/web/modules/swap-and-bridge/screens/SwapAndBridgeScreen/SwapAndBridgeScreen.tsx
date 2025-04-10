@@ -454,7 +454,7 @@ const SwapAndBridgeScreen = () => {
                           !!quote?.selectedRoute && (
                             <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
                               quote.selectedRoute.outputValueInUsd,
-                              'price'
+                              'value'
                             )})`}</Text>
                           )}
                       </Text>

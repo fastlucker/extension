@@ -65,7 +65,7 @@ const RouteStepsPreview = ({
 
     const toAmount = `${formatDecimals(
       Number(formatUnits(toStep.toAmount, toStep.toAsset.decimals)),
-      'precise'
+      'amount'
     )}`
 
     if (toAmount.length > 10) {

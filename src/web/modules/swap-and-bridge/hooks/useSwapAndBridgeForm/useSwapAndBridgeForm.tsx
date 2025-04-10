@@ -366,7 +366,7 @@ const useSwapAndBridgeForm = () => {
 
     return `${formatDecimals(
       Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
-      'precise'
+      'amount'
     )}`
   }, [quote])
 
