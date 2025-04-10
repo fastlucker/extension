@@ -354,10 +354,28 @@ export class ProviderController {
       throw ethErrors.rpc.invalidParams(`account with address ${accountAddr} does not exist`)
     }
 
+    const states = await this.mainCtrl.accounts.getOrFetchAccountStates(accountAddr)
     const capabilities: any = {}
     this.mainCtrl.networks.networks.forEach((network) => {
-      const accountState =
-        this.mainCtrl.accounts.accountStates[accountAddr][network.chainId.toString()]
+      const accountState = states[network.chainId.toString()]
+
+      // if there's no account state for some reason (RPC not working atm),
+      // we should play it safe and return false for everything
+      if (!accountState) {
+        capabilities[networkChainIdToHex(network.chainId)] = {
+          atomicBatch: {
+            supported: false
+          },
+          auxiliaryFunds: {
+            supported: false
+          },
+          paymasterService: {
+            supported: false
+          }
+        }
+        return
+      }
+
       const isSmart = !accountState.isEOA || accountState.isSmarterEoa
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {

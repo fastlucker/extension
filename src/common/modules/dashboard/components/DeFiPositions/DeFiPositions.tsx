@@ -10,6 +10,7 @@ import DashboardPageScrollContainer from '@common/modules/dashboard/components/D
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
 import { getDoesNetworkMatch } from '@common/utils/search'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -92,20 +93,32 @@ const DeFiPositions: FC<Props> = ({
 
       if (item === 'empty') {
         return (
-          <Text fontSize={16} weight="medium" style={styles.noPositions}>
-            {!searchValue &&
-              !dashboardNetworkFilterName &&
-              t("You don't have any DeFi positions yet.")}
-            {!searchValue &&
-              dashboardNetworkFilterName &&
-              t(`You don't have any DeFi positions on ${dashboardNetworkFilterName}.`)}
-            {searchValue &&
-              t(
-                `No DeFi positions match "${searchValue}"${
-                  dashboardNetworkFilterName ? ` on ${dashboardNetworkFilterName}` : ''
-                }.`
-              )}
-          </Text>
+          <>
+            <Text fontSize={16} weight="medium" style={styles.noPositions}>
+              {!searchValue && !dashboardNetworkFilterName && t('No known protocols detected.')}
+              {!searchValue &&
+                dashboardNetworkFilterName &&
+                t(`No known protocols detected on ${dashboardNetworkFilterName}.`)}
+              {searchValue &&
+                t(
+                  `No known protocols match "${searchValue}"${
+                    dashboardNetworkFilterName ? ` on ${dashboardNetworkFilterName}` : ''
+                  }.`
+                )}
+            </Text>
+            <Text fontSize={14} style={styles.noPositions}>
+              {t('To suggest a protocol integration, ')}
+              <Text
+                fontSize={14}
+                appearance="primary"
+                onPress={() => {
+                  openInTab('https://help.ambire.com/hc/en-us', false)
+                }}
+              >
+                {t('open a ticket.')}
+              </Text>
+            </Text>
+          </>
         )
       }
 

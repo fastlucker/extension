@@ -43,24 +43,37 @@ const { isPopup } = getUiType()
 const DEFAULT_SM_FONT_SIZE = 14
 const DEFAULT_MD_FONT_SIZE = 16
 
-interface AlertTextProps extends TextProps {
+interface AlertVerticalTextProps extends TextProps {
   children: React.ReactNode
   size?: Props['size']
   type?: Props['type']
 }
 
-const AlertText: React.FC<AlertTextProps> = ({ children, size = 'md', type = 'info', ...rest }) => {
+const AlertVerticalText: React.FC<AlertVerticalTextProps> = ({
+  children,
+  size = 'md',
+  type = 'info',
+  style,
+  ...rest
+}) => {
   const isSmall = size === 'sm' || isPopup
   const fontSize = !isSmall ? DEFAULT_MD_FONT_SIZE : DEFAULT_SM_FONT_SIZE
 
   return (
-    <Text selectable fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`} {...rest}>
+    <Text
+      selectable
+      fontSize={fontSize - 2}
+      weight="regular"
+      style={[spacings.mrTy, { textAlign: 'center' }, style]}
+      appearance={`${type}Text`}
+      {...rest}
+    >
       {children}
     </Text>
   )
 }
 
-const Alert = ({
+const AlertVertical = ({
   title,
   titleWeight,
   text,
@@ -82,10 +95,10 @@ const Alert = ({
   return (
     <View
       style={[
-        !isSmall ? spacings.ph : spacings.phSm,
-        !isSmall ? spacings.pv : spacings.pvSm,
-        flexbox.directionRow,
+        !isSmall ? spacings.phLg : spacings.ph,
+        !isSmall ? spacings.pvLg : spacings.pv,
         common.borderRadiusPrimary,
+        flexbox.alignCenter,
         {
           borderWidth: 1,
           backgroundColor: theme[`${type}Background`],
@@ -96,68 +109,83 @@ const Alert = ({
       testID={testID}
     >
       {!!withIcon && (
-        <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
+        <View style={[!isSmall ? spacings.mbLg : spacings.mbTy]}>
           {CustomIcon ? (
             <CustomIcon />
           ) : (
-            <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
+            <Icon width={48} height={48} color={theme[`${type}Decorative`]} />
           )}
         </View>
       )}
-
-      <View style={flexbox.flex1}>
-        {!!title && (
-          <Text style={text ? (!isSmall ? spacings.mbTy : spacings.mbMi) : {}}>
-            {!isTypeLabelHidden && (
-              <Text
-                selectable
-                appearance={`${type}Text`}
-                fontSize={fontSize}
-                weight={titleWeight || 'semiBold'}
-                style={{ textTransform: 'capitalize' }}
-              >
-                {type}:{' '}
-              </Text>
-            )}
+      {!!title && (
+        <Text
+          style={[
+            text ? (!isSmall ? spacings.mbSm : spacings.mbTy) : {},
+            {
+              textAlign: 'center'
+            }
+          ]}
+        >
+          {!isTypeLabelHidden && (
             <Text
               selectable
               appearance={`${type}Text`}
               fontSize={fontSize}
               weight={titleWeight || 'semiBold'}
+              style={{ textTransform: 'capitalize' }}
             >
-              {title}
+              {type}:{' '}
             </Text>
+          )}
+          <Text
+            selectable
+            appearance={`${type}Text`}
+            fontSize={fontSize}
+            weight={titleWeight || 'semiBold'}
+          >
+            {title}
           </Text>
-        )}
+        </Text>
+      )}
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifyCenter,
+          {
+            maxWidth: '100%'
+          }
+        ]}
+      >
         {!!text &&
           (typeof text === 'string' ? (
-            <AlertText size={size} type={type}>
-              {text}
-            </AlertText>
+            <AlertVerticalText size={size} type={type}>
+              {text}{' '}
+            </AlertVerticalText>
           ) : (
             text
           ))}
-        {buttonProps && (
-          <Button
-            style={{
-              alignSelf: 'flex-end',
-              ...spacings.mtTy
-            }}
-            textStyle={type === 'error' && { fontSize: 14 }}
-            size="small"
-            type="primary"
-            hasBottomSpacing={false}
-            text={buttonProps.text}
-            onPress={buttonProps.onPress}
-            {...buttonProps}
-          />
-        )}
-        {children}
       </View>
+      {buttonProps && (
+        <Button
+          style={{
+            alignSelf: 'flex-end',
+            ...spacings.mtTy
+          }}
+          textStyle={type === 'error' && { fontSize: 14 }}
+          size="small"
+          type="primary"
+          hasBottomSpacing={false}
+          text={buttonProps.text}
+          onPress={buttonProps.onPress}
+          {...buttonProps}
+        />
+      )}
+      {children}
     </View>
   )
 }
 
-Alert.Text = AlertText
+AlertVertical.Text = AlertVerticalText
 
-export default Alert
+export default AlertVertical

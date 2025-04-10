@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -7,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 
 import { getFeatures } from '@ambire-common/libs/networks/networks'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { isValidURL } from '@ambire-common/services/validations'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
@@ -252,7 +252,8 @@ const NetworkForm = ({
       }
 
       try {
-        const rpc = new JsonRpcProvider(rpcUrl)
+        if (!rpcUrl) throw new Error('No RPC URL provided')
+        const rpc = getRpcProvider([rpcUrl], chainId ? Number(chainId) : undefined)
         const network = await rpc.getNetwork()
         rpc.destroy()
 
