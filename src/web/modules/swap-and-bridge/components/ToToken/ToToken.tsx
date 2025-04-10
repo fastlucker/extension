@@ -11,6 +11,7 @@ import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
+import getStyles from '@common/components/SendToken/styles'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
@@ -24,7 +25,6 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
-import getStyles from '@web/modules/swap-and-bridge/styles/swapAndBridgeCommonStyles'
 import { getTokenId } from '@web/utils/token'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
@@ -241,7 +241,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           }}
         />
       </View>
-      <View style={[styles.secondaryContainer, spacings.ph0]}>
+      <View style={[styles.container, spacings.ph0]}>
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm]}>
           <ToTokenSelect
             toTokenOptions={toTokenOptions}
