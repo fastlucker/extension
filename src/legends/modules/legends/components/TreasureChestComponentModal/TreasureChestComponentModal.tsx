@@ -295,7 +295,10 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             type="button"
             className={styles.button}
             disabled={
-              chestState === 'opening' || chestState === 'opened' || chestState === 'unlocking'
+              !connectedAccount ||
+              chestState === 'opening' ||
+              chestState === 'opened' ||
+              chestState === 'unlocking'
             }
             onClick={onButtonClick}
           >

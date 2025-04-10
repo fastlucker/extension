@@ -225,7 +225,7 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
-      disabled={!isActionEnabled}
+      disabled={!connectedAccount || !isActionEnabled}
       buttonText={BUTTON_TEXT[activeStep]}
       onButtonClick={onButtonClick}
     >

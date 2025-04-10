@@ -222,7 +222,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
           <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
           <img src={pointerImage} alt="pointer" className={styles.pointer} />
           <button
-            disabled={wheelState === 'spinning' || wheelState === 'unlocking'}
+            disabled={!connectedAccount || wheelState === 'spinning' || wheelState === 'unlocking'}
             type="button"
             className={`${styles.spinButton} ${
               POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
