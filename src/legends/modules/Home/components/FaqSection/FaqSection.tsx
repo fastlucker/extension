@@ -17,9 +17,9 @@ const FaqSection = () => {
   return (
     <div className={styles.wrapper}>
       <SectionHeading>FAQ</SectionHeading>
-      {faqData.map((faq, index) => (
-        <Accordion key={index} title={faq.question}>
-          <p>{faq.answer}</p>
+      {faqData.map((faq) => (
+        <Accordion key={faq.question} title={faq.question} titleClassName={styles.accordionTitle}>
+          <p className={styles.accordionDropdown}>{faq.answer}</p>
         </Accordion>
       ))}
     </div>

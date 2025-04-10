@@ -3,9 +3,25 @@
 .wrapper {
   @include container;
   position: relative;
+  margin-bottom: 2.625rem;
+
+  .accordionDropdown {
+    color: $secondaryText;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 300;
+  }
 
   @include breakpoint-down-from(medium-desktop) {
     margin-left: 3rem;
     margin-right: 3rem;
+
+    width: calc(100% - 6rem);
   }
+}
+
+
+.accordionTitle {
+    font-size: 1.25rem !important;
+    font-weight: 400 !important;
 }
