@@ -52,6 +52,17 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     })
   },
+  [ROUTES.ledgerConnect]: {
+    route: ROUTES.ledgerConnect,
+    title: Platform.select({
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
+    }),
+    name: Platform.select({
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
+    })
+  },
   [ROUTES.authEmailAccount]: {
     route: ROUTES.authEmailAccount,
     title: Platform.select({
@@ -95,24 +106,6 @@ const routesConfig: RouteConfig = {
     title: i18n.t('Restore Key Store Passphrase'),
     name: i18n.t('Restore Key Store Passphrase')
   },
-  [ROUTES.hardwareWalletSelect]: {
-    route: ROUTES.hardwareWalletSelect,
-    title: Platform.select({
-      default: i18n.t('Select Hardware Wallet')
-    }),
-    name: Platform.select({
-      default: i18n.t('Select Hardware Wallet')
-    })
-  },
-  [ROUTES.hardwareWalletLedger]: {
-    route: ROUTES.hardwareWalletLedger,
-    title: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
-    }),
-    name: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
-    })
-  },
   [ROUTES.accountPicker]: {
     route: ROUTES.accountPicker,
     title: Platform.select({
@@ -125,10 +118,10 @@ const routesConfig: RouteConfig = {
   [ROUTES.accountPersonalize]: {
     route: ROUTES.accountPersonalize,
     title: Platform.select({
-      default: i18n.t('Personalize Your Accounts')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Personalize Your Accounts')
+      default: i18n.t('Welcome to Ambire Wallet')
     })
   },
   [ROUTES.viewOnlyAccountAdder]: {
@@ -264,13 +257,6 @@ const routesConfig: RouteConfig = {
       default: i18n.t('Import Hot Wallet')
     }),
     name: Platform.select({ default: i18n.t('Import Hot Wallet') })
-  },
-  [ROUTES.hardwareWalletReconnect]: {
-    route: ROUTES.hardwareWalletReconnect,
-    title: Platform.select({
-      default: i18n.t('Reconnect Hardware Wallet')
-    }),
-    name: Platform.select({ default: i18n.t('Reconnect Hardware Wallet') })
   },
   [ROUTES.importPrivateKey]: {
     route: ROUTES.importPrivateKey,

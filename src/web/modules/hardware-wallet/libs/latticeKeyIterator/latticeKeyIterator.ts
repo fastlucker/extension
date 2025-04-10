@@ -14,7 +14,9 @@ type KeyIteratorProps = {
  * Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
  */
 class LatticeKeyIterator implements KeyIteratorInterface {
-  type = 'lattice'
+  type = 'lattice' as 'lattice'
+
+  subType = 'hw' as 'hw'
 
   walletSDK: KeyIteratorProps['walletSDK']
 

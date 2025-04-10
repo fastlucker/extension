@@ -42,9 +42,9 @@ const buttons: ButtonType[] = [
   { title: 'Private Key', route: WEB_ROUTES.importPrivateKey, icon: PrivateKeyIcon },
   { title: 'Recovery Phrase', route: WEB_ROUTES.importSeedPhrase, icon: SeedPhraseIcon },
   { title: 'Trezor', route: WEB_ROUTES.importPrivateKey, icon: TrezorIcon }, // TODO: add route
-  { title: 'Ledger', route: WEB_ROUTES.importPrivateKey, icon: LedgerIcon }, // TODO: add route
+  { title: 'Ledger', route: WEB_ROUTES.ledgerConnect, icon: LedgerIcon }, // TODO: add route
   { title: 'Grid Plus', route: WEB_ROUTES.importPrivateKey, icon: LatticeWithBorderIcon }, // TODO: add route
-  { title: 'JSON', route: WEB_ROUTES.importSmartAccountJson, icon: ImportJsonIcon }
+  { title: 'JSON Backup (file)', route: WEB_ROUTES.importSmartAccountJson, icon: ImportJsonIcon }
 ]
 
 const ImportExistingAccountSelectorScreen = () => {

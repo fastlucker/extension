@@ -167,21 +167,6 @@ export const iconColors = {
 
 export const lightOnlyRoutesOnMobile = []
 
-export const lightOnlyRoutesOnWeb = [
-  WEB_ROUTES.keyStoreSetup,
-  WEB_ROUTES.getStarted,
-  WEB_ROUTES.terms,
-  WEB_ROUTES.authEmailAccount,
-  WEB_ROUTES.authEmailLogin,
-  WEB_ROUTES.authEmailRegister,
-  WEB_ROUTES.hardwareWalletSelect,
-  WEB_ROUTES.hardwareWalletLedger,
-  WEB_ROUTES.accountPicker,
-  WEB_ROUTES.accountPersonalize,
-  WEB_ROUTES.dashboard,
-  WEB_ROUTES.signMessage,
-  WEB_ROUTES.transfer,
-  WEB_ROUTES.signAccountOp
-]
+export const lightOnlyRoutesOnWeb = []
 
 export default ThemeColors

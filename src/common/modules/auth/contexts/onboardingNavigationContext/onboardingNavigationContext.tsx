@@ -9,7 +9,6 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ONBOARDING_WEB_ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -52,7 +51,6 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { dispatch } = useBackgroundService()
   const { isSetupComplete } = useWalletStateController()
   const { isInitialized } = useAccountPickerControllerState()
-  const { accounts } = useAccountsControllerState()
   const isOnboardingRoute = useMemo(
     () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
     [path]
@@ -101,11 +99,10 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
         new RouteNode(
           WEB_ROUTES.importExistingAccount,
           [
+            ...common,
             new RouteNode(WEB_ROUTES.importPrivateKey, common),
             new RouteNode(WEB_ROUTES.importSeedPhrase, common),
-            new RouteNode('ledger', common),
-            new RouteNode('trezor', common),
-            new RouteNode('grid', common),
+            new RouteNode(WEB_ROUTES.ledgerConnect, common),
             new RouteNode(WEB_ROUTES.importSmartAccountJson, common)
           ],
           false,
@@ -116,7 +113,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized, accounts])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized])
 
   const loadHistory = () => {
     try {
@@ -197,6 +194,12 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       }
     }
   }, [path, prevPath, params, deepSearchRouteNode, navigate, onboardingRoutesTree, history])
+
+  useEffect(() => {
+    if (path === '/' && history.length) {
+      setHistory([])
+    }
+  }, [history.length, path])
 
   const goToNextRoute = useCallback(
     (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => {
