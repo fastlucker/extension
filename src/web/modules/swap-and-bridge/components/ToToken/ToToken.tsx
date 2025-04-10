@@ -24,9 +24,9 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import getStyles from '@web/modules/swap-and-bridge/styles/swapAndBridgeCommonStyles'
 import { getTokenId } from '@web/utils/token'
 
-import getStyles from '../../screens/SwapAndBridgeScreen/styles'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {

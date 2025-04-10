@@ -6,14 +6,9 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  tabLayoutContentContainer: ViewStyle
+  form: ViewStyle
   container: ViewStyle
-  secondaryContainer: ViewStyle
-  secondaryContainerWarning: ViewStyle
-  networkSelectorContainer: ViewStyle
-  previewRouteContainer: ViewStyle
   selectAnotherRouteButton: ViewStyle
-  routesRefreshButtonWrapper: ViewStyle
   followUpTxnText: TextStyle
 }
 
@@ -21,9 +16,18 @@ export const SWAP_AND_BRIDGE_FORM_WIDTH = 600
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    tabLayoutContentContainer: {
-      ...spacings.pt2Xl,
-      ...flexbox.alignCenter
+    form: {
+      ...spacings.ph,
+      ...spacings.pb,
+      ...spacings.ptMd,
+      ...spacings.mbMd,
+      borderRadius: 12,
+      backgroundColor: theme.primaryBackground,
+      shadowColor: theme.primaryBorder,
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 10
     },
     container: {
       width: '100%',
@@ -31,35 +35,6 @@ const getStyles = (theme: ThemeProps) =>
       flex: 1,
       alignSelf: 'center',
       overflow: 'visible'
-    },
-    secondaryContainer: {
-      backgroundColor: theme.secondaryBackground,
-      ...common.borderRadiusPrimary,
-      ...spacings.ptMd,
-      ...spacings.prMd,
-      ...spacings.pbSm,
-      ...spacings.pl
-    },
-    secondaryContainerWarning: {
-      borderWidth: 1,
-      borderColor: theme.warningDecorative,
-      backgroundColor: theme.warningBackground
-    },
-    networkSelectorContainer: {
-      ...flexbox.directionRow,
-      ...flexbox.justifyEnd,
-      ...flexbox.alignCenter,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.tertiaryBackground,
-      ...spacings.mbTy,
-      ...spacings.phSm,
-      ...spacings.pbTy
-    },
-    previewRouteContainer: {
-      backgroundColor: '#F5F6FA',
-      ...common.borderRadiusPrimary,
-      ...spacings.phSm,
-      ...spacings.pvSm
     },
     selectAnotherRouteButton: {
       paddingVertical: 2,
@@ -73,10 +48,6 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mrMi,
       ...spacings.pvMi,
       ...common.borderRadiusPrimary
-    },
-    routesRefreshButtonWrapper: {
-      height: 20,
-      ...flexbox.justifyCenter
     }
   })
 

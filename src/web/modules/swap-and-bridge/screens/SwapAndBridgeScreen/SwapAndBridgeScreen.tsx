@@ -188,23 +188,7 @@ const SwapAndBridgeScreen = () => {
             />
           )}
 
-          <View
-            style={[
-              spacings.ph,
-              spacings.pb,
-              spacings.ptMd,
-              spacings.mbMd,
-              {
-                borderRadius: 12,
-                backgroundColor: theme.primaryBackground,
-                shadowColor: theme.primaryBorder,
-                shadowOffset: { width: 0, height: 12 },
-                shadowOpacity: 0.3,
-                shadowRadius: 24,
-                elevation: 10
-              }
-            ]}
-          >
+          <View style={styles.form}>
             <FromToken
               fromTokenOptions={fromTokenOptions}
               fromTokenValue={fromTokenValue}

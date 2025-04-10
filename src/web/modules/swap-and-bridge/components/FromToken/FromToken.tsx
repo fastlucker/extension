@@ -18,10 +18,9 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
+import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import getStyles from '@web/modules/swap-and-bridge/styles/swapAndBridgeCommonStyles'
 import { getTokenId } from '@web/utils/token'
-
-import useSwapAndBridgeForm from '../../hooks/useSwapAndBridgeForm'
-import getStyles from '../../screens/SwapAndBridgeScreen/styles'
 
 type Props = Pick<
   ReturnType<typeof useSwapAndBridgeForm>,
