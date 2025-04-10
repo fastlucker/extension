@@ -8,7 +8,6 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
-import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -30,6 +29,7 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import Buttons from '../../components/Buttons'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
 import ToToken from '../../components/ToToken'
@@ -165,7 +165,20 @@ const SwapAndBridgeScreen = () => {
         />
       }
       withHorizontalPadding={false}
-      footer={!isPopup ? <BackButton onPress={handleBackButtonPress} /> : null}
+      footer={
+        !isPopup ? (
+          <>
+            <BackButton onPress={handleBackButtonPress} />
+            <Buttons
+              isOneClickModeAllowed={isOneClickModeAllowed}
+              isNotReadyToProceed={isNotReadyToProceed}
+              handleSubmitForm={handleSubmitForm}
+              isEstimatingRoute={isEstimatingRoute}
+              formStatus={formStatus}
+            />
+          </>
+        ) : null
+      }
     >
       <TabLayoutWrapperMainContent
         contentContainerStyle={{
@@ -321,29 +334,15 @@ const SwapAndBridgeScreen = () => {
                 </View>
               )}
           </View>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
-            <Button
-              hasBottomSpacing={false}
-              text={isOneClickModeAllowed ? t('Start a batch') : t('Add to batch')}
-              disabled={isNotReadyToProceed}
-              type="secondary"
-              style={{ minWidth: 160 }}
-              onPress={() => handleSubmitForm(false)}
+          {isPopup && (
+            <Buttons
+              isOneClickModeAllowed={isOneClickModeAllowed}
+              isNotReadyToProceed={isNotReadyToProceed}
+              handleSubmitForm={handleSubmitForm}
+              isEstimatingRoute={isEstimatingRoute}
+              formStatus={formStatus}
             />
-            <Button
-              text={
-                mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-                isEstimatingRoute ||
-                formStatus === SwapAndBridgeFormStatus.FetchingRoutes
-                  ? t('Loading...')
-                  : t('Proceed')
-              }
-              disabled={isNotReadyToProceed || !isOneClickModeAllowed}
-              style={{ minWidth: 160, ...spacings.mlLg }}
-              hasBottomSpacing={false}
-              onPress={() => handleSubmitForm(true)}
-            />
-          </View>
+          )}
         </View>
       </TabLayoutWrapperMainContent>
       <RoutesModal
