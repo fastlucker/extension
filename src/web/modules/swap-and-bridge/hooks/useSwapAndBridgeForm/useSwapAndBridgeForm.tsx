@@ -370,6 +370,9 @@ const useSwapAndBridgeForm = () => {
     )}`
   }, [quote])
 
+  /**
+   * @deprecated - no operations should require follow up transactions
+   */
   const shouldConfirmFollowUpTransactions = useMemo(() => {
     if (!quote?.selectedRoute) return false
 
