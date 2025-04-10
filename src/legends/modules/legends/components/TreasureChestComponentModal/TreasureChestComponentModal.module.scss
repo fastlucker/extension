@@ -29,7 +29,7 @@
   background-origin: padding-box, border-box;
   background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
                     linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
-  padding: 2rem;
+  padding: .75rem .875rem;
   display: flex;
   flex-direction: column;
 
@@ -96,7 +96,7 @@
   
   .header {
     display: flex;
-
+    flex-direction: column-reverse;
     .heading {
       font-size: 4rem;
       font-weight: 500;
@@ -105,7 +105,7 @@
     }
 
     .closeButton {
-      align-self: baseline;
+      align-self: end;
     }
   }
 
@@ -114,13 +114,14 @@
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 4.25rem;
+    padding: 0 1rem;
 
     .day {
         border-radius: $secondaryBorderRadius;
-        background-color: rgba($neutral-600, 0.08);
+        background: rgba($neutral-600, 0.1);
         // TODO: add variable
         border: .0625rem solid #9298b44d;
-
+      
         padding: .75rem;
         border-radius: .375rem;
         min-width: 5rem;
@@ -130,13 +131,14 @@
           justify-content: center;
           gap: 0.25rem;
           font-size: 1.25rem;
-          color: $whiteText;
+          color: $mainText;
           margin-bottom: .75rem;
           font-weight: 500;
+          line-height: 100%;
         }
 
         .dayText {
-          color: $whiteText;
+          color: $mainText;
           font-size: .75rem;
           font-weight: 400;
           text-align: center;
@@ -145,22 +147,24 @@
         .xpText {
           color: rgba($whiteText, 0.5);
           font-size: .75rem;
-          vertical-align: text-top;
+          vertical-align: top;
+          line-height: 100%;
           font-weight: 400;
         }
     }
 
     .passed {
-      background-color: rgba($secondaryAccent, 0.08);
-      border: .0625rem solid rgba(28, 81, 11, 1);
+      background-color: $midnightDark;
 
       .dayText {
-        color: $whiteText;
+        color: $mainText;
       }
     }
 
     .current {
       border: .125rem solid $purpleText;
+      background-color: rgba($neutral-600, 0.2);
+
       .icon {
         color: $purpleText;
       }
@@ -205,7 +209,7 @@
     font-size: 1.25rem;
     font-weight: 500;
     align-self: center;
-    max-width: 18.75rem;
+    max-width: 24.625rem;
     z-index: 10;
   }
 }
