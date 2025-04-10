@@ -131,7 +131,7 @@ const AccountPersonalizeScreen = () => {
       header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel type="onboarding" spacingsSize="small" style={spacings.ptXl}>
+        <Panel type="onboarding" spacingsSize="small" style={spacings.ptMd}>
           {isLoading ? (
             <View style={[flexbox.alignCenter]}>
               <View style={spacings.mbLg}>
@@ -149,7 +149,7 @@ const AccountPersonalizeScreen = () => {
             </View>
           ) : (
             <>
-              <View style={[flexbox.alignCenter, spacings.mb2Xl]}>
+              <View style={[flexbox.alignCenter, spacings.mbXl]}>
                 <View style={styles.checkIconOuterWrapper}>
                   <View style={styles.checkIconInnerWrapper}>
                     <CheckIcon color={theme.successDecorative} width={28} height={28} />

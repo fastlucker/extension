@@ -146,7 +146,9 @@ const ImportExistingAccountSelectorScreen = () => {
             {buttons.length > VISIBLE_BUTTONS_COUNT && (
               <Button hasBottomSpacing={false} type="ghost" onPress={() => setShowMore(!showMore)}>
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text appearance="primary">{t(showMore ? 'Less' : 'More')}</Text>
+                  <Text appearance="primary" style={spacings.mrSm} weight="medium">
+                    {t(showMore ? 'Less' : 'More')}
+                  </Text>
                   {/* TODO: Add animation on hover */}
                   <DiagonalRightArrowIcon
                     color={theme.primary}

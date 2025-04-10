@@ -2,6 +2,7 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
@@ -23,18 +24,17 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusSecondary,
       backgroundColor: theme.primaryBackground,
       ...common.shadowTertiary,
-      alignSelf: 'center',
-      overflow: 'hidden',
+      ...flexbox.alignSelfCenter,
       minHeight: 486,
-      maxHeight: '92%'
-    },
-    innerContainer: {
-      alignSelf: 'center',
-      flex: 1,
+      maxHeight: '92%',
       overflow: 'hidden'
     },
+    innerContainer: {
+      ...flexbox.alignSelfCenter,
+      ...flexbox.flex1
+    },
     progress: {
-      flex: 1,
+      ...flexbox.flex1,
       height: 4
     }
   })

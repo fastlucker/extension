@@ -96,17 +96,12 @@ const CreateSeedPhrasePrepareScreen = () => {
           totalSteps={2}
           title="Create New Recovery Phrase"
           withBackButton
-          onBackButtonPress={() => {
-            // TODO: use new navigation
-            if (accounts.length) {
-              navigate(WEB_ROUTES.dashboard)
-              return
-            }
-            goToPrevRoute()
-          }}
+          onBackButtonPress={goToPrevRoute}
         >
           <View>
-            <Text style={[spacings.mbXl]}>{t('Before you begin, check these security tips.')}</Text>
+            <Text weight="medium" appearance="secondaryText" style={[spacings.mbXl]}>
+              {t('Before you begin, check these security tips.')}
+            </Text>
             {CHECKBOXES.map(({ id, label }, index) => (
               <View
                 key={id}
@@ -114,7 +109,6 @@ const CreateSeedPhrasePrepareScreen = () => {
                   spacings.pvSm,
                   spacings.phSm,
                   flexbox.directionRow,
-                  flexbox.alignCenter,
                   spacings.mbSm,
                   {
                     backgroundColor: theme.secondaryBackground,

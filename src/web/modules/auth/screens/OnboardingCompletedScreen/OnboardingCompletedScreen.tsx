@@ -52,8 +52,8 @@ const OnboardingCompletedScreen = () => {
         header={<Header customTitle={' '} />}
       >
         <TabLayoutWrapperMainContent>
-          <Panel type="onboarding" spacingsSize="small">
-            <View style={[flexbox.flex1, flexbox.alignCenter, spacings.pt3Xl]}>
+          <Panel type="onboarding" spacingsSize="small" style={{ overflow: 'visible' }}>
+            <View style={[flexbox.flex1, flexbox.alignCenter, spacings.pt2Xl]}>
               <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
                 <ConfettiAnimation width={TAB_CONTENT_WIDTH} height={380} autoPlay={false} />
                 <AmbireLogo height={96} />

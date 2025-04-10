@@ -4,8 +4,8 @@ import Svg, { G, Line, Path, SvgProps } from 'react-native-svg'
 import { iconColors } from '@common/styles/themeConfig'
 
 const DiagonalRightArrowIcon: React.FC<SvgProps> = ({
-  width = 57,
-  height = 57,
+  width = 14,
+  height = 14,
   color = iconColors.primary,
   ...rest
 }) => (
