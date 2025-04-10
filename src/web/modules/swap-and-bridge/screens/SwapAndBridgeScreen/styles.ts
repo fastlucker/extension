@@ -3,12 +3,10 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
-import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   form: ViewStyle
   container: ViewStyle
-  selectAnotherRouteButton: ViewStyle
   followUpTxnText: TextStyle
 }
 
@@ -35,12 +33,6 @@ const getStyles = (theme: ThemeProps) =>
       flex: 1,
       alignSelf: 'center',
       overflow: 'visible'
-    },
-    selectAnotherRouteButton: {
-      paddingVertical: 2,
-      ...spacings.phTy,
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter
     },
     followUpTxnText: {
       ...spacings.plTy,

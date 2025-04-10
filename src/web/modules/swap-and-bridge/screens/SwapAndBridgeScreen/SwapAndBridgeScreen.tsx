@@ -1,14 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
-import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
@@ -16,8 +13,6 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
-import formatTime from '@common/utils/formatTime'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -31,6 +26,7 @@ import { getUiType } from '@web/utils/uiType'
 import Buttons from '../../components/Buttons'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
+import RouteInfo from '../../components/RouteInfo'
 import ToToken from '../../components/ToToken'
 import getStyles from './styles'
 
@@ -67,7 +63,6 @@ const SwapAndBridgeScreen = () => {
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
-    quote,
     formStatus,
     isHealthy,
     shouldEnableRoutesSelection,
@@ -205,82 +200,11 @@ const SwapAndBridgeScreen = () => {
               setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
             />
           </View>
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              flexbox.justifySpaceBetween,
-              {
-                height: 25 // Prevents layout shifts
-              },
-              spacings.mbLg
-            ]}
-          >
-            {[
-              SwapAndBridgeFormStatus.FetchingRoutes,
-              SwapAndBridgeFormStatus.NoRoutesFound,
-              SwapAndBridgeFormStatus.InvalidRouteSelected,
-              SwapAndBridgeFormStatus.ReadyToEstimate,
-              SwapAndBridgeFormStatus.ReadyToSubmit
-            ].includes(formStatus) &&
-              signAccountOpController?.estimation &&
-              !isEstimatingRoute && (
-                <>
-                  {formStatus === SwapAndBridgeFormStatus.NoRoutesFound ? (
-                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <WarningIcon width={14} height={14} color={theme.warningDecorative} />
-                      <Text
-                        fontSize={14}
-                        weight="medium"
-                        appearance="warningText"
-                        style={spacings.mlMi}
-                      >
-                        {t('No routes found!')}
-                      </Text>
-                    </View>
-                  ) : (
-                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <Text appearance="tertiaryText" fontSize={14} weight="medium">
-                        {t('Ambire fee: 0.025%')}
-                      </Text>
-                      {quote?.selectedRoute?.serviceTime ? (
-                        <Text
-                          appearance="tertiaryText"
-                          fontSize={14}
-                          weight="medium"
-                          style={spacings.mlLg}
-                        >
-                          {t('Time: ~')} {formatTime(quote?.selectedRoute?.serviceTime)}
-                        </Text>
-                      ) : null}
-                    </View>
-                  )}
-
-                  <Pressable
-                    style={{
-                      ...styles.selectAnotherRouteButton,
-                      opacity: shouldEnableRoutesSelection ? 1 : 0.5
-                    }}
-                    onPress={openRoutesModal as any}
-                    disabled={!shouldEnableRoutesSelection}
-                  >
-                    <Text
-                      fontSize={14}
-                      weight="medium"
-                      appearance="primary"
-                      style={{
-                        ...spacings.mr,
-                        textDecorationColor: theme.primary,
-                        textDecorationLine: 'underline'
-                      }}
-                    >
-                      {t('Select route')}
-                    </Text>
-                    <RightArrowIcon weight="2" width={5} height={16} color={theme.primary} />
-                  </Pressable>
-                </>
-              )}
-          </View>
+          <RouteInfo
+            isEstimatingRoute={isEstimatingRoute}
+            openRoutesModal={openRoutesModal}
+            shouldEnableRoutesSelection={shouldEnableRoutesSelection}
+          />
           {isPopup && (
             <Buttons
               isOneClickModeAllowed={isOneClickModeAllowed}
