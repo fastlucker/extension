@@ -468,28 +468,48 @@ const SwapAndBridgeScreen = () => {
                     )}
                   </View>
                 </View>
-                {toTokenInPortfolio && (
-                  <View
-                    style={[flexbox.directionRow, spacings.ptSm, spacings.pl, flexbox.alignCenter]}
-                  >
-                    <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
-                    <Text
-                      testID="max-available-amount"
-                      numberOfLines={1}
-                      fontSize={12}
-                      style={spacings.mlMi}
-                      weight="medium"
-                      appearance="tertiaryText"
-                      ellipsizeMode="tail"
-                    >
-                      {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
-                    </Text>
-                  </View>
-                )}
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    spacings.ptSm,
+                    spacings.pl,
+                    flexbox.alignCenter,
+                    {
+                      height: 32 // Prevents layout shifts
+                    }
+                  ]}
+                >
+                  {toTokenInPortfolio && (
+                    <>
+                      <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
+                      <Text
+                        testID="max-available-amount"
+                        numberOfLines={1}
+                        fontSize={12}
+                        style={spacings.mlMi}
+                        weight="medium"
+                        appearance="tertiaryText"
+                        ellipsizeMode="tail"
+                      >
+                        {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
+                      </Text>
+                    </>
+                  )}
+                </View>
               </View>
             </View>
           </View>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.alignCenter,
+              flexbox.justifySpaceBetween,
+              {
+                height: 25 // Prevents layout shifts
+              },
+              spacings.mbLg
+            ]}
+          >
             {[
               SwapAndBridgeFormStatus.FetchingRoutes,
               SwapAndBridgeFormStatus.NoRoutesFound,
@@ -501,7 +521,6 @@ const SwapAndBridgeScreen = () => {
               !isEstimatingRoute && (
                 <View
                   style={[
-                    spacings.mbLg,
                     flexbox.directionRow,
                     flexbox.alignCenter,
                     flexbox.justifySpaceBetween,
