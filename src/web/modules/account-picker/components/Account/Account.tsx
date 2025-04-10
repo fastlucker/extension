@@ -199,7 +199,7 @@ const Account = ({
                 </Pressable>
               )}
             </View>
-            {displayTypePill ? (
+            {displayTypePill && (
               <>
                 {type === 'basic' && (
                   <BadgeWithPreset
@@ -226,7 +226,7 @@ const Account = ({
                   </>
                 )}
               </>
-            ) : null}
+            )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {!!account.usedOnNetworks.length && (

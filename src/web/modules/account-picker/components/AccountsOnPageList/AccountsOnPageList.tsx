@@ -32,8 +32,8 @@ import {
   AccountPickerIntroStepsProvider,
   BasicAccountIntroId
 } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
+// import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
 import getStyles from './styles'
 
@@ -149,15 +149,7 @@ const AccountsOnPageList = ({
       byType?: ('basic' | 'linked' | 'smart')[]
       withQuaternaryBackground?: boolean
     }) => {
-      const filteredAccounts = accounts.filter(
-        (a) =>
-          byType.includes(getType(a)) &&
-          !(getType(a) === 'smart' && !a.account.usedOnNetworks.length)
-      )
-
-      if (filteredAccounts.some((a) => getType(a) === 'basic') && onlySmartAccountsVisible) {
-        setOnlySmartAccountsVisible(false)
-      }
+      const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
 
       return filteredAccounts.map((acc, i: number) => {
         const hasBottomSpacing = !(
@@ -192,7 +184,7 @@ const AccountsOnPageList = ({
       })
     },
     [
-      onlySmartAccountsVisible,
+      // onlySmartAccountsVisible,
       getType,
       state.selectedAccounts,
       isImportingFromPrivateKey,
@@ -202,24 +194,25 @@ const AccountsOnPageList = ({
   )
 
   const setTitle = useCallback(() => {
-    if (keyType && keyType !== 'internal') {
-      return t('Import accounts from {{ hwDeviceName }}', {
-        hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
-      })
-    }
+    // if (keyType && keyType !== 'internal') {
+    //   return t('Import accounts from {{ hwDeviceName }}', {
+    //     hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
+    //   })
+    // }
 
-    if (subType === 'seed') {
-      return accountPickerState.isInitializedWithSavedSeed
-        ? t('Import accounts from saved seed phrase')
-        : t('Import accounts from seed phrase')
-    }
+    // if (subType === 'seed') {
+    //   return accountPickerState.isInitializedWithSavedSeed
+    //     ? t('Import accounts from saved seed phrase')
+    //     : t('Import accounts from seed phrase')
+    // }
 
-    if (subType === 'private-key') {
-      return t('Select account(s) to import')
-    }
+    // if (subType === 'private-key') {
+    //   return t('Select account(s) to import')
+    // }
 
     return t('Select accounts to import')
-  }, [accountPickerState.isInitializedWithSavedSeed, keyType, subType, t])
+  }, [t])
+  // }, [accountPickerState.isInitializedWithSavedSeed, keyType, subType, t])
 
   const networkNamesWithAccountStateError = useMemo(() => {
     return accountPickerState.networksWithAccountStateError.map((chainId) => {
@@ -280,6 +273,8 @@ const AccountsOnPageList = ({
   // Prevents the user from temporarily seeing (flashing) empty (error) states
   // while being navigated back (resetting the Account Picker state).
   if (!state.isInitialized) return null
+
+  console.log('slots', slots)
 
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
@@ -388,19 +383,14 @@ const AccountsOnPageList = ({
 
         {(!isImportingFromPrivateKey || shouldDisplayChangeHdPath) && (
           <View
-            style={[
-              spacings.mbLg,
-              flexbox.directionRow,
-              flexbox.justifySpaceBetween,
-              { width: '100%' }
-            ]}
+            style={[flexbox.alignEnd, { width: '100%' }]}
             {...(onlySmartAccountsVisible
               ? {
                   nativeID: BasicAccountIntroId
                 }
               : {})}
           >
-            {shouldDisplayChangeHdPath && <ChangeHdPath />}
+            {shouldDisplayChangeHdPath && <ChangeHdPath setPage={setPage} />}
           </View>
         )}
         <View style={flexbox.flex1}>
@@ -468,19 +458,25 @@ const AccountsOnPageList = ({
             {/* TODO: Add an info icon here with a tooltip */}
           </Text>
           <ScrollableWrapper>
-            {Object.keys(slots).map((key, i) => {
-              return (
-                <View key={key}>
-                  {getAccounts({
-                    accounts: slots[key],
-                    shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                    slotIndex: 1,
-                    byType: ['smart'],
-                    withQuaternaryBackground: true
-                  })}
-                </View>
-              )
-            })}
+            {state.accountsLoading ? (
+              <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
+                <Spinner style={styles.spinner} />
+              </View>
+            ) : (
+              Object.keys(slots).map((key, i) => {
+                return (
+                  <View key={key}>
+                    {getAccounts({
+                      accounts: slots[key],
+                      shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                      slotIndex: 1,
+                      byType: ['smart'],
+                      withQuaternaryBackground: true
+                    })}
+                  </View>
+                )
+              })
+            )}
           </ScrollableWrapper>
         </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>

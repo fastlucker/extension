@@ -56,25 +56,26 @@ const AccountPickerScreen = () => {
 
   const setTitle = useCallback(
     (keyType: AccountPickerController['type'], subType: AccountPickerController['subType']) => {
-      if (keyType && keyType !== 'internal') {
-        return t('Import accounts from {{ hwDeviceName }}', {
-          hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
-        })
-      }
+      // if (keyType && keyType !== 'internal') {
+      //   return t('Import accounts from {{ hwDeviceName }}', {
+      //     hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
+      //   })
+      // }
 
-      if (subType === 'seed') {
-        return accountPickerState.isInitializedWithSavedSeed
-          ? t('Import accounts from saved seed phrase')
-          : t('Import accounts from seed phrase')
-      }
+      // if (subType === 'seed') {
+      //   return accountPickerState.isInitializedWithSavedSeed
+      //     ? t('Import accounts from saved seed phrase')
+      //     : t('Import accounts from seed phrase')
+      // }
 
-      if (subType === 'private-key') {
-        return t('Select account(s) to import')
-      }
+      // if (subType === 'private-key') {
+      //   return t('Select account(s) to import')
+      // }
 
       return t('Select accounts to import')
     },
-    [accountPickerState.isInitializedWithSavedSeed, t]
+    [t]
+    // [accountPickerState.isInitializedWithSavedSeed, t]
   )
 
   const showBackButton = useMemo(() => {

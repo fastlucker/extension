@@ -1,38 +1,47 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, TextInput, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { Modalize } from 'react-native-modalize'
 
+import { DerivationOption } from '@ambire-common/consts/derivation'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Input from '@common/components/Input'
+import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
-const HD_PATH_OPTIONS = [
-  {
-    label: 'BIP44',
-    value: 'bip44',
-    description: 'BIP44 Standard: HDpath defined by the BIP44 protocol.'
-  },
-  { label: 'Ledger Live', value: 'ledgerLive', description: '' },
-  { label: 'Ledger Legacy', value: 'ledgerLegacy', description: '' }
-]
-
 type Props = {
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: () => void
-  onConfirm: (hdPath: string, startIndex: number) => void
+  onConfirm: (hdPath: SelectValue, startIndex: number) => void
+  disabled?: boolean
+  page?: number
+  options: DerivationOption[]
+  value: SelectValue
 }
 
-const CustomHDPathBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, onConfirm }) => {
-  const [selectedPath, setSelectedPath] = useState('bip44')
-  const [startIndex, setStartIndex] = useState('1')
+const CustomHDPathBottomSheet: FC<Props> = ({
+  sheetRef,
+  closeBottomSheet,
+  onConfirm,
+  disabled,
+  page,
+  options,
+  value
+}) => {
+  const [selectedOption, setSelectedOption] = useState(value)
+  const [startIndex, setStartIndex] = useState(String(page || 1))
   const { theme } = useTheme()
   const { t } = useTranslation()
+
+  useEffect(() => {
+    setSelectedOption(value)
+  }, [value])
 
   const closeBottomSheetWrapped = useCallback(() => {
     closeBottomSheet()
@@ -40,8 +49,9 @@ const CustomHDPathBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, onConf
 
   const handleConfirm = () => {
     const parsed = parseInt(startIndex, 10)
+    // TODO: shouldn't be hardcoded
     if (parsed >= 1 && parsed <= 50) {
-      onConfirm(selectedPath, parsed)
+      onConfirm(selectedOption, parsed)
       closeBottomSheetWrapped()
     } else {
       alert('Please select a number from 1 to 50.')
@@ -74,7 +84,13 @@ const CustomHDPathBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, onConf
         <Text fontSize={20} weight="semiBold">
           {t('Custom address HD path')}
         </Text>
-        <CloseIcon />
+        <Pressable onPress={closeBottomSheetWrapped} style={[flexbox.center, spacings.pvTy]}>
+          {({ hovered }: any) => (
+            <View style={[hovered && { backgroundColor: theme.secondaryBackground }]}>
+              <CloseIcon />
+            </View>
+          )}
+        </Pressable>
       </View>
       <View style={[spacings.phMd, spacings.pt2Xl, spacings.pbMd]}>
         <Text style={[spacings.mbTy]}>{t('Select HD path')}:</Text>
@@ -87,12 +103,14 @@ const CustomHDPathBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, onConf
             spacings.mbTy
           ]}
         >
-          {HD_PATH_OPTIONS.map((option) => {
-            const isActive = selectedPath === option.value
+          {options.map((option) => {
+            const isActive = selectedOption.value === option.value
+
             return (
               <Pressable
                 key={option.value}
-                onPress={() => setSelectedPath(option.value)}
+                onPress={() => setSelectedOption(option)}
+                disabled={disabled}
                 style={[
                   flexbox.center,
                   flexbox.directionRow,
@@ -117,27 +135,24 @@ const CustomHDPathBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, onConf
           })}
         </View>
 
-        {!!HD_PATH_OPTIONS.find((o) => o.value === selectedPath)?.description && (
+        {!!options.find((o) => o.value === selectedOption.value)?.description && (
           <Text fontSize={14} appearance="secondaryText" style={[spacings.mb2Xl]}>
-            {HD_PATH_OPTIONS.find((o) => o.value === selectedPath)?.description}
+            {options.find((o) => o.value === selectedOption.value)?.description}
           </Text>
         )}
-
-        <Text fontSize={12} weight="medium" style={[spacings.mbSm]}>
-          Select the serial number of address to start from:
-        </Text>
-        <TextInput
-          value={startIndex}
-          onChangeText={setStartIndex}
-          keyboardType="numeric"
-          placeholder="1"
-          //   style={tw`border rounded-md px-3 py-2 text-base mb-1`}
-        />
-        <Text fontSize={12} appearance="secondaryText" style={spacings.mbSm}>
-          Manage address from 1 to 50
-        </Text>
-
-        <Button text="Confirm" onPress={handleConfirm} />
+        <View style={[spacings.mb2Xl]}>
+          <Text fontSize={12} weight="medium" style={[spacings.mbSm]}>
+            {t('Select the serial number of address to start from')}:
+          </Text>
+          <Input value={startIndex} onChangeText={setStartIndex} keyboardType="numeric" />
+          <Text fontSize={12} appearance="secondaryText" style={spacings.mbSm}>
+            {/* TODO: shouldn't be hardcoded */}
+            {t('Manage address from 1 to 50')}
+          </Text>
+        </View>
+        <View style={[flexbox.directionRow, flexbox.center]}>
+          <Button style={{ width: '50%' }} text={t('Confirm')} onPress={handleConfirm} />
+        </View>
       </View>
     </BottomSheet>
   )
