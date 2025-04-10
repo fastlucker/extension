@@ -1,5 +1,5 @@
 import { formatUnits, isAddress } from 'ethers'
-import React, { FC, useCallback, useMemo } from 'react'
+import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -298,4 +298,4 @@ const ToToken: FC<Props> = ({ isEstimatingRoute, setIsAutoSelectRouteDisabled })
   )
 }
 
-export default ToToken
+export default memo(ToToken)
