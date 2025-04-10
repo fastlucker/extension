@@ -110,6 +110,7 @@ const SwapAndBridgeScreen = () => {
     statuses: swapAndBridgeCtrlStatuses,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
+
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { portfolio } = useSelectedAccountControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
@@ -229,6 +230,14 @@ const SwapAndBridgeScreen = () => {
           mode="title"
           customTitle={t('Swap & Bridge')}
           withAmbireLogo
+          forceBack
+          onGoBackPress={() => {
+            dispatch({
+              type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
+              params: { sessionId, forceUnload: true }
+            })
+            navigate(ROUTES.dashboard)
+          }}
         />
       }
       withHorizontalPadding={false}

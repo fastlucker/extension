@@ -28,8 +28,11 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import { getTokenId } from '@web/utils/token'
+import { getUiType } from '@web/utils/uiType'
 
 type SessionId = ReturnType<typeof nanoid>
+
+const { isPopup } = getUiType()
 
 const useSwapAndBridgeForm = () => {
   const {
@@ -79,7 +82,11 @@ const useSwapAndBridgeForm = () => {
   } = useModalize()
   const { actionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
-  const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
+  const sessionId = useMemo(() => {
+    if (isPopup) return 'popup'
+
+    return nanoid()
+  }, []) // purposely, so it is unique per hook lifetime
 
   const mainAccountOpActions = useMemo(() => {
     if (!account) return []

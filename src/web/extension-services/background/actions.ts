@@ -478,7 +478,7 @@ type SwapAndBridgeControllerInitAction = {
 }
 type SwapAndBridgeControllerUnloadScreenAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN'
-  params: { sessionId: string }
+  params: { sessionId: string; forceUnload?: boolean }
 }
 type SwapAndBridgeControllerUpdateFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'

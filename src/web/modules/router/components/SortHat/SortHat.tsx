@@ -14,12 +14,14 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { inviteStatus } = useInviteControllerState()
   const { navigate } = useNavigation()
+  const swapAndBridgeState = useSwapAndBridgeControllerState()
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
@@ -88,16 +90,27 @@ const SortHat = () => {
     } else if (!isActionWindow) {
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
+
+      const hasSwapAndBridgePopupSession = swapAndBridgeState.sessionIds.some(
+        (id) => id === 'popup'
+      )
+      if (hasSwapAndBridgePopupSession) {
+        navigate(ROUTES.swapAndBridge)
+        return
+      }
+
       navigate(ROUTES.dashboard)
     }
   }, [
+    keystoreState.isReadyToStoreKeys,
+    keystoreState.isUnlocked,
+    inviteStatus,
+    authStatus,
     isActionWindow,
     actionsState.currentAction,
-    authStatus,
-    keystoreState,
-    inviteStatus,
     navigate,
-    dispatch
+    dispatch,
+    swapAndBridgeState.sessionIds
   ])
 
   useEffect(() => {
