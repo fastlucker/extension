@@ -3,17 +3,17 @@ import React, { Fragment, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { SwapAndBridgeStep } from '@ambire-common/interfaces/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 
-import { SwapAndBridgeStep } from '@ambire-common/interfaces/swapAndBridge'
-import Spinner from '@common/components/Spinner'
 import RouteStepsArrow from '../RouteStepsArrow'
 import RouteStepsToken from '../RouteStepsToken'
 import styles from './styles'
@@ -24,7 +24,6 @@ const RouteStepsPreview = ({
   estimationInSeconds,
   currentStep = 0,
   loadingEnabled,
-  isEstimationLoading,
   isSelected,
   isDisabled
 }: {
@@ -34,9 +33,9 @@ const RouteStepsPreview = ({
   currentStep?: number
   loadingEnabled?: boolean
   isSelected?: boolean
-  isEstimationLoading: boolean
   isDisabled?: boolean
 }) => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
 
   const shouldWarnForLongEstimation = useMemo(() => {
@@ -202,18 +201,24 @@ const RouteStepsPreview = ({
             </View>
           )}
 
-          {isSelected && isEstimationLoading && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Spinner style={{ width: 15, height: 15 }} />
-            </View>
-          )}
-
-          {isDisabled && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text fontSize={12} appearance="errorText">
-                {t('Route failed. Please choose another')}
-              </Text>
-            </View>
+          {(isSelected || isDisabled) && (
+            <Text
+              fontSize={12}
+              weight="medium"
+              appearance={!isDisabled ? 'primary' : 'warningText'}
+              style={[
+                spacings.phTy,
+                {
+                  paddingVertical: 1,
+                  backgroundColor: !isDisabled ? '#6000FF14' : theme.warningBackground,
+                  borderRadius: 12
+                }
+              ]}
+            >
+              {isSelected && isDisabled && t('Route failed. Please select another')}
+              {isSelected && !isDisabled && t('Selected')}
+              {!isSelected && isDisabled && t('Failed')}
+            </Text>
           )}
         </View>
       )}

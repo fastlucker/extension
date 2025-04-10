@@ -1,15 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeRoute } from '@ambire-common/interfaces/swapAndBridge'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -17,7 +20,6 @@ import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStep
 import { SWAP_AND_BRIDGE_FORM_WIDTH } from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen/styles'
 import { getUiType } from '@web/utils/uiType'
 
-import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import getStyles from './styles'
 
 const FLAT_LIST_ITEM_HEIGHT = 138.5
@@ -117,40 +119,64 @@ const RoutesModal = ({
     ({ item, index }: { item: SwapAndBridgeRoute; index: number }) => {
       const { steps } = item
       const isDisabled = disabledRoutes.indexOf(item.routeId) !== -1
+      const isEstimatingRoute = isEstimationLoading && item.routeId === userSelectedRoute?.routeId
 
       return (
         <Pressable
           key={item.routeId}
           style={[
-            styles.selectableItemContainer,
+            styles.itemContainer,
             index + 1 === quote?.routes?.length && spacings.mb0,
-            item.routeId === userSelectedRoute?.routeId &&
-              !isDisabled &&
-              styles.selectableItemSelected,
-            isDisabled && styles.disabledItem
+            isDisabled && styles.disabledItem,
+            isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
           onPress={() => handleSelectRoute(item)}
+          // Disable route selection if any route is being estimated
+          disabled={isEstimationLoading || isDisabled}
         >
+          {isEstimatingRoute && (
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 2,
+                backgroundColor: '#54597ACC',
+                ...flexbox.alignCenter,
+                ...flexbox.justifyCenter,
+                ...common.borderRadiusPrimary
+              }}
+            >
+              <Spinner
+                style={{
+                  width: 64,
+                  height: 64
+                }}
+                variant="white"
+              />
+            </View>
+          )}
           <RouteStepsPreview
             steps={steps}
             totalGasFeesInUsd={item.totalGasFeesInUsd}
             estimationInSeconds={item.serviceTime}
-            isEstimationLoading={isEstimationLoading}
-            isSelected={item.routeId === userSelectedRoute?.routeId}
+            isSelected={item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute}
             isDisabled={isDisabled}
           />
         </Pressable>
       )
     },
     [
-      handleSelectRoute,
-      quote?.routes?.length,
-      userSelectedRoute?.routeId,
-      styles.selectableItemContainer,
-      styles.selectableItemSelected,
-      styles.disabledItem,
+      disabledRoutes,
       isEstimationLoading,
-      disabledRoutes
+      userSelectedRoute?.routeId,
+      styles.itemContainer,
+      styles.disabledItem,
+      styles.otherItemLoading,
+      quote?.routes?.length,
+      handleSelectRoute
     ]
   )
 

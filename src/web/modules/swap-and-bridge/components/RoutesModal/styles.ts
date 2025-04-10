@@ -5,29 +5,25 @@ import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 
 interface Style {
-  selectableItemContainer: ViewStyle
-  selectableItemSelected: ViewStyle
+  itemContainer: ViewStyle
   disabledItem: ViewStyle
+  otherItemLoading: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    selectableItemContainer: {
-      borderWidth: 1,
-      borderColor: theme.primaryBackground,
+    itemContainer: {
       backgroundColor: theme.primaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.pv,
       ...spacings.ph,
       ...spacings.mbSm
     },
-    selectableItemSelected: {
-      borderWidth: 1,
-      borderColor: theme.primary
-    },
     disabledItem: {
-      borderWidth: 1,
-      borderColor: theme.errorText
+      opacity: 0.5
+    },
+    otherItemLoading: {
+      opacity: 0.7
     }
   })
 
