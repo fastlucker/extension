@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Animated, View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
@@ -14,18 +14,21 @@ import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
-import { OnboardingRoute } from '@common/modules/auth/contexts/onboardingNavigationContext/onboardingNavigationContext'
+import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { isSafari } from '@web/constants/browserapi'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
 
@@ -34,18 +37,9 @@ const VISIBLE_BUTTONS_COUNT = 4
 
 type ButtonType = {
   title: string
-  route: OnboardingRoute
+  onPress: () => void
   icon: React.FC<SvgProps>
 }
-
-const buttons: ButtonType[] = [
-  { title: 'Private Key', route: WEB_ROUTES.importPrivateKey, icon: PrivateKeyIcon },
-  { title: 'Recovery Phrase', route: WEB_ROUTES.importSeedPhrase, icon: SeedPhraseIcon },
-  { title: 'Trezor', route: WEB_ROUTES.importPrivateKey, icon: TrezorIcon }, // TODO: add route
-  { title: 'Ledger', route: WEB_ROUTES.ledgerConnect, icon: LedgerIcon }, // TODO: add route
-  { title: 'Grid Plus', route: WEB_ROUTES.importPrivateKey, icon: LatticeWithBorderIcon }, // TODO: add route
-  { title: 'JSON Backup (file)', route: WEB_ROUTES.importSmartAccountJson, icon: ImportJsonIcon }
-]
 
 const ImportExistingAccountSelectorScreen = () => {
   const { theme } = useTheme(getStyles)
@@ -57,6 +51,77 @@ const ImportExistingAccountSelectorScreen = () => {
 
   const animatedHeight = useRef(new Animated.Value(0)).current
   const animatedOpacity = useRef(new Animated.Value(0)).current
+  const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
+  const { isInitialized, type } = useAccountPickerControllerState()
+  const prevIsInitialized = usePrevious(isInitialized)
+  const buttons: ButtonType[] = useMemo(
+    () => [
+      {
+        title: 'Private Key',
+        onPress: () => {
+          goToNextRoute(WEB_ROUTES.importPrivateKey)
+        },
+        icon: PrivateKeyIcon
+      },
+      {
+        title: 'Recovery Phrase',
+        onPress: () => {
+          goToNextRoute(WEB_ROUTES.importSeedPhrase)
+        },
+        icon: SeedPhraseIcon
+      },
+      {
+        title: 'Trezor',
+        onPress: () => {
+          if (isSafari()) {
+            addToast(
+              t(
+                "Your browser doesn't support WebUSB, which is required for the Trezor device. Please try using a different browser."
+              ),
+              { type: 'error' }
+            )
+          } else {
+            dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
+          }
+        },
+        icon: TrezorIcon
+      },
+      {
+        title: 'Ledger',
+        onPress: () => {
+          goToNextRoute(WEB_ROUTES.ledgerConnect)
+        },
+        icon: LedgerIcon
+      },
+      {
+        title: 'Grid Plus',
+        onPress: () => {
+          dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
+        },
+        icon: LatticeWithBorderIcon
+      },
+      {
+        title: 'JSON Backup (file)',
+        onPress: () => {
+          goToNextRoute(WEB_ROUTES.importSmartAccountJson)
+        },
+        icon: ImportJsonIcon
+      }
+    ],
+    [goToNextRoute, addToast, dispatch, t]
+  )
+
+  useEffect(() => {
+    if (
+      !prevIsInitialized &&
+      isInitialized &&
+      ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor')
+    ) {
+      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
+      goToNextRoute()
+    }
+  }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])
 
   useEffect(() => {
     Animated.timing(animatedOpacity, {
@@ -70,7 +135,7 @@ const ImportExistingAccountSelectorScreen = () => {
       duration: 300,
       useNativeDriver: false
     }).start()
-  }, [animatedHeight, animatedOpacity, showMore])
+  }, [animatedHeight, animatedOpacity, showMore, buttons.length])
 
   return (
     <TabLayoutContainer
@@ -84,18 +149,13 @@ const ImportExistingAccountSelectorScreen = () => {
           withBackButton
           onBackButtonPress={goToPrevRoute}
           title={t('Select Import Method')}
-          style={{
-            width: CARD_WIDTH,
-            alignSelf: 'center',
-            ...common.shadowTertiary
-          }}
         >
           <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
             <View style={[flexbox.justifySpaceBetween]}>
               {buttons
                 .slice(0, VISIBLE_BUTTONS_COUNT)
-                .map(({ title, route, icon: IconComponent }) => (
-                  <Button key={title} type="gray" onPress={() => goToNextRoute(route)}>
+                .map(({ title, onPress, icon: IconComponent }) => (
+                  <Button key={title} type="gray" onPress={onPress}>
                     <View
                       style={[
                         flexbox.directionRow,
@@ -120,8 +180,8 @@ const ImportExistingAccountSelectorScreen = () => {
               >
                 {buttons
                   .slice(VISIBLE_BUTTONS_COUNT)
-                  .map(({ title, route, icon: IconComponent }) => (
-                    <Button key={title} type="gray" onPress={() => goToNextRoute(route)}>
+                  .map(({ title, onPress, icon: IconComponent }) => (
+                    <Button key={title} type="gray" onPress={onPress}>
                       <View
                         style={[
                           flexbox.directionRow,

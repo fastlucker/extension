@@ -78,7 +78,9 @@ export const handleActions = async (
             accountKeys.map(({ addr, index }, i) => ({
               addr,
               type: keyType,
-              label: `${HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountPicker.type as Key['type']]} ${
+              label: `${
+                HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountPicker.type as ExternalKey['type']]
+              } ${
                 getExistingKeyLabel(
                   mainCtrl.keystore.keys,
                   addr,
@@ -152,15 +154,7 @@ export const handleActions = async (
       return await mainCtrl.handleAccountPickerInitLedger(LedgerKeyIterator)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR': {
-      if (mainCtrl.accountPicker.isInitialized) mainCtrl.accountPicker.reset()
-
-      const { walletSDK } = trezorCtrl
-      await mainCtrl.accountPicker.init({
-        keyIterator: new TrezorKeyIterator({ walletSDK }),
-        hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-      })
-
-      return await mainCtrl.accountPicker.setPage({ page: 1 })
+      return await mainCtrl.handleAccountPickerInitTrezor(TrezorKeyIterator)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE': {
       return await mainCtrl.handleAccountPickerInitLattice(LatticeKeyIterator)

@@ -11,6 +11,8 @@ import { Account, AccountPreferences, AccountStates } from '@ambire-common/inter
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import {
+  ExternalKey,
+  InternalKey,
   Key,
   KeyPreferences,
   KeystoreSeed,
@@ -343,7 +345,7 @@ type MainControllerSignAccountOpUpdateAction = {
     paidBy?: string
     speed?: FeeSpeed
     signingKeyAddr?: string
-    signingKeyType?: string
+    signingKeyType?: InternalKey['type'] | ExternalKey['type']
     gasUsedTooHighAgreed?: boolean
   }
 }
