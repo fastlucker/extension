@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
@@ -8,7 +8,6 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
-import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
@@ -35,8 +34,6 @@ import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
 import ToToken from '../../components/ToToken'
 import getStyles from './styles'
 
-const SWAP_AND_BRIDGE_HC_URL = 'https://help.ambire.com/hc/en-us/articles/16748050198428'
-
 const { isPopup } = getUiType()
 
 const SwapAndBridgeScreen = () => {
@@ -54,7 +51,6 @@ const SwapAndBridgeScreen = () => {
     handleSubmitForm,
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
-    setFollowUpTransactionConfirmed,
     highPriceImpactInPercentage,
     priceImpactModalRef,
     closePriceImpactModal,
@@ -114,10 +110,6 @@ const SwapAndBridgeScreen = () => {
 
   const paddingHorizontalStyle = useMemo(() => getTabLayoutPadding(maxWidthSize), [maxWidthSize])
 
-  const handleFollowUpTransactionConfirmedCheckboxPress = useCallback(() => {
-    setFollowUpTransactionConfirmed((p) => !p)
-  }, [setFollowUpTransactionConfirmed])
-
   const isEstimatingRoute =
     formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
     (!signAccountOpController ||
@@ -140,8 +132,6 @@ const SwapAndBridgeScreen = () => {
     shouldConfirmFollowUpTransactions,
     updateQuoteStatus
   ])
-
-  const handleOpenReadMore = useCallback(() => Linking.openURL(SWAP_AND_BRIDGE_HC_URL), [])
 
   if (!sessionIds.includes(sessionId)) return null
 
@@ -235,14 +225,7 @@ const SwapAndBridgeScreen = () => {
             ].includes(formStatus) &&
               signAccountOpController?.estimation &&
               !isEstimatingRoute && (
-                <View
-                  style={[
-                    flexbox.directionRow,
-                    flexbox.alignCenter,
-                    flexbox.justifySpaceBetween,
-                    flexbox.flex1
-                  ]}
-                >
+                <>
                   {formStatus === SwapAndBridgeFormStatus.NoRoutesFound ? (
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <WarningIcon width={14} height={14} color={theme.warningDecorative} />
@@ -295,43 +278,7 @@ const SwapAndBridgeScreen = () => {
                     </Text>
                     <RightArrowIcon weight="2" width={5} height={16} color={theme.primary} />
                   </Pressable>
-                </View>
-              )}
-
-            {(formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
-              formStatus === SwapAndBridgeFormStatus.ReadyToEstimate ||
-              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
-              shouldConfirmFollowUpTransactions && (
-                <View style={spacings.mb}>
-                  <Checkbox
-                    value={followUpTransactionConfirmed}
-                    style={{ ...spacings.mb0, ...flexbox.alignCenter }}
-                    onValueChange={handleFollowUpTransactionConfirmedCheckboxPress}
-                  >
-                    <Text fontSize={12}>
-                      <Text
-                        fontSize={12}
-                        weight="medium"
-                        onPress={handleFollowUpTransactionConfirmedCheckboxPress}
-                        testID="confirm-follow-up-txns-checkbox"
-                        color={
-                          followUpTransactionConfirmed ? theme.primaryText : theme.warningDecorative
-                        }
-                        style={[
-                          styles.followUpTxnText,
-                          !followUpTransactionConfirmed && {
-                            backgroundColor: theme.warningBackground
-                          }
-                        ]}
-                      >
-                        {t('I understand that I need to do a follow-up transaction.')}
-                      </Text>{' '}
-                      <Text fontSize={12} underline weight="medium" onPress={handleOpenReadMore}>
-                        {t('Read more.')}
-                      </Text>
-                    </Text>
-                  </Checkbox>
-                </View>
+                </>
               )}
           </View>
           {isPopup && (
