@@ -1,4 +1,4 @@
-import { formatUnits, JsonRpcProvider, ZeroAddress } from 'ethers'
+import { formatUnits, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
@@ -6,6 +6,7 @@ import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
 import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
@@ -215,7 +216,7 @@ const SendForm = ({
     if (!networkData || isSmartAccount || !account || !selectedToken?.chainId) return
 
     const rpcUrl = networkData.selectedRpcUrl
-    const provider = new JsonRpcProvider(rpcUrl)
+    const provider = getRpcProvider([rpcUrl], selectedToken.chainId)
     const nonce = accountStates?.[account.addr]?.[selectedToken.chainId.toString()]?.nonce
 
     if (typeof nonce !== 'bigint') return

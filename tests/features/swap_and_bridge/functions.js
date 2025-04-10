@@ -9,7 +9,7 @@ export async function selectButton(page, text) {
   if (text === 'Proceed') {
     // Get all elements that contain the text "Proceed"
     const elements = await page.$x(`//div[contains(text(), "${text}")]`)
-    
+
     if (elements.length > 1) {
       // Click the 2nd matching element (index 1)
       await elements[1].click()
@@ -37,7 +37,7 @@ export async function verifyIfOnSwapAndBridgePage(page) {
 }
 
 export async function openSwapAndBridge(page) {
-  if(!page.url().includes('/swap-and-bridge')){
+  if (!page.url().includes('/swap-and-bridge')) {
     await clickOnElement(page, SELECTORS.dashboardButtonSwapAndBridge)
     await verifyIfOnSwapAndBridgePage(page)
   }
@@ -217,19 +217,22 @@ export async function prepareBridgeTransaction(
   await verifyRouteFound(page)
 
   // If Warning: The price impact is too high
-  const isfirmFollowUp = await page.waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 1000 }).catch(() => null)
+  const isfirmFollowUp = await page
+    .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 1000 })
+    .catch(() => null)
   if (isfirmFollowUp) {
-    await clickOnElement(page, SELECTORS.confirmFollowUpTxn)  
+    await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
   }
 
   // If Warning: The price impact is too high
-  const isHighPrice = await page.waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 }).catch(() => null)
+  const isHighPrice = await page
+    .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
+    .catch(() => null)
   if (isHighPrice) {
     await clickOnElement(page, SELECTORS.highPriceImpactSab)
     return 'Continue anyway'
-  } else {
-    return 'Proceed'
   }
+  return 'Proceed'
 }
 
 export async function verifyNonDefaultReceiveToken(
@@ -251,7 +254,7 @@ export async function verifyNonDefaultReceiveToken(
   const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
   await typeText(page, SELECTORS.searchInput, address)
   const selector = `[data-tooltip-id*="${address}"]`
-  await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
+  await expect(page).toMatchElement(selector, { text: receive_token, timeout: 3000 })
   await expect(page).toMatchElement(selector, { text: address, timeout: 3000 })
   await selectButton(page, 'Back')
 }
@@ -280,11 +283,13 @@ async function verifyRouteFound(page) {
 
   while (attempts < 2 && isTextPresent) {
     // Wait for Proceed to be enabled (Wait for "Fetching best route..." to appear and disappear)
-    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true}).catch(() => null)
-    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true})
+    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true }).catch(() => null)
+    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
 
     // Check if "No Route Found!" is displayed
-    isTextPresent = await page.waitForSelector('body:has-text("No Route Found!")', { timeout: 1000 }).catch(() => null)
+    isTextPresent = await page
+      .waitForSelector('body:has-text("No Route Found!")', { timeout: 1000 })
+      .catch(() => null)
 
     if (isTextPresent) {
       console.log(`⚠️ Attempt ${attempts + 1}: 'No Route Found!' detected, retrying...`)
@@ -298,7 +303,6 @@ async function verifyRouteFound(page) {
     }
   }
 }
-
 
 export async function prepareSwapAndBridge(
   page,
@@ -334,14 +338,14 @@ export async function prepareSwapAndBridge(
     await verifyRouteFound(page)
 
     // If Warning: The price impact is too high
-    const isHighPrice = await page.waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 }).catch(() => null)
+    const isHighPrice = await page
+      .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
+      .catch(() => null)
     if (isHighPrice) {
       await clickOnElement(page, SELECTORS.highPriceImpactSab)
       return 'Continue anyway'
-    } else {
-      return 'Proceed'
     }
-
+    return 'Proceed'
   } catch (error) {
     console.error(`[ERROR] Prepare Swap & Bridge Page Failed: ${error.message}`)
     throw error
@@ -371,9 +375,13 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
     await actionPage.waitForTimeout(2000)
 
     // Assert if Action Page is opened
-    const txnSimulation = await page.waitForSelector('div', { text: 'Transaction simulation', timeout: 10000 }).catch(() => null)
-    const signButton = await page.waitForSelector(SELECTORS.signButtonSab, { timeout: 500 }).catch(() => null)
-    await expect(null!=txnSimulation || null!=signButton).toBe(true)
+    const txnSimulation = await page
+      .waitForSelector('div', { text: 'Transaction simulation', timeout: 10000 })
+      .catch(() => null)
+    const signButton = await page
+      .waitForSelector(SELECTORS.signButtonSab, { timeout: 500 })
+      .catch(() => null)
+    await expect(txnSimulation != null || signButton != null).toBe(true)
 
     return actionPage
   } catch (error) {
@@ -395,7 +403,7 @@ export async function signActionPage(actionPage) {
 export async function wiatForConfirmed(actionPage) {
   // Wait for transaction to be confirmed
   await actionPage.waitForSelector('text=Timestamp', { visible: true })
- 
+
   // Asset if the transaction is confirmed
   await expect(actionPage).toMatchElement('div', { text: 'Confirmed' })
 }
@@ -440,23 +448,29 @@ export async function verifySendMaxTokenAmount(page, send_token, send_network) {
   const valueDecimals = 2 // Set presison of values to 2 decimals
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, send_network)
-  await page.waitForTimeout(500) // Wait before read Amount value 
+  await page.waitForTimeout(500) // Wait before read Amount value
   const maxBalance = await extractMaxBalance(page)
   const roundMaxBalance = await roundAmount(maxBalance, valueDecimals)
   await selectButton(page, 'Max')
-  await page.waitForTimeout(500) // Wait before read Amount value 
+  await page.waitForTimeout(500) // Wait before read Amount value
   const sendAmount = await getSendAmount(page)
   const roundSendAmount = await roundAmount(sendAmount, valueDecimals)
-  // There is an intermittent difference in balances when running on CI; I have added an Alert to monitor it and using toBeCloseTo 
+  // There is an intermittent difference in balances when running on CI; I have added an Alert to monitor it and using toBeCloseTo
   if (roundMaxBalance != roundSendAmount) {
-    console.log(`⚠️ Token: ${send_token} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`)
-  } 
-  expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison 
+    console.log(
+      `⚠️ Token: ${send_token} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`
+    )
+  }
+  expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison
 }
 
-export async function verifyAutoRefreshRoute(page){
+export async function verifyAutoRefreshRoute(page) {
   // Wait for "Select another route" to appear and disappear
-  await page.waitForSelector('text=Select another route', { visible: true, timeout: 1000}).catch(() => null)
-  const routeLoading = await page.waitForSelector('text=Select another route', { hidden: true, timeout: 63000}).catch(() => null)
+  await page
+    .waitForSelector('text=Select another route', { visible: true, timeout: 1000 })
+    .catch(() => null)
+  const routeLoading = await page
+    .waitForSelector('text=Select another route', { hidden: true, timeout: 63000 })
+    .catch(() => null)
   expect(routeLoading).toBe(null)
 }

@@ -4,7 +4,7 @@ import { View, ViewStyle } from 'react-native'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Button, { Props as ButtonProps } from '@common/components/Button'
 import { Props as DualChoiceModalProps } from '@common/components/DualChoiceModal/DualChoiceModal'
-import CommonText from '@common/components/Text'
+import CommonText, { Props } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
@@ -31,9 +31,9 @@ const TitleAndIcon = ({ title, style }: { title: string; style?: ViewStyle }) =>
   )
 }
 
-const Text = ({ text }: { text: string }) => {
+const Text = ({ text, ...rest }: { text: string } & Props) => {
   return (
-    <CommonText fontSize={16} appearance="secondaryText">
+    <CommonText fontSize={16} appearance="secondaryText" {...rest}>
       {text}
     </CommonText>
   )

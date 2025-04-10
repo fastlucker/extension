@@ -6,26 +6,36 @@ import { View } from 'react-native'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 
 const PayOption = ({
   feeOption,
-  disabledReason
+  amountUsd,
+  disabledReason,
+  amount
 }: {
   feeOption: FeePaymentOption
+  amountUsd: string
+  amount: bigint
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const { accounts } = useAccountsControllerState()
   const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
+  const signAccountOpState = useSignAccountOpControllerState()
 
   const iconSize = 24
 
@@ -35,11 +45,8 @@ const PayOption = ({
   )
 
   const formattedAmount = useMemo(() => {
-    return formatDecimals(
-      Number(formatUnits(feeOption.availableAmount, feeOption.token.decimals)),
-      'amount'
-    )
-  }, [feeOption.availableAmount, feeOption.token.decimals])
+    return formatDecimals(Number(formatUnits(amount, feeOption.token.decimals)), 'amount')
+  }, [amount, feeOption.token.decimals])
 
   const feeTokenNetworkName = useMemo(() => {
     if (feeOption.token.flags.onGasTank) {
@@ -48,6 +55,15 @@ const PayOption = ({
 
     return networks.find((n) => n.chainId === feeOption.token.chainId)?.name || ''
   }, [feeOption.token.flags.onGasTank, feeOption.token.chainId, networks])
+
+  const warning = useMemo(() => {
+    if (!signAccountOpState) return
+
+    return signAccountOpState.warnings.find(
+      ({ id }) =>
+        id === 'bundler-failure' || id === 'estimation-retry' || id === 'feeTokenPriceUnavailable'
+    )
+  }, [signAccountOpState])
 
   const isPaidByAnotherAccount = feeOption.paidBy !== account?.addr
 
@@ -84,12 +100,18 @@ const PayOption = ({
 
         <View style={[flexbox.flex1, spacings.mlTy]}>
           <Text weight="semiBold" fontSize={12} numberOfLines={1}>
-            {formattedAmount} {feeOption.token.symbol} <Text fontSize={12}>{t('on ')}</Text>
+            {formattedAmount} {feeOption.token.symbol}{' '}
+            <Text fontSize={12}>{feeOption.token.flags.onGasTank ? t('from ') : t('on ')}</Text>
             <Text fontSize={12}>{feeTokenNetworkName}</Text>
           </Text>
-          {disabledReason && (
+
+          {disabledReason ? (
             <Text weight="medium" fontSize={10} numberOfLines={1} appearance="errorText">
               {disabledReason}
+            </Text>
+          ) : (
+            <Text appearance="secondaryText" weight="medium" fontSize={10}>
+              {formatDecimals(Number(amountUsd), 'value')}
             </Text>
           )}
         </View>
@@ -112,6 +134,18 @@ const PayOption = ({
             {shortenAddress(feeOption.paidBy, 13)}
           </Text>
         </View>
+      )}
+      {warning && (
+        <>
+          <WarningIcon
+            width={20}
+            height={20}
+            style={spacings.mrTy}
+            data-tooltip-id="estimation-warning"
+            color={theme.warningText}
+          />
+          <Tooltip id="estimation-warning" content={warning.title} />
+        </>
       )}
     </View>
   )

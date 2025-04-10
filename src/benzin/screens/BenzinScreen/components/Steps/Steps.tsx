@@ -44,7 +44,8 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, chainId, stepsState, 
               spacings.phSm,
               {
                 backgroundColor: '#6000FF14',
-                borderRadius: 20
+                borderRadius: 20,
+                width: 'fit-content'
               }
             ]}
           >

@@ -87,6 +87,8 @@ const LedgerConnectModal = ({
       closeBottomSheet={handleClose}
       onClosed={handleClose}
       autoOpen={isVisible}
+      type="bottom-sheet"
+      withBackdropBlur={false}
     >
       <ModalHeader title={t('Connect Ledger')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>

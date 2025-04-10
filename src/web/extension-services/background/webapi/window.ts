@@ -11,6 +11,11 @@ import {
   TAB_WIDE_CONTENT_WIDTH
 } from '@web/constants/spacings'
 
+type CustomSize = {
+  width: number
+  height: number
+}
+
 const event = new EventEmitter()
 
 if (isExtension) {
@@ -56,7 +61,10 @@ const getScreenWidth = (w: number) => {
 
 // creates a browser new window that is 15% smaller
 // of the current page and is centered in the browser app
-const createFullScreenWindow = async (url: string): Promise<WindowProps> => {
+const createFullScreenWindow = async (
+  url: string,
+  customSize?: CustomSize
+): Promise<WindowProps> => {
   let screenWidth = 0
   let screenHeight = 0
 
@@ -79,6 +87,11 @@ const createFullScreenWindow = async (url: string): Promise<WindowProps> => {
       let desiredWidth = getScreenWidth(screenWidth * ratio)
       let desiredHeight = getScreenHeight(screenHeight * ratio)
 
+      if (customSize) {
+        desiredHeight = customSize.height
+        desiredWidth = customSize.width
+      }
+
       let leftPosition = (screenWidth - desiredWidth) / 2
       let topPosition = (screenHeight - desiredHeight) / 2
 
@@ -96,8 +109,10 @@ const createFullScreenWindow = async (url: string): Promise<WindowProps> => {
 
             if (activeTab.width && activeTab.height) {
               desiredWidth = getScreenWidth(activeTab.width * ratio)
+              if (customSize) desiredWidth = customSize.width
               leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
-              desiredHeight = getScreenHeight(activeTab.height * ratio)
+              // Pass customSize height to the helper as the height may be lower than the minimum height
+              desiredHeight = getScreenHeight(customSize?.height || activeTab.height * ratio)
               topPosition =
                 (activeTab.height - desiredHeight) / 2 +
                 topOffset +
@@ -139,8 +154,8 @@ const createFullScreenWindow = async (url: string): Promise<WindowProps> => {
   })
 }
 
-const create = async (url: string): Promise<WindowProps> => {
-  const windowProps = await createFullScreenWindow(url)
+const create = async (url: string, customSize?: CustomSize): Promise<WindowProps> => {
+  const windowProps = await createFullScreenWindow(url, customSize)
   return windowProps
 }
 
@@ -148,9 +163,13 @@ const remove = async (winId: number) => {
   await chrome.windows.remove(winId)
 }
 
-const open = async (route?: string): Promise<WindowProps> => {
+const open = async (
+  options: { route?: string; customSize?: CustomSize } = {}
+): Promise<WindowProps> => {
+  const { route, customSize } = options
+
   const url = `action-window.html${route ? `#/${route}` : ''}`
-  return create(url)
+  return create(url, customSize)
 }
 
 const focus = async (windowProps: WindowProps) => {

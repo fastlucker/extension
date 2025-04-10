@@ -54,7 +54,12 @@ const InnerToken: FC<Props> = ({
   return (
     <>
       {BigInt(amount) > BigInt(0) ? (
-        <Text fontSize={textSize} weight="medium" appearance="primaryText">
+        <Text
+          fontSize={textSize}
+          weight="medium"
+          appearance="primaryText"
+          style={{ maxWidth: '100%' }}
+        >
           {shouldDisplayUnlimitedAmount ? (
             <Text style={spacings.mrTy} appearance="warningText">
               {t('unlimited')}
