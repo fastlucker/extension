@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
@@ -22,7 +21,7 @@ import getStyles from './styles'
 interface Props {
   style: ViewStyle
   call: IrCall
-  networkId: NetworkId
+  chainId: bigint
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
   index?: number
@@ -40,7 +39,7 @@ export const sizeMultiplier = {
 const TransactionSummary = ({
   style,
   call,
-  networkId,
+  chainId,
   size = 'lg',
   isHistory,
   index,
@@ -99,7 +98,7 @@ const TransactionSummary = ({
               sizeMultiplierSize={sizeMultiplier[size]}
               textSize={textSize}
               imageSize={imageSize}
-              networkId={networkId}
+              chainId={chainId}
               isHistory={isHistory}
               testID={`recipient-address-${index}`}
               hasPadding={enableExpand}

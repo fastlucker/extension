@@ -15,24 +15,24 @@ const selectNetwork = async (
   validTokens: any,
   setIsLoading: (isLoading: boolean) => void,
   setTokenNetwork: (network: Network) => void,
-  handleTokenType: (networkId: string) => void,
+  handleTokenType: (chainId: bigint) => void,
   providers: RPCProviders
 ) => {
-  if (!network && !tokenNetwork?.id) {
+  if (!network && !tokenNetwork?.chainId) {
     const validTokenNetworks = networks.filter(
       (_network: Network) =>
-        validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
-        `${tokenData?.address}-${_network.id}` in validTokens.erc20
+        validTokens.erc20[`${tokenData?.address}-${_network.chainId}`] === true &&
+        `${tokenData?.address}-${_network.chainId}` in validTokens.erc20
     )
     const allNetworksChecked = networks.every(
       (_network: Network) =>
-        `${tokenData?.address}-${_network.id}` in validTokens.erc20 &&
-        providers[_network.id].isWorking
+        `${tokenData?.address}-${_network.chainId}` in validTokens.erc20 &&
+        providers[_network.chainId.toString()].isWorking
     )
 
     if (validTokenNetworks.length > 0) {
       const newTokenNetwork = validTokenNetworks.find(
-        (_network: Network) => _network.id !== tokenNetwork?.id
+        (_network: Network) => _network.chainId !== tokenNetwork?.chainId
       )
       if (newTokenNetwork) {
         setTokenNetwork(newTokenNetwork)
@@ -42,7 +42,8 @@ const selectNetwork = async (
     } else {
       await Promise.all(
         networks.map(
-          (_network: Network) => providers[_network.id].isWorking && handleTokenType(_network.id)
+          (_network: Network) =>
+            providers[_network.chainId.toString()].isWorking && handleTokenType(_network.chainId)
         )
       )
     }
@@ -56,8 +57,8 @@ const getTokenEligibility = (
 ) =>
   null ||
   (tokenData?.address &&
-    tokenNetwork?.id &&
-    validTokens?.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
+    tokenNetwork?.chainId &&
+    validTokens?.erc20[`${tokenData?.address}-${tokenNetwork?.chainId}`])
 
 const handleTokenIsInPortfolio = async (
   isTokenCustom: boolean,
@@ -70,7 +71,7 @@ const handleTokenIsInPortfolio = async (
     accountPortfolio?.tokens.find(
       (_t) =>
         _t.address.toLowerCase() === tokenData?.address.toLowerCase() &&
-        _t.networkId === tokenNetwork?.id &&
+        _t.chainId === tokenNetwork?.chainId &&
         _t.amount > 0n
     )
 
@@ -89,7 +90,7 @@ const getTokenFromPortfolio = (
   return accountPortfolio?.tokens?.find(
     (token) =>
       token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
-      token.networkId === tokenNetwork?.id
+      token.chainId === tokenNetwork?.chainId
   )
 }
 
@@ -101,8 +102,8 @@ const getTokenFromTemporaryTokens = (
   undefined ||
   (tokenData &&
     tokenNetwork &&
-    temporaryTokens?.[tokenNetwork.id] &&
-    temporaryTokens?.[tokenNetwork.id]?.result?.tokens?.find(
+    temporaryTokens?.[tokenNetwork.chainId.toString()] &&
+    temporaryTokens?.[tokenNetwork.chainId.toString()]?.result?.tokens?.find(
       (x) => x.address.toLowerCase() === tokenData.address.toLowerCase()
     ))
 

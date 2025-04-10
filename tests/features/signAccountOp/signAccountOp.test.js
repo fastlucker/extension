@@ -38,7 +38,7 @@ describe('Signing and broadcasting an account operation with a Basic Account', (
       SELECTORS.tokenSend
     )
     await makeValidTransaction(page, extensionURL, browser, {
-      recipient: saParams.envSelectedAccount
+      shouldUseAddressBookRecipient: true
     })
   })
 })

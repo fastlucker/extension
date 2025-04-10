@@ -9,14 +9,22 @@ export type SelectValue = {
   [key: string]: any
 }
 
+export type RenderSelectedOptionParams = {
+  toggleMenu: () => void
+  isMenuOpen: boolean
+  selectRef: any
+}
+
 export type CommonSelectProps = {
-  value: SelectValue
+  value?: SelectValue | null
   setValue?: (value: SelectValue) => void
   handleSearch?: (search: string) => void
   defaultValue?: {}
   placeholder?: string
   label?: string | ReactNode
   size?: 'sm' | 'md'
+  mode?: 'select' | 'bottomSheet'
+  menuPosition?: 'top' | 'bottom'
   containerStyle?: ViewStyle
   selectStyle?: ViewStyle
   labelStyle?: TextStyle
@@ -30,6 +38,11 @@ export type CommonSelectProps = {
   testID?: string
   extraSearchProps?: { [key: string]: string }
   attemptToFetchMoreOptions?: (search: string) => void
+  renderSelectedOption?: ({
+    toggleMenu,
+    isMenuOpen,
+    selectRef
+  }: RenderSelectedOptionParams) => ReactNode
 }
 export type SelectProps = CommonSelectProps & {
   options: SelectValue[]

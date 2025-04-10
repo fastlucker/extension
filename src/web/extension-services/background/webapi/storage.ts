@@ -17,18 +17,24 @@ const benzinStorage = {
   }
 }
 
+const formatValue = (value: any, defaultValue?: any) => {
+  try {
+    return typeof value === 'string' ? parse(value) : value
+  } catch (error) {
+    return typeof value === 'string' ? value : defaultValue
+  }
+}
+
 export const get = async (key?: string, defaultValue?: any) => {
   const res = await browser.storage.local.get(null)
 
-  if (!res[key]) {
-    return defaultValue
+  if (!key) {
+    return Object.fromEntries(Object.entries(res).map(([k, value]) => [k, formatValue(value)]))
   }
 
-  try {
-    return key ? (typeof res[key] === 'string' ? parse(res[key]) : res[key]) : res
-  } catch (error) {
-    return typeof res[key] === 'string' ? res[key] : defaultValue
-  }
+  if (!res[key]) return defaultValue
+
+  return formatValue(res[key])
 }
 
 export const set = async (key: string, value: any): Promise<null> => {

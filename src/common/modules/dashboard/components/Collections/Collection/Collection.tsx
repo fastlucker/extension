@@ -18,7 +18,7 @@ import getStyles from './styles'
 interface Props {
   address: string
   name: string
-  networkId: NetworkIconIdType
+  chainId: NetworkIconIdType
   collectibles: bigint[]
   priceIn: {
     baseCurrency: string
@@ -48,7 +48,7 @@ const { isTab } = getUiType()
 const Collection: FC<Props> = ({
   address,
   name,
-  networkId,
+  chainId,
   collectibles,
   priceIn,
   openCollectibleModal,
@@ -57,8 +57,8 @@ const Collection: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
 
   const networkData = useMemo(() => {
-    return networks.find(({ id }) => networkId === id)
-  }, [networkId, networks])
+    return networks.find(({ chainId: nChainId }) => chainId === nChainId.toString())
+  }, [chainId, networks])
 
   return (
     <View style={styles.container}>
@@ -80,7 +80,7 @@ const Collection: FC<Props> = ({
             ...(isTab ? spacings.mrTy : spacings.mrMi)
           }}
         >
-          <NetworkIcon size={isTab ? 20 : 16} id={networkId} />
+          <NetworkIcon size={isTab ? 20 : 16} id={networkData?.name || ''} />
         </View>
         <Text fontSize={isTab ? 14 : 10} appearance="secondaryText">
           {networkData?.name || 'Unknown Network'}
@@ -96,7 +96,7 @@ const Collection: FC<Props> = ({
             collectionData={{
               name,
               address,
-              networkId,
+              chainId,
               priceIn: priceIn.length ? priceIn[0] : null
             }}
             openCollectibleModal={openCollectibleModal}

@@ -65,12 +65,12 @@ const Collections: FC<Props> = ({
 
   const filteredPortfolioCollections = useMemo(
     () =>
-      (portfolio?.collections || []).filter(({ name, address, networkId, collectibles }) => {
+      (portfolio?.collections || []).filter(({ name, address, chainId, collectibles }) => {
         let isMatchingNetwork = true
         let isMatchingSearch = true
 
         if (dashboardNetworkFilter) {
-          isMatchingNetwork = networkId === dashboardNetworkFilter
+          isMatchingNetwork = chainId === dashboardNetworkFilter
         }
 
         if (searchValue) {
@@ -78,7 +78,7 @@ const Collections: FC<Props> = ({
           isMatchingSearch =
             name.toLowerCase().includes(lowercaseSearch) ||
             address.toLowerCase().includes(lowercaseSearch) ||
-            getDoesNetworkMatch({ networks, itemNetworkId: networkId, lowercaseSearch })
+            getDoesNetworkMatch({ networks, itemChainId: chainId, lowercaseSearch })
         }
 
         return isMatchingNetwork && isMatchingSearch && collectibles.length
@@ -132,14 +132,14 @@ const Collections: FC<Props> = ({
 
       if (!initTab?.collectibles || !item || item === 'keep-this-to-avoid-key-warning') return null
 
-      const { name, address, networkId, collectibles, priceIn } = item
+      const { name, address, chainId, collectibles, priceIn } = item
 
       return (
         <Collection
           key={address}
           name={name}
           address={address}
-          networkId={networkId}
+          chainId={chainId.toString()}
           collectibles={collectibles}
           priceIn={priceIn}
           openCollectibleModal={openCollectibleModal}

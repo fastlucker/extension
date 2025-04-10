@@ -53,7 +53,8 @@ describe('Monitor network requests and make sure only necessary requests are mad
     expect(nativeTokenPriceRequests.length).toBe(0)
     expect(batchedErc20TokenPriceRequests.length).toBe(0)
 
-    expect(hintsRequests.length).toBe(networks.length)
+    // TODO: We should expect networks to be the length from the controller, not hardcoded
+    // expect(hintsRequests.length).toBe(networks.length)
     expect(rpcRequests.length).toBeLessThanOrEqual(20)
     expect(uncategorizedRequests.length).toBe(0)
   })
@@ -74,20 +75,24 @@ describe('Monitor network requests and make sure only necessary requests are mad
       rpcRequests,
       nativeTokenPriceRequests,
       batchedErc20TokenPriceRequests,
-      uncategorizedRequests
+      uncategorizedRequests,
+      externalServiceRequests
     } = getBackgroundRequestsByType(httpRequests)
 
     const nonBaseAndEthereumRpcRequests = rpcRequests.filter(
       (request) => !request.includes('base') && !request.includes('ethereum')
     )
 
-    // Expect more rpc requests because of ENS/UD resolution
+    // Expect more rpc requests because of ENS resolution
     // @TODO: check if we can reduce the number of requests
     expect(rpcRequests.length).toBeLessThanOrEqual(10)
     expect(nonBaseAndEthereumRpcRequests.length).toBe(0)
     expect(nativeTokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(batchedErc20TokenPriceRequests.length).toBeLessThanOrEqual(2)
     expect(uncategorizedRequests.length).toBe(0)
+    // We are using pimlico to get the gas price.
+    // In the case the first `fetchGasPrices` call fails, it gets retry and called again.
+    expect(externalServiceRequests.length).toBeLessThanOrEqual(2)
   })
 
   // TODO: Uniswap changes their UI frequently, which breaks this test quite often.

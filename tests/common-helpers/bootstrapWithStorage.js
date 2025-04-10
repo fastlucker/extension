@@ -22,33 +22,28 @@ export async function bootstrapWithStorage(
 
   const {
     parsedKeystoreAccounts: accounts,
-    parsedKeyPreferences: keyPreferences,
-    parsedNetworkPreferences: networkPreferences,
     parsedNetworksWithAssetsByAccount: networksWithAssetsByAccount,
+    parsedNetworksWithPositionsByAccount: networksWithPositionsByAccounts,
     parsedOnboardingState: onboardingState,
-    envPermission: permission,
     parsedPreviousHints: previousHints,
     envSelectedAccount: selectedAccount,
     envTermState: termsState,
-    parsedTokenItems: tokenIcons,
     invite,
     parsedKeystoreUID: keyStoreUid,
     parsedKeystoreKeys: keystoreKeys,
     parsedKeystoreSecrets: keystoreSecrets,
+    parsedKeystoreSeeds: keystoreSeeds,
     ...rest
   } = storageParams
 
   const storageParamsMapped = {
     accounts,
-    keyPreferences,
-    networkPreferences,
     networksWithAssetsByAccount,
+    networksWithPositionsByAccounts,
     onboardingState,
-    permission,
     previousHints,
     selectedAccount,
     termsState,
-    tokenIcons,
     invite,
     isE2EStorageSet: true,
     isPinned: 'true',

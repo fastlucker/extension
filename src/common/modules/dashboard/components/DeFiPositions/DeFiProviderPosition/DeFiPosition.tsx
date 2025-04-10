@@ -34,7 +34,7 @@ const DeFiPosition: FC<Props> = ({
   withTopBorder,
   id,
   providerName,
-  networkId,
+  chainId,
   positionInUSD,
   additionalData,
   assets
@@ -91,7 +91,7 @@ const DeFiPosition: FC<Props> = ({
       </View>
       {suppliedAssets.length > 0 && (
         <DeFiPositionAssets
-          networkId={networkId}
+          chainId={chainId}
           providerName={providerName}
           assets={suppliedAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Liquidity]}
@@ -99,7 +99,7 @@ const DeFiPosition: FC<Props> = ({
       )}
       {borrowedAssets.length > 0 && (
         <DeFiPositionAssets
-          networkId={networkId}
+          chainId={chainId}
           providerName={providerName}
           assets={borrowedAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Borrow]}

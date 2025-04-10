@@ -5,7 +5,6 @@ import { isValidAddress } from '@ambire-common/services/address'
 type AddressInputValidation = {
   address: string
   isRecipientDomainResolving: boolean
-  isValidUDomain: boolean
   isValidEns: boolean
   overwriteError?: string | boolean
   overwriteValidLabel?: string
@@ -14,7 +13,6 @@ type AddressInputValidation = {
 const getAddressInputValidation = ({
   address,
   isRecipientDomainResolving,
-  isValidUDomain,
   isValidEns,
   overwriteError,
   overwriteValidLabel
@@ -49,12 +47,6 @@ const getAddressInputValidation = ({
       isError: false
     }
   }
-  if (isValidUDomain) {
-    return {
-      message: 'Valid Unstoppable domains® domain',
-      isError: false
-    }
-  }
   if (isValidEns) {
     return {
       message: 'Valid Ethereum Name Services® domain',
@@ -77,7 +69,7 @@ const getAddressInputValidation = ({
   }
   if (address && !isValidAddress(address)) {
     return {
-      message: 'Please enter a valid address or ENS/UD domain',
+      message: 'Please enter a valid address or ENS domain',
       isError: true
     }
   }

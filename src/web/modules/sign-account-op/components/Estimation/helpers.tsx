@@ -84,8 +84,18 @@ const mapFeeOptions = (
     if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
   })
 
+  const feeSpeed = signAccountOpState.feeSpeeds[id].find(
+    (speed) => speed.type === signAccountOpState.selectedFeeSpeed
+  )
+  const feeSpeedAmount = feeSpeed?.amount || 0n
+  const feeSpeedUsd = feeSpeed?.amountUsd || '0'
+
   if (!speedCoverage.includes(FeeSpeed.Slow)) {
-    disabledReason = 'Insufficient amount'
+    if (!feeOption.token.priceIn.length) {
+      disabledReason = 'No price data'
+    } else {
+      disabledReason = 'Insufficient amount'
+    }
   }
 
   return {
@@ -94,7 +104,14 @@ const mapFeeOptions = (
       feeOption.token.address +
       feeOption.token.symbol.toLowerCase() +
       gasTankKey,
-    label: <PayOption feeOption={feeOption} disabledReason={disabledReason} />,
+    label: (
+      <PayOption
+        amount={feeSpeedAmount}
+        amountUsd={feeSpeedUsd}
+        feeOption={feeOption}
+        disabledReason={disabledReason}
+      />
+    ),
     paidBy: feeOption.paidBy,
     token: feeOption.token,
     disabled: !!disabledReason,

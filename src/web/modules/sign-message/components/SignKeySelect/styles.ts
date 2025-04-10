@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING } from '@common/styles/spacings'
+import spacings, { SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -20,7 +20,7 @@ const getStyles = (theme: ThemeProps) =>
       bottom: 64,
       transform: [
         {
-          translateY: -SPACING
+          translateY: -SPACING_LG
         }
       ],
       ...common.borderRadiusPrimary,

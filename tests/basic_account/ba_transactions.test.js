@@ -35,7 +35,7 @@ describe('ba_transactions', () => {
   })
 
   it('Signs a message', async () => {
-    await signMessage(page, extensionURL, browser, process.env.BA_SELECTED_ACCOUNT)
+    await signMessage(page, extensionURL, browser, baParams.envSelectedAccount)
   })
 
   // TODO: Uniswap changes their UI frequently, which breaks this test quite often.

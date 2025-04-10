@@ -1,5 +1,9 @@
 @import '@legends/styles/base';
 
+.tooltip {
+  font-family: $primaryFont !important;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -49,28 +53,34 @@
     margin-bottom: 0.375rem;
     width: calc(100% - 2rem);
     .cell {
-      flex: 3.8 1 0%;
       color: $secondaryText;
       display: flex;
       align-content: center;
 
+      &:first-child {
+        flex: 5;
+      }
+
+      &:nth-child(2),
+      &:nth-child(3) {
+        flex: 1.5;
+      }
       &:last-child {
         text-align: right;
-        flex: 0.5 1 0%;
+        flex: 1;
         justify-content: flex-end;
+      }
+      .weightText {
+        margin-right: 0.25rem;
       }
     }
   }
   .header {
     .cell {
       text-transform: uppercase;
-      font-size: .875rem;
-
-      &:nth-child(2) {
-        padding-left: 1.75rem;
-      }
+      font-size: 0.875rem;
     }
-    
+
     .playerCell {
       margin-left: 1.15rem;
     }
@@ -91,6 +101,10 @@
     .cell:last-child {
       color: $primaryText;
       justify-content: flex-end;
+      font-weight: 500;
+    }
+    .cell.weight {
+      color: $secondaryText;
     }
   }
 
@@ -134,8 +148,8 @@
   .currentUserRow {
     background-color: $tertiaryBackground;
     border-color: $tertiaryBorder;
-    border-width: .1rem;
-    border-bottom-width: .1875rem;
+    border-width: 0.1rem;
+    border-bottom-width: 0.1875rem;
     border-style: solid;
     width: 100%;
 
@@ -145,12 +159,12 @@
     .addressSkeleton {
       background-color: $secondaryBackground;
     }
-    
+
     .address {
       color: $secondaryText;
     }
   }
-  
+
   .rankedRow2 {
     background-color: $silverBackground;
     border-color: $silverDecorative;

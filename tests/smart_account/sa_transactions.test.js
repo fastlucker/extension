@@ -1,6 +1,5 @@
 import { bootstrapWithStorage } from '../common-helpers/bootstrapWithStorage'
 import { saParams } from '../config/constants'
-import { SELECTORS } from '../common/selectors/selectors'
 
 import {
   makeSwap,
@@ -38,7 +37,7 @@ describe('sa_transactions', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('Sign message', async () => {
-    await signMessage(page, extensionURL, browser, process.env.SA_SELECTED_ACCOUNT)
+    await signMessage(page, extensionURL, browser, saParams.envSelectedAccount)
   })
 
   // TODO: Uniswap changes their UI frequently, which breaks this test quite often.

@@ -14,7 +14,7 @@ interface Props extends TextProps {
   address: string
   // example of highestPriorityAlias: a name coming from the humanizer's metadata
   highestPriorityAlias?: string
-  explorerNetworkId?: string
+  explorerChainId?: bigint
   marginRight?: number
 }
 const HUMANIZER_META = humanizerInfo as HumanizerMeta

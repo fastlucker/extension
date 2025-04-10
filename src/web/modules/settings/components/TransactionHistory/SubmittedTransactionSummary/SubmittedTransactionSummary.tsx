@@ -37,8 +37,8 @@ const SubmittedTransactionSummaryInner = ({
   const { networks } = useNetworksControllerState()
 
   const network: Network | undefined = useMemo(
-    () => networks.find((n) => n.id === submittedAccountOp.networkId),
-    [networks, submittedAccountOp.networkId]
+    () => networks.find((n) => n.chainId === submittedAccountOp.chainId),
+    [networks, submittedAccountOp.chainId]
   )
 
   const calls = useMemo(
@@ -81,7 +81,7 @@ const SubmittedTransactionSummaryInner = ({
           key={call.id}
           style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
           call={call}
-          networkId={submittedAccountOp.networkId}
+          chainId={submittedAccountOp.chainId}
           isHistory
           enableExpand={defaultType === 'full-info'}
           size={size}

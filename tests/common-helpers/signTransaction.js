@@ -3,8 +3,11 @@ import { clickOnElement } from './clickOnElement'
 export async function signTransaction(actionWindowPage, transactionRecorder) {
   actionWindowPage.setDefaultTimeout(120000)
 
-  // Click on "Ape" button
-  await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
+  // Open the fee dropdown
+  await clickOnElement(actionWindowPage, '[data-testid="fee-speed-select"]')
+
+  // Click on the "Ape" option
+  await clickOnElement(actionWindowPage, '[data-testid="option-ape"]')
 
   // Click on "Sign" button
   await clickOnElement(actionWindowPage, '[data-testid="transaction-button-sign"]')

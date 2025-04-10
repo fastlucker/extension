@@ -11,9 +11,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
-import { NetworkId } from '@ambire-common/interfaces/network'
 
-const AllNetworksOption = ({ onPress }: { onPress: (networkId: NetworkId | null) => void }) => {
+const AllNetworksOption = ({ onPress }: { onPress: (chainId: bigint | null) => void }) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { portfolio: selectedAccountPortfolio, dashboardNetworkFilter } =
@@ -37,7 +36,7 @@ const AllNetworksOption = ({ onPress }: { onPress: (networkId: NetworkId | null)
 
   const handleOnPress = useCallback(() => {
     onPress(null)
-  }, [])
+  }, [onPress])
 
   return (
     <AnimatedPressable

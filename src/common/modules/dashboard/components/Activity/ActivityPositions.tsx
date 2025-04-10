@@ -59,7 +59,9 @@ const ActivityPositions: FC<Props> = ({
         sessionId,
         filters: {
           account: account.addr,
-          ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
+          ...(dashboardNetworkFilter && {
+            chainId: dashboardNetworkFilter ? BigInt(dashboardNetworkFilter) : undefined
+          })
         },
         pagination: {
           itemsPerPage: ITEMS_PER_PAGE,
@@ -119,7 +121,9 @@ const ActivityPositions: FC<Props> = ({
                     sessionId,
                     filters: {
                       account: account!.addr,
-                      ...(dashboardNetworkFilter && { network: dashboardNetworkFilter })
+                      ...(dashboardNetworkFilter && {
+                        chainId: dashboardNetworkFilter ? BigInt(dashboardNetworkFilter) : undefined
+                      })
                     },
                     pagination: {
                       itemsPerPage: accountsOps[sessionId].pagination.itemsPerPage + ITEMS_PER_PAGE,

@@ -35,6 +35,8 @@ interface Props {
   autoOpen?: boolean
   shouldBeClosableOnDrag?: boolean
   customZIndex?: number
+  isScrollEnabled?: boolean
+  withBackdropBlur?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
@@ -60,7 +62,9 @@ const BottomSheet: React.FC<Props> = ({
   autoWidth = false,
   autoOpen = false,
   shouldBeClosableOnDrag = true,
-  customZIndex
+  withBackdropBlur,
+  customZIndex,
+  isScrollEnabled = true
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
@@ -132,6 +136,7 @@ const BottomSheet: React.FC<Props> = ({
             closeBottomSheet()
             !!onBackdropPress && onBackdropPress()
           }}
+          withBlur={withBackdropBlur}
         />
       )}
       <Modalize
@@ -180,6 +185,11 @@ const BottomSheet: React.FC<Props> = ({
               scrollViewProps: {
                 bounces: false,
                 keyboardShouldPersistTaps: 'handled',
+                ...(!isScrollEnabled && {
+                  scrollEnabled: false,
+                  nestedScrollEnabled: true,
+                  contentContainerStyle: { flex: 1 }
+                }),
                 ...(scrollViewProps || {})
               }
             }
@@ -212,7 +222,7 @@ const BottomSheet: React.FC<Props> = ({
           <View
             testID={isOpen ? 'bottom-sheet' : undefined}
             style={[
-              isScrollable ? spacings.prTy : {},
+              isScrollEnabled && isScrollable ? spacings.prTy : {},
               common.fullWidth,
               containerInnerWrapperStyles
             ]}

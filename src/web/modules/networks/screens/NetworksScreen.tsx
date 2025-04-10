@@ -2,15 +2,17 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
+import { useSearchParams } from 'react-router-dom'
 
-import { Network } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import Header from '@common/modules/header/components/Header'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -19,13 +21,10 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Networks from '@web/modules/networks/components/Networks'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
-import { useSearchParams } from 'react-router-dom'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import AddNetworkBottomSheet from '../components/AddNetworkBottomSheet'
 import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
 import NetworkBottomSheet, {
@@ -39,9 +38,11 @@ const NetworksScreen = () => {
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
-  const [settingsNetworkId, setSettingsNetworkId] = useState<Network['id'] | null>(null)
+  const [settingsChainId, setSettingsChainId] = useState<bigint | string | null>(null)
   const [searchParams] = useSearchParams()
-  const [changedNetwork, setChangedNetwork] = useState<undefined | null | Network['id']>(undefined)
+  const [changedNetwork, setChangedNetwork] = useState<undefined | null | bigint | string>(
+    undefined
+  )
 
   const {
     ref: settingsBottomSheetRef,
@@ -70,26 +71,26 @@ const NetworksScreen = () => {
   }, [changedNetwork, dashboardNetworkFilter, searchParams, navigate])
 
   const handleChangeNetwork = useCallback(
-    (networkId: string | null) => {
+    (chainId: bigint | string | null) => {
       dispatch({
         type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER',
-        params: { dashboardNetworkFilter: networkId }
+        params: { dashboardNetworkFilter: chainId }
       })
-      setChangedNetwork(networkId)
+      setChangedNetwork(chainId)
     },
     [dispatch, setChangedNetwork]
   )
 
   const handleOpenSettingsBottomSheet = useCallback(
-    (networkId: string) => {
-      setSettingsNetworkId(networkId)
+    (chainId: bigint | string) => {
+      setSettingsChainId(chainId)
       openSettingsBottomSheet()
     },
     [openSettingsBottomSheet]
   )
 
   const handleCloseSettingsBottomSheet = useCallback(() => {
-    setSettingsNetworkId(null)
+    setSettingsChainId(null)
     closeSettingsBottomSheet()
   }, [closeSettingsBottomSheet])
 
@@ -127,7 +128,7 @@ const NetworksScreen = () => {
       <View style={[flexbox.flex1, spacings.pb]}>
         <TabLayoutWrapperMainContent>
           <NetworkBottomSheet
-            networkId={settingsNetworkId}
+            chainId={settingsChainId}
             sheetRef={settingsBottomSheetRef}
             closeBottomSheet={handleCloseSettingsBottomSheet}
             openBlockExplorer={openBlockExplorer}

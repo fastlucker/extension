@@ -7,7 +7,6 @@ import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
-import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import CartIcon from '@common/assets/svg/CartIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -43,8 +42,12 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
+import Header from '@common/modules/header/components/Header'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const { isPopup } = getUiType()
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
@@ -71,7 +74,7 @@ const TransferScreen = () => {
     open: openGasTankInfoBottomSheet,
     close: closeGasTankInfoBottomSheet
   } = useModalize()
-  const { userRequests, isOffline } = useMainControllerState()
+  const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
 
   const hasFocusedActionWindow = useMemo(
@@ -81,15 +84,16 @@ const TransferScreen = () => {
 
   const transactionUserRequests = useMemo(() => {
     return userRequests.filter((r) => {
-      if (!state.amount || !state.selectedToken) return true
-
       const isSelectedAccountAccountOp =
         r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
-      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
 
-      return isSelectedAccountAccountOp && isMatchingSelectedTokenNetwork
+      if (!isSelectedAccountAccountOp) return false
+
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
+
+      return !state.selectedToken || isMatchingSelectedTokenNetwork
     })
-  }, [account?.addr, state.amount, state.selectedToken, userRequests])
+  }, [account?.addr, state.selectedToken, userRequests])
 
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10
@@ -103,7 +107,7 @@ const TransferScreen = () => {
   )
 
   const handleCacheResolvedDomain = useCallback(
-    (address: string, domain: string, type: 'ens' | 'ud') => {
+    (address: string, domain: string, type: 'ens') => {
       dispatch({
         type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
         params: {
@@ -135,8 +139,6 @@ const TransferScreen = () => {
   }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
 
   const submitButtonText = useMemo(() => {
-    if (isOffline) return t("You're offline")
-
     if (hasFocusedActionWindow) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
@@ -154,7 +156,6 @@ const TransferScreen = () => {
 
     return isTopUp ? t('Top Up') : t('Send')
   }, [
-    isOffline,
     isTopUp,
     transactionUserRequests,
     addressInputState.validation.isError,
@@ -170,21 +171,14 @@ const TransferScreen = () => {
   )
 
   const isSendButtonDisabled = useMemo(() => {
-    if (isOffline) return true
-
     if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
     return !isTransferFormValid
-  }, [
-    isFormEmpty,
-    isTransferFormValid,
-    isOffline,
-    transactionUserRequests.length,
-    hasFocusedActionWindow
-  ])
+  }, [isFormEmpty, isTransferFormValid, transactionUserRequests.length, hasFocusedActionWindow])
 
   const onBack = useCallback(() => {
+    transferCtrl.resetForm()
     navigate(ROUTES.dashboard)
   }, [navigate])
 
@@ -217,18 +211,7 @@ const TransferScreen = () => {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
-        if (!firstAccountOpAction) {
-          const entryPointAction = actionsState.visibleActionsQueue.find(
-            (a) => a.id.toString() === ENTRY_POINT_AUTHORIZATION_REQUEST_ID
-          )
-          if (entryPointAction) {
-            dispatch({
-              type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-              params: { actionId: ENTRY_POINT_AUTHORIZATION_REQUEST_ID }
-            })
-          }
-          return
-        }
+        if (!firstAccountOpAction) return
         dispatch({
           type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
           params: { actionId: firstAccountOpAction?.id }
@@ -276,26 +259,48 @@ const TransferScreen = () => {
     )
   }, [handleGasTankInfoPressed, maxWidthSize, t])
 
+  const title = useMemo(
+    () => (state.isTopUp ? gasTankLabelWithInfo : 'Send'),
+    [state.isTopUp, gasTankLabelWithInfo]
+  )
+
+  const header = useMemo(
+    () =>
+      isPopup ? (
+        <Header
+          customTitle={title}
+          withAmbireLogo
+          withOG
+          forceBack
+          onGoBackPress={() => {
+            transferCtrl.resetForm()
+            navigate(ROUTES.dashboard)
+          }}
+        />
+      ) : (
+        <HeaderAccountAndNetworkInfo withOG />
+      ),
+    []
+  )
+
+  const FormWrapper = isPopup ? View : Panel
+
   return (
     <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
+      backgroundColor={isPopup ? theme.primaryBackground : theme.secondaryBackground}
       width="xl"
-      header={<HeaderAccountAndNetworkInfo withOG />}
+      header={header}
       footer={
         <>
-          <BackButton onPress={onBack} />
-          <View
-            style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
-          >
+          {!isPopup && <BackButton onPress={onBack} />}
+          <View style={[flexbox.directionRow, flexbox.flex1, flexbox.justifyEnd]}>
             <Button
               testID="transfer-queue-and-add-more-button"
               type="outline"
               accentColor={theme.primary}
               text={t('Queue and Add More')}
               onPress={() => addTransaction('queue')}
-              disabled={
-                !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
-              }
+              disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
               hasBottomSpacing={false}
               style={spacings.mr}
               size="large"
@@ -320,31 +325,28 @@ const TransferScreen = () => {
               size="large"
               disabled={isSendButtonDisabled}
             >
-              {!isOffline && (
-                <View style={spacings.plTy}>
-                  {isTopUp ? (
-                    <TopUpIcon
-                      strokeWidth={1}
-                      width={24}
-                      height={24}
-                      color={theme.primaryBackground}
-                    />
-                  ) : (
-                    <SendIcon width={24} height={24} color={theme.primaryBackground} />
-                  )}
-                </View>
-              )}
+              <View style={spacings.plTy}>
+                {isTopUp ? (
+                  <TopUpIcon
+                    strokeWidth={1}
+                    width={24}
+                    height={24}
+                    color={theme.primaryBackground}
+                  />
+                ) : (
+                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
+                )}
+              </View>
             </Button>
           </View>
         </>
       }
     >
-      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
+      <TabLayoutWrapperMainContent contentContainerStyle={!isPopup ? spacings.pt2Xl : undefined}>
         {state?.isInitialized ? (
-          <Panel
+          <FormWrapper
             style={[styles.panel]}
-            forceContainerSmallSpacings
-            title={state.isTopUp ? gasTankLabelWithInfo : 'Send'}
+            {...(!isPopup && { forceContainerSmallSpacings: true, title })}
           >
             <SendForm
               addressInputState={addressInputState}
@@ -403,7 +405,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-          </Panel>
+          </FormWrapper>
         ) : (
           <SkeletonLoader
             width={640}

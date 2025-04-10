@@ -47,6 +47,10 @@ const useBalanceAffectingErrors = () => {
     if (isOffline && portfolio.isAllReady) return t('Please check your internet connection.')
 
     if (balanceAffectingErrors.length) {
+      if (balanceAffectingErrors.length === 1) {
+        return t(balanceAffectingErrors[0].title)
+      }
+
       return t(
         'Total balance may be inaccurate due to issues on {{networks}}. Click for more info.',
         {

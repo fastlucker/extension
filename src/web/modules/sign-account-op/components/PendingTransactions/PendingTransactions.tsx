@@ -7,9 +7,11 @@ import { Network } from '@ambire-common/interfaces/network'
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { stringify } from '@ambire-common/libs/richJson/richJson'
+import NetworkBadge from '@common/components/NetworkBadge'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
@@ -32,7 +34,7 @@ const PendingTransactions: FC<Props> = ({ network }) => {
     if (!accountOp) return
     const actualDependencyArrayAsString = stringify([
       accountOp.calls,
-      accountOp.networkId,
+      accountOp.chainId,
       accountOp.accountAddr
     ])
     const newAccountOpRelevantInfoHash = keccak256(toUtf8Bytes(actualDependencyArrayAsString))
@@ -48,19 +50,27 @@ const PendingTransactions: FC<Props> = ({ network }) => {
   }, [accountOp])
 
   return (
-    <View style={styles.transactionsContainer}>
-      <SectionHeading>
-        {t('Pending {{noun}}', { noun: callsToVisualize.length > 1 ? t('actions') : t('action') })}
-      </SectionHeading>
+    <View style={spacings.mbLg}>
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifySpaceBetween,
+          spacings.mbSm
+        ]}
+      >
+        <SectionHeading withMb={false}>{t('Overview')}</SectionHeading>
+        <NetworkBadge chainId={network?.chainId} withOnPrefix />
+      </View>
       <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
         {network && callsToVisualize.length ? (
           callsToVisualize.map((call, i) => {
             return (
               <TransactionSummary
                 key={call.id}
-                style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
                 call={call}
-                networkId={network.id}
+                chainId={network.chainId}
                 index={i}
               />
             )
