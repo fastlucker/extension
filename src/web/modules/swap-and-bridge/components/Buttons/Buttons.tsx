@@ -31,6 +31,7 @@ const Buttons: FC<Props> = ({ isOneClickModeAllowed, isNotReadyToProceed, handle
         style={{ minWidth: 160, ...spacings.mlLg }}
         hasBottomSpacing={false}
         onPress={() => handleSubmitForm(true)}
+        testID="proceed-btn"
       />
     </View>
   )

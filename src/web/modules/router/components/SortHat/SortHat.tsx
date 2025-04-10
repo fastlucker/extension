@@ -2,13 +2,16 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
+import { hasPersistedState } from '@ambire-common/controllers/transfer/transfer'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import Spinner from '@common/components/Spinner'
+import { APP_VERSION } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -96,10 +99,13 @@ const SortHat = () => {
       )
       if (hasSwapAndBridgePopupSession) {
         navigate(ROUTES.swapAndBridge)
-        return
+      } else if (await hasPersistedState(storage, APP_VERSION)) {
+        navigate(ROUTES.transfer, {
+          state: { backTo: WEB_ROUTES.dashboard }
+        })
+      } else {
+        navigate(ROUTES.dashboard)
       }
-
-      navigate(ROUTES.dashboard)
     }
   }, [
     keystoreState.isReadyToStoreKeys,

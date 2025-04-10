@@ -20,5 +20,4 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.warningBackground
     }
   })
-
 export default getStyles
