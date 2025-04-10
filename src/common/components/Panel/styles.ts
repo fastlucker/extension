@@ -25,14 +25,13 @@ const getStyles = (theme: ThemeProps) =>
       ...common.shadowTertiary,
       alignSelf: 'center',
       overflow: 'hidden',
-      // TODO: fix it
-      minHeight: 468
+      minHeight: 486,
+      maxHeight: '92%'
     },
     innerContainer: {
       alignSelf: 'center',
-      overflow: 'hidden',
-      // TODO: fix it
-      minHeight: 486
+      flex: 1,
+      overflow: 'hidden'
     },
     progress: {
       flex: 1,

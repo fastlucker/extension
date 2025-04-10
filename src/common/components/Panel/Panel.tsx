@@ -98,7 +98,8 @@ const Panel: React.FC<Props> = ({
           styles.onboardingContainer,
           {
             width: isAnimated ? panelWidthInterpolate : panelWidth
-          }
+          },
+          style
         ]}
       >
         {step > 0 && renderProgress()}
@@ -106,7 +107,6 @@ const Panel: React.FC<Props> = ({
           style={[
             styles.innerContainer,
             getPanelPaddings(maxWidthSize, spacingsSize),
-            style,
             {
               width: isAnimated ? panelWidthInterpolate : panelWidth,
               opacity: isAnimated ? opacityInterpolate : 1,

@@ -33,12 +33,12 @@ const routesConfig: RouteConfig = {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome to your Ambire Wallet'),
-      web: i18n.t('Welcome to your Ambire Wallet')
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to your Ambire Wallet'),
-      web: i18n.t('Welcome to your Ambire Wallet')
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
     })
   },
   [ROUTES.importExistingAccount]: {

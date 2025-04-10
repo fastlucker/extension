@@ -11,7 +11,6 @@ import useTheme from '@common/hooks/useTheme'
 import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import {
@@ -53,16 +52,10 @@ const OnboardingCompletedScreen = () => {
         header={<Header customTitle={' '} />}
       >
         <TabLayoutWrapperMainContent>
-          <Panel
-            type="onboarding"
-            spacingsSize="small"
-            style={{
-              minHeight: 416
-            }}
-          >
-            <View style={[flexbox.alignCenter, spacings.pv3Xl]}>
+          <Panel type="onboarding" spacingsSize="small">
+            <View style={[flexbox.flex1, flexbox.alignCenter, spacings.pt3Xl]}>
               <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
-                <ConfettiAnimation width={TAB_CONTENT_WIDTH} height={350} autoPlay={false} />
+                <ConfettiAnimation width={TAB_CONTENT_WIDTH} height={380} autoPlay={false} />
                 <AmbireLogo height={96} />
               </View>
               <Text
@@ -78,13 +71,15 @@ const OnboardingCompletedScreen = () => {
                 </Text>
               )}
 
-              {!!isPinned && (
-                <Button
-                  text={t('Open Dashboard')}
-                  hasBottomSpacing={false}
-                  onPress={handleOpenDashboardPress}
-                />
-              )}
+              <View style={[flexbox.flex1, flexbox.justifyEnd]}>
+                {!!isPinned && (
+                  <Button
+                    text={t('Open Dashboard')}
+                    hasBottomSpacing={false}
+                    onPress={handleOpenDashboardPress}
+                  />
+                )}
+              </View>
             </View>
           </Panel>
         </TabLayoutWrapperMainContent>

@@ -79,6 +79,7 @@ const ONBOARDING_WEB_ROUTES = [
   WEB_ROUTES.importSeedPhrase,
   WEB_ROUTES.importSmartAccountJson,
   WEB_ROUTES.viewOnlyAccountAdder,
+  WEB_ROUTES.ledgerConnect,
   WEB_ROUTES.keyStoreSetup,
   WEB_ROUTES.accountPersonalize,
   WEB_ROUTES.accountPicker,
