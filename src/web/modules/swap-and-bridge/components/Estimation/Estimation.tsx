@@ -1,15 +1,19 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import LedgerLetterIcon from '@common/assets/svg/LedgerLetterIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
 
@@ -23,6 +27,8 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const { signAccountOpController } = useSwapAndBridgeControllerState()
+  const { isLedgerConnected } = useLedger()
+  const [showConnectLedger, setShowConnectLedger] = useState<boolean>(false)
 
   const isViewOnly = useMemo(
     () => signAccountOpController?.accountKeyStoreKeys.length === 0,
@@ -42,7 +48,23 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
 
   const isSignLoading = getIsSignLoading(signAccountOpController?.status)
 
+  useEffect(() => {
+    if (signAccountOpController?.accountOp.signingKeyType !== 'ledger') return
+    if (isLedgerConnected) setShowConnectLedger(false)
+  }, [signAccountOpController?.accountOp.signingKeyType, isLedgerConnected])
+
+  /**
+   * Single click broadcast
+   *
+   * Before the actual broadcast, some condtions have to be met:
+   * - If signing device is ledger, ledger needs to be connected
+   */
   const handleBroadcastAccountOp = useCallback(() => {
+    if (signAccountOpController?.accountOp.signingKeyType === 'ledger' && !isLedgerConnected) {
+      setShowConnectLedger(true)
+      return
+    }
+
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
       params: {
@@ -50,7 +72,12 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
       }
     })
     closeEstimationModal()
-  }, [closeEstimationModal, dispatch])
+  }, [
+    closeEstimationModal,
+    dispatch,
+    isLedgerConnected,
+    signAccountOpController?.accountOp.signingKeyType
+  ])
 
   return (
     <BottomSheet
@@ -80,25 +107,35 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               ...spacings.mvLg
             }}
           />
-          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-            <Button
-              testID="swap-button-back"
-              type="secondary"
-              text={t('Back')}
-              onPress={closeEstimationModal}
-              hasBottomSpacing={false}
-              size="large"
-              disabled={isSignLoading}
-              style={{ width: 98 }}
-            />
-            <Button
-              text={t('Sign')}
-              hasBottomSpacing={false}
-              disabled={isSignLoading}
-              onPress={handleBroadcastAccountOp}
-              style={{ minWidth: 160 }}
-            />
-          </View>
+          {showConnectLedger && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pvMd]}>
+              <LedgerLetterIcon width={16} height={16} />
+              <Text style={[spacings.mrTy, spacings.mlTy]}>
+                {t('Please connect your Ledger device')}
+              </Text>
+              <Spinner style={{ width: 16, height: 16 }} />
+            </View>
+          )}
+          {!showConnectLedger && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
+              <Button
+                testID="swap-button-back"
+                type="secondary"
+                text={t('Back')}
+                onPress={closeEstimationModal}
+                hasBottomSpacing={false}
+                disabled={isSignLoading}
+                style={{ width: 98 }}
+              />
+              <Button
+                text={t('Sign')}
+                hasBottomSpacing={false}
+                disabled={isSignLoading}
+                onPress={handleBroadcastAccountOp}
+                style={{ minWidth: 160 }}
+              />
+            </View>
+          )}
         </View>
       )}
     </BottomSheet>
