@@ -2,28 +2,17 @@ import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Button from '@common/components/Button'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 
 type Props = {
   isOneClickModeAllowed: boolean
   isNotReadyToProceed: boolean
   handleSubmitForm: (isOneClickMode: boolean) => void
-  isEstimatingRoute: boolean
-  formStatus: SwapAndBridgeFormStatus
 }
 
-const Buttons: FC<Props> = ({
-  isOneClickModeAllowed,
-  isNotReadyToProceed,
-  handleSubmitForm,
-  isEstimatingRoute,
-  formStatus
-}) => {
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
+const Buttons: FC<Props> = ({ isOneClickModeAllowed, isNotReadyToProceed, handleSubmitForm }) => {
   const { t } = useTranslation()
 
   return (
@@ -37,13 +26,7 @@ const Buttons: FC<Props> = ({
         onPress={() => handleSubmitForm(false)}
       />
       <Button
-        text={
-          mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-          isEstimatingRoute ||
-          formStatus === SwapAndBridgeFormStatus.FetchingRoutes
-            ? t('Loading...')
-            : t('Proceed')
-        }
+        text={t('Proceed')}
         disabled={isNotReadyToProceed || !isOneClickModeAllowed}
         style={{ minWidth: 160, ...spacings.mlLg }}
         hasBottomSpacing={false}

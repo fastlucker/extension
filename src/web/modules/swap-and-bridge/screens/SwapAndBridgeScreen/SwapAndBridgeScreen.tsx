@@ -112,8 +112,7 @@ const SwapAndBridgeScreen = () => {
 
   const isNotReadyToProceed = useMemo(() => {
     return (
-      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit &&
-        formStatus !== SwapAndBridgeFormStatus.ReadyToEstimate) ||
+      formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
       shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
       mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
       updateQuoteStatus === 'LOADING' ||
@@ -158,8 +157,6 @@ const SwapAndBridgeScreen = () => {
               isOneClickModeAllowed={isOneClickModeAllowed}
               isNotReadyToProceed={isNotReadyToProceed}
               handleSubmitForm={handleSubmitForm}
-              isEstimatingRoute={isEstimatingRoute}
-              formStatus={formStatus}
             />
           </>
         ) : null
@@ -210,8 +207,6 @@ const SwapAndBridgeScreen = () => {
               isOneClickModeAllowed={isOneClickModeAllowed}
               isNotReadyToProceed={isNotReadyToProceed}
               handleSubmitForm={handleSubmitForm}
-              isEstimatingRoute={isEstimatingRoute}
-              formStatus={formStatus}
             />
           )}
         </View>

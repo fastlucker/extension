@@ -237,7 +237,8 @@ const ToToken: FC<Props> = ({ isEstimatingRoute, setIsAutoSelectRouteDisabled })
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
           <View style={[flexbox.flex1]}>
-            {!isEstimatingRoute && formStatus !== SwapAndBridgeFormStatus.FetchingRoutes ? (
+            {formStatus === SwapAndBridgeFormStatus.Empty ||
+            formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ? (
               <Text
                 fontSize={20}
                 weight="medium"
