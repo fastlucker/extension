@@ -125,6 +125,12 @@ const AccountPersonalizeScreen = () => {
     }
   }, [goToNextRoute, isLoading, accountsToPersonalize.length])
 
+  useEffect(() => {
+    if (!accountPickerState.isInitialized && !accounts.filter((a) => a.newlyAdded).length) {
+      goToNextRoute()
+    }
+  }, [goToNextRoute, accountPickerState.isInitialized, accounts])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
