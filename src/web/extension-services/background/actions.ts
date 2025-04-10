@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
-  Action as ActionFromActionsQueue
+  Action as ActionFromActionsQueue,
+  ActionExecutionType
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -521,9 +521,6 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
-type SwapAndBridgeControllerInitSignAccountOp = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_SIGN_ACCOUNT_OP'
-}
 type SwapAndBridgeControllerOnEstimationFailure = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
 }
@@ -742,6 +739,5 @@ export type Action =
   | KeystoreControllerMoveSeedFromTemp
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
-  | SwapAndBridgeControllerInitSignAccountOp
   | SignAccountOpUpdateAction
   | SwapAndBridgeControllerOnEstimationFailure
