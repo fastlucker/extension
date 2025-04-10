@@ -55,6 +55,8 @@ const ImportExistingAccountSelectorScreen = () => {
   const { dispatch } = useBackgroundService()
   const { isInitialized, type } = useAccountPickerControllerState()
   const prevIsInitialized = usePrevious(isInitialized)
+  const pressedButton = useRef<'trezor' | 'lattice' | null>(null)
+
   const buttons: ButtonType[] = useMemo(
     () => [
       {
@@ -82,6 +84,7 @@ const ImportExistingAccountSelectorScreen = () => {
               { type: 'error' }
             )
           } else {
+            pressedButton.current = 'trezor'
             dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
           }
         },
@@ -97,6 +100,7 @@ const ImportExistingAccountSelectorScreen = () => {
       {
         title: 'Grid Plus',
         onPress: () => {
+          pressedButton.current = 'lattice'
           dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
         },
         icon: LatticeWithBorderIcon
@@ -116,7 +120,8 @@ const ImportExistingAccountSelectorScreen = () => {
     if (
       !prevIsInitialized &&
       isInitialized &&
-      ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor')
+      ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor') &&
+      pressedButton.current
     ) {
       dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
       goToNextRoute()

@@ -34,7 +34,7 @@ export const CARD_WIDTH = 400
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
-  const { goToNextRoute } = useOnboardingNavigation()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
@@ -130,6 +130,12 @@ const AccountPersonalizeScreen = () => {
       goToNextRoute()
     }
   }, [goToNextRoute, accountPickerState.isInitialized, accounts])
+
+  useEffect(() => {
+    if (accountPickerState.isInitialized && accountPickerState.pageError) {
+      goToPrevRoute()
+    }
+  }, [goToPrevRoute, accountPickerState.isInitialized, accountPickerState.pageError])
 
   return (
     <TabLayoutContainer
