@@ -96,6 +96,9 @@ const RoutesModal = ({
       setIsEstimationLoading(false)
       disabledRoutes.push(persistedSelectedRoute.routeId)
       setDisabledRoutes(disabledRoutes)
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
+      })
     }
 
     if (
@@ -111,7 +114,8 @@ const RoutesModal = ({
     closeBottomSheet,
     persistedSelectedRoute,
     isEstimationLoading,
-    disabledRoutes
+    disabledRoutes,
+    dispatch
   ])
 
   const renderItem = useCallback(

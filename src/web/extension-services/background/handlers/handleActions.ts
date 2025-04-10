@@ -392,6 +392,9 @@ export const handleActions = async (
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM':
       return mainCtrl.swapAndBridge.resetForm()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED':
+      return mainCtrl.swapAndBridge.markSelectedRouteAsFailed()
+
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 

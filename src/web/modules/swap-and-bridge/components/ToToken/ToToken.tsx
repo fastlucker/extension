@@ -27,13 +27,14 @@ import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndB
 import getStyles from '@web/modules/swap-and-bridge/styles/swapAndBridgeCommonStyles'
 import { getTokenId } from '@web/utils/token'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
-  isEstimatingRoute: boolean
+  isAutoSelectRouteDisabled: boolean
 }
 
-const ToToken: FC<Props> = ({ isEstimatingRoute, setIsAutoSelectRouteDisabled }) => {
+const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
@@ -45,7 +46,8 @@ const ToToken: FC<Props> = ({ isEstimatingRoute, setIsAutoSelectRouteDisabled })
     formStatus,
     toChainId,
     updateToTokenListStatus,
-    supportedChainIds
+    supportedChainIds,
+    signAccountOpController
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
@@ -112,6 +114,13 @@ const ToToken: FC<Props> = ({ isEstimatingRoute, setIsAutoSelectRouteDisabled })
       amountFormatted
     }
   }, [portfolio?.tokens, toChainId, toTokenValue.value])
+
+  const shouldShowAmountOnEstimationFailure = useMemo(() => {
+    return (
+      isAutoSelectRouteDisabled &&
+      signAccountOpController?.estimation.status === EstimationStatus.Error
+    )
+  }, [isAutoSelectRouteDisabled, signAccountOpController?.estimation.status])
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
@@ -189,13 +198,19 @@ const ToToken: FC<Props> = ({ isEstimatingRoute, setIsAutoSelectRouteDisabled })
   )
 
   const formattedToAmount = useMemo(() => {
-    if (!quote || !quote.selectedRoute || !quote?.toAsset?.decimals) return '0'
+    if (
+      !quote ||
+      !quote.selectedRoute ||
+      !quote?.toAsset?.decimals ||
+      signAccountOpController?.estimation.status === EstimationStatus.Error
+    )
+      return '0'
 
     return `${formatDecimals(
       Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
       'amount'
     )}`
-  }, [quote])
+  }, [quote, signAccountOpController?.estimation.status])
 
   return (
     <View>
@@ -238,7 +253,10 @@ const ToToken: FC<Props> = ({ isEstimatingRoute, setIsAutoSelectRouteDisabled })
           />
           <View style={[flexbox.flex1]}>
             {formStatus === SwapAndBridgeFormStatus.Empty ||
-            formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ? (
+            formStatus === SwapAndBridgeFormStatus.Invalid ||
+            formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
+            formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+            shouldShowAmountOnEstimationFailure ? (
               <Text
                 fontSize={20}
                 weight="medium"

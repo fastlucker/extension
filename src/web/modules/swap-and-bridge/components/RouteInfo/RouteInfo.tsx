@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
@@ -15,12 +16,14 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 type Props = {
   isEstimatingRoute: boolean
   shouldEnableRoutesSelection: boolean
+  isAutoSelectRouteDisabled: boolean
   openRoutesModal: () => void
 }
 
 const RouteInfo: FC<Props> = ({
   isEstimatingRoute,
   shouldEnableRoutesSelection,
+  isAutoSelectRouteDisabled,
   openRoutesModal
 }) => {
   const { formStatus, signAccountOpController, quote } = useSwapAndBridgeControllerState()
@@ -39,24 +42,25 @@ const RouteInfo: FC<Props> = ({
         spacings.mbLg
       ]}
     >
+      {formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+          <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
+            {t('No routes found!')}
+          </Text>
+        </View>
+      )}
       {[
-        SwapAndBridgeFormStatus.FetchingRoutes,
-        SwapAndBridgeFormStatus.NoRoutesFound,
         SwapAndBridgeFormStatus.InvalidRouteSelected,
         SwapAndBridgeFormStatus.ReadyToEstimate,
         SwapAndBridgeFormStatus.ReadyToSubmit
       ].includes(formStatus) &&
-        signAccountOpController?.estimation &&
+        (signAccountOpController?.estimation.status === EstimationStatus.Success ||
+          (signAccountOpController?.estimation.status === EstimationStatus.Error &&
+            isAutoSelectRouteDisabled)) &&
         !isEstimatingRoute && (
           <>
-            {formStatus === SwapAndBridgeFormStatus.NoRoutesFound ? (
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <WarningIcon width={14} height={14} color={theme.warningDecorative} />
-                <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
-                  {t('No routes found!')}
-                </Text>
-              </View>
-            ) : (
+            {signAccountOpController?.estimation.status === EstimationStatus.Success && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Text appearance="tertiaryText" fontSize={14} weight="medium">
                   {t('Ambire fee: 0.025%')}
@@ -73,7 +77,14 @@ const RouteInfo: FC<Props> = ({
                 ) : null}
               </View>
             )}
-
+            {signAccountOpController?.estimation.status === EstimationStatus.Error && (
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+                <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
+                  {signAccountOpController?.estimation.error?.message}
+                </Text>
+              </View>
+            )}
             <Pressable
               style={{
                 paddingVertical: 2,

@@ -193,7 +193,7 @@ const SwapAndBridgeScreen = () => {
               setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
             />
             <ToToken
-              isEstimatingRoute={isEstimatingRoute}
+              isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
               setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
             />
           </View>
@@ -201,6 +201,7 @@ const SwapAndBridgeScreen = () => {
             isEstimatingRoute={isEstimatingRoute}
             openRoutesModal={openRoutesModal}
             shouldEnableRoutesSelection={shouldEnableRoutesSelection}
+            isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
           />
           {isPopup && (
             <Buttons
