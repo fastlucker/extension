@@ -25,14 +25,16 @@ type Props = {
   fromTokenAmountSelectDisabled: boolean
   handleChangeFromToken: (value: SelectValue) => void
   fromSelectedToken: TokenResult | null
-  fromAmount: string | undefined
-  fromAmountInFiat: string | undefined
+  fromAmount?: string
+  fromAmountInFiat?: string
   fromAmountFieldMode: 'token' | 'fiat'
   maxFromAmount: string
   validateFromAmount: { message?: string; success?: boolean }
   onFromAmountChange: (value: string) => void
   handleSwitchFromAmountFieldMode: () => void
   handleSetMaxFromAmount: () => void
+  inputTestId?: string
+  selectTestId?: string
 }
 
 const SendToken: FC<Props> = ({
@@ -49,7 +51,9 @@ const SendToken: FC<Props> = ({
   validateFromAmount,
   onFromAmountChange,
   handleSwitchFromAmountFieldMode,
-  handleSetMaxFromAmount
+  handleSetMaxFromAmount,
+  inputTestId,
+  selectTestId
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const { theme, styles } = useTheme(getStyles)
@@ -86,7 +90,7 @@ const SendToken: FC<Props> = ({
             setValue={handleChangeFromToken}
             options={fromTokenOptions}
             value={fromTokenValue}
-            testID="from-token-select"
+            testID={selectTestId}
             searchPlaceholder={t('Token name or address...')}
             emptyListPlaceholderText={t('No tokens found.')}
             containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
@@ -113,7 +117,7 @@ const SendToken: FC<Props> = ({
             inputStyle={spacings.ph0}
             error={validateFromAmount.message || ''}
             errorType="warning"
-            testID="from-amount-input-sab"
+            testID={inputTestId}
           />
         </View>
         <View
