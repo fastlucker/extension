@@ -87,6 +87,8 @@ const FromToken: FC<Props> = ({
       onFromAmountChange={onFromAmountChange}
       handleSwitchFromAmountFieldMode={handleSwitchFromAmountFieldMode}
       handleSetMaxFromAmount={handleSetMaxFromAmount}
+      inputTestId="from-amount-input-sab"
+      selectTestId="from-token-select"
     />
   )
 }
