@@ -6,7 +6,7 @@ import common from '@common/styles/utils/common'
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create({
-    secondaryContainer: {
+    container: {
       backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...spacings.ptMd,
@@ -14,7 +14,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pbSm,
       ...spacings.pl
     },
-    secondaryContainerWarning: {
+    containerWarning: {
       borderWidth: 1,
       borderColor: theme.warningDecorative,
       backgroundColor: theme.warningBackground
