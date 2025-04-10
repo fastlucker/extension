@@ -97,11 +97,13 @@
         font-size: 1.25rem;
         font-weight: 400;
         margin-right: 0.1875rem;
+        line-height: 100%;
       }
 
       .xpText {
         font-weight: 300;
         vertical-align: top;
+        color: rgba($whiteText, 0.5);
       }
 
       .rewardFrequencyWrapper {
