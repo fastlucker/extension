@@ -115,12 +115,15 @@ const CardContent: FC<Props> = ({
                   Up to <br />
                   <span className={styles.xp}>{Math.max(...xp.map((x) => x.to))}</span>
                 </>
+              ) : xp[0].from !== xp[0].to ? (
+                <>
+                  Up to <br />
+                  <span className={styles.xp}>{xp[0].to}</span>
+                </>
               ) : (
                 <>
                   Earn <br />
-                  <span className={styles.xp}>
-                    {xp[0].from === xp[0].to ? `${xp[0].from}` : `${xp[0].from}-${xp[0].to} `}
-                  </span>{' '}
+                  <span className={styles.xp}>{xp[0].to}</span>
                 </>
               )}
               <span className={styles.xpText}>XP</span>
