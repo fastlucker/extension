@@ -13,6 +13,7 @@ interface Props {
   initiallyExpanded?: boolean
   titleClassName?: string
   dropdownClassName?: string
+  wrapperClassName?: string
 }
 const Accordion = ({
   children,
@@ -20,12 +21,13 @@ const Accordion = ({
   expandable = true,
   initiallyExpanded = false,
   titleClassName,
-  dropdownClassName
+  dropdownClassName,
+  wrapperClassName
 }: Props) => {
   const [isOpen, setIsOpen] = useState(initiallyExpanded)
 
   return (
-    <div className={`${styles.wrapper}`}>
+    <div className={`${styles.wrapper} ${wrapperClassName}`}>
       <Pressable onPress={() => expandable && setIsOpen(!isOpen)}>
         <div className={`${styles.heading} ${expandable ? '' : styles.nonExpandable}`}>
           <span className={`${styles.title} ${titleClassName}`}>{title}</span>

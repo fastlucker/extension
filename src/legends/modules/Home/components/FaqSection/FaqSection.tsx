@@ -18,7 +18,12 @@ const FaqSection = () => {
     <div className={styles.wrapper}>
       <SectionHeading>FAQ</SectionHeading>
       {faqData.map((faq) => (
-        <Accordion key={faq.question} title={faq.question} titleClassName={styles.accordionTitle}>
+        <Accordion
+          key={faq.question}
+          title={faq.question}
+          titleClassName={styles.accordionTitle}
+          wrapperClassName={styles.accordionWrapper}
+        >
           <p className={styles.accordionDropdown}>{faq.answer}</p>
         </Accordion>
       ))}
