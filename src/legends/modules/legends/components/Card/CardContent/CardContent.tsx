@@ -8,12 +8,11 @@ import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils/cards'
 
 import styles from './CardContent.module.scss'
-import cardImage from './cardImage.png'
 import CompletedRibbon from './CompletedRibbon'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'xp' | 'image' | 'card' | 'action' | 'timesCollectedToday'
+  'title' | 'xp' | 'imageV2' | 'card' | 'action' | 'timesCollectedToday'
 > & {
   openActionModal: () => void
   disabled: boolean
@@ -30,7 +29,7 @@ const CARD_FREQUENCY: { [key in CardType]: string } = {
 const CardContent: FC<Props> = ({
   title,
   xp,
-  image,
+  imageV2,
   card,
   action,
   openActionModal,
@@ -77,7 +76,7 @@ const CardContent: FC<Props> = ({
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
           <h2 className={styles.heading}>{title}</h2>
-          <img src={cardImage} alt="Card" className={styles.image} />
+          <img src={imageV2} alt="Card" className={styles.image} />
           <div
             className={styles.backgroundEffect}
             style={{

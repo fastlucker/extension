@@ -90,6 +90,7 @@ export interface CardFromResponse {
     status: CardStatus
   }
   image: string
+  imageV2?: string
   timesCollectedToday: number
   group: CardGroup
   meta?: {
