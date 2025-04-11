@@ -12,10 +12,13 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
+
+import TrackProgress from './TrackProgress'
 
 type Props = {
   closeEstimationModal: () => void
@@ -25,10 +28,13 @@ type Props = {
 const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
+
   const { dispatch } = useBackgroundService()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { signAccountOpController } = useSwapAndBridgeControllerState()
   const { isLedgerConnected } = useLedger()
-  const [showConnectLedger, setShowConnectLedger] = useState<boolean>(false)
+  const [showConnectLedger, setShowConnectLedger] = useState(false)
+  const [hasBroadcasted, setHasBroadcasted] = useState(false)
 
   const isViewOnly = useMemo(
     () => signAccountOpController?.accountKeyStoreKeys.length === 0,
@@ -71,13 +77,18 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         isSwapAndBridge: true
       }
     })
-    closeEstimationModal()
-  }, [
-    closeEstimationModal,
-    dispatch,
-    isLedgerConnected,
-    signAccountOpController?.accountOp.signingKeyType
-  ])
+  }, [dispatch, isLedgerConnected, signAccountOpController?.accountOp.signingKeyType])
+
+  useEffect(() => {
+    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
+
+    // Note: This may not be the best implementation.
+    // Also, there seems to be a bug that causes the bottom sheet to hide
+    // and only the backdrop to remain
+    if (broadcastStatus === 'SUCCESS') {
+      setHasBroadcasted(true)
+    }
+  }, [mainCtrlStatuses.broadcastSignedAccountOp])
 
   return (
     <BottomSheet
@@ -86,7 +97,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
       backgroundColor="primaryBackground"
       closeBottomSheet={closeEstimationModal}
     >
-      {signAccountOpController && (
+      {signAccountOpController && !hasBroadcasted && (
         <View>
           <Estimation
             updateType="Swap&Bridge"
@@ -137,6 +148,15 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
             </View>
           )}
         </View>
+      )}
+      {(hasBroadcasted ||
+        (!signAccountOpController && mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')) && (
+        <TrackProgress
+          handleClose={() => {
+            setHasBroadcasted(false)
+            closeEstimationModal()
+          }}
+        />
       )}
     </BottomSheet>
   )

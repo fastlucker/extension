@@ -23,6 +23,7 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import BatchModal from '../../components/BatchModal'
 import Buttons from '../../components/Buttons'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -59,7 +60,9 @@ const SwapAndBridgeScreen = () => {
     closeEstimationModal,
     isAutoSelectRouteDisabled,
     setIsAutoSelectRouteDisabled,
-    isOneClickModeAllowed
+    isOneClickModeAllowed,
+    batchModalRef,
+    closeBatchModal
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -227,6 +230,7 @@ const SwapAndBridgeScreen = () => {
         acknowledgeHighPriceImpact={acknowledgeHighPriceImpact}
         highPriceImpactInPercentage={highPriceImpactInPercentage}
       />
+      <BatchModal sheetRef={batchModalRef} closeBottomSheet={closeBatchModal} />
     </TabLayoutContainer>
   )
 }

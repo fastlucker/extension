@@ -61,6 +61,7 @@ const useSwapAndBridgeForm = () => {
     open: openPriceImpactModal,
     close: closePriceImpactModal
   } = useModalize()
+  const { ref: batchModalRef, open: openBatchModal, close: closeBatchModal } = useModalize()
   const { actionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => {
@@ -280,9 +281,17 @@ const useSwapAndBridgeForm = () => {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
         })
+        openBatchModal()
       }
     },
-    [dispatch, highPriceImpactInPercentage, openEstimationModal, openPriceImpactModal, quote]
+    [
+      dispatch,
+      highPriceImpactInPercentage,
+      openBatchModal,
+      openEstimationModal,
+      openPriceImpactModal,
+      quote
+    ]
   )
 
   /**
@@ -325,7 +334,9 @@ const useSwapAndBridgeForm = () => {
     closeEstimationModal,
     isAutoSelectRouteDisabled,
     setIsAutoSelectRouteDisabled,
-    isOneClickModeAllowed
+    isOneClickModeAllowed,
+    closeBatchModal,
+    batchModalRef
   }
 }
 
