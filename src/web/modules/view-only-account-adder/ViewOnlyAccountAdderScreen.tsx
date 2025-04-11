@@ -1,7 +1,7 @@
 import { getAddress } from 'ethers'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { AddressState } from '@ambire-common/interfaces/domains'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
@@ -19,6 +19,7 @@ import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
@@ -57,7 +58,7 @@ const ViewOnlyScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
-  const { goToNextRoute } = useOnboardingNavigation()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -145,7 +146,6 @@ const ViewOnlyScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="md"
       header={<Header withAmbireLogo />}
       footer={
         <>
@@ -167,35 +167,56 @@ const ViewOnlyScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import a view-only address')}>
-          {fields.map((field, index) => (
-            <AddressField
-              duplicateAccountsIndexes={duplicateAccountsIndexes}
-              key={field.id}
-              control={control}
-              index={index}
-              remove={remove}
-              isLoading={isLoading || isSubmitting}
-              handleSubmit={handleSubmit(handleFormSubmit)}
+        <Panel
+          type="onboarding"
+          spacingsSize="small"
+          withBackButton
+          onBackButtonPress={goToPrevRoute}
+          title={t('Import a view-only address')}
+          step={1}
+          totalSteps={2}
+        >
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
+            <ScrollView style={spacings.mbLg}>
+              <View>
+                {fields.map((field, index) => (
+                  <AddressField
+                    duplicateAccountsIndexes={duplicateAccountsIndexes}
+                    key={field.id}
+                    control={control}
+                    index={index}
+                    remove={remove}
+                    isLoading={isLoading || isSubmitting}
+                    handleSubmit={handleSubmit(handleFormSubmit)}
+                    disabled={disabled}
+                    field={field}
+                    watch={watch}
+                    setValue={setValue}
+                    trigger={trigger}
+                  />
+                ))}
+
+                <AnimatedPressable
+                  testID="add-one-more-address"
+                  disabled={isSubmitting}
+                  onPress={() => append({ ...DEFAULT_ADDRESS_FIELD_VALUE })}
+                  style={[spacings.ptTy, animStyle]}
+                  {...bindAnim}
+                >
+                  <Text fontSize={14} underline>
+                    {t('+ Add another address')}
+                  </Text>
+                </AnimatedPressable>
+              </View>
+            </ScrollView>
+            <Button
+              testID="view-only-button-import"
+              size="large"
               disabled={disabled}
-              field={field}
-              watch={watch}
-              setValue={setValue}
-              trigger={trigger}
+              hasBottomSpacing={false}
+              text={isLoading ? t('Importing...') : t('Import')}
+              onPress={handleSubmit(handleFormSubmit)}
             />
-          ))}
-          <View>
-            <AnimatedPressable
-              testID="add-one-more-address"
-              disabled={isSubmitting}
-              onPress={() => append({ ...DEFAULT_ADDRESS_FIELD_VALUE })}
-              style={[spacings.ptTy, animStyle]}
-              {...bindAnim}
-            >
-              <Text fontSize={14} underline>
-                {t('+ Add another address')}
-              </Text>
-            </AnimatedPressable>
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
