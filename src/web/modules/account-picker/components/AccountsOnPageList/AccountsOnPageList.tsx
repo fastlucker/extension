@@ -5,11 +5,7 @@ import { Dimensions, NativeScrollEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
-import {
-  Account as AccountInterface,
-  AccountOnPage,
-  ImportStatus
-} from '@ambire-common/interfaces/account'
+import { Account as AccountInterface, AccountOnPage } from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
 import BadgeWithPreset from '@common/components/BadgeWithPreset'
 import BottomSheet from '@common/components/BottomSheet'
@@ -18,8 +14,8 @@ import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -31,47 +27,46 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import Account from '@web/modules/account-picker/components/Account'
 import AccountsRetrieveError from '@web/modules/account-picker/components/AccountsRetrieveError'
-import ChangeHdPath from '@web/modules/account-picker/components/ChangeHdPath'
-import {
-  AccountPickerIntroStepsProvider,
-  BasicAccountIntroId
-} from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
+import { AccountPickerIntroStepsProvider } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
+// import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
-import styles from './styles'
+import getStyles from './styles'
 
 const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
   const paddingToBottom = 20
   return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
 }
 
+type Props = {
+  state: AccountPickerController
+  setPage: (page: number) => void
+  subType: AccountPickerController['subType']
+  lookingForLinkedAccounts: boolean
+  children?: any
+  withTitle?: boolean
+}
+
 const AccountsOnPageList = ({
   state,
   setPage,
-  keyType,
   subType,
-  lookingForLinkedAccounts
-}: {
-  state: AccountPickerController
-  setPage: (page: number) => void
-  keyType: AccountPickerController['type']
-  subType: AccountPickerController['subType']
-  lookingForLinkedAccounts: boolean
-}) => {
+  lookingForLinkedAccounts,
+  children,
+  withTitle = true
+}: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const keystoreState = useKeystoreControllerState()
   const { networks } = useNetworksControllerState()
   const accountPickerState = useAccountPickerControllerState()
-  const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
+  const { styles } = useTheme(getStyles)
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -138,22 +133,16 @@ const AccountsOnPageList = ({
       accounts,
       shouldCheckForLastAccountInTheList,
       slotIndex,
-      byType = ['basic', 'smart']
+      byType = ['basic', 'smart'],
+      withQuaternaryBackground = false
     }: {
       accounts: AccountOnPage[]
       shouldCheckForLastAccountInTheList?: boolean
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
+      withQuaternaryBackground?: boolean
     }) => {
-      const filteredAccounts = accounts.filter(
-        (a) =>
-          byType.includes(getType(a)) &&
-          !(hideEmptyAccounts && getType(a) === 'basic' && !a.account.usedOnNetworks.length)
-      )
-
-      if (filteredAccounts.some((a) => getType(a) === 'basic') && onlySmartAccountsVisible) {
-        setOnlySmartAccountsVisible(false)
-      }
+      const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
 
       return filteredAccounts.map((acc, i: number) => {
         const hasBottomSpacing = !(
@@ -166,6 +155,7 @@ const AccountsOnPageList = ({
 
         return (
           <Account
+            withQuaternaryBackground={withQuaternaryBackground}
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
@@ -181,14 +171,13 @@ const AccountsOnPageList = ({
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
             displayTypeBadge={false}
+            displayTypePill={false}
           />
         )
       })
     },
     [
-      onlySmartAccountsVisible,
       getType,
-      hideEmptyAccounts,
       state.selectedAccounts,
       isImportingFromPrivateKey,
       handleSelectAccount,
@@ -197,24 +186,25 @@ const AccountsOnPageList = ({
   )
 
   const setTitle = useCallback(() => {
-    if (keyType && keyType !== 'internal') {
-      return t('Import accounts from {{ hwDeviceName }}', {
-        hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
-      })
-    }
+    // if (keyType && keyType !== 'internal') {
+    //   return t('Import accounts from {{ hwDeviceName }}', {
+    //     hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
+    //   })
+    // }
 
-    if (subType === 'seed') {
-      return accountPickerState.isInitializedWithSavedSeed
-        ? t('Import accounts from saved seed phrase')
-        : t('Import accounts from seed phrase')
-    }
+    // if (subType === 'seed') {
+    //   return accountPickerState.isInitializedWithSavedSeed
+    //     ? t('Import accounts from saved seed phrase')
+    //     : t('Import accounts from seed phrase')
+    // }
 
-    if (subType === 'private-key') {
-      return t('Select account(s) to import')
-    }
+    // if (subType === 'private-key') {
+    //   return t('Select account(s) to import')
+    // }
 
     return t('Select accounts to import')
-  }, [accountPickerState.isInitializedWithSavedSeed, keyType, subType, t])
+  }, [t])
+  // }, [accountPickerState.isInitializedWithSavedSeed, keyType, subType, t])
 
   const networkNamesWithAccountStateError = useMemo(() => {
     return accountPickerState.networksWithAccountStateError.map((chainId) => {
@@ -251,20 +241,6 @@ const AccountsOnPageList = ({
     state.accountsLoading,
     slots
   ])
-  const disableHideEmptyAccountsToggle =
-    state.accountsLoading || !!state.pageError || isAccountPickerEmpty
-  const shouldDisplayChangeHdPath = !!(
-    subType === 'seed' ||
-    // TODO: Disabled for Trezor, because the flow that retrieves accounts
-    // from the device as of v4.32.0 throws "forbidden key path" when
-    // accessing non-"BIP44 Standard" paths. Alternatively, this could be
-    // enabled in Trezor Suit (settings - safety checks), but even if enabled,
-    // 1) user must explicitly allow retrieving each address (that means 25
-    // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
-    // Trezor device shows a scarry note: "Wrong address path for selected
-    // coin. Continue at your own risk!", which is pretty bad UX.
-    (keyType && ['ledger', 'lattice'].includes(keyType))
-  )
 
   const shouldDisplayAnimatedDownArrow =
     typeof hasReachedBottom === 'boolean' &&
@@ -280,30 +256,39 @@ const AccountsOnPageList = ({
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
       <View style={flexbox.flex1} nativeID="account-picker-page-list">
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
-          <Text
-            fontSize={maxWidthSize('xl') ? 20 : 18}
-            weight="medium"
-            appearance="primaryText"
-            numberOfLines={1}
-            style={[spacings.mrTy, flexbox.flex1]}
-          >
-            {setTitle()}
-          </Text>
-          {!!numberOfSelectedLinkedAccounts && (
-            <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
-              <Text fontSize={16} appearance="successText">
-                {numberOfSelectedLinkedAccounts === 1
-                  ? t('Selected ({{numOfAccounts}}) linked account on this page', {
-                      numOfAccounts: numberOfSelectedLinkedAccounts
-                    })
-                  : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
-                      numOfAccounts: numberOfSelectedLinkedAccounts
-                    })}
-              </Text>
-            </Alert>
-          )}
-        </View>
+        {withTitle ||
+          (!!numberOfSelectedLinkedAccounts && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
+              {withTitle && (
+                <Text
+                  fontSize={maxWidthSize('xl') ? 20 : 18}
+                  weight="medium"
+                  appearance="primaryText"
+                  numberOfLines={1}
+                  style={[spacings.mrTy, flexbox.flex1]}
+                >
+                  {setTitle()}
+                </Text>
+              )}
+              {!!numberOfSelectedLinkedAccounts && (
+                <Alert
+                  type="success"
+                  size="sm"
+                  style={{ ...spacings.pvTy, ...flexbox.alignCenter }}
+                >
+                  <Text fontSize={16} appearance="successText">
+                    {numberOfSelectedLinkedAccounts === 1
+                      ? t('Selected ({{numOfAccounts}}) linked account on this page', {
+                          numOfAccounts: numberOfSelectedLinkedAccounts
+                        })
+                      : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
+                          numOfAccounts: numberOfSelectedLinkedAccounts
+                        })}
+                  </Text>
+                </Alert>
+              )}
+            </View>
+          ))}
 
         {!lookingForLinkedAccounts && !!linkedAccounts.length && (
           <Alert type="info" style={spacings.mbXl}>
@@ -373,34 +358,6 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {(!isImportingFromPrivateKey || shouldDisplayChangeHdPath) && (
-          <View
-            style={[
-              spacings.mbLg,
-              flexbox.directionRow,
-              flexbox.justifySpaceBetween,
-              { width: '100%' }
-            ]}
-            {...(!!hideEmptyAccounts && onlySmartAccountsVisible
-              ? {
-                  nativeID: BasicAccountIntroId
-                }
-              : {})}
-          >
-            {!isImportingFromPrivateKey && (
-              <Toggle
-                isOn={hideEmptyAccounts}
-                onToggle={() => setHideEmptyAccounts((p) => !p)}
-                disabled={disableHideEmptyAccountsToggle}
-                label={t('Hide empty Basic Accounts')}
-                testID="hide-empty-accounts-toggle"
-                labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
-                style={flexbox.alignSelfStart}
-              />
-            )}
-            {shouldDisplayChangeHdPath && <ChangeHdPath />}
-          </View>
-        )}
         <View style={flexbox.flex1}>
           {!!networkNamesWithAccountStateError.length && (
             <Alert
@@ -439,36 +396,71 @@ const AccountsOnPageList = ({
                 <Spinner style={styles.spinner} />
               </View>
             ) : (
-              Object.keys(slots).map((key, i) => {
-                return (
-                  <View key={key}>
-                    {getAccounts({
-                      accounts: slots[key],
-                      shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                      slotIndex: i
-                    })}
+              <>
+                <View style={[spacings.ph, spacings.pbLg]}>
+                  {Object.keys(slots).map((key, i) => {
+                    return (
+                      <View key={key}>
+                        {getAccounts({
+                          accounts: slots[key],
+                          shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                          slotIndex: 1,
+                          byType: ['basic']
+                        })}
+                      </View>
+                    )
+                  })}
+                </View>
+                <View
+                  style={[
+                    styles.smartAccountWrapper,
+                    // @ts-ignore
+                    { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
+                  ]}
+                >
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
+                    <Text fontSize={16} weight="medium" style={spacings.mrMd}>
+                      {t('Smart Accounts')}
+                      {/* TODO: Add an info icon here with a tooltip */}
+                    </Text>
+                    <View
+                      style={[
+                        flexbox.directionRow,
+                        flexbox.justifySpaceBetween,
+                        flexbox.alignCenter
+                      ]}
+                    >
+                      {lookingForLinkedAccounts && (
+                        <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                          <Spinner style={{ width: 16, height: 16 }} />
+                          <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
+                            {t('Looking for linked smart accounts')}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
-                )
-              })
+
+                  {Object.keys(slots).map((key, i) => {
+                    return (
+                      <View key={key}>
+                        {getAccounts({
+                          accounts: slots[key],
+                          shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                          slotIndex: 1,
+                          byType: ['smart'],
+                          withQuaternaryBackground: true
+                        })}
+                      </View>
+                    )
+                  })}
+                </View>
+              </>
             )}
           </ScrollableWrapper>
           <AnimatedDownArrow isVisible={shouldDisplayAnimatedDownArrow} />
         </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-          <View
-            style={[
-              flexbox.alignCenter,
-              spacings.ptSm,
-              { opacity: lookingForLinkedAccounts ? 1 : 0 }
-            ]}
-          >
-            <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
-              <Spinner style={{ width: 16, height: 16 }} />
-              <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
-                {t('Looking for linked smart accounts')}
-              </Text>
-            </View>
-          </View>
           {!isImportingFromPrivateKey && (
             <Pagination
               page={state.page}
@@ -478,6 +470,7 @@ const AccountsOnPageList = ({
               hideLastPage
             />
           )}
+          {children}
         </View>
       </View>
     </AccountPickerIntroStepsProvider>

@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import useRoute from '@common/hooks/useRoute'
+import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -19,7 +19,9 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import AccountsOnPageList from '@web/modules/account-picker/components/AccountsOnPageList'
+import ChangeHdPath from '@web/modules/account-picker/components/ChangeHdPath'
 import useAccountPicker from '@web/modules/account-picker/hooks/useAccountPicker/useAccountPicker'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 export interface Account {
   type: string
@@ -34,7 +36,7 @@ export interface Account {
 const AccountPickerScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const { params } = useRoute()
+
   const accountPickerState = useAccountPickerControllerState()
   const { onImportReady, setPage } = useAccountPicker()
   const { goToPrevRoute } = useOnboardingNavigation()
@@ -52,50 +54,89 @@ const AccountPickerScreen = () => {
     [isLoading, accountPickerState.accountsLoading, accountPickerState.selectedAccounts.length]
   )
 
-  const showBackButton = useMemo(() => {
-    return !params || !params.hideBack
-  }, [params])
+  const shouldDisplayChangeHdPath = useMemo(
+    () =>
+      !!(
+        accountPickerState.subType === 'seed' ||
+        // TODO: Disabled for Trezor, because the flow that retrieves accounts
+        // from the device as of v4.32.0 throws "forbidden key path" when
+        // accessing non-"BIP44 Standard" paths. Alternatively, this could be
+        // enabled in Trezor Suit (settings - safety checks), but even if enabled,
+        // 1) user must explicitly allow retrieving each address (that means 25
+        // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
+        // Trezor device shows a scarry note: "Wrong address path for selected
+        // coin. Continue at your own risk!", which is pretty bad UX.
+        // @ts-ignore
+        ['ledger' as 'ledger', 'lattice' as 'lattice'].includes(accountPickerState.type)
+      ),
+    [accountPickerState.type, accountPickerState.subType]
+  )
+
+  const setTitle = useCallback(
+    (keyType: AccountPickerController['type'], subType: AccountPickerController['subType']) => {
+      if (keyType && keyType !== 'internal') {
+        return t('Import accounts from {{ hwDeviceName }}', {
+          hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
+        })
+      }
+
+      if (subType === 'seed') {
+        return t('Import accounts from seed phrase')
+      }
+
+      if (subType === 'private-key') {
+        return t('Select account(s) to import')
+      }
+
+      return t('Select accounts to import')
+    },
+    [t]
+  )
 
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="lg"
-      header={<Header withAmbireLogo />}
-      footer={
-        <>
-          {showBackButton && <BackButton onPress={() => goToPrevRoute()} />}
-          <Button
-            testID="button-import-account"
-            hasBottomSpacing={false}
-            textStyle={{ fontSize: 14 }}
-            onPress={onImportReady}
-            size="large"
-            disabled={isImportDisabled}
-            text={
-              isLoading
-                ? t('Importing...')
-                : !accountPickerState.selectedAccounts.length
-                ? t('Continue')
-                : t('Import Accounts')
-            }
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
-      footerStyle={showBackButton ? flexbox.justifySpaceBetween : flexbox.justifyEnd}
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
-      <TabLayoutWrapperMainContent>
-        <Panel style={{ maxHeight: '100%', ...spacings.ph3Xl }}>
+      <TabLayoutWrapperMainContent contentContainerStyle={[spacings.pt0]}>
+        <Panel type="onboarding" spacingsSize="small" panelWidth={900}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
+            <PanelBackButton onPress={goToPrevRoute} style={spacings.mr} />
+            <PanelTitle
+              title={setTitle(accountPickerState.type, accountPickerState.subType)}
+              style={{ textAlign: 'left', flex: 1 }}
+            />
+            {!!shouldDisplayChangeHdPath && <ChangeHdPath setPage={setPage} />}
+          </View>
+
           <AccountsOnPageList
+            withTitle={false}
             state={accountPickerState}
             setPage={setPage}
-            keyType={accountPickerState.type}
             subType={accountPickerState.subType}
             lookingForLinkedAccounts={accountPickerState.linkedAccountsLoading}
-          />
+          >
+            <Button
+              testID="button-import-account"
+              hasBottomSpacing={false}
+              textStyle={{ fontSize: 14 }}
+              onPress={onImportReady}
+              size="large"
+              disabled={isImportDisabled}
+              text={
+                isLoading
+                  ? t('Importing...')
+                  : !accountPickerState.selectedAccounts.length
+                  ? t('Continue')
+                  : t('Import Accounts')
+              }
+            >
+              <View style={spacings.pl}>
+                <RightArrowIcon color={colors.titan} />
+              </View>
+            </Button>
+          </AccountsOnPageList>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

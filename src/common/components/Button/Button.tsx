@@ -106,9 +106,31 @@ const Button = ({
       info: [OPACITY_ANIMATION],
       info2: [OPACITY_ANIMATION],
       success: [OPACITY_ANIMATION],
-      gray: [OPACITY_ANIMATION]
+      gray: [
+        {
+          property: 'backgroundColor',
+          from: theme.quaternaryBackground,
+          to: `${String(theme.primaryLight)}10`
+        },
+        {
+          property: 'borderWidth',
+          from: 0,
+          to: 1
+        },
+        {
+          property: 'borderColor',
+          from: theme.quaternaryBackground,
+          to: theme.primaryLight
+        }
+      ]
     }),
-    [theme.primary, theme.primaryLight, theme.infoBackground, theme.errorBackground]
+    [
+      theme.primary,
+      theme.primaryLight,
+      theme.infoBackground,
+      theme.errorBackground,
+      theme.quaternaryBackground
+    ]
   )
 
   const [bind, animatedStyle] = useMultiHover({
