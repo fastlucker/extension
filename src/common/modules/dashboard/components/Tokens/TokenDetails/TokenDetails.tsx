@@ -313,7 +313,7 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
-            {!onGasTank && !isRewards && !isVesting && !token.flags.isDefiToken && (
+            {!onGasTank && !isRewards && !isVesting && !token.flags.defiTokenType && (
               <View style={[flexbox.alignSelfEnd]}>
                 <Pressable
                   style={[flexbox.directionRow, flexbox.alignCenter]}

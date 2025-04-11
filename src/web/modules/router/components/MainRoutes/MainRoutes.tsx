@@ -22,7 +22,6 @@ import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
-import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import ImportExistingAccountSelectorScreen from '@web/modules/auth/screens/ImportExistingAccountSelectorScreen'
 import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
 import OnboardingCompletedScreen from '@web/modules/auth/screens/OnboardingCompletedScreen'
@@ -87,7 +86,6 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
             <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
             <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
-            <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />
             <Route
               path={WEB_ROUTES.viewOnlyAccountAdder}
               element={<ViewOnlyAccountAdderScreen />}
@@ -120,22 +118,6 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.onboardingCompleted} element={<OnboardingCompletedScreen />} />
 
             <Route element={<AuthenticatedRoute />}>
-              <Route
-                path={WEB_ROUTES.transfer}
-                element={
-                  <TransferControllerStateProvider>
-                    <TransferScreen />
-                  </TransferControllerStateProvider>
-                }
-              />
-              <Route
-                path={WEB_ROUTES.topUpGasTank}
-                element={
-                  <TransferControllerStateProvider isTopUp>
-                    <TransferScreen />
-                  </TransferControllerStateProvider>
-                }
-              />
               <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
               <Route element={<SettingsRoutesProvider />}>
                 <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
@@ -182,6 +164,22 @@ const MainRoutes = () => {
 
         <Route element={<KeystoreUnlockedRoute />}>
           <Route element={<AuthenticatedRoute />}>
+            <Route
+              path={WEB_ROUTES.transfer}
+              element={
+                <TransferControllerStateProvider>
+                  <TransferScreen />
+                </TransferControllerStateProvider>
+              }
+            />
+            <Route
+              path={WEB_ROUTES.topUpGasTank}
+              element={
+                <TransferControllerStateProvider isTopUp>
+                  <TransferScreen />
+                </TransferControllerStateProvider>
+              }
+            />
             <Route
               path={WEB_ROUTES.signAccountOp}
               element={

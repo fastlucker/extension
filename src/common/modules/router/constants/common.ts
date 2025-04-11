@@ -53,7 +53,6 @@ const WEB_ROUTES = {
   devicePasswordRecovery: 'settings/device-password-recovery',
   addressBook: 'settings/address-book',
   manageTokens: 'settings/manage-tokens',
-  importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
   importSmartAccountJson: 'import-smart-account-json',
   importSeedPhrase: 'import-seed-phrase',

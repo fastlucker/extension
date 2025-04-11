@@ -59,12 +59,13 @@ const SignAccountOpScreen = () => {
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(true)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
+  const [actionLoaded, setActionLoaded] = useState<boolean>(false)
   const { ref: warningModalRef, open: openWarningModal, close: closeWarningModal } = useModalize()
   const hasEstimation = useMemo(
     () =>
       signAccountOpState?.isInitialized &&
       !!signAccountOpState?.gasPrices &&
-      !signAccountOpState.estimation?.error,
+      !signAccountOpState.estimation.error,
     [
       signAccountOpState?.estimation?.error,
       signAccountOpState?.gasPrices,
@@ -91,7 +92,7 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
-    if (signAccountOpState?.estimationRetryError) {
+    if (signAccountOpState?.estimation.estimationRetryError) {
       setSlowRequest(false)
       return
     }
@@ -114,7 +115,7 @@ const SignAccountOpScreen = () => {
   }, [
     signAccountOpState?.isInitialized,
     signAccountOpState?.gasPrices,
-    signAccountOpState?.estimationRetryError
+    signAccountOpState?.estimation.estimationRetryError
   ])
 
   useEffect(() => {
@@ -144,13 +145,24 @@ const SignAccountOpScreen = () => {
   }, [actionsState.currentAction])
 
   useEffect(() => {
-    if (accountOpAction?.id) {
+    // we're checking for actionLoaded as we're closing the current and
+    // opening a new window each time a new action comes. If we're not
+    // checking for actionLoaded, two dispatches occur for the same id:
+    // - one from the current window before it gets closed
+    // - one from the new window
+    // leading into two threads trying to initialize the same signAccountOp
+    // object which is a waste of resources + signAccountOp has an inner
+    // gasPrice controller that sets an interval for fetching gas price
+    // each 12s and that interval gets persisted into memory, causing double
+    // fetching
+    if (accountOpAction?.id && !actionLoaded) {
+      setActionLoaded(true)
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
         params: { actionId: accountOpAction.id }
       })
     }
-  }, [accountOpAction?.id, dispatch])
+  }, [accountOpAction?.id, actionLoaded, dispatch])
 
   const network = useMemo(() => {
     return networks.find((n) => n.chainId === signAccountOpState?.accountOp?.chainId)
@@ -351,27 +363,11 @@ const SignAccountOpScreen = () => {
     )
   }
 
-  const isInsufficientFundsForGas = useMemo(() => {
-    if (!signAccountOpState?.feeSpeeds || !signAccountOpState.selectedOption) {
-      return false
-    }
-
-    const keys = Object.keys(signAccountOpState.feeSpeeds)
-    if (!keys.length) return false
-
-    const speeds = signAccountOpState.feeSpeeds[keys[0]]
-    if (!Array.isArray(speeds)) return false
-
-    const { availableAmount } = signAccountOpState.selectedOption
-
-    return speeds.every((speed) => availableAmount < speed.amount)
-  }, [signAccountOpState])
-
   const isAddToCartDisabled = useMemo(() => {
     const readyToSign = signAccountOpState?.readyToSign
 
-    return isSignLoading || (!readyToSign && !isViewOnly && !isInsufficientFundsForGas)
-  }, [isInsufficientFundsForGas, isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
+    return isSignLoading || (!readyToSign && !isViewOnly)
+  }, [isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
 
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
@@ -419,7 +415,9 @@ const SignAccountOpScreen = () => {
         </BottomSheet>
       )}
       <SafetyChecksOverlay
-        shouldBeVisible={!signAccountOpState?.estimation || !signAccountOpState?.isInitialized}
+        shouldBeVisible={
+          !signAccountOpState?.estimation.estimation || !signAccountOpState?.isInitialized
+        }
       />
       <TabLayoutContainer
         width="full"
@@ -538,6 +536,7 @@ const SignAccountOpScreen = () => {
               feePayerKeyType={feePayerKeyType}
               broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
               signAccountOpStatusType={signAccountOpState?.status?.type}
+              shouldSignAuth={signAccountOpState && signAccountOpState.shouldSignAuth}
             />
           )}
 
