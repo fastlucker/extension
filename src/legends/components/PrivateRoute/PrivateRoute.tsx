@@ -14,7 +14,6 @@ const PrivateRoute = () => {
 
   const { pathname } = useLocation()
 
-  // TODO: Test properly here.
   const isConnectedAccountV2 = !!connectedAccount && (!nonV2Account || allowNonV2Connection)
 
   if (isConnectedAccountV2 && (isLoading || (!character && isCharacterLoading)))

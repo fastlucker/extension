@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AccountInfo from '@legends/components/AccountInfo'
 import Sidebar from '@legends/components/Sidebar'
+import useAccountContext from '@legends/hooks/useAccountContext'
 
 import styles from './Page.module.scss'
 
@@ -20,6 +22,8 @@ const Page = ({
   const customContainerSizeClass = styles[`container${containerSize}`] || ''
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
+  const { connectedAccount, nonV2Account } = useAccountContext()
+
   const openSidebar = () => setIsSidebarOpen(true)
   const closeSidebar = () => setIsSidebarOpen(false)
 
@@ -32,6 +36,11 @@ const Page = ({
             <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
               <FontAwesomeIcon icon={faBars} />
             </button>
+            {connectedAccount && !nonV2Account && (
+              <div className={styles.account}>
+                <AccountInfo />
+              </div>
+            )}
           </div>
           <div className={styles.content}>{children}</div>
         </div>
