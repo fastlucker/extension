@@ -50,7 +50,7 @@ const ChangeHdPath: React.FC<Props> = ({ setPage }) => {
 
   return (
     <>
-      <Button size="small" type="ghost" onPress={() => openBottomSheet()}>
+      <Button size="small" style={spacings.mbLg} type="ghost" onPress={() => openBottomSheet()}>
         <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
           {t('Advanced mode')}
         </Text>

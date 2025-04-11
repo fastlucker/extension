@@ -103,6 +103,7 @@ const AccountPickerScreen = () => {
             keyType={accountPickerState.type}
             subType={accountPickerState.subType}
             lookingForLinkedAccounts={accountPickerState.linkedAccountsLoading}
+            containerStyle={{ marginTop: -59 }}
           >
             <Button
               testID="button-import-account"

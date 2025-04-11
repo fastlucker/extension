@@ -1,4 +1,5 @@
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { Modalize } from 'react-native-modalize'
@@ -7,13 +8,18 @@ import { DerivationOption } from '@ambire-common/consts/derivation'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import Input from '@common/components/Input'
+import NumberInput from '@common/components/NumberInput'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+
+type FormData = {
+  startIndex: string
+  selectedOption: SelectValue
+}
 
 type Props = {
   sheetRef: React.RefObject<Modalize>
@@ -34,28 +40,42 @@ const CustomHDPathBottomSheet: FC<Props> = ({
   options,
   value
 }) => {
-  const [selectedOption, setSelectedOption] = useState(value)
-  const [startIndex, setStartIndex] = useState(String(page || 1))
   const { theme } = useTheme()
   const { t } = useTranslation()
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useForm<FormData>({
+    mode: 'onSubmit',
+    defaultValues: {
+      startIndex: String(page || 1),
+      selectedOption: value
+    }
+  })
+
+  const selectedOption = (watch('selectedOption') as SelectValue) || value
 
   useEffect(() => {
-    setSelectedOption(value)
-  }, [value])
+    setValue('startIndex', String(page || 1))
+  }, [page, setValue])
 
   const closeBottomSheetWrapped = useCallback(() => {
     closeBottomSheet()
   }, [closeBottomSheet])
 
-  const handleConfirm = () => {
-    const parsed = parseInt(startIndex, 10)
-    // TODO: shouldn't be hardcoded
+  const onSubmit = (data: FormData) => {
+    const parsed = parseInt(data.startIndex, 10)
     if (parsed >= 1 && parsed <= 50) {
       onConfirm(selectedOption, parsed)
       closeBottomSheetWrapped()
-    } else {
-      alert('Please select a number from 1 to 50.')
     }
+  }
+
+  const handleOptionPress = (option: SelectValue) => {
+    setValue('selectedOption', option)
   }
 
   return (
@@ -81,7 +101,7 @@ const CustomHDPathBottomSheet: FC<Props> = ({
           }
         ]}
       >
-        <Text fontSize={20} weight="semiBold">
+        <Text fontSize={20} weight="medium">
           {t('Custom address HD path')}
         </Text>
         <Pressable onPress={closeBottomSheetWrapped} style={[flexbox.center, spacings.pvTy]}>
@@ -93,7 +113,9 @@ const CustomHDPathBottomSheet: FC<Props> = ({
         </Pressable>
       </View>
       <View style={[spacings.phMd, spacings.pt2Xl, spacings.pbMd]}>
-        <Text style={[spacings.mbTy]}>{t('Select HD path')}:</Text>
+        <Text fontSize={16} weight="medium" style={[spacings.mbTy]}>
+          {t('Select HD path')}:
+        </Text>
         <View
           style={[
             flexbox.directionRow,
@@ -105,11 +127,10 @@ const CustomHDPathBottomSheet: FC<Props> = ({
         >
           {options.map((option) => {
             const isActive = selectedOption.value === option.value
-
             return (
               <Pressable
                 key={option.value}
-                onPress={() => setSelectedOption(option)}
+                onPress={() => handleOptionPress(option)}
                 disabled={disabled}
                 style={[
                   flexbox.center,
@@ -141,17 +162,34 @@ const CustomHDPathBottomSheet: FC<Props> = ({
           </Text>
         )}
         <View style={[spacings.mb2Xl]}>
-          <Text fontSize={12} weight="medium" style={[spacings.mbSm]}>
+          <Text fontSize={16} weight="medium" style={[spacings.mbSm]}>
             {t('Select the serial number of address to start from')}:
           </Text>
-          <Input value={startIndex} onChangeText={setStartIndex} keyboardType="numeric" />
+
+          <Controller
+            control={control}
+            name="startIndex"
+            rules={{
+              required: true,
+              validate: (v) => {
+                const parsed = parseInt(v, 10)
+                return (parsed >= 1 && parsed <= 50) || 'Must be between 1 and 50'
+              }
+            }}
+            render={({ field: { value, onChange } }) => (
+              <NumberInput
+                value={value}
+                onChangeText={onChange}
+                error={errors.startIndex && errors.startIndex.message}
+              />
+            )}
+          />
           <Text fontSize={12} appearance="secondaryText" style={spacings.mbSm}>
-            {/* TODO: shouldn't be hardcoded */}
             {t('Manage address from 1 to 50')}
           </Text>
         </View>
         <View style={[flexbox.directionRow, flexbox.center]}>
-          <Button style={{ width: '50%' }} text={t('Confirm')} onPress={handleConfirm} />
+          <Button style={{ width: '50%' }} text={t('Confirm')} onPress={handleSubmit(onSubmit)} />
         </View>
       </View>
     </BottomSheet>

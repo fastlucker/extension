@@ -1,7 +1,7 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Dimensions, NativeScrollEvent, View } from 'react-native'
+import { Dimensions, NativeScrollEvent, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
@@ -50,6 +50,7 @@ type Props = {
   lookingForLinkedAccounts: boolean
   children?: any
   withTitle?: boolean
+  containerStyle?: ViewStyle
 }
 
 const AccountsOnPageList = ({
@@ -59,7 +60,8 @@ const AccountsOnPageList = ({
   subType,
   lookingForLinkedAccounts,
   children,
-  withTitle = true
+  withTitle = true,
+  containerStyle
 }: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -278,7 +280,7 @@ const AccountsOnPageList = ({
 
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
-      <View style={flexbox.flex1} nativeID="account-picker-page-list">
+      <View style={[flexbox.flex1, containerStyle]} nativeID="account-picker-page-list">
         {withTitle ||
           (!!numberOfSelectedLinkedAccounts && (
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
