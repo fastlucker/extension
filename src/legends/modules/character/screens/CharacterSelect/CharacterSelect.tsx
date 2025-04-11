@@ -50,8 +50,7 @@ const CharacterSelect = () => {
   useEffect(() => {
     document.title = 'Ambire Legends'
   }, [])
-
-  if (!connectedAccount && !nonV2Account) return <Navigate to="/" />
+  if (!!nonV2Account || (!connectedAccount && !nonV2Account)) return <Navigate to="/" />
 
   const isButtonDisabled = isMinting || isLoading || isMinted
 

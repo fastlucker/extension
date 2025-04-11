@@ -22,8 +22,12 @@ const PrivateRoute = () => {
 
   if (characterError) return <ErrorPage title="Character loading error" error={characterError} />
 
+  if (pathname === LEGENDS_ROUTES.characterSelect && !!nonV2Account) {
+    return <Navigate to={LEGENDS_ROUTES.home} />
+  }
   // Don't allow loading the Outlet component if the character is not loaded or is in the process of loading.
-  if (!character && !isCharacterLoading) return <Navigate to={LEGENDS_ROUTES.characterSelect} />
+  if (!character && !isCharacterLoading && !nonV2Account)
+    return <Navigate to={LEGENDS_ROUTES.characterSelect} />
 
   return <Outlet />
 }

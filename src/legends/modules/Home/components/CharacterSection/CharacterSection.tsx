@@ -27,7 +27,7 @@ const CharacterSection = () => {
   const xpForNextLevel = Math.ceil(((character.level + 1) * 4.5) ** 2)
 
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
-  console.log(character.characterType)
+
   return (
     <section className={`${styles.wrapper} ${styles[`wrapper${character.characterType}`]}`}>
       <div className={styles.characterInfo}>
