@@ -83,7 +83,8 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
     signAccountOpState: signAccountOpController,
     handleBroadcast: handleBroadcastAccountOp,
     handleUpdate: updateController,
-    handleUpdateStatus
+    handleUpdateStatus,
+    isOneClickSwap: true
   })
 
   useEffect(() => {
