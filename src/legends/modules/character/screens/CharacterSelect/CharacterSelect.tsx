@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import Alert from '@legends/components/Alert'
-import NonV2Modal from '@legends/components/NonV2Modal'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'

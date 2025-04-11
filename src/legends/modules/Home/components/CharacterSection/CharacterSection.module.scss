@@ -280,3 +280,56 @@
     }
   }
 }
+
+// Custom colors for the character background gradient
+
+// sorceress: rgba(19, 43, 37, 0.988)
+// vitalik rgba(20, 15, 23, 0.4)
+// trump: rgba(#6a320a, 0.488)
+// orc: rgba(#1c1e0f, 0.988)
+// penguin: rgba(#2e2927, 0.988)
+// slime: rgba(22, 32, 2, 0.588)
+
+.wrappernecromancer {
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(rgb(46 11 21), 0.988) 87.21%
+  );
+  
+  .characterBlurEffect {
+    filter: blur(6.2px);
+    background-position: 2rem -9rem;
+  }
+}
+.wrapperslime {
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(22, 32, 2, 0.588) 87.21%
+  );
+
+  .characterBlurEffect {
+    background-position: 2rem -12rem;  }
+}
+.wrapperpenguin {
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(#2e2927, 0.988) 87.21%
+  );
+}
+.wrappershapeshifter {
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(#6a320a, 0.488) 87.21%
+  );
+}
+.wrapperorc {
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(#1c1e0f, 0.988) 87.21%
+  );
+}
