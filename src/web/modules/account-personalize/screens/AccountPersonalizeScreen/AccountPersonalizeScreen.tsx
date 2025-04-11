@@ -34,7 +34,7 @@ export const CARD_WIDTH = 400
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
-  const { goToNextRoute } = useOnboardingNavigation()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
@@ -53,7 +53,12 @@ const AccountPersonalizeScreen = () => {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      if (accountPickerState.isInitialized) await wait(1000)
+      if (
+        accountPickerState.isInitialized &&
+        (accountPickerState.selectedAccountsFromCurrentSession.length ||
+          accountPickerState.readyToRemoveAccounts.length)
+      )
+        await wait(1200)
       if (
         (accountPickerState.isInitialized &&
           accountsToPersonalize.length > 0 &&
@@ -65,6 +70,8 @@ const AccountPersonalizeScreen = () => {
     })()
   }, [
     accountPickerState.isInitialized,
+    accountPickerState.readyToRemoveAccounts.length,
+    accountPickerState.selectedAccountsFromCurrentSession.length,
     accountsToPersonalize,
     accountPickerState.addAccountsStatus
   ])
@@ -118,13 +125,25 @@ const AccountPersonalizeScreen = () => {
     }
   }, [goToNextRoute, isLoading, accountsToPersonalize.length])
 
+  useEffect(() => {
+    if (!accountPickerState.isInitialized && !accounts.filter((a) => a.newlyAdded).length) {
+      goToNextRoute()
+    }
+  }, [goToNextRoute, accountPickerState.isInitialized, accounts])
+
+  useEffect(() => {
+    if (accountPickerState.isInitialized && accountPickerState.pageError) {
+      goToPrevRoute()
+    }
+  }, [goToPrevRoute, accountPickerState.isInitialized, accountPickerState.pageError])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel type="onboarding" spacingsSize="small" style={spacings.ptXl}>
+        <Panel type="onboarding" spacingsSize="small" style={spacings.ptMd}>
           {isLoading ? (
             <View style={[flexbox.alignCenter]}>
               <View style={spacings.mbLg}>
@@ -142,7 +161,7 @@ const AccountPersonalizeScreen = () => {
             </View>
           ) : (
             <>
-              <View style={[flexbox.alignCenter, spacings.mb2Xl]}>
+              <View style={[flexbox.alignCenter, spacings.mbXl]}>
                 <View style={styles.checkIconOuterWrapper}>
                   <View style={styles.checkIconInnerWrapper}>
                     <CheckIcon color={theme.successDecorative} width={28} height={28} />

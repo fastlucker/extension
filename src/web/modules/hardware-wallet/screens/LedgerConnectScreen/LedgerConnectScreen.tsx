@@ -90,9 +90,9 @@ const LedgerConnectScreen = () => {
           onBackButtonPress={goToPrevRoute}
           title={t('Connect Ledger')}
         >
-          <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>
+          <View style={[flexbox.alignSelfCenter, spacings.mbSm, spacings.ptMd]}>
             <Text weight="regular" style={spacings.mbTy} fontSize={14}>
-              {t('1. Plug in your Ledger via cable and enter a PIN to unlock it.')}
+              {t('1. Plug in your Ledger and enter a PIN to unlock it.')}
             </Text>
             <Text weight="regular" fontSize={14} style={{ marginBottom: 40 }}>
               {t('2. Open the Ethereum app.')}
@@ -110,7 +110,7 @@ const LedgerConnectScreen = () => {
             <LeftPointerArrowIcon style={spacings.mrLg} />
             <AmbireDevice />
           </View>
-          <Text weight="regular" style={[spacings.mbLg, text.center]} fontSize={14}>
+          <Text style={[spacings.mbLg, text.center]} appearance="secondaryText">
             {t(
               'If not previously granted, Ambire will ask for permission to connect to a HID device.'
             )}

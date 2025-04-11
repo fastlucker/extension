@@ -24,7 +24,7 @@ import TermsComponent from '@web/modules/terms/components'
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
 
-  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
+  const { goToPrevRoute } = useOnboardingNavigation()
   const { theme } = useTheme()
   const [agreedWithTerms, setAgreedWithTerms] = useState(true)
   const { ref: termsModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
@@ -54,10 +54,14 @@ const KeyStoreSetupScreen = () => {
           totalSteps={2}
         >
           <View>
-            <Text style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}>
+            <Text
+              weight="medium"
+              appearance="secondaryText"
+              style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}
+            >
               {t('Used to access your wallet and encrypt your data.')}
             </Text>
-            <KeyStoreSetupForm onContinue={() => goToNextRoute()}>
+            <KeyStoreSetupForm>
               <Checkbox
                 value={agreedWithTerms}
                 onValueChange={setAgreedWithTerms}

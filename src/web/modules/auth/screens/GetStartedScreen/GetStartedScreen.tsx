@@ -81,8 +81,8 @@ const GetStartedScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel isAnimated spacingsSize="small" type="onboarding">
-          <View style={[flexbox.justifySpaceBetween]}>
+        <Panel spacingsSize="small" type="onboarding">
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
             <View
               style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
             >
@@ -91,7 +91,7 @@ const GetStartedScreen = () => {
                 {t('The Web3 wallet that makes self-custody easy and secure.')}
               </Text>
             </View>
-            <View style={[flexbox.justifySpaceBetween, spacings.mt3Xl]}>
+            <View style={[flexbox.justifySpaceBetween]}>
               <Button
                 type="primary"
                 text={t('Create New Account')}

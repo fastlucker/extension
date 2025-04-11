@@ -99,7 +99,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
         new RouteNode(
           WEB_ROUTES.importExistingAccount,
           [
-            ...common,
+            ...(common[0].disabled ? common[0].children : common),
             new RouteNode(WEB_ROUTES.importPrivateKey, common),
             new RouteNode(WEB_ROUTES.importSeedPhrase, common),
             new RouteNode(WEB_ROUTES.ledgerConnect, common),

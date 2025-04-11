@@ -25,19 +25,17 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusSecondary,
       backgroundColor: theme.primaryBackground,
       ...common.shadowTertiary,
-      alignSelf: 'center',
-      overflow: 'hidden',
-      // TODO: fix it
-      minHeight: 468
+      ...flexbox.alignSelfCenter,
+      minHeight: 486,
+      maxHeight: '92%',
+      overflow: 'hidden'
     },
     innerContainer: {
-      alignSelf: 'center',
-      overflow: 'hidden',
-      // TODO: fix it
-      minHeight: 486
+      ...flexbox.alignSelfCenter,
+      ...flexbox.flex1
     },
     progress: {
-      flex: 1,
+      ...flexbox.flex1,
       height: 4
     },
     backBtnWrapper: {

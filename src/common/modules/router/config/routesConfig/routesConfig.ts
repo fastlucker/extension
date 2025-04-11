@@ -33,12 +33,12 @@ const routesConfig: RouteConfig = {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome to your Ambire Wallet'),
-      web: i18n.t('Welcome to your Ambire Wallet')
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to your Ambire Wallet'),
-      web: i18n.t('Welcome to your Ambire Wallet')
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
     })
   },
   [ROUTES.importExistingAccount]: {
@@ -275,30 +275,30 @@ const routesConfig: RouteConfig = {
   [ROUTES.importSmartAccountJson]: {
     route: ROUTES.importSmartAccountJson,
     title: Platform.select({
-      default: i18n.t('Import Smart Account JSON')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({ default: i18n.t('Import Smart Account JSON') })
   },
   [ROUTES.createSeedPhrasePrepare]: {
     route: ROUTES.createSeedPhrasePrepare,
     title: Platform.select({
-      default: i18n.t('Welcome to your Ambire Wallet')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Welcome to your Ambire Wallet') })
+    name: Platform.select({ default: i18n.t('Import Seed Phrase') })
   },
   [ROUTES.createSeedPhraseWrite]: {
     route: ROUTES.createSeedPhraseWrite,
     title: Platform.select({
       default: i18n.t('Write Seed Phrase')
     }),
-    name: Platform.select({ default: i18n.t('Write Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Import Seed Phrase') })
   },
   [ROUTES.onboardingCompleted]: {
     route: ROUTES.onboardingCompleted,
     title: Platform.select({
       default: i18n.t('Welcome to Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Welcome to Ambire Wallet') })
+    name: Platform.select({ default: i18n.t('Ready To Use') })
   },
   [ROUTES.topUpGasTank]: {
     route: ROUTES.topUpGasTank,
