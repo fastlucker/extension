@@ -128,7 +128,7 @@ const DashboardScreen = () => {
           />
           <DashboardPages onScroll={onScroll} />
         </View>
-        {!!isPopup && <DAppFooter />}
+        <DAppFooter />
       </View>
       {hasUnseenFirstCashback && (
         <CongratsFirstCashbackModal

@@ -2,13 +2,16 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
+import { hasPersistedState } from '@ambire-common/controllers/transfer/transfer'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import Spinner from '@common/components/Spinner'
+import { APP_VERSION } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
@@ -93,9 +96,13 @@ const SortHat = () => {
         return
       }
 
-      // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
-      // for other scenarios, ideally, it should be the last route before the keystore got locked.
-      navigate(ROUTES.dashboard)
+      if (await hasPersistedState(storage, APP_VERSION)) {
+        navigate(ROUTES.transfer, {
+          state: { backTo: WEB_ROUTES.dashboard }
+        })
+      } else {
+        navigate(ROUTES.dashboard)
+      }
     }
   }, [
     accounts,
