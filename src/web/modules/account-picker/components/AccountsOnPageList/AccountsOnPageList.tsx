@@ -276,8 +276,6 @@ const AccountsOnPageList = ({
   // while being navigated back (resetting the Account Picker state).
   if (!state.isInitialized) return null
 
-  console.log('slots', slots)
-
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
       <View style={[flexbox.flex1, containerStyle]} nativeID="account-picker-page-list">
