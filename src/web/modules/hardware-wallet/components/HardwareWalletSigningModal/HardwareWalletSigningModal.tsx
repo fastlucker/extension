@@ -59,10 +59,13 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
       withBackdropBlur={false}
     >
       <ModalHeader
+        hideLeftSideContainer
+        hideRightSideContainer
         title={t('Sign with your {{deviceName}} device', {
           deviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
         })}
         titleSuffix={titleSuffix}
+        style={flexbox.justifyCenter}
       />
       <View
         style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mvXl]}

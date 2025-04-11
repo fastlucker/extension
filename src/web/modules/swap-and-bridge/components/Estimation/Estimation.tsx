@@ -1,22 +1,21 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import LedgerLetterIcon from '@common/assets/svg/LedgerLetterIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text'
+import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
+import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
-import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
+import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
+import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
 import TrackProgress from './TrackProgress'
 
@@ -32,52 +31,60 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
   const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { signAccountOpController } = useSwapAndBridgeControllerState()
-  const { isLedgerConnected } = useLedger()
-  const [showConnectLedger, setShowConnectLedger] = useState(false)
   const [hasBroadcasted, setHasBroadcasted] = useState(false)
-
-  const isViewOnly = useMemo(
-    () => signAccountOpController?.accountKeyStoreKeys.length === 0,
-    [signAccountOpController?.accountKeyStoreKeys]
-  )
-  const hasEstimation = useMemo(
-    () =>
-      signAccountOpController?.isInitialized &&
-      !!signAccountOpController?.gasPrices &&
-      !signAccountOpController.estimation.error,
-    [
-      signAccountOpController?.estimation?.error,
-      signAccountOpController?.gasPrices,
-      signAccountOpController?.isInitialized
-    ]
-  )
-
-  const isSignLoading = getIsSignLoading(signAccountOpController?.status)
-
-  useEffect(() => {
-    if (signAccountOpController?.accountOp.signingKeyType !== 'ledger') return
-    if (isLedgerConnected) setShowConnectLedger(false)
-  }, [signAccountOpController?.accountOp.signingKeyType, isLedgerConnected])
 
   /**
    * Single click broadcast
-   *
-   * Before the actual broadcast, some condtions have to be met:
-   * - If signing device is ledger, ledger needs to be connected
    */
   const handleBroadcastAccountOp = useCallback(() => {
-    if (signAccountOpController?.accountOp.signingKeyType === 'ledger' && !isLedgerConnected) {
-      setShowConnectLedger(true)
-      return
-    }
-
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
       params: {
         isSwapAndBridge: true
       }
     })
-  }, [dispatch, isLedgerConnected, signAccountOpController?.accountOp.signingKeyType])
+  }, [dispatch])
+
+  const handleUpdateStatus = useCallback(
+    (status: SigningStatus) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        params: {
+          status
+        }
+      })
+    },
+    [dispatch]
+  )
+  const updateController = useCallback(
+    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE',
+        params
+      })
+    },
+    [dispatch]
+  )
+
+  const {
+    isViewOnly,
+    hasEstimation,
+    signingKeyType,
+    feePayerKeyType,
+    handleDismissLedgerConnectModal,
+    shouldDisplayLedgerConnectModal,
+    isChooseSignerShown,
+    setIsChooseSignerShown,
+    isSignLoading,
+    renderedButNotNecessarilyVisibleModal,
+    handleChangeSigningKey,
+    onSignButtonClick
+  } = useSign({
+    signAccountOpState: signAccountOpController,
+    handleBroadcast: handleBroadcastAccountOp,
+    handleUpdate: updateController,
+    handleUpdateStatus
+  })
 
   useEffect(() => {
     const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
@@ -91,43 +98,44 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
   }, [mainCtrlStatuses.broadcastSignedAccountOp])
 
   return (
-    <BottomSheet
-      id="estimation-modal"
-      sheetRef={estimationModalRef}
-      backgroundColor="primaryBackground"
-      closeBottomSheet={closeEstimationModal}
-    >
-      {signAccountOpController && !hasBroadcasted && (
-        <View>
-          <Estimation
-            updateType="Swap&Bridge"
-            signAccountOpState={signAccountOpController}
-            disabled={signAccountOpController.status?.type !== SigningStatus.ReadyToSign}
-            hasEstimation={!!hasEstimation}
-            // TODO<oneClickSwap>
-            slowRequest={false}
-            // TODO<oneClickSwap>
-            isViewOnly={isViewOnly}
-            isSponsored={false}
-            sponsor={undefined}
-          />
-          <View
-            style={{
-              height: 1,
-              backgroundColor: theme.secondaryBorder,
-              ...spacings.mvLg
-            }}
-          />
-          {showConnectLedger && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pvMd]}>
-              <LedgerLetterIcon width={16} height={16} />
-              <Text style={[spacings.mrTy, spacings.mlTy]}>
-                {t('Please connect your Ledger device')}
-              </Text>
-              <Spinner style={{ width: 16, height: 16 }} />
-            </View>
-          )}
-          {!showConnectLedger && (
+    <>
+      <BottomSheet
+        id="estimation-modal"
+        sheetRef={estimationModalRef}
+        backgroundColor="primaryBackground"
+        closeBottomSheet={closeEstimationModal}
+        // NOTE: This must be lower than SigningKeySelect's z-index
+        customZIndex={5}
+      >
+        {signAccountOpController && !hasBroadcasted && (
+          <View>
+            <SigningKeySelect
+              isVisible={isChooseSignerShown}
+              isSigning={isSignLoading || !signAccountOpController.readyToSign}
+              handleClose={() => setIsChooseSignerShown(false)}
+              selectedAccountKeyStoreKeys={signAccountOpController.accountKeyStoreKeys}
+              handleChooseSigningKey={handleChangeSigningKey}
+              account={signAccountOpController.account}
+            />
+            <Estimation
+              updateType="Swap&Bridge"
+              signAccountOpState={signAccountOpController}
+              disabled={signAccountOpController.status?.type !== SigningStatus.ReadyToSign}
+              hasEstimation={!!hasEstimation}
+              // TODO<oneClickSwap>
+              slowRequest={false}
+              // TODO<oneClickSwap>
+              isViewOnly={isViewOnly}
+              isSponsored={false}
+              sponsor={undefined}
+            />
+            <View
+              style={{
+                height: 1,
+                backgroundColor: theme.secondaryBorder,
+                ...spacings.mvLg
+              }}
+            />
             <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
               <Button
                 testID="swap-button-back"
@@ -142,23 +150,41 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
                 text={t('Sign')}
                 hasBottomSpacing={false}
                 disabled={isSignLoading}
-                onPress={handleBroadcastAccountOp}
+                onPress={onSignButtonClick}
                 style={{ minWidth: 160 }}
               />
             </View>
-          )}
-        </View>
-      )}
-      {(hasBroadcasted ||
-        (!signAccountOpController && mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')) && (
-        <TrackProgress
-          handleClose={() => {
-            setHasBroadcasted(false)
-            closeEstimationModal()
-          }}
+          </View>
+        )}
+        {(hasBroadcasted ||
+          (!signAccountOpController &&
+            mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')) && (
+          <TrackProgress
+            handleClose={() => {
+              setHasBroadcasted(false)
+              closeEstimationModal()
+            }}
+          />
+        )}
+      </BottomSheet>
+      {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
+        <SignAccountOpHardwareWalletSigningModal
+          signingKeyType={signingKeyType}
+          feePayerKeyType={feePayerKeyType}
+          broadcastSignedAccountOpStatus={mainCtrlStatuses.broadcastSignedAccountOp}
+          signAccountOpStatusType={signAccountOpController?.status?.type}
+          shouldSignAuth={signAccountOpController && signAccountOpController.shouldSignAuth}
         />
       )}
-    </BottomSheet>
+
+      {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
+        <LedgerConnectModal
+          isVisible={shouldDisplayLedgerConnectModal}
+          handleClose={handleDismissLedgerConnectModal}
+          displayOptionToAuthorize={false}
+        />
+      )}
+    </>
   )
 }
 
