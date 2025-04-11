@@ -75,11 +75,6 @@
             height: 25.3125rem;
             transition: all 0.3s ease-in-out;
 
-            &:hover {
-                animation-timing-function: ease-in-out;
-                animation-duration: 0.3s;
-                transform: rotate(5.98deg);
-            }
         }
     }
 
@@ -104,6 +99,16 @@
 
 }
 
+.v2 {
+    .logoGlass {
+        &:hover {
+            animation-timing-function: ease-in-out;
+            animation-duration: 0.3s;
+            transform: rotate(5.98deg);
+        }
+    }
+}
+
 .nonV2 {
     background: linear-gradient(147.96deg, $green-500 34.06%, $teal 58.89%, $dark-purple 87.21%);
 
@@ -112,9 +117,47 @@
         .kicker {
             color: $green-900;
         }
+
+        .logoGlass {
+            transition: all 0.3s ease;
+            animation: 
+        moveToTopRight 1.5s cubic-bezier(0.55, 0.05, 0.67, 0.19) infinite,
+        fadeOutSmooth 1.5s ease-in infinite;
+        }
     }
 
     .logoBlurEffect {
         right: 5.3125rem;
+
     }
+}
+
+
+@keyframes moveToTopRight {
+    0% { 
+        transform: translate(0, 0) scale(1) rotate(0deg); /* Start at normal size */
+    }
+    20% { 
+        transform: translate(10%, -5%) scale(0.85) rotate(0deg); 
+    }
+    40% { 
+        transform: translate(20%, -10%) scale(0.75) rotate(-6.48deg); 
+    }
+    60% { 
+        transform: translate(40%, -25%) scale(0.65) rotate(-6.48deg); 
+    }
+    80% { 
+        transform: translate(60%, -40%) scale(0.5) rotate(-6.48deg); 
+    }
+    100% { 
+        transform: translate(100%, -100%) scale(0.3) rotate(-6.48deg); /* Final scale of 0.4 */
+    }
+}
+
+@keyframes fadeOutSmooth {
+    0% { opacity: 1; }
+    40% { opacity: 0.9; }
+    60% { opacity: 0.6; }
+    80% { opacity: 0.3; }
+    100% { opacity: 0; }
 }
