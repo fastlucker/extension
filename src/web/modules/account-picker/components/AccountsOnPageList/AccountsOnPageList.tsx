@@ -1,25 +1,23 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Dimensions, NativeScrollEvent, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
+import { NativeScrollEvent, View } from 'react-native'
 
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import { Account as AccountInterface, AccountOnPage } from '@ambire-common/interfaces/account'
+import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Alert from '@common/components/Alert'
-import BadgeWithPreset from '@common/components/BadgeWithPreset'
-import BottomSheet from '@common/components/BottomSheet'
-import Button from '@common/components/Button'
+import Badge from '@common/components/Badge'
 import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -64,9 +62,8 @@ const AccountsOnPageList = ({
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -171,7 +168,7 @@ const AccountsOnPageList = ({
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
             displayTypeBadge={false}
-            displayTypePill={false}
+            displayTypePill={getType(acc) === 'linked'}
           />
         )
       })
@@ -290,74 +287,6 @@ const AccountsOnPageList = ({
             </View>
           ))}
 
-        {!lookingForLinkedAccounts && !!linkedAccounts.length && (
-          <Alert type="info" style={spacings.mbXl}>
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-              <Text fontSize={16} weight="semiBold" appearance="infoText" style={spacings.mr}>
-                {t(`Linked Smart Account (found on page ${state.page})`)}
-              </Text>
-              <View style={flexbox.alignStart}>
-                <BadgeWithPreset preset="linked" />
-              </View>
-            </View>
-            <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-              <Text fontSize={12} style={[flexbox.flex1, spacings.mrXl]} appearance="infoText">
-                {t(
-                  'Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network.'
-                )}
-              </Text>
-              <Button
-                text={t('Show Linked Accounts')}
-                hasBottomSpacing={false}
-                size="small"
-                type="secondary"
-                onPress={openBottomSheet as any}
-              />
-            </View>
-          </Alert>
-        )}
-
-        <BottomSheet
-          id="linked-accounts"
-          sheetRef={sheetRef}
-          closeBottomSheet={closeBottomSheet}
-          scrollViewProps={{
-            scrollEnabled: false
-          }}
-          backgroundColor="primaryBackground"
-          containerInnerWrapperStyles={{ maxHeight: Dimensions.get('window').height * 0.65 }}
-          style={{ maxWidth: tabLayoutWidths.lg }}
-        >
-          <Text style={spacings.mbMd} weight="medium" fontSize={20}>
-            {t('Add Linked Accounts')}
-          </Text>
-          <Alert type="info" style={spacings.mbTy}>
-            <Text fontSize={16} style={flexbox.flex1} appearance="infoText">
-              {t(
-                'Linked smart accounts are accounts that were not originally created with this key or Ambire v1, but this key is authorized to control and sign transactions for that linked smart account on one or more networks.'
-              )}
-            </Text>
-          </Alert>
-          <Alert
-            type="warning"
-            style={{ ...spacings.mbLg, alignSelf: 'stretch' }}
-            title={t('Do not add linked accounts you are not aware of!')}
-          />
-
-          <ScrollableWrapper>
-            {getAccounts({
-              accounts: linkedAccounts,
-              shouldCheckForLastAccountInTheList: true,
-              byType: ['linked']
-            })}
-          </ScrollableWrapper>
-          <View
-            style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd, spacings.ptXl]}
-          >
-            <Button size="large" text={t('Done')} onPress={closeBottomSheet as any} />
-          </View>
-        </BottomSheet>
-
         <View style={flexbox.flex1}>
           {!!networkNamesWithAccountStateError.length && (
             <Alert
@@ -438,6 +367,28 @@ const AccountsOnPageList = ({
                           </Text>
                         </View>
                       )}
+                      {!lookingForLinkedAccounts && !!linkedAccounts.length && (
+                        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                          <Badge
+                            type="info"
+                            size="md"
+                            withRightSpacing
+                            text={`Linked Smart Account (found on page ${state.page})`}
+                            tooltipText="Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network."
+                          />
+
+                          <WarningFilledIcon data-tooltip-id="linked-accounts-warning" />
+                          <Tooltip
+                            id="linked-accounts-warning"
+                            border={`1px solid ${theme.warningDecorative as any}`}
+                            style={{
+                              backgroundColor: theme.warningBackground as any,
+                              color: theme.warningText as any
+                            }}
+                            content="Do not add linked accounts you are not aware of!"
+                          />
+                        </View>
+                      )}
                     </View>
                   </View>
 
@@ -448,7 +399,7 @@ const AccountsOnPageList = ({
                           accounts: slots[key],
                           shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
                           slotIndex: 1,
-                          byType: ['smart'],
+                          byType: ['smart', 'linked'],
                           withQuaternaryBackground: true
                         })}
                       </View>
