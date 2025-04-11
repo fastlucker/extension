@@ -36,6 +36,7 @@ const useSign = ({
   const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(true)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
   const { ref: warningModalRef, open: openWarningModal, close: closeWarningModal } = useModalize()
+  const [actionLoaded, setActionLoaded] = useState<boolean>(false)
 
   const hasEstimation = useMemo(
     () =>
@@ -276,7 +277,9 @@ const useSign = ({
     feePayerKeyType,
     shouldDisplayLedgerConnectModal,
     network,
-    notReadyToSignButAlsoNotDone
+    notReadyToSignButAlsoNotDone,
+    actionLoaded,
+    setActionLoaded
   }
 }
 

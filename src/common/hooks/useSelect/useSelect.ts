@@ -57,8 +57,13 @@ const useSelect = (props?: { maxMenuHeight?: number; menuPosition?: 'top' | 'bot
   }, [height, isMenuOpen, maxMenuHeight, windowHeight, y, menuPosition])
 
   const maxMenuDynamicHeight = useMemo(() => {
-    if (dynamicMenuPosition === 'bottom' && y + height + maxMenuHeight > windowHeight) {
-      return windowHeight - (y + height) - SPACING
+    // if the menu height exceeds the maximum height of window
+    if (y + height + maxMenuHeight > windowHeight) {
+      if (dynamicMenuPosition === 'bottom') {
+        return windowHeight - (y + height) - SPACING
+      }
+      // if 'top'
+      return y - SPACING
     }
 
     return maxMenuHeight
