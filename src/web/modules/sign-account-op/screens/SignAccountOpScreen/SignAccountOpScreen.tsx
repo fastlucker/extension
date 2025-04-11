@@ -128,7 +128,7 @@ const SignAccountOpScreen = () => {
         params: { actionId: accountOpAction.id }
       })
     }
-  }, [accountOpAction?.id, actionLoaded, dispatch])
+  }, [accountOpAction?.id, actionLoaded, dispatch, setActionLoaded])
 
   const handleRejectAccountOp = useCallback(() => {
     if (!accountOpAction) return
@@ -144,6 +144,7 @@ const SignAccountOpScreen = () => {
   }, [dispatch, accountOpAction])
 
   const handleAddToCart = useCallback(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     closeCurrentWindow()
   }, [])
 
