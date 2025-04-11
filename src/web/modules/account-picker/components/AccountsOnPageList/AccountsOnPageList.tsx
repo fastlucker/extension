@@ -1,7 +1,7 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Dimensions, NativeScrollEvent, View, ViewStyle } from 'react-native'
+import { Dimensions, NativeScrollEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
@@ -27,11 +27,7 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import Account from '@web/modules/account-picker/components/Account'
 import AccountsRetrieveError from '@web/modules/account-picker/components/AccountsRetrieveError'
-import ChangeHdPath from '@web/modules/account-picker/components/ChangeHdPath'
-import {
-  AccountPickerIntroStepsProvider,
-  BasicAccountIntroId
-} from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
+import { AccountPickerIntroStepsProvider } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
 // import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
@@ -45,23 +41,19 @@ const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: Nati
 type Props = {
   state: AccountPickerController
   setPage: (page: number) => void
-  keyType: AccountPickerController['type']
   subType: AccountPickerController['subType']
   lookingForLinkedAccounts: boolean
   children?: any
   withTitle?: boolean
-  containerStyle?: ViewStyle
 }
 
 const AccountsOnPageList = ({
   state,
   setPage,
-  keyType,
   subType,
   lookingForLinkedAccounts,
   children,
-  withTitle = true,
-  containerStyle
+  withTitle = true
 }: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -69,7 +61,6 @@ const AccountsOnPageList = ({
   const keystoreState = useKeystoreControllerState()
   const { networks } = useNetworksControllerState()
   const accountPickerState = useAccountPickerControllerState()
-  const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
@@ -186,7 +177,6 @@ const AccountsOnPageList = ({
       })
     },
     [
-      // onlySmartAccountsVisible,
       getType,
       state.selectedAccounts,
       isImportingFromPrivateKey,
@@ -252,19 +242,6 @@ const AccountsOnPageList = ({
     slots
   ])
 
-  const shouldDisplayChangeHdPath = !!(
-    subType === 'seed' ||
-    // TODO: Disabled for Trezor, because the flow that retrieves accounts
-    // from the device as of v4.32.0 throws "forbidden key path" when
-    // accessing non-"BIP44 Standard" paths. Alternatively, this could be
-    // enabled in Trezor Suit (settings - safety checks), but even if enabled,
-    // 1) user must explicitly allow retrieving each address (that means 25
-    // clicks to retrieve accounts of the first 5 pages, blah) and 2) The
-    // Trezor device shows a scarry note: "Wrong address path for selected
-    // coin. Continue at your own risk!", which is pretty bad UX.
-    (keyType && ['ledger', 'lattice'].includes(keyType))
-  )
-
   const shouldDisplayAnimatedDownArrow =
     typeof hasReachedBottom === 'boolean' &&
     !hasReachedBottom &&
@@ -276,11 +253,9 @@ const AccountsOnPageList = ({
   // while being navigated back (resetting the Account Picker state).
   if (!state.isInitialized) return null
 
-  console.log('slots', slots)
-
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
-      <View style={[flexbox.flex1, containerStyle]} nativeID="account-picker-page-list">
+      <View style={flexbox.flex1} nativeID="account-picker-page-list">
         {withTitle ||
           (!!numberOfSelectedLinkedAccounts && (
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
@@ -383,18 +358,6 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {(!isImportingFromPrivateKey || shouldDisplayChangeHdPath) && (
-          <View
-            style={[flexbox.alignEnd, { width: '100%' }]}
-            {...(onlySmartAccountsVisible
-              ? {
-                  nativeID: BasicAccountIntroId
-                }
-              : {})}
-          >
-            {shouldDisplayChangeHdPath && <ChangeHdPath setPage={setPage} />}
-          </View>
-        )}
         <View style={flexbox.flex1}>
           {!!networkNamesWithAccountStateError.length && (
             <Alert
@@ -433,69 +396,69 @@ const AccountsOnPageList = ({
                 <Spinner style={styles.spinner} />
               </View>
             ) : (
-              Object.keys(slots).map((key, i) => {
-                return (
-                  <View key={key}>
-                    {getAccounts({
-                      accounts: slots[key],
-                      shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                      slotIndex: 1,
-                      byType: ['basic']
-                    })}
+              <>
+                <View style={[spacings.ph, spacings.pbLg]}>
+                  {Object.keys(slots).map((key, i) => {
+                    return (
+                      <View key={key}>
+                        {getAccounts({
+                          accounts: slots[key],
+                          shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                          slotIndex: 1,
+                          byType: ['basic']
+                        })}
+                      </View>
+                    )
+                  })}
+                </View>
+                <View
+                  style={[
+                    styles.smartAccountWrapper,
+                    // @ts-ignore
+                    { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
+                  ]}
+                >
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
+                    <Text fontSize={16} weight="medium" style={spacings.mrMd}>
+                      {t('Smart Accounts')}
+                      {/* TODO: Add an info icon here with a tooltip */}
+                    </Text>
+                    <View
+                      style={[
+                        flexbox.directionRow,
+                        flexbox.justifySpaceBetween,
+                        flexbox.alignCenter
+                      ]}
+                    >
+                      {lookingForLinkedAccounts && (
+                        <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                          <Spinner style={{ width: 16, height: 16 }} />
+                          <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
+                            {t('Looking for linked smart accounts')}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
-                )
-              })
+
+                  {Object.keys(slots).map((key, i) => {
+                    return (
+                      <View key={key}>
+                        {getAccounts({
+                          accounts: slots[key],
+                          shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                          slotIndex: 1,
+                          byType: ['smart'],
+                          withQuaternaryBackground: true
+                        })}
+                      </View>
+                    )
+                  })}
+                </View>
+              </>
             )}
           </ScrollableWrapper>
           <AnimatedDownArrow isVisible={shouldDisplayAnimatedDownArrow} />
-        </View>
-        <View
-          style={[
-            styles.smartAccountWrapper,
-            { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
-          ]}
-        >
-          <Text fontSize={16} weight="semiBold" style={spacings.mbSm}>
-            {t('Smart Accounts')}
-            {/* TODO: Add an info icon here with a tooltip */}
-          </Text>
-          <ScrollableWrapper>
-            {state.accountsLoading ? (
-              <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
-                <Spinner style={styles.spinner} />
-              </View>
-            ) : (
-              Object.keys(slots).map((key, i) => {
-                return (
-                  <View key={key}>
-                    {getAccounts({
-                      accounts: slots[key],
-                      shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                      slotIndex: 1,
-                      byType: ['smart'],
-                      withQuaternaryBackground: true
-                    })}
-                  </View>
-                )
-              })
-            )}
-          </ScrollableWrapper>
-        </View>
-        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-          <View
-            style={[
-              flexbox.alignCenter,
-              spacings.ptSm,
-              { opacity: lookingForLinkedAccounts ? 1 : 0 }
-            ]}
-          >
-            <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
-              <Spinner style={{ width: 16, height: 16 }} />
-              <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
-                {t('Looking for linked smart accounts')}
-              </Text>
-            </View>
-          </View>
         </View>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           {!isImportingFromPrivateKey && (

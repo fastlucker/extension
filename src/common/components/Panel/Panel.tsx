@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useRef } from 'react'
-import { Animated, Pressable, View, ViewProps } from 'react-native'
+import { Animated, Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Text from '@common/components/Text'
@@ -32,6 +32,37 @@ export const getPanelPaddings = (
     paddingHorizontal: maxWidthSize('xl') && spacingsSize === 'large' ? SPACING_3XL : SPACING_LG,
     paddingVertical: maxWidthSize('xl') && spacingsSize === 'large' ? SPACING_XL : SPACING_LG
   }
+}
+
+const PanelBackButton = ({ onPress, style }: { onPress: () => void; style?: ViewStyle }) => {
+  const { styles, theme } = useTheme(getStyles)
+  return (
+    <Pressable onPress={onPress} style={[spacings.pvTy, style]}>
+      {({ hovered }: any) => (
+        <View
+          style={[styles.backBtnWrapper, hovered && { backgroundColor: theme.secondaryBackground }]}
+        >
+          <LeftArrowIcon />
+        </View>
+      )}
+    </Pressable>
+  )
+}
+
+const PanelTitle = ({ title, style }: { title: string | ReactNode; style?: TextStyle }) => {
+  const { maxWidthSize } = useWindowSize()
+
+  return (
+    <Text
+      fontSize={maxWidthSize('xl') ? 20 : 18}
+      weight="semiBold"
+      appearance="primaryText"
+      numberOfLines={1}
+      style={[text.center, flexbox.flex1, style]}
+    >
+      {title}
+    </Text>
+  )
 }
 
 const Panel: React.FC<Props> = ({
@@ -117,31 +148,8 @@ const Panel: React.FC<Props> = ({
         >
           {(!!title || !!withBackButton) && (
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
-              {!!withBackButton && (
-                <Pressable onPress={onBackButtonPress} style={[spacings.pvTy]}>
-                  {({ hovered }: any) => (
-                    <View
-                      style={[
-                        styles.backBtnWrapper,
-                        hovered && { backgroundColor: theme.secondaryBackground }
-                      ]}
-                    >
-                      <LeftArrowIcon />
-                    </View>
-                  )}
-                </Pressable>
-              )}
-              {!!title && (
-                <Text
-                  fontSize={maxWidthSize('xl') ? 20 : 18}
-                  weight="semiBold"
-                  appearance="primaryText"
-                  numberOfLines={1}
-                  style={[text.center, flexbox.flex1]}
-                >
-                  {title}
-                </Text>
-              )}
+              {!!withBackButton && <PanelBackButton onPress={onBackButtonPress} />}
+              {!!title && <PanelTitle title={title} />}
               <View style={{ width: 20 }} />
             </View>
           )}
@@ -171,5 +179,7 @@ const Panel: React.FC<Props> = ({
     </Container>
   )
 }
+
+export { PanelBackButton, PanelTitle }
 
 export default React.memo(Panel)

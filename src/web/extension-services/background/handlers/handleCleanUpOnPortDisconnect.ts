@@ -58,7 +58,7 @@ export const handleCleanUpOnPortDisconnect = async ({
         ) {
           await mainCtrl.accountPicker.reset()
         }
-      }, 500)
+      }, 1000)
     }
   }
 }

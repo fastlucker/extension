@@ -19,9 +19,9 @@ const getStyles = (theme: ThemeProps) =>
     },
     smartAccountWrapper: {
       ...common.borderRadiusPrimary,
-      ...common.shadowPrimary,
-      ...spacings.phSm,
-      ...spacings.pvSm,
+      ...spacings.ph,
+      ...spacings.pv,
+      borderWidth: 1,
       borderColor: `${String(theme.primary)}14`
     }
   })
