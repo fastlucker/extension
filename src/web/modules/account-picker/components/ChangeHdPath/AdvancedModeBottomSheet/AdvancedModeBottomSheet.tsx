@@ -163,7 +163,7 @@ const CustomHDPathBottomSheet: FC<Props> = ({
         )}
         <View style={[spacings.mb2Xl]}>
           <Text fontSize={16} weight="medium" style={[spacings.mbSm]}>
-            {t('Select the serial number of address to start from')}:
+            {t('Enter a page number to jump to')}:
           </Text>
 
           <Controller
@@ -173,7 +173,7 @@ const CustomHDPathBottomSheet: FC<Props> = ({
               required: true,
               validate: (v) => {
                 const parsed = parseInt(v, 10)
-                return (parsed >= 1 && parsed <= 50) || 'Must be between 1 and 50'
+                return (parsed >= 1 && parsed <= 1000) || 'Must be between 1 and 1000'
               }
             }}
             render={({ field: { value, onChange } }) => (
@@ -184,9 +184,6 @@ const CustomHDPathBottomSheet: FC<Props> = ({
               />
             )}
           />
-          <Text fontSize={12} appearance="secondaryText" style={spacings.mbSm}>
-            {t('Manage address from 1 to 50')}
-          </Text>
         </View>
         <View style={[flexbox.directionRow, flexbox.center]}>
           <Button style={{ width: '50%' }} text={t('Confirm')} onPress={handleSubmit(onSubmit)} />
