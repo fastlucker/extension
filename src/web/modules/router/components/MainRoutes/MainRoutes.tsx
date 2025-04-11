@@ -22,7 +22,6 @@ import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
-import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import ImportExistingAccountSelectorScreen from '@web/modules/auth/screens/ImportExistingAccountSelectorScreen'
 import ImportSmartAccountJsonScreen from '@web/modules/auth/screens/ImportSmartAccountJson'
 import OnboardingCompletedScreen from '@web/modules/auth/screens/OnboardingCompletedScreen'
@@ -87,7 +86,6 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
             <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
             <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
-            <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />
             <Route
               path={WEB_ROUTES.viewOnlyAccountAdder}
               element={<ViewOnlyAccountAdderScreen />}

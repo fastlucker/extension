@@ -251,13 +251,6 @@ const routesConfig: RouteConfig = {
     }),
     name: Platform.select({ default: i18n.t('Verify Email') })
   },
-  [ROUTES.importHotWallet]: {
-    route: ROUTES.importHotWallet,
-    title: Platform.select({
-      default: i18n.t('Import Hot Wallet')
-    }),
-    name: Platform.select({ default: i18n.t('Import Hot Wallet') })
-  },
   [ROUTES.importPrivateKey]: {
     route: ROUTES.importPrivateKey,
     title: Platform.select({
