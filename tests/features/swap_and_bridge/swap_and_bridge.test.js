@@ -108,14 +108,14 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it('should Bridge tokens with a Smart Account', async () => {
-    const text = await prepareBridgeTransaction(page, '0.063', 'USDC', '8453', '10')
+    const text = await prepareBridgeTransaction(page, '0.0063', 'USDC', '8453', '10')
     await signActionPage(
       await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     )
   })
 
   it('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.1, 'USDC.E', '10', 'DAI')
+    const text = await prepareSwapAndBridge(page, 0.01, 'USDC.E', '10', 'DAI')
     let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
       selectButton(callback_page, text)
     )
