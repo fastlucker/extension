@@ -317,6 +317,7 @@ const SendForm = ({
           containerStyle={styles.tokenSelect}
           testID="tokens-select"
           mode="bottomSheet"
+          bottomSheetTitle={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
         />
       )}
       <InputSendToken

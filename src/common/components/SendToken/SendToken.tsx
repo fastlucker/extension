@@ -91,6 +91,7 @@ const SendToken: FC<Props> = ({
             options={fromTokenOptions}
             value={fromTokenValue}
             testID={selectTestId}
+            bottomSheetTitle={t('Send token')}
             searchPlaceholder={t('Token name or address...')}
             emptyListPlaceholderText={t('No tokens found.')}
             containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
@@ -98,6 +99,7 @@ const SendToken: FC<Props> = ({
               backgroundColor: '#54597A14',
               borderWidth: 0
             }}
+            mode="bottomSheet"
           />
           <NumberInput
             value={fromAmountValue}

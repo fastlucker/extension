@@ -192,6 +192,8 @@ const ToTokenSelect: React.FC<Props> = ({
   return (
     <SectionedSelect
       setValue={handleChangeToToken}
+      mode="bottomSheet"
+      bottomSheetTitle={t('Receive token')}
       sections={selectSections}
       renderSectionHeader={renderFeeOptionSectionHeader}
       value={toTokenValueOrError}
