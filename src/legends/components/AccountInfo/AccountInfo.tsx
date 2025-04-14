@@ -7,9 +7,9 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 
 import styles from './AccountInfo.module.scss'
 
-// TODO: Add logic to handle account switching from the dropdown and implement proper disconnect functionality
+// TODO: Add logic to handle account switching from the dropdown
 const AccountInfo = () => {
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, disconnectAccount } = useAccountContext()
   const { character } = useCharacterContext()
 
   return (
@@ -25,7 +25,7 @@ const AccountInfo = () => {
             address={connectedAccount!}
             maxAddressLength={12}
           />
-          <DisconnectIcon />
+          <DisconnectIcon onClick={disconnectAccount} className={styles.disconnectIcon} />
         </div>
         <p className={`${styles.levelAndRank} ${styles.activityDot}`}>Level {character!.level}</p>
       </div>
