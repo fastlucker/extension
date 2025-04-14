@@ -16,6 +16,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import formatTime from '@common/utils/formatTime'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
@@ -74,7 +75,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                 flexbox.directionRow,
                 flexbox.alignCenter,
                 flexbox.justifyCenter,
-                spacings.mb
+                spacings.mbLg
               ]}
             >
               <Text fontSize={20} weight="medium" style={text.center}>
@@ -117,6 +118,13 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                   isLast
                 />
               </View>
+            )}
+            {lastCompletedRoute.route?.serviceTime && (
+              <Text fontSize={12} weight="medium" appearance="secondaryText" style={text.center}>
+                {t('Time: ~{{time}}', {
+                  time: formatTime(lastCompletedRoute.route?.serviceTime)
+                })}
+              </Text>
             )}
           </>
         )}
