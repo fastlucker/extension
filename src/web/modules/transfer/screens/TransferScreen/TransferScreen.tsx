@@ -7,7 +7,6 @@ import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
-import CartIcon from '@common/assets/svg/CartIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -98,6 +97,11 @@ const TransferScreen = () => {
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10
   }, [portfolio.totalBalance])
+
+  const hasActiveRequests = useMemo(
+    () => !!transactionUserRequests.length && !hasFocusedActionWindow,
+    [transactionUserRequests, hasFocusedActionWindow]
+  )
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -298,7 +302,7 @@ const TransferScreen = () => {
               testID="transfer-queue-and-add-more-button"
               type="outline"
               accentColor={theme.primary}
-              text={t('Queue and Add More')}
+              text={hasActiveRequests ? t('Add to Batch') : t('Start a Batch')}
               onPress={() => addTransaction('queue')}
               disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
               hasBottomSpacing={false}
@@ -306,8 +310,7 @@ const TransferScreen = () => {
               size="large"
             >
               <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                <CartIcon color={theme.primary} />
-                {!!transactionUserRequests.length && !hasFocusedActionWindow && (
+                {hasActiveRequests && (
                   <Text
                     fontSize={16}
                     weight="medium"
@@ -424,7 +427,7 @@ const TransferScreen = () => {
         type="modal"
       >
         <DualChoiceModal
-          title={t('Transaction queued')}
+          title={t('Transaction added to batch')}
           description={
             <View>
               <Text style={spacings.mbTy} appearance="secondaryText">
@@ -433,7 +436,7 @@ const TransferScreen = () => {
                 )}
               </Text>
               <Text appearance="secondaryText" style={spacings.mbLg}>
-                {t('The queued pending transactions are available on your Dashboard.')}
+                {t('All pending batch transactions are available on your Dashboard.')}
               </Text>
               <Checkbox
                 value={transferCtrl.shouldSkipTransactionQueuedModal}
