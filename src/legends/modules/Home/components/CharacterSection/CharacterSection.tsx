@@ -13,7 +13,9 @@ const CharacterSection = () => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
-
+  const formatXp = (xp: number) => {
+    return xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  }
   if (!character)
     return (
       <Alert
@@ -41,8 +43,8 @@ const CharacterSection = () => {
               </div>
               <div className={styles.levelProgress}>
                 <div className={styles.levelProgressBarWrapper}>
-                  <span className={styles.level}>{startXpForCurrentLevel}</span>
-                  <span className={styles.level}>{xpForNextLevel}</span>
+                  <span className={styles.level}>{formatXp(startXpForCurrentLevel)}</span>
+                  <span className={styles.level}>{formatXp(xpForNextLevel)}</span>
                 </div>
                 <div
                   className={styles.levelProgressBar}
@@ -57,7 +59,7 @@ const CharacterSection = () => {
               </div>
 
               <div className={styles.xp}>
-                {character.xp}
+                {formatXp(character.xp)}
                 XP
               </div>
             </div>
