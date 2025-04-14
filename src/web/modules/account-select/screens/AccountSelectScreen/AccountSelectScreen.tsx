@@ -148,7 +148,7 @@ const AccountSelectScreen = () => {
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeBottomSheet as any} />
       </BottomSheet>
     </TabLayoutContainer>
   ) : (

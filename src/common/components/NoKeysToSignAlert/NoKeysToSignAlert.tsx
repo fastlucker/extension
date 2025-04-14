@@ -54,7 +54,7 @@ const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
         sheetRef={addAccountsRef}
         closeBottomSheet={closeAddAccounts}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeAddAccounts as any} />
       </BottomSheet>
     </View>
   )

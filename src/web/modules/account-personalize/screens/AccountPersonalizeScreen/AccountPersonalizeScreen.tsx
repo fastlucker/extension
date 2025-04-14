@@ -167,7 +167,7 @@ const AccountPersonalizeScreen = () => {
           }}
           title={accountPickerState.pageError ? t('Accounts') : undefined}
         >
-          {isLoading ? (
+          {isLoading && !accountPickerState.pageError ? (
             <View style={[flexbox.alignCenter]}>
               <View style={spacings.mbLg}>
                 <AccountsLoadingAnimation />

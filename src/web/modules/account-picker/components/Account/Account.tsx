@@ -253,7 +253,12 @@ const Account = ({
                 })}
               </View>
             )}
-            {!!unused && <Badge text={t('unused')} />}
+            {!!unused && (
+              <Badge
+                type={type === 'smart' ? 'info' : 'default'}
+                text={type === 'smart' ? t('new') : t('unused')}
+              />
+            )}
           </View>
         </View>
       </View>

@@ -1,7 +1,5 @@
 import { ColorValue } from 'react-native'
 
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
-
 import colors from './colors'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
