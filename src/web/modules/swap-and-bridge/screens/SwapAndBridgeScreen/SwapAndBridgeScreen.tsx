@@ -62,7 +62,8 @@ const SwapAndBridgeScreen = () => {
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
     batchModalRef,
-    closeBatchModal
+    closeBatchModal,
+    isBridge
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -160,6 +161,7 @@ const SwapAndBridgeScreen = () => {
               isOneClickModeAllowed={isOneClickModeAllowed}
               isNotReadyToProceed={isNotReadyToProceed}
               handleSubmitForm={handleSubmitForm}
+              isBatchAllowed={!isBridge}
             />
           </>
         ) : null
@@ -210,6 +212,7 @@ const SwapAndBridgeScreen = () => {
             <Buttons
               isOneClickModeAllowed={isOneClickModeAllowed}
               isNotReadyToProceed={isNotReadyToProceed}
+              isBatchAllowed={!isBridge}
               handleSubmitForm={handleSubmitForm}
             />
           )}

@@ -9,10 +9,16 @@ import flexbox from '@common/styles/utils/flexbox'
 type Props = {
   isOneClickModeAllowed: boolean
   isNotReadyToProceed: boolean
+  isBatchAllowed: boolean
   handleSubmitForm: (isOneClickMode: boolean) => void
 }
 
-const Buttons: FC<Props> = ({ isOneClickModeAllowed, isNotReadyToProceed, handleSubmitForm }) => {
+const Buttons: FC<Props> = ({
+  isOneClickModeAllowed,
+  isNotReadyToProceed,
+  handleSubmitForm,
+  isBatchAllowed
+}) => {
   const { t } = useTranslation()
 
   return (
@@ -20,7 +26,7 @@ const Buttons: FC<Props> = ({ isOneClickModeAllowed, isNotReadyToProceed, handle
       <Button
         hasBottomSpacing={false}
         text={isOneClickModeAllowed ? t('Start a batch') : t('Add to batch')}
-        disabled={isNotReadyToProceed}
+        disabled={isNotReadyToProceed || !isBatchAllowed}
         type="secondary"
         style={{ minWidth: 160 }}
         onPress={() => handleSubmitForm(false)}

@@ -35,7 +35,8 @@ const useSwapAndBridgeForm = () => {
     formStatus,
     supportedChainIds,
     updateQuoteStatus,
-    sessionIds
+    sessionIds,
+    toSelectedToken
   } = useSwapAndBridgeControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
@@ -79,9 +80,15 @@ const useSwapAndBridgeForm = () => {
         action.accountOp.chainId.toString() === fromSelectedToken.chainId.toString()
     )
   }, [account, fromSelectedToken, actionsQueue])
+
+  const isBridge = useMemo(() => {
+    if (!fromSelectedToken || !toSelectedToken) return false
+    return fromSelectedToken.chainId !== BigInt(toSelectedToken.chainId)
+  }, [fromSelectedToken, toSelectedToken])
+
   const isOneClickModeAllowed = useMemo(() => {
-    return mainAccountOpActions.length === 0
-  }, [mainAccountOpActions])
+    return isBridge || mainAccountOpActions.length === 0
+  }, [mainAccountOpActions, isBridge])
 
   const handleSetFromAmount = (val: string) => {
     setFromAmountValue(val)
@@ -336,7 +343,8 @@ const useSwapAndBridgeForm = () => {
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
     closeBatchModal,
-    batchModalRef
+    batchModalRef,
+    isBridge
   }
 }
 
