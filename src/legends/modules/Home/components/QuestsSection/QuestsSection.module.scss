@@ -42,6 +42,7 @@
     margin-left: calc((100% - 62.5rem) / 2);
     position: relative;
     display: flex;
+    padding-left: 0.25rem; // Otherwise the card effect isn't visible
 
     :global(.swiper-wrapper) {
       align-items: center;
@@ -50,6 +51,10 @@
 
   .slide {
     width: auto;
+    height: 14.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   @include breakpoint-down-from(medium-desktop) {
