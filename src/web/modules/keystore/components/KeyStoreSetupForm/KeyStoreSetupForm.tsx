@@ -15,10 +15,11 @@ import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm
 import { TERMS_VERSION } from '@web/modules/terms/components/TermsComponent'
 
 type Props = {
+  agreedWithTerms: boolean
   children?: React.ReactNode
 }
 
-const KeyStoreSetupForm = ({ children }: Props) => {
+const KeyStoreSetupForm = ({ agreedWithTerms, children }: Props) => {
   const { t } = useTranslation()
   const {
     control,
@@ -91,7 +92,9 @@ const KeyStoreSetupForm = ({ children }: Props) => {
         testID="create-keystore-pass-btn"
         textStyle={{ fontSize: 14 }}
         size="large"
-        disabled={formState.isSubmitting || isKeystoreSetupLoading || !formState.isValid}
+        disabled={
+          formState.isSubmitting || isKeystoreSetupLoading || !formState.isValid || !agreedWithTerms
+        }
         text={formState.isSubmitting || isKeystoreSetupLoading ? t('Loading...') : t('Confirm')}
         onPress={handleKeystoreSetup}
         hasBottomSpacing={false}
