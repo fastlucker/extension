@@ -2,6 +2,7 @@ import React, { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import { getIsBridgeRoute } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import OpenIcon from '@common/assets/svg/OpenIcon'
@@ -151,23 +152,25 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                 symbol: toAssetSymbol || 'Token'
               })}
             </Text>
-            <Pressable
-              onPress={handleOpenExplorer}
-              style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
-            >
-              <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
-              <Text
-                weight="medium"
-                style={{
-                  textDecorationLine: 'underline',
-                  textDecorationColor: theme.primary,
-                  textDecorationStyle: 'solid'
-                }}
-                appearance="primary"
+            {!!lastCompletedRoute.route && (
+              <Pressable
+                onPress={handleOpenExplorer}
+                style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
               >
-                {lastCompletedRoute.route?.isOnlySwapRoute ? t('View swap') : t('View bridge')}
-              </Text>
-            </Pressable>
+                <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
+                <Text
+                  weight="medium"
+                  style={{
+                    textDecorationLine: 'underline',
+                    textDecorationColor: theme.primary,
+                    textDecorationStyle: 'solid'
+                  }}
+                  appearance="primary"
+                >
+                  {getIsBridgeRoute(lastCompletedRoute.route) ? t('View swap') : t('View bridge')}
+                </Text>
+              </Pressable>
+            )}
           </>
         )}
         {lastCompletedRoute?.routeStatus === 'failed' && <Text>{t('TODO: Error state')}</Text>}
