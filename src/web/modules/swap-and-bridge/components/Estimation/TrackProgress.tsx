@@ -1,19 +1,25 @@
 import React, { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
+import RouteStepsToken from '../RouteStepsToken'
 import BackgroundShapes from './BackgroundShapes'
 
 type Props = {
@@ -22,38 +28,96 @@ type Props = {
 
 const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
   const { activeRoutes } = useSwapAndBridgeControllerState()
-
-  // @TODO: Pick the right route as the user may have started
-  // another route before this one. Also, currently we are not even starting routes
-  // if the swap is one-click.
-  // This is implementation was written solely for the purpose of testing the UI
   const lastCompletedRoute = activeRoutes[activeRoutes.length - 1]
   const steps = lastCompletedRoute?.route?.steps
+  const firstStep = steps ? steps[0] : null
+  const lastStep = steps ? steps[steps.length - 1] : null
+  const fromAsset = firstStep ? firstStep.fromAsset : null
+  const toAsset = lastStep ? lastStep.toAsset : null
   const toAssetSymbol = steps ? steps[steps.length - 1].toAsset.symbol : null
 
   const onPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
+
+  const handleOpenExplorer = useCallback(async () => {
+    try {
+      const toChainId = lastCompletedRoute.route?.toChainId
+      if (!toChainId) throw new Error('No toChainId')
+
+      const { identifiedBy } = lastCompletedRoute
+
+      if (!identifiedBy) throw new Error('No identifiedBy')
+
+      const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+        chainId: toChainId,
+        txnId: lastCompletedRoute.userTxHash,
+        identifiedBy
+      })}`
+      await openInTab(link, false)
+    } catch {
+      addToast('Error opening explorer', { type: 'error' })
+    }
+  }, [addToast, lastCompletedRoute])
+
   return (
-    <View>
-      <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.pt2Xl]}>
-        {/* TODO: This is the only thing that would render at the moment as we are not starting routes 
-        if the swap is one-click. */}
+    <View style={flexbox.flex1}>
+      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter, spacings.pt2Xl]}>
         {(!lastCompletedRoute || lastCompletedRoute?.routeStatus === 'in-progress') && (
           <>
-            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
-              {t('Confirming your trade')}
-            </Text>
-            <Spinner
-              style={{
-                width: 32,
-                height: 32,
-                ...spacings.mb2Xl
-              }}
-            />
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.alignCenter,
+                flexbox.justifyCenter,
+                spacings.mb
+              ]}
+            >
+              <Text fontSize={20} weight="medium" style={text.center}>
+                {t('Confirming your trade')}
+              </Text>
+              <Spinner
+                style={{
+                  width: 20,
+                  height: 20,
+                  ...spacings.mlSm
+                }}
+              />
+            </View>
+            {fromAsset && toAsset && (
+              <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb2Xl]}>
+                <RouteStepsToken
+                  uri={fromAsset.icon}
+                  chainId={BigInt(fromAsset.chainId)}
+                  address={fromAsset.address}
+                  symbol={fromAsset.symbol}
+                />
+                <View
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: theme.secondaryBackground,
+                    ...flexbox.alignCenter,
+                    ...flexbox.justifyCenter,
+                    ...spacings.mhSm
+                  }}
+                >
+                  <RightArrowIcon />
+                </View>
+                <RouteStepsToken
+                  uri={toAsset.icon}
+                  chainId={BigInt(toAsset.chainId)}
+                  address={toAsset.address}
+                  symbol={toAsset.symbol}
+                  isLast
+                />
+              </View>
+            )}
           </>
         )}
         {lastCompletedRoute?.routeStatus === 'completed' && (
@@ -64,7 +128,10 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                 top: 0,
                 left: 0,
                 right: 0,
-                bottom: 0
+                bottom: 0,
+                width: '100%',
+                height: '100%',
+                zIndex: -1
               }}
             />
             <CheckIcon2 style={spacings.mb3Xl} />
@@ -76,7 +143,10 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                 symbol: toAssetSymbol || 'Token'
               })}
             </Text>
-            <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}>
+            <Pressable
+              onPress={handleOpenExplorer}
+              style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
+            >
               <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
               <Text
                 weight="medium"
@@ -86,11 +156,10 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                   textDecorationStyle: 'solid'
                 }}
                 appearance="primary"
-                // @TODO: Add Functionality
               >
-                {t('Open in Explorer')}
+                {lastCompletedRoute.route?.isOnlySwapRoute ? t('View swap') : t('View bridge')}
               </Text>
-            </View>
+            </Pressable>
           </>
         )}
         {lastCompletedRoute?.routeStatus === 'failed' && <Text>{t('TODO: Error state')}</Text>}

@@ -11,6 +11,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 
@@ -76,7 +77,7 @@ const RouteStepsPreview = ({
   }, [steps])
 
   return (
-    <View style={flexbox.flex1}>
+    <View style={[flexbox.flex1, common.fullWidth]}>
       <View style={[styles.container, spacings.mb]}>
         {steps.map((step, i) => {
           const isFirst = i === 0
