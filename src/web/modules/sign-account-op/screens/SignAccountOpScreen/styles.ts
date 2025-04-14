@@ -27,7 +27,8 @@ const getStyles = (theme: ThemeProps) =>
       elevation: 5,
       borderWidth: 1,
       borderColor: theme.primary,
-      borderRadius: 12
+      borderTopLeftRadius: 12,
+      borderTopRightRadius: 12
     }
   })
 
