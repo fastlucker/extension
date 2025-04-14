@@ -191,7 +191,6 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     containerWidth={40}
                     width={28}
                     height={28}
-                    withNetworkIcon={false}
                   />
                   <Text
                     style={[spacings.mlTy]}
