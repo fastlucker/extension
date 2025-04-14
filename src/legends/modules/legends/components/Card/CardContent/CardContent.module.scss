@@ -70,7 +70,7 @@
 
     .overlayTitle {
       font-size: 2rem;
-      font-weight: 500;
+      font-weight: 400;
       color: $mainText;
       line-height: 100%;
     }
@@ -78,7 +78,7 @@
     .overlayText {
       display: block;
       font-size: 0.875rem;
-      font-weight: 500;
+      font-weight: 400;
       color: rgba($mainText, 0.6);
       line-height: 1.125rem;
     }
@@ -109,20 +109,20 @@
 
       .rewardTitle {
         font-size: 0.75rem;
-        font-weight: 400;
+        font-weight: 300;
         color: rgba($whiteText, 0.5);
       }
 
       .xp {
         color: $whiteText;
         font-size: 1.25rem;
-        font-weight: 400;
+        font-weight: 300;
         margin-right: 0.1875rem;
         line-height: 100%;
       }
 
       .xpText {
-        font-weight: 300;
+        font-weight: 200;
         vertical-align: top;
         color: rgba($whiteText, 0.5);
       }
@@ -138,7 +138,7 @@
           text-align: center;
           line-height: 1rem;
           letter-spacing: 0.0063rem;
-          font-weight: 500;
+          font-weight: 400;
           color: $neutral-300;
           border-radius: 3.125rem;
           height: 2rem;
@@ -172,13 +172,13 @@
           .streakNumber {
             font-size: 1rem;
             line-height: 1rem;
-            font-weight: 800;
+            font-weight: 700;
             color: $yellowText;
           }
 
           .streakLabel {
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 400;
             line-height: 1rem;
             letter-spacing: 0.1;
             text-align: center;
@@ -193,7 +193,7 @@
 
       .heading {
         font-size: 1.5rem;
-        font-weight: 500;
+        font-weight: 400;
         margin-bottom: 0.25rem;
         padding-top: 1.5rem;
         width: 10.9375rem;
@@ -230,7 +230,7 @@
         font-family: $secondaryFont;
         font-size: 0.875rem;
         color: $secondaryText;
-        font-weight: 600;
+        font-weight: 400;
 
         .repeatableIcon {
           display: inline;

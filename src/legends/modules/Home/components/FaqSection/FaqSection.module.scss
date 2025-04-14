@@ -9,7 +9,7 @@
     color: $secondaryText;
     font-size: 1rem;
     line-height: 1.5rem;
-    font-weight: 300;
+    font-weight: 200;
   }
 
   @include breakpoint-down-from(medium-desktop) {
@@ -26,5 +26,5 @@
 
 .accordionTitle {
     font-size: 1.25rem !important;
-    font-weight: 400 !important;
+    // font-weight: 300 !important;
 }

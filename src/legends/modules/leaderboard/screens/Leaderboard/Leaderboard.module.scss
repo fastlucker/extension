@@ -8,7 +8,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 3.5rem;
+  // padding-top: 2.125rem;
 
   .heading {
     display: flex;
@@ -20,7 +20,7 @@
 
   .title {
     font-size: 2.5rem;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 2.6375rem;
     padding-bottom: 1rem;
   }
@@ -28,7 +28,7 @@
   .subtitle {
     color: $mainText;
     font-size: 1.125rem;
-    font-weight: 400;
+    font-weight: 300;
     line-height: 1.3931rem;
     max-width: 44.5rem;
   }
@@ -50,7 +50,7 @@
     justify-content: space-between;
     align-items: center;
     font-size: 0.875rem;
-    font-weight: 400;
+    font-weight: 300;
     line-height: 1.25rem;
     padding: 0.75rem 1rem;
     margin-bottom: .5rem;
@@ -84,10 +84,10 @@
     .cell {
       text-transform: uppercase;
       font-size: 0.875rem;
-      font-weight: 700;
+      font-weight: 600;
       color: rgba($tertiaryText, 0.64);
       h5 {
-        font-weight: 700;
+        font-weight: 600;
         color: rgba($tertiaryText, 0.64);
       }
 
@@ -113,7 +113,7 @@
 
     .cell:last-child {
       justify-content: flex-end;
-      font-weight: 500;
+      font-weight: 400;
     }
     
   }
