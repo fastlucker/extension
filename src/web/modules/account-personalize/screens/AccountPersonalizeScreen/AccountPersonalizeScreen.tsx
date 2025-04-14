@@ -1,16 +1,18 @@
 /* eslint-disable prettier/prettier */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { ScrollView, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import wait from '@ambire-common/utils/wait'
 import CheckIcon from '@common/assets/svg/CheckIcon'
+import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
+import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -21,13 +23,14 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
+import AccountsLoadingAnimation from '@web/modules/account-personalize/components/AccountsLoadingAnimation'
+import AccountsLoadingDotsAnimation from '@web/modules/account-personalize/components/AccountsLoadingDotsAnimation'
 
-import AccountsLoadingAnimation from '../../components/AccountsLoadingAnimation'
-import AccountsLoadingDotsAnimation from '../../components/AccountsLoadingDotsAnimation'
 import getStyles from './styles'
 
 export const CARD_WIDTH = 400
@@ -39,6 +42,7 @@ const AccountPersonalizeScreen = () => {
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
   const { accounts } = useAccountsControllerState()
+  const { addToast } = useToast()
   const { handleSubmit, control, setValue, getValues } = useForm({
     defaultValues: {
       accounts:
@@ -48,6 +52,7 @@ const AccountPersonalizeScreen = () => {
 
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
   const personalizeReady = useRef(false)
+  const goBackPressed = useRef(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -132,10 +137,18 @@ const AccountPersonalizeScreen = () => {
   }, [goToNextRoute, accountPickerState.isInitialized, accounts])
 
   useEffect(() => {
-    if (accountPickerState.isInitialized && accountPickerState.pageError) {
+    if (goBackPressed.current && !accountPickerState.isInitialized) {
       goToPrevRoute()
     }
-  }, [goToPrevRoute, accountPickerState.isInitialized, accountPickerState.pageError])
+  }, [goToPrevRoute, accountPickerState.isInitialized])
+
+  const handleContactSupport = useCallback(async () => {
+    try {
+      await createTab('https://help.ambire.com/hc/en-us/requests/new')
+    } catch {
+      addToast("Couldn't open link", { type: 'error' })
+    }
+  }, [addToast])
 
   return (
     <TabLayoutContainer
@@ -143,7 +156,17 @@ const AccountPersonalizeScreen = () => {
       header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel type="onboarding" spacingsSize="small" style={spacings.ptMd}>
+        <Panel
+          type="onboarding"
+          spacingsSize="small"
+          style={!accountPickerState.pageError && spacings.ptMd}
+          withBackButton={!!accountPickerState.pageError}
+          onBackButtonPress={() => {
+            goBackPressed.current = true
+            dispatch({ type: 'RESET_ACCOUNT_ADDING_ON_PAGE_ERROR' })
+          }}
+          title={accountPickerState.pageError ? t('Accounts') : undefined}
+        >
           {isLoading ? (
             <View style={[flexbox.alignCenter]}>
               <View style={spacings.mbLg}>
@@ -159,6 +182,27 @@ const AccountPersonalizeScreen = () => {
                 </View>
               </View>
             </View>
+          ) : accountPickerState.pageError ? (
+            <View style={flexbox.alignCenter}>
+              <Alert
+                type="warning"
+                title={accountPickerState.pageError}
+                text={
+                  <Trans>
+                    <Alert.Text type="warning">
+                      Please go back and start the account-adding process again. If the problem
+                      persists, please{' '}
+                      <Pressable onPress={handleContactSupport}>
+                        <Alert.Text type="warning" style={text.underline}>
+                          contact our support team
+                        </Alert.Text>
+                      </Pressable>
+                      .
+                    </Alert.Text>
+                  </Trans>
+                }
+              />
+            </View>
           ) : (
             <>
               <View style={[flexbox.alignCenter, spacings.mbXl]}>
@@ -171,16 +215,16 @@ const AccountPersonalizeScreen = () => {
                   {t('Added Successfully')}
                 </Text>
                 {/* <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
-              <Text fontSize={16} appearance="successText">
-                {newAccounts.length === 1
-                  ? t('Successfully added {{numOfAccounts}} account', {
-                      numOfAccounts: newAccounts.length
-                    })
-                  : t('Successfully added {{numOfAccounts}} accounts', {
-                      numOfAccounts: newAccounts.length
-                    })}
-              </Text>
-            </Alert> */}
+            <Text fontSize={16} appearance="successText">
+              {newAccounts.length === 1
+                ? t('Successfully added {{numOfAccounts}} account', {
+                    numOfAccounts: newAccounts.length
+                  })
+                : t('Successfully added {{numOfAccounts}} accounts', {
+                    numOfAccounts: newAccounts.length
+                  })}
+            </Text>
+          </Alert> */}
               </View>
               <ScrollView style={spacings.mbLg}>
                 {accountsToPersonalize.map((acc, index) => (

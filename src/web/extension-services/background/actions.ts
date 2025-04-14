@@ -119,6 +119,9 @@ type MainControllerRemoveAccount = {
 type MainControllerAccountPickerResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED'
 }
+type ResetAccountAddingOnPageErrorAction = {
+  type: 'RESET_ACCOUNT_ADDING_ON_PAGE_ERROR'
+}
 type MainControllerAccountPickerResetAccountsSelectionAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_ACCOUNTS_SELECTION'
 }
@@ -623,6 +626,7 @@ export type Action =
   | MainControllerAccountPickerSelectAccountAction
   | MainControllerAccountPickerDeselectAccountAction
   | MainControllerAccountPickerResetIfNeeded
+  | ResetAccountAddingOnPageErrorAction
   | MainControllerAccountPickerResetAccountsSelectionAction
   | AccountsControllerUpdateAccountPreferences
   | AccountsControllerUpdateAccountState

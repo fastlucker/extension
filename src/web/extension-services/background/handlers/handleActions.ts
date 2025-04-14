@@ -215,8 +215,21 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED': {
       if (mainCtrl.accountPicker.isInitialized) {
-        mainCtrl.accountPicker.reset()
+        await mainCtrl.accountPicker.reset()
       }
+      break
+    }
+    case 'RESET_ACCOUNT_ADDING_ON_PAGE_ERROR': {
+      await mainCtrl.accountPicker.reset()
+      const accounts = [...mainCtrl.accounts.accounts]
+      // eslint-disable-next-line no-restricted-syntax
+      for (const account of accounts) {
+        if (account.newlyAdded) {
+          // eslint-disable-next-line no-await-in-loop
+          await mainCtrl.removeAccount(account.addr)
+        }
+      }
+
       break
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_ACCOUNTS_SELECTION': {
