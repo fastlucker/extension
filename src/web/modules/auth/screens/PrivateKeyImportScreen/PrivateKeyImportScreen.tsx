@@ -14,6 +14,7 @@ import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -122,6 +123,7 @@ const PrivateKeyImportScreen = () => {
                 onValueChange={() => setAgreedToBackupWarning((prev) => !prev)}
                 testID="backup-warning-checkbox"
                 uncheckedBorderColor={theme.primaryText}
+                style={spacings.mlTy}
                 label={
                   <Text fontSize={14}>{t('I know this key must be backed up securely.')}</Text>
                 }
