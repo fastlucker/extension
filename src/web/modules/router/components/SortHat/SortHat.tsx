@@ -76,6 +76,8 @@ const SortHat = () => {
 
       if (actionType === 'signMessage') return navigate(ROUTES.signMessage)
 
+      if (actionType === 'swapAndBridge') return navigate(ROUTES.swapAndBridge)
+
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
         const link =
@@ -94,10 +96,10 @@ const SortHat = () => {
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
 
-      const hasSwapAndBridgePopupSession = swapAndBridgeState.sessionIds.some(
-        (id) => id === 'popup'
+      const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
+        (id) => id === 'persistent'
       )
-      if (hasSwapAndBridgePopupSession) {
+      if (hasSwapAndBridgePersistentSession) {
         navigate(ROUTES.swapAndBridge)
       } else if (await hasPersistedState(storage, APP_VERSION)) {
         navigate(ROUTES.transfer, {

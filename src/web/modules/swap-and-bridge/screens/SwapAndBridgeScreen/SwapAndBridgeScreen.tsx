@@ -31,7 +31,7 @@ import RouteInfo from '../../components/RouteInfo'
 import ToToken from '../../components/ToToken'
 import getStyles from './styles'
 
-const { isPopup } = getUiType()
+const { isTab, isActionWindow } = getUiType()
 
 const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
@@ -57,7 +57,7 @@ const SwapAndBridgeScreen = () => {
     openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
-    closeEstimationModal,
+    closeEstimationModalWrapped,
     isAutoSelectRouteDisabled,
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
@@ -138,7 +138,7 @@ const SwapAndBridgeScreen = () => {
       backgroundColor={theme.secondaryBackground}
       header={
         <Header
-          displayBackButtonIn="popup"
+          displayBackButtonIn="always"
           mode="title"
           customTitle={t('Swap & Bridge')}
           withAmbireLogo
@@ -148,13 +148,19 @@ const SwapAndBridgeScreen = () => {
               type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
               params: { sessionId, forceUnload: true }
             })
-            navigate(ROUTES.dashboard)
+            if (isActionWindow) {
+              dispatch({
+                type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+              })
+            } else {
+              navigate(ROUTES.dashboard)
+            }
           }}
         />
       }
       withHorizontalPadding={false}
       footer={
-        !isPopup ? (
+        isTab ? (
           <>
             <BackButton onPress={handleBackButtonPress} />
             <Buttons
@@ -208,7 +214,7 @@ const SwapAndBridgeScreen = () => {
             shouldEnableRoutesSelection={shouldEnableRoutesSelection}
             isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
           />
-          {isPopup && (
+          {!isTab && (
             <Buttons
               isOneClickModeAllowed={isOneClickModeAllowed}
               isNotReadyToProceed={isNotReadyToProceed}
@@ -224,7 +230,7 @@ const SwapAndBridgeScreen = () => {
         setIsAutoSelectRouteDisabled={(disabled: boolean) => setIsAutoSelectRouteDisabled(disabled)}
       />
       <SwapAndBridgeEstimation
-        closeEstimationModal={closeEstimationModal}
+        closeEstimationModal={closeEstimationModalWrapped}
         estimationModalRef={estimationModalRef}
       />
       <PriceImpactWarningModal

@@ -20,7 +20,7 @@ import { getUiType } from '@web/utils/uiType'
 
 type SessionId = ReturnType<typeof nanoid>
 
-const { isPopup } = getUiType()
+const { isPopup, isActionWindow } = getUiType()
 
 const useSwapAndBridgeForm = () => {
   const {
@@ -66,7 +66,7 @@ const useSwapAndBridgeForm = () => {
   const { actionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => {
-    if (isPopup) return 'popup'
+    if (isPopup || isActionWindow) return 'persistent'
 
     return nanoid()
   }, []) // purposely, so it is unique per hook lifetime
@@ -301,6 +301,19 @@ const useSwapAndBridgeForm = () => {
     ]
   )
 
+  const closeEstimationModalWrapped = useCallback(() => {
+    // Destroy the existing signAccountOp if the form was cleared
+    // Example: The user clicks on sign and is using a hardware wallet
+    // The form is cleared and the user decides to reject the txn.
+    // The signAccountOp must be destroyed
+    if (formStatus === SwapAndBridgeFormStatus.Empty) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+      })
+    }
+
+    closeEstimationModal()
+  }, [closeEstimationModal, dispatch, formStatus])
   /**
    * @deprecated - the settings menu is not used anymore
    */
@@ -323,6 +336,7 @@ const useSwapAndBridgeForm = () => {
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
     fromTokenValue,
+    closeEstimationModalWrapped,
     handleSubmitForm,
     shouldConfirmFollowUpTransactions,
     followUpTransactionConfirmed,
@@ -338,7 +352,6 @@ const useSwapAndBridgeForm = () => {
     openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
-    closeEstimationModal,
     isAutoSelectRouteDisabled,
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,

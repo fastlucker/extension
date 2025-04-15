@@ -16,6 +16,7 @@ import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerCo
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
+import { getUiType } from '@web/utils/uiType'
 
 import TrackProgress from './TrackProgress'
 
@@ -23,6 +24,8 @@ type Props = {
   closeEstimationModal: () => void
   estimationModalRef: React.RefObject<any>
 }
+
+const { isActionWindow } = getUiType()
 
 const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
   const { t } = useTranslation()
@@ -48,7 +51,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
   const handleUpdateStatus = useCallback(
     (status: SigningStatus) => {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
         params: {
           status
         }
@@ -59,7 +62,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
   const updateController = useCallback(
     (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE',
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params
       })
     },
@@ -107,6 +110,10 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         closeBottomSheet={closeEstimationModal}
         // NOTE: This must be lower than SigningKeySelect's z-index
         customZIndex={5}
+        type="bottom-sheet"
+        // Open the bottomSheet automatically when the screen is opened
+        // in an action window
+        autoOpen={isActionWindow && !!signAccountOpController}
       >
         {signAccountOpController && !hasBroadcasted && (
           <View>

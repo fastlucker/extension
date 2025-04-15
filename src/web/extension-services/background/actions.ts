@@ -327,7 +327,9 @@ type MainControllerSignAccountOpUpdateMainDepsAction = {
   }
 }
 type MainControllerSignAccountOpUpdateAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE' | 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE'
+  type:
+    | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+    | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
@@ -358,7 +360,7 @@ type SignAccountOpUpdateAction = {
 type MainControllerSignAccountOpUpdateStatus = {
   type:
     | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
-    | 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
     status: SigningStatus
   }
@@ -528,6 +530,15 @@ type SwapAndBridgeControllerOnEstimationFailure = {
 }
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
+}
+type SwapAndBridgeControllerDestroySignAccountOp = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+}
+type SwapAndBridgeControllerOpenSigningActionWindow = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW'
+}
+type SwapAndBridgeControllerCloseSigningActionWindow = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
 }
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
@@ -746,3 +757,6 @@ export type Action =
   | SignAccountOpUpdateAction
   | SwapAndBridgeControllerOnEstimationFailure
   | SwapAndBridgeControllerMarkSelectedRouteAsFailed
+  | SwapAndBridgeControllerDestroySignAccountOp
+  | SwapAndBridgeControllerOpenSigningActionWindow
+  | SwapAndBridgeControllerCloseSigningActionWindow

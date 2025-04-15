@@ -394,10 +394,33 @@ export const handleActions = async (
       return mainCtrl.swapAndBridge.resetForm()
     case 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED':
       return mainCtrl.swapAndBridge.markSelectedRouteAsFailed()
-    case 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE':
-      return mainCtrl?.signAccountOp?.update(params)
-    case 'SWAP_AND_BRIDGE_SIGN_ACCOUNT_OP_UPDATE_STATUS':
-      return mainCtrl?.signAccountOp?.updateStatus(params.status)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.updateStatus(params.status)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
+      return mainCtrl?.swapAndBridge.destroySignAccountOp()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW':
+      if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+
+      return mainCtrl.actions.addOrUpdateAction(
+        {
+          id: `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`,
+          type: 'swapAndBridge',
+          userRequest: {
+            meta: {
+              accountAddr: mainCtrl.selectedAccount.account.addr
+            }
+          }
+        },
+        'last',
+        'open-action-window'
+      )
+    case 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW':
+      if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+      return mainCtrl.actions.removeAction(
+        `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`
+      )
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
