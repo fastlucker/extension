@@ -91,7 +91,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
           label={t('Name')}
           placeholder={t('Contact name')}
           onChangeText={setName}
-          value={name}
+          defaultValue={name}
           maxLength={32}
           onSubmitEditing={handleAddContact}
         />
