@@ -6,4 +6,9 @@ const LEGENDS_ROUTES = {
   staking: '/staking'
 }
 
-export { LEGENDS_ROUTES }
+const LEGENDS_LEGACY_ROUTES = {
+  legends: '/legends',
+  character: '/character'
+}
+
+export { LEGENDS_ROUTES, LEGENDS_LEGACY_ROUTES }
