@@ -24,7 +24,7 @@ const Address: FC<Props> = ({ address, className, skeletonClassName, maxAddressL
 
   return (
     <span className={`${styles.address} ${className}`}>
-      {resolvedDomain.ens || resolvedDomain.ud || shortenedAddress}
+      {resolvedDomain.ens || shortenedAddress}
     </span>
   )
 }

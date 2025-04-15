@@ -1,7 +1,6 @@
 import React, { FC, useCallback } from 'react'
 import { Pressable, View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
@@ -18,13 +17,13 @@ import { NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP } from '@web/modules/networks/compo
 import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
-  networkId: NetworkId
+  chainId: bigint | string
   openBlockExplorer: (url?: string) => void
-  openSettingsBottomSheet: (networkId: NetworkId) => void
-  onPress: (networkId: NetworkId) => void
+  openSettingsBottomSheet: (chainId: bigint | string) => void
+  onPress: (chainId: bigint | string) => void
 }
 
-const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSheet, onPress }) => {
+const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomSheet, onPress }) => {
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
@@ -41,9 +40,9 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
         to: theme.secondaryBorder
       }
     ],
-    forceHoveredStyle: dashboardNetworkFilter === networkId
+    forceHoveredStyle: dashboardNetworkFilter === chainId
   })
-  const isInternalNetwork = networkId === 'rewards' || networkId === 'gasTank'
+  const isInternalNetwork = chainId === 'rewards' || chainId === 'gasTank'
   // Doesn't have to be binded
   const [, explorerIconAnimStyle] = useCustomHover({
     property: 'opacity',
@@ -51,41 +50,41 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
       from: 0,
       to: 1
     },
-    forceHoveredStyle: (isHovered || dashboardNetworkFilter === networkId) && !isInternalNetwork,
+    forceHoveredStyle: (isHovered || dashboardNetworkFilter === chainId) && !isInternalNetwork,
     duration: DURATIONS.REGULAR
   })
 
-  const networkData = networks.find((network) => network.id === networkId)
+  const networkData = networks.find((n) => n.chainId.toString() === chainId)
   const isBlockExplorerMissing = !networkData?.explorerUrl
-  const tooltipBlockExplorerMissingId = `tooltip-for-block-explorer-missing-${networkId}`
+  const tooltipBlockExplorerMissingId = `tooltip-for-block-explorer-missing-${chainId}`
   const handleOpenBlockExplorer = useCallback(async () => {
     if (isBlockExplorerMissing) return
 
     await openBlockExplorer(networkData?.explorerUrl)
   }, [networkData, openBlockExplorer, isBlockExplorerMissing])
 
-  const networkBalance = portfolio.latest?.[networkId]?.result?.total
+  const networkBalance = portfolio.latest?.[chainId.toString()]?.result?.total
   let networkName = networkData?.name
 
-  if (networkId === 'rewards') {
+  if (chainId === 'rewards') {
     networkName = 'Ambire Rewards'
-  } else if (networkId === 'gasTank') {
+  } else if (chainId === 'gasTank') {
     networkName = 'Gas Tank'
   }
 
   const handleOnPress = useCallback(() => {
-    onPress(networkId)
-  }, [networkId])
+    onPress(chainId)
+  }, [chainId, onPress])
 
   return (
     <AnimatedPressable
-      key={networkId}
+      key={chainId.toString()}
       onPress={handleOnPress}
       style={[styles.network, isInternalNetwork ? styles.noKebabNetwork : {}, animStyle]}
       {...bindAnim}
     >
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-        <NetworkIcon size={32} id={networkId} />
+        <NetworkIcon size={32} id={chainId.toString()} />
         <Text style={spacings.mlTy} fontSize={16}>
           {networkName}
         </Text>
@@ -111,13 +110,13 @@ const Network: FC<Props> = ({ networkId, openBlockExplorer, openSettingsBottomSh
         {isBlockExplorerMissing && <Tooltip id={tooltipBlockExplorerMissingId} />}
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-        <Text fontSize={dashboardNetworkFilter === networkId ? 20 : 16} weight="semiBold">
+        <Text fontSize={dashboardNetworkFilter === chainId ? 20 : 16} weight="semiBold">
           {`$${formatDecimals(Number(networkBalance?.usd || 0))}` || '$-'}
         </Text>
         {!isInternalNetwork && (
           <Pressable
             onHoverIn={triggerHover}
-            onPress={() => openSettingsBottomSheet(networkId)}
+            onPress={() => openSettingsBottomSheet(chainId)}
             style={spacings.mlSm}
           >
             {({ hovered }: any) => (

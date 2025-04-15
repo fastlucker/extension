@@ -48,7 +48,6 @@ const getDuplicateAccountIndexes = (accounts: AddressState[]) => {
 const DEFAULT_ADDRESS_FIELD_VALUE = {
   fieldValue: '',
   ensAddress: '',
-  udAddress: '',
   isDomainResolving: false
 }
 
@@ -105,13 +104,13 @@ const ViewOnlyScreen = () => {
       )
 
       const addr = getAddress(address)
-      const domainName = account.ensAddress || account.udAddress ? account.fieldValue : null
+      const domainName = account.ensAddress ? account.fieldValue : null
       return {
         addr,
         associatedKeys,
         initialPrivileges,
         creation,
-        // account.fieldValue is the domain name if it's an ENS/UD address
+        // account.fieldValue is the domain name if it's an ENS address
         domainName,
         preferences: {
           label: domainName || getDefaultAccountPreferences(addr, accountsState.accounts, i).label,

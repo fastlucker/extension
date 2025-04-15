@@ -14,6 +14,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import { APP_VERSION } from '@common/config/env'
 
 type ContextReturn = {
   state: TransferController
@@ -30,7 +31,7 @@ export const getInfoFromSearch = (search: string | undefined) => {
 
   return {
     addr: params.get('address'),
-    networkId: params.get('networkId')
+    chainId: params.get('chainId')
   }
 }
 
@@ -61,7 +62,7 @@ const TransferControllerStateProvider = ({
           const hasAmount = Number(getTokenAmount(token)) > 0
 
           if (isTopUp) {
-            const tokenNetwork = networks.find((network) => network.id === token.networkId)
+            const tokenNetwork = networks.find((network) => network.chainId === token.chainId)
 
             return (
               hasAmount &&
@@ -79,16 +80,19 @@ const TransferControllerStateProvider = ({
 
   useEffect(() => {
     // Don't reinit the controller if it already exists. Only update its properties
-    if (transferCtrl || !account) return
+    if (transferCtrl || !account || !portfolio) return
 
     transferCtrlRef.current = new TransferController(
       storage,
       humanizerInfo as HumanizerMeta,
       account,
-      networks
+      networks,
+      portfolio,
+      !isTopUp, // Hydrate and persist in case of Transfer, if it's PopUp don't
+      APP_VERSION
     )
     forceUpdate()
-  }, [forceUpdate, account, networks, transferCtrl])
+  }, [forceUpdate, account, networks, transferCtrl, portfolio, isTopUp])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -125,28 +129,29 @@ const TransferControllerStateProvider = ({
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl) return
+    if (!state.selectedToken?.address || !transferCtrl) return
 
     // If a token is already selected, we should retrieve its latest value from tokens.
     // This is important because the token amount is likely to change,
     // especially when initiating a transfer or adding a new one to the queue.
     // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
-    const selectedToken = tokens.find((token) =>
-      transferCtrl.selectedToken
-        ? token.address === transferCtrl.selectedToken?.address &&
-          token.networkId === transferCtrl.selectedToken?.networkId
-        : token.address === selectedTokenFromUrl?.addr &&
-          token.networkId === selectedTokenFromUrl?.networkId
+    const selectedToken = tokens.find(
+      (token) =>
+        token.address === transferCtrl.selectedToken?.address &&
+        token.chainId === transferCtrl.selectedToken?.chainId
     )
 
     // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
     // In that case we do not update the selected token
     if (selectedToken) {
-      transferCtrl.update({
-        selectedToken
-      })
+      transferCtrl.update(
+        {
+          selectedToken
+        },
+        { shouldPersist: false }
+      )
     }
-  }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.networkId, tokens, transferCtrl])
+  }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.chainId, tokens, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -158,29 +163,32 @@ const TransferControllerStateProvider = ({
   useEffect(() => {
     if (!state.selectedToken?.address || !transferCtrl) return
     const isSelectedTokenNetworkLoading =
-      portfolio.pending[state.selectedToken.networkId]?.isLoading ||
-      portfolio.latest[state.selectedToken.networkId]?.isLoading
+      portfolio.pending[state.selectedToken.chainId.toString()]?.isLoading ||
+      portfolio.latest[state.selectedToken.chainId.toString()]?.isLoading
 
     if (isSelectedTokenNetworkLoading) return
 
     const isSelectedTokenInTokens = tokens.find(
       (token) =>
         token.address === state.selectedToken?.address &&
-        token.networkId === state.selectedToken?.networkId &&
+        token.chainId === state.selectedToken?.chainId &&
         token.flags.rewardsType === state.selectedToken?.flags.rewardsType
     )
 
     if (isSelectedTokenInTokens) return
 
-    transferCtrl.update({
-      selectedToken: tokens[0]
-    })
+    transferCtrl.update(
+      {
+        selectedToken: tokens[0]
+      },
+      { shouldPersist: false }
+    )
   }, [
     portfolio.latest,
     portfolio.pending,
     state.selectedToken?.address,
     state.selectedToken?.flags.rewardsType,
-    state.selectedToken?.networkId,
+    state.selectedToken?.chainId,
     tokens,
     transferCtrl
   ])

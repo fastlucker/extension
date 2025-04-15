@@ -218,8 +218,8 @@ const AccountsOnPageList = ({
   }, [accountAdderState.isInitializedWithSavedSeed, keyType, subType, t])
 
   const networkNamesWithAccountStateError = useMemo(() => {
-    return accountAdderState.networksWithAccountStateError.map((networkId) => {
-      return networks.find((network) => network.id === networkId)?.name
+    return accountAdderState.networksWithAccountStateError.map((chainId) => {
+      return networks.find((n) => n.chainId === chainId)?.name
     })
   }, [accountAdderState.networksWithAccountStateError, networks])
 

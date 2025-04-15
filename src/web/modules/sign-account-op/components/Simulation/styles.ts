@@ -16,8 +16,7 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     simulationSection: {
-      ...spacings.mbXl,
-      maxHeight: '50%'
+      ...spacings.pbLg
     },
     simulationScrollView: {
       ...spacings.phSm,

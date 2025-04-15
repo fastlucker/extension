@@ -23,6 +23,8 @@ export type CommonSelectProps = {
   placeholder?: string
   label?: string | ReactNode
   size?: 'sm' | 'md'
+  mode?: 'select' | 'bottomSheet'
+  menuPosition?: 'top' | 'bottom'
   containerStyle?: ViewStyle
   selectStyle?: ViewStyle
   labelStyle?: TextStyle

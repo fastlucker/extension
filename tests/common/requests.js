@@ -38,6 +38,13 @@ function getBackgroundRequestsByType(requests) {
       return
     }
 
+    if (
+      request === 'https://unichain.api.onfinality.io/public' ||
+      request === 'https://mantle-rpc.publicnode.com/'
+    ) {
+      return
+    }
+
     if (EXTERNAL_SERVICE_HOSTS.some((host) => url.hostname.includes(host))) {
       externalServiceRequests.push(request)
       return

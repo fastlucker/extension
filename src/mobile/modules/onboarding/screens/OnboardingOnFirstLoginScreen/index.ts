@@ -1,3 +1,0 @@
-import OnboardingOnFirstLoginScreen from './OnboardingOnFirstLoginScreen'
-
-export default OnboardingOnFirstLoginScreen

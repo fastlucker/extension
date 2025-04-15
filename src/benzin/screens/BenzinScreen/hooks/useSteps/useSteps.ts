@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { BUNDLER } from '@ambire-common/consts/bundlers'
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { Network } from '@ambire-common/interfaces/network'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import {
   AccountOpIdentifiedBy,
@@ -49,7 +49,8 @@ export type FeePaidWith = {
   symbol: string
   usdValue: string
   isErc20: boolean
-  networkId: NetworkId
+  isSponsored: boolean
+  chainId: bigint
 }
 
 interface Props {
@@ -65,6 +66,7 @@ interface Props {
   provider: JsonRpcProvider | null
   bundler?: BUNDLER
   extensionAccOp?: SubmittedAccountOp // only for in-app benzina
+  networks: Network[]
 }
 
 export interface StepsData {
@@ -133,7 +135,8 @@ const useSteps = ({
   setActiveStep,
   provider,
   bundler,
-  extensionAccOp
+  extensionAccOp,
+  networks
 }: Props): StepsData => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
@@ -584,7 +587,9 @@ const useSteps = ({
     let isMounted = true
     let address: string | undefined
     let amount = 0n
-    let feeTokenNetwork = network
+    let isGasTank = false
+    let tokenChainId = 1n
+
     // Smart account
     // Decode the fee call and get the token address and amount
     // that was used to cover the gas feePaidWith
@@ -593,12 +598,14 @@ const useSteps = ({
         const {
           address: addr,
           amount: tokenAmount,
-          network: tokenNetwork
+          isGasTank: isTokenGasTank,
+          chainId
         } = decodeFeeCall(feeCall, network)
 
         address = addr
         amount = tokenAmount
-        feeTokenNetwork = tokenNetwork
+        isGasTank = isTokenGasTank
+        tokenChainId = chainId
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error decoding fee call', e)
@@ -612,27 +619,33 @@ const useSteps = ({
       address = ZeroAddress
     }
 
-    if (!address || !amount) return
+    const isSponsored = amount === 0n && isGasTank
+    if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    resolveAssetInfo(address, feeTokenNetwork, ({ tokenInfo }) => {
-      if (!tokenInfo || !amount) return
-      const { decimals, priceIn } = tokenInfo
-      const price = priceIn.length ? priceIn[0].price : null
+    resolveAssetInfo(
+      address,
+      networks.find((net: Network) => net.chainId === tokenChainId)!,
+      ({ tokenInfo }) => {
+        if (!tokenInfo || (!amount && !isSponsored)) return
+        const { decimals, priceIn } = tokenInfo
+        const price = priceIn.length ? priceIn[0].price : null
 
-      const fee = parseFloat(formatUnits(amount, decimals))
+        const fee = parseFloat(formatUnits(amount, decimals))
 
-      if (!isMounted) return
+        if (!isMounted) return
 
-      setFeePaidWith({
-        amount: formatDecimals(fee),
-        symbol: tokenInfo.symbol,
-        usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
-        isErc20: address !== ZeroAddress,
-        address: address as string,
-        networkId: feeTokenNetwork.id
-      })
-    }).catch(() => {
+        setFeePaidWith({
+          amount: formatDecimals(fee),
+          symbol: tokenInfo.symbol,
+          usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
+          isErc20: address !== ZeroAddress,
+          address: address as string,
+          isSponsored,
+          chainId: tokenChainId
+        })
+      }
+    ).catch(() => {
       if (!isMounted) return
       setFeePaidWith({
         amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
@@ -640,7 +653,8 @@ const useSteps = ({
         usdValue: '-$',
         isErc20: false,
         address: address as string,
-        networkId: feeTokenNetwork.id
+        isSponsored,
+        chainId: network.chainId
       })
     })
 
@@ -681,7 +695,7 @@ const useSteps = ({
       } = userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
         accountAddr: userOp?.sender || account || txnReceipt.originatedFrom || 'Loading...',
-        networkId: network.id,
+        chainId: network.chainId,
         signingKeyAddr: txnReceipt.originatedFrom, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant

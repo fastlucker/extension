@@ -12,7 +12,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import DomainBadge from '../Avatar/DomainBadge'
 
 const AccountOption = ({ acc }: { acc: Account }) => {
-  const { ens, ud, isLoading } = useReverseLookup({ address: acc.addr })
+  const { ens, isLoading } = useReverseLookup({ address: acc.addr })
 
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -33,11 +33,10 @@ const AccountOption = ({ acc }: { acc: Account }) => {
           {acc.preferences.label}
         </Text>
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <DomainBadge ens={ens} ud={ud} />
+          <DomainBadge ens={ens} />
           <AccountAddress
             isLoading={isLoading}
             ens={ens}
-            ud={ud}
             address={acc.addr}
             plainAddressMaxLength={32}
             withCopy={false}

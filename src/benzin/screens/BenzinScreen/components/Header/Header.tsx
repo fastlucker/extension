@@ -61,7 +61,11 @@ const Header: FC<Props> = ({ activeStep, network, stepsState }) => {
         <Text appearance="secondaryText" fontSize={14}>
           on{' '}
         </Text>
-        <NetworkIcon id={network.id} style={spacings.mrMi} benzinNetwork={network} />
+        <NetworkIcon
+          id={network.chainId.toString()}
+          style={spacings.mrMi}
+          benzinNetwork={network}
+        />
         <Text testID="network-name" appearance="secondaryText" fontSize={14}>
           {network.name}
         </Text>

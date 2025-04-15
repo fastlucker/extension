@@ -58,7 +58,7 @@ const SelectNetwork = () => {
     if (dashboardNetworkFilter === 'rewards') return t('Ambire Rewards Portfolio')
     if (dashboardNetworkFilter === 'gasTank') return t('Gas Tank Portfolio')
 
-    const network = networks.find((n) => n.id === dashboardNetworkFilter)
+    const network = networks.find((n) => n.chainId.toString() === dashboardNetworkFilter.toString())
 
     let networkName = network?.name ?? t('Unknown Network') ?? 'Unknown Network'
 

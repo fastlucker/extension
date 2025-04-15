@@ -14,6 +14,7 @@ import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
 interface Props {
+  chainId: bigint
   activeStep: ActiveStepType
   txnId: string | null
   userOpHash: string | null
@@ -21,7 +22,7 @@ interface Props {
   summary: any
 }
 
-const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }) => {
+const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, chainId, stepsState, summary }) => {
   const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
 
   const stepRows: any = [
@@ -43,27 +44,36 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }
               spacings.phSm,
               {
                 backgroundColor: '#6000FF14',
-                borderRadius: 20
+                borderRadius: 20,
+                width: 'fit-content'
               }
             ]}
           >
             <StarsIcon width={14} height={14} />
-            <Text style={spacings.mlTy} appearance="primary" weight="medium" fontSize={12}>
-              Paid with {feePaidWith.amount}
-            </Text>
-            <TokenIcon
-              containerStyle={{ marginLeft: 4 }}
-              address={feePaidWith.address}
-              networkId={feePaidWith.networkId}
-              containerHeight={32}
-              containerWidth={32}
-              width={18}
-              height={18}
-              withNetworkIcon={false}
-            />
-            <Text style={spacings.mlMi} appearance="primary" weight="medium" fontSize={12}>
-              {feePaidWith.symbol} ({feePaidWith.usdValue})
-            </Text>
+            {feePaidWith.isSponsored ? (
+              <Text style={spacings.mlTy} appearance="primary" weight="medium" fontSize={12}>
+                Sponsored
+              </Text>
+            ) : (
+              <>
+                <Text style={spacings.mlTy} appearance="primary" weight="medium" fontSize={12}>
+                  Paid with {feePaidWith.amount}
+                </Text>
+                <TokenIcon
+                  containerStyle={{ marginLeft: 4 }}
+                  address={feePaidWith.address}
+                  chainId={feePaidWith.chainId}
+                  containerHeight={32}
+                  containerWidth={32}
+                  width={18}
+                  height={18}
+                  withNetworkIcon={false}
+                />
+                <Text style={spacings.mlMi} appearance="primary" weight="medium" fontSize={12}>
+                  {feePaidWith.symbol} ({feePaidWith.usdValue})
+                </Text>
+              </>
+            )}
           </View>
         ) : null,
       value: !feePaidWith?.isErc20 ? getFee(feePaidWith, finalizedStatus) : null

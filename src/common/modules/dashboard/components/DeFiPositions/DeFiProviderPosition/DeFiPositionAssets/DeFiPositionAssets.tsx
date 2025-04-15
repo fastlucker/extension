@@ -2,7 +2,6 @@ import { formatUnits } from 'ethers'
 import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
 import { Position } from '@ambire-common/libs/defiPositions/types'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import Text from '@common/components/Text'
@@ -30,8 +29,8 @@ const DeFiPositionAssets: FC<{
   providerName: string
   assets: Position['assets']
   label: string
-  networkId: Network['id']
-}> = ({ assets, providerName, label, networkId }) => {
+  chainId: bigint
+}> = ({ assets, providerName, label, chainId }) => {
   const shouldDisplayAPY = POSITIONS_WITH_APY.some((position) =>
     providerName.toLowerCase().includes(position.toLowerCase())
   )
@@ -61,7 +60,7 @@ const DeFiPositionAssets: FC<{
                   width={24}
                   height={24}
                   withContainer={false}
-                  networkId={networkId}
+                  chainId={chainId}
                   address={address}
                   withNetworkIcon={false}
                 />

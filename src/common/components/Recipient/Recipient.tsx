@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -37,7 +37,6 @@ import styles from './styles'
 interface Props extends InputProps {
   setAddress: (text: string) => void
   address: string
-  uDAddress: string
   ensAddress: string
   addressValidationMsg: string
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
@@ -48,7 +47,9 @@ interface Props extends InputProps {
   isRecipientDomainResolving: boolean
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   selectedTokenSymbol?: TokenResult['symbol']
+  menuPosition?: 'top' | 'bottom'
 }
 
 const ADDRESS_BOOK_VISIBLE_VALIDATION = {
@@ -60,7 +61,6 @@ const SelectedMenuOption: React.FC<{
   selectRef: React.RefObject<any>
   validation: AddressValidation
   isMenuOpen: boolean
-  udAddress: string
   ensAddress: string
   isRecipientDomainResolving: boolean
   address: string
@@ -69,29 +69,30 @@ const SelectedMenuOption: React.FC<{
   toggleMenu: () => void
   isAddressInAddressBook: boolean
   filteredContacts: Contact[]
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
 }> = ({
   selectRef,
   filteredContacts,
   validation,
   isMenuOpen,
-  udAddress,
   ensAddress,
   isRecipientDomainResolving,
   address,
   setAddress,
   disabled,
   toggleMenu,
-  isAddressInAddressBook
+  isAddressInAddressBook,
+  recipientMenuClosedAutomaticallyRef
 }) => {
   const { theme } = useTheme()
-  const menuClosedAutomatically = useRef(false)
 
   useEffect(() => {
     if (isMenuOpen && !filteredContacts.length) {
       toggleMenu()
-      menuClosedAutomatically.current = true
+      // eslint-disable-next-line no-param-reassign
+      recipientMenuClosedAutomaticallyRef.current = true
     } else if (
-      menuClosedAutomatically.current &&
+      recipientMenuClosedAutomaticallyRef.current &&
       !isMenuOpen &&
       filteredContacts.length &&
       // Reopen the menu only if the address is invalid
@@ -100,16 +101,23 @@ const SelectedMenuOption: React.FC<{
       validation.isError
     ) {
       toggleMenu()
-      menuClosedAutomatically.current = false
+      // eslint-disable-next-line no-param-reassign
+      recipientMenuClosedAutomaticallyRef.current = false
     }
-  }, [filteredContacts.length, isMenuOpen, toggleMenu, validation.isError])
+  }, [
+    address,
+    filteredContacts.length,
+    isMenuOpen,
+    recipientMenuClosedAutomaticallyRef,
+    toggleMenu,
+    validation.isError
+  ])
 
   return (
     <AddressInput
       inputBorderWrapperRef={selectRef}
       validation={isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
       containerStyle={styles.inputContainer}
-      udAddress={udAddress}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
       label="Add Recipient"
@@ -138,7 +146,6 @@ const SelectedMenuOption: React.FC<{
 const Recipient: React.FC<Props> = ({
   setAddress,
   address,
-  uDAddress,
   ensAddress,
   addressValidationMsg,
   isRecipientAddressUnknownAgreed,
@@ -150,10 +157,12 @@ const Recipient: React.FC<Props> = ({
   disabled,
   isSWWarningVisible,
   isSWWarningAgreed,
-  selectedTokenSymbol
+  selectedTokenSymbol,
+  recipientMenuClosedAutomaticallyRef,
+  menuPosition
 }) => {
   const { account } = useSelectedAccountControllerState()
-  const actualAddress = ensAddress || uDAddress || address
+  const actualAddress = ensAddress || address
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -199,7 +208,7 @@ const Recipient: React.FC<Props> = ({
     ({ value: newAddress }: Pick<SelectValue, 'value'>) => {
       if (typeof newAddress !== 'string') return
 
-      const correspondingDomain = domains[newAddress]?.ens || domains[newAddress]?.ud
+      const correspondingDomain = domains[newAddress]?.ens
 
       setAddress(correspondingDomain || newAddress)
     },
@@ -307,26 +316,26 @@ const Recipient: React.FC<Props> = ({
           filteredContacts={filteredContacts}
           isMenuOpen={isMenuOpen}
           validation={isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
-          udAddress={uDAddress}
           ensAddress={ensAddress}
           isRecipientDomainResolving={isRecipientDomainResolving}
           address={address}
           setAddress={setAddress}
           disabled={disabled}
           isAddressInAddressBook={isAddressInAddressBook}
+          recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
         />
       )
     },
     [
       filteredContacts,
       validation,
-      uDAddress,
       ensAddress,
       isRecipientDomainResolving,
       address,
       setAddress,
       disabled,
-      isAddressInAddressBook
+      isAddressInAddressBook,
+      recipientMenuClosedAutomaticallyRef
     ]
   )
 
@@ -342,6 +351,7 @@ const Recipient: React.FC<Props> = ({
         renderSectionHeader={renderSectionHeader}
         renderSelectedOption={renderSelectedOption}
         emptyListPlaceholderText={t('No contacts found')}
+        menuPosition={menuPosition}
       />
       <View style={styles.inputBottom}>
         <Text
@@ -372,7 +382,7 @@ const Recipient: React.FC<Props> = ({
       </View>
       <AddContactBottomSheet
         sheetRef={sheetRef}
-        address={ensAddress || uDAddress || address}
+        address={ensAddress || address}
         closeBottomSheet={closeBottomSheet}
       />
     </>

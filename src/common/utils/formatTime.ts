@@ -30,10 +30,10 @@ function formatTime(seconds: number) {
     return minutes !== 0 ? `${hours}h, ${minutes} min` : `${hours}h`
   }
   if (minutes > 0) {
-    return remainingSeconds !== 0 ? `${minutes} min, ${remainingSeconds} sec` : `${minutes} min`
+    return remainingSeconds !== 0 ? `${minutes + 1} min` : `${minutes} min`
   }
 
-  return `${remainingSeconds} sec`
+  return '1 min'
 }
 
 export default formatTime

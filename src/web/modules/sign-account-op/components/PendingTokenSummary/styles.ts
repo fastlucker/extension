@@ -13,7 +13,7 @@ const getStyles = () =>
       ...flexbox.alignCenter,
       ...flexbox.directionRow,
       ...spacings.phTy,
-      ...spacings.mbSm
+      ...spacings.mbTy
     }
   })
 

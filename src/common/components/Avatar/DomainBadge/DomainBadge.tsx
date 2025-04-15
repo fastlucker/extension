@@ -2,19 +2,17 @@ import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import EnsCircularIcon from '@common/assets/svg/EnsCircularIcon'
-import UnstoppableDomainCircularIcon from '@common/assets/svg/UnstoppableDomainCircularIcon'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_MI } from '@common/styles/spacings'
 
 interface Props {
   ens?: string | null
-  ud?: string | null
 }
 
-const DomainBadge: FC<Props> = ({ ens, ud }) => {
+const DomainBadge: FC<Props> = ({ ens }) => {
   const { theme } = useTheme()
 
-  if (!ens && !ud) return null
+  if (!ens) return null
 
   return (
     <View
@@ -26,7 +24,6 @@ const DomainBadge: FC<Props> = ({ ens, ud }) => {
       }}
     >
       {ens && <EnsCircularIcon />}
-      {ud && !ens && <UnstoppableDomainCircularIcon />}
     </View>
   )
 }

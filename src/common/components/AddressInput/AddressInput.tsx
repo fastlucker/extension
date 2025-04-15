@@ -8,7 +8,6 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import EnsIcon from '@common/assets/svg/EnsIcon'
 import ScanIcon from '@common/assets/svg/ScanIcon'
-import UnstoppableDomainIcon from '@common/assets/svg/UnstoppableDomainIcon'
 import Input, { InputProps } from '@common/components/Input'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
@@ -30,7 +29,6 @@ export interface AddressValidation {
 }
 
 interface Props extends InputProps {
-  udAddress: string
   ensAddress: string
   isRecipientDomainResolving: boolean
   validation: AddressValidation
@@ -39,7 +37,6 @@ interface Props extends InputProps {
 
 const AddressInput: React.FC<Props> = ({
   onChangeText,
-  udAddress,
   ensAddress,
   isRecipientDomainResolving,
   label,
@@ -73,7 +70,7 @@ const AddressInput: React.FC<Props> = ({
   }, [openBottomSheet])
 
   const handleCopyResolvedAddress = useCallback(async () => {
-    const address = ensAddress || udAddress
+    const address = ensAddress
 
     if (address) {
       try {
@@ -83,7 +80,7 @@ const AddressInput: React.FC<Props> = ({
         addToast(t('Failed to copy address to clipboard'), { type: 'error' })
       }
     }
-  }, [addToast, ensAddress, t, udAddress])
+  }, [addToast, ensAddress, t])
 
   return (
     <>
@@ -101,12 +98,12 @@ const AddressInput: React.FC<Props> = ({
         validLabel={!isError && !isValidationInDomainResolvingState ? message : ''}
         error={isError ? message : ''}
         isValid={!isError && !isValidationInDomainResolvingState}
-        placeholder={placeholder || t('Address / ENS / UD')}
+        placeholder={placeholder || t('Address / ENS')}
         bottomLabelStyle={styles.bottomLabel}
         info={isValidationInDomainResolvingState ? t('Resolving domain...') : ''}
         childrenBeforeButtons={
           <>
-            {(ensAddress || udAddress) && !isRecipientDomainResolving ? (
+            {ensAddress && !isRecipientDomainResolving ? (
               <AnimatedPressable
                 style={[flexbox.alignCenter, flexbox.directionRow, animStyle]}
                 onPress={handleCopyResolvedAddress}
@@ -122,7 +119,7 @@ const AddressInput: React.FC<Props> = ({
                     numberOfLines={1}
                     ellipsizeMode="head"
                   >
-                    ({shortenAddress(ensAddress || udAddress, 18)})
+                    ({shortenAddress(ensAddress, 18)})
                   </Text>
                 </Text>
                 <CopyIcon
@@ -139,7 +136,6 @@ const AddressInput: React.FC<Props> = ({
             ) : null}
             <View style={[styles.domainIcons, rest.button ? spacings.pr0 : spacings.pr]}>
               {childrenBeforeButtons}
-              <UnstoppableDomainIcon isActive={!!udAddress} />
               <View style={styles.plTy}>
                 <EnsIcon isActive={!!ensAddress} />
               </View>

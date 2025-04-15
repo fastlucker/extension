@@ -11,7 +11,7 @@ interface Props extends TextProps {
 }
 
 const DomainsAddress: FC<Props> = ({ address, ...rest }) => {
-  const { ens, ud, isLoading } = useReverseLookup({ address })
+  const { ens, isLoading } = useReverseLookup({ address })
 
   if (isLoading)
     return (
@@ -25,7 +25,7 @@ const DomainsAddress: FC<Props> = ({ address, ...rest }) => {
 
   return (
     <BaseAddress address={address} {...rest}>
-      {ens || ud || address}
+      {ens || address}
     </BaseAddress>
   )
 }

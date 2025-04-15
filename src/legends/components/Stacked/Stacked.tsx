@@ -14,11 +14,11 @@ interface StackedProps {
 }
 
 const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
-  ethereum: <EthereumLogo />,
-  base: <BaseLogo />,
-  arbitrum: <ArbitrumLogo />,
-  optimism: <OptimismLogo />,
-  scroll: <ScrollLogo />
+  '1': <EthereumLogo />,
+  '8453': <BaseLogo />,
+  '42161': <ArbitrumLogo />,
+  '10': <OptimismLogo />,
+  '534352': <ScrollLogo />
 }
 
 const Stacked: React.FC<StackedProps> = ({ chains }) => (
