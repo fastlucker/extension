@@ -14,7 +14,6 @@ import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
 import Option from '@common/components/Option'
 import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
@@ -29,7 +28,6 @@ import getStyles from './styles'
 
 const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
   const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const [isHwOptionExpanded, setIsHwOptionExpanded] = useState(false)
@@ -70,7 +68,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
         <Option
           text={t('Create new recovery phrase')}
           icon={AddCircularIcon}
-          onPress={() => navigate(WEB_ROUTES.createSeedPhrasePrepare)}
+          onPress={() => goToNextRoute(WEB_ROUTES.createSeedPhrasePrepare)}
           testID="create-new-recovery-phrase"
         />
       </View>
@@ -79,14 +77,14 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
           text={t('Import recovery phrase')}
           icon={SeedPhraseIcon}
           iconProps={{ width: 30, height: 30 }}
-          onPress={() => navigate(WEB_ROUTES.importSeedPhrase)}
+          onPress={() => goToNextRoute(WEB_ROUTES.importSeedPhrase)}
           testID="import-recovery-phrase"
         />
         <Option
           text={t('Import private key')}
           icon={PrivateKeyIcon}
           iconProps={{ width: 30, height: 30 }}
-          onPress={() => navigate(WEB_ROUTES.importPrivateKey)}
+          onPress={() => goToNextRoute(WEB_ROUTES.importPrivateKey)}
           testID="import-private-key"
         />
       </View>
@@ -149,7 +147,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
           text={t('Watch an address')}
           icon={ViewOnlyIcon}
           iconProps={{ width: 30, height: 30, strokeWidth: '2.75' }}
-          onPress={() => navigate(WEB_ROUTES.viewOnlyAccountAdder)}
+          onPress={() => goToNextRoute(WEB_ROUTES.viewOnlyAccountAdder)}
           testID="connect-hardware-wallet"
         />
       </View>
