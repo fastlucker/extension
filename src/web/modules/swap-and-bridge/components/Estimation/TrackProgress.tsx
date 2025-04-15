@@ -19,10 +19,14 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import formatTime from '@common/utils/formatTime'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import RouteStepsToken from '../RouteStepsToken'
 import BackgroundShapes from './BackgroundShapes'
+
+const { isActionWindow } = getUiType()
 
 type Props = {
   handleClose: () => void
@@ -33,6 +37,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { addToast } = useToast()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
+  const { dispatch } = useBackgroundService()
   const { activeRoutes } = useSwapAndBridgeControllerState()
   const lastCompletedRoute = activeRoutes[activeRoutes.length - 1]
   const steps = lastCompletedRoute?.route?.steps
@@ -43,8 +48,14 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const toAssetSymbol = steps ? steps[steps.length - 1].toAsset.symbol : null
 
   const onPrimaryButtonPress = useCallback(() => {
-    navigate(WEB_ROUTES.dashboard)
-  }, [navigate])
+    if (isActionWindow) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+      })
+    } else {
+      navigate(WEB_ROUTES.dashboard)
+    }
+  }, [dispatch, navigate])
 
   const handleOpenExplorer = useCallback(async () => {
     try {
