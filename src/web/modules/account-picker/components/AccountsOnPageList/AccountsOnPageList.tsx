@@ -38,6 +38,7 @@ type Props = {
   state: AccountPickerController
   setPage: (page: number) => void
   subType: AccountPickerController['subType']
+  isLoading: boolean
   lookingForLinkedAccounts: boolean
   children?: any
 }
@@ -46,6 +47,7 @@ const AccountsOnPageList = ({
   state,
   setPage,
   subType,
+  isLoading,
   lookingForLinkedAccounts,
   children
 }: Props) => {
@@ -254,7 +256,7 @@ const AccountsOnPageList = ({
                 setPage={setPage}
               />
             )}
-            {state.accountsLoading ? (
+            {state.accountsLoading || !!isLoading ? (
               <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
                 <Spinner style={styles.spinner} />
               </View>

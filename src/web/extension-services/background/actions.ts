@@ -88,9 +88,7 @@ type MainControllerAccountPickerDeselectAccountAction = {
 
 type MainControllerAccountPickerSetPageAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE'
-  params: {
-    page: number
-  }
+  params: { page: number; pageSize?: number }
 }
 type MainControllerAccountPickerSetHdPathTemplateAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE'

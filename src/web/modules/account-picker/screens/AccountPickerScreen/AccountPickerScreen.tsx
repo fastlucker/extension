@@ -38,12 +38,12 @@ const AccountPickerScreen = () => {
   const { theme } = useTheme()
 
   const accountPickerState = useAccountPickerControllerState()
-  const { onImportReady, setPage } = useAccountPicker()
+  const { isReady, onImportReady, setPage } = useAccountPicker()
   const { goToPrevRoute } = useOnboardingNavigation()
 
   const isLoading = useMemo(
-    () => accountPickerState.addAccountsStatus !== 'INITIAL',
-    [accountPickerState.addAccountsStatus]
+    () => accountPickerState.addAccountsStatus !== 'INITIAL' || !isReady,
+    [accountPickerState.addAccountsStatus, isReady]
   )
 
   const isImportDisabled = useMemo(
@@ -100,7 +100,7 @@ const AccountPickerScreen = () => {
       header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent contentContainerStyle={[spacings.pt0]}>
-        <Panel type="onboarding" spacingsSize="small" panelWidth={900}>
+        <Panel type="onboarding" spacingsSize="small" panelWidth={900} style={{ minHeight: '92%' }}>
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
             <PanelBackButton onPress={goToPrevRoute} style={spacings.mr} />
             <PanelTitle
@@ -114,6 +114,7 @@ const AccountPickerScreen = () => {
             state={accountPickerState}
             setPage={setPage}
             subType={accountPickerState.subType}
+            isLoading={isLoading}
             lookingForLinkedAccounts={accountPickerState.linkedAccountsLoading}
           >
             <Button

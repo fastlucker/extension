@@ -83,10 +83,9 @@ export const handleActions = async (
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
       const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
       await mainCtrl.accountPicker.init({ keyIterator, hdPathTemplate })
-      return await mainCtrl.accountPicker.setPage({ page: 1 })
+      break
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE': {
-      if (mainCtrl.accountPicker.isInitialized) mainCtrl.accountPicker.reset()
       const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
       if (!keystoreSavedSeed) return
       const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
@@ -94,8 +93,7 @@ export const handleActions = async (
         keyIterator,
         hdPathTemplate: keystoreSavedSeed.hdPathTemplate
       })
-
-      return await mainCtrl.accountPicker.setPage({ page: 1 })
+      break
     }
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
