@@ -22,9 +22,7 @@
 
         &.complete {
           .stepNumber {
-            background: $successBackground;
-            color: $successText;
-            border-color: $success;
+            background: rgba($green-500, 0.9);
           }
           .stepTitle {
             color: $mainText;
@@ -33,9 +31,8 @@
 
         &.active {
           .stepNumber {
-            background-color: $tertiaryBackground;
-            color: $mainText;
-            border-color: $success;
+
+            border-color: $mainText;
           }
           .stepTitle {
             color: $mainText;
@@ -55,6 +52,8 @@
           color: $mainText;
           border-radius: 50%;
           position: relative;
+          border: 1px solid transparent;
+
 
           &::after {
             content: '';
