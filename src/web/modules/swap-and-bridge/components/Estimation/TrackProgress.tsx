@@ -18,7 +18,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import formatTime from '@common/utils/formatTime'
-import { POPUP_WIDTH } from '@web/constants/spacings'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -79,15 +78,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   }, [addToast, lastCompletedRoute])
 
   return (
-    <View
-      style={[
-        flexbox.flex1,
-        flexbox.justifyCenter,
-        {
-          minWidth: POPUP_WIDTH
-        }
-      ]}
-    >
+    <View style={[flexbox.flex1, flexbox.justifyCenter]}>
       <View
         style={[
           flexbox.alignCenter,

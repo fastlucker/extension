@@ -9,6 +9,7 @@ import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { POPUP_WIDTH } from '@web/constants/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -133,7 +134,9 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
             ? { minHeight: 600, ...flexbox.alignCenter, ...flexbox.justifyCenter }
             : {}
         }
-        containerInnerWrapperStyles={flexbox.flex1}
+        containerInnerWrapperStyles={
+          isTrackDisplayedInActionWindow ? { ...flexbox.flex1, width: POPUP_WIDTH } : undefined
+        }
         isScrollEnabled={false}
       >
         {displayedView === 'estimate' && signAccountOpController ? (
