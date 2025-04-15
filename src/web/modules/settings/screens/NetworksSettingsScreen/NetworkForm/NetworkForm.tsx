@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -7,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 
 import { getFeatures } from '@ambire-common/libs/networks/networks'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { isValidURL } from '@ambire-common/services/validations'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
@@ -193,6 +193,7 @@ const NetworkForm = ({
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
   const [selectedRpcUrl, setSelectedRpcUrl] = useState(selectedNetwork?.selectedRpcUrl)
   const networkFormValues = watch()
+  const errorCount = Object.keys(errors).length
 
   const isSomethingUpdated = useMemo(() => {
     if (selectedRpcUrl !== selectedNetwork?.selectedRpcUrl) return true
@@ -252,7 +253,8 @@ const NetworkForm = ({
       }
 
       try {
-        const rpc = new JsonRpcProvider(rpcUrl)
+        if (!rpcUrl) throw new Error('No RPC URL provided')
+        const rpc = getRpcProvider([rpcUrl], chainId ? Number(chainId) : undefined)
         const network = await rpc.getNetwork()
         rpc.destroy()
 
@@ -537,11 +539,13 @@ const NetworkForm = ({
 
   const isSaveOrAddButtonDisabled = useMemo(
     () =>
-      !!Object.keys(errors).length ||
+      !!errorCount ||
       isValidatingRPC ||
       features.some((f) => f.level === 'loading') ||
       !!features.filter((f) => f.id === 'flagged')[0],
-    [errors, features, isValidatingRPC]
+    // errorCount must be a dependency in order to re-calculate the value when
+    // errors change. Using errors as a dependency doesn't work
+    [errorCount, features, isValidatingRPC]
   )
 
   return (

@@ -7,8 +7,6 @@ import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
-import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
-import CartIcon from '@common/assets/svg/CartIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -43,8 +41,12 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
+import Header from '@common/modules/header/components/Header'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const { isPopup } = getUiType()
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
@@ -96,6 +98,11 @@ const TransferScreen = () => {
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10
   }, [portfolio.totalBalance])
+
+  const hasActiveRequests = useMemo(
+    () => !!transactionUserRequests.length && !hasFocusedActionWindow,
+    [transactionUserRequests, hasFocusedActionWindow]
+  )
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -176,6 +183,7 @@ const TransferScreen = () => {
   }, [isFormEmpty, isTransferFormValid, transactionUserRequests.length, hasFocusedActionWindow])
 
   const onBack = useCallback(() => {
+    transferCtrl.resetForm()
     navigate(ROUTES.dashboard)
   }, [navigate])
 
@@ -213,18 +221,7 @@ const TransferScreen = () => {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
-        if (!firstAccountOpAction) {
-          const entryPointAction = actionsState.visibleActionsQueue.find(
-            (a) => a.id.toString() === ENTRY_POINT_AUTHORIZATION_REQUEST_ID
-          )
-          if (entryPointAction) {
-            dispatch({
-              type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-              params: { actionId: ENTRY_POINT_AUTHORIZATION_REQUEST_ID }
-            })
-          }
-          return
-        }
+        if (!firstAccountOpAction) return
         dispatch({
           type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
           params: { actionId: firstAccountOpAction?.id }
@@ -272,22 +269,46 @@ const TransferScreen = () => {
     )
   }, [handleGasTankInfoPressed, maxWidthSize, t])
 
+  const title = useMemo(
+    () => (state.isTopUp ? gasTankLabelWithInfo : 'Send'),
+    [state.isTopUp, gasTankLabelWithInfo]
+  )
+
+  const header = useMemo(
+    () =>
+      isPopup ? (
+        <Header
+          customTitle={title}
+          withAmbireLogo
+          withOG
+          forceBack
+          onGoBackPress={() => {
+            transferCtrl.resetForm()
+            navigate(ROUTES.dashboard)
+          }}
+        />
+      ) : (
+        <HeaderAccountAndNetworkInfo withOG />
+      ),
+    []
+  )
+
+  const FormWrapper = isPopup ? View : Panel
+
   return (
     <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
+      backgroundColor={isPopup ? theme.primaryBackground : theme.secondaryBackground}
       width="xl"
-      header={<HeaderAccountAndNetworkInfo withOG />}
+      header={header}
       footer={
         <>
-          <BackButton onPress={onBack} />
-          <View
-            style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
-          >
+          {!isPopup && <BackButton onPress={onBack} />}
+          <View style={[flexbox.directionRow, flexbox.flex1, flexbox.justifyEnd]}>
             <Button
               testID="transfer-queue-and-add-more-button"
               type="outline"
               accentColor={theme.primary}
-              text={t('Queue and Add More')}
+              text={hasActiveRequests ? t('Add to Batch') : t('Start a Batch')}
               onPress={() => addTransaction('queue')}
               disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
               hasBottomSpacing={false}
@@ -295,8 +316,7 @@ const TransferScreen = () => {
               size="large"
             >
               <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                <CartIcon color={theme.primary} />
-                {!!transactionUserRequests.length && !hasFocusedActionWindow && (
+                {hasActiveRequests && (
                   <Text
                     fontSize={16}
                     weight="medium"
@@ -331,12 +351,11 @@ const TransferScreen = () => {
         </>
       }
     >
-      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
+      <TabLayoutWrapperMainContent contentContainerStyle={!isPopup ? spacings.pt2Xl : undefined}>
         {state?.isInitialized ? (
-          <Panel
+          <FormWrapper
             style={[styles.panel]}
-            forceContainerSmallSpacings
-            title={state.isTopUp ? gasTankLabelWithInfo : 'Send'}
+            {...(!isPopup && { forceContainerSmallSpacings: true, title })}
           >
             <SendForm
               addressInputState={addressInputState}
@@ -396,7 +415,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-          </Panel>
+          </FormWrapper>
         ) : (
           <SkeletonLoader
             width={640}
@@ -415,7 +434,7 @@ const TransferScreen = () => {
         type="modal"
       >
         <DualChoiceModal
-          title={t('Transaction queued')}
+          title={t('Transaction added to batch')}
           description={
             <View>
               <Text style={spacings.mbTy} appearance="secondaryText">
@@ -424,7 +443,7 @@ const TransferScreen = () => {
                 )}
               </Text>
               <Text appearance="secondaryText" style={spacings.mbLg}>
-                {t('The queued pending transactions are available on your Dashboard.')}
+                {t('All pending batch transactions are available on your Dashboard.')}
               </Text>
               <Checkbox
                 value={transferCtrl.shouldSkipTransactionQueuedModal}

@@ -1,6 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -29,7 +30,8 @@ const getStyles = (theme: ThemeProps) =>
       fontSize: 14
     },
     estimationContainer: {
-      ...flexbox.flex1
+      ...flexbox.flex1,
+      ...spacings.pbLg
     },
     estimationScrollView: {
       height: '100%'

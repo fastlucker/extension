@@ -15,6 +15,9 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import { getUiType } from '@web/utils/uiType'
+import { storage } from '@web/extension-services/background/webapi/storage'
+import { hasPersistedState } from '@ambire-common/controllers/transfer/transfer'
+import { APP_VERSION } from '@common/config/env'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
@@ -86,9 +89,13 @@ const SortHat = () => {
 
       if (actionType === 'switchAccount') return navigate(WEB_ROUTES.switchAccount)
     } else if (!isActionWindow) {
-      // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
-      // for other scenarios, ideally, it should be the last route before the keystore got locked.
-      navigate(ROUTES.dashboard)
+      if (await hasPersistedState(storage, APP_VERSION)) {
+        navigate(ROUTES.transfer, {
+          state: { backTo: WEB_ROUTES.dashboard }
+        })
+      } else {
+        navigate(ROUTES.dashboard)
+      }
     }
   }, [
     isActionWindow,
