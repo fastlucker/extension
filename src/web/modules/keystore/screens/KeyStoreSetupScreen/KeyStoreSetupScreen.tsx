@@ -61,7 +61,7 @@ const KeyStoreSetupScreen = () => {
             >
               {t('Used to access your wallet and encrypt your data.')}
             </Text>
-            <KeyStoreSetupForm>
+            <KeyStoreSetupForm agreedWithTerms={agreedWithTerms}>
               <Checkbox
                 value={agreedWithTerms}
                 onValueChange={setAgreedWithTerms}
