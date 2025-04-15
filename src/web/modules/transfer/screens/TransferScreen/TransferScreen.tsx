@@ -82,20 +82,6 @@ const TransferScreen = () => {
     [actionsState.actionWindow.windowProps]
   )
 
-  // Requests filtered by current accounts and the selected token's network
-  const transactionUserRequests = useMemo(() => {
-    return userRequests.filter((r) => {
-      const isSelectedAccountAccountOp =
-        r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
-
-      if (!isSelectedAccountAccountOp) return false
-
-      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
-
-      return !state.selectedToken || isMatchingSelectedTokenNetwork
-    })
-  }, [account?.addr, state.selectedToken, userRequests])
-
   // Requests filtered by the selected account only.
   // This enables the "Sign all Pending" button even if the selected token's network differs
   // from the network of active requests and the form is empty.
@@ -109,7 +95,16 @@ const TransferScreen = () => {
 
       return isSelectedAccountAccountOp
     })
-  }, [account?.addr, state.selectedToken, userRequests])
+  }, [account?.addr, userRequests])
+
+  // Requests filtered by current account and the selected token's network
+  const transactionUserRequests = useMemo(() => {
+    return transactionUserRequestsByAccount.filter((r) => {
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
+
+      return !state.selectedToken || isMatchingSelectedTokenNetwork
+    })
+  }, [transactionUserRequestsByAccount, state.selectedToken])
 
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10
