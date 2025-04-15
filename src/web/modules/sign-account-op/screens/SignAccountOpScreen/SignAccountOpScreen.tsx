@@ -341,13 +341,15 @@ const SignAccountOpScreen = () => {
           )}
           {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
 
-          {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
+          {renderedButNotNecessarilyVisibleModal === 'hw-sign' && signAccountOpState && (
             <SignAccountOpHardwareWalletSigningModal
               signingKeyType={signingKeyType}
               feePayerKeyType={feePayerKeyType}
               broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
-              signAccountOpStatusType={signAccountOpState?.status?.type}
-              shouldSignAuth={signAccountOpState && signAccountOpState.shouldSignAuth}
+              signAccountOpStatusType={signAccountOpState.status?.type}
+              shouldSignAuth={signAccountOpState.shouldSignAuth}
+              signedTransactionsCount={signAccountOpState.signedTransactionsCount}
+              accountOp={signAccountOpState.accountOp}
             />
           )}
 

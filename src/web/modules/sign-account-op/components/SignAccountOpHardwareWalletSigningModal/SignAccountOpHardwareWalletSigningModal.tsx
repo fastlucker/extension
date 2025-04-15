@@ -10,7 +10,6 @@ import usePrevious from '@common/hooks/usePrevious'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 
 interface Props {
@@ -22,6 +21,8 @@ interface Props {
     type: 'V2Deploy' | '7702'
     text: string
   } | null
+  signedTransactionsCount?: number | null
+  accountOp: AccountOp
 }
 
 const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
@@ -29,11 +30,11 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   feePayerKeyType,
   broadcastSignedAccountOpStatus,
   signAccountOpStatusType,
-  shouldSignAuth
+  shouldSignAuth,
+  signedTransactionsCount,
+  accountOp
 }: Props) => {
   const { addToast } = useToast()
-  const state = useSignAccountOpControllerState()
-  const { signedTransactionsCount, accountOp } = state || {}
   const prevTransactionCount = usePrevious(signedTransactionsCount)
 
   const shouldBeVisible = useMemo(() => {

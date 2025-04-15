@@ -168,13 +168,15 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
           />
         )}
       </BottomSheet>
-      {renderedButNotNecessarilyVisibleModal === 'hw-sign' && (
+      {renderedButNotNecessarilyVisibleModal === 'hw-sign' && signAccountOpController && (
         <SignAccountOpHardwareWalletSigningModal
           signingKeyType={signingKeyType}
           feePayerKeyType={feePayerKeyType}
           broadcastSignedAccountOpStatus={mainCtrlStatuses.broadcastSignedAccountOp}
-          signAccountOpStatusType={signAccountOpController?.status?.type}
-          shouldSignAuth={signAccountOpController && signAccountOpController.shouldSignAuth}
+          signAccountOpStatusType={signAccountOpController.status?.type}
+          shouldSignAuth={signAccountOpController.shouldSignAuth}
+          signedTransactionsCount={signAccountOpController.signedTransactionsCount}
+          accountOp={signAccountOpController.accountOp}
         />
       )}
 
