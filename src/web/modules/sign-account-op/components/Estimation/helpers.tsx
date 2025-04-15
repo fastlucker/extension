@@ -84,7 +84,7 @@ const mapFeeOptions = (
     if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
   })
 
-  const feeSpeed = signAccountOpState.feeSpeeds[id].find(
+  const feeSpeed = signAccountOpState.feeSpeeds[id]?.find(
     (speed) => speed.type === signAccountOpState.selectedFeeSpeed
   )
   const feeSpeedAmount = feeSpeed?.amount || 0n

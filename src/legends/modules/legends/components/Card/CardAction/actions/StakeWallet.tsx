@@ -33,6 +33,7 @@ const StakeWallet = () => {
   const [walletBalance, setWalletBalance] = useState(null)
 
   useEffect(() => {
+    if (!connectedAccount) return
     const provider = new BrowserProvider(window.ambire)
     const walletContract = new Contract(WALLET_TOKEN, walletIface, provider)
     // @TODO use the pending $WALLET balance in the future
@@ -127,7 +128,7 @@ const StakeWallet = () => {
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
-      disabled={isInProgress}
+      disabled={!connectedAccount || isInProgress}
       buttonText={isLoading ? 'Loading...' : !walletBalance ? 'Buy $WALLET' : 'Stake'}
       onButtonClick={onButtonClick}
     />

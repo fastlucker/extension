@@ -4,17 +4,18 @@ import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
 import ErrorPage from '@legends/components/ErrorPage'
 import PrivateRoute from '@legends/components/PrivateRoute'
-import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
-import { LegendsContextProvider } from '@legends/contexts/legendsContext'
-import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
 import { ActivityContextProvider } from '@legends/contexts/activityContext'
 import { DataPollingContextProvider } from '@legends/contexts/dataPollingContext'
+import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
+import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { MidnightTimerContextProvider } from '@legends/contexts/midnightTimerContext'
-import Character from '@legends/modules/character/screens/Character'
+import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
+import Home from '@legends/modules/Home'
 import Landing from '@legends/modules/landing/screens/Landing'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
 import Legends from '@legends/modules/legends/screens/Legends'
+import Staking from '@legends/modules/Staking'
 
 import { LEGENDS_ROUTES } from '../constants'
 
@@ -57,11 +58,6 @@ const router = createHashRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: LEGENDS_ROUTES.landing,
-        element: <Landing />,
-        index: true
-      },
-      {
         path: LEGENDS_ROUTES.characterSelect,
         element: <CharacterSelect />
       },
@@ -73,7 +69,7 @@ const router = createHashRouter([
         ),
         children: [
           {
-            path: LEGENDS_ROUTES.legends,
+            path: LEGENDS_ROUTES.quests,
             element: <Legends />
           },
           {
@@ -81,8 +77,16 @@ const router = createHashRouter([
             element: <Leaderboard />
           },
           {
-            path: LEGENDS_ROUTES.character,
-            element: <Character />
+            path: LEGENDS_ROUTES.home,
+            element: <Home />
+          },
+          {
+            path: LEGENDS_ROUTES.staking,
+            element: <Staking />
+          },
+          {
+            path: '/',
+            element: <Home />
           }
         ]
       }

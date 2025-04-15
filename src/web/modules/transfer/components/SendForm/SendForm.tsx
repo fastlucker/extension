@@ -25,10 +25,13 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
+import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
+
+const { isPopup } = getUiType()
 
 const SendForm = ({
   addressInputState,
@@ -36,7 +39,8 @@ const SendForm = ({
   amountErrorMessage,
   isRecipientAddressUnknown,
   isSWWarningVisible,
-  isRecipientHumanizerKnownTokenOrSmartContract
+  isRecipientHumanizerKnownTokenOrSmartContract,
+  recipientMenuClosedAutomaticallyRef
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
@@ -44,6 +48,7 @@ const SendForm = ({
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
@@ -199,7 +204,7 @@ const SendForm = ({
       }
 
       if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
-        transferCtrl.update({ selectedToken: tokenToSelect })
+        transferCtrl.update({ selectedToken: tokenToSelect }, { shouldPersist: false })
       }
     }
   }, [tokens, selectedTokenFromUrl, state.selectedToken, transferCtrl])
@@ -313,6 +318,7 @@ const SendForm = ({
           disabled={disableForm}
           containerStyle={styles.tokenSelect}
           testID="tokens-select"
+          mode="bottomSheet"
         />
       )}
       <InputSendToken
@@ -349,6 +355,8 @@ const SendForm = ({
             isSWWarningVisible={isSWWarningVisible}
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
+            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
+            menuPosition={isPopup ? 'top' : undefined}
           />
         )}
       </View>

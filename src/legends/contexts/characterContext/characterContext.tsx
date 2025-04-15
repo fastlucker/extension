@@ -39,7 +39,11 @@ type CharacterContextValue = {
 const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
 
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
-  const { connectedAccount, isLoading: isConnectedAccountLoading } = useAccountContext()
+  const {
+    connectedAccount,
+    nonV2Account,
+    isLoading: isConnectedAccountLoading
+  } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [levelUpData, setLevelUpData] = useState<LevelUpData>(null)
@@ -108,6 +112,11 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   )
 
   const getCharacter = useCallback(async () => {
+    if (nonV2Account) {
+      setIsLoading(false)
+      setCharacter(null)
+      return
+    }
     if (!connectedAccount) {
       setCharacter(null)
       setIsLoading(true)
@@ -149,7 +158,12 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   }, [character, connectedAccount, handleLevelUpIfNeeded, saveLastKnownLevel])
 
   useEffect(() => {
-    if ((character && character.address === connectedAccount) || isConnectedAccountLoading) return
+    if (
+      (character && character.address === connectedAccount) ||
+      isConnectedAccountLoading ||
+      connectedAccount === nonV2Account
+    )
+      return
 
     getCharacter().catch(() => {
       setError(`Couldn't load the requested character: ${connectedAccount}`)
@@ -176,7 +190,8 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   // However, when switching to another v2 account without a character, there may be a brief delay as the new character is fetched.
   // During this delay, child contexts could try to operate with the new `connectedAccount` but the previous `character`, which is incorrect.
   // This validation ensures `connectedAccount` and `character` are always in sync.
-  if (character && character.address !== connectedAccount) return <Spinner isCentered />
+  if (character && character.address !== connectedAccount && connectedAccount !== null)
+    return <Spinner isCentered />
 
   return (
     <CharacterContext.Provider value={contextValue}>

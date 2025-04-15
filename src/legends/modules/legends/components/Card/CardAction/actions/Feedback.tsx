@@ -102,7 +102,7 @@ const Feedback = () => {
       onButtonClick={onButtonClick}
       isLoading={isInProgress}
       loadingText="Signing..."
-      disabled={isFeedbackFormOpen && !surveyCode}
+      disabled={!connectedAccount || (isFeedbackFormOpen && !surveyCode)}
       buttonText={isFeedbackFormOpen ? 'Claim xp' : 'Open feedback form'}
     >
       <div className={styles.wrapper}>

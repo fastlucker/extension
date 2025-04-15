@@ -59,6 +59,7 @@ const SignAccountOpScreen = () => {
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [slowPaymasterRequest, setSlowPaymasterRequest] = useState<boolean>(true)
   const [acknowledgedWarnings, setAcknowledgedWarnings] = useState<string[]>([])
+  const [actionLoaded, setActionLoaded] = useState<boolean>(false)
   const { ref: warningModalRef, open: openWarningModal, close: closeWarningModal } = useModalize()
   const hasEstimation = useMemo(
     () =>
@@ -144,13 +145,24 @@ const SignAccountOpScreen = () => {
   }, [actionsState.currentAction])
 
   useEffect(() => {
-    if (accountOpAction?.id) {
+    // we're checking for actionLoaded as we're closing the current and
+    // opening a new window each time a new action comes. If we're not
+    // checking for actionLoaded, two dispatches occur for the same id:
+    // - one from the current window before it gets closed
+    // - one from the new window
+    // leading into two threads trying to initialize the same signAccountOp
+    // object which is a waste of resources + signAccountOp has an inner
+    // gasPrice controller that sets an interval for fetching gas price
+    // each 12s and that interval gets persisted into memory, causing double
+    // fetching
+    if (accountOpAction?.id && !actionLoaded) {
+      setActionLoaded(true)
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
         params: { actionId: accountOpAction.id }
       })
     }
-  }, [accountOpAction?.id, dispatch])
+  }, [accountOpAction?.id, actionLoaded, dispatch])
 
   const network = useMemo(() => {
     return networks.find((n) => n.chainId === signAccountOpState?.accountOp?.chainId)
