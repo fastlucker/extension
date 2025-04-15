@@ -20,7 +20,12 @@ const useAccountPicker = () => {
     (page = 1) => {
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE',
-        params: { page, pageSize: ACCOUNT_PICKER_PAGE_SIZE }
+        params: {
+          page,
+          pageSize: ACCOUNT_PICKER_PAGE_SIZE,
+          shouldSearchForLinkedAccounts: true,
+          shouldGetAccountsUsedOnNetworks: true
+        }
       })
     },
     [dispatch, ACCOUNT_PICKER_PAGE_SIZE]
