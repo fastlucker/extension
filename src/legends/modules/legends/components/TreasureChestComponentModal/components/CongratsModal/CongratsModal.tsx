@@ -38,7 +38,7 @@ const CongratsModal: React.FC<CongratsModalProps> = ({
           <img src={chestImageOpened} alt="chest-opened" className={styles.chestOpenedImage} />
         </div>
         <button type="button" className={styles.button} onClick={onButtonClick}>
-          Go back
+          Cha-ching
         </button>
       </div>
     </Modal>
