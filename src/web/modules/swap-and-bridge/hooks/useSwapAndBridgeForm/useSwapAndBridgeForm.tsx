@@ -167,6 +167,14 @@ const useSwapAndBridgeForm = () => {
           type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
         })
       }
+    } else if (isActionWindow && hasSwapAndBridgeAction && sessionIds.includes(sessionId)) {
+      // Forcefully unload the popup session. Otherwise when the user is done with the operation
+      // and closes the window the popup session will remain open and the swap and bridge
+      // screen will open on load
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
+        params: { sessionId: 'popup', forceUnload: true }
+      })
     }
   }, [dispatch, sessionId, sessionIds, signAccountOpController, visibleActionsQueue])
 
