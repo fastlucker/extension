@@ -85,6 +85,7 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
 
   // Click the switch Tokens button
   await clickOnElement(page, SELECTORS.switchTokensTooltipSab)
+  await page.waitForTimeout(1000)
 
   // Ensure the tokens are switched
   expect(await getElementContentWords(page, SELECTORS.sendTokenSab)).toBe(receiveToken)
@@ -447,15 +448,15 @@ export async function verifySendMaxTokenAmount(page, send_token, send_network) {
   const valueDecimals = 2 // Set presison of values to 2 decimals
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, send_network)
-  await page.waitForTimeout(500) // Wait before read Amount value
+  await page.waitForTimeout(1500) // Wait before read Amount value
   const maxBalance = await extractMaxBalance(page)
   const roundMaxBalance = await roundAmount(maxBalance, valueDecimals)
   await selectFirstButton(page, 'Max')
-  await page.waitForTimeout(500) // Wait before read Amount value
+  await page.waitForTimeout(1500) // Wait before read Amount value
   const sendAmount = await getSendAmount(page)
   const roundSendAmount = await roundAmount(sendAmount, valueDecimals)
   // There is an intermittent difference in balances when running on CI; I have added an Alert to monitor it and using toBeCloseTo
-  if (roundMaxBalance != roundSendAmount) {
+  if (roundMaxBalance !== roundSendAmount) {
     console.log(
       `⚠️ Token: ${send_token} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`
     )
