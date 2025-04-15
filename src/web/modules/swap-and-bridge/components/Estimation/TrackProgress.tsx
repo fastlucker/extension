@@ -78,8 +78,14 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   }, [addToast, lastCompletedRoute])
 
   return (
-    <View style={flexbox.flex1}>
-      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter, spacings.pt2Xl]}>
+    <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+      <View
+        style={[
+          flexbox.alignCenter,
+          flexbox.justifyCenter,
+          isActionWindow ? spacings.pt0 : spacings.pt2Xl
+        ]}
+      >
         {(!lastCompletedRoute || lastCompletedRoute?.routeStatus === 'in-progress') && (
           <>
             <View
@@ -178,7 +184,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                   }}
                   appearance="primary"
                 >
-                  {getIsBridgeRoute(lastCompletedRoute.route) ? t('View swap') : t('View bridge')}
+                  {!getIsBridgeRoute(lastCompletedRoute.route) ? t('View swap') : t('View bridge')}
                 </Text>
               </Pressable>
             )}
@@ -186,24 +192,37 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
         )}
         {lastCompletedRoute?.routeStatus === 'failed' && <Text>{t('TODO: Error state')}</Text>}
       </View>
-      <View
-        style={{
-          height: 1,
-          backgroundColor: theme.secondaryBorder,
-          ...spacings.mvLg
-        }}
-      />
-      <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-        <Button
-          onPress={handleClose}
-          hasBottomSpacing={false}
-          type="secondary"
-          text={t('Start a new swap?')}
+      {!isActionWindow && (
+        <View
+          style={{
+            height: 1,
+            backgroundColor: theme.secondaryBorder,
+            ...spacings.mvLg
+          }}
         />
+      )}
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          !isActionWindow ? flexbox.justifySpaceBetween : flexbox.justifyCenter,
+          isActionWindow && spacings.pt2Xl
+        ]}
+      >
+        {!isActionWindow ? (
+          <Button
+            onPress={handleClose}
+            hasBottomSpacing={false}
+            type="secondary"
+            text={t('Start a new swap?')}
+          />
+        ) : (
+          <View />
+        )}
         <Button
           onPress={onPrimaryButtonPress}
           hasBottomSpacing={false}
-          style={{ width: 160 }}
+          style={{ width: isActionWindow ? 240 : 160 }}
           text={t('Close')}
         />
       </View>

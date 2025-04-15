@@ -95,9 +95,8 @@ const SortHat = () => {
     } else if (!isActionWindow) {
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
-
       const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
-        (id) => id === 'persistent'
+        (id) => id === 'popup' || id === 'action-window'
       )
       if (hasSwapAndBridgePersistentSession) {
         navigate(ROUTES.swapAndBridge)
