@@ -97,7 +97,7 @@ const SortHat = () => {
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
 
       const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
-        (id) => id === 'persistent'
+        (id) => id === 'action-window' || id === 'popup'
       )
       if (hasSwapAndBridgePersistentSession) {
         navigate(ROUTES.swapAndBridge)

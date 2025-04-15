@@ -32,6 +32,7 @@ const useSwapAndBridgeForm = () => {
     quote,
     fromAmountInFiat,
     activeRoutes,
+    signAccountOpController,
     formStatus,
     supportedChainIds,
     updateQuoteStatus,
@@ -63,10 +64,11 @@ const useSwapAndBridgeForm = () => {
     close: closePriceImpactModal
   } = useModalize()
   const { ref: batchModalRef, open: openBatchModal, close: closeBatchModal } = useModalize()
-  const { actionsQueue } = useActionsControllerState()
+  const { actionsQueue, visibleActionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => {
-    if (isPopup || isActionWindow) return 'persistent'
+    if (isPopup) return 'popup'
+    if (isActionWindow) return 'action-window'
 
     return nanoid()
   }, []) // purposely, so it is unique per hook lifetime
@@ -144,6 +146,29 @@ const useSwapAndBridgeForm = () => {
       return prev
     })
   }, [dispatch, sessionId, sessionIdsRequestedToBeInit, setSearchParams])
+
+  useEffect(() => {
+    const hasSwapAndBridgeAction = visibleActionsQueue.some(
+      (action) => action.type === 'swapAndBridge'
+    )
+
+    // If there is an open swap and bridge window
+    // 1. Focus it if there is a signAccountOp controller
+    // 2. Close it if there isn't as that means the screen is displaying
+    // the progress of the operation
+    if (isPopup && hasSwapAndBridgeAction && sessionIds.includes(sessionId)) {
+      if (signAccountOpController) {
+        window.close()
+        dispatch({
+          type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+        })
+      } else {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+        })
+      }
+    }
+  }, [dispatch, sessionId, sessionIds, signAccountOpController, visibleActionsQueue])
 
   // remove session - this will be triggered only
   // when navigation to another screen internally in the extension

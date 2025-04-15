@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -90,6 +90,18 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
     isOneClickSwap: true
   })
 
+  const displayedView: 'estimate' | 'track' = useMemo(() => {
+    if (
+      hasBroadcasted ||
+      (!signAccountOpController && mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')
+    )
+      return 'track'
+
+    return 'estimate'
+  }, [hasBroadcasted, mainCtrlStatuses.broadcastSignedAccountOp, signAccountOpController])
+
+  const isTrackDisplayedInActionWindow = isActionWindow && displayedView === 'track'
+
   useEffect(() => {
     const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
 
@@ -107,15 +119,24 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         id="estimation-modal"
         sheetRef={estimationModalRef}
         backgroundColor="primaryBackground"
-        closeBottomSheet={closeEstimationModal}
+        closeBottomSheet={!isTrackDisplayedInActionWindow ? closeEstimationModal : undefined}
+        shouldBeClosableOnDrag={!isTrackDisplayedInActionWindow}
         // NOTE: This must be lower than SigningKeySelect's z-index
         customZIndex={5}
-        type="bottom-sheet"
+        type={isTrackDisplayedInActionWindow ? 'modal' : 'bottom-sheet'}
         // Open the bottomSheet automatically when the screen is opened
         // in an action window
+        adjustToContentHeight={!isTrackDisplayedInActionWindow}
         autoOpen={isActionWindow && !!signAccountOpController}
+        style={
+          isTrackDisplayedInActionWindow
+            ? { minHeight: 600, ...flexbox.alignCenter, ...flexbox.justifyCenter }
+            : {}
+        }
+        containerInnerWrapperStyles={flexbox.flex1}
+        isScrollEnabled={false}
       >
-        {signAccountOpController && !hasBroadcasted && (
+        {displayedView === 'estimate' && signAccountOpController ? (
           <View>
             <SigningKeySelect
               isVisible={isChooseSignerShown}
@@ -163,10 +184,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               />
             </View>
           </View>
-        )}
-        {(hasBroadcasted ||
-          (!signAccountOpController &&
-            mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')) && (
+        ) : (
           <TrackProgress
             handleClose={() => {
               setHasBroadcasted(false)
