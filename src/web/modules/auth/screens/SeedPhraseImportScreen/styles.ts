@@ -7,6 +7,8 @@ import flexbox from '@common/styles/utils/flexbox'
 type Styles = {
   errorText: ViewStyle
   passphraseContainer: ViewStyle
+  overlay: ViewStyle
+  textAreaWrapper: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -23,7 +25,20 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.ptLg,
       ...flexbox.directionRow,
       ...flexbox.alignStart
-    }
+    },
+    overlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 1,
+      ...flexbox.directionRow,
+      ...flexbox.wrap,
+      height: 22,
+      padding: 19
+    },
+    textAreaWrapper: { position: 'relative' }
   })
 
 export default getStyles
