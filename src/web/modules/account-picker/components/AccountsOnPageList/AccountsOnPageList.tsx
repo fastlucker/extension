@@ -276,72 +276,74 @@ const AccountsOnPageList = ({
                     )
                   })}
                 </View>
-                <View
-                  style={[
-                    styles.smartAccountWrapper,
-                    // @ts-ignore
-                    { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
-                  ]}
-                >
-                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-                    <Text fontSize={16} weight="medium" style={spacings.mrMd}>
-                      {t('Smart Accounts')}
-                      {/* TODO: Add an info icon here with a tooltip */}
-                    </Text>
-                    <View
-                      style={[
-                        flexbox.directionRow,
-                        flexbox.justifySpaceBetween,
-                        flexbox.alignCenter
-                      ]}
-                    >
-                      {lookingForLinkedAccounts && (
-                        <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-                          <Spinner style={{ width: 16, height: 16 }} />
-                          <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
-                            {t('Looking for linked smart accounts')}
-                          </Text>
-                        </View>
-                      )}
-                      {!lookingForLinkedAccounts && !!linkedAccounts.length && (
-                        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                          <Badge
-                            type="info"
-                            size="md"
-                            withRightSpacing
-                            text={`Linked Smart Account (found on page ${state.page})`}
-                            tooltipText="Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network."
-                          />
+                {!!Object.keys(slots).length && (
+                  <View
+                    style={[
+                      styles.smartAccountWrapper,
+                      // @ts-ignore
+                      { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
+                    ]}
+                  >
+                    <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
+                      <Text fontSize={16} weight="medium" style={spacings.mrMd}>
+                        {t('Smart Accounts')}
+                        {/* TODO: Add an info icon here with a tooltip */}
+                      </Text>
+                      <View
+                        style={[
+                          flexbox.directionRow,
+                          flexbox.justifySpaceBetween,
+                          flexbox.alignCenter
+                        ]}
+                      >
+                        {lookingForLinkedAccounts && (
+                          <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                            <Spinner style={{ width: 16, height: 16 }} />
+                            <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
+                              {t('Looking for linked smart accounts')}
+                            </Text>
+                          </View>
+                        )}
+                        {!lookingForLinkedAccounts && !!linkedAccounts.length && (
+                          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                            <Badge
+                              type="info"
+                              size="md"
+                              withRightSpacing
+                              text={`Linked Smart Account (found on page ${state.page})`}
+                              tooltipText="Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network."
+                            />
 
-                          <WarningFilledIcon data-tooltip-id="linked-accounts-warning" />
-                          <Tooltip
-                            id="linked-accounts-warning"
-                            border={`1px solid ${theme.warningDecorative as any}`}
-                            style={{
-                              backgroundColor: theme.warningBackground as any,
-                              color: theme.warningText as any
-                            }}
-                            content="Do not add linked accounts you are not aware of!"
-                          />
-                        </View>
-                      )}
-                    </View>
-                  </View>
-
-                  {Object.keys(slots).map((key, i) => {
-                    return (
-                      <View key={key}>
-                        {getAccounts({
-                          accounts: slots[key],
-                          shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                          slotIndex: 1,
-                          byType: ['smart', 'linked'],
-                          withQuaternaryBackground: true
-                        })}
+                            <WarningFilledIcon data-tooltip-id="linked-accounts-warning" />
+                            <Tooltip
+                              id="linked-accounts-warning"
+                              border={`1px solid ${theme.warningDecorative as any}`}
+                              style={{
+                                backgroundColor: theme.warningBackground as any,
+                                color: theme.warningText as any
+                              }}
+                              content="Do not add linked accounts you are not aware of!"
+                            />
+                          </View>
+                        )}
                       </View>
-                    )
-                  })}
-                </View>
+                    </View>
+
+                    {Object.keys(slots).map((key, i) => {
+                      return (
+                        <View key={key}>
+                          {getAccounts({
+                            accounts: slots[key],
+                            shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                            slotIndex: 1,
+                            byType: ['smart', 'linked'],
+                            withQuaternaryBackground: true
+                          })}
+                        </View>
+                      )
+                    })}
+                  </View>
+                )}
               </>
             )}
           </ScrollableWrapper>

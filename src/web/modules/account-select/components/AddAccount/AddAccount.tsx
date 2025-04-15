@@ -118,7 +118,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
               <View style={styles.hwOptionWrapper}>
                 <Pressable
                   style={({ hovered }: any) => [styles.hwOption, hovered && styles.hwOptionHovered]}
-                  onPress={() => navigate(WEB_ROUTES.ledgerConnect)}
+                  onPress={() => goToNextRoute(WEB_ROUTES.ledgerConnect)}
                 >
                   <LedgerMiniIcon width={44} height={44} />
                   <Text fontSize={14} weight="medium" style={spacings.mtMi} numberOfLines={1}>
