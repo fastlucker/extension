@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@ambire-common/consts/hardwareWallets'
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
@@ -21,7 +22,6 @@ import useAccountPickerControllerState from '@web/hooks/useAccountPickerControll
 import AccountsOnPageList from '@web/modules/account-picker/components/AccountsOnPageList'
 import ChangeHdPath from '@web/modules/account-picker/components/ChangeHdPath'
 import useAccountPicker from '@web/modules/account-picker/hooks/useAccountPicker/useAccountPicker'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 export interface Account {
   type: string
@@ -111,7 +111,6 @@ const AccountPickerScreen = () => {
           </View>
 
           <AccountsOnPageList
-            withTitle={false}
             state={accountPickerState}
             setPage={setPage}
             subType={accountPickerState.subType}

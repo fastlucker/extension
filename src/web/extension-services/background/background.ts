@@ -909,9 +909,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               pm,
               port,
               mainCtrl,
-              ledgerCtrl,
-              trezorCtrl,
-              latticeCtrl,
               walletStateCtrl,
               autoLockCtrl,
               extensionUpdateCtrl

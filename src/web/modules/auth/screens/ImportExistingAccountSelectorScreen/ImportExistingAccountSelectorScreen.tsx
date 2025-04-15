@@ -123,7 +123,6 @@ const ImportExistingAccountSelectorScreen = () => {
       ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor') &&
       pressedButton.current
     ) {
-      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])

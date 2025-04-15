@@ -40,11 +40,12 @@ export const handleCleanUpOnPortDisconnect = async ({
   }
 
   if (mainCtrl.accountPicker.isInitialized) {
-    const shouldResetAccountAdder = ONBOARDING_WEB_ROUTES.some((r) => url.pathname.includes(r))
+    const shouldResetAccountAdder =
+      ONBOARDING_WEB_ROUTES.some((r) => url.pathname.includes(r)) && port.name !== 'popup'
 
     if (shouldResetAccountAdder) {
       setTimeout(async () => {
-        // If a port with the same URL appears within 500ms, it's likely a page reload.
+        // If a port with the same URL appears within 1000ms, it's likely a page reload.
         // In that case, skip resetting the accountPicker.
         const ports = getAllPorts()
 

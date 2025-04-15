@@ -107,9 +107,6 @@ type MainControllerAddAccounts = {
     })[]
   }
 }
-type AccountPickerControllerAddNextAccount = {
-  type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT'
-}
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
   params: {
@@ -641,7 +638,6 @@ export type Action =
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
-  | AccountPickerControllerAddNextAccount
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction

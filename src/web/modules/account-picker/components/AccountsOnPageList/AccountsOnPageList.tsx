@@ -15,7 +15,6 @@ import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
@@ -27,7 +26,6 @@ import Account from '@web/modules/account-picker/components/Account'
 import AccountsRetrieveError from '@web/modules/account-picker/components/AccountsRetrieveError'
 import { AccountPickerIntroStepsProvider } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
-// import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
 import getStyles from './styles'
 
@@ -42,7 +40,6 @@ type Props = {
   subType: AccountPickerController['subType']
   lookingForLinkedAccounts: boolean
   children?: any
-  withTitle?: boolean
 }
 
 const AccountsOnPageList = ({
@@ -50,8 +47,7 @@ const AccountsOnPageList = ({
   setPage,
   subType,
   lookingForLinkedAccounts,
-  children,
-  withTitle = true
+  children
 }: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -62,7 +58,6 @@ const AccountsOnPageList = ({
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
-  const { maxWidthSize } = useWindowSize()
   const { styles, theme } = useTheme(getStyles)
 
   const slots = useMemo(() => {
@@ -116,12 +111,6 @@ const AccountsOnPageList = ({
       (a) => a.account.addr
     )
   }, [state.accountsOnPage, getType, lookingForLinkedAccounts])
-
-  const numberOfSelectedLinkedAccounts = useMemo(() => {
-    return linkedAccounts.filter((lAcc) =>
-      state.selectedAccounts.map((sAcc) => sAcc.account.addr).includes(lAcc.account.addr)
-    ).length
-  }, [linkedAccounts, state.selectedAccounts])
 
   const isImportingFromPrivateKey = subType === 'private-key'
 
@@ -182,27 +171,6 @@ const AccountsOnPageList = ({
     ]
   )
 
-  const setTitle = useCallback(() => {
-    // if (keyType && keyType !== 'internal') {
-    //   return t('Import accounts from {{ hwDeviceName }}', {
-    //     hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
-    //   })
-    // }
-
-    // if (subType === 'seed') {
-    //   return accountPickerState.isInitializedWithSavedSeed
-    //     ? t('Import accounts from saved seed phrase')
-    //     : t('Import accounts from seed phrase')
-    // }
-
-    // if (subType === 'private-key') {
-    //   return t('Select account(s) to import')
-    // }
-
-    return t('Select accounts to import')
-  }, [t])
-  // }, [accountPickerState.isInitializedWithSavedSeed, keyType, subType, t])
-
   const networkNamesWithAccountStateError = useMemo(() => {
     return accountPickerState.networksWithAccountStateError.map((chainId) => {
       return networks.find((n) => n.chainId === chainId)?.name
@@ -253,40 +221,6 @@ const AccountsOnPageList = ({
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
       <View style={flexbox.flex1} nativeID="account-picker-page-list">
-        {withTitle ||
-          (!!numberOfSelectedLinkedAccounts && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
-              {withTitle && (
-                <Text
-                  fontSize={maxWidthSize('xl') ? 20 : 18}
-                  weight="medium"
-                  appearance="primaryText"
-                  numberOfLines={1}
-                  style={[spacings.mrTy, flexbox.flex1]}
-                >
-                  {setTitle()}
-                </Text>
-              )}
-              {!!numberOfSelectedLinkedAccounts && (
-                <Alert
-                  type="success"
-                  size="sm"
-                  style={{ ...spacings.pvTy, ...flexbox.alignCenter }}
-                >
-                  <Text fontSize={16} appearance="successText">
-                    {numberOfSelectedLinkedAccounts === 1
-                      ? t('Selected ({{numOfAccounts}}) linked account on this page', {
-                          numOfAccounts: numberOfSelectedLinkedAccounts
-                        })
-                      : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
-                          numOfAccounts: numberOfSelectedLinkedAccounts
-                        })}
-                  </Text>
-                </Alert>
-              )}
-            </View>
-          ))}
-
         <View style={flexbox.flex1}>
           {!!networkNamesWithAccountStateError.length && (
             <Alert

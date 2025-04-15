@@ -69,7 +69,6 @@ const LedgerConnectScreen = () => {
 
   useEffect(() => {
     if (!prevIsInitialized && isInitialized && type === 'ledger') {
-      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])

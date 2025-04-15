@@ -48,7 +48,6 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
       ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor') &&
       pressedHwButton.current
     ) {
-      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
       goToNextRoute(WEB_ROUTES.accountPersonalize)
     }
   }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])
@@ -104,16 +103,11 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
             <View style={styles.hwOptionsContainer}>
               <View style={styles.hwOptionWrapper}>
                 <Pressable
-                  style={({ hovered }: any) => [
-                    styles.hwOption,
-                    hovered && styles.hwOptionHovered,
-                    { opacity: 0.5 }
-                  ]}
+                  style={({ hovered }: any) => [styles.hwOption, hovered && styles.hwOptionHovered]}
                   onPress={() => {
                     pressedHwButton.current = 'trezor'
                     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
                   }}
-                  disabled
                 >
                   <TrezorMiniIcon width={44} height={44} />
                   <Text fontSize={14} weight="medium" style={spacings.mtMi} numberOfLines={1}>
@@ -134,16 +128,11 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
               </View>
               <View style={styles.hwOptionWrapper}>
                 <Pressable
-                  style={({ hovered }: any) => [
-                    styles.hwOption,
-                    hovered && styles.hwOptionHovered,
-                    { opacity: 0.5 }
-                  ]}
+                  style={({ hovered }: any) => [styles.hwOption, hovered && styles.hwOptionHovered]}
                   onPress={() => {
                     pressedHwButton.current = 'lattice'
                     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
                   }}
-                  disabled
                 >
                   <LatticeMiniIcon width={44} height={44} />
                   <Text fontSize={14} weight="medium" style={spacings.mtMi} numberOfLines={1}>

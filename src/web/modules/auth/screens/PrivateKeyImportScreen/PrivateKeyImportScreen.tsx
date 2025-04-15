@@ -55,7 +55,6 @@ const PrivateKeyImportScreen = () => {
   useEffect(() => {
     if (!getValues('privateKey')) return
     if (!prevIsInitialized && isInitialized && subType === 'private-key') {
-      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, getValues, isInitialized, prevIsInitialized, subType])
