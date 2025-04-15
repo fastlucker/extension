@@ -398,6 +398,8 @@ export const handleActions = async (
       return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
       return mainCtrl?.swapAndBridge?.signAccountOpController?.updateStatus(params.status)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl?.swapAndBridge.setUserProceeded(params.proceeded)
     case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
       return mainCtrl?.swapAndBridge.destroySignAccountOp()
     case 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW':

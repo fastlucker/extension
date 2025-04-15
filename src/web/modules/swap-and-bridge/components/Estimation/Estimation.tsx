@@ -33,7 +33,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
 
   const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
-  const { signAccountOpController } = useSwapAndBridgeControllerState()
+  const { signAccountOpController, hasProceeded } = useSwapAndBridgeControllerState()
   const [hasBroadcasted, setHasBroadcasted] = useState(false)
 
   /**
@@ -113,7 +113,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         type="bottom-sheet"
         // Open the bottomSheet automatically when the screen is opened
         // in an action window
-        autoOpen={isActionWindow && !!signAccountOpController}
+        autoOpen={hasProceeded || (isActionWindow && !!signAccountOpController)}
       >
         {signAccountOpController && !hasBroadcasted && (
           <View>

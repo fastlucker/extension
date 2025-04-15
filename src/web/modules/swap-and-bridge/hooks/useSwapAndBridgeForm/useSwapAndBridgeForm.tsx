@@ -40,7 +40,6 @@ const useSwapAndBridgeForm = () => {
   } = useSwapAndBridgeControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
-  const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
   const [isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled] = useState<boolean>(false)
   /**
    * @deprecated - the settings menu is not used anymore
@@ -191,15 +190,6 @@ const useSwapAndBridgeForm = () => {
     [dispatch]
   )
 
-  useEffect(() => {
-    if (
-      followUpTransactionConfirmed &&
-      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
-    ) {
-      setFollowUpTransactionConfirmed(false)
-    }
-  }, [followUpTransactionConfirmed, formStatus, updateQuoteStatus])
-
   const {
     options: fromTokenOptions,
     value: fromTokenValue,
@@ -211,23 +201,6 @@ const useSwapAndBridgeForm = () => {
     networks,
     supportedChainIds
   })
-
-  /**
-   * @deprecated - no operations should require follow up transactions
-   */
-  const shouldConfirmFollowUpTransactions = useMemo(() => {
-    if (!quote?.selectedRoute) return false
-
-    if (quote.selectedRoute.isOnlySwapRoute) return false
-
-    const stepTypes = quote.selectedRouteSteps.map((s) => s.type)
-
-    return (
-      stepTypes.includes('middleware') &&
-      stepTypes.includes('swap') &&
-      formStatus === SwapAndBridgeFormStatus.ReadyToSubmit
-    )
-  }, [quote, formStatus])
 
   const highPriceImpactInPercentage = useMemo(() => {
     if (updateQuoteStatus === 'LOADING') return null
@@ -267,10 +240,20 @@ const useSwapAndBridgeForm = () => {
     }
   }, [quote, formStatus, fromAmount, fromAmountInFiat, fromSelectedToken, updateQuoteStatus])
 
+  const openEstimationModalAndDispatch = useCallback(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED',
+      params: {
+        proceeded: true
+      }
+    })
+    openEstimationModal()
+  }, [openEstimationModal, dispatch])
+
   const acknowledgeHighPriceImpact = useCallback(() => {
     closePriceImpactModal()
-    openEstimationModal()
-  }, [closePriceImpactModal, openEstimationModal])
+    openEstimationModalAndDispatch()
+  }, [closePriceImpactModal, openEstimationModalAndDispatch])
 
   const handleSubmitForm = useCallback(
     (isOneClickMode: boolean) => {
@@ -283,7 +266,7 @@ const useSwapAndBridgeForm = () => {
       // open the estimation modal on one click method;
       // build/add a swap user request on batch
       if (isOneClickMode) {
-        openEstimationModal()
+        openEstimationModalAndDispatch()
       } else {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
@@ -295,7 +278,7 @@ const useSwapAndBridgeForm = () => {
       dispatch,
       highPriceImpactInPercentage,
       openBatchModal,
-      openEstimationModal,
+      openEstimationModalAndDispatch,
       openPriceImpactModal,
       quote
     ]
@@ -312,6 +295,12 @@ const useSwapAndBridgeForm = () => {
       })
     }
 
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED',
+      params: {
+        proceeded: false
+      }
+    })
     closeEstimationModal()
   }, [closeEstimationModal, dispatch, formStatus])
   /**
@@ -338,9 +327,6 @@ const useSwapAndBridgeForm = () => {
     fromTokenValue,
     closeEstimationModalWrapped,
     handleSubmitForm,
-    shouldConfirmFollowUpTransactions,
-    followUpTransactionConfirmed,
-    setFollowUpTransactionConfirmed,
     highPriceImpactInPercentage,
     priceImpactModalRef,
     closePriceImpactModal,

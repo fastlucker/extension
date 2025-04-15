@@ -256,6 +256,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             formStatus === SwapAndBridgeFormStatus.Invalid ||
             formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
             formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+            formStatus === SwapAndBridgeFormStatus.Proceeded ||
             shouldShowAmountOnEstimationFailure ? (
               <Text
                 fontSize={20}

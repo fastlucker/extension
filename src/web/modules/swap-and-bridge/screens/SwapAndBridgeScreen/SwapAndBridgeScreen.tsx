@@ -46,8 +46,6 @@ const SwapAndBridgeScreen = () => {
     fromTokenValue,
     fromTokenAmountSelectDisabled,
     handleSubmitForm,
-    shouldConfirmFollowUpTransactions,
-    followUpTransactionConfirmed,
     highPriceImpactInPercentage,
     priceImpactModalRef,
     closePriceImpactModal,
@@ -117,17 +115,14 @@ const SwapAndBridgeScreen = () => {
   const isNotReadyToProceed = useMemo(() => {
     return (
       formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
-      shouldConfirmFollowUpTransactions !== followUpTransactionConfirmed ||
       mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
       updateQuoteStatus === 'LOADING' ||
       isEstimatingRoute
     )
   }, [
-    followUpTransactionConfirmed,
     isEstimatingRoute,
     formStatus,
     mainCtrlStatuses.buildSwapAndBridgeUserRequest,
-    shouldConfirmFollowUpTransactions,
     updateQuoteStatus
   ])
 

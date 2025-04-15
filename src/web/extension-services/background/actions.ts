@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
-  ActionExecutionType
+  ActionExecutionType,
+  Action as ActionFromActionsQueue
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -480,6 +480,10 @@ type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
   params: { sessionId: string }
 }
+type SwapAndBridgeControllerUserProceededAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED'
+  params: { proceeded: boolean }
+}
 type SwapAndBridgeControllerUnloadScreenAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN'
   params: { sessionId: string; forceUnload?: boolean }
@@ -760,3 +764,4 @@ export type Action =
   | SwapAndBridgeControllerDestroySignAccountOp
   | SwapAndBridgeControllerOpenSigningActionWindow
   | SwapAndBridgeControllerCloseSigningActionWindow
+  | SwapAndBridgeControllerUserProceededAction
