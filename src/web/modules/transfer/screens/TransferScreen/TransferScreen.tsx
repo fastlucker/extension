@@ -62,6 +62,7 @@ const TransferScreen = () => {
     isRecipientAddressUnknown,
     isFormValid
   } = state
+
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -81,6 +82,7 @@ const TransferScreen = () => {
     [actionsState.actionWindow.windowProps]
   )
 
+  // Requests filtered by current accounts and the selected token's network
   const transactionUserRequests = useMemo(() => {
     return userRequests.filter((r) => {
       const isSelectedAccountAccountOp =
@@ -91,6 +93,21 @@ const TransferScreen = () => {
       const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
 
       return !state.selectedToken || isMatchingSelectedTokenNetwork
+    })
+  }, [account?.addr, state.selectedToken, userRequests])
+
+  // Requests filtered by the selected account only.
+  // This enables the "Sign all Pending" button even if the selected token's network differs
+  // from the network of active requests and the form is empty.
+  // For example, on a particular network, if the user has only one token and sends its maximum amount,
+  // the auto-selected token could belong to a different network.
+  // In such cases, we ensure a simple way to sign the current transaction, even across networks.
+  const transactionUserRequestsByAccount = useMemo(() => {
+    return userRequests.filter((r) => {
+      const isSelectedAccountAccountOp =
+        r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
+
+      return isSelectedAccountAccountOp
     })
   }, [account?.addr, state.selectedToken, userRequests])
 
@@ -147,6 +164,12 @@ const TransferScreen = () => {
 
     let numOfRequests = transactionUserRequests.length
 
+    // This ensures the button count updates correctly when there are no transactionUserRequests on the selected token network,
+    // but pending requests exist for the current account.
+    if (!numOfRequests && isFormEmpty && transactionUserRequestsByAccount.length) {
+      numOfRequests = transactionUserRequestsByAccount.length
+    }
+
     if (numOfRequests) {
       if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
         numOfRequests++ // the queued txns + the one from the form
@@ -162,6 +185,7 @@ const TransferScreen = () => {
   }, [
     isTopUp,
     transactionUserRequests,
+    transactionUserRequestsByAccount.length,
     addressInputState.validation.isError,
     isFormValid,
     isFormEmpty,
@@ -178,8 +202,21 @@ const TransferScreen = () => {
     if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
+
+    // This ensures the button remains enabled even when there are no transactionUserRequests on the selected token network,
+    // but pending requests exist for the current account.
+    if (transactionUserRequestsByAccount.length && !hasFocusedActionWindow) {
+      return !isFormEmpty && !isTransferFormValid
+    }
+
     return !isTransferFormValid
-  }, [isFormEmpty, isTransferFormValid, transactionUserRequests.length, hasFocusedActionWindow])
+  }, [
+    isFormEmpty,
+    isTransferFormValid,
+    transactionUserRequests.length,
+    transactionUserRequestsByAccount.length,
+    hasFocusedActionWindow
+  ])
 
   const onBack = useCallback(() => {
     transferCtrl.resetForm()
@@ -209,7 +246,7 @@ const TransferScreen = () => {
 
       if (
         actionExecutionType === 'open-action-window' &&
-        transactionUserRequests.length &&
+        (transactionUserRequests.length || transactionUserRequestsByAccount.length) &&
         isFormEmpty
       ) {
         const firstAccountOpAction = actionsState.visibleActionsQueue
@@ -230,6 +267,7 @@ const TransferScreen = () => {
       state.selectedToken,
       isFormEmpty,
       transactionUserRequests.length,
+      transactionUserRequestsByAccount.length,
       actionsState,
       isFormValid,
       dispatch,
