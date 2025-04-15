@@ -32,7 +32,6 @@ import SubmittedOn from './SubmittedOn'
 type Props = {
   network: Network
   size: 'sm' | 'md' | 'lg'
-  defaultType: 'summary' | 'full-info'
   rawCalls?: SubmittedAccountOp['calls']
 } & Pick<
   SubmittedAccountOp,
@@ -48,7 +47,6 @@ const Footer: FC<Props> = ({
   gasFeePayment,
   status,
   size,
-  defaultType,
   timestamp
 }) => {
   const { styles } = useTheme(getStyles)
@@ -57,11 +55,12 @@ const Footer: FC<Props> = ({
   const { t } = useTranslation()
   const textSize = 14 * sizeMultiplier[size]
   const iconSize = 26 * sizeMultiplier[size]
-  const isFooterExpandable =
+  const iconSizeSm = 14 * sizeMultiplier[size]
+
+  const hasSuccessfulStatus =
     status !== AccountOpStatus.Rejected &&
     status !== AccountOpStatus.BroadcastButStuck &&
     status !== AccountOpStatus.UnknownButPastNonce
-  const [isFooterExpanded, setIsFooterExpanded] = useState(defaultType === 'full-info')
   const { chainId } = network
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
@@ -81,14 +80,6 @@ const Footer: FC<Props> = ({
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
   }, [network?.chainId, txnId, identifiedBy, addToast])
-
-  const handleOpenBlockExplorer = useCallback(async () => {
-    try {
-      await createTab(`${network?.explorerUrl}/tx/${txnId}`)
-    } catch (e: any) {
-      addToast(e?.message || 'Error opening block explorer', { type: 'error' })
-    }
-  }, [network?.explorerUrl, txnId, addToast])
 
   useEffect((): void => {
     const feeTokenAddress = gasFeePayment?.inToken
@@ -130,7 +121,7 @@ const Footer: FC<Props> = ({
     <View style={spacings.phMd}>
       <View style={styles.footer}>
         <StatusBadge status={status} textSize={textSize} />
-        {!!isFooterExpanded && isFooterExpandable && (
+        {hasSuccessfulStatus && (
           <View style={spacings.mrTy}>
             <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
               {t('Fee')}:
@@ -152,9 +143,9 @@ const Footer: FC<Props> = ({
           iconSize={iconSize}
           chainId={network.chainId}
           timestamp={timestamp}
-          numberOfLines={isFooterExpanded ? 2 : 1}
+          numberOfLines={2}
         />
-        {isFooterExpanded && isFooterExpandable && (
+        {hasSuccessfulStatus && (
           <View style={[flexbox.alignEnd]}>
             <TouchableOpacity
               style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
@@ -169,71 +160,24 @@ const Footer: FC<Props> = ({
               >
                 {t('View transaction')}
               </Text>
-              <LinkIcon />
+              <LinkIcon width={iconSizeSm} height={iconSizeSm} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[flexbox.directionRow, flexbox.alignCenter]}
-              onPress={handleOpenBlockExplorer}
-            >
-              <Text
-                fontSize={textSize}
-                appearance="secondaryText"
-                weight="medium"
-                style={spacings.mrMi}
-                underline
-              >
-                {t('View in block explorer')}
-              </Text>
-              <LinkIcon />
+            <TouchableOpacity style={[flexbox.directionRow, flexbox.alignCenter]}>
+              {rawCalls?.length ? (
+                <RepeatTransaction
+                  accountAddr={accountAddr}
+                  chainId={network.chainId}
+                  rawCalls={rawCalls}
+                  textSize={textSize}
+                  iconSize={iconSizeSm}
+                />
+              ) : (
+                <View />
+              )}
             </TouchableOpacity>
           </View>
         )}
-        {isFooterExpandable && !isFooterExpanded && (
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter]}
-            onPress={() => setIsFooterExpanded(true)}
-          >
-            <Text
-              fontSize={textSize}
-              appearance="secondaryText"
-              weight="medium"
-              style={spacings.mrMi}
-            >
-              {t('Show more')}
-            </Text>
-            <DownArrowIcon />
-          </TouchableOpacity>
-        )}
       </View>
-
-      {isFooterExpandable && defaultType === 'summary' && isFooterExpanded && (
-        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbSm]}>
-          {rawCalls?.length ? (
-            <RepeatTransaction
-              accountAddr={accountAddr}
-              chainId={network.chainId}
-              rawCalls={rawCalls}
-              textSize={textSize}
-            />
-          ) : (
-            <View />
-          )}
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter]}
-            onPress={() => setIsFooterExpanded(false)}
-          >
-            <Text
-              fontSize={textSize}
-              appearance="secondaryText"
-              weight="medium"
-              style={spacings.mrMi}
-            >
-              {t('Show less')}
-            </Text>
-            <UpArrowIcon />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   )
 }
