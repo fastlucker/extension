@@ -141,7 +141,7 @@ const useSwapAndBridgeForm = () => {
     )
 
     // Cleanup sessions
-    if (sessionIds.includes(sessionId) && hasSwapAndBridgeAction) {
+    if (hasSwapAndBridgeAction) {
       // If there is an open swap and bridge window
       // 1. Focus it if there is a signAccountOp controller
       // 2. Close it if there isn't as that means the screen is displaying
@@ -162,11 +162,11 @@ const useSwapAndBridgeForm = () => {
 
         return
       }
-      if (isActionWindow && sessionIds.includes('popup')) {
-        // Forcefully unload the popup session after the action window session is added.
-        // Otherwise when the user is done with the operation
-        // and closes the window the popup session will remain open and the swap and bridge
-        // screen will open on load
+      // Forcefully unload the popup session after the action window session is added.
+      // Otherwise when the user is done with the operation
+      // and closes the window the popup session will remain open and the swap and bridge
+      // screen will open on load
+      if (isActionWindow && sessionIds.includes('popup') && sessionIds.includes(sessionId)) {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
           params: { sessionId: 'popup', forceUnload: true }
