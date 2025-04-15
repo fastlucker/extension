@@ -126,7 +126,7 @@ const InviteAcc: FC<Props> = ({
       isLoading={isInProgress}
       loadingText="Signing..."
       buttonText={buttonText}
-      disabled={validation.isError || addressState.isDomainResolving}
+      disabled={!connectedAccount || validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}
     >
       <AddressInput
