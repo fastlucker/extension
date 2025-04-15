@@ -11,6 +11,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import Alert from '@legends/components/Alert'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import Card from '@legends/modules/legends/components/Card'
 import { CardStatus, CardType } from '@legends/modules/legends/types'
@@ -19,7 +20,7 @@ import SectionHeading from '../SectionHeading'
 import styles from './QuestsSection.module.scss'
 
 const QuestsSection = () => {
-  const { legends, isLoading } = useLegendsContext()
+  const { legends, isLoading, error } = useLegendsContext()
   const sliderRef = useRef(null)
 
   const sortedLegends =
@@ -56,6 +57,7 @@ const QuestsSection = () => {
           <Link className={styles.button} to="/quests" type="button">
             See all
           </Link>
+
           <button className={styles.arrowButton} type="button" onClick={handlePrevious}>
             <LeftArrowIcon color="currentColor" />
           </button>
@@ -63,6 +65,7 @@ const QuestsSection = () => {
             <RightArrowIcon color="currentColor" />
           </button>
         </div>
+        {error && <Alert type="error" message={error} className={styles.error} />}
       </div>
       <Swiper
         ref={sliderRef}

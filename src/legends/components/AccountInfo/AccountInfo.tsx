@@ -8,26 +8,42 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import styles from './AccountInfo.module.scss'
 
 // TODO: Add logic to handle account switching from the dropdown
-const AccountInfo = () => {
+const AccountInfo = ({
+  removeAvatarAndLevel = false,
+  wrapperClassName,
+  addressClassName
+}: {
+  removeAvatarAndLevel?: boolean
+  wrapperClassName?: string
+  addressClassName?: string
+}) => {
   const { connectedAccount, disconnectAccount } = useAccountContext()
   const { character } = useCharacterContext()
 
   return (
-    <div className={`${styles.wrapper} ${connectedAccount ? styles.connected : ''}`}>
-      <div className={styles.avatarWrapper}>
-        <img alt="avatar" className={styles.avatar} src={character!.image_avatar} />
-      </div>
+    <div
+      className={`${styles.wrapper} ${
+        connectedAccount ? styles.connected : ''
+      } ${wrapperClassName}`}
+    >
+      {!removeAvatarAndLevel && (
+        <div className={styles.avatarWrapper}>
+          <img alt="avatar" className={styles.avatar} src={character!.image_avatar} />
+        </div>
+      )}
       <div className={styles.account}>
         <div className={styles.accountAndArrowWrapper}>
           <Address
             skeletonClassName={styles.addressSkeleton}
-            className={styles.address}
+            className={`${styles.address} ${addressClassName}`}
             address={connectedAccount!}
             maxAddressLength={12}
           />
           <DisconnectIcon onClick={disconnectAccount} className={styles.disconnectIcon} />
         </div>
-        <p className={`${styles.levelAndRank} ${styles.activityDot}`}>Level {character!.level}</p>
+        {!removeAvatarAndLevel && (
+          <p className={`${styles.levelAndRank} ${styles.activityDot}`}>Level {character!.level}</p>
+        )}
       </div>
     </div>
   )

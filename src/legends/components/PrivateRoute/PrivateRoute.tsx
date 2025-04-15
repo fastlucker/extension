@@ -2,7 +2,6 @@ import React from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 import ErrorPage from '@legends/components/ErrorPage'
-import NonV2Modal from '@legends/components/NonV2Modal'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'

@@ -80,8 +80,8 @@ const LeaderboardContainer: React.FC = () => {
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>
-            This is where your earned XP showcases your legacy in the world of Web3. Compete, rise
-            through the ranks, and level your mark among the top Legends!
+            This is where your earned XP showcases your legacy in the world of Web3. <br /> Compete,
+            rise through the ranks, and level your mark among the top Legends!
           </p>
         </div>
         {loading && <Spinner />}
@@ -106,7 +106,17 @@ const LeaderboardContainer: React.FC = () => {
                     data-tooltip-id="weight-info"
                   />
                   <Tooltip
-                    className={styles.tooltip}
+                    style={{
+                      backgroundColor: '#101114',
+                      color: '#F4F4F7',
+                      fontFamily: 'FunnelDisplay',
+                      fontSize: 11,
+                      lineHeight: '16px',
+                      fontWeight: 300,
+                      maxWidth: 244,
+                      boxShadow: '0px 0px 12.1px 0px #191B20'
+                    }}
+                    place="bottom"
                     id="weight-info"
                     content="Projected weight based on last week's balance snapshot. End results might vary."
                   />

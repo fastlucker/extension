@@ -31,9 +31,10 @@
       .pageButton {
         width: 2.625rem;
         height: 2.375rem;
-        @include primary-button;
-        border-radius: $primaryBorderRadius;
-        background-color: $tertiaryBackground;
+        // @include primary-button;
+        border-radius: $mainText;
+        border-radius: .625rem;
+        background-color: $neutral-700;
 
         &.dots {
           background: none;

@@ -25,7 +25,7 @@ const Character = () => {
       <QuestsSection />
       {connectedAccount && !nonV2Account && <ActivitySection />}
 
-      <FaqSection />
+      {!connectedAccount && !!nonV2Account && <FaqSection />}
     </Page>
   )
 }
