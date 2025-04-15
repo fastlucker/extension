@@ -64,7 +64,7 @@
       z-index: 11;
       font-size: 2rem;
       line-height: 1rem;
-      font-weight: 500;
+      font-weight: 400;
       color: $yellowText;
       text-shadow: 0.0925rem 0.225rem $purple-600;
       display: flex;
@@ -81,7 +81,7 @@
       height: 1.5625rem;
       z-index: 11;
       font-size: .8125rem;
-      font-weight: 500;
+      font-weight: 400;
       line-height: 1rem;
       text-align: center;
       color: $neutral-300;
@@ -99,7 +99,7 @@
     flex-direction: column-reverse;
     .heading {
       font-size: 4rem;
-      font-weight: 500;
+      font-weight: 400;
       line-height: 5.44rem;
       margin: 0 auto 1rem auto;
     }
@@ -133,14 +133,14 @@
           font-size: 1.25rem;
           color: $mainText;
           margin-bottom: .75rem;
-          font-weight: 500;
+          font-weight: 400;
           line-height: 100%;
         }
 
         .dayText {
           color: $mainText;
           font-size: .75rem;
-          font-weight: 400;
+          font-weight: 300;
           text-align: center;
         }
 
@@ -149,7 +149,7 @@
           font-size: .75rem;
           vertical-align: top;
           line-height: 100%;
-          font-weight: 400;
+          font-weight: 300;
         }
     }
 
@@ -170,7 +170,7 @@
       }
 
       .dayText {
-        font-weight: 700;
+        font-weight: 600;
       }
     }
   }
@@ -207,7 +207,7 @@
   .button {
     @include primary-button;
     font-size: 1.25rem;
-    font-weight: 500;
+    font-weight: 400;
     align-self: center;
     max-width: 24.625rem;
     z-index: 10;

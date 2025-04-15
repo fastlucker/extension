@@ -45,10 +45,9 @@
   }
 
   thead {
-    font-weight: 700;
     font-size: 1.25rem;
     color: rgb($secondaryText, 0.4);
-    font-weight: 500;
+    font-weight: 400;
   }
 
   tbody:before {
@@ -66,14 +65,14 @@
   .link {
     text-decoration: underline;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 400;
     color: $secondaryText;
     flex: 1;
   }
 
   .network {
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 400;
     text-transform: uppercase;
     margin-left: 1rem;
     vertical-align: super;
@@ -81,7 +80,7 @@
 
   .xp {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 600;
     margin-right: 0.75rem;
     color: $whiteText;
   }
@@ -105,7 +104,7 @@
     border-radius: $secondaryBorderRadius;
     background-color: $tertiaryBackground;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 400;
   }
 
   .tooltip {
