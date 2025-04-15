@@ -10,6 +10,7 @@ import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
+import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -49,7 +50,7 @@ const useSwapAndBridgeForm = () => {
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { searchParams, setSearchParams } = useNavigation()
+  const { searchParams, setSearchParams, navigate } = useNavigation()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
@@ -134,9 +135,46 @@ const useSwapAndBridgeForm = () => {
     sessionId
   ])
 
-  // init session
   useEffect(() => {
-    // Init each session only once
+    const hasSwapAndBridgeAction = visibleActionsQueue.some(
+      (action) => action.type === 'swapAndBridge'
+    )
+
+    // Cleanup sessions
+    if (sessionIds.includes(sessionId) && hasSwapAndBridgeAction) {
+      // If there is an open swap and bridge window
+      // 1. Focus it if there is a signAccountOp controller
+      // 2. Close it if there isn't as that means the screen is displaying
+      // the progress of the operation
+      if (isPopup) {
+        if (signAccountOpController) {
+          window.close()
+          dispatch({
+            type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+          })
+          return
+        }
+
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+        })
+        navigate(ROUTES.dashboard)
+
+        return
+      }
+      if (isActionWindow && sessionIds.includes('popup')) {
+        // Forcefully unload the popup session after the action window session is added.
+        // Otherwise when the user is done with the operation
+        // and closes the window the popup session will remain open and the swap and bridge
+        // screen will open on load
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
+          params: { sessionId: 'popup', forceUnload: true }
+        })
+      }
+    }
+
+    // Init each session only once after the cleanup
     if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
@@ -145,38 +183,15 @@ const useSwapAndBridgeForm = () => {
       prev.set('sessionId', sessionId)
       return prev
     })
-  }, [dispatch, sessionId, sessionIdsRequestedToBeInit, setSearchParams])
-
-  useEffect(() => {
-    const hasSwapAndBridgeAction = visibleActionsQueue.some(
-      (action) => action.type === 'swapAndBridge'
-    )
-
-    // If there is an open swap and bridge window
-    // 1. Focus it if there is a signAccountOp controller
-    // 2. Close it if there isn't as that means the screen is displaying
-    // the progress of the operation
-    if (isPopup && hasSwapAndBridgeAction && sessionIds.includes(sessionId)) {
-      if (signAccountOpController) {
-        window.close()
-        dispatch({
-          type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
-        })
-      } else {
-        dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
-        })
-      }
-    } else if (isActionWindow && hasSwapAndBridgeAction && sessionIds.includes(sessionId)) {
-      // Forcefully unload the popup session. Otherwise when the user is done with the operation
-      // and closes the window the popup session will remain open and the swap and bridge
-      // screen will open on load
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
-        params: { sessionId: 'popup', forceUnload: true }
-      })
-    }
-  }, [dispatch, sessionId, sessionIds, signAccountOpController, visibleActionsQueue])
+  }, [
+    dispatch,
+    navigate,
+    sessionId,
+    sessionIds,
+    setSearchParams,
+    signAccountOpController,
+    visibleActionsQueue
+  ])
 
   // remove session - this will be triggered only
   // when navigation to another screen internally in the extension
