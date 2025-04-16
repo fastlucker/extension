@@ -131,6 +131,7 @@ const SeedPhraseImportScreen = () => {
           <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
             <View style={spacings.mbMd}>
               <Button
+                testID="clear-seed-phrase-btn"
                 type="ghost"
                 size="small"
                 onPress={() => {
