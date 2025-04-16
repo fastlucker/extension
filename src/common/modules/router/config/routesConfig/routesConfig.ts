@@ -247,9 +247,9 @@ const routesConfig: RouteConfig = {
   [ROUTES.inviteVerify]: {
     route: ROUTES.inviteVerify,
     title: Platform.select({
-      default: i18n.t('Verify Email')
+      default: i18n.t('Invite Verify')
     }),
-    name: Platform.select({ default: i18n.t('Verify Email') })
+    name: Platform.select({ default: i18n.t('Invite Verify') })
   },
   [ROUTES.importPrivateKey]: {
     route: ROUTES.importPrivateKey,
@@ -277,14 +277,14 @@ const routesConfig: RouteConfig = {
     title: Platform.select({
       default: i18n.t('Welcome to Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Import Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Create New Recovery Phrase') })
   },
   [ROUTES.createSeedPhraseWrite]: {
     route: ROUTES.createSeedPhraseWrite,
     title: Platform.select({
-      default: i18n.t('Write Seed Phrase')
+      default: i18n.t('Backup Recovery Phrase')
     }),
-    name: Platform.select({ default: i18n.t('Import Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Backup Recovery Phrase') })
   },
   [ROUTES.onboardingCompleted]: {
     route: ROUTES.onboardingCompleted,

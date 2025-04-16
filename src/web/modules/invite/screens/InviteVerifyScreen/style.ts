@@ -42,7 +42,7 @@ const getStyles = (theme: ThemeProps) =>
       borderTopWidth: 1,
       borderColor: theme.secondaryBorder,
       overflow: 'hidden',
-      ...spacings.mt4Xl
+      ...spacings.mt3Xl
     },
     backgroundSVG: {
       position: 'absolute',
