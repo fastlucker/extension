@@ -7,6 +7,7 @@ import ActivitySection from './components/ActivitySection'
 import CharacterSection from './components/CharacterSection'
 import FaqSection from './components/FaqSection'
 import LandingSection from './components/LandingSection'
+import MobileDisclaimerModal from './components/MobileDisclaimerModal'
 import QuestsSection from './components/QuestsSection'
 
 const Character = () => {
@@ -19,7 +20,10 @@ const Character = () => {
       ) : connectedAccount ? (
         <CharacterSection />
       ) : (
-        <LandingSection />
+        <>
+          <MobileDisclaimerModal />
+          <LandingSection />
+        </>
       )}
 
       <QuestsSection />

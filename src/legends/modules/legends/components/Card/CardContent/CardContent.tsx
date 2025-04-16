@@ -12,11 +12,12 @@ import CompletedRibbon from './CompletedRibbon'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'xp' | 'imageV2' | 'card' | 'action' | 'timesCollectedToday'
+  'shortTitle' | 'xp' | 'imageV2' | 'card' | 'action' | 'timesCollectedToday'
 > & {
   openActionModal: () => void
   disabled: boolean
   treasureChestStreak: number | undefined
+  nonConnectedAcc: boolean
 }
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -27,14 +28,15 @@ const CARD_FREQUENCY: { [key in CardType]: string } = {
 }
 
 const CardContent: FC<Props> = ({
-  title,
+  shortTitle,
   xp,
   imageV2,
   card,
   action,
   openActionModal,
   disabled,
-  treasureChestStreak
+  treasureChestStreak,
+  nonConnectedAcc
 }) => {
   const isCompleted = card.status === CardStatus.completed
 
@@ -45,7 +47,7 @@ const CardContent: FC<Props> = ({
       className={`${styles.wrapper} ${(disabled || isCompleted) && styles.disabled}`}
       role="button"
       onClick={() => {
-        if (!disabled && !isCompleted) {
+        if ((!disabled && !isCompleted) || (!disabled && nonConnectedAcc)) {
           openActionModal()
         }
       }}
@@ -56,7 +58,7 @@ const CardContent: FC<Props> = ({
       }}
       tabIndex={0}
     >
-      {isCompleted ? (
+      {isCompleted && !nonConnectedAcc ? (
         <div className={styles.overlay}>
           <CompletedRibbon className={styles.overlayIcon} />
           {/* <div className={styles.overlayTitle}>
@@ -75,7 +77,7 @@ const CardContent: FC<Props> = ({
       )}
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
-          <h2 className={styles.heading}>{title}</h2>
+          <h2 className={styles.heading}>{shortTitle}</h2>
           <img src={imageV2} alt="Card" className={styles.image} />
           <div
             className={styles.backgroundEffect}
@@ -89,7 +91,7 @@ const CardContent: FC<Props> = ({
         </div>
         <div className={styles.actionAndRewards}>
           <div className={styles.rewardFrequencyWrapper}>
-            {isTreasureChestCard && treasureChestStreak ? (
+            {isTreasureChestCard && treasureChestStreak && !nonConnectedAcc ? (
               <div className={styles.streak}>
                 <ZapIcon width={14} height={19} />
                 <p className={styles.streakNumber}>{treasureChestStreak}</p>

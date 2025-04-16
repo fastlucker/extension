@@ -6,7 +6,7 @@ import 'swiper/css/free-mode'
 
 import React, { useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Mousewheel, Navigation } from 'swiper/modules'
+import { FreeMode, Mousewheel, Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -72,8 +72,9 @@ const QuestsSection = () => {
         slidesPerView="auto"
         spaceBetween={16}
         navigation
+        speed={100}
         modules={[Mousewheel, Navigation]}
-        mousewheel={{ enabled: true }}
+        mousewheel={{ enabled: true, sensitivity: 0, releaseOnEdges: true }}
       >
         {sortedLegends.map((card) => (
           <SwiperSlide className={`${styles.slide}`} key={card.title + card.card.type}>
