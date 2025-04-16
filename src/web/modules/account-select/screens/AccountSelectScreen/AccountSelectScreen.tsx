@@ -24,6 +24,7 @@ import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWr
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -146,7 +147,9 @@ const AccountSelectScreen = () => {
       <BottomSheet
         id="account-select-add-account"
         sheetRef={sheetRef}
+        adjustToContentHeight={!getUiType().isPopup}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
         <AddAccount handleClose={closeBottomSheet as any} />
       </BottomSheet>

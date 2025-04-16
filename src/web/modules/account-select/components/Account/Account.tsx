@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Animated, Pressable, View } from 'react-native'
+import { Animated, Pressable, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
@@ -43,17 +43,23 @@ const Account = ({
   onSelect,
   maxAccountAddrLength = 42,
   withSettings = true,
+  isSelectable = true,
+  withKeyType = true,
   renderRightChildren,
   showExportImport = false,
-  openAddAccountBottomSheet
+  openAddAccountBottomSheet,
+  containerStyle
 }: {
   account: AccountInterface
   onSelect?: (addr: string) => void
   maxAccountAddrLength?: number
   withSettings?: boolean
+  isSelectable?: boolean
+  withKeyType?: boolean
   renderRightChildren?: () => React.ReactNode
   showExportImport?: boolean
   openAddAccountBottomSheet?: () => void
+  containerStyle?: ViewStyle
 }) => {
   const { addr, preferences } = account
   const { t } = useTranslation()
@@ -169,16 +175,26 @@ const Account = ({
     return add7702option ? [SUBMENU_OPTION_7702, ...SUBMENU_OPTIONS] : SUBMENU_OPTIONS
   }, [add7702option])
 
+  const Container = React.memo(({ children }: any) => {
+    return isSelectable ? (
+      <Pressable
+        disabled={accountsStatuses.selectAccount !== 'INITIAL'}
+        onPress={selectAccount}
+        {...bindAnim}
+        testID="account"
+        // @ts-ignore
+        style={showExportImport ? { cursor: 'default' } : {}}
+      >
+        {children}
+      </Pressable>
+    ) : (
+      <View>{children}</View>
+    )
+  })
+
   return (
-    <Pressable
-      disabled={accountsStatuses.selectAccount !== 'INITIAL'}
-      onPress={selectAccount}
-      {...bindAnim}
-      testID="account"
-      // @ts-ignore
-      style={showExportImport ? { cursor: 'default' } : {}}
-    >
-      <Animated.View style={[styles.accountContainer, animStyle]}>
+    <Container>
+      <Animated.View style={[styles.accountContainer, containerStyle, isSelectable && animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
           <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} showTooltip />
           <View>
@@ -201,9 +217,11 @@ const Account = ({
                 />
               )}
 
-              <View style={[spacings.mlMi]}>
-                <AccountKeyIcons isExtended account={account} />
-              </View>
+              {!!withKeyType && (
+                <View style={[spacings.mlMi]}>
+                  <AccountKeyIcons isExtended account={account} />
+                </View>
+              )}
 
               <AccountBadges accountData={account} />
             </View>
@@ -251,7 +269,7 @@ const Account = ({
           />
         </DialogFooter>
       </Dialog>
-    </Pressable>
+    </Container>
   )
 }
 
