@@ -124,13 +124,14 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
 }: TabLayoutWrapperMainContentProps) => {
   const { styles } = useTheme(getStyles)
   const { isOnboardingRoute } = useOnboardingNavigation()
+  const { minHeightSize } = useWindowSize()
 
   if (withScroll) {
     return (
       <ScrollableWrapper
         contentContainerStyle={[
           styles.contentContainer,
-          isOnboardingRoute && spacings.pt2Xl,
+          isOnboardingRoute && (minHeightSize('l') ? spacings.pv0 : spacings.pt2Xl),
           contentContainerStyle
         ]}
         showsVerticalScrollIndicator={false}
