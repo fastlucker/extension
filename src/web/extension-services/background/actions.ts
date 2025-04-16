@@ -66,6 +66,7 @@ type MainControllerAccountPickerInitPrivateKeyOrSeedPhraseAction = {
 }
 type MainControllerAccountPickerInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE'
+  params: { id: string }
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -402,6 +403,7 @@ type KeystoreControllerDeleteSavedSeed = {
 }
 type KeystoreControllerSendSeedToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI'
+  params: { id: string }
 }
 type KeystoreControllerSendTempSeedToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI'
