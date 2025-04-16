@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import Button from '@common/components/Button'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 type Props = {
   isOneClickModeAllowed: boolean
@@ -20,17 +21,20 @@ const Buttons: FC<Props> = ({
   isBatchAllowed
 }) => {
   const { t } = useTranslation()
+  const { isActionWindow } = getUiType()
 
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
-      <Button
-        hasBottomSpacing={false}
-        text={isOneClickModeAllowed ? t('Start a batch') : t('Add to batch')}
-        disabled={isNotReadyToProceed || !isBatchAllowed}
-        type="secondary"
-        style={{ minWidth: 160 }}
-        onPress={() => handleSubmitForm(false)}
-      />
+      {!isActionWindow && (
+        <Button
+          hasBottomSpacing={false}
+          text={isOneClickModeAllowed ? t('Start a batch') : t('Add to batch')}
+          disabled={isNotReadyToProceed || !isBatchAllowed}
+          type="secondary"
+          style={{ minWidth: 160 }}
+          onPress={() => handleSubmitForm(false)}
+        />
+      )}
       <Button
         text={t('Proceed')}
         disabled={isNotReadyToProceed || !isOneClickModeAllowed}
