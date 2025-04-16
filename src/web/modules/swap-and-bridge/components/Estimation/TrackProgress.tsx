@@ -7,26 +7,27 @@ import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import AlertVertical from '@common/components/AlertVertical'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import formatTime from '@common/utils/formatTime'
+import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import useWindowSize from '@common/hooks/useWindowSize'
-import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
-import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import RouteStepsToken from '../RouteStepsToken'
 import BackgroundShapes from './BackgroundShapes'
 
@@ -53,6 +54,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { maxWidthSize } = useWindowSize()
   const paddingHorizontalStyle = useMemo(() => getTabLayoutPadding(maxWidthSize), [maxWidthSize])
   const scrollViewRef: any = useRef(null)
+  const isSwap = lastCompletedRoute.route && !getIsBridgeRoute(lastCompletedRoute.route)
 
   const onPrimaryButtonPress = useCallback(() => {
     if (isActionWindow) {
@@ -220,15 +222,27 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                       }}
                       appearance="primary"
                     >
-                      {!getIsBridgeRoute(lastCompletedRoute.route)
-                        ? t('View swap')
-                        : t('View bridge')}
+                      {isSwap ? t('View swap') : t('View bridge')}
                     </Text>
                   </Pressable>
                 )}
               </>
             )}
-            {lastCompletedRoute?.routeStatus === 'failed' && <Text>{t('TODO: Error state')}</Text>}
+            {lastCompletedRoute?.routeStatus === 'failed' && (
+              <View
+                style={[
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  flexbox.justifyCenter,
+                  spacings.mbLg
+                ]}
+              >
+                <AlertVertical
+                  title={t(isSwap ? 'Swap failed' : 'Bridge failed')}
+                  text={`Error: ${lastCompletedRoute.error}`}
+                />
+              </View>
+            )}
           </View>
           {!isActionWindow && (
             <View
