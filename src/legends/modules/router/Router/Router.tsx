@@ -86,6 +86,10 @@ const router = createHashRouter([
             element: <Staking />
           },
           {
+            path: LEGENDS_ROUTES['/'],
+            element: <Home />
+          },
+          {
             path: LEGENDS_LEGACY_ROUTES.legends,
             element: <Navigate to={LEGENDS_ROUTES.quests} />
           },
