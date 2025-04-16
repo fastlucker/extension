@@ -376,7 +376,7 @@ type KeystoreControllerAddSecretAction = {
 }
 type KeystoreControllerAddTempSeedAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED'
-  params: Omit<KeystoreSeed, 'label'>
+  params: Omit<KeystoreSeed, 'id' | 'label'>
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
