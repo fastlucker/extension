@@ -19,11 +19,8 @@ import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-o
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import { getUiType } from '@web/utils/uiType'
 
-import TrackProgress from './TrackProgress'
-
 type Props = {
   displayedView: 'estimate' | 'track'
-  setHasBroadcasted: (hasBroadcasted: boolean) => void
   closeEstimationModal: () => void
   estimationModalRef: React.RefObject<any>
 }
@@ -33,7 +30,6 @@ const { isActionWindow } = getUiType()
 const SwapAndBridgeEstimation = ({
   closeEstimationModal,
   displayedView,
-  setHasBroadcasted,
   estimationModalRef
 }: Props) => {
   const { t } = useTranslation()
@@ -124,7 +120,7 @@ const SwapAndBridgeEstimation = ({
         }
         isScrollEnabled={false}
       >
-        {displayedView === 'estimate' && signAccountOpController ? (
+        {!!signAccountOpController && (
           <View>
             <SigningKeySelect
               isVisible={isChooseSignerShown}
@@ -172,13 +168,6 @@ const SwapAndBridgeEstimation = ({
               />
             </View>
           </View>
-        ) : (
-          <TrackProgress
-            handleClose={() => {
-              setHasBroadcasted(false)
-              closeEstimationModal()
-            }}
-          />
         )}
       </BottomSheet>
       {renderedButNotNecessarilyVisibleModal === 'hw-sign' && signAccountOpController && (

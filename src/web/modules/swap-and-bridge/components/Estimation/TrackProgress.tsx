@@ -78,7 +78,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   }, [addToast, lastCompletedRoute])
 
   return (
-    <View style={[flexbox.flex1, flexbox.justifyCenter]}>
+    <View style={[flexbox.flex1, flexbox.justifyCenter, !isActionWindow && spacings.ph2Xl]}>
       <View
         style={[
           flexbox.alignCenter,

@@ -131,7 +131,7 @@ const SwapAndBridgeScreen = () => {
 
   if (!sessionIds.includes(sessionId)) return null
 
-  if (isActionWindow && displayedView === 'track') {
+  if (displayedView === 'track') {
     return (
       <TrackProgress
         handleClose={() => {
@@ -236,7 +236,6 @@ const SwapAndBridgeScreen = () => {
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModalWrapped}
         estimationModalRef={estimationModalRef}
-        setHasBroadcasted={setHasBroadcasted}
         displayedView={displayedView}
       />
       <PriceImpactWarningModal
