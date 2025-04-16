@@ -41,12 +41,13 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
   >('locked')
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus } = useErc5792()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
   const chainRef = React.useRef<HTMLImageElement>(null)
+  const nonConnectedAcc = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
 
   const stopSpinnerTeaseAnimation = useCallback(() => {
     if (!spinnerRef.current) return
@@ -222,14 +223,14 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
           <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
           <img src={pointerImage} alt="pointer" className={styles.pointer} />
           <button
-            disabled={!connectedAccount || wheelState === 'spinning' || wheelState === 'unlocking'}
+            disabled={nonConnectedAcc || wheelState === 'spinning' || wheelState === 'unlocking'}
             type="button"
             className={`${styles.spinButton} ${
               POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
             }`}
             onClick={onButtonClick}
           >
-            {buttonLabel}
+            {nonConnectedAcc ? 'Switch to a smart account to unlock Legends quests' : buttonLabel}
           </button>
         </div>
       </div>

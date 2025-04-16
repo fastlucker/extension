@@ -14,7 +14,7 @@
 
 .wrapper {
   position: absolute;
-  z-index: 3;
+  z-index: 5;
   background-color: $secondaryBackground;
   width: 20rem;
   padding: 2rem 1.25rem;
@@ -139,6 +139,7 @@
     }
   }
 
+
   @include breakpoint-from(large-tablet) {
     position: static;
 
@@ -180,6 +181,14 @@
 
     .leaderSection {
       padding-top: 0.5rem;
+    }
+  }
+
+  @include on-mobile {
+    .top {
+      .links {
+        padding-top: 0;
+      }
     }
   }
 }

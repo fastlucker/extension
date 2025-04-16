@@ -209,7 +209,9 @@
     font-size: 1.25rem;
     font-weight: 400;
     align-self: center;
-    max-width: 24.625rem;
+    min-width: 24.625rem;
+    width: max-content;
+    max-width: 37.625rem;
     z-index: 10;
   }
 }

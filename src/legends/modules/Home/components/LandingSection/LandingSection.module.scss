@@ -94,8 +94,6 @@
     margin-right: 3rem;
     width: calc(100% - 6rem);
   }
-
-
 }
 
 .v2 {
@@ -143,4 +141,36 @@
 @keyframes fadeOutSmooth {
     0% { opacity: 1; }
     100% { opacity: 0; }
+}
+
+
+.wrapper {
+    @include on-mobile {
+        margin-top: 0;
+        margin-left: 1rem;
+        margin-right: 1rem;
+        width: calc(100% - 2rem);
+
+        .title {
+            font-size: 1rem;
+        }
+        .logoBlurEffect {
+            display: none;
+        }
+
+        .heroSection {
+            .button {
+                display: none;
+            }
+
+
+            .logoGlass {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 5rem;
+                height: 6rem;
+            }
+        }
+    }
 }

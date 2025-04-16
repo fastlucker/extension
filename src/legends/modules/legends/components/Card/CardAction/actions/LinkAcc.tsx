@@ -56,8 +56,14 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
   // Active step can be null because there are legends that don't activate the stepper
   const activeStep = nullableActiveStep || STEPS.SIGN_MESSAGE
   const switchNetwork = useSwitchNetwork()
-  const { connectedAccount, allAccounts, setAllowNonV2Connection } = useAccountContext()
-
+  const {
+    connectedAccount,
+    allAccounts,
+    allowNonV2Connection,
+    nonV2Account,
+    setAllowNonV2Connection
+  } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
   const [isInProgress, setIsInProgress] = useState(false)
   const [v1OrBasicSignature, setV1OrBasicSignature] = useState('')
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
@@ -225,7 +231,7 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
-      disabled={!connectedAccount || !isActionEnabled}
+      disabled={!isActionEnabled}
       buttonText={BUTTON_TEXT[activeStep]}
       onButtonClick={onButtonClick}
     >
