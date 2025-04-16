@@ -113,7 +113,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
 
   const getCharacter = useCallback(async () => {
     if (nonV2Account) {
-      setIsLoading(false)
+      setIsLoading(true)
       setCharacter(null)
       return
     }
@@ -155,7 +155,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [character, connectedAccount, handleLevelUpIfNeeded, saveLastKnownLevel])
+  }, [character, nonV2Account, connectedAccount, handleLevelUpIfNeeded, saveLastKnownLevel])
 
   useEffect(() => {
     if (
@@ -168,7 +168,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
     getCharacter().catch(() => {
       setError(`Couldn't load the requested character: ${connectedAccount}`)
     })
-  }, [character, connectedAccount, getCharacter, isConnectedAccountLoading])
+  }, [character, connectedAccount, getCharacter, isConnectedAccountLoading, nonV2Account])
 
   const contextValue = useMemo(
     () => ({

@@ -102,6 +102,8 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
           return
         }
         setNonV2Account(address)
+        setConnectedAccount(null)
+        localStorage.setItem(LOCAL_STORAGE_ACC_KEY, null)
 
         if (!connectedAccount) {
           const isV1 = isAmbireV1LinkedAccount(factoryAddr)
