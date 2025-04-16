@@ -7,6 +7,7 @@
   width: 100%;
   height: 100%;
   background-color: $backdrop;
+  backdrop-filter: blur(0.5rem);
   z-index: 100;
 
   display: none;
@@ -37,52 +38,15 @@
     z-index: 3;
     transition: opacity 0.25s ease, transform 0.3s ease;
 
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -0.25rem;
-      z-index: -1;
-      left: 50%;
-      transform: translate(-50%, 50%);
-      width: calc(100% - 1rem);
-      height: 0.25rem;
-      background-color: $landingAccent;
-      border-radius: 0 0 0.5rem 0.5rem;
-    }
+    border: 0.25rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+                    linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
 
-    .topDeco,
-    .bottomDeco,
-    .leftDeco,
-    .rightDeco {
-      position: absolute;
-      height: 2rem;
-      width: 1.0625rem;
-    }
 
-    .leftDeco {
-      left: 0;
-      top: 50%;
-      transform: translate(-0.0625rem, -50%);
-    }
-
-    .rightDeco {
-      right: 0;
-      top: 50%;
-      transform: translate(0.125rem, -50%) rotate(-180deg);
-    }
-
-    .topDeco {
-      top: 0;
-      left: 50%;
-      transform: translate(-50%, -0.5625rem) rotate(90deg);
-    }
-
-    .bottomDeco {
-      bottom: 0;
-      left: 50%;
-      transform: translate(-50%, 0.5625rem) rotate(-90deg);
-    }
-
+ 
+    
     .text {
       font-size: 1.125rem;
       line-height: 1.75rem;
@@ -93,21 +57,18 @@
       }
     }
     .button {
-      height: 4rem;
+      @include primary-button;
+      height: 3.25rem;
+      width: 17.625rem;
       padding: 0;
-      border: 2px solid $landingAccent;
-      background-color: #62804d;
       border-radius: 0.5rem;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0.25rem $landingAccent;
 
       font-size: 1.25rem;
       font-weight: 500;
-      text-transform: uppercase;
-      color: $primaryBackground;
     }
   }
 
