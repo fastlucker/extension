@@ -22,7 +22,7 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -434,7 +434,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: SwapAndBridgeActiveRoute[]) {
     if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
       !!backgroundState.updateActiveRoutesInterval &&
         clearTimeout(backgroundState.updateActiveRoutesInterval)

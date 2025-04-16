@@ -74,7 +74,11 @@ const DashboardBannerBottomSheet: FC<Props> = ({ id, sheetRef, closeBottomSheet 
           {activeRoutes
             .filter(
               (route) =>
-                route.route && getIsBridgeRoute(route.route) && route.routeStatus === 'in-progress'
+                route.route &&
+                getIsBridgeRoute(route.route) &&
+                (route.routeStatus === 'in-progress' ||
+                  route.routeStatus === 'completed' ||
+                  route.routeStatus === 'failed')
             )
 
             .map((route) => (
