@@ -46,6 +46,8 @@ const useSwapAndBridgeForm = () => {
    * @deprecated - the settings menu is not used anymore
    */
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
+  const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
+    useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const { searchParams, setSearchParams, navigate } = useNavigation()
@@ -101,10 +103,13 @@ const useSwapAndBridgeForm = () => {
     return isBridge || mainAccountOpActions.length === 0
   }, [mainAccountOpActions, isBridge])
 
-  const handleSetFromAmount = (val: string) => {
-    setFromAmountValue(val)
-    setIsAutoSelectRouteDisabled(false)
-  }
+  const handleSetFromAmount = useCallback(
+    (val: string) => {
+      setFromAmountValue(val)
+      setIsAutoSelectRouteDisabled(false)
+    },
+    [setFromAmountValue, setIsAutoSelectRouteDisabled]
+  )
 
   useEffect(() => {
     if (
@@ -219,12 +224,18 @@ const useSwapAndBridgeForm = () => {
     ) {
       handleSetFromAmount(fromAmountInFiat)
     }
-  }, [fromAmountInFiat, fromAmountValue, prevFromAmountInFiat, fromAmountFieldMode])
+  }, [
+    fromAmountInFiat,
+    fromAmountValue,
+    prevFromAmountInFiat,
+    fromAmountFieldMode,
+    handleSetFromAmount
+  ])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') handleSetFromAmount(fromAmount)
     if (fromAmountFieldMode === 'fiat') handleSetFromAmount(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat])
+  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, handleSetFromAmount])
 
   useEffect(() => {
     if (
@@ -234,7 +245,7 @@ const useSwapAndBridgeForm = () => {
     ) {
       handleSetFromAmount(fromAmount)
     }
-  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode])
+  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode, handleSetFromAmount])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
@@ -244,7 +255,7 @@ const useSwapAndBridgeForm = () => {
         params: { fromAmount: value }
       })
     },
-    [dispatch]
+    [dispatch, handleSetFromAmount]
   )
 
   const {
@@ -309,11 +320,26 @@ const useSwapAndBridgeForm = () => {
 
   const acknowledgeHighPriceImpact = useCallback(() => {
     closePriceImpactModal()
-    openEstimationModalAndDispatch()
-  }, [closePriceImpactModal, openEstimationModalAndDispatch])
+
+    if (isOneClickModeDuringPriceImpact) {
+      openEstimationModalAndDispatch()
+    } else {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+      })
+      openBatchModal()
+    }
+  }, [
+    closePriceImpactModal,
+    openEstimationModalAndDispatch,
+    dispatch,
+    openBatchModal,
+    isOneClickModeDuringPriceImpact
+  ])
 
   const handleSubmitForm = useCallback(
     (isOneClickMode: boolean) => {
+      setIsOneClickModeDuringPriceImpact(isOneClickMode)
       if (highPriceImpactInPercentage) {
         openPriceImpactModal()
         return
