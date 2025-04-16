@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -6,9 +6,13 @@ import CartIcon from '@common/assets/svg/CartIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
+import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 
 type Props = {
   onPrimaryButtonPress: () => void
@@ -18,40 +22,67 @@ type Props = {
 const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { maxWidthSize } = useWindowSize()
+  const paddingHorizontalStyle = useMemo(() => getTabLayoutPadding(maxWidthSize), [maxWidthSize])
+  const scrollViewRef: any = useRef(null)
 
   return (
-    <View style={[spacings.ph2Xl]}>
-      <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.pt2Xl, spacings.pbXl]}>
-        <CartIcon width={64} height={64} color={theme.secondaryText} />
-        <Text fontSize={20} weight="medium" style={[spacings.mbTy, spacings.mtLg, text.center]}>
-          {t('Added to batch')}
-        </Text>
-        <Text weight="medium" appearance="secondaryText" style={text.center}>
-          {t('You can manage your batch in the dashboard.')}
-        </Text>
-      </View>
-      <View
-        style={{
-          height: 1,
-          backgroundColor: theme.secondaryBorder,
-          ...spacings.mvLg
+    <TabLayoutContainer
+      backgroundColor={theme.secondaryBackground}
+      header={
+        <Header
+          displayBackButtonIn="never"
+          mode="title"
+          customTitle={t('Swap & Bridge')}
+          withAmbireLogo
+        />
+      }
+      withHorizontalPadding={false}
+      footer={null}
+      // @ts-ignore
+      style={[flexbox.alignEnd, spacings.pb]}
+    >
+      <TabLayoutWrapperMainContent
+        contentContainerStyle={{
+          ...spacings.pt0,
+          ...spacings.pb0,
+          ...paddingHorizontalStyle,
+          flexGrow: 1
         }}
-      />
-      <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-        <Button
-          onPress={onSecondaryButtonPress}
-          hasBottomSpacing={false}
-          type="secondary"
-          text={t('Add more swaps?')}
+        wrapperRef={scrollViewRef}
+      >
+        <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.pt2Xl, spacings.pbXl]}>
+          <CartIcon width={64} height={64} color={theme.secondaryText} />
+          <Text fontSize={20} weight="medium" style={[spacings.mbTy, spacings.mtLg, text.center]}>
+            {t('Added to batch')}
+          </Text>
+          <Text weight="medium" appearance="secondaryText" style={text.center}>
+            {t('You can manage your batch in the dashboard.')}
+          </Text>
+        </View>
+        <View
+          style={{
+            height: 1,
+            backgroundColor: theme.secondaryBorder,
+            ...spacings.mvLg
+          }}
         />
-        <Button
-          onPress={onPrimaryButtonPress}
-          hasBottomSpacing={false}
-          style={{ width: 160 }}
-          text={t('Close')}
-        />
-      </View>
-    </View>
+        <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
+          <Button
+            onPress={onSecondaryButtonPress}
+            hasBottomSpacing={false}
+            type="secondary"
+            text={t('Add more swaps?')}
+          />
+          <Button
+            onPress={onPrimaryButtonPress}
+            hasBottomSpacing={false}
+            style={{ width: 160 }}
+            text={t('Close')}
+          />
+        </View>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 
