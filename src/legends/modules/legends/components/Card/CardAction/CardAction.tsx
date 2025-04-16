@@ -17,7 +17,8 @@ export type CardActionComponentProps = {
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
   const { addToast } = useToast()
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
 
   const handleWalletRouteButtonPress = useCallback(async () => {
     if (action.type !== CardActionType.walletRoute) return
@@ -72,12 +73,14 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.link) {
     return (
       <CardActionButton
-        buttonText="Proceed"
+        buttonText={
+          disabledButton ? 'Switch to a smart account to unlock Legends quests' : 'Proceed'
+        }
         onButtonClick={() => {
           window.open(action.link, '_blank')
         }}
         loadingText=""
-        disabled={!connectedAccount}
+        disabled={disabledButton}
       />
     )
   }
@@ -85,10 +88,12 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.walletRoute && window.ambire) {
     return (
       <CardActionButton
-        buttonText="Proceed"
+        buttonText={
+          disabledButton ? 'Switch to a smart account to unlock Legends quests' : 'Proceed'
+        }
         onButtonClick={handleWalletRouteButtonPress}
         loadingText=""
-        disabled={!connectedAccount}
+        disabled={disabledButton}
       />
     )
   }

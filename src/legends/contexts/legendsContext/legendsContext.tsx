@@ -26,12 +26,12 @@ type LegendsContextType = {
 const legendsContext = createContext<LegendsContextType>({} as LegendsContextType)
 
 const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, nonV2Account, allowNonV2Connection } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
   const { getActivity } = useActivityContext()
   const { updateLeaderboard } = useLeaderboardContext()
-
+  const noConnectionAcc = Boolean(!connectedAccount || nonV2Account)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [legends, setLegends] = useState<CardFromResponse[]>([])
@@ -63,7 +63,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     setError(null)
     try {
       const rawCards = await fetch(
-        `${RELAYER_URL}/legends/cards${connectedAccount ? `?identity=${connectedAccount}` : ''}`
+        `${RELAYER_URL}/legends/cards${!noConnectionAcc ? `?identity=${connectedAccount}` : ''}`
       )
       const cards = await rawCards.json()
       const sortedCards = sortCards(cards)
@@ -74,7 +74,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     } finally {
       setIsLoading(false)
     }
-  }, [connectedAccount])
+  }, [connectedAccount, noConnectionAcc])
 
   useEffect(() => {
     getLegends().catch(() => {

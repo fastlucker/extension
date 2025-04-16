@@ -22,7 +22,7 @@ const CharacterSection = () => {
   const { userLeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
   const formatXp = (xp: number) => {
-    return xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
   const cardRef = useRef(null)
 
@@ -72,8 +72,8 @@ const CharacterSection = () => {
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
 
   const rewardsDisabledState =
-    (isReady && Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) <= 500) ||
-    (userLeaderboardData?.level ?? 0) <= 10
+    Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
+    (userLeaderboardData?.level ?? 0) <= 2
 
   return (
     <>
@@ -99,22 +99,27 @@ const CharacterSection = () => {
               )}
             </div>
             <div className={styles.rewardsInfo}>
-              {rewardsDisabledState ? (
-                <p className={styles.rewardsTitle}>
-                  You need to reach Level 10 and keep a minimum balance of <br /> $500 on the
-                  supported networks to start accruing rewards.
-                </p>
-              ) : isLoadingClaimableRewards && !!claimableRewards ? (
+              {isLoadingClaimableRewards || !isReady ? (
                 <p>Loading rewards...</p>
               ) : claimableRewardsError ? (
                 <p>Error loading rewards</p>
+              ) : rewardsDisabledState ? (
+                <p className={styles.rewardsTitle}>
+                  You need to reach Level 3 and keep a minimum balance of <br /> $500 on the
+                  supported networks to start accruing rewards.
+                </p>
               ) : (
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
                     {formatDecimals(
                       parseFloat(
-                        formatUnits(BigInt(claimableRewards.amount), claimableRewards.decimals)
+                        claimableRewards
+                          ? formatUnits(
+                              BigInt(claimableRewards?.value || '0'),
+                              claimableRewards?.decimals || 18
+                            )
+                          : '0'
                       )
                     )}
                   </p>
@@ -131,6 +136,7 @@ const CharacterSection = () => {
             removeAvatarAndLevel
             wrapperClassName={styles.accountInfo}
             addressClassName={styles.accountInfoAddress}
+            displayTooltip
           />
           <div className={styles.characterLevelInfoWrapper}>
             <div className={styles.characterItemWrapper}>
@@ -189,7 +195,7 @@ const CharacterSection = () => {
                       }}
                       place="bottom"
                       id="wallet-info"
-                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optoimism, Arbitrum and Scroll."
+                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optimism, Arbitrum and Scroll."
                     />
                   </div>
                 </div>

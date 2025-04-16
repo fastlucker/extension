@@ -17,6 +17,7 @@ type Props = Pick<
   openActionModal: () => void
   disabled: boolean
   treasureChestStreak: number | undefined
+  nonConnectedAcc: boolean
 }
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -34,7 +35,8 @@ const CardContent: FC<Props> = ({
   action,
   openActionModal,
   disabled,
-  treasureChestStreak
+  treasureChestStreak,
+  nonConnectedAcc
 }) => {
   const isCompleted = card.status === CardStatus.completed
 
@@ -45,7 +47,7 @@ const CardContent: FC<Props> = ({
       className={`${styles.wrapper} ${(disabled || isCompleted) && styles.disabled}`}
       role="button"
       onClick={() => {
-        if (!disabled && !isCompleted) {
+        if ((!disabled && !isCompleted) || (!disabled && nonConnectedAcc)) {
           openActionModal()
         }
       }}
@@ -56,7 +58,7 @@ const CardContent: FC<Props> = ({
       }}
       tabIndex={0}
     >
-      {isCompleted ? (
+      {isCompleted && !nonConnectedAcc ? (
         <div className={styles.overlay}>
           <CompletedRibbon className={styles.overlayIcon} />
           {/* <div className={styles.overlayTitle}>
@@ -89,7 +91,7 @@ const CardContent: FC<Props> = ({
         </div>
         <div className={styles.actionAndRewards}>
           <div className={styles.rewardFrequencyWrapper}>
-            {isTreasureChestCard && treasureChestStreak ? (
+            {isTreasureChestCard && treasureChestStreak && !nonConnectedAcc ? (
               <div className={styles.streak}>
                 <ZapIcon width={14} height={19} />
                 <p className={styles.streakNumber}>{treasureChestStreak}</p>

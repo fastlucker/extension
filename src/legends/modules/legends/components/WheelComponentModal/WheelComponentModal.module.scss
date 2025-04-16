@@ -119,7 +119,9 @@
       bottom: 2.5em;
       left: 50%;
       transform: translateX(-50%);
-      width: 18.25em;
+      min-width: 18.25em;
+      width: max-content;
+      max-width: 37.625rem;
       height: 3.25em;
       font-size: 1.25em; 
       font-weight: 400;
