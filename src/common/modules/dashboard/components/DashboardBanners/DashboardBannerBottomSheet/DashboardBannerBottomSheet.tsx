@@ -72,7 +72,11 @@ const DashboardBannerBottomSheet: FC<Props> = ({ id, sheetRef, closeBottomSheet 
             {t('Pending bridge transactions')}
           </Text>
           {activeRoutes
-            .filter((route) => route.route && getIsBridgeRoute(route.route))
+            .filter(
+              (route) =>
+                route.route && getIsBridgeRoute(route.route) && route.routeStatus === 'in-progress'
+            )
+
             .map((route) => (
               <View key={route.activeRouteId} style={spacings.mbTy}>
                 <ActiveRouteCard activeRoute={route} />
