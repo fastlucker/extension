@@ -37,8 +37,10 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   handleClose
 }) => {
   const { addToast } = useToast()
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
+
+  const nonConnectedAcc = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
 
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
@@ -295,14 +297,14 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             type="button"
             className={styles.button}
             disabled={
-              !connectedAccount ||
+              nonConnectedAcc ||
               chestState === 'opening' ||
               chestState === 'opened' ||
               chestState === 'unlocking'
             }
             onClick={onButtonClick}
           >
-            {buttonLabel}
+            {nonConnectedAcc ? 'Switch to a smart account to unlock Legends quests' : buttonLabel}
           </button>
         </div>
       </div>

@@ -25,9 +25,10 @@ const Card: FC<Props> = ({ cardData }) => {
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [isOnCompleteModalVisible, setIsOnCompleteModalVisible] = useState(false)
   const { onLegendComplete, treasureChestStreak } = useLegendsContext()
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
   const { addToast } = useToast()
   const { startPolling, stopPolling } = useDataPollingContext()
+  const nonConnectedAcc = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
 
   const openActionModal = () => {
     stopPolling()
@@ -99,6 +100,7 @@ const Card: FC<Props> = ({ cardData }) => {
         action={action}
         openActionModal={openActionModal}
         disabled={disabled}
+        nonConnectedAcc={nonConnectedAcc}
         treasureChestStreak={treasureChestStreak}
       />
       {/* Modals */}

@@ -22,7 +22,7 @@ const CharacterSection = () => {
   const { userLeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
   const formatXp = (xp: number) => {
-    return xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
   const cardRef = useRef(null)
 
@@ -114,7 +114,12 @@ const CharacterSection = () => {
                   <p className={styles.rewardsAmount}>
                     {formatDecimals(
                       parseFloat(
-                        formatUnits(BigInt(claimableRewards.amount), claimableRewards.decimals)
+                        claimableRewards
+                          ? formatUnits(
+                              BigInt(claimableRewards?.value || '0'),
+                              claimableRewards?.decimals || 18
+                            )
+                          : '0'
                       )
                     )}
                   </p>
