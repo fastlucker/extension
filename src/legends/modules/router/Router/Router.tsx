@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, useEffect } from 'react'
-import { createHashRouter, RouterProvider } from 'react-router-dom'
+import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
 import ErrorPage from '@legends/components/ErrorPage'
@@ -18,6 +18,7 @@ import Legends from '@legends/modules/legends/screens/Legends'
 import Staking from '@legends/modules/Staking'
 
 import { LEGENDS_ROUTES } from '../constants'
+import { LEGENDS_LEGACY_ROUTES } from '../constants/routes'
 
 // In LegendsInit.tsx, we've already declared some top-level contexts that all child components use.
 // However, we also have private contexts/components within a `PrivateArea`
@@ -85,8 +86,16 @@ const router = createHashRouter([
             element: <Staking />
           },
           {
-            path: '/',
+            path: LEGENDS_ROUTES['/'],
             element: <Home />
+          },
+          {
+            path: LEGENDS_LEGACY_ROUTES.legends,
+            element: <Navigate to={LEGENDS_ROUTES.quests} />
+          },
+          {
+            path: LEGENDS_LEGACY_ROUTES.character,
+            element: <Navigate to={LEGENDS_ROUTES.home} />
           }
         ]
       }
