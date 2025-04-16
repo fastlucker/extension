@@ -13,6 +13,7 @@ import usePrevious from '@common/hooks/usePrevious'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -40,12 +41,14 @@ const useSwapAndBridgeForm = () => {
     sessionIds,
     toSelectedToken
   } = useSwapAndBridgeControllerState()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   /**
    * @deprecated - the settings menu is not used anymore
    */
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
+  const [hasBroadcasted, setHasBroadcasted] = useState(false)
   const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
     useState<boolean>(false)
   const { dispatch } = useBackgroundService()
@@ -401,6 +404,27 @@ const useSwapAndBridgeForm = () => {
     )
   }, [activeRoutes, account])
 
+  const displayedView: 'estimate' | 'track' = useMemo(() => {
+    if (
+      hasBroadcasted ||
+      (!signAccountOpController && mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')
+    )
+      return 'track'
+
+    return 'estimate'
+  }, [hasBroadcasted, mainCtrlStatuses.broadcastSignedAccountOp, signAccountOpController])
+
+  useEffect(() => {
+    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
+
+    // Note: This may not be the best implementation.
+    // Also, there seems to be a bug that causes the bottom sheet to hide
+    // and only the backdrop to remain
+    if (broadcastStatus === 'SUCCESS') {
+      setHasBroadcasted(true)
+    }
+  }, [mainCtrlStatuses.broadcastSignedAccountOp])
+
   return {
     sessionId,
     fromAmountValue,
@@ -418,6 +442,9 @@ const useSwapAndBridgeForm = () => {
     handleToggleSettingsMenu,
     pendingRoutes,
     routesModalRef,
+    displayedView,
+    hasBroadcasted,
+    setHasBroadcasted,
     openRoutesModal,
     closeRoutesModal,
     estimationModalRef,

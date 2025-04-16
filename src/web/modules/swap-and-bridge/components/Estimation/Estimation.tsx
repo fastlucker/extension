@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -22,20 +22,26 @@ import { getUiType } from '@web/utils/uiType'
 import TrackProgress from './TrackProgress'
 
 type Props = {
+  displayedView: 'estimate' | 'track'
+  setHasBroadcasted: (hasBroadcasted: boolean) => void
   closeEstimationModal: () => void
   estimationModalRef: React.RefObject<any>
 }
 
 const { isActionWindow } = getUiType()
 
-const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
+const SwapAndBridgeEstimation = ({
+  closeEstimationModal,
+  displayedView,
+  setHasBroadcasted,
+  estimationModalRef
+}: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
   const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { signAccountOpController, hasProceeded } = useSwapAndBridgeControllerState()
-  const [hasBroadcasted, setHasBroadcasted] = useState(false)
 
   /**
    * Single click broadcast
@@ -91,28 +97,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
     isOneClickSwap: true
   })
 
-  const displayedView: 'estimate' | 'track' = useMemo(() => {
-    if (
-      hasBroadcasted ||
-      (!signAccountOpController && mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')
-    )
-      return 'track'
-
-    return 'estimate'
-  }, [hasBroadcasted, mainCtrlStatuses.broadcastSignedAccountOp, signAccountOpController])
-
-  const isTrackDisplayedInActionWindow = isActionWindow && displayedView === 'track'
-
-  useEffect(() => {
-    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
-
-    // Note: This may not be the best implementation.
-    // Also, there seems to be a bug that causes the bottom sheet to hide
-    // and only the backdrop to remain
-    if (broadcastStatus === 'SUCCESS') {
-      setHasBroadcasted(true)
-    }
-  }, [mainCtrlStatuses.broadcastSignedAccountOp])
+  const isTrackDisplayedInActionWindow = displayedView === 'track' && isActionWindow
 
   return (
     <>

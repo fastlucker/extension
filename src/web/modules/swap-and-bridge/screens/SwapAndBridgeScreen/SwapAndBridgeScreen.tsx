@@ -25,6 +25,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import BatchModal from '../../components/BatchModal'
 import Buttons from '../../components/Buttons'
+import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
 import RouteInfo from '../../components/RouteInfo'
@@ -55,6 +56,8 @@ const SwapAndBridgeScreen = () => {
     openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
+    setHasBroadcasted,
+    displayedView,
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
@@ -127,6 +130,16 @@ const SwapAndBridgeScreen = () => {
   ])
 
   if (!sessionIds.includes(sessionId)) return null
+
+  if (isActionWindow && displayedView === 'track') {
+    return (
+      <TrackProgress
+        handleClose={() => {
+          setHasBroadcasted(false)
+        }}
+      />
+    )
+  }
 
   return (
     <TabLayoutContainer
@@ -223,6 +236,8 @@ const SwapAndBridgeScreen = () => {
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModalWrapped}
         estimationModalRef={estimationModalRef}
+        setHasBroadcasted={setHasBroadcasted}
+        displayedView={displayedView}
       />
       <PriceImpactWarningModal
         sheetRef={priceImpactModalRef}
