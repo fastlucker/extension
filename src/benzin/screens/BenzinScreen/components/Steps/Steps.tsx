@@ -62,7 +62,7 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, chainId, stepsState, 
                 <TokenIcon
                   containerStyle={{ marginLeft: 4 }}
                   address={feePaidWith.address}
-                  chainId={chainId}
+                  chainId={feePaidWith.chainId}
                   containerHeight={32}
                   containerWidth={32}
                   width={18}
