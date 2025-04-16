@@ -119,7 +119,7 @@ const Panel: React.FC<Props> = ({
               width: '100%',
               maxWidth: panelWidth,
               alignSelf: 'center',
-              ...(minHeightSize('l') && { minHeight: '95%' })
+              minHeight: minHeightSize('l') ? '95%' : '92%'
             }
           ]}
           {...rest}
