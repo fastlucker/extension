@@ -136,6 +136,7 @@ const CharacterSection = () => {
             removeAvatarAndLevel
             wrapperClassName={styles.accountInfo}
             addressClassName={styles.accountInfoAddress}
+            displayTooltip
           />
           <div className={styles.characterLevelInfoWrapper}>
             <div className={styles.characterItemWrapper}>
@@ -194,7 +195,7 @@ const CharacterSection = () => {
                       }}
                       place="bottom"
                       id="wallet-info"
-                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optoimism, Arbitrum and Scroll."
+                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optimism, Arbitrum and Scroll."
                     />
                   </div>
                 </div>
