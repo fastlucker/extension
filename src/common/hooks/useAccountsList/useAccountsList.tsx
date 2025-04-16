@@ -20,8 +20,7 @@ const useAccountsList = ({
     }
   })
   const search = watch('search')
-  const [areAccountsRendered, setAreAccountsRendered] = useState(false)
-  const [isReadyToScrollToSelectedAccount, setIsReadyToScrollToSelectedAccount] = useState(false)
+  const [shouldDisplayAccounts, setShouldDisplayAccounts] = useState(false)
   const { domains } = useDomainsControllerState()
   const { accounts } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
@@ -57,15 +56,6 @@ const useAccountsList = ({
     (account) => account.addr === selectedAccount?.addr
   )
 
-  const onContentSizeChange = useCallback(
-    (_: any, contentHeight: number) => {
-      if (contentHeight > 0 && !areAccountsRendered) {
-        setAreAccountsRendered(true)
-      }
-    },
-    [areAccountsRendered]
-  )
-
   const keyExtractor = useCallback((account: AccountType) => account.addr, [])
 
   const getItemLayout = useCallback(
@@ -77,30 +67,46 @@ const useAccountsList = ({
     []
   )
 
+  const scrollToSelectedAccount = useCallback(
+    (attempt: number = 0) => {
+      const MAX_ATTEMPTS = 3
+      if (attempt > MAX_ATTEMPTS) {
+        // Display the accounts after reaching MAX_ATTEMPTS
+        setShouldDisplayAccounts(true)
+        return
+      }
+      if (
+        accounts.length &&
+        selectedAccountIndex !== -1 &&
+        flatlistRef?.current &&
+        !shouldDisplayAccounts
+      ) {
+        try {
+          flatlistRef.current.scrollToIndex({
+            animated: false,
+            index: selectedAccountIndex
+          })
+          setShouldDisplayAccounts(true)
+        } catch (error) {
+          setTimeout(() => scrollToSelectedAccount(attempt + 1), 100)
+        }
+      }
+    },
+    [accounts.length, flatlistRef, shouldDisplayAccounts, selectedAccountIndex]
+  )
+
   useEffect(() => {
-    if (
-      areAccountsRendered &&
-      selectedAccountIndex !== -1 &&
-      flatlistRef?.current &&
-      !isReadyToScrollToSelectedAccount
-    ) {
-      flatlistRef.current.scrollToIndex({
-        animated: false,
-        index: selectedAccountIndex
-      })
-      setIsReadyToScrollToSelectedAccount(true)
-    }
-  }, [areAccountsRendered, flatlistRef, isReadyToScrollToSelectedAccount, selectedAccountIndex])
+    scrollToSelectedAccount()
+  }, [scrollToSelectedAccount])
 
   return {
     accounts: filteredAccounts,
     selectedAccountIndex,
     control,
     search,
-    onContentSizeChange,
     keyExtractor,
     getItemLayout,
-    isReadyToScrollToSelectedAccount
+    shouldDisplayAccounts
   }
 }
 
