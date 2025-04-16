@@ -376,14 +376,14 @@ const useSwapAndBridgeForm = () => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
       })
+    } else {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED',
+        params: {
+          proceeded: false
+        }
+      })
     }
-
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED',
-      params: {
-        proceeded: false
-      }
-    })
     closeEstimationModal()
   }, [closeEstimationModal, dispatch, formStatus])
   /**
