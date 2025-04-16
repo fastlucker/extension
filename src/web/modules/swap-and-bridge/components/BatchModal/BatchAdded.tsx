@@ -20,7 +20,7 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
   const { theme } = useTheme()
 
   return (
-    <>
+    <View style={[spacings.ph2Xl]}>
       <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.pt2Xl, spacings.pbXl]}>
         <CartIcon width={64} height={64} color={theme.secondaryText} />
         <Text fontSize={20} weight="medium" style={[spacings.mbTy, spacings.mtLg, text.center]}>
@@ -51,7 +51,7 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
           text={t('Close')}
         />
       </View>
-    </>
+    </View>
   )
 }
 

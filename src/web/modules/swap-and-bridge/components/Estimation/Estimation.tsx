@@ -20,7 +20,7 @@ import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect
 import { getUiType } from '@web/utils/uiType'
 
 type Props = {
-  displayedView: 'estimate' | 'track'
+  displayedView: 'estimate' | 'track' | 'batch'
   closeEstimationModal: () => void
   estimationModalRef: React.RefObject<any>
 }

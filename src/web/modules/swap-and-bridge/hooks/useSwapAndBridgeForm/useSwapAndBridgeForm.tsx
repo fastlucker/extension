@@ -49,6 +49,7 @@ const useSwapAndBridgeForm = () => {
    */
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const [hasBroadcasted, setHasBroadcasted] = useState(false)
+  const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
     useState<boolean>(false)
   const { dispatch } = useBackgroundService()
@@ -67,7 +68,6 @@ const useSwapAndBridgeForm = () => {
     open: openPriceImpactModal,
     close: closePriceImpactModal
   } = useModalize()
-  const { ref: batchModalRef, open: openBatchModal, close: closeBatchModal } = useModalize()
   const { actionsQueue, visibleActionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => {
@@ -330,14 +330,14 @@ const useSwapAndBridgeForm = () => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
       })
-      openBatchModal()
+      setShowAddedToBatch(true)
     }
   }, [
     closePriceImpactModal,
     openEstimationModalAndDispatch,
     dispatch,
-    openBatchModal,
-    isOneClickModeDuringPriceImpact
+    isOneClickModeDuringPriceImpact,
+    setShowAddedToBatch
   ])
 
   const handleSubmitForm = useCallback(
@@ -357,13 +357,12 @@ const useSwapAndBridgeForm = () => {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
         })
-        openBatchModal()
+        setShowAddedToBatch(true)
       }
     },
     [
       dispatch,
       highPriceImpactInPercentage,
-      openBatchModal,
       openEstimationModalAndDispatch,
       openPriceImpactModal,
       quote
@@ -404,7 +403,9 @@ const useSwapAndBridgeForm = () => {
     )
   }, [activeRoutes, account])
 
-  const displayedView: 'estimate' | 'track' = useMemo(() => {
+  const displayedView: 'estimate' | 'batch' | 'track' = useMemo(() => {
+    if (showAddedToBatch) return 'batch'
+
     if (
       hasBroadcasted ||
       (!signAccountOpController && mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')
@@ -412,7 +413,12 @@ const useSwapAndBridgeForm = () => {
       return 'track'
 
     return 'estimate'
-  }, [hasBroadcasted, mainCtrlStatuses.broadcastSignedAccountOp, signAccountOpController])
+  }, [
+    hasBroadcasted,
+    mainCtrlStatuses.broadcastSignedAccountOp,
+    signAccountOpController,
+    showAddedToBatch
+  ])
 
   useEffect(() => {
     const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
@@ -450,9 +456,8 @@ const useSwapAndBridgeForm = () => {
     estimationModalRef,
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
-    closeBatchModal,
-    batchModalRef,
-    isBridge
+    isBridge,
+    setShowAddedToBatch
   }
 }
 

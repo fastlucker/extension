@@ -11,7 +11,7 @@ import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
@@ -23,7 +23,7 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
-import BatchModal from '../../components/BatchModal'
+import BatchAdded from '../../components/BatchModal/BatchAdded'
 import Buttons from '../../components/Buttons'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
@@ -61,9 +61,8 @@ const SwapAndBridgeScreen = () => {
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
-    batchModalRef,
-    closeBatchModal,
-    isBridge
+    isBridge,
+    setShowAddedToBatch
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -129,6 +128,13 @@ const SwapAndBridgeScreen = () => {
     updateQuoteStatus
   ])
 
+  const onBatchAddedPrimaryButtonPress = useCallback(() => {
+    navigate(WEB_ROUTES.dashboard)
+  }, [navigate])
+  const onBatchAddedSecondaryButtonPress = useCallback(() => {
+    setShowAddedToBatch(false)
+  }, [setShowAddedToBatch])
+
   if (!sessionIds.includes(sessionId)) return null
 
   if (displayedView === 'track') {
@@ -137,6 +143,15 @@ const SwapAndBridgeScreen = () => {
         handleClose={() => {
           setHasBroadcasted(false)
         }}
+      />
+    )
+  }
+
+  if (displayedView === 'batch') {
+    return (
+      <BatchAdded
+        onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
+        onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
       />
     )
   }
@@ -244,7 +259,6 @@ const SwapAndBridgeScreen = () => {
         acknowledgeHighPriceImpact={acknowledgeHighPriceImpact}
         highPriceImpactInPercentage={highPriceImpactInPercentage}
       />
-      <BatchModal sheetRef={batchModalRef} closeBottomSheet={closeBatchModal} />
     </TabLayoutContainer>
   )
 }
