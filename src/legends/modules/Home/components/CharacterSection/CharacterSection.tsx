@@ -72,8 +72,8 @@ const CharacterSection = () => {
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
 
   const rewardsDisabledState =
-    (isReady && Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) <= 500) ||
-    (userLeaderboardData?.level ?? 0) <= 10
+    Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
+    (userLeaderboardData?.level ?? 0) <= 2
 
   return (
     <>
@@ -99,15 +99,15 @@ const CharacterSection = () => {
               )}
             </div>
             <div className={styles.rewardsInfo}>
-              {rewardsDisabledState ? (
-                <p className={styles.rewardsTitle}>
-                  You need to reach Level 10 and keep a minimum balance of <br /> $500 on the
-                  supported networks to start accruing rewards.
-                </p>
-              ) : isLoadingClaimableRewards && !!claimableRewards ? (
+              {isLoadingClaimableRewards || !isReady ? (
                 <p>Loading rewards...</p>
               ) : claimableRewardsError ? (
                 <p>Error loading rewards</p>
+              ) : rewardsDisabledState ? (
+                <p className={styles.rewardsTitle}>
+                  You need to reach Level 3 and keep a minimum balance of <br /> $500 on the
+                  supported networks to start accruing rewards.
+                </p>
               ) : (
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
