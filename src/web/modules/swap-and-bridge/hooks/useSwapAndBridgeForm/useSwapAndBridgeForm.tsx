@@ -42,7 +42,6 @@ const useSwapAndBridgeForm = () => {
   } = useSwapAndBridgeControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
-  const [isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled] = useState<boolean>(false)
   /**
    * @deprecated - the settings menu is not used anymore
    */
@@ -72,6 +71,16 @@ const useSwapAndBridgeForm = () => {
 
     return nanoid()
   }, []) // purposely, so it is unique per hook lifetime
+
+  const setIsAutoSelectRouteDisabled = useCallback(
+    (isDisabled: boolean) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_IS_AUTO_SELECT_ROUTE_DISABLED',
+        params: { isDisabled }
+      })
+    },
+    [dispatch]
+  )
 
   const mainAccountOpActions = useMemo(() => {
     if (!account) return []
@@ -386,7 +395,6 @@ const useSwapAndBridgeForm = () => {
     openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
-    isAutoSelectRouteDisabled,
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
     closeBatchModal,

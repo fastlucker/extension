@@ -56,7 +56,6 @@ const SwapAndBridgeScreen = () => {
     closeRoutesModal,
     estimationModalRef,
     closeEstimationModalWrapped,
-    isAutoSelectRouteDisabled,
     setIsAutoSelectRouteDisabled,
     isOneClickModeAllowed,
     batchModalRef,
@@ -69,7 +68,8 @@ const SwapAndBridgeScreen = () => {
     isHealthy,
     shouldEnableRoutesSelection,
     updateQuoteStatus,
-    signAccountOpController
+    signAccountOpController,
+    isAutoSelectRouteDisabled
   } = useSwapAndBridgeControllerState()
 
   const { statuses: mainCtrlStatuses } = useMainControllerState()
@@ -219,11 +219,7 @@ const SwapAndBridgeScreen = () => {
           )}
         </View>
       </TabLayoutWrapperMainContent>
-      <RoutesModal
-        sheetRef={routesModalRef}
-        closeBottomSheet={closeRoutesModal}
-        setIsAutoSelectRouteDisabled={(disabled: boolean) => setIsAutoSelectRouteDisabled(disabled)}
-      />
+      <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModalWrapped}
         estimationModalRef={estimationModalRef}
