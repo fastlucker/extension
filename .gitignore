@@ -491,3 +491,4 @@ credentials.json
 # Puppeteer tests recording
 /recorder
 /tests/reports
+run-tests-logs

@@ -68,7 +68,7 @@ async function getElementContent(page, selector) {
 }
 
 async function getElementContentWords(page, selector, index = 1) {
-  const element = await getElement(page, selector)
+  const element = await getElement(page, selector, 1000)
   const content = (await element.evaluate((el) => el.textContent.trim())).split(' ')[index - 1]
   return content
 }
@@ -435,7 +435,7 @@ export async function clickOnSecondRoute(page) {
 }
 
 async function extractMaxBalance(page) {
-  const maxBalanceIndex = 2
+  const maxBalanceIndex = 1
   const maxBalance = await getElementContentWords(
     page,
     SELECTORS.maxAvailableAmount,
