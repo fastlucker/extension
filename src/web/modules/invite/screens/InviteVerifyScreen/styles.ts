@@ -36,7 +36,6 @@ const getStyles = (theme: ThemeProps) =>
       width: CARD_WIDTH - 2,
       height: 170,
       alignSelf: 'center',
-      backgroundColor: 'red',
       overflow: 'hidden'
     },
     backgroundSVG: {
