@@ -57,7 +57,7 @@ const Footer: FC<Props> = ({
   const iconSize = 26 * sizeMultiplier[size]
   const iconSizeSm = 14 * sizeMultiplier[size]
 
-  const hasSuccessfulStatus =
+  const canViewFeeAndTransaction =
     status !== AccountOpStatus.Rejected &&
     status !== AccountOpStatus.BroadcastButStuck &&
     status !== AccountOpStatus.UnknownButPastNonce
@@ -121,7 +121,7 @@ const Footer: FC<Props> = ({
     <View style={spacings.phMd}>
       <View style={styles.footer}>
         <StatusBadge status={status} textSize={textSize} />
-        {hasSuccessfulStatus && (
+        {canViewFeeAndTransaction && (
           <View style={spacings.mrTy}>
             <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
               {t('Fee')}:
@@ -145,7 +145,7 @@ const Footer: FC<Props> = ({
           timestamp={timestamp}
           numberOfLines={2}
         />
-        {hasSuccessfulStatus && (
+        {canViewFeeAndTransaction && (
           <View style={[flexbox.alignEnd]}>
             <TouchableOpacity
               style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
