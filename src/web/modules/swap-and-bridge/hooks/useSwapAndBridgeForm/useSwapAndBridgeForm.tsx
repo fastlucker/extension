@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { AccountOpAction } from '@ambire-common/interfaces/actions'
 import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
@@ -68,7 +67,7 @@ const useSwapAndBridgeForm = () => {
     open: openPriceImpactModal,
     close: closePriceImpactModal
   } = useModalize()
-  const { actionsQueue, visibleActionsQueue } = useActionsControllerState()
+  const { visibleActionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => {
     if (isPopup) return 'popup'
@@ -87,24 +86,10 @@ const useSwapAndBridgeForm = () => {
     [dispatch]
   )
 
-  const mainAccountOpActions = useMemo(() => {
-    if (!account) return []
-    if (!fromSelectedToken) return []
-    return (actionsQueue.filter((a) => a.type === 'accountOp') as AccountOpAction[]).filter(
-      (action) =>
-        action.accountOp.accountAddr === account.addr &&
-        action.accountOp.chainId.toString() === fromSelectedToken.chainId.toString()
-    )
-  }, [account, fromSelectedToken, actionsQueue])
-
   const isBridge = useMemo(() => {
     if (!fromSelectedToken || !toSelectedToken) return false
     return fromSelectedToken.chainId !== BigInt(toSelectedToken.chainId)
   }, [fromSelectedToken, toSelectedToken])
-
-  const isOneClickModeAllowed = useMemo(() => {
-    return isBridge || mainAccountOpActions.length === 0
-  }, [mainAccountOpActions, isBridge])
 
   const handleSetFromAmount = useCallback(
     (val: string) => {
@@ -449,7 +434,6 @@ const useSwapAndBridgeForm = () => {
     closeRoutesModal,
     estimationModalRef,
     setIsAutoSelectRouteDisabled,
-    isOneClickModeAllowed,
     isBridge,
     setShowAddedToBatch
   }

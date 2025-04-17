@@ -60,7 +60,6 @@ const SwapAndBridgeScreen = () => {
     displayedView,
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
-    isOneClickModeAllowed,
     isBridge,
     setShowAddedToBatch
   } = useSwapAndBridgeForm()
@@ -187,10 +186,9 @@ const SwapAndBridgeScreen = () => {
           <>
             <BackButton onPress={handleBackButtonPress} />
             <Buttons
-              isOneClickModeAllowed={isOneClickModeAllowed}
               isNotReadyToProceed={isNotReadyToProceed}
               handleSubmitForm={handleSubmitForm}
-              isBatchAllowed={!isBridge}
+              isBridge={isBridge}
             />
           </>
         ) : null
@@ -239,9 +237,8 @@ const SwapAndBridgeScreen = () => {
           />
           {!isTab && (
             <Buttons
-              isOneClickModeAllowed={isOneClickModeAllowed}
               isNotReadyToProceed={isNotReadyToProceed}
-              isBatchAllowed={!isBridge}
+              isBridge={isBridge}
               handleSubmitForm={handleSubmitForm}
             />
           )}
