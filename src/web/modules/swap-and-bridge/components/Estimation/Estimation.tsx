@@ -24,7 +24,7 @@ type Props = {
   estimationModalRef: React.RefObject<any>
 }
 
-const { isActionWindow } = getUiType()
+const { isActionWindow, isTab } = getUiType()
 
 const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
   const { t } = useTranslation()
@@ -94,6 +94,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
       <BottomSheet
         id="estimation-modal"
         sheetRef={estimationModalRef}
+        type={isTab ? 'modal' : 'bottom-sheet'}
         backgroundColor="primaryBackground"
         // NOTE: This must be lower than SigningKeySelect's z-index
         customZIndex={5}
