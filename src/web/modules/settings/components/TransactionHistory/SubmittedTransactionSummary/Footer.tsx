@@ -10,9 +10,7 @@ import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LinkIcon from '@common/assets/svg/LinkIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -162,19 +160,17 @@ const Footer: FC<Props> = ({
               </Text>
               <LinkIcon width={iconSizeSm} height={iconSizeSm} />
             </TouchableOpacity>
-            <TouchableOpacity style={[flexbox.directionRow, flexbox.alignCenter]}>
-              {rawCalls?.length ? (
-                <RepeatTransaction
-                  accountAddr={accountAddr}
-                  chainId={network.chainId}
-                  rawCalls={rawCalls}
-                  textSize={textSize}
-                  iconSize={iconSizeSm}
-                />
-              ) : (
-                <View />
-              )}
-            </TouchableOpacity>
+            {rawCalls?.length ? (
+              <RepeatTransaction
+                accountAddr={accountAddr}
+                chainId={network.chainId}
+                rawCalls={rawCalls}
+                textSize={textSize}
+                iconSize={iconSizeSm}
+              />
+            ) : (
+              <View />
+            )}
           </View>
         )}
       </View>
