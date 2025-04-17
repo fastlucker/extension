@@ -257,6 +257,15 @@ const useSign = ({
   const notReadyToSignButAlsoNotDone =
     !signAccountOpState?.readyToSign && signAccountOpState?.status?.type !== SigningStatus.Done
 
+  const isSignDisabled = useMemo(() => {
+    return (
+      isViewOnly ||
+      isSignLoading ||
+      notReadyToSignButAlsoNotDone ||
+      !signAccountOpState?.readyToSign
+    )
+  }, [isViewOnly, isSignLoading, notReadyToSignButAlsoNotDone, signAccountOpState?.readyToSign])
+
   return {
     renderedButNotNecessarilyVisibleModal,
     isViewOnly,
@@ -279,7 +288,8 @@ const useSign = ({
     network,
     notReadyToSignButAlsoNotDone,
     actionLoaded,
-    setActionLoaded
+    setActionLoaded,
+    isSignDisabled
   }
 }
 

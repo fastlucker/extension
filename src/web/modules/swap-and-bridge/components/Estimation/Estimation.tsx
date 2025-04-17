@@ -79,7 +79,8 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
     isSignLoading,
     renderedButNotNecessarilyVisibleModal,
     handleChangeSigningKey,
-    onSignButtonClick
+    onSignButtonClick,
+    isSignDisabled
   } = useSign({
     signAccountOpState: signAccountOpController,
     handleBroadcast: handleBroadcastAccountOp,
@@ -121,7 +122,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               isSponsored={false}
               sponsor={undefined}
             />
-            {signAccountOpController.errors.length && (
+            {signAccountOpController.errors.length > 0 && (
               <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
                 <Text fontSize={12} appearance="errorText">
                   {t(signAccountOpController.errors[0].title)}
@@ -148,7 +149,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               <Button
                 text={t('Sign')}
                 hasBottomSpacing={false}
-                disabled={isSignLoading}
+                disabled={isSignDisabled}
                 onPress={onSignButtonClick}
                 style={{ minWidth: 160 }}
               />
