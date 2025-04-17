@@ -127,10 +127,10 @@ const routesConfig: RouteConfig = {
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,
     title: Platform.select({
-      default: i18n.t('Add View-Only Account')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Add View-Only Account')
+      default: i18n.t('Watch an address')
     })
   },
   [ROUTES.dashboard]: {

@@ -6,8 +6,6 @@ import { ScrollView, View } from 'react-native'
 import { AddressState } from '@ambire-common/interfaces/domains'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import { getIdentity } from '@ambire-common/libs/accountPicker/accountPicker'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -16,8 +14,6 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
@@ -147,24 +143,6 @@ const ViewOnlyScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton fallbackBackRoute={ROUTES.dashboard} />
-          <Button
-            testID="view-only-button-import"
-            textStyle={{ fontSize: 14 }}
-            size="large"
-            disabled={disabled}
-            hasBottomSpacing={false}
-            text={isLoading ? t('Importing...') : t('Import')}
-            onPress={handleSubmit(handleFormSubmit)}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
     >
       <TabLayoutWrapperMainContent>
         <Panel
