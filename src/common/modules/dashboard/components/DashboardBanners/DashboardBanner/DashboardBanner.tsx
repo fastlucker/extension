@@ -86,6 +86,11 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           navigate(ROUTES.devicePasswordRecovery)
           break
 
+        case 'view-bridge': {
+          openBottomSheet()
+          break
+        }
+
         case 'open-swap-and-bridge-tab':
           navigate(ROUTES.swapAndBridge)
           break
@@ -165,7 +170,16 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           break
       }
     },
-    [dispatch, navigate, openBottomSheet, visibleActionsQueue, type, addToast, account]
+    [
+      dispatch,
+      navigate,
+      addToast,
+      visibleActionsQueue,
+      type,
+      account,
+      actionsQueue,
+      openBottomSheet
+    ]
   )
 
   const renderButtons = useMemo(

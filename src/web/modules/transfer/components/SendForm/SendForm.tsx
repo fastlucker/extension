@@ -10,6 +10,7 @@ import { getRpcProvider } from '@ambire-common/services/provider'
 import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
+import SendToken from '@common/components/SendToken'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -24,7 +25,6 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
-import SendToken from '@common/components/SendToken'
 
 import styles from './styles'
 
