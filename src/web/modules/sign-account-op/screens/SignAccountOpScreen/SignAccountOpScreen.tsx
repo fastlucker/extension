@@ -83,7 +83,6 @@ const SignAccountOpScreen = () => {
     isChooseSignerShown,
     setIsChooseSignerShown,
     onSignButtonClick,
-    notReadyToSignButAlsoNotDone,
     handleChangeSigningKey,
     warningToPromptBeforeSign,
     handleDismissLedgerConnectModal,
@@ -97,7 +96,8 @@ const SignAccountOpScreen = () => {
     shouldDisplayLedgerConnectModal,
     network,
     actionLoaded,
-    setActionLoaded
+    setActionLoaded,
+    isSignDisabled
   } = useSign({
     handleUpdateStatus,
     signAccountOpState,
@@ -265,12 +265,7 @@ const SignAccountOpScreen = () => {
               onAddToCart={handleAddToCart}
               isAddToCartDisplayed={!!signAccountOpState && !!network}
               isSignLoading={isSignLoading}
-              isSignDisabled={
-                isViewOnly ||
-                isSignLoading ||
-                notReadyToSignButAlsoNotDone ||
-                !signAccountOpState?.readyToSign
-              }
+              isSignDisabled={isSignDisabled}
               // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
               // because they can't sign it anyway
 

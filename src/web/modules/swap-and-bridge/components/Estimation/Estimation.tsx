@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Text from '@common/components/Text'
 import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -31,7 +32,13 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
 
   const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
-  const { signAccountOpController, hasProceeded } = useSwapAndBridgeControllerState()
+  const { signAccountOpController, hasProceeded, swapSignErrors } =
+    useSwapAndBridgeControllerState()
+
+  const signingErrors = useMemo(() => {
+    const signAccountOpErrors = signAccountOpController ? signAccountOpController.errors : []
+    return [...swapSignErrors, ...signAccountOpErrors]
+  }, [swapSignErrors, signAccountOpController])
 
   /**
    * Single click broadcast
@@ -78,7 +85,8 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
     isSignLoading,
     renderedButNotNecessarilyVisibleModal,
     handleChangeSigningKey,
-    onSignButtonClick
+    onSignButtonClick,
+    isSignDisabled
   } = useSign({
     signAccountOpState: signAccountOpController,
     handleBroadcast: handleBroadcastAccountOp,
@@ -121,6 +129,13 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               isSponsored={false}
               sponsor={undefined}
             />
+            {signingErrors.length > 0 && (
+              <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
+                <Text fontSize={12} appearance="errorText">
+                  {t(signingErrors[0].title)}
+                </Text>
+              </View>
+            )}
             <View
               style={{
                 height: 1,
@@ -141,7 +156,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               <Button
                 text={t('Sign')}
                 hasBottomSpacing={false}
-                disabled={isSignLoading}
+                disabled={isSignDisabled || signingErrors.length > 0}
                 onPress={onSignButtonClick}
                 style={{ minWidth: 160 }}
               />
