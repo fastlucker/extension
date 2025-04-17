@@ -9,6 +9,7 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import BadgeWithPreset from '@common/components/BadgeWithPreset'
+import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -262,7 +263,7 @@ const Account = ({
           </View>
         </View>
       </View>
-      {/* {[
+      {[
         ImportStatus.ImportedWithSomeOfTheKeys,
         ImportStatus.ImportedWithTheSameKeys,
         ImportStatus.ImportedWithDifferentKeys,
@@ -312,7 +313,7 @@ const Account = ({
             />
           )}
         </View>
-      )} */}
+      )}
     </Pressable>
   )
 }
