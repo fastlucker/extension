@@ -53,8 +53,8 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
     [dispatch]
   )
 
-  const renderItem = ({ item }: any): ReactElement<any, any> => (
-    <Panel spacingsSize="small" style={spacings.mbTy}>
+  const renderItem = ({ item, index }: any): ReactElement<any, any> => (
+    <Panel spacingsSize="small" style={index < seeds.length - 1 && spacings.mbTy}>
       <Text weight="medium" numberOfLines={1} style={spacings.mbLg}>
         {item.label}
       </Text>
