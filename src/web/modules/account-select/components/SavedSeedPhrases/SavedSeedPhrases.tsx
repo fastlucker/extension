@@ -54,7 +54,7 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
   )
 
   const renderItem = ({ item }: any): ReactElement<any, any> => (
-    <Panel spacingsSize="small">
+    <Panel spacingsSize="small" style={spacings.mbTy}>
       <Text weight="medium" numberOfLines={1} style={spacings.mbLg}>
         {item.label}
       </Text>
@@ -90,10 +90,7 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
         <PanelBackButton onPress={handleClose} style={spacings.mr} />
         <PanelTitle title={t('Add from current recovery phrase')} style={text.left} />
       </View>
-
-      <View style={flexbox.flex1}>
-        <FlatList data={seeds} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      </View>
+      <FlatList data={seeds} renderItem={renderItem} keyExtractor={(item) => item.id} />
     </View>
   )
 }

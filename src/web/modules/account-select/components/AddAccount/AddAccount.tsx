@@ -170,7 +170,8 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
         id="seed-phrases-bottom-sheet"
         sheetRef={sheetRef}
         adjustToContentHeight={false}
-        scrollViewProps={{ showsVerticalScrollIndicator: false }}
+        containerInnerWrapperStyles={{ flex: 1 }}
+        isScrollEnabled={false}
         closeBottomSheet={closeBottomSheet}
       >
         <SavedSeedPhrases handleClose={closeBottomSheet as any} />

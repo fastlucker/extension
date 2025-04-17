@@ -135,7 +135,7 @@ const Panel: React.FC<Props> = ({
   }
 
   return (
-    <View style={[styles.container, getPanelPaddings(maxWidthSize, 'large'), style]} {...rest}>
+    <View style={[styles.container, getPanelPaddings(maxWidthSize, spacingsSize), style]} {...rest}>
       {!!title && (
         <Text
           fontSize={maxWidthSize('xl') ? 20 : 18}
