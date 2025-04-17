@@ -1,5 +1,5 @@
 import { formatUnits, ZeroAddress } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
@@ -24,8 +24,8 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
-
 import SendToken from '@common/components/SendToken'
+
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -39,7 +39,8 @@ const SendForm = ({
   isRecipientAddressUnknown,
   isSWWarningVisible,
   isRecipientHumanizerKnownTokenOrSmartContract,
-  recipientMenuClosedAutomaticallyRef
+  recipientMenuClosedAutomaticallyRef,
+  formTitle
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
@@ -48,6 +49,7 @@ const SendForm = ({
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
   recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
+  formTitle: string | ReactNode
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
@@ -326,6 +328,7 @@ const SendForm = ({
           handleSetMaxFromAmount={setMaxAmount}
           inputTestId="amount-field"
           selectTestId="tokens-select"
+          title={formTitle}
         />
       )}
       <View>

@@ -269,16 +269,30 @@ const TransferScreen = () => {
     )
   }, [handleGasTankInfoPressed, maxWidthSize, t])
 
-  const title = useMemo(
-    () => (state.isTopUp ? gasTankLabelWithInfo : 'Send'),
+  // Title shown in BottomSheet header
+  const headerTitle = useMemo(
+    () => (state.isTopUp ? gasTankLabelWithInfo : t('Send')),
     [state.isTopUp, gasTankLabelWithInfo]
   )
+
+  // Title shown before SendToken component
+  const formTitle = useMemo(() => {
+    if (state.isTopUp) {
+      if (isPopup) {
+        return t('Top Up')
+      }
+
+      return gasTankLabelWithInfo
+    }
+
+    return t('Send')
+  }, [state.isTopUp, gasTankLabelWithInfo])
 
   const header = useMemo(
     () =>
       isPopup ? (
         <Header
-          customTitle={title}
+          customTitle={headerTitle}
           withAmbireLogo
           withOG
           forceBack
@@ -367,6 +381,7 @@ const TransferScreen = () => {
               }
               isSWWarningVisible={isSWWarningVisible}
               recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
+              formTitle={formTitle}
             />
             {isTopUp && !isSmartAccount && (
               <View style={spacings.ptLg}>

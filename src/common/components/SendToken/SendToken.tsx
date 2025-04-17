@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react'
+import React, {FC, memo, ReactNode, useCallback} from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -35,6 +35,7 @@ type Props = {
   handleSetMaxFromAmount: () => void
   inputTestId?: string
   selectTestId?: string
+  title?: string | ReactNode
 }
 
 const SendToken: FC<Props> = ({
@@ -53,11 +54,13 @@ const SendToken: FC<Props> = ({
   handleSwitchFromAmountFieldMode,
   handleSetMaxFromAmount,
   inputTestId,
-  selectTestId
+  selectTestId,
+  title
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
+  const heading = title ?? t('Send')
 
   const dollarIcon = useCallback(() => {
     if (fromAmountFieldMode === 'token') return null
@@ -76,7 +79,7 @@ const SendToken: FC<Props> = ({
   return (
     <View style={spacings.mbXl}>
       <Text appearance="secondaryText" fontSize={16} weight="medium" style={spacings.mbTy}>
-        {t('Send')}
+        {heading}
       </Text>
       <View
         style={[
