@@ -32,7 +32,7 @@ import RouteInfo from '../../components/RouteInfo'
 import ToToken from '../../components/ToToken'
 import getStyles from './styles'
 
-const { isTab, isActionWindow } = getUiType()
+const { isTab, isActionWindow, isPopup } = getUiType()
 
 const SwapAndBridgeScreen = () => {
   const { theme, styles } = useTheme(getStyles)
@@ -200,7 +200,7 @@ const SwapAndBridgeScreen = () => {
         contentContainerStyle={{
           ...spacings.pv0,
           ...paddingHorizontalStyle,
-          ...(isActionWindow ? spacings.pt2Xl : {}),
+          ...(!isPopup ? spacings.pt2Xl : {}),
           flexGrow: 1
         }}
         wrapperRef={scrollViewRef}
