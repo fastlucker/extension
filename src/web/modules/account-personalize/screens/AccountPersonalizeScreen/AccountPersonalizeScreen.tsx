@@ -27,6 +27,7 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import AccountsLoadingAnimation from '@web/modules/account-personalize/components/AccountsLoadingAnimation'
 import AccountsLoadingDotsAnimation from '@web/modules/account-personalize/components/AccountsLoadingDotsAnimation'
@@ -42,6 +43,7 @@ const AccountPersonalizeScreen = () => {
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
   const { accounts } = useAccountsControllerState()
+  const { isSetupComplete } = useWalletStateController()
   const { addToast } = useToast()
   const { handleSubmit, control, setValue, getValues } = useForm({
     defaultValues: {
@@ -212,19 +214,8 @@ const AccountPersonalizeScreen = () => {
                   </View>
                 </View>
                 <Text weight="semiBold" fontSize={20}>
-                  {t('Added Successfully')}
+                  {t('Added successfully')}
                 </Text>
-                {/* <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
-            <Text fontSize={16} appearance="successText">
-              {newAccounts.length === 1
-                ? t('Successfully added {{numOfAccounts}} account', {
-                    numOfAccounts: newAccounts.length
-                  })
-                : t('Successfully added {{numOfAccounts}} accounts', {
-                    numOfAccounts: newAccounts.length
-                  })}
-            </Text>
-          </Alert> */}
               </View>
               <ScrollView style={spacings.mbLg}>
                 {accountsToPersonalize.map((acc, index) => (
@@ -243,7 +234,7 @@ const AccountPersonalizeScreen = () => {
                 size="large"
                 onPress={handleGetStarted}
                 hasBottomSpacing={false}
-                text={t('Get Started')}
+                text={isSetupComplete ? t('Open dashboard') : t('Complete')}
               />
               {['seed', 'hw'].includes(accountPickerState.subType as any) && (
                 <View style={spacings.ptLg}>
@@ -252,7 +243,7 @@ const AccountPersonalizeScreen = () => {
                     type="ghost"
                     text={t('Add more accounts from this {{source}}', {
                       source:
-                        accountPickerState.subType === 'hw' ? 'Hardware Wallet' : 'Recovery Phrase'
+                        accountPickerState.subType === 'hw' ? 'hardware wallet' : 'recovery phrase'
                     })}
                     onPress={() => goToNextRoute(WEB_ROUTES.accountPicker)}
                     textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}

@@ -59,11 +59,11 @@ const OnboardingCompletedScreen = () => {
                 <AmbireLogo height={96} />
               </View>
               <Text
-                style={[spacings.mtLg, isPinned ? spacings.mbXl : spacings.mb, text.center]}
+                style={[spacings.mtLg, spacings.mb, text.center]}
                 weight="semiBold"
                 fontSize={20}
               >
-                {t('Ambire Wallet is Ready to Use')}
+                {t('Ambire Wallet is ready to use')}
               </Text>
               {!isPinned && (
                 <Text appearance="secondaryText" weight="medium" style={[text.center]}>
@@ -72,14 +72,12 @@ const OnboardingCompletedScreen = () => {
               )}
 
               <View style={[flexbox.flex1, flexbox.justifyEnd]}>
-                {!!isPinned && (
-                  <Button
-                    testID="onboarding-completed-open-dashboard-btn"
-                    text={t('Open Dashboard')}
-                    hasBottomSpacing={false}
-                    onPress={handleOpenDashboardPress}
-                  />
-                )}
+                <Button
+                  testID="onboarding-completed-open-dashboard-btn"
+                  text={t('Open dashboard')}
+                  hasBottomSpacing={false}
+                  onPress={handleOpenDashboardPress}
+                />
               </View>
             </View>
           </Panel>
