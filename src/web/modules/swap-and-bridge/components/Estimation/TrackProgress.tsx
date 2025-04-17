@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useRef } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -53,7 +53,6 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const toAssetSymbol = steps ? steps[steps.length - 1].toAsset.symbol : null
   const { maxWidthSize } = useWindowSize()
   const paddingHorizontalStyle = useMemo(() => getTabLayoutPadding(maxWidthSize), [maxWidthSize])
-  const scrollViewRef: any = useRef(null)
   const isSwap = lastCompletedRoute.route && !getIsBridgeRoute(lastCompletedRoute.route)
 
   const onPrimaryButtonPress = useCallback(() => {
@@ -88,9 +87,10 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
   return (
     <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
+      backgroundColor={theme.primaryBackground}
       header={
         <Header
+          backgroundColor="primaryBackground"
           displayBackButtonIn="never"
           mode="title"
           customTitle={t('Swap & Bridge')}
@@ -99,23 +99,22 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
       }
       withHorizontalPadding={false}
       footer={null}
-      // @ts-ignore
-      style={[flexbox.alignEnd, spacings.pb]}
+      style={{ ...flexbox.alignEnd, ...spacings.pb }}
     >
       <TabLayoutWrapperMainContent
         contentContainerStyle={{
-          ...spacings.pt0,
-          ...spacings.pb0,
+          ...spacings.pv0,
           ...paddingHorizontalStyle,
-          flexGrow: 1
+          ...flexbox.flex1
         }}
-        wrapperRef={scrollViewRef}
+        withScroll={false}
       >
         <View style={[flexbox.flex1, flexbox.justifyCenter]}>
           <View
             style={[
               flexbox.alignCenter,
               flexbox.justifyCenter,
+              isActionWindow ? {} : flexbox.flex1,
               isActionWindow ? spacings.pt0 : spacings.pt2Xl
             ]}
           >
