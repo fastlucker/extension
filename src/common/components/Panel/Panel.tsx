@@ -76,7 +76,7 @@ const Panel: React.FC<Props> = ({
   ...rest
 }) => {
   const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { maxWidthSize, minHeightSize } = useWindowSize()
 
   const renderProgress = () => (
     <View style={[flexbox.directionRow]}>
@@ -116,7 +116,8 @@ const Panel: React.FC<Props> = ({
             {
               width: '100%',
               maxWidth: panelWidth,
-              alignSelf: 'center'
+              alignSelf: 'center',
+              minHeight: minHeightSize('l') ? '95%' : '92%'
             }
           ]}
           {...rest}

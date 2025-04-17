@@ -27,7 +27,6 @@ const getStyles = (theme: ThemeProps) =>
       ...common.shadowTertiary,
       ...flexbox.alignSelfCenter,
       minHeight: 486,
-      maxHeight: '92%',
       overflow: 'hidden'
     },
     innerContainer: {
