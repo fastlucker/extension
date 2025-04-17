@@ -419,6 +419,12 @@ const useSwapAndBridgeForm = () => {
     }
   }, [activeRoutes.length, mainCtrlStatuses.broadcastSignedAccountOp])
 
+  useEffect(() => {
+    if (!signAccountOpController) {
+      closeEstimationModalWrapped()
+    }
+  }, [closeEstimationModalWrapped, signAccountOpController])
+
   return {
     sessionId,
     fromAmountValue,
