@@ -492,3 +492,4 @@ credentials.json
 /recorder
 /tests/reports
 run-tests-logs
+run-tests.sh

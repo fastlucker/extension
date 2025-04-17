@@ -253,7 +253,7 @@ export async function prepareBridgeTransaction(
 
   // If Warning: The price impact is too high
   const isfirmFollowUp = await page
-    .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 1000 })
+    .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 6000 })
     .catch(() => null)
   if (isfirmFollowUp) {
     await clickOnElement(page, SELECTORS.confirmFollowUpTxn)
