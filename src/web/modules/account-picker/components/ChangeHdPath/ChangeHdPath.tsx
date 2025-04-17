@@ -51,6 +51,7 @@ const ChangeHdPath: React.FC<Props> = ({ setPage }) => {
   return (
     <>
       <Button
+        testID="change-hd-path-btn"
         size="small"
         type="ghost"
         onPress={() => openBottomSheet()}

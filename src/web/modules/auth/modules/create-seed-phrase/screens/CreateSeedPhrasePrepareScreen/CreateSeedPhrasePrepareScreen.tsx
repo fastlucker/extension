@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
@@ -9,7 +9,6 @@ import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useExtraEntropy from '@common/hooks/useExtraEntropy'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -21,7 +20,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -42,9 +40,7 @@ const CHECKBOXES = [
 
 const CreateSeedPhrasePrepareScreen = () => {
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
-  const { accounts } = useAccountsControllerState()
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
   const { theme } = useTheme()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
@@ -69,11 +65,6 @@ const CreateSeedPhrasePrepareScreen = () => {
 
     goToNextRoute(WEB_ROUTES.createSeedPhraseWrite)
   }, [getExtraEntropy, goToNextRoute, dispatch, keystoreState.hasTempSeed])
-
-  // prevent proceeding with new seed phrase setup if there is a saved seed phrase already associated with the keystore
-  useEffect(() => {
-    if (keystoreState.hasKeystoreSavedSeed) goToPrevRoute()
-  }, [goToPrevRoute, keystoreState.hasKeystoreSavedSeed])
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {
@@ -147,8 +138,6 @@ const CreateSeedPhrasePrepareScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
-      {/* TODO: Delete it */}
-      {/* <CreateSeedPhraseSidebar currentStepId="prepare" /> */}
     </TabLayoutContainer>
   )
 }
