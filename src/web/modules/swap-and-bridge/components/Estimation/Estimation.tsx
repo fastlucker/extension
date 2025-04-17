@@ -10,7 +10,6 @@ import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { POPUP_WIDTH } from '@web/constants/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -21,18 +20,13 @@ import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect
 import { getUiType } from '@web/utils/uiType'
 
 type Props = {
-  displayedView: 'estimate' | 'track' | 'batch'
   closeEstimationModal: () => void
   estimationModalRef: React.RefObject<any>
 }
 
 const { isActionWindow } = getUiType()
 
-const SwapAndBridgeEstimation = ({
-  closeEstimationModal,
-  displayedView,
-  estimationModalRef
-}: Props) => {
+const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
@@ -94,31 +88,15 @@ const SwapAndBridgeEstimation = ({
     isOneClickSwap: true
   })
 
-  const isTrackDisplayedInActionWindow = displayedView === 'track' && isActionWindow
-
   return (
     <>
       <BottomSheet
         id="estimation-modal"
         sheetRef={estimationModalRef}
         backgroundColor="primaryBackground"
-        closeBottomSheet={!isTrackDisplayedInActionWindow ? closeEstimationModal : undefined}
-        shouldBeClosableOnDrag={!isTrackDisplayedInActionWindow}
         // NOTE: This must be lower than SigningKeySelect's z-index
         customZIndex={5}
-        type={isTrackDisplayedInActionWindow ? 'modal' : 'bottom-sheet'}
-        // Open the bottomSheet automatically when the screen is opened
-        // in an action window
-        adjustToContentHeight={!isTrackDisplayedInActionWindow}
         autoOpen={hasProceeded || (isActionWindow && !!signAccountOpController)}
-        style={
-          isTrackDisplayedInActionWindow
-            ? { minHeight: 600, ...flexbox.alignCenter, ...flexbox.justifyCenter }
-            : {}
-        }
-        containerInnerWrapperStyles={
-          isTrackDisplayedInActionWindow ? { ...flexbox.flex1, width: POPUP_WIDTH } : undefined
-        }
         isScrollEnabled={false}
       >
         {!!signAccountOpController && (

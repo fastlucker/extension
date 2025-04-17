@@ -251,7 +251,6 @@ const SwapAndBridgeScreen = () => {
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModalWrapped}
         estimationModalRef={estimationModalRef}
-        displayedView={displayedView}
       />
       <PriceImpactWarningModal
         sheetRef={priceImpactModalRef}
