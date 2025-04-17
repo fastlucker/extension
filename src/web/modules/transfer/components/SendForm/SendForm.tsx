@@ -329,6 +329,7 @@ const SendForm = ({
           inputTestId="amount-field"
           selectTestId="tokens-select"
           title={formTitle}
+          maxAmountDisabled={!isMaxAmountEnabled}
         />
       )}
       <View>

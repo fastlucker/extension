@@ -1,4 +1,4 @@
-import React, {FC, memo, ReactNode, useCallback} from 'react'
+import React, { FC, memo, ReactNode, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -36,6 +36,7 @@ type Props = {
   inputTestId?: string
   selectTestId?: string
   title?: string | ReactNode
+  maxAmountDisabled?: boolean
 }
 
 const SendToken: FC<Props> = ({
@@ -55,7 +56,8 @@ const SendToken: FC<Props> = ({
   handleSetMaxFromAmount,
   inputTestId,
   selectTestId,
-  title
+  title,
+  maxAmountDisabled
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const { theme, styles } = useTheme(getStyles)
@@ -139,6 +141,7 @@ const SendToken: FC<Props> = ({
               maxAmount={Number(maxFromAmount)}
               selectedTokenSymbol={fromSelectedToken?.symbol || ''}
               onMaxButtonPress={handleSetMaxFromAmount}
+              disabled={maxAmountDisabled}
             />
           )}
           {fromSelectedToken?.priceIn.length !== 0 ? (
