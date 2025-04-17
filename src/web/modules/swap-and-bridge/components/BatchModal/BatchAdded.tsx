@@ -28,9 +28,10 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
 
   return (
     <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
+      backgroundColor={theme.primaryBackground}
       header={
         <Header
+          backgroundColor="primaryBackground"
           displayBackButtonIn="never"
           mode="title"
           customTitle={t('Swap & Bridge')}
@@ -39,19 +40,26 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
       }
       withHorizontalPadding={false}
       footer={null}
-      // @ts-ignore
-      style={[flexbox.alignEnd, spacings.pb]}
+      style={{ ...flexbox.alignEnd, ...spacings.pb }}
     >
       <TabLayoutWrapperMainContent
         contentContainerStyle={{
-          ...spacings.pt0,
-          ...spacings.pb0,
+          ...spacings.pv0,
           ...paddingHorizontalStyle,
-          flexGrow: 1
+          ...flexbox.flex1
         }}
         wrapperRef={scrollViewRef}
+        withScroll={false}
       >
-        <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.pt2Xl, spacings.pbXl]}>
+        <View
+          style={[
+            flexbox.flex1,
+            flexbox.alignCenter,
+            flexbox.justifyCenter,
+            spacings.pt2Xl,
+            spacings.pbXl
+          ]}
+        >
           <CartIcon width={64} height={64} color={theme.secondaryText} />
           <Text fontSize={20} weight="medium" style={[spacings.mbTy, spacings.mtLg, text.center]}>
             {t('Added to batch')}
