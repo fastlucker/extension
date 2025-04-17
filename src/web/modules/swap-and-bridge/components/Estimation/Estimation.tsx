@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Text from '@common/components/Text'
 import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -142,6 +143,13 @@ const SwapAndBridgeEstimation = ({
               isSponsored={false}
               sponsor={undefined}
             />
+            {signAccountOpController.errors.length && (
+              <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
+                <Text fontSize={12} appearance="errorText">
+                  {t(signAccountOpController.errors[0].title)}
+                </Text>
+              </View>
+            )}
             <View
               style={{
                 height: 1,
