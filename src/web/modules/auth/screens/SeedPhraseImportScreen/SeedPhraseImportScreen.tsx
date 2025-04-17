@@ -9,6 +9,7 @@ import BrushIcon from '@common/assets/svg/BrushIcon'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
 import usePrevious from '@common/hooks/usePrevious'
@@ -74,12 +75,12 @@ const SeedPhraseImportScreen = () => {
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seed, passphrase }) => {
-      const formattedSeed = seed.trim().split(/\s+/).join(' ')
+      const formattedSeed = seed.trim().toLowerCase().replace(/\s+/g, ' ')
 
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED',
         params: {
-          seed,
+          seed: formattedSeed,
           seedPassphrase: passphrase || null,
           hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
         }
@@ -100,7 +101,7 @@ const SeedPhraseImportScreen = () => {
 
   const validateSeedPhraseWord = useCallback(
     (value: string) => {
-      const formattedSeed = value.trim().split(/\s+/).join(' ')
+      const formattedSeed = value.trim().toLowerCase().replace(/\s+/g, ' ')
 
       const couldValueBeAPastedSeed = formattedSeed.length > 1
 
@@ -150,23 +151,68 @@ const SeedPhraseImportScreen = () => {
                 }}
                 name="seed"
                 render={({ field: { onChange, onBlur, value } }) => {
+                  const words = value.split(/(\s+)/)
+
+                  const styledOverlay = (
+                    <View style={styles.overlay}>
+                      {words.map((word, index) => {
+                        const isWhitespace = /^\s+$/.test(word)
+                        const cleanWord = word.trim().toLowerCase()
+                        const isValidWord = isWhitespace || wordlists.english.includes(cleanWord)
+
+                        if (isWhitespace) {
+                          return (
+                            <Text key={`space-${String(index)}`} fontSize={14}>
+                              {word}
+                            </Text>
+                          )
+                        }
+
+                        return (
+                          <Text
+                            key={`${word}-${String(index)}`}
+                            fontSize={14}
+                            style={{
+                              color: isValidWord ? theme.primaryText : theme.errorText,
+                              textDecorationLine: isValidWord ? 'none' : 'underline'
+                            }}
+                          >
+                            {word}
+                          </Text>
+                        )
+                      })}
+                    </View>
+                  )
+
                   return (
-                    <TextArea
-                      testID="enter-seed-phrase-field"
-                      value={value}
-                      editable
-                      multiline
-                      numberOfLines={4}
-                      autoFocus
-                      containerStyle={spacings.mb0}
-                      placeholder={t('Write or paste your Recovery Phrase')}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      isValid={seedPhraseStatus === 'valid'}
-                      error={seedPhraseStatus === 'invalid' && t('Invalid Recovery Phrase.')}
-                      placeholderTextColor={theme.secondaryText}
-                      onSubmitEditing={handleFormSubmit}
-                    />
+                    <View style={styles.textAreaWrapper}>
+                      {styledOverlay}
+                      <TextArea
+                        testID="enter-seed-phrase-field"
+                        value={value}
+                        editable
+                        multiline
+                        numberOfLines={4}
+                        autoFocus
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        inputWrapperStyle={{
+                          position: 'relative',
+                          backgroundColor: 'transparent',
+                          zIndex: 2
+                        }}
+                        placeholder={t('Write or paste your Recovery Phrase')}
+                        isValid={seedPhraseStatus === 'valid'}
+                        error={seedPhraseStatus === 'invalid' && t('Invalid Recovery Phrase.')}
+                        placeholderTextColor={theme.secondaryText}
+                        onSubmitEditing={handleFormSubmit}
+                        nativeInputStyle={{
+                          color: 'rgba(0, 0, 0, 0.01)',
+                          // @ts-ignore caretColor: theme.primaryText
+                          caretColor: theme.primaryText
+                        }}
+                      />
+                    </View>
                   )
                 }}
               />
@@ -198,7 +244,7 @@ const SeedPhraseImportScreen = () => {
               text={t('Confirm')}
               hasBottomSpacing={false}
               onPress={handleFormSubmit}
-              disabled={!isValid}
+              disabled={!isValid || seedPhraseStatus === 'invalid'}
             />
           </View>
         </Panel>
