@@ -84,7 +84,6 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (shouldBeVisible && isPopup) {
-      console.log('dispatched', shouldBeVisible, isPopup)
       // If the user needs to sign using a hardware wallet, we need to open the
       // screen in an action window and close the popup
       dispatch({
