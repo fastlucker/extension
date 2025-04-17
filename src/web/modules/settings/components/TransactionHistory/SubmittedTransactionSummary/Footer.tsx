@@ -126,7 +126,7 @@ const Footer: FC<Props> = ({
             </Text>
 
             {gasFeePayment?.isSponsored ? (
-              <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
+              <Text fontSize={12} appearance="successText" style={spacings.mrTy} weight="semiBold">
                 {t('Sponsored')}
               </Text>
             ) : (
