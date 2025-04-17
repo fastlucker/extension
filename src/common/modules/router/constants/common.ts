@@ -55,7 +55,7 @@ const WEB_ROUTES = {
   manageTokens: 'settings/manage-tokens',
   importPrivateKey: 'import-private-key',
   importSmartAccountJson: 'import-smart-account-json',
-  importSeedPhrase: 'import-seed-phrase',
+  importSeedPhrase: 'import-recovery-phrase',
   importExistingAccount: 'import-existing-account',
   createSeedPhrasePrepare: 'create-new-recovery-phrase',
   createSeedPhraseWrite: 'backup-recovery-phrase',
