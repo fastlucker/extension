@@ -209,7 +209,7 @@ const SmartAccountImportScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="md"
-      header={<Header withAmbireLogo />}
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
         <Panel
