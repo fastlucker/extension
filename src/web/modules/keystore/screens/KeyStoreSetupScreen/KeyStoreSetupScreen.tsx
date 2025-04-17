@@ -61,8 +61,9 @@ const KeyStoreSetupScreen = () => {
             >
               {t('Used to access your wallet and encrypt your data.')}
             </Text>
-            <KeyStoreSetupForm>
+            <KeyStoreSetupForm agreedWithTerms={agreedWithTerms}>
               <Checkbox
+                testID="keystore-setup-checkbox"
                 value={agreedWithTerms}
                 onValueChange={setAgreedWithTerms}
                 uncheckedBorderColor={theme.primaryText}
@@ -70,7 +71,10 @@ const KeyStoreSetupScreen = () => {
                 label={
                   <Trans>
                     <Text fontSize={14}>I agree to the </Text>
-                    <TouchableOpacity onPress={() => openTermsModal()}>
+                    <TouchableOpacity
+                      testID="terms-of-service-btn"
+                      onPress={() => openTermsModal()}
+                    >
                       <Text fontSize={14} underline color={theme.infoDecorative}>
                         Terms of Service
                       </Text>
@@ -101,6 +105,7 @@ const KeyStoreSetupScreen = () => {
           description={<TermsComponent />}
           primaryButtonText={t('Ok')}
           onPrimaryButtonPress={closeTermsModal}
+          primaryButtonTestID="terms-accept-btn"
         />
       </BottomSheet>
     </TabLayoutContainer>

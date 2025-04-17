@@ -93,16 +93,19 @@ const GetStartedScreen = () => {
             </View>
             <View style={[flexbox.justifySpaceBetween]}>
               <Button
+                testID="create-new-account-btn"
                 type="primary"
                 text={t('Create New Account')}
                 onPress={() => handleAuthButtonPress('create-new-account')}
               />
               <Button
+                testID="create-existing-account-btn"
                 type="secondary"
                 text={t('Import Existing Account')}
                 onPress={() => handleAuthButtonPress('import-existing-account')}
               />
               <Button
+                testID="view-only-address-btn"
                 type="ghost"
                 hasBottomSpacing={false}
                 onPress={() => handleAuthButtonPress('view-only')}

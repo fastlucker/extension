@@ -1,14 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/return-await */
-import {
-  BIP44_STANDARD_DERIVATION_TEMPLATE,
-  HD_PATH_TEMPLATE_TYPE
-} from '@ambire-common/consts/derivation'
+import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -16,10 +10,6 @@ import { ExtensionUpdateController } from '@web/extension-services/background/co
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { Port, PortMessenger } from '@web/extension-services/messengers'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
-import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
@@ -30,9 +20,6 @@ export const handleActions = async (
     pm,
     port,
     mainCtrl,
-    ledgerCtrl,
-    trezorCtrl,
-    latticeCtrl,
     walletStateCtrl,
     autoLockCtrl,
     extensionUpdateCtrl
@@ -40,78 +27,11 @@ export const handleActions = async (
     pm: PortMessenger
     port: Port
     mainCtrl: MainController
-    ledgerCtrl: LedgerController
-    trezorCtrl: TrezorController
-    latticeCtrl: LatticeController
     walletStateCtrl: WalletStateController
     autoLockCtrl: AutoLockController
     extensionUpdateCtrl: ExtensionUpdateController
   }
 ) => {
-  async function handleAccountPickerAddAccounts() {
-    const readyToAddKeys: ReadyToAddKeys = {
-      internal: [],
-      external: []
-    }
-
-    if (mainCtrl.accountPicker.type === 'internal') {
-      readyToAddKeys.internal = mainCtrl.accountPicker.retrieveInternalKeysOfSelectedAccounts()
-    } else {
-      // External keys flow
-      const keyType = mainCtrl.accountPicker.type as ExternalKey['type']
-
-      const deviceIds: { [key in ExternalKey['type']]: string } = {
-        ledger: ledgerCtrl.deviceId,
-        trezor: trezorCtrl.deviceId,
-        lattice: latticeCtrl.deviceId
-      }
-
-      const deviceModels: { [key in ExternalKey['type']]: string } = {
-        ledger: ledgerCtrl.deviceModel,
-        trezor: trezorCtrl.deviceModel,
-        lattice: latticeCtrl.deviceModel
-      }
-
-      const readyToAddExternalKeys =
-        mainCtrl.accountPicker.selectedAccountsFromCurrentSession.flatMap(
-          ({ account, accountKeys }) =>
-            accountKeys.map(({ addr, index }, i) => ({
-              addr,
-              type: keyType,
-              label: `${
-                HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountPicker.type as ExternalKey['type']]
-              } ${
-                getExistingKeyLabel(
-                  mainCtrl.keystore.keys,
-                  addr,
-                  mainCtrl.accountPicker.type as Key['type']
-                ) ||
-                getDefaultKeyLabel(
-                  mainCtrl.keystore.keys.filter((key) => account.associatedKeys.includes(key.addr)),
-                  i
-                )
-              }`,
-              dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
-              meta: {
-                deviceId: deviceIds[keyType],
-                deviceModel: deviceModels[keyType],
-                // always defined in the case of external keys
-                hdPathTemplate: mainCtrl.accountPicker.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                index,
-                createdAt: new Date().getTime()
-              }
-            }))
-        )
-
-      readyToAddKeys.external = readyToAddExternalKeys
-    }
-
-    return await mainCtrl.accountPicker.addAccounts(
-      mainCtrl.accountPicker.selectedAccountsFromCurrentSession,
-      readyToAddKeys
-    )
-  }
-
   // @ts-ignore
   const { type, params } = action
   switch (type) {
@@ -163,19 +83,18 @@ export const handleActions = async (
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
       const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
       await mainCtrl.accountPicker.init({ keyIterator, hdPathTemplate })
-      return await mainCtrl.accountPicker.setPage({ page: 1 })
+      break
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE': {
-      if (mainCtrl.accountPicker.isInitialized) mainCtrl.accountPicker.reset()
-      const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
+      const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed(params.id)
       if (!keystoreSavedSeed) return
+
       const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
       await mainCtrl.accountPicker.init({
         keyIterator,
         hdPathTemplate: keystoreSavedSeed.hdPathTemplate
       })
-
-      return await mainCtrl.accountPicker.setPage({ page: 1 })
+      break
     }
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
@@ -242,7 +161,7 @@ export const handleActions = async (
       return await mainCtrl.accountPicker.setHDPathTemplate(params)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS': {
-      await handleAccountPickerAddAccounts()
+      await mainCtrl.accountPicker.addAccounts()
       break
     }
     case 'IMPORT_SMART_ACCOUNT_JSON': {
@@ -262,11 +181,6 @@ export const handleActions = async (
       // Since these accounts are view-only, directly add them in the
       // MainController, bypassing the AccountPicker flow.
       await mainCtrl.accounts.addAccounts(params.accounts)
-      break
-    }
-    case 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT': {
-      await mainCtrl.accountPicker.selectNextAccount()
-      await handleAccountPickerAddAccounts()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
@@ -463,7 +377,7 @@ export const handleActions = async (
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
-      return await mainCtrl.keystore.sendSeedToUi()
+      return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
       return await mainCtrl.keystore.sendTempSeedToUi()
     case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':

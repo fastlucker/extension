@@ -129,6 +129,7 @@ const CustomHDPathBottomSheet: FC<Props> = ({
             const isActive = selectedOption.value === option.value
             return (
               <Pressable
+                testID={`hd-path-option-${option.label.toLocaleLowerCase().split(' ').join('-')}`}
                 key={option.value}
                 onPress={() => handleOptionPress(option)}
                 disabled={disabled}
@@ -178,6 +179,7 @@ const CustomHDPathBottomSheet: FC<Props> = ({
             }}
             render={({ field: { value, onChange } }) => (
               <NumberInput
+                testID="hd-path-start-index-input"
                 value={value}
                 onChangeText={onChange}
                 error={errors.startIndex && errors.startIndex.message}
@@ -186,7 +188,12 @@ const CustomHDPathBottomSheet: FC<Props> = ({
           />
         </View>
         <View style={[flexbox.directionRow, flexbox.center]}>
-          <Button style={{ width: '50%' }} text={t('Confirm')} onPress={handleSubmit(onSubmit)} />
+          <Button
+            testID="hd-path-confirm-btn"
+            style={{ width: '50%' }}
+            text={t('Confirm')}
+            onPress={handleSubmit(onSubmit)}
+          />
         </View>
       </View>
     </BottomSheet>

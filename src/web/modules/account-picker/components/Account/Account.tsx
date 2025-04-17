@@ -9,6 +9,7 @@ import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Avatar from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import BadgeWithPreset from '@common/components/BadgeWithPreset'
+import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -118,6 +119,7 @@ const Account = ({
         }
       ]}
       onPress={isDisabled ? undefined : toggleSelectedState}
+      testID={`add-account-${account.addr}`}
     >
       <View
         style={[
@@ -136,10 +138,7 @@ const Account = ({
 
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-            <View
-              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}
-              testID="add-account-field"
-            >
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
               {isAccountImported ? (
                 <>
                   <Avatar
@@ -157,7 +156,6 @@ const Account = ({
                     {account.preferences.label}
                   </Text>
                   <Text
-                    testID={`add-account-${account.addr}`}
                     fontSize={14}
                     appearance="secondaryText"
                     style={spacings.mrMi}
@@ -181,7 +179,6 @@ const Account = ({
                     </Text>
                   ) : null}
                   <Text
-                    testID={`add-account-${account.addr}`}
                     fontSize={domainName ? 14 : 16}
                     appearance={domainName ? 'secondaryText' : 'primaryText'}
                     style={spacings.mrMi}
@@ -262,7 +259,7 @@ const Account = ({
           </View>
         </View>
       </View>
-      {/* {[
+      {[
         ImportStatus.ImportedWithSomeOfTheKeys,
         ImportStatus.ImportedWithTheSameKeys,
         ImportStatus.ImportedWithDifferentKeys,
@@ -312,7 +309,7 @@ const Account = ({
             />
           )}
         </View>
-      )} */}
+      )}
     </Pressable>
   )
 }

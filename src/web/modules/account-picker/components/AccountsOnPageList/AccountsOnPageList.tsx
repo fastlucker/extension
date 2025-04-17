@@ -15,7 +15,6 @@ import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
@@ -27,7 +26,6 @@ import Account from '@web/modules/account-picker/components/Account'
 import AccountsRetrieveError from '@web/modules/account-picker/components/AccountsRetrieveError'
 import { AccountPickerIntroStepsProvider } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
-// import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
 import getStyles from './styles'
 
@@ -40,18 +38,18 @@ type Props = {
   state: AccountPickerController
   setPage: (page: number) => void
   subType: AccountPickerController['subType']
+  isLoading: boolean
   lookingForLinkedAccounts: boolean
   children?: any
-  withTitle?: boolean
 }
 
 const AccountsOnPageList = ({
   state,
   setPage,
   subType,
+  isLoading,
   lookingForLinkedAccounts,
-  children,
-  withTitle = true
+  children
 }: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -62,7 +60,6 @@ const AccountsOnPageList = ({
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
-  const { maxWidthSize } = useWindowSize()
   const { styles, theme } = useTheme(getStyles)
 
   const slots = useMemo(() => {
@@ -116,12 +113,6 @@ const AccountsOnPageList = ({
       (a) => a.account.addr
     )
   }, [state.accountsOnPage, getType, lookingForLinkedAccounts])
-
-  const numberOfSelectedLinkedAccounts = useMemo(() => {
-    return linkedAccounts.filter((lAcc) =>
-      state.selectedAccounts.map((sAcc) => sAcc.account.addr).includes(lAcc.account.addr)
-    ).length
-  }, [linkedAccounts, state.selectedAccounts])
 
   const isImportingFromPrivateKey = subType === 'private-key'
 
@@ -182,27 +173,6 @@ const AccountsOnPageList = ({
     ]
   )
 
-  const setTitle = useCallback(() => {
-    // if (keyType && keyType !== 'internal') {
-    //   return t('Import accounts from {{ hwDeviceName }}', {
-    //     hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
-    //   })
-    // }
-
-    // if (subType === 'seed') {
-    //   return accountPickerState.isInitializedWithSavedSeed
-    //     ? t('Import accounts from saved seed phrase')
-    //     : t('Import accounts from seed phrase')
-    // }
-
-    // if (subType === 'private-key') {
-    //   return t('Select account(s) to import')
-    // }
-
-    return t('Select accounts to import')
-  }, [t])
-  // }, [accountPickerState.isInitializedWithSavedSeed, keyType, subType, t])
-
   const networkNamesWithAccountStateError = useMemo(() => {
     return accountPickerState.networksWithAccountStateError.map((chainId) => {
       return networks.find((n) => n.chainId === chainId)?.name
@@ -253,40 +223,6 @@ const AccountsOnPageList = ({
   return (
     <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
       <View style={flexbox.flex1} nativeID="account-picker-page-list">
-        {withTitle ||
-          (!!numberOfSelectedLinkedAccounts && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
-              {withTitle && (
-                <Text
-                  fontSize={maxWidthSize('xl') ? 20 : 18}
-                  weight="medium"
-                  appearance="primaryText"
-                  numberOfLines={1}
-                  style={[spacings.mrTy, flexbox.flex1]}
-                >
-                  {setTitle()}
-                </Text>
-              )}
-              {!!numberOfSelectedLinkedAccounts && (
-                <Alert
-                  type="success"
-                  size="sm"
-                  style={{ ...spacings.pvTy, ...flexbox.alignCenter }}
-                >
-                  <Text fontSize={16} appearance="successText">
-                    {numberOfSelectedLinkedAccounts === 1
-                      ? t('Selected ({{numOfAccounts}}) linked account on this page', {
-                          numOfAccounts: numberOfSelectedLinkedAccounts
-                        })
-                      : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
-                          numOfAccounts: numberOfSelectedLinkedAccounts
-                        })}
-                  </Text>
-                </Alert>
-              )}
-            </View>
-          ))}
-
         <View style={flexbox.flex1}>
           {!!networkNamesWithAccountStateError.length && (
             <Alert
@@ -320,7 +256,7 @@ const AccountsOnPageList = ({
                 setPage={setPage}
               />
             )}
-            {state.accountsLoading ? (
+            {state.accountsLoading || !!isLoading ? (
               <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
                 <Spinner style={styles.spinner} />
               </View>
@@ -340,72 +276,74 @@ const AccountsOnPageList = ({
                     )
                   })}
                 </View>
-                <View
-                  style={[
-                    styles.smartAccountWrapper,
-                    // @ts-ignore
-                    { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
-                  ]}
-                >
-                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-                    <Text fontSize={16} weight="medium" style={spacings.mrMd}>
-                      {t('Smart Accounts')}
-                      {/* TODO: Add an info icon here with a tooltip */}
-                    </Text>
-                    <View
-                      style={[
-                        flexbox.directionRow,
-                        flexbox.justifySpaceBetween,
-                        flexbox.alignCenter
-                      ]}
-                    >
-                      {lookingForLinkedAccounts && (
-                        <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-                          <Spinner style={{ width: 16, height: 16 }} />
-                          <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
-                            {t('Looking for linked smart accounts')}
-                          </Text>
-                        </View>
-                      )}
-                      {!lookingForLinkedAccounts && !!linkedAccounts.length && (
-                        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                          <Badge
-                            type="info"
-                            size="md"
-                            withRightSpacing
-                            text={`Linked Smart Account (found on page ${state.page})`}
-                            tooltipText="Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network."
-                          />
+                {!!Object.keys(slots).length && (
+                  <View
+                    style={[
+                      styles.smartAccountWrapper,
+                      // @ts-ignore
+                      { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
+                    ]}
+                  >
+                    <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
+                      <Text fontSize={16} weight="medium" style={spacings.mrMd}>
+                        {t('Smart Accounts')}
+                        {/* TODO: Add an info icon here with a tooltip */}
+                      </Text>
+                      <View
+                        style={[
+                          flexbox.directionRow,
+                          flexbox.justifySpaceBetween,
+                          flexbox.alignCenter
+                        ]}
+                      >
+                        {lookingForLinkedAccounts && (
+                          <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                            <Spinner style={{ width: 16, height: 16 }} />
+                            <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
+                              {t('Looking for linked smart accounts')}
+                            </Text>
+                          </View>
+                        )}
+                        {!lookingForLinkedAccounts && !!linkedAccounts.length && (
+                          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                            <Badge
+                              type="info"
+                              size="md"
+                              withRightSpacing
+                              text={`Linked Smart Account (found on page ${state.page})`}
+                              tooltipText="Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network."
+                            />
 
-                          <WarningFilledIcon data-tooltip-id="linked-accounts-warning" />
-                          <Tooltip
-                            id="linked-accounts-warning"
-                            border={`1px solid ${theme.warningDecorative as any}`}
-                            style={{
-                              backgroundColor: theme.warningBackground as any,
-                              color: theme.warningText as any
-                            }}
-                            content="Do not add linked accounts you are not aware of!"
-                          />
-                        </View>
-                      )}
-                    </View>
-                  </View>
-
-                  {Object.keys(slots).map((key, i) => {
-                    return (
-                      <View key={key}>
-                        {getAccounts({
-                          accounts: slots[key],
-                          shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                          slotIndex: 1,
-                          byType: ['smart', 'linked'],
-                          withQuaternaryBackground: true
-                        })}
+                            <WarningFilledIcon data-tooltip-id="linked-accounts-warning" />
+                            <Tooltip
+                              id="linked-accounts-warning"
+                              border={`1px solid ${theme.warningDecorative as any}`}
+                              style={{
+                                backgroundColor: theme.warningBackground as any,
+                                color: theme.warningText as any
+                              }}
+                              content="Do not add linked accounts you are not aware of!"
+                            />
+                          </View>
+                        )}
                       </View>
-                    )
-                  })}
-                </View>
+                    </View>
+
+                    {Object.keys(slots).map((key, i) => {
+                      return (
+                        <View key={key}>
+                          {getAccounts({
+                            accounts: slots[key],
+                            shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                            slotIndex: 1,
+                            byType: ['smart', 'linked'],
+                            withQuaternaryBackground: true
+                          })}
+                        </View>
+                      )
+                    })}
+                  </View>
+                )}
               </>
             )}
           </ScrollableWrapper>

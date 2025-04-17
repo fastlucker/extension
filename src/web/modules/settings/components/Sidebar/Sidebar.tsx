@@ -68,12 +68,12 @@ export const SETTINGS_LINKS = [
     label: 'Signed Messages',
     path: ROUTES.signedMessages
   },
-  {
-    key: 'security',
-    Icon: SidebarSecurityIcon,
-    label: 'Saved Seed Phrase',
-    path: ROUTES.securityAndPrivacy
-  },
+  // { TODO: impl multiple seed phrases support
+  //   key: 'security',
+  //   Icon: SidebarSecurityIcon,
+  //   label: 'Saved Seed Phrase',
+  //   path: ROUTES.securityAndPrivacy
+  // },
   {
     key: 'device-password-change',
     Icon: React.memo(KeyStoreSettingsIcon),

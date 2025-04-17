@@ -248,6 +248,7 @@ const AccountPersonalizeScreen = () => {
               {['seed', 'hw'].includes(accountPickerState.subType as any) && (
                 <View style={spacings.ptLg}>
                   <Button
+                    testID="add-more-accounts-btn"
                     type="ghost"
                     text={t('Add more accounts from this {{source}}', {
                       source:

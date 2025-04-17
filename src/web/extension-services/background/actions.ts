@@ -66,6 +66,7 @@ type MainControllerAccountPickerInitPrivateKeyOrSeedPhraseAction = {
 }
 type MainControllerAccountPickerInitFromSavedSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE'
+  params: { id: string }
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -90,6 +91,9 @@ type MainControllerAccountPickerSetPageAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE'
   params: {
     page: number
+    pageSize?: number
+    shouldSearchForLinkedAccounts?: boolean
+    shouldGetAccountsUsedOnNetworks?: boolean
   }
 }
 type MainControllerAccountPickerSetHdPathTemplateAction = {
@@ -106,9 +110,6 @@ type MainControllerAddAccounts = {
       domainName: string | null
     })[]
   }
-}
-type AccountPickerControllerAddNextAccount = {
-  type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT'
 }
 type MainControllerRemoveAccount = {
   type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
@@ -376,7 +377,7 @@ type KeystoreControllerAddSecretAction = {
 }
 type KeystoreControllerAddTempSeedAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED'
-  params: Omit<KeystoreSeed, 'label'>
+  params: Omit<KeystoreSeed, 'id' | 'label'>
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
@@ -402,6 +403,7 @@ type KeystoreControllerDeleteSavedSeed = {
 }
 type KeystoreControllerSendSeedToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI'
+  params: { id: string }
 }
 type KeystoreControllerSendTempSeedToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI'
@@ -641,7 +643,6 @@ export type Action =
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
-  | AccountPickerControllerAddNextAccount
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerLockAction

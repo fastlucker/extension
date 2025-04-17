@@ -1,5 +1,5 @@
-import React, { ReactNode, useEffect, useRef } from 'react'
-import { Animated, Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native'
+import React, { ReactNode } from 'react'
+import { Pressable, TextStyle, View, ViewProps, ViewStyle } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Text from '@common/components/Text'
@@ -15,7 +15,6 @@ import getStyles from './styles'
 interface Props extends ViewProps {
   type?: 'default' | 'onboarding'
   title?: string | ReactNode
-  isAnimated?: boolean
   spacingsSize?: 'small' | 'large'
   withBackButton?: boolean
   onBackButtonPress?: () => void
@@ -35,13 +34,11 @@ export const getPanelPaddings = (
 }
 
 const PanelBackButton = ({ onPress, style }: { onPress: () => void; style?: ViewStyle }) => {
-  const { styles, theme } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   return (
-    <Pressable onPress={onPress} style={[spacings.pvTy, style]}>
+    <Pressable testID="panel-back-btn" onPress={onPress} style={[spacings.pvTy, style]}>
       {({ hovered }: any) => (
-        <View
-          style={[styles.backBtnWrapper, hovered && { backgroundColor: theme.secondaryBackground }]}
-        >
+        <View style={[styles.backBtnWrapper, hovered && { backgroundColor: '#767DAD1F' }]}>
           <LeftArrowIcon />
         </View>
       )}
@@ -70,7 +67,6 @@ const Panel: React.FC<Props> = ({
   title,
   children,
   style,
-  isAnimated,
   spacingsSize = 'large',
   withBackButton,
   onBackButtonPress = () => {},
@@ -81,29 +77,6 @@ const Panel: React.FC<Props> = ({
 }) => {
   const { styles, theme } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
-  const animation = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    if (type === 'onboarding' && isAnimated) {
-      Animated.timing(animation, {
-        toValue: 1,
-        duration: 480,
-        useNativeDriver: false
-      }).start()
-    }
-  }, [animation, isAnimated, type])
-
-  const panelWidthInterpolate = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [100, panelWidth],
-    extrapolate: 'clamp'
-  })
-
-  const opacityInterpolate = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-    extrapolate: 'clamp'
-  })
 
   const renderProgress = () => (
     <View style={[flexbox.directionRow]}>
@@ -124,24 +97,26 @@ const Panel: React.FC<Props> = ({
 
   if (type === 'onboarding') {
     return (
-      <Animated.View
+      <View
         style={[
           styles.onboardingContainer,
           {
-            width: isAnimated ? panelWidthInterpolate : panelWidth
+            width: '100%',
+            maxWidth: panelWidth,
+            alignSelf: 'center'
           },
           style
         ]}
       >
         {step > 0 && renderProgress()}
-        <Animated.View
+        <View
           style={[
             styles.innerContainer,
             getPanelPaddings(maxWidthSize, spacingsSize),
             {
-              width: isAnimated ? panelWidthInterpolate : panelWidth,
-              opacity: isAnimated ? opacityInterpolate : 1,
-              minWidth: panelWidth
+              width: '100%',
+              maxWidth: panelWidth,
+              alignSelf: 'center'
             }
           ]}
           {...rest}
@@ -154,16 +129,13 @@ const Panel: React.FC<Props> = ({
             </View>
           )}
           {children}
-        </Animated.View>
-      </Animated.View>
+        </View>
+      </View>
     )
   }
 
-  // default version
-  const Container = isAnimated ? Animated.View : View
-
   return (
-    <Container style={[styles.container, getPanelPaddings(maxWidthSize, 'large'), style]} {...rest}>
+    <View style={[styles.container, getPanelPaddings(maxWidthSize, spacingsSize), style]} {...rest}>
       {!!title && (
         <Text
           fontSize={maxWidthSize('xl') ? 20 : 18}
@@ -176,7 +148,7 @@ const Panel: React.FC<Props> = ({
         </Text>
       )}
       {children}
-    </Container>
+    </View>
   )
 }
 

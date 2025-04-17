@@ -49,6 +49,7 @@ export type FeePaidWith = {
   symbol: string
   usdValue: string
   isErc20: boolean
+  isSponsored: boolean
 }
 
 interface Props {
@@ -583,16 +584,22 @@ const useSteps = ({
     let isMounted = true
     let address: string | undefined
     let amount = 0n
+    let isGasTank = false
 
     // Smart account
     // Decode the fee call and get the token address and amount
     // that was used to cover the gas feePaidWith
     if (feeCall) {
       try {
-        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.chainId)
+        const {
+          address: addr,
+          amount: tokenAmount,
+          isGasTank: isTokenGasTank
+        } = decodeFeeCall(feeCall, network.chainId)
 
         address = addr
         amount = tokenAmount
+        isGasTank = isTokenGasTank
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error decoding fee call', e)
@@ -606,11 +613,12 @@ const useSteps = ({
       address = ZeroAddress
     }
 
-    if (!address || !amount) return
+    const isSponsored = amount === 0n && isGasTank
+    if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     resolveAssetInfo(address, network, ({ tokenInfo }) => {
-      if (!tokenInfo || !amount) return
+      if (!tokenInfo || (!amount && !isSponsored)) return
       const { decimals, priceIn } = tokenInfo
       const price = priceIn.length ? priceIn[0].price : null
 
@@ -623,7 +631,8 @@ const useSteps = ({
         symbol: tokenInfo.symbol,
         usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
         isErc20: address !== ZeroAddress,
-        address: address as string
+        address: address as string,
+        isSponsored
       })
     }).catch(() => {
       if (!isMounted) return
@@ -632,7 +641,8 @@ const useSteps = ({
         symbol: address === ZeroAddress ? 'ETH' : '',
         usdValue: '-$',
         isErc20: false,
-        address: address as string
+        address: address as string,
+        isSponsored
       })
     })
 

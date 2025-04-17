@@ -123,7 +123,6 @@ const ImportExistingAccountSelectorScreen = () => {
       ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor') &&
       pressedButton.current
     ) {
-      dispatch({ type: 'ACCOUNT_PICKER_CONTROLLER_ADD_NEXT_ACCOUNT' })
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])
@@ -160,7 +159,12 @@ const ImportExistingAccountSelectorScreen = () => {
               {buttons
                 .slice(0, VISIBLE_BUTTONS_COUNT)
                 .map(({ title, onPress, icon: IconComponent }) => (
-                  <Button key={title} type="gray" onPress={onPress}>
+                  <Button
+                    key={title}
+                    type="gray"
+                    onPress={onPress}
+                    testID={`import-method-${title.toLocaleLowerCase().split(' ').join('-')}`}
+                  >
                     <View
                       style={[
                         flexbox.directionRow,
@@ -186,7 +190,12 @@ const ImportExistingAccountSelectorScreen = () => {
                 {buttons
                   .slice(VISIBLE_BUTTONS_COUNT)
                   .map(({ title, onPress, icon: IconComponent }) => (
-                    <Button key={title} type="gray" onPress={onPress}>
+                    <Button
+                      key={title}
+                      type="gray"
+                      onPress={onPress}
+                      testID={`import-method-${title.toLocaleLowerCase().split(' ').join('-')}`}
+                    >
                       <View
                         style={[
                           flexbox.directionRow,
@@ -209,7 +218,12 @@ const ImportExistingAccountSelectorScreen = () => {
               </Animated.View>
             </View>
             {buttons.length > VISIBLE_BUTTONS_COUNT && (
-              <Button hasBottomSpacing={false} type="ghost" onPress={() => setShowMore(!showMore)}>
+              <Button
+                hasBottomSpacing={false}
+                type="ghost"
+                onPress={() => setShowMore(!showMore)}
+                testID="show-more-btn"
+              >
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                   <Text appearance="primary" style={spacings.mrSm} weight="medium">
                     {t(showMore ? 'Less' : 'More')}
