@@ -8,10 +8,8 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
-import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import Select from '@common/components/Select'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -27,6 +25,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
+import SendToken from '@common/components/SendToken'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -307,35 +306,28 @@ const SendForm = ({
               ? t('Loading tokens...')
               : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
-          <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
+          <SkeletonLoader width="100%" height={120} style={spacings.mbLg} />
         </View>
       ) : (
-        <Select
-          setValue={({ value }) => handleChangeToken(value as string)}
-          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
-          options={options}
-          value={tokenSelectValue}
-          disabled={disableForm}
-          containerStyle={styles.tokenSelect}
-          testID="tokens-select"
-          mode="bottomSheet"
+        <SendToken
+          fromTokenOptions={options}
+          fromTokenValue={tokenSelectValue}
+          fromAmountValue={amountFieldMode === 'token' ? amount : amountInFiat}
+          fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
+          handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
+          fromSelectedToken={selectedToken}
+          fromAmount={amount}
+          fromAmountInFiat={amountInFiat}
+          fromAmountFieldMode={amountFieldMode}
+          maxFromAmount={maxAmount}
+          validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
+          onFromAmountChange={setAmount}
+          handleSwitchFromAmountFieldMode={switchAmountFieldMode}
+          handleSetMaxFromAmount={setMaxAmount}
+          inputTestId="amount-field"
+          selectTestId="tokens-select"
         />
       )}
-      <InputSendToken
-        amount={amount}
-        onAmountChange={setAmount}
-        selectedTokenSymbol={selectedToken?.symbol || ''}
-        errorMessage={amountErrorMessage}
-        setMaxAmount={setMaxAmount}
-        maxAmount={maxAmount}
-        amountInFiat={amountInFiat}
-        amountFieldMode={amountFieldMode}
-        maxAmountInFiat={maxAmountInFiat}
-        switchAmountFieldMode={switchAmountFieldMode}
-        disabled={disableForm || amountSelectDisabled}
-        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
-        isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
-      />
       <View>
         {!isTopUp && (
           <Recipient
