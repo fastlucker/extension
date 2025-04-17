@@ -90,7 +90,7 @@ const PrivateKeyImportScreen = () => {
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}
-          title={t('Import Private Key')}
+          title={t('Import private key')}
           step={1}
           totalSteps={2}
         >
@@ -105,7 +105,7 @@ const PrivateKeyImportScreen = () => {
                     testID="enter-seed-phrase-field"
                     onBlur={onBlur}
                     autoFocus
-                    placeholder={t('Input Private Key')}
+                    placeholder={t('Input private key')}
                     onChangeText={onChange}
                     value={value}
                     isValid={!handleValidation(value) && !!value.length}
@@ -124,7 +124,7 @@ const PrivateKeyImportScreen = () => {
                 uncheckedBorderColor={theme.primaryText}
                 style={spacings.mlTy}
                 label={
-                  <Text fontSize={14}>{t('I know this key must be backed up securely.')}</Text>
+                  <Text fontSize={14}>{t('I know I must keep a secure backup of my key.')}</Text>
                 }
               />
             </View>

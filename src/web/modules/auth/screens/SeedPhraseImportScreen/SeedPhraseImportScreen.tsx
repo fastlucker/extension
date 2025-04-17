@@ -125,7 +125,7 @@ const SeedPhraseImportScreen = () => {
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}
-          title={t('Import Recovery Phrase')}
+          title={t('Import recovery phrase')}
           step={1}
           totalSteps={2}
         >
@@ -201,9 +201,9 @@ const SeedPhraseImportScreen = () => {
                           backgroundColor: 'transparent',
                           zIndex: 2
                         }}
-                        placeholder={t('Write or paste your Recovery Phrase')}
+                        placeholder={t('Write or paste your recovery phrase')}
                         isValid={seedPhraseStatus === 'valid'}
-                        error={seedPhraseStatus === 'invalid' && t('Invalid Recovery Phrase.')}
+                        error={seedPhraseStatus === 'invalid' && t('Invalid recovery phrase.')}
                         placeholderTextColor={theme.secondaryText}
                         onSubmitEditing={handleFormSubmit}
                         nativeInputStyle={{

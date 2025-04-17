@@ -213,7 +213,7 @@ const SmartAccountImportScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel
-          title={t('Import JSON Backup file')}
+          title={t('Import JSON backup file')}
           type="onboarding"
           spacingsSize="small"
           withBackButton

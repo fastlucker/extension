@@ -91,13 +91,13 @@ const GetStartedScreen = () => {
               <Button
                 testID="create-new-account-btn"
                 type="primary"
-                text={t('Create New Account')}
+                text={t('Create new account')}
                 onPress={() => handleAuthButtonPress('create-new-account')}
               />
               <Button
                 testID="create-existing-account-btn"
                 type="secondary"
-                text={t('Import Existing Account')}
+                text={t('Import existing account')}
                 onPress={() => handleAuthButtonPress('import-existing-account')}
               />
               <Button
@@ -107,7 +107,7 @@ const GetStartedScreen = () => {
                 onPress={() => handleAuthButtonPress('view-only')}
               >
                 <>
-                  <Text appearance="primary">{t('Watch an Address')}</Text>
+                  <Text appearance="primary">{t('Watch an address')}</Text>
                   <ViewModeIcon color={theme.primary} height={16} />
                 </>
               </Button>

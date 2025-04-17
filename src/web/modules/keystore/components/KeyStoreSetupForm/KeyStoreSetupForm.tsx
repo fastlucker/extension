@@ -49,7 +49,7 @@ const KeyStoreSetupForm = ({ agreedWithTerms, children }: Props) => {
             label={t('Password')}
             testID="enter-pass-field"
             onBlur={onBlur}
-            placeholder={t('Enter Password')}
+            placeholder={t('Enter password')}
             onChangeText={onChange}
             isValid={isValidPassword(value)}
             autoFocus={isWeb}
@@ -71,10 +71,10 @@ const KeyStoreSetupForm = ({ agreedWithTerms, children }: Props) => {
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            label={t('Repeat Password')}
+            label={t('Repeat password')}
             testID="repeat-pass-field"
             onBlur={onBlur}
-            placeholder={t('Enter Password')}
+            placeholder={t('Enter password')}
             onChangeText={onChange}
             value={value}
             isValid={!!value && !formState.errors.password && password === value}

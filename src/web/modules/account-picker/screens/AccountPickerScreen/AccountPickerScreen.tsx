@@ -81,7 +81,7 @@ const AccountPickerScreen = () => {
       }
 
       if (subType === 'seed') {
-        return t('Import accounts from seed phrase')
+        return t('Import accounts from recovery phrase')
       }
 
       if (subType === 'private-key') {
@@ -129,7 +129,7 @@ const AccountPickerScreen = () => {
                   ? t('Importing...')
                   : !accountPickerState.selectedAccounts.length
                   ? t('Continue')
-                  : t('Import Accounts')
+                  : t('Import accounts')
               }
             >
               <View style={spacings.pl}>

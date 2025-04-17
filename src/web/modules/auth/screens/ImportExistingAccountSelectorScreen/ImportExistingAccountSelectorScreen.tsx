@@ -60,14 +60,14 @@ const ImportExistingAccountSelectorScreen = () => {
   const buttons: ButtonType[] = useMemo(
     () => [
       {
-        title: 'Private Key',
+        title: 'Private key',
         onPress: () => {
           goToNextRoute(WEB_ROUTES.importPrivateKey)
         },
         icon: PrivateKeyIcon
       },
       {
-        title: 'Recovery Phrase',
+        title: 'Recovery phrase',
         onPress: () => {
           goToNextRoute(WEB_ROUTES.importSeedPhrase)
         },
@@ -106,7 +106,7 @@ const ImportExistingAccountSelectorScreen = () => {
         icon: LatticeWithBorderIcon
       },
       {
-        title: 'JSON Backup (file)',
+        title: 'JSON backup file',
         onPress: () => {
           goToNextRoute(WEB_ROUTES.importSmartAccountJson)
         },
@@ -152,7 +152,7 @@ const ImportExistingAccountSelectorScreen = () => {
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}
-          title={t('Select Import Method')}
+          title={t('Select import method')}
         >
           <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
             <View style={[flexbox.justifySpaceBetween]}>
