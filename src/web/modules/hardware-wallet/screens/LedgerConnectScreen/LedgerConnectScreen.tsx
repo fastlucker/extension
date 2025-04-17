@@ -116,7 +116,7 @@ const LedgerConnectScreen = () => {
           </Text>
 
           <Button
-            text={isLoading ? t('Connecting...') : t('Authorize & Connect')}
+            text={isLoading ? t('Connecting...') : t('Authorize & connect')}
             disabled={isLoading}
             style={{ width: 264, ...flexbox.alignSelfCenter }}
             onPress={onPressNext}
