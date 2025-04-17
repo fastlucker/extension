@@ -198,9 +198,9 @@ const SwapAndBridgeScreen = () => {
     >
       <TabLayoutWrapperMainContent
         contentContainerStyle={{
-          ...spacings.pt0,
-          ...spacings.pb0,
+          ...spacings.pv0,
           ...paddingHorizontalStyle,
+          ...(isActionWindow ? spacings.pt2Xl : {}),
           flexGrow: 1
         }}
         wrapperRef={scrollViewRef}
