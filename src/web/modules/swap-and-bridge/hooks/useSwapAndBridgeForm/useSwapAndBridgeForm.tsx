@@ -406,30 +406,18 @@ const useSwapAndBridgeForm = () => {
   const displayedView: 'estimate' | 'batch' | 'track' = useMemo(() => {
     if (showAddedToBatch) return 'batch'
 
-    if (
-      hasBroadcasted ||
-      (!signAccountOpController && mainCtrlStatuses.broadcastSignedAccountOp !== 'INITIAL')
-    )
-      return 'track'
+    if (hasBroadcasted) return 'track'
 
     return 'estimate'
-  }, [
-    hasBroadcasted,
-    mainCtrlStatuses.broadcastSignedAccountOp,
-    signAccountOpController,
-    showAddedToBatch
-  ])
+  }, [hasBroadcasted, showAddedToBatch])
 
   useEffect(() => {
     const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
 
-    // Note: This may not be the best implementation.
-    // Also, there seems to be a bug that causes the bottom sheet to hide
-    // and only the backdrop to remain
-    if (broadcastStatus === 'SUCCESS') {
+    if (broadcastStatus === 'SUCCESS' && activeRoutes.length) {
       setHasBroadcasted(true)
     }
-  }, [mainCtrlStatuses.broadcastSignedAccountOp])
+  }, [activeRoutes.length, mainCtrlStatuses.broadcastSignedAccountOp])
 
   return {
     sessionId,
