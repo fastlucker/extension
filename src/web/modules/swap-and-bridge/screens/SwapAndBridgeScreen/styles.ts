@@ -3,6 +3,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
+import { getUiType } from '@web/utils/uiType'
 
 interface Style {
   form: ViewStyle
@@ -10,7 +11,11 @@ interface Style {
   followUpTxnText: TextStyle
 }
 
-export const SWAP_AND_BRIDGE_FORM_WIDTH = 600
+const { isActionWindow } = getUiType()
+
+// Make the form slightly larger in action window
+// so it stretches as much as the header
+export const SWAP_AND_BRIDGE_FORM_WIDTH = isActionWindow ? 656 : 600
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
