@@ -50,6 +50,7 @@ export type FeePaidWith = {
   usdValue: string
   isErc20: boolean
   isSponsored: boolean
+  chainId: bigint
 }
 
 interface Props {
@@ -65,6 +66,7 @@ interface Props {
   provider: JsonRpcProvider | null
   bundler?: BUNDLER
   extensionAccOp?: SubmittedAccountOp // only for in-app benzina
+  networks: Network[]
 }
 
 export interface StepsData {
@@ -133,7 +135,8 @@ const useSteps = ({
   setActiveStep,
   provider,
   bundler,
-  extensionAccOp
+  extensionAccOp,
+  networks
 }: Props): StepsData => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
@@ -585,6 +588,7 @@ const useSteps = ({
     let address: string | undefined
     let amount = 0n
     let isGasTank = false
+    let tokenChainId = 1n
 
     // Smart account
     // Decode the fee call and get the token address and amount
@@ -594,12 +598,14 @@ const useSteps = ({
         const {
           address: addr,
           amount: tokenAmount,
-          isGasTank: isTokenGasTank
-        } = decodeFeeCall(feeCall, network.chainId)
+          isGasTank: isTokenGasTank,
+          chainId
+        } = decodeFeeCall(feeCall, network)
 
         address = addr
         amount = tokenAmount
         isGasTank = isTokenGasTank
+        tokenChainId = chainId
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error decoding fee call', e)
@@ -617,24 +623,29 @@ const useSteps = ({
     if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    resolveAssetInfo(address, network, ({ tokenInfo }) => {
-      if (!tokenInfo || (!amount && !isSponsored)) return
-      const { decimals, priceIn } = tokenInfo
-      const price = priceIn.length ? priceIn[0].price : null
+    resolveAssetInfo(
+      address,
+      networks.find((net: Network) => net.chainId === tokenChainId)!,
+      ({ tokenInfo }) => {
+        if (!tokenInfo || (!amount && !isSponsored)) return
+        const { decimals, priceIn } = tokenInfo
+        const price = priceIn.length ? priceIn[0].price : null
 
-      const fee = parseFloat(formatUnits(amount, decimals))
+        const fee = parseFloat(formatUnits(amount, decimals))
 
-      if (!isMounted) return
+        if (!isMounted) return
 
-      setFeePaidWith({
-        amount: formatDecimals(fee),
-        symbol: tokenInfo.symbol,
-        usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
-        isErc20: address !== ZeroAddress,
-        address: address as string,
-        isSponsored
-      })
-    }).catch(() => {
+        setFeePaidWith({
+          amount: formatDecimals(fee),
+          symbol: tokenInfo.symbol,
+          usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
+          isErc20: address !== ZeroAddress,
+          address: address as string,
+          isSponsored,
+          chainId: tokenChainId
+        })
+      }
+    ).catch(() => {
       if (!isMounted) return
       setFeePaidWith({
         amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
@@ -642,7 +653,8 @@ const useSteps = ({
         usdValue: '-$',
         isErc20: false,
         address: address as string,
-        isSponsored
+        isSponsored,
+        chainId: network.chainId
       })
     })
 

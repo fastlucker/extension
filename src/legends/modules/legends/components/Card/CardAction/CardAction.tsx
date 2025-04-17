@@ -1,5 +1,6 @@
 import React, { FC, useCallback } from 'react'
 
+import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
@@ -16,6 +17,8 @@ export type CardActionComponentProps = {
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
   const { addToast } = useToast()
+  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
 
   const handleWalletRouteButtonPress = useCallback(async () => {
     if (action.type !== CardActionType.walletRoute) return
@@ -70,11 +73,14 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.link) {
     return (
       <CardActionButton
-        buttonText="Proceed"
+        buttonText={
+          disabledButton ? 'Switch to a smart account to unlock Legends quests' : 'Proceed'
+        }
         onButtonClick={() => {
           window.open(action.link, '_blank')
         }}
         loadingText=""
+        disabled={disabledButton}
       />
     )
   }
@@ -82,9 +88,12 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.walletRoute && window.ambire) {
     return (
       <CardActionButton
-        buttonText="Proceed"
+        buttonText={
+          disabledButton ? 'Switch to a smart account to unlock Legends quests' : 'Proceed'
+        }
         onButtonClick={handleWalletRouteButtonPress}
         loadingText=""
+        disabled={disabledButton}
       />
     )
   }

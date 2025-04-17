@@ -60,9 +60,30 @@ export interface CardXp {
   chains: Networks[] | null
 }
 
+export enum CardGroup {
+  Show = 'show',
+  SwapAndBridge = 'swap-and-bridge',
+  Supporter = 'supporter',
+  GasTank = 'gas-tank',
+  Transactions = 'transactions',
+  Seasonal = 'seasonal',
+  MiniGame = 'mini-game'
+}
+
+export enum CardGroupNameMapping {
+  'show' = 'Show',
+  'swap-and-bridge' = 'Swap And Bridge',
+  'supporter' = 'Supporter',
+  'gas-tank' = 'Gas Tank',
+  'transactions' = 'Transactions',
+  'seasonal' = 'Seasonal',
+  'mini-game' = 'Mini Game'
+}
+
 export interface CardFromResponse {
   id: string
   title: string
+  shortTitle: string
   xp: CardXp[]
   action: CardAction
   card: {
@@ -70,7 +91,9 @@ export interface CardFromResponse {
     status: CardStatus
   }
   image: string
+  imageV2?: string
   timesCollectedToday: number
+  group: CardGroup
   meta?: {
     invitationKey?: string
     timesUsed?: number
