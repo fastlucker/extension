@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -32,7 +32,13 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
 
   const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
-  const { signAccountOpController, hasProceeded } = useSwapAndBridgeControllerState()
+  const { signAccountOpController, hasProceeded, swapSignErrors } =
+    useSwapAndBridgeControllerState()
+
+  const signingErrors = useMemo(() => {
+    const signAccountOpErrors = signAccountOpController ? signAccountOpController.errors : []
+    return [...swapSignErrors, ...signAccountOpErrors]
+  }, [swapSignErrors, signAccountOpController])
 
   /**
    * Single click broadcast
@@ -123,10 +129,10 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               isSponsored={false}
               sponsor={undefined}
             />
-            {signAccountOpController.errors.length > 0 && (
+            {signingErrors.length > 0 && (
               <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
                 <Text fontSize={12} appearance="errorText">
-                  {t(signAccountOpController.errors[0].title)}
+                  {t(signingErrors[0].title)}
                 </Text>
               </View>
             )}
@@ -150,7 +156,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               <Button
                 text={t('Sign')}
                 hasBottomSpacing={false}
-                disabled={isSignDisabled}
+                disabled={isSignDisabled || signingErrors.length > 0}
                 onPress={onSignButtonClick}
                 style={{ minWidth: 160 }}
               />
