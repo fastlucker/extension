@@ -8,7 +8,10 @@ import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, {
+  LedgerDeviceModels,
+  ledgerService
+} from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSignerInterface {
   key: ExternalKey
@@ -77,16 +80,26 @@ class LedgerSigner implements KeystoreSignerInterface {
 
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
-      // Look for resolutions for external plugins and ERC20
-      // const resolution = await ledgerService.resolveTransaction(
-      //   stripHexPrefix(unsignedSerializedTxn),
-      //   this.controller!.walletSDK!.loadConfig,
-      //   {
-      //     externalPlugins: true,
-      //     erc20: true,
-      //     nft: true
-      //   }
-      // )
+      // Sending NFTs is NOT available for Ledger Nano S users via Ledger Live
+      // (and probably to Ledger Blue users, both devices are considered legacy).
+      // As a magic workaround, disabling "clearer" signing makes it work,
+      // otherwise, the Ledger SDK fails with "EthAppNftNotSupported" error.
+      const shouldResolveNFTs =
+        !!this.key.meta.deviceModel &&
+        ![LedgerDeviceModels.nanoS, LedgerDeviceModels.blue, 'unknown'].includes(
+          this.key.meta.deviceModel as LedgerDeviceModels
+        )
+      // Look for resolutions for external plugins and ERC20 for "clearer" signing.
+      // Without this step, Ledger may just show a generic "Contract call" screen.
+      const resolution = await ledgerService.resolveTransaction(
+        stripHexPrefix(unsignedSerializedTxn),
+        this.controller!.walletSDK!.loadConfig,
+        {
+          externalPlugins: true, // enable support for DeFi dapps via plugins
+          erc20: true, // enable ERC20 parsing so token info is shown
+          nft: shouldResolveNFTs // enable NFT parsing so names/images are shown
+        }
+      )
 
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
 
@@ -94,9 +107,8 @@ class LedgerSigner implements KeystoreSignerInterface {
         this.#withNormalizedError(() =>
           this.controller!.walletSDK!.signTransaction(
             path,
-            stripHexPrefix(unsignedSerializedTxn)
-            // TODO: Temporary disabled to test if this now works with Ledger Nano S
-            // resolution
+            stripHexPrefix(unsignedSerializedTxn),
+            resolution
           )
         )
       )
