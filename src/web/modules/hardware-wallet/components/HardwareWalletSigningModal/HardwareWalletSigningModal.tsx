@@ -16,6 +16,7 @@ import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 
@@ -30,6 +31,8 @@ const iconByKeyType = {
   ledger: LedgerMiniIcon,
   lattice: LatticeMiniIcon
 }
+
+const { isTab } = getUiType()
 
 const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => {
   const { t } = useTranslation()
@@ -51,12 +54,14 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
     <BottomSheet
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
-      type="bottom-sheet"
+      // The modal is displayed in tab in swap and bridge
+      type={!isTab ? 'bottom-sheet' : 'modal'}
       autoWidth
       sheetRef={ref}
       shouldBeClosableOnDrag={false}
       autoOpen={isVisible}
       withBackdropBlur={false}
+      containerInnerWrapperStyles={isTab ? { ...spacings.pv2Xl, ...spacings.ph2Xl } : {}}
     >
       <ModalHeader
         hideLeftSideContainer
