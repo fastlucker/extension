@@ -25,6 +25,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import SavedSeedPhrases from '@web/modules/account-select/components/SavedSeedPhrases'
 
 import getStyles from './styles'
@@ -41,6 +42,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
   const toggleHwOptions = useCallback(() => {
     setIsHwOptionExpanded((p) => !p)
   }, [])
+  const { seeds } = useKeystoreControllerState()
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
@@ -64,7 +66,12 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
         </View>
         <View style={styles.optionsWrapper}>
           <Option
-            text={t('Add from current recovery phrase')}
+            text={
+              seeds.length
+                ? t('Add from current recovery phrase')
+                : t('Add from current recovery phrase (none yet)')
+            }
+            disabled={!seeds.length}
             icon={AddFromCurrentRecoveryPhraseIcon}
             onPress={openBottomSheet as any}
             iconProps={{ width: 32, height: 32 }}
