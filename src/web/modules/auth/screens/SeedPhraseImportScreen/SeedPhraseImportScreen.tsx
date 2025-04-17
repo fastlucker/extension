@@ -75,12 +75,12 @@ const SeedPhraseImportScreen = () => {
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seed, passphrase }) => {
-      const formattedSeed = seed.trim().split(/\s+/).join(' ')
+      const formattedSeed = seed.trim().toLowerCase().replace(/\s+/g, ' ')
 
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED',
         params: {
-          seed,
+          seed: formattedSeed,
           seedPassphrase: passphrase || null,
           hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
         }
@@ -101,7 +101,7 @@ const SeedPhraseImportScreen = () => {
 
   const validateSeedPhraseWord = useCallback(
     (value: string) => {
-      const formattedSeed = value.trim().split(/\s+/).join(' ')
+      const formattedSeed = value.trim().toLowerCase().replace(/\s+/g, ' ')
 
       const couldValueBeAPastedSeed = formattedSeed.length > 1
 
@@ -244,7 +244,7 @@ const SeedPhraseImportScreen = () => {
               text={t('Confirm')}
               hasBottomSpacing={false}
               onPress={handleFormSubmit}
-              disabled={!isValid}
+              disabled={!isValid || seedPhraseStatus === 'invalid'}
             />
           </View>
         </Panel>
