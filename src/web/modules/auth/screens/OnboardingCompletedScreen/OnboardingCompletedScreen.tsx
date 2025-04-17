@@ -74,6 +74,7 @@ const OnboardingCompletedScreen = () => {
               <View style={[flexbox.flex1, flexbox.justifyEnd]}>
                 {!!isPinned && (
                   <Button
+                    testID="onboarding-completed-open-dashboard-btn"
                     text={t('Open Dashboard')}
                     hasBottomSpacing={false}
                     onPress={handleOpenDashboardPress}
