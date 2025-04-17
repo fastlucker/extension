@@ -57,7 +57,7 @@ const WEB_ROUTES = {
   importSmartAccountJson: 'import-smart-account-json',
   importSeedPhrase: 'import-seed-phrase',
   importExistingAccount: 'import-existing-account',
-  createSeedPhrasePrepare: 'create-seed-phrase/prepare',
+  createSeedPhrasePrepare: 'create-new-recovery-phrase',
   createSeedPhraseWrite: 'create-seed-phrase/write',
   ledgerConnect: 'ledger-connect',
   benzin: 'benzin',

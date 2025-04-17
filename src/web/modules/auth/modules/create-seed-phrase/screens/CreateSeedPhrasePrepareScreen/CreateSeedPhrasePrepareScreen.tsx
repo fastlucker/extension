@@ -34,7 +34,7 @@ const CHECKBOXES = [
   },
   {
     id: 2,
-    label: 'Use your recovery phrase only to access or recover your smart wallet.'
+    label: 'Use your recovery phrase only to access or recover your wallet.'
   }
 ]
 
@@ -85,7 +85,7 @@ const CreateSeedPhrasePrepareScreen = () => {
           spacingsSize="small"
           step={1}
           totalSteps={2}
-          title="Create New Recovery Phrase"
+          title="Create new recovery phrase"
           withBackButton
           onBackButtonPress={goToPrevRoute}
         >
@@ -130,7 +130,7 @@ const CreateSeedPhrasePrepareScreen = () => {
               disabled={!allCheckboxesChecked}
               accessibilityRole="button"
               size="large"
-              text={t('Show Recovery Phrase')}
+              text={t('Create recovery phrase')}
               style={spacings.mt2Xl}
               hasBottomSpacing={false}
               onPress={handleSubmit}

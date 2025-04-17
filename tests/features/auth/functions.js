@@ -289,7 +289,7 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker, extensi
   expect(isKeyStoreUidKeyPresent).toBe(true)
 
   // Wait until create seed phrase loaded
-  await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/prepare'))
+  await page.waitForFunction(() => window.location.href.includes('/create-new-recovery-phrase'))
 
   // Check all the checkboxes
   await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 0))
