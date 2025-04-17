@@ -83,7 +83,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   }, [accountOp?.calls.length, addToast, prevTransactionCount, signedTransactionsCount])
 
   useEffect(() => {
-    if (shouldBeVisible && isPopup) {
+    if (shouldBeVisible && isPopup && currentlyInvolvedSignOrBroadcastKeyType === 'trezor') {
       // If the user needs to sign using a hardware wallet, we need to open the
       // screen in an action window and close the popup
       dispatch({
@@ -91,7 +91,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
       })
       window.close()
     }
-  }, [dispatch, shouldBeVisible])
+  }, [currentlyInvolvedSignOrBroadcastKeyType, dispatch, shouldBeVisible])
 
   if (!currentlyInvolvedSignOrBroadcastKeyType) return null
 
