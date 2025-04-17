@@ -74,7 +74,7 @@ const GetStartedScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<Header withAmbireLogo />}
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
         <Panel spacingsSize="small" type="onboarding">
