@@ -79,9 +79,9 @@ const CreateSeedPhraseWriteScreen = () => {
       if (!tempSeed) return
 
       await setStringAsync(tempSeed.seed)
-      addToast(t('Recovery Phrase copied to clipboard'))
+      addToast(t('Recovery phrase copied to clipboard'))
     } catch {
-      addToast(t('Failed to copy Recovery Phrase'))
+      addToast(t('Failed to copy recovery phrase'))
     }
   }, [addToast, tempSeed, t])
 
@@ -102,7 +102,7 @@ const CreateSeedPhraseWriteScreen = () => {
           spacingsSize="small"
           step={1}
           totalSteps={2}
-          title="Backup Recovery Phrase"
+          title="Back up recovery phrase"
           withBackButton
           onBackButtonPress={() => {
             goToPrevRoute()
@@ -115,7 +115,7 @@ const CreateSeedPhraseWriteScreen = () => {
                 appearance="secondaryText"
                 style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}
               >
-                {t('Write down and secure the Recovery Phrase for your account.')}
+                {t('Write down and secure the recovery phrase for your account.')}
               </Text>
               <View
                 style={{
@@ -186,7 +186,7 @@ const CreateSeedPhraseWriteScreen = () => {
                   ]}
                 >
                   <Text fontSize={14} weight="medium" appearance="secondaryText">
-                    {t('Copy Recovery Phrase')}
+                    {t('Copy recovery phrase')}
                   </Text>
 
                   <CopyIcon style={{ marginLeft: 8 }} color={theme.secondaryText} />
@@ -195,7 +195,7 @@ const CreateSeedPhraseWriteScreen = () => {
               <Button
                 testID="create-seed-phrase-write-continue-btn"
                 accessibilityRole="button"
-                text={t("I've Saved the Phrase")}
+                text={t("I've saved the phrase")}
                 size="large"
                 hasBottomSpacing={false}
                 onPress={handleSubmit}

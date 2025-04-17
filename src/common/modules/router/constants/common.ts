@@ -58,7 +58,7 @@ const WEB_ROUTES = {
   importSeedPhrase: 'import-seed-phrase',
   importExistingAccount: 'import-existing-account',
   createSeedPhrasePrepare: 'create-new-recovery-phrase',
-  createSeedPhraseWrite: 'create-seed-phrase/write',
+  createSeedPhraseWrite: 'backup-recovery-phrase',
   ledgerConnect: 'ledger-connect',
   benzin: 'benzin',
   swapAndBridge: 'swap-and-bridge',
