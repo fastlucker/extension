@@ -355,7 +355,7 @@ const TransferScreen = () => {
         {state?.isInitialized ? (
           <FormWrapper
             style={[styles.panel]}
-            {...(!isPopup && { forceContainerSmallSpacings: true, title })}
+            {...(!isPopup && { forceContainerSmallSpacings: true })}
           >
             <SendForm
               addressInputState={addressInputState}
