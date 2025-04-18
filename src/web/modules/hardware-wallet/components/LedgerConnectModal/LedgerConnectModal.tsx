@@ -20,6 +20,7 @@ import { openInternalPageInTab } from '@web/extension-services/background/webapi
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
+import { getUiType } from '@web/utils/uiType'
 
 type Props = {
   isVisible: boolean
@@ -31,6 +32,8 @@ type Props = {
    */
   displayOptionToAuthorize?: boolean
 }
+
+const { isTab } = getUiType()
 
 const LedgerConnectModal = ({
   isVisible,
@@ -85,7 +88,9 @@ const LedgerConnectModal = ({
       closeBottomSheet={handleClose}
       onClosed={handleClose}
       autoOpen={isVisible}
-      type="bottom-sheet"
+      // The modal is displayed in tab in swap and bridge
+      type={!isTab ? 'bottom-sheet' : 'modal'}
+      containerInnerWrapperStyles={isTab ? { ...spacings.pv2Xl, ...spacings.ph2Xl } : {}}
       withBackdropBlur={false}
     >
       <ModalHeader title={t('Connect Ledger')} />

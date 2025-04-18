@@ -2,6 +2,10 @@
 /* eslint-disable @typescript-eslint/return-await */
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import {
+  SIGN_ACCOUNT_OP_MAIN,
+  SIGN_ACCOUNT_OP_SWAP
+} from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
@@ -248,12 +252,19 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
       return mainCtrl?.signAccountOp?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-      return await mainCtrl.handleSignAndBroadcastAccountOp()
+      const signAccountOpType = params?.isSwapAndBridge
+        ? SIGN_ACCOUNT_OP_SWAP
+        : SIGN_ACCOUNT_OP_MAIN
+      return await mainCtrl.handleSignAndBroadcastAccountOp(signAccountOpType)
     }
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
       return mainCtrl.initSignAccOp(params.actionId)
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
+    case 'SIGN_ACCOUNT_OP_UPDATE': {
+      if (params.updateType === 'Main') return mainCtrl?.signAccountOp?.update(params)
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+    }
 
     case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
       mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
@@ -263,7 +274,7 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
-      return mainCtrl.swapAndBridge.unloadScreen(params.sessionId)
+      return mainCtrl.swapAndBridge.unloadScreen(params.sessionId, params.forceUnload)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
       return mainCtrl.swapAndBridge.updateForm(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
@@ -271,9 +282,13 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
       return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
-      return mainCtrl.swapAndBridge.selectRoute(params.route)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
+      return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
       return await mainCtrl.buildSwapAndBridgeUserRequest()
+    }
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE': {
+      return await mainCtrl.swapAndBridge.onEstimationFailure()
+    }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
@@ -284,6 +299,41 @@ export const handleActions = async (
       })
       break
     }
+    case 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM':
+      return mainCtrl.swapAndBridge.resetForm()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED':
+      return mainCtrl.swapAndBridge.markSelectedRouteAsFailed()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.updateStatus(params.status)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl?.swapAndBridge.setUserProceeded(params.proceeded)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_IS_AUTO_SELECT_ROUTE_DISABLED':
+      return mainCtrl?.swapAndBridge.setIsAutoSelectRouteDisabled(params.isDisabled)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
+      return mainCtrl?.swapAndBridge.destroySignAccountOp()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW':
+      if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+
+      return mainCtrl.actions.addOrUpdateAction(
+        {
+          id: `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`,
+          type: 'swapAndBridge',
+          userRequest: {
+            meta: {
+              accountAddr: mainCtrl.selectedAccount.account.addr
+            }
+          }
+        },
+        'last',
+        'open-action-window'
+      )
+    case 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW':
+      if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+      return mainCtrl.actions.removeAction(
+        `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`
+      )
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
