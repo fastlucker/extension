@@ -4,13 +4,9 @@ import { SELECTORS } from '../../common/selectors/selectors'
 // TODO: Import and reuse '../../common/transactions'
 import { TOKEN_ADDRESS } from './constants'
 
-export async function selectButton(page, text) {
+export async function selectButton(page) {
   // await page.waitForTimeout(500)
-  if (text === 'Proceed') {
-    await clickOnElement(page, SELECTORS.processButtonSab)
-  } else {
-    await clickOnElement(page, SELECTORS.continueAnywayButtonSab)
-  }
+  await clickOnElement(page, SELECTORS.processButtonSab)
 }
 
 export async function selectFirstButton(page, text) {
