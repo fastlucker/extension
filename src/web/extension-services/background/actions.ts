@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
-  ActionExecutionType
+  ActionExecutionType,
+  Action as ActionFromActionsQueue
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -327,7 +327,9 @@ type MainControllerSignAccountOpUpdateMainDepsAction = {
   }
 }
 type MainControllerSignAccountOpUpdateAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+  type:
+    | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+    | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
@@ -340,14 +342,34 @@ type MainControllerSignAccountOpUpdateAction = {
     gasUsedTooHighAgreed?: boolean
   }
 }
+type SignAccountOpUpdateAction = {
+  type: 'SIGN_ACCOUNT_OP_UPDATE'
+  params: {
+    updateType: 'Main' | 'Swap&Bridge'
+    accountOp?: AccountOp
+    gasPrices?: GasRecommendation[]
+    estimation?: FullEstimation
+    feeToken?: TokenResult
+    paidBy?: string
+    speed?: FeeSpeed
+    signingKeyAddr?: string
+    signingKeyType?: string
+    gasUsedTooHighAgreed?: boolean
+  }
+}
 type MainControllerSignAccountOpUpdateStatus = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+  type:
+    | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
     status: SigningStatus
   }
 }
 type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
+  params?: {
+    isSwapAndBridge?: boolean
+  }
 }
 
 type MainControllerOnPopupOpenAction = {
@@ -458,9 +480,17 @@ type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
   params: { sessionId: string }
 }
+type SwapAndBridgeControllerUserProceededAction = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED'
+  params: { proceeded: boolean }
+}
+type SwapAndBridgeControllerIsAutoSelectRouteDisabled = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_IS_AUTO_SELECT_ROUTE_DISABLED'
+  params: { isDisabled: boolean }
+}
 type SwapAndBridgeControllerUnloadScreenAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN'
-  params: { sessionId: string }
+  params: { sessionId: string; forceUnload?: boolean }
 }
 type SwapAndBridgeControllerUpdateFormAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM'
@@ -484,10 +514,13 @@ type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
 }
 type SwapAndBridgeControllerSelectRouteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE'
-  params: { route: SwapAndBridgeRoute }
+  params: { route: SwapAndBridgeRoute; isAutoSelectDisabled?: boolean }
 }
-type SwapAndBridgeControllerSubmitFormAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+type SwapAndBridgeControllerResetForm = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM'
+}
+type SwapAndBridgeControllerBuildUserRequest = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
@@ -500,7 +533,21 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
-
+type SwapAndBridgeControllerOnEstimationFailure = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
+}
+type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
+}
+type SwapAndBridgeControllerDestroySignAccountOp = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+}
+type SwapAndBridgeControllerOpenSigningActionWindow = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW'
+}
+type SwapAndBridgeControllerCloseSigningActionWindow = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+}
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
   params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
@@ -685,7 +732,8 @@ export type Action =
   | SwapAndBridgeControllerAddToTokenByAddress
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
-  | SwapAndBridgeControllerSubmitFormAction
+  | SwapAndBridgeControllerResetForm
+  | SwapAndBridgeControllerBuildUserRequest
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
@@ -714,3 +762,11 @@ export type Action =
   | KeystoreControllerMoveSeedFromTemp
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
+  | SignAccountOpUpdateAction
+  | SwapAndBridgeControllerOnEstimationFailure
+  | SwapAndBridgeControllerMarkSelectedRouteAsFailed
+  | SwapAndBridgeControllerDestroySignAccountOp
+  | SwapAndBridgeControllerOpenSigningActionWindow
+  | SwapAndBridgeControllerCloseSigningActionWindow
+  | SwapAndBridgeControllerUserProceededAction
+  | SwapAndBridgeControllerIsAutoSelectRouteDisabled

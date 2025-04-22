@@ -22,6 +22,7 @@ export type CommonSelectProps = {
   defaultValue?: {}
   placeholder?: string
   label?: string | ReactNode
+  bottomSheetTitle?: string
   size?: 'sm' | 'md'
   mode?: 'select' | 'bottomSheet'
   menuPosition?: 'top' | 'bottom'

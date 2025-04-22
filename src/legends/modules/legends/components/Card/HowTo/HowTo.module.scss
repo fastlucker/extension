@@ -31,7 +31,6 @@
 
         &.active {
           .stepNumber {
-
             border-color: $mainText;
           }
           .stepTitle {
@@ -54,11 +53,10 @@
           position: relative;
           border: 1px solid transparent;
 
-
           &::after {
             content: '';
             position: absolute;
-            width: .0625rem;
+            width: 0.0625rem;
             height: 100%;
             background: $hover-dark;
             bottom: -1.75rem;
@@ -66,14 +64,13 @@
           }
         }
 
-         &:last-child {
+        &:last-child {
           .stepNumber {
             &::after {
               display: none;
             }
           }
         }
-
 
         .stepTitle {
           display: flex;
@@ -93,6 +90,7 @@
     .image {
       width: 100%;
       height: auto;
+      border: 1px solid rgba(106, 111, 134, 0.2);
     }
 
     .video {

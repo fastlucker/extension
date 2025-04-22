@@ -1,22 +1,21 @@
 /* eslint-disable react/prop-types */
-import React, { FC, useRef, useEffect, useCallback } from 'react'
+import React, { FC, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TextInput, View } from 'react-native'
 
 import Search from '@common/components/Search'
+import BottomSheetHeader from '@common/components/Select/components/BottomSheetHeader'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import BottomSheetHeader from '@common/components/Select/components/BottomSheetHeader'
-import BottomSheetContainer from './BottomSheetContainer'
+import getStyles, { DEFAULT_SELECT_SIZE } from '../styles'
 import { CommonSelectProps } from '../types'
 import useSelectInternal from '../useSelectInternal'
+import BottomSheetContainer from './BottomSheetContainer'
 import MenuContainer from './MenuContainer'
 import SelectedMenuOption from './SelectedMenuOption'
-
-import getStyles, { DEFAULT_SELECT_SIZE } from '../styles'
 
 type Props = CommonSelectProps &
   ReturnType<typeof useSelectInternal> & {
@@ -25,6 +24,7 @@ type Props = CommonSelectProps &
 
 const SelectContainer: FC<Props> = ({
   label,
+  bottomSheetTitle,
   value,
   placeholder,
   containerStyle,
@@ -129,7 +129,7 @@ const SelectContainer: FC<Props> = ({
         )
       ) : (
         <BottomSheetContainer isMenuOpen={isMenuOpen} toggleMenu={toggleMenu}>
-          <BottomSheetHeader label={label} toggleMenu={toggleMenu} />
+          <BottomSheetHeader label={bottomSheetTitle} toggleMenu={toggleMenu} />
           <View style={[spacings.phMd, flexbox.flex1, { height: 600 }]}>
             <Search
               placeholder={searchPlaceholder || t('Search...')}

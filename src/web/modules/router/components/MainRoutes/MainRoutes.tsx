@@ -147,7 +147,6 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.saveImportedSeed} element={<SaveImportedSeedScreen />} />
 
               <Route element={<AuthenticatedRoute />}>
-                <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
                 <Route element={<SettingsRoutesProvider />}>
                   <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
                   <Route
@@ -218,6 +217,8 @@ const MainRoutes = () => {
                 </SignAccountOpControllerStateProvider>
               }
             />
+            <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
+
             <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
             <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
             <Route path={WEB_ROUTES.switchAccount} element={<SwitchAccountScreen />} />
