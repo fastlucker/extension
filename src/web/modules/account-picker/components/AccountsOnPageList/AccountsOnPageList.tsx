@@ -249,7 +249,7 @@ const AccountsOnPageList = ({
             }}
             scrollEventThrottle={400}
           >
-            {(isAccountPickerEmpty || accountPickerState.pageError) && (
+            {((!isLoading && isAccountPickerEmpty) || accountPickerState.pageError) && (
               <AccountsRetrieveError
                 pageError={accountPickerState.pageError}
                 page={accountPickerState.page}

@@ -42,8 +42,16 @@ const AccountPickerScreen = () => {
   const { goToPrevRoute } = useOnboardingNavigation()
 
   const isLoading = useMemo(
-    () => accountPickerState.addAccountsStatus !== 'INITIAL' || !isReady,
-    [accountPickerState.addAccountsStatus, isReady]
+    () =>
+      accountPickerState.addAccountsStatus !== 'INITIAL' ||
+      !isReady ||
+      (!accountPickerState.isInitialized && !!accountPickerState.initParams),
+    [
+      accountPickerState.addAccountsStatus,
+      isReady,
+      accountPickerState.initParams,
+      accountPickerState.isInitialized
+    ]
   )
 
   const isImportDisabled = useMemo(
