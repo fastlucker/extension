@@ -24,37 +24,54 @@ const CharacterSection = () => {
   const formatXp = (xp: number) => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
-  const cardRef = useRef(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: any) => {
     const card = cardRef.current
+    if (!card) return
     const rect = card.getBoundingClientRect()
-    const x = e.clientX - rect.left // x position inside the card
-    const y = e.clientY - rect.top // y position inside the card
 
+    // Get the mouse position relative to the card
+    const mouseX = e.clientX - rect.left
+    const mouseY = e.clientY - rect.top
+
+    // Calculate the center of the card
     const centerX = rect.width / 2
     const centerY = rect.height / 2
 
-    const percentX = (x / rect.width) * 100
-    const percentY = (y / rect.height) * 100
+    // Calculate the distance from the center
+    const distanceFromCenterX = Math.abs(centerX - mouseX)
+    const distanceFromCenterY = Math.abs(centerY - mouseY)
 
-    const rotateX = ((centerY - y) / centerY) * 15 // max 10deg
-    const rotateY = ((x - centerX) / centerX) * 15
+    // Calculate the rotation based on the distance from the center
+    const xSign = mouseX > centerX ? 1 : -1
+    const ySign = mouseY > centerY ? 1 : -1
+    const rotateX = (distanceFromCenterX / centerX) * 10 * xSign
+    const rotateY = (distanceFromCenterY / centerY) * 8 * ySign
 
-    card.style.setProperty('--pointer-x', `${percentX}%`)
-    card.style.setProperty('--pointer-y', `${percentY}%`)
+    // Calculate the inverse percentage for the pointer position
+    const inverseX = 100 - (mouseX / rect.width) * 100
+    const inverseY = 100 - (mouseY / rect.height) * 100
+
+    card.style.setProperty('--pointer-x', `${inverseX}%`)
+    card.style.setProperty('--pointer-y', `${inverseY}%`)
     card.style.setProperty('--rotate-x', `${rotateX}deg`)
     card.style.setProperty('--rotate-y', `${rotateY}deg`)
-    card.style.setProperty('--scale', '1.07')
+    card.style.setProperty('--scale', '1.05')
+    card.style.setProperty('--perspective', '1000px')
   }
 
   const resetRotation = () => {
     const card = cardRef.current
+    if (!card) return
+
+    // Reset the styles
     card.style.setProperty('--rotate-x', '0deg')
     card.style.setProperty('--rotate-y', '0deg')
     card.style.setProperty('--pointer-x', '50%')
     card.style.setProperty('--pointer-y', '50%')
     card.style.setProperty('--scale', '1')
+    card.style.setProperty('--perspective', '0px')
   }
 
   if (!character)
@@ -112,6 +129,9 @@ const CharacterSection = () => {
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
+                    Soon
+                    {/* 
+                    Also update the font-size in the scss file
                     {formatDecimals(
                       parseFloat(
                         claimableRewards
@@ -121,7 +141,7 @@ const CharacterSection = () => {
                             )
                           : '0'
                       )
-                    )}
+                    )} */}
                   </p>
                 </>
               )}
