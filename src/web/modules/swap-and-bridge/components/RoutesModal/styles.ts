@@ -8,6 +8,7 @@ interface Style {
   itemContainer: ViewStyle
   disabledItem: ViewStyle
   otherItemLoading: ViewStyle
+  selectedItem: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -17,13 +18,18 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...spacings.pv,
       ...spacings.ph,
-      ...spacings.mbSm
+      ...spacings.mbSm,
+      borderWidth: 1,
+      borderColor: theme.primaryBackground
     },
     disabledItem: {
       opacity: 0.5
     },
     otherItemLoading: {
       opacity: 0.7
+    },
+    selectedItem: {
+      borderColor: theme.primary
     }
   })
 
