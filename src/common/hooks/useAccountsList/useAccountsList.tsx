@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FlatList } from 'react-native'
 
@@ -24,6 +24,7 @@ const useAccountsList = ({
   const { domains } = useDomainsControllerState()
   const { accounts } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const filteredAccounts = useMemo(
     () =>
@@ -70,6 +71,10 @@ const useAccountsList = ({
   const scrollToSelectedAccount = useCallback(
     (attempt: number = 0) => {
       const MAX_ATTEMPTS = 3
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
       if (attempt > MAX_ATTEMPTS) {
         // Display the accounts after reaching MAX_ATTEMPTS
         setShouldDisplayAccounts(true)
@@ -88,7 +93,8 @@ const useAccountsList = ({
           })
           setShouldDisplayAccounts(true)
         } catch (error) {
-          setTimeout(() => scrollToSelectedAccount(attempt + 1), 100)
+          console.warn(`Failed to scroll to the selected account. Attempt ${attempt}`, error)
+          timeoutRef.current = setTimeout(() => scrollToSelectedAccount(attempt + 1), 100)
         }
       }
     },
