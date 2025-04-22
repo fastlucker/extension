@@ -29,10 +29,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="canonical" href="https://legends.ambire.com/" />
   <!-- Icons -->
-  <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48" />
+  <!-- 
+    Ambire looks for the first tag that contains "icon" in the document and uses it for the dApp icon.
+    We want to display a specific icon on connection, so we add a custom rel="ambire-connect-icon" link.
+  -->
+  <link rel="ambire connect icon" href="/ambire-connect-icon.png" />
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <!-- End of icons -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
