@@ -50,41 +50,56 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
   const { isSetupComplete } = useWalletStateController()
-  const { isInitialized } = useAccountPickerControllerState()
+  const { isInitialized, subType } = useAccountPickerControllerState()
   const isOnboardingRoute = useMemo(
     () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
     [path]
   )
 
-  useEffect(() => {
-    if (!isInitialized) return
-    const handler = setTimeout(() => {
-      const currentRoute = path?.substring(1) || ''
-      const shouldResetAccountAdder = !ONBOARDING_WEB_ROUTES.some((r) => currentRoute.includes(r))
-
-      if (shouldResetAccountAdder) {
-        dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED' })
-      }
-    }, 250)
-
-    return () => {
-      clearTimeout(handler)
-    }
-  }, [path, dispatch, isInitialized])
-
   const onboardingRoutesTree = useMemo(() => {
+    const nextAccountPickerRoutes =
+      subType === 'hw'
+        ? [
+            new RouteNode(
+              WEB_ROUTES.accountPicker,
+              [
+                new RouteNode(
+                  WEB_ROUTES.accountPersonalize,
+                  [
+                    new RouteNode(
+                      WEB_ROUTES.onboardingCompleted,
+                      [new RouteNode('/')],
+                      isSetupComplete
+                    ),
+                    new RouteNode('/')
+                  ],
+                  false,
+                  false
+                ),
+                new RouteNode('/')
+              ],
+              false,
+              false
+            )
+          ]
+        : [
+            new RouteNode(
+              WEB_ROUTES.accountPersonalize,
+              [
+                new RouteNode(
+                  WEB_ROUTES.onboardingCompleted,
+                  [new RouteNode('/')],
+                  isSetupComplete
+                ),
+                new RouteNode('/'),
+                new RouteNode(WEB_ROUTES.accountPicker, [new RouteNode('/')], false, false)
+              ],
+              false,
+              false
+            )
+          ]
     const common = [
-      new RouteNode(
-        WEB_ROUTES.keyStoreSetup,
-        [
-          new RouteNode(WEB_ROUTES.accountPersonalize, [
-            new RouteNode(WEB_ROUTES.onboardingCompleted, [new RouteNode('/')], isSetupComplete),
-            new RouteNode('/'),
-            new RouteNode(WEB_ROUTES.accountPicker, [], !isInitialized)
-          ])
-        ],
-        hasPasswordSecret
-      )
+      new RouteNode(WEB_ROUTES.keyStoreSetup, nextAccountPickerRoutes, hasPasswordSecret)
     ]
 
     return new RouteNode(
@@ -113,7 +128,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete, isInitialized])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, subType])
 
   const loadHistory = () => {
     try {
@@ -176,31 +191,6 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     []
   )
 
-  useEffect(() => {
-    const currentRoute = path?.substring(1)
-    const prevRoute = prevPath?.substring(1)
-    if (!currentRoute) return
-    if (!ONBOARDING_WEB_ROUTES.includes(currentRoute)) return
-    const node = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
-
-    if (!node) {
-      !!prevRoute && navigate(prevRoute, { state: { internal: true } })
-      return
-    }
-
-    if (node.isProtected) {
-      if (!params || !params.internal) {
-        !!prevRoute && navigate(prevRoute, { state: { internal: true } })
-      }
-    }
-  }, [path, prevPath, params, deepSearchRouteNode, navigate, onboardingRoutesTree, history])
-
-  useEffect(() => {
-    if (path === '/' && history.length) {
-      setHistory([])
-    }
-  }, [history.length, path])
-
   const goToNextRoute = useCallback(
     (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => {
       const currentRoute = path?.substring(1)
@@ -253,6 +243,53 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       }
     }
   }, [history, deepSearchRouteNode, onboardingRoutesTree, navigate])
+
+  // Reset the AccountPickerController if it is initialized and
+  // the current route is not one of 'account-personalize' or 'account-picker'
+  useEffect(() => {
+    if (!isInitialized) return
+
+    const currentRoute = path?.substring(1) || ''
+    if (!currentRoute) return
+
+    const shouldResetAccountPicker = ![
+      WEB_ROUTES.accountPersonalize,
+      WEB_ROUTES.accountPicker
+    ].some((r) => currentRoute.includes(r))
+
+    if (shouldResetAccountPicker) {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET' })
+    }
+  }, [path, dispatch, isInitialized, history])
+
+  // Some routes are protected and should only be accessed through internal navigation.
+  // If a user attempts to access one of these routes directly via the URL bar,
+  // this hook should block the navigation and redirect them back to the previous route.
+  useEffect(() => {
+    const currentRoute = path?.substring(1)
+    const prevRoute = prevPath?.substring(1)
+    if (!currentRoute) return
+    if (!ONBOARDING_WEB_ROUTES.includes(currentRoute)) return
+    const node = deepSearchRouteNode(onboardingRoutesTree, currentRoute)
+
+    if (!node) {
+      !!prevRoute && navigate(prevRoute, { state: { internal: true } })
+      return
+    }
+
+    if (node.isProtected) {
+      if (!params || !params.internal) {
+        !!prevRoute && navigate(prevRoute, { state: { internal: true } })
+      }
+    }
+  }, [path, prevPath, params, deepSearchRouteNode, navigate, onboardingRoutesTree, history])
+
+  // Reset the onboarding history state in case we are no longer on an onboarding route
+  useEffect(() => {
+    if (path === '/' && history.length) {
+      setHistory([])
+    }
+  }, [history.length, path])
 
   useEffect(() => {
     const handleBackButton = () => {

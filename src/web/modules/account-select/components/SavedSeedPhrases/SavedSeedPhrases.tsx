@@ -1,11 +1,10 @@
-import React, { ReactElement, useCallback, useEffect } from 'react'
+import React, { ReactElement, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, View } from 'react-native'
 
 import Button from '@common/components/Button'
 import Panel, { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -24,15 +23,16 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
   const { accounts } = useAccountsControllerState()
   const { seeds, keys } = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
-  const { subType, isInitialized } = useAccountPickerControllerState()
-  const prevIsInitialized = usePrevious(isInitialized)
+  const { subType, initParams } = useAccountPickerControllerState()
+  const [addAccountButtonPressed, setAddAccountButtonPressed] = useState(false)
   const { goToNextRoute } = useOnboardingNavigation()
 
   useEffect(() => {
-    if (!prevIsInitialized && isInitialized && subType === 'seed') {
+    if (addAccountButtonPressed && initParams && subType === 'seed') {
+      setAddAccountButtonPressed(false)
       goToNextRoute(WEB_ROUTES.accountPersonalize)
     }
-  }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, subType])
+  }, [addAccountButtonPressed, goToNextRoute, dispatch, initParams, subType])
 
   const getAccountsForSeed = useCallback(
     (seedId: string) => {
@@ -45,6 +45,7 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
 
   const handleAddAddressFromSeed = useCallback(
     (id: string) => {
+      setAddAccountButtonPressed(true)
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE',
         params: { id }

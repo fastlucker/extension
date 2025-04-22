@@ -47,11 +47,8 @@ const AccountPickerScreen = () => {
   )
 
   const isImportDisabled = useMemo(
-    () =>
-      isLoading ||
-      accountPickerState.accountsLoading ||
-      !accountPickerState.selectedAccounts.length,
-    [isLoading, accountPickerState.accountsLoading, accountPickerState.selectedAccounts.length]
+    () => isLoading || accountPickerState.accountsLoading,
+    [isLoading, accountPickerState.accountsLoading]
   )
 
   const shouldDisplayChangeHdPath = useMemo(
@@ -100,7 +97,12 @@ const AccountPickerScreen = () => {
       header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent contentContainerStyle={[spacings.pt0]}>
-        <Panel type="onboarding" spacingsSize="small" panelWidth={900} style={{ minHeight: '92%' }}>
+        <Panel
+          type="onboarding"
+          spacingsSize="small"
+          panelWidth={900}
+          style={{ minHeight: '92%', maxHeight: '95%' }}
+        >
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
             <PanelBackButton onPress={goToPrevRoute} style={spacings.mr} />
             <PanelTitle

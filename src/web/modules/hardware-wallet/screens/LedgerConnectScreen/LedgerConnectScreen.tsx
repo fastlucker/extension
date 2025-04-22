@@ -8,7 +8,6 @@ import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -38,14 +37,13 @@ const LedgerConnectScreen = () => {
   const { theme } = useTheme()
   const { goToPrevRoute, goToNextRoute } = useOnboardingNavigation()
   const { dispatch } = useBackgroundService()
-  const { isInitialized, type } = useAccountPickerControllerState()
-  const prevIsInitialized = usePrevious(isInitialized)
-
+  const { initParams, type } = useAccountPickerControllerState()
+  const [authorizeButtonPressed, setAuthorizeButtonPressed] = useState(false)
   const route = useRoute()
 
   const onPressNext = async () => {
     setIsGrantingPermission(true)
-
+    setAuthorizeButtonPressed(true)
     try {
       await requestLedgerDeviceAccess()
 
@@ -68,10 +66,11 @@ const LedgerConnectScreen = () => {
   }
 
   useEffect(() => {
-    if (!prevIsInitialized && isInitialized && type === 'ledger') {
+    if (!!authorizeButtonPressed && initParams && type === 'ledger') {
+      setAuthorizeButtonPressed(false)
       goToNextRoute()
     }
-  }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])
+  }, [authorizeButtonPressed, goToNextRoute, dispatch, initParams, type])
 
   const isLoading =
     isGrantingPermission || mainCtrlState.statuses.handleAccountPickerInitLedger === 'LOADING'

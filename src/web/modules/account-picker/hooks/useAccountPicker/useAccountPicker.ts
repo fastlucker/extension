@@ -1,17 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import usePrevious from '@common/hooks/usePrevious'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 const useAccountPicker = () => {
-  const { goToNextRoute } = useOnboardingNavigation()
-  const { pageSize, subType } = useAccountPickerControllerState()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
+  const { pageSize, subType, isInitialized, initParams } = useAccountPickerControllerState()
+  const prevIsInitialized = usePrevious(isInitialized)
   const shouldResetAccountsSelectionOnUnmount = useRef(true)
   const { dispatch } = useBackgroundService()
   const [isReady, setIsReady] = useState(false)
-
   const ACCOUNT_PICKER_PAGE_SIZE = useMemo(() => {
     return subType === 'private-key' ? 1 : 5
   }, [subType])
@@ -32,8 +33,21 @@ const useAccountPicker = () => {
   )
 
   useEffect(() => {
-    setPage(1)
-  }, [setPage])
+    if (!initParams) {
+      goToPrevRoute()
+    }
+  }, [dispatch, initParams, goToPrevRoute])
+
+  useEffect(() => {
+    if (isInitialized) return
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT' })
+  }, [dispatch, isInitialized])
+
+  useEffect(() => {
+    if (!prevIsInitialized && isInitialized) {
+      setPage(1)
+    }
+  }, [prevIsInitialized, isInitialized, setPage])
 
   useEffect(() => {
     if (pageSize === ACCOUNT_PICKER_PAGE_SIZE && !isReady) {

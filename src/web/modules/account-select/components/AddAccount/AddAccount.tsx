@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -16,7 +16,6 @@ import BottomSheet from '@common/components/BottomSheet'
 import Option from '@common/components/Option'
 import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -35,9 +34,9 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
   const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const [isHwOptionExpanded, setIsHwOptionExpanded] = useState(false)
-  const pressedHwButton = useRef<'trezor' | 'ledger' | 'lattice' | null>(null)
-  const { isInitialized, type } = useAccountPickerControllerState()
-  const prevIsInitialized = usePrevious(isInitialized)
+  const [pressedHwButton, setPressedHwButton] = useState<'trezor' | 'lattice' | null>(null)
+
+  const { initParams, type } = useAccountPickerControllerState()
   const { goToNextRoute } = useOnboardingNavigation()
   const toggleHwOptions = useCallback(() => {
     setIsHwOptionExpanded((p) => !p)
@@ -48,14 +47,14 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
 
   useEffect(() => {
     if (
-      !prevIsInitialized &&
-      isInitialized &&
+      initParams &&
       ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor') &&
-      pressedHwButton.current
+      pressedHwButton
     ) {
-      goToNextRoute(WEB_ROUTES.accountPersonalize)
+      setPressedHwButton(null)
+      goToNextRoute(WEB_ROUTES.accountPicker)
     }
-  }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])
+  }, [goToNextRoute, dispatch, initParams, type, pressedHwButton])
 
   return (
     <>
@@ -118,7 +117,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
                       hovered && styles.hwOptionHovered
                     ]}
                     onPress={() => {
-                      pressedHwButton.current = 'trezor'
+                      setPressedHwButton('trezor')
                       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
                     }}
                   >
@@ -149,7 +148,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
                       hovered && styles.hwOptionHovered
                     ]}
                     onPress={() => {
-                      pressedHwButton.current = 'lattice'
+                      setPressedHwButton('lattice')
                       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
                     }}
                   >

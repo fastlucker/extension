@@ -86,7 +86,7 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
       const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
-      await mainCtrl.accountPicker.init({ keyIterator, hdPathTemplate })
+      await mainCtrl.accountPicker.setInitParams({ keyIterator, hdPathTemplate })
       break
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE': {
@@ -94,7 +94,7 @@ export const handleActions = async (
       if (!keystoreSavedSeed) return
 
       const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
-      await mainCtrl.accountPicker.init({
+      await mainCtrl.accountPicker.setInitParams({
         keyIterator,
         hdPathTemplate: keystoreSavedSeed.hdPathTemplate
       })
@@ -136,10 +136,12 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_DESELECT_ACCOUNT': {
       return mainCtrl.accountPicker.deselectAccount(params.account)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_IF_NEEDED': {
-      if (mainCtrl.accountPicker.isInitialized) {
-        await mainCtrl.accountPicker.reset()
-      }
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET': {
+      await mainCtrl.accountPicker.reset()
+      break
+    }
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT': {
+      mainCtrl.accountPicker.init()
       break
     }
     case 'RESET_ACCOUNT_ADDING_ON_PAGE_ERROR': {

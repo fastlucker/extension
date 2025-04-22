@@ -14,7 +14,6 @@ import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
@@ -53,9 +52,8 @@ const ImportExistingAccountSelectorScreen = () => {
   const animatedOpacity = useRef(new Animated.Value(0)).current
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-  const { isInitialized, type } = useAccountPickerControllerState()
-  const prevIsInitialized = usePrevious(isInitialized)
-  const pressedButton = useRef<'trezor' | 'lattice' | null>(null)
+  const { initParams, type } = useAccountPickerControllerState()
+  const [pressedButton, setPressedButton] = useState<'trezor' | 'lattice' | null>(null)
 
   const buttons: ButtonType[] = useMemo(
     () => [
@@ -84,7 +82,7 @@ const ImportExistingAccountSelectorScreen = () => {
               { type: 'error' }
             )
           } else {
-            pressedButton.current = 'trezor'
+            setPressedButton('trezor')
             dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
           }
         },
@@ -100,7 +98,7 @@ const ImportExistingAccountSelectorScreen = () => {
       {
         title: 'Grid Plus',
         onPress: () => {
-          pressedButton.current = 'lattice'
+          setPressedButton('lattice')
           dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
         },
         icon: LatticeWithBorderIcon
@@ -118,14 +116,14 @@ const ImportExistingAccountSelectorScreen = () => {
 
   useEffect(() => {
     if (
-      !prevIsInitialized &&
-      isInitialized &&
-      ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor') &&
-      pressedButton.current
+      pressedButton &&
+      initParams &&
+      ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor')
     ) {
+      setPressedButton(null)
       goToNextRoute()
     }
-  }, [goToNextRoute, dispatch, isInitialized, prevIsInitialized, type])
+  }, [goToNextRoute, dispatch, initParams, type, pressedButton])
 
   useEffect(() => {
     Animated.timing(animatedOpacity, {

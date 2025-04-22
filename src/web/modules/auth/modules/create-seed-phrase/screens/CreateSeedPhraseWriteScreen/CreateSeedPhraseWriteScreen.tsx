@@ -1,5 +1,5 @@
 import { setStringAsync } from 'expo-clipboard'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import { KeystoreSeed } from '@ambire-common/interfaces/keystore'
@@ -9,7 +9,6 @@ import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
@@ -34,10 +33,8 @@ const CreateSeedPhraseWriteScreen = () => {
   const { dispatch } = useBackgroundService()
   const { hasTempSeed } = useKeystoreControllerState()
   const [tempSeed, setTempSeed] = useState<KeystoreSeed | null>(null)
-  const { isInitialized, subType } = useAccountPickerControllerState()
-  const prevIsInitialized = usePrevious(isInitialized)
-  const isSubmitButtonPressed = useRef(false)
-
+  const { initParams, subType } = useAccountPickerControllerState()
+  const [submitButtonPressed, setSubmitButtonPressed] = useState(false)
   useEffect(() => {
     if (!tempSeed && hasTempSeed) {
       dispatch({ type: 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI' })
@@ -59,7 +56,7 @@ const CreateSeedPhraseWriteScreen = () => {
   const handleSubmit = useCallback(async () => {
     if (!tempSeed) return
 
-    isSubmitButtonPressed.current = true
+    setSubmitButtonPressed(true)
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
       params: { privKeyOrSeed: tempSeed.seed, hdPathTemplate: tempSeed.hdPathTemplate }
@@ -68,11 +65,11 @@ const CreateSeedPhraseWriteScreen = () => {
 
   useEffect(() => {
     if (!tempSeed) return
-    if (!prevIsInitialized && isInitialized && subType === 'seed') {
-      if (!isSubmitButtonPressed.current) return
+    if (!!submitButtonPressed && initParams && subType === 'seed') {
+      setSubmitButtonPressed(false)
       goToNextRoute()
     }
-  }, [goToNextRoute, dispatch, tempSeed, isInitialized, prevIsInitialized, subType])
+  }, [goToNextRoute, dispatch, tempSeed, initParams, submitButtonPressed, subType])
 
   const handleCopyToClipboard = useCallback(async () => {
     try {

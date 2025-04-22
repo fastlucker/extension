@@ -1,15 +1,12 @@
 import { MainController } from '@ambire-common/controllers/main/main'
-import { ONBOARDING_WEB_ROUTES } from '@common/modules/router/constants/common'
 import { Port } from '@web/extension-services/messengers'
 
 export const handleCleanUpOnPortDisconnect = async ({
   port,
-  mainCtrl,
-  getAllPorts
+  mainCtrl
 }: {
   port: Port
   mainCtrl: MainController
-  getAllPorts: () => Port[]
 }) => {
   if (!port.sender || !port.sender?.url) return
 
@@ -37,29 +34,5 @@ export const handleCleanUpOnPortDisconnect = async ({
 
   if (url.pathname.includes('sign-message')) {
     mainCtrl.signMessage.reset()
-  }
-
-  if (mainCtrl.accountPicker.isInitialized) {
-    const shouldResetAccountAdder =
-      ONBOARDING_WEB_ROUTES.some((r) => url.pathname.includes(r)) && port.name !== 'popup'
-
-    if (shouldResetAccountAdder) {
-      setTimeout(async () => {
-        // If a port with the same URL appears within 1000ms, it's likely a page reload.
-        // In that case, skip resetting the accountPicker.
-        const ports = getAllPorts()
-
-        if (
-          !ports.some((p) => {
-            if (!p.sender || !p.sender?.url) return false
-            const portUrl = new URL(p.sender.url)
-
-            return portUrl.pathname === url.pathname
-          })
-        ) {
-          await mainCtrl.accountPicker.reset()
-        }
-      }, 1000)
-    }
   }
 }

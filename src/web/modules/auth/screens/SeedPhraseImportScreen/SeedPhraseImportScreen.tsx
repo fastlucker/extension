@@ -12,7 +12,6 @@ import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -35,8 +34,7 @@ const SeedPhraseImportScreen = () => {
 
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { isInitialized, subType } = useAccountPickerControllerState()
-  const prevIsInitialized = usePrevious(isInitialized)
+  const { initParams, subType } = useAccountPickerControllerState()
   const {
     watch,
     control,
@@ -48,6 +46,7 @@ const SeedPhraseImportScreen = () => {
     mode: 'all',
     defaultValues: { seed: '', passphrase: '' }
   })
+  const [importButtonPressed, setImportButtonPressed] = useState(false)
 
   const [enablePassphrase, setEnablePassphrase] = useState(false)
   const [seedPhraseStatus, setSeedPhraseStatus] = useState<'incomplete' | 'valid' | 'invalid'>(
@@ -76,7 +75,7 @@ const SeedPhraseImportScreen = () => {
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seed, passphrase }) => {
       const formattedSeed = seed.trim().toLowerCase().replace(/\s+/g, ' ')
-
+      setImportButtonPressed(true)
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED',
         params: {
@@ -94,10 +93,11 @@ const SeedPhraseImportScreen = () => {
 
   useEffect(() => {
     if (!getValues('seed')) return
-    if (!prevIsInitialized && isInitialized && subType === 'seed') {
+    if (!!importButtonPressed && initParams && subType === 'seed') {
+      setImportButtonPressed(false)
       goToNextRoute()
     }
-  }, [goToNextRoute, dispatch, getValues, isInitialized, prevIsInitialized, subType])
+  }, [goToNextRoute, dispatch, getValues, initParams, subType, importButtonPressed])
 
   const validateSeedPhraseWord = useCallback(
     (value: string) => {

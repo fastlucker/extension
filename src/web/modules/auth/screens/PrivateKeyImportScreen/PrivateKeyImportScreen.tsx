@@ -1,4 +1,3 @@
-import { on } from 'events'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -10,7 +9,6 @@ import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
@@ -41,14 +39,15 @@ const PrivateKeyImportScreen = () => {
 
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const { isInitialized, subType } = useAccountPickerControllerState()
-  const prevIsInitialized = usePrevious(isInitialized)
+  const { initParams, subType } = useAccountPickerControllerState()
   const [agreedToBackupWarning, setAgreedToBackupWarning] = useState(false)
+  const [importButtonPressed, setImportButtonPressed] = useState(false)
 
   const handleFormSubmit = useCallback(async () => {
     await storage.set('agreedToBackupWarning', { acceptedAt: Date.now() })
 
     await handleSubmit(({ privateKey }) => {
+      setImportButtonPressed(true)
       const trimmedPrivateKey = privateKey.trim()
       const noPrefixPrivateKey =
         trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
@@ -62,10 +61,11 @@ const PrivateKeyImportScreen = () => {
 
   useEffect(() => {
     if (!getValues('privateKey')) return
-    if (!prevIsInitialized && isInitialized && subType === 'private-key') {
+    if (!!importButtonPressed && initParams && subType === 'private-key') {
+      setImportButtonPressed(false)
       goToNextRoute()
     }
-  }, [goToNextRoute, dispatch, getValues, isInitialized, prevIsInitialized, subType])
+  }, [goToNextRoute, dispatch, getValues, initParams, importButtonPressed, subType])
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()

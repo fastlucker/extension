@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, ScrollView, View } from 'react-native'
 
@@ -45,33 +45,33 @@ const AccountPersonalizeScreen = () => {
   const { accounts } = useAccountsControllerState()
   const { isSetupComplete } = useWalletStateController()
   const { addToast } = useToast()
+
+  const newlyAddedAccounts = useMemo(() => accounts.filter((a) => a.newlyAdded) || [], [accounts])
+
   const { handleSubmit, control, setValue, getValues } = useForm({
     defaultValues: {
-      accounts:
-        accountPickerState.addedAccountsFromCurrentSession || accounts.filter((a) => a.newlyAdded)
+      accounts: accountPickerState.addedAccountsFromCurrentSession || newlyAddedAccounts
     }
   })
 
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
   const personalizeReady = useRef(false)
-  const goBackPressed = useRef(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (accountPickerState.isInitialized) return
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT' })
+  }, [dispatch, accountPickerState.isInitialized])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      if (
-        accountPickerState.isInitialized &&
-        (accountPickerState.selectedAccountsFromCurrentSession.length ||
-          accountPickerState.readyToRemoveAccounts.length)
-      )
-        await wait(1200)
-      if (
-        (accountPickerState.isInitialized &&
-          accountsToPersonalize.length > 0 &&
-          accountPickerState.addAccountsStatus === 'INITIAL') ||
-        (!accountPickerState.isInitialized && accountsToPersonalize.length > 0)
-      ) {
+      await wait(1000)
+      if (accountPickerState.isInitialized && accountPickerState.addAccountsStatus === 'INITIAL') {
+        setIsLoading(false)
+      }
+
+      if (!accountPickerState.isInitialized && accountsToPersonalize.length) {
         setIsLoading(false)
       }
     })()
@@ -84,15 +84,21 @@ const AccountPersonalizeScreen = () => {
   ])
 
   useEffect(() => {
+    if (accountPickerState.isInitialized && !accountsToPersonalize.length && !isLoading) {
+      goToNextRoute()
+    }
+  }, [goToNextRoute, accountPickerState.isInitialized, accountsToPersonalize.length, isLoading])
+
+  useEffect(() => {
     if (accountPickerState.isInitialized) {
       setAccountsToPersonalize(accountPickerState.addedAccountsFromCurrentSession)
-    } else {
-      setAccountsToPersonalize(accounts.filter((a) => a.newlyAdded))
+    } else if (!accountPickerState.isInitialized && newlyAddedAccounts.length) {
+      setAccountsToPersonalize(newlyAddedAccounts)
     }
   }, [
     accountPickerState.isInitialized,
     accountPickerState.addedAccountsFromCurrentSession,
-    accounts
+    newlyAddedAccounts
   ])
 
   useEffect(() => {
@@ -112,6 +118,12 @@ const AccountPersonalizeScreen = () => {
     [dispatch, getValues]
   )
 
+  useEffect(() => {
+    if (newlyAddedAccounts.length) {
+      dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
+    }
+  }, [newlyAddedAccounts.length, dispatch])
+
   const handleGetStarted = useCallback(async () => {
     await handleSubmit(handleSave)()
     dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
@@ -121,28 +133,10 @@ const AccountPersonalizeScreen = () => {
   useEffect(() => {
     if (!personalizeReady.current) return
 
-    if (accounts.length && accounts.every((a) => !a.newlyAdded)) {
+    if (accounts.length) {
       goToNextRoute()
     }
   }, [goToNextRoute, accounts])
-
-  useEffect(() => {
-    if (!isLoading && !accountsToPersonalize.length) {
-      goToNextRoute()
-    }
-  }, [goToNextRoute, isLoading, accountsToPersonalize.length])
-
-  useEffect(() => {
-    if (!accountPickerState.isInitialized && !accounts.filter((a) => a.newlyAdded).length) {
-      goToNextRoute()
-    }
-  }, [goToNextRoute, accountPickerState.isInitialized, accounts])
-
-  useEffect(() => {
-    if (goBackPressed.current && !accountPickerState.isInitialized) {
-      goToPrevRoute()
-    }
-  }, [goToPrevRoute, accountPickerState.isInitialized])
 
   const handleContactSupport = useCallback(async () => {
     try {
@@ -164,8 +158,7 @@ const AccountPersonalizeScreen = () => {
           style={!accountPickerState.pageError && spacings.ptMd}
           withBackButton={!!accountPickerState.pageError}
           onBackButtonPress={() => {
-            goBackPressed.current = true
-            dispatch({ type: 'RESET_ACCOUNT_ADDING_ON_PAGE_ERROR' })
+            goToPrevRoute()
           }}
           title={accountPickerState.pageError ? t('Accounts') : undefined}
         >
