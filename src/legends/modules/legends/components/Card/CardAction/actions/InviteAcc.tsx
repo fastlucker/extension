@@ -35,8 +35,9 @@ const InviteAcc: FC<Props> = ({
 }) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
-  const { connectedAccount, allAccounts } = useAccountContext()
 
+  const { connectedAccount, allAccounts, allowNonV2Connection, nonV2Account } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
   const [isInProgress, setIsInProgress] = useState(false)
 
   const {
@@ -125,8 +126,10 @@ const InviteAcc: FC<Props> = ({
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
-      buttonText={buttonText}
-      disabled={!connectedAccount || validation.isError || addressState.isDomainResolving}
+      buttonText={
+        disabledButton ? 'Switch to a smart account to unlock Legends quests' : buttonText
+      }
+      disabled={disabledButton || validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}
     >
       <AddressInput
