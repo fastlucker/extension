@@ -129,6 +129,9 @@ const CharacterSection = () => {
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
+                    Soon
+                    {/* 
+                    Also update the font-size in the scss file
                     {formatDecimals(
                       parseFloat(
                         claimableRewards
@@ -138,7 +141,7 @@ const CharacterSection = () => {
                             )
                           : '0'
                       )
-                    )}
+                    )} */}
                   </p>
                 </>
               )}
