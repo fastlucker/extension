@@ -42,14 +42,14 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'action'
+    'meta' | 'xp' | 'contentImageV2' | 'contentSteps' | 'contentVideo' | 'title' | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
   title,
   xp,
-  contentImage,
+  contentImageV2,
   buttonText,
   onLegendCompleteWrapped,
   closeActionModal,
@@ -95,7 +95,7 @@ const ActionModal: FC<ActionModalProps> = ({
         <HowTo
           steps={contentSteps}
           activeStep={activeStep}
-          image={contentImage}
+          image={contentImageV2}
           imageAlt={title}
           video={contentVideo}
         >
