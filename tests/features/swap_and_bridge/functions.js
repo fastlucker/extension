@@ -301,11 +301,12 @@ export async function verifyDefaultReceiveToken(page, send_token, recieve_networ
   const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
   if (address) {
     await expect(page).toMatchElement(selector, { text: address, timeout: 3000 })
+    await clickOnElement(page, `[data-testid*="${receive_token.toLowerCase()}"]`)
   } else {
     console.log(`[WARNING] Token address not found for ${recieve_network}.${receive_token}`)
     console.log(`Element Content: ${await getElementContent(page, selector)}`)
   }
-  await selectFirstButton(page, 'Back')
+  await page.waitForTimeout(1000)
 }
 
 export async function prepareSwapAndBridge(
