@@ -249,7 +249,7 @@ const CharacterSection = () => {
                     }}
                     place="bottom"
                     id="leaderboard-info"
-                    content="This is how you rank against everyone else participating in Ambire Legends based on your collected XP."
+                    content="This is how you rank against everyone else participating in Ambire Rewards based on your collected XP."
                   />
                 </div>
               </div>

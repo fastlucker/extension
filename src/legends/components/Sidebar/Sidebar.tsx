@@ -75,7 +75,7 @@ const Sidebar: FC<Props> = ({ isOpen, handleClose }) => {
         <button type="button" onClick={handleClose} className={styles.closeButton}>
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
-        <img className={styles.logo} src="/images/logo.png" alt="Ambire Legends" />
+        <img className={styles.logo} src="/images/logo.png" alt="Ambire Rewards" />
         {/* {connectedAccount && <AccountInfo />} */}
         <LeaderModal handleClose={handleLeaderClose} isLeaderModalOpen={isLeaderModalOpen} />
 
