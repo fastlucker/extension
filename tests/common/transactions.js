@@ -67,10 +67,10 @@ export async function prepareTransaction(
   if (!shouldUseAddressBookRecipient) {
     await typeText(page, SELECTORS.addressEnsField, recipient)
     await page.waitForXPath(
-      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+      '//div[contains(text(), "This address isn\'t in your address book. Double-check the details before confirming.")]'
     )
 
-    // Check the checkbox "Confirm sending to a previously unknown address"
+    // Check the checkbox "Confirm sending to this address."
     await clickOnElement(page, SELECTORS.recipientAddressUnknownCheckbox)
 
     // Check the checkbox "I confirm this address is not a Binance wallets...."

@@ -49,7 +49,7 @@ const getAddressInputValidation = ({
   }
   if (isValidEns) {
     return {
-      message: 'Valid Ethereum Name Services® domain',
+      message: 'Valid ENS domain',
       isError: false
     }
   }
