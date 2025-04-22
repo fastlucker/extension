@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -18,6 +18,12 @@ interface Props {
 const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const [isReady, setIsReady] = useState(false)
+  useEffect(() => {
+    setTimeout(() => {
+      setIsReady(true)
+    }, 1000)
+  }, [])
 
   const handleRetrySetPage = useCallback(() => setPage(page), [setPage, page])
 
@@ -45,6 +51,8 @@ const AccountsRetrieveError: React.FC<Props> = ({ pageError, page, setPage }) =>
     ),
     [handleContactSupport]
   )
+
+  if (!isReady) return null
 
   return (
     <View style={[spacings.mt, spacings.mb]}>

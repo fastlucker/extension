@@ -19,6 +19,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import AccountsOnPageList from '@web/modules/account-picker/components/AccountsOnPageList'
 import ChangeHdPath from '@web/modules/account-picker/components/ChangeHdPath'
 import useAccountPicker from '@web/modules/account-picker/hooks/useAccountPicker/useAccountPicker'
@@ -38,6 +39,7 @@ const AccountPickerScreen = () => {
   const { theme } = useTheme()
 
   const accountPickerState = useAccountPickerControllerState()
+  const { accounts } = useAccountsControllerState()
   const { isReady, onImportReady, setPage } = useAccountPicker()
   const { goToPrevRoute } = useOnboardingNavigation()
 
@@ -55,8 +57,16 @@ const AccountPickerScreen = () => {
   )
 
   const isImportDisabled = useMemo(
-    () => isLoading || accountPickerState.accountsLoading,
-    [isLoading, accountPickerState.accountsLoading]
+    () =>
+      isLoading ||
+      accountPickerState.accountsLoading ||
+      (!accountPickerState.selectedAccounts.length && !accounts.length),
+    [
+      isLoading,
+      accountPickerState.accountsLoading,
+      accountPickerState.selectedAccounts.length,
+      accounts
+    ]
   )
 
   const shouldDisplayChangeHdPath = useMemo(
