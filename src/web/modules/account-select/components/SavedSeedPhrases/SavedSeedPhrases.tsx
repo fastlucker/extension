@@ -77,7 +77,7 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
       })}
       <View style={spacings.ptMd}>
         <Button
-          text={t('+ Add address')}
+          text={t('+ Add account')}
           hasBottomSpacing={false}
           onPress={() => handleAddAddressFromSeed(item.id)}
         />
