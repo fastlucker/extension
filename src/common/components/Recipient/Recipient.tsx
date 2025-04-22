@@ -120,7 +120,7 @@ const SelectedMenuOption: React.FC<{
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
-      label="Add Recipient"
+      label="Add recipient"
       value={address}
       onChangeText={setAddress}
       disabled={disabled}

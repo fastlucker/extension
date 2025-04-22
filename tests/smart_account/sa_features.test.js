@@ -74,7 +74,7 @@ describe('sa_features', () => {
     // Type the address of the recipient
     await typeText(page, SELECTORS.addressEnsField, SMART_ACC_VIEW_ONLY_ADDRESS)
     await page.waitForXPath(
-      '//div[contains(text(), "This address isn\'t in your address book. Double-check the details before confirming.")]'
+      '//div[contains(text(), "This address isn\'t in your Address Book. Double-check the details before confirming.")]'
     )
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 

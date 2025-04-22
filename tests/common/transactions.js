@@ -67,7 +67,7 @@ export async function prepareTransaction(
   if (!shouldUseAddressBookRecipient) {
     await typeText(page, SELECTORS.addressEnsField, recipient)
     await page.waitForXPath(
-      '//div[contains(text(), "This address isn\'t in your address book. Double-check the details before confirming.")]'
+      '//div[contains(text(), "This address isn\'t in your Address Book. Double-check the details before confirming.")]'
     )
 
     // Check the checkbox "Confirm sending to this address."
