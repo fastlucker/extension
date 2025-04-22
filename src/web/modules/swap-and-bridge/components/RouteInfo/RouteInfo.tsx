@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { FEE_PERCENT } from '@ambire-common/services/socket/constants'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
@@ -64,7 +65,7 @@ const RouteInfo: FC<Props> = ({
             {signAccountOpController?.estimation.status === EstimationStatus.Success && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Text appearance="tertiaryText" fontSize={14} weight="medium">
-                  {t('Ambire fee: 0.025%')}
+                  {t('Ambire fee: {{fee}}%', { fee: FEE_PERCENT })}
                 </Text>
                 {quote?.selectedRoute?.serviceTime ? (
                   <Text

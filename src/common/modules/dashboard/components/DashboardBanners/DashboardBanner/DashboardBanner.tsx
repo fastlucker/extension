@@ -155,7 +155,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
             type: 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER'
           })
           addToast(
-            'Dismissed! Password recovery can be enabled anytime in Settings. We’ll remind you in a week.',
+            'Password recovery can be enabled anytime in Settings. We’ll remind you in a week.',
             {
               type: 'info'
             }
