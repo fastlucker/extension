@@ -177,7 +177,9 @@ const SendToken: FC<Props> = ({
               <Text fontSize={12} appearance="primary" weight="medium" testID="switch-currency-sab">
                 {fromAmountFieldMode === 'token'
                   ? `${
-                      fromAmountInFiat ? formatDecimals(parseFloat(fromAmountInFiat), 'value') : 0
+                      fromAmountInFiat
+                        ? formatDecimals(parseFloat(fromAmountInFiat || '0'), 'price')
+                        : '$0'
                     }`
                   : `${fromAmount ? formatDecimals(parseFloat(fromAmount), 'amount') : 0} ${
                       fromSelectedToken?.symbol
