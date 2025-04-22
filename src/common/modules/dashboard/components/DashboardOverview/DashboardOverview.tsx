@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { canBecomeSmarter, isSmartAccount } from '@ambire-common/libs/account/account'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -21,6 +21,7 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import GasTankButton from '../DashboardHeader/GasTankButton'
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
@@ -60,8 +61,18 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
+  const { keys } = useKeystoreControllerState()
 
+  const getAccKeys = useCallback(
+    (acc: any) => {
+      return keys.filter((key) => acc?.associatedKeys.includes(key.addr))
+    },
+    [keys]
+  )
   const isSA = useMemo(() => isSmartAccount(account), [account])
+  const hasGasTank = useMemo(() => {
+    return !!account && (isSA || canBecomeSmarter(account, getAccKeys(account)))
+  }, [account, getAccKeys, isSA])
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -231,7 +242,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady && isSA ? (
+                  {!portfolio?.isAllReady && hasGasTank ? (
                     <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
@@ -239,6 +250,7 @@ const DashboardOverview: FC<Props> = ({
                       onPosition={onGasTankButtonPositionWrapped}
                       portfolio={portfolio}
                       account={account}
+                      hasGasTank={hasGasTank}
                     />
                   )}
                   <BalanceAffectingErrors
