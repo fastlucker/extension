@@ -6,7 +6,10 @@ import { useModalize } from 'react-native-modalize'
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
-import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
+import {
+  canBecomeSmarter,
+  isSmartAccount as getIsSmartAccount
+} from '@ambire-common/libs/account/account'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -24,6 +27,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
+import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -41,9 +45,9 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
-import Header from '@common/modules/header/components/Header'
 import { getUiType } from '@web/utils/uiType'
 
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
@@ -53,6 +57,7 @@ const TransferScreen = () => {
   const { addToast } = useToast()
   const { maxWidthSize } = useWindowSize()
   const { state, transferCtrl } = useTransferControllerState()
+  const { keys } = useKeystoreControllerState()
   const {
     isTopUp,
     validationFormMsgs,
@@ -82,6 +87,16 @@ const TransferScreen = () => {
     () => actionsState.actionWindow.windowProps?.focused,
     [actionsState.actionWindow.windowProps]
   )
+
+  const getAccKeys = useCallback(
+    (acc: any) => {
+      return keys.filter((key) => acc?.associatedKeys.includes(key.addr))
+    },
+    [keys]
+  )
+  const hasGasTank = useMemo(() => {
+    return !!account && (isSmartAccount || canBecomeSmarter(account, getAccKeys(account)))
+  }, [account, getAccKeys, isSmartAccount])
 
   // Requests filtered by the selected account only.
   // This enables the "Sign all Pending" button even if the selected token's network differs
@@ -272,7 +287,8 @@ const TransferScreen = () => {
       actionsState,
       isFormValid,
       dispatch,
-      openBottomSheet
+      openBottomSheet,
+      resetTransferForm
     ]
   )
 
@@ -407,6 +423,7 @@ const TransferScreen = () => {
             <SendForm
               addressInputState={addressInputState}
               isSmartAccount={isSmartAccount}
+              hasGasTank={hasGasTank}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
               isRecipientAddressUnknown={isRecipientAddressUnknown}
               isRecipientHumanizerKnownTokenOrSmartContract={
@@ -416,7 +433,7 @@ const TransferScreen = () => {
               recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
               formTitle={formTitle}
             />
-            {isTopUp && !isSmartAccount && (
+            {isTopUp && !hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -447,7 +464,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-            {isTopUp && isSmartAccount && (
+            {isTopUp && hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
