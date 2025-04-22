@@ -18,7 +18,7 @@ const MobileDisclaimerModal = () => {
     <div className={`${styles.backdrop} ${isAccepted ? styles.hidden : ''}`}>
       <div className={styles.modal}>
         <p className={styles.text}>
-          The Ambire Legends app is <strong>desktop-only</strong>. To connect, install the Ambire
+          The Ambire Rewards app is <strong>desktop-only</strong>. To connect, install the Ambire
           Wallet extension on a Chromium-based desktop browser like Chrome, Edge, Brave, Opera, or
           Arc.
         </p>
