@@ -78,7 +78,7 @@ const KeyStoreSetupForm = ({ agreedWithTerms, children }: Props) => {
             onChangeText={onChange}
             value={value}
             isValid={!!value && !formState.errors.password && password === value}
-            validLabel={t('✅ Passwords match')}
+            validLabel={t('Passwords match')}
             secureTextEntry
             error={formState.errors.confirmPassword && (t("Passwords don't match.") as string)}
             autoCorrect={false}
