@@ -63,8 +63,26 @@ const AccountsOnPageList = ({
   const { styles, theme } = useTheme(getStyles)
 
   const slots = useMemo(() => {
-    return groupBy(state.accountsOnPage, 'slot')
+    return groupBy(
+      [
+        ...state.accountsOnPage.filter((a) => !a.isLinked),
+        // A linked account with the same address could have multiple Basic accounts
+        // added as keys. Therefore, it could appear multiple times in the list.
+        // In this case, show it only one time. When it gets selected, all keys
+        // will get selected (and later on, imported) below the hood.
+        ...uniqBy(
+          state.accountsOnPage.filter((a) => a.isLinked),
+          (a) => a.account.addr
+        )
+      ],
+      'slot'
+    )
   }, [state.accountsOnPage])
+
+  const hasLinkedAccounts = useMemo(
+    () => state.accountsOnPage.some((a) => a.isLinked),
+    [state.accountsOnPage]
+  )
 
   const handleSelectAccount = useCallback(
     (account: AccountInterface) => {
@@ -100,19 +118,6 @@ const AccountsOnPageList = ({
       ),
     [keystoreState.keys, accountsState.accounts]
   )
-
-  const linkedAccounts = useMemo(() => {
-    if (lookingForLinkedAccounts) return []
-
-    // A linked account with the same address could have multiple Basic accounts
-    // added as keys. Therefore, it could appear multiple times in the list.
-    // In this case, show it only one time. When it gets selected, all keys
-    // will get selected (and later on, imported) below the hood.
-    return uniqBy(
-      state.accountsOnPage.filter((a) => getType(a) === 'linked'),
-      (a) => a.account.addr
-    )
-  }, [state.accountsOnPage, getType, lookingForLinkedAccounts])
 
   const isImportingFromPrivateKey = subType === 'private-key'
 
@@ -304,7 +309,7 @@ const AccountsOnPageList = ({
                             </Text>
                           </View>
                         )}
-                        {!lookingForLinkedAccounts && !!linkedAccounts.length && (
+                        {!lookingForLinkedAccounts && hasLinkedAccounts && (
                           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                             <Badge
                               type="info"
