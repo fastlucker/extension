@@ -261,7 +261,6 @@ const Account = ({
       </View>
       {[
         ImportStatus.ImportedWithSomeOfTheKeys,
-        ImportStatus.ImportedWithTheSameKeys,
         ImportStatus.ImportedWithDifferentKeys,
         ImportStatus.ImportedWithoutKey
       ].includes(importStatus) && (
@@ -274,15 +273,6 @@ const Account = ({
               text={t(
                 'Already imported with some of the keys found on this page but not all. Re-import now to use this account with multiple keys.'
               )}
-              type="success"
-            />
-          )}
-          {importStatus === ImportStatus.ImportedWithTheSameKeys && (
-            <Label
-              isTypeLabelHidden
-              customTextStyle={styles.label}
-              hasBottomSpacing={false}
-              text={t('Already imported with the same key.')}
               type="success"
             />
           )}
