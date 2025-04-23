@@ -80,8 +80,7 @@ const LeaderboardContainer: React.FC = () => {
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>
-            This is where your earned XP showcases your legacy in the world of Web3. <br /> Compete,
-            rise through the ranks, and level your mark among the top Legends!
+            Compete quests, earn XP and climb the leaderboard to secure Ambire rewards.
           </p>
         </div>
         {loading && <Spinner />}
