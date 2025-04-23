@@ -4,7 +4,11 @@ import { networks } from '@ambire-common/consts/networks'
 import LinkIcon from '@common/assets/svg/LinkIcon'
 import spacings from '@common/styles/spacings'
 import Alert from '@legends/components/Alert'
-import { NetworkIcon } from '@legends/components/NetworkIcons'
+import ArbitrumLogo from '@legends/components/NetworkIcons/ArbitrumLogo'
+import BaseLogo from '@legends/components/NetworkIcons/BaseLogo'
+import EthereumLogo from '@legends/components/NetworkIcons/EthereumLogo'
+import OptimismLogo from '@legends/components/NetworkIcons/OptimismLogo'
+import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
 import Spinner from '@legends/components/Spinner'
 import useActivityContext from '@legends/hooks/useActivityContext'
 import { Networks } from '@legends/modules/legends/types'
@@ -12,6 +16,14 @@ import { Networks } from '@legends/modules/legends/types'
 import SectionHeading from '../SectionHeading'
 import styles from './ActivitySection.module.scss'
 import Pagination from './Pagination'
+
+const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
+  '1': <EthereumLogo width={24} height={24} />,
+  '8453': <BaseLogo width={24} height={24} />,
+  '42161': <ArbitrumLogo width={24} height={24} />,
+  '10': <OptimismLogo width={24} height={24} />,
+  '534352': <ScrollLogo width={24} height={24} />
+}
 
 const ActivitySection = () => {
   const { activity, isLoading, error, setPage, currentPage } = useActivityContext()
@@ -82,7 +94,7 @@ const ActivitySection = () => {
                       </div>
                     </td>
                     <td>
-                      <NetworkIcon chainId={chainId.toString() as Networks} />
+                      {NETWORK_ICONS[chainId.toString() as Networks]}
                       <span className={styles.network}>{network?.name || txNetwork}</span>
                     </td>
                     <td>
