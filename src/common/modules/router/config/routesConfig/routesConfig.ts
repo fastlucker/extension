@@ -37,8 +37,8 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to Ambire Wallet'),
-      web: i18n.t('Welcome to Ambire Wallet')
+      default: i18n.t('Onboarding'),
+      web: i18n.t('Onboarding')
     })
   },
   [ROUTES.importExistingAccount]: {
@@ -48,8 +48,8 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to Ambire Wallet'),
-      web: i18n.t('Welcome to Ambire Wallet')
+      default: i18n.t('Select Import Method'),
+      web: i18n.t('Select Import Method')
     })
   },
   [ROUTES.ledgerConnect]: {
@@ -59,8 +59,8 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to Ambire Wallet'),
-      web: i18n.t('Welcome to Ambire Wallet')
+      default: i18n.t('Connect Ledger'),
+      web: i18n.t('Connect Ledger')
     })
   },
   [ROUTES.authEmailAccount]: {
@@ -121,7 +121,7 @@ const routesConfig: RouteConfig = {
       default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to Ambire Wallet')
+      default: i18n.t('Account Personalization')
     })
   },
   [ROUTES.viewOnlyAccountAdder]: {
