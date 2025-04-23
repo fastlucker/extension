@@ -5,7 +5,6 @@ import { Animated, Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
-import { canBecomeSmarter, isSmartAccount } from '@ambire-common/libs/account/account'
 import { PortfolioGasTankResult } from '@ambire-common/libs/portfolio/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -33,7 +32,7 @@ import { useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import getStyles from './styles'
 
 type Props = {
@@ -64,7 +63,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
-  const { keys } = useKeystoreControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
 
   const [bindAnim, , isHovered] = useCustomHover({
     property: 'borderColor',
@@ -73,17 +72,6 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       to: theme.primary
     }
   })
-
-  const getAccKeys = useCallback(
-    (acc: any) => {
-      return keys.filter((key) => acc?.associatedKeys.includes(key.addr))
-    },
-    [keys]
-  )
-  const isSA = useMemo(() => isSmartAccount(account), [account])
-  const hasGasTank = useMemo(() => {
-    return !!account && (isSA || canBecomeSmarter(account, getAccKeys(account)))
-  }, [account, getAccKeys, isSA])
 
   const savedInUsd = useMemo(
     () => calculateGasTankBalance(portfolio, account, hasGasTank, 'saved'),

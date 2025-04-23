@@ -6,10 +6,7 @@ import { useModalize } from 'react-native-modalize'
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
-import {
-  canBecomeSmarter,
-  isSmartAccount as getIsSmartAccount
-} from '@ambire-common/libs/account/account'
+import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -47,7 +44,7 @@ import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 import { getUiType } from '@web/utils/uiType'
 
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
@@ -57,7 +54,6 @@ const TransferScreen = () => {
   const { addToast } = useToast()
   const { maxWidthSize } = useWindowSize()
   const { state, transferCtrl } = useTransferControllerState()
-  const { keys } = useKeystoreControllerState()
   const {
     isTopUp,
     validationFormMsgs,
@@ -81,22 +77,13 @@ const TransferScreen = () => {
   } = useModalize()
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
   const recipientMenuClosedAutomatically = useRef(false)
 
   const hasFocusedActionWindow = useMemo(
     () => actionsState.actionWindow.windowProps?.focused,
     [actionsState.actionWindow.windowProps]
   )
-
-  const getAccKeys = useCallback(
-    (acc: any) => {
-      return keys.filter((key) => acc?.associatedKeys.includes(key.addr))
-    },
-    [keys]
-  )
-  const hasGasTank = useMemo(() => {
-    return !!account && (isSmartAccount || canBecomeSmarter(account, getAccKeys(account)))
-  }, [account, getAccKeys, isSmartAccount])
 
   // Requests filtered by the selected account only.
   // This enables the "Sign all Pending" button even if the selected token's network differs
