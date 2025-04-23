@@ -1,7 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings, { SPACING_MI } from '@common/styles/spacings'
-import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 type Styles = {
@@ -11,7 +10,7 @@ type Styles = {
   textAreaWrapper: ViewStyle
 }
 
-const getStyles = (theme: ThemeProps) =>
+const getStyles = () =>
   StyleSheet.create<Styles>({
     errorText: {
       ...spacings.phMi,
@@ -20,9 +19,7 @@ const getStyles = (theme: ThemeProps) =>
       paddingTop: SPACING_MI / 2
     },
     passphraseContainer: {
-      borderTopWidth: 1,
-      borderTopColor: theme.secondaryBorder,
-      ...spacings.ptLg,
+      ...spacings.ptSm,
       ...flexbox.directionRow,
       ...flexbox.alignStart
     },
@@ -38,7 +35,7 @@ const getStyles = (theme: ThemeProps) =>
       height: 22,
       padding: 19
     },
-    textAreaWrapper: { position: 'relative' }
+    textAreaWrapper: { position: 'relative', ...spacings.mbSm }
   })
 
 export default getStyles

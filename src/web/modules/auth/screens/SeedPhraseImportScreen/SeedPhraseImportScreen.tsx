@@ -11,6 +11,7 @@ import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import TextArea from '@common/components/TextArea'
+import Toggle from '@common/components/Toggle'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
@@ -130,7 +131,7 @@ const SeedPhraseImportScreen = () => {
           totalSteps={2}
         >
           <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
-            <View style={spacings.mbMd}>
+            <View>
               <Button
                 testID="clear-seed-phrase-btn"
                 type="ghost"
@@ -216,27 +217,32 @@ const SeedPhraseImportScreen = () => {
                   )
                 }}
               />
+              <Toggle
+                testID="enable-passphrase-toggle"
+                isOn={enablePassphrase}
+                onToggle={() => setEnablePassphrase((prev) => !prev)}
+                label={t('Advanced mode')}
+                style={flexbox.alignSelfStart}
+              />
+              {enablePassphrase && (
+                <View style={styles.passphraseContainer}>
+                  <Controller
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <InputPassword
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Recovery phrase passphrase"
+                        containerStyle={flexbox.flex1}
+                      />
+                    )}
+                    name="passphrase"
+                  />
+                </View>
+              )}
             </View>
-            {enablePassphrase && (
-              <View style={styles.passphraseContainer}>
-                <Controller
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <InputPassword
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      placeholder="Seed Passphrase"
-                      inputWrapperStyle={{ height: 40 }}
-                      inputStyle={{ height: 40 }}
-                      containerStyle={{ flex: 0.5 }}
-                    />
-                  )}
-                  name="passphrase"
-                />
-              </View>
-            )}
 
             <Button
               testID="import-button"
