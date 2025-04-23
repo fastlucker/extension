@@ -1,23 +1,23 @@
-import { formatUnits } from 'ethers'
 import React, { useRef } from 'react'
 
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
 import LockIcon from '@legends/common/assets/svg/LockIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
 import Stacked from '@legends/components/Stacked'
+import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { Networks } from '@legends/modules/legends/types'
 
 import styles from './CharacterSection.module.scss'
 import rewardsCoverImg from './rewards-cover-image.png'
 
 const CharacterSection = () => {
   const { character } = useCharacterContext()
-  const { accountPortfolio, claimableRewardsError, claimableRewards, isLoadingClaimableRewards } =
+  const { accountPortfolio, claimableRewardsError, isLoadingClaimableRewards } =
     usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
@@ -188,7 +188,11 @@ const CharacterSection = () => {
 
             <div className={styles.logoAndBalanceWrapper}>
               <div className={styles.logoWrapper}>
-                <Stacked chains={['1', '8453', '42161', '534352', '10']} />
+                <Stacked
+                  chains={LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID.map(
+                    (n) => n.toString() as Networks
+                  )}
+                />
               </div>
               <div className={styles.characterItemWrapper}>
                 <div className={styles.characterItem}>
