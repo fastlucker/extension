@@ -46,7 +46,7 @@ const KeyStoreSetupScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel
           type="onboarding"
-          title={t('Set a device password')}
+          title={t('Set extension password')}
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}

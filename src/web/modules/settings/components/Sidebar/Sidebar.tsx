@@ -77,7 +77,7 @@ export const SETTINGS_LINKS = [
   {
     key: 'device-password-change',
     Icon: React.memo(KeyStoreSettingsIcon),
-    label: 'Device Password',
+    label: 'Extension Password',
     path: ROUTES.devicePasswordChange
   },
   {
