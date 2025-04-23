@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { FC, useState } from 'react'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
 
@@ -7,7 +7,11 @@ import ambireLogoGlass from './ambire-logo-glass.png'
 import ambireLogoSmall from './ambire-logo-small.png'
 import styles from './LandingSection.module.scss'
 
-const LandingSection = ({ nonV2acc = false }) => {
+type Props = {
+  nonV2acc?: boolean
+}
+
+const LandingSection: FC<Props> = ({ nonV2acc = false }) => {
   const { requestAccounts } = useAccountContext()
   const [isDownloadLinkClicked, setIsDownloadLinkClicked] = useState(false)
 
