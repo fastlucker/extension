@@ -103,7 +103,8 @@ const Panel: React.FC<Props> = ({
           {
             width: '100%',
             maxWidth: panelWidth,
-            alignSelf: 'center'
+            alignSelf: 'center',
+            maxHeight: minHeightSize('l') ? '95%' : '92%'
           },
           style
         ]}
@@ -116,8 +117,7 @@ const Panel: React.FC<Props> = ({
             {
               width: '100%',
               maxWidth: panelWidth,
-              alignSelf: 'center',
-              minHeight: minHeightSize('l') ? '95%' : '92%'
+              alignSelf: 'center'
             }
           ]}
           {...rest}
