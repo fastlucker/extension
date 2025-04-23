@@ -35,6 +35,7 @@ const CreateSeedPhraseWriteScreen = () => {
   const [tempSeed, setTempSeed] = useState<KeystoreSeed | null>(null)
   const { initParams, subType } = useAccountPickerControllerState()
   const [submitButtonPressed, setSubmitButtonPressed] = useState(false)
+
   useEffect(() => {
     if (!tempSeed && hasTempSeed) {
       dispatch({ type: 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI' })

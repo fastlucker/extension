@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
+import { KeystoreSeed } from '@ambire-common/interfaces/keystore'
 import { EntropyGenerator } from '@ambire-common/libs/entropyGenerator/entropyGenerator'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
@@ -20,6 +21,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -44,13 +46,31 @@ const CreateSeedPhrasePrepareScreen = () => {
   const { theme } = useTheme()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
-  const keystoreState = useKeystoreControllerState()
+  const { hasTempSeed } = useKeystoreControllerState()
+  const [initTempSeed, setInitTempSeed] = useState<KeystoreSeed | null>(null)
+
   const { dispatch } = useBackgroundService()
 
   const { getExtraEntropy } = useExtraEntropy()
 
+  useEffect(() => {
+    dispatch({ type: 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI' })
+  }, [dispatch])
+
+  useEffect(() => {
+    const onReceiveOneTimeData = (data: any) => {
+      if (!data.tempSeed) return
+
+      setInitTempSeed(data.tempSeed)
+    }
+
+    eventBus.addEventListener('receiveOneTimeData', onReceiveOneTimeData)
+
+    return () => eventBus.removeEventListener('receiveOneTimeData', onReceiveOneTimeData)
+  }, [])
+
   const handleSubmit = useCallback(() => {
-    if (keystoreState.hasTempSeed) {
+    if (hasTempSeed && (!initTempSeed || initTempSeed.seed.split(' ').length === 12)) {
       goToNextRoute(WEB_ROUTES.createSeedPhraseWrite)
       return
     }
@@ -64,7 +84,7 @@ const CreateSeedPhrasePrepareScreen = () => {
     })
 
     goToNextRoute(WEB_ROUTES.createSeedPhraseWrite)
-  }, [getExtraEntropy, goToNextRoute, dispatch, keystoreState.hasTempSeed])
+  }, [getExtraEntropy, goToNextRoute, dispatch, hasTempSeed, initTempSeed])
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {
