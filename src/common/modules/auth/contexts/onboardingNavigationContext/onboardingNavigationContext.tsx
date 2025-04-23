@@ -14,15 +14,18 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
 export type OnboardingRoute = typeof ONBOARDING_WEB_ROUTES[number]
+type HwWalletsNeedingRedirect = 'trezor' | 'lattice' | null
 
 const OnboardingNavigationContext = createContext<{
   isOnboardingRoute: boolean
   goToNextRoute: (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => void
   goToPrevRoute: () => void
+  setTriggeredHwWalletFlow: React.Dispatch<React.SetStateAction<HwWalletsNeedingRedirect>>
 }>({
   isOnboardingRoute: false,
   goToNextRoute: () => {},
-  goToPrevRoute: () => {}
+  goToPrevRoute: () => {},
+  setTriggeredHwWalletFlow: () => null
 })
 
 class RouteNode {
@@ -50,7 +53,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
   const { isSetupComplete } = useWalletStateController()
-  const { isInitialized, subType } = useAccountPickerControllerState()
+  const { isInitialized, subType, initParams, type } = useAccountPickerControllerState()
   const isOnboardingRoute = useMemo(
     () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
     [path]
@@ -244,6 +247,22 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     }
   }, [history, deepSearchRouteNode, onboardingRoutesTree, navigate])
 
+  const [triggeredHwWalletFlow, setTriggeredHwWalletFlow] = useState<HwWalletsNeedingRedirect>(null)
+  useEffect(() => {
+    const shouldRedirectToHwWalletFlow =
+      initParams && type && ['lattice', 'trezor'].includes(type) && triggeredHwWalletFlow
+    if (shouldRedirectToHwWalletFlow) {
+      setTriggeredHwWalletFlow(null)
+
+      const currentRoute = path?.substring(1)
+      const nextRoute =
+        currentRoute && ONBOARDING_WEB_ROUTES.includes(currentRoute)
+          ? undefined
+          : WEB_ROUTES.accountPicker
+      goToNextRoute(nextRoute)
+    }
+  }, [goToNextRoute, initParams, type, triggeredHwWalletFlow, path])
+
   // Reset the AccountPickerController if it is initialized and
   // the current route is not one of 'account-personalize' or 'account-picker'
   useEffect(() => {
@@ -311,8 +330,8 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   }, [goToPrevRoute, history, deepSearchRouteNode, onboardingRoutesTree])
 
   const value = useMemo(
-    () => ({ isOnboardingRoute, goToNextRoute, goToPrevRoute }),
-    [isOnboardingRoute, goToPrevRoute, goToNextRoute]
+    () => ({ isOnboardingRoute, goToNextRoute, goToPrevRoute, setTriggeredHwWalletFlow }),
+    [isOnboardingRoute, goToPrevRoute, goToNextRoute, setTriggeredHwWalletFlow]
   )
   return (
     <OnboardingNavigationContext.Provider value={value}>

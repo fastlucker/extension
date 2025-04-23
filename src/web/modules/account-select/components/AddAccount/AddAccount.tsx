@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -22,7 +22,6 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import SavedSeedPhrases from '@web/modules/account-select/components/SavedSeedPhrases'
@@ -34,27 +33,13 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
   const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const [isHwOptionExpanded, setIsHwOptionExpanded] = useState(false)
-  const [pressedHwButton, setPressedHwButton] = useState<'trezor' | 'lattice' | null>(null)
-
-  const { initParams, type } = useAccountPickerControllerState()
-  const { goToNextRoute } = useOnboardingNavigation()
+  const { goToNextRoute, setTriggeredHwWalletFlow } = useOnboardingNavigation()
   const toggleHwOptions = useCallback(() => {
     setIsHwOptionExpanded((p) => !p)
   }, [])
   const { seeds } = useKeystoreControllerState()
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-
-  useEffect(() => {
-    if (
-      initParams &&
-      ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor') &&
-      pressedHwButton
-    ) {
-      setPressedHwButton(null)
-      goToNextRoute(WEB_ROUTES.accountPicker)
-    }
-  }, [goToNextRoute, dispatch, initParams, type, pressedHwButton])
 
   return (
     <>
@@ -113,7 +98,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
                       hovered && styles.hwOptionHovered
                     ]}
                     onPress={() => {
-                      setPressedHwButton('trezor')
+                      setTriggeredHwWalletFlow('trezor')
                       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
                     }}
                   >
@@ -144,7 +129,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
                       hovered && styles.hwOptionHovered
                     ]}
                     onPress={() => {
-                      setPressedHwButton('lattice')
+                      setTriggeredHwWalletFlow('lattice')
                       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
                     }}
                   >

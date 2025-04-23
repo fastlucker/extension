@@ -26,7 +26,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { isSafari } from '@web/constants/browserapi'
-import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -45,15 +44,13 @@ const ImportExistingAccountSelectorScreen = () => {
   const { t } = useTranslation()
   const wrapperRef = useRef<View | null>(null)
 
-  const { goToPrevRoute, goToNextRoute } = useOnboardingNavigation()
+  const { goToPrevRoute, goToNextRoute, setTriggeredHwWalletFlow } = useOnboardingNavigation()
   const [showMore, setShowMore] = useState(false)
 
   const animatedHeight = useRef(new Animated.Value(0)).current
   const animatedOpacity = useRef(new Animated.Value(0)).current
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-  const { initParams, type } = useAccountPickerControllerState()
-  const [pressedButton, setPressedButton] = useState<'trezor' | 'lattice' | null>(null)
 
   const buttons: ButtonType[] = useMemo(
     () => [
@@ -82,7 +79,7 @@ const ImportExistingAccountSelectorScreen = () => {
               { type: 'error' }
             )
           } else {
-            setPressedButton('trezor')
+            setTriggeredHwWalletFlow('trezor')
             dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
           }
         },
@@ -98,7 +95,7 @@ const ImportExistingAccountSelectorScreen = () => {
       {
         title: 'Grid Plus',
         onPress: () => {
-          setPressedButton('lattice')
+          setTriggeredHwWalletFlow('lattice')
           dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
         },
         icon: LatticeWithBorderIcon
@@ -111,19 +108,8 @@ const ImportExistingAccountSelectorScreen = () => {
         icon: ImportJsonIcon
       }
     ],
-    [goToNextRoute, addToast, dispatch, t]
+    [goToNextRoute, addToast, dispatch, t, setTriggeredHwWalletFlow]
   )
-
-  useEffect(() => {
-    if (
-      pressedButton &&
-      initParams &&
-      ['lattice', 'trezor'].includes(type as 'lattice' | 'trezor')
-    ) {
-      setPressedButton(null)
-      goToNextRoute()
-    }
-  }, [goToNextRoute, dispatch, initParams, type, pressedButton])
 
   useEffect(() => {
     Animated.timing(animatedOpacity, {
