@@ -64,7 +64,7 @@ const handleProviderRequests = async (
 
   // Prevents handling the same request more than once
   if (session.lastHandledRequestId >= requestId) return
-  mainCtrl.dapps.setSessionLastHandledRequestsId(session.sessionId, requestId)
+  mainCtrl.dapps.setSessionLastHandledRequestsId(session.sessionId, requestId, true)
 
   if (method === 'getProviderState') {
     const providerController = new ProviderController(mainCtrl)
