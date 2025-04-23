@@ -74,29 +74,6 @@ const AccountPersonalizeCard = ({
           </View>
         </View>
       </View>
-
-      {/* <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
-        {t('Choose an avatar')}
-      </Text> */}
-      {/* <View style={[flexbox.directionRow]}>
-        <Controller
-          control={control}
-          name={`preferences.${index}.pfp`}
-          render={({ field: { onChange, value } }) => (
-            <>
-              {buildInAvatars.map(({ id, source }) => (
-                <AvatarsSelectorItem
-                  key={id}
-                  id={id}
-                  source={source}
-                  isSelected={value === id}
-                  setSelectedAvatar={onChange}
-                />
-              ))}
-            </>
-          )}
-        />
-      </View> */}
     </View>
   )
 }

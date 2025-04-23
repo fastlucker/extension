@@ -238,7 +238,10 @@ const AccountPersonalizeScreen = () => {
                       source:
                         accountPickerState.subType === 'hw' ? 'hardware wallet' : 'recovery phrase'
                     })}
-                    onPress={() => goToNextRoute(WEB_ROUTES.accountPicker)}
+                    onPress={() => {
+                      handleSave()
+                      goToNextRoute(WEB_ROUTES.accountPicker)
+                    }}
                     textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
                     style={{ ...spacings.ph0, height: 22 }}
                     hasBottomSpacing={false}

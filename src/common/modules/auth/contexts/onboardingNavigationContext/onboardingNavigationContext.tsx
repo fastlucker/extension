@@ -247,7 +247,22 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     }
   }, [history, deepSearchRouteNode, onboardingRoutesTree, navigate])
 
+  const [onboardingInitialized, setOnboardingInitialized] = useState(false)
   const [triggeredHwWalletFlow, setTriggeredHwWalletFlow] = useState<HwWalletsNeedingRedirect>(null)
+
+  useEffect(() => {
+    const currentRoute = path?.substring(1)
+    if (!currentRoute) return
+
+    if (ONBOARDING_WEB_ROUTES.includes(currentRoute) && !onboardingInitialized) {
+      setOnboardingInitialized(true)
+    }
+
+    if (!ONBOARDING_WEB_ROUTES.includes(currentRoute) && onboardingInitialized) {
+      setOnboardingInitialized(false)
+    }
+  }, [onboardingInitialized, path])
+
   useEffect(() => {
     const shouldRedirectToHwWalletFlow =
       initParams && type && ['lattice', 'trezor'].includes(type) && triggeredHwWalletFlow
@@ -266,6 +281,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   // Reset the AccountPickerController if it is initialized and
   // the current route is not one of 'account-personalize' or 'account-picker'
   useEffect(() => {
+    if (!onboardingInitialized) return
     if (!isInitialized) return
 
     const currentRoute = path?.substring(1) || ''
@@ -279,7 +295,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     if (shouldResetAccountPicker) {
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET' })
     }
-  }, [path, dispatch, isInitialized, history])
+  }, [onboardingInitialized, path, dispatch, isInitialized, history])
 
   // Some routes are protected and should only be accessed through internal navigation.
   // If a user attempts to access one of these routes directly via the URL bar,
