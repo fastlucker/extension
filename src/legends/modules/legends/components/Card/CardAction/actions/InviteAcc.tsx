@@ -127,7 +127,7 @@ const InviteAcc: FC<Props> = ({
       isLoading={isInProgress}
       loadingText="Signing..."
       buttonText={
-        isInvalidAccount ? 'Switch to a smart account to unlock Legends quests' : buttonText
+        isInvalidAccount ? 'Switch to a smart account to unlock Rewards quests' : buttonText
       }
       disabled={isInvalidAccount || validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}

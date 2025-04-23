@@ -234,7 +234,7 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
       buttonText={
         !isInvalidAccount
           ? BUTTON_TEXT[activeStep]
-          : 'Switch to a smart account to unlock Legends quests'
+          : 'Switch to a smart account to unlock Rewards quests'
       }
       onButtonClick={onButtonClick}
     >
