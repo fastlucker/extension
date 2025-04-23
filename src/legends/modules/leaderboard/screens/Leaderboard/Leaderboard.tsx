@@ -80,7 +80,7 @@ const LeaderboardContainer: React.FC = () => {
         <div className={styles.heading}>
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>
-            Compete quests, earn XP and climb the leaderboard to secure Ambire rewards.
+            Complete quests, earn XP and climb the leaderboard to secure Ambire rewards.
           </p>
         </div>
         {loading && <Spinner />}
