@@ -27,7 +27,7 @@ const LandingSection = ({ nonV2acc = false }) => {
   return (
     <section className={`${styles.wrapper} ${nonV2acc ? styles.nonV2 : styles.v2}`}>
       <div className={styles.heroSection}>
-        <span className={styles.kicker}>Welcome to Ambire Legends</span>
+        <span className={styles.kicker}>Welcome to Ambire Rewards</span>
         <h1 className={styles.title}>
           {nonV2acc
             ? 'Switch to a smart account to unlock Legends quests'

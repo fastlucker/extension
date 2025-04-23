@@ -113,7 +113,7 @@ export interface CardFromResponse {
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
   }
   contentSteps?: string[]
-  contentImage?: string
+  contentImageV2?: string
   contentVideo?: string
 }
 

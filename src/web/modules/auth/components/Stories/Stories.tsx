@@ -172,7 +172,7 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
             <Text fontSize={14}>
               <TouchableOpacity onPress={() => Linking.openURL(LEGENDS_URL)}>
                 <Text fontSize={14} color={theme.infoDecorative} underline weight="regular">
-                  Join Ambire Legends
+                  Join Ambire Rewards
                 </Text>
               </TouchableOpacity>
               <Text fontSize={14}>

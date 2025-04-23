@@ -152,7 +152,7 @@ const ToTokenSelect: React.FC<Props> = ({
 
     return [
       {
-        title: { icon: <CoinsIcon />, text: t('Tokens in the current account') },
+        title: { icon: <CoinsIcon />, text: t('Tokens in current account') },
         data: toTokenOptionsInAccount,
         key: 'swap-and-bridge-to-account-tokens'
       },
