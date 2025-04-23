@@ -68,6 +68,9 @@ const useAccountsList = ({
     []
   )
 
+  // Scrolls to the selected account in the FlatList
+  // It's complexity comes from the fact that the FlatList is not mounted when the component is first rendered
+  // and so are the accounts.
   const scrollToSelectedAccount = useCallback(
     (attempt: number = 0) => {
       const MAX_ATTEMPTS = 3
