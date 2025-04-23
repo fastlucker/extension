@@ -20,7 +20,8 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phTy,
       ...spacings.pvTy,
       ...spacings.mbSm,
-      width: '100%'
+      width: '100%',
+      flex: 1
     },
     pfpSelectorItem: {
       height: 48,

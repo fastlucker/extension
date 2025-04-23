@@ -23,7 +23,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useFeatureFlagsControllerState from '@web/hooks/useFeatureFlagsControllerState'
@@ -195,12 +195,12 @@ const Account = ({
   return (
     <Container>
       <Animated.View style={[styles.accountContainer, containerStyle, isSelectable && animStyle]}>
-        <View style={[flexboxStyles.directionRow]}>
+        <View style={[flexbox.flex1, flexbox.directionRow]}>
           <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} showTooltip />
-          <View>
-            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          <View style={flexbox.flex1}>
+            <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
               {!withSettings ? (
-                <Text fontSize={isTab ? 16 : 14} weight="medium">
+                <Text fontSize={isTab ? 16 : 14} weight="medium" numberOfLines={1}>
                   {account.preferences.label}
                 </Text>
               ) : (
@@ -225,7 +225,7 @@ const Account = ({
 
               <AccountBadges accountData={account} />
             </View>
-            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <DomainBadge ens={ens} />
               <AccountAddress
                 isLoading={isLoading}
@@ -237,7 +237,7 @@ const Account = ({
             </View>
           </View>
         </View>
-        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
           {showExportImport && (
             <AccountKeysBottomSheet
