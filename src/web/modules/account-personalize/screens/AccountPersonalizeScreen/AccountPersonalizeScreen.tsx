@@ -119,10 +119,10 @@ const AccountPersonalizeScreen = () => {
   )
 
   useEffect(() => {
-    if (newlyAddedAccounts.length) {
+    if (newlyAddedAccounts.length && accountPickerState.isInitialized) {
       dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
     }
-  }, [newlyAddedAccounts.length, dispatch])
+  }, [newlyAddedAccounts.length, accountPickerState.isInitialized, dispatch])
 
   const handleGetStarted = useCallback(async () => {
     await handleSubmit(handleSave)()

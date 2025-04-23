@@ -69,7 +69,7 @@ const Editable: FC<Props> = ({
   )
 
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter, { height }]}>
+    <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter, { height }]}>
       {isEditing ? (
         <Input
           value={actualValue}
