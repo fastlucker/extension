@@ -7,6 +7,7 @@ import {
   SIGN_ACCOUNT_OP_SWAP
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -545,7 +546,18 @@ export const handleActions = async (
     }
 
     case 'OPEN_EXTENSION_POPUP': {
-      await browser.action.openPopup()
+      try {
+        await browser.action.openPopup()
+      } catch (error) {
+        try {
+          await chrome.action.openPopup()
+        } catch (e) {
+          pm.send('> ui', {
+            method: 'navigate',
+            params: { route: WEB_ROUTES.dashboard }
+          })
+        }
+      }
       break
     }
 
