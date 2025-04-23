@@ -66,17 +66,23 @@ const CustomHDPathBottomSheet: FC<Props> = ({
     closeBottomSheet()
   }, [closeBottomSheet])
 
-  const onSubmit = (data: FormData) => {
-    const parsed = parseInt(data.startIndex, 10)
-    if (parsed >= 1 && parsed <= 50) {
-      onConfirm(selectedOption, parsed)
-      closeBottomSheetWrapped()
-    }
-  }
+  const onSubmit = useCallback(
+    (data: FormData) => {
+      const parsed = parseInt(data.startIndex, 10)
+      if (parsed >= 1 && parsed <= 50) {
+        onConfirm(selectedOption, parsed)
+        closeBottomSheetWrapped()
+      }
+    },
+    [closeBottomSheetWrapped, onConfirm, selectedOption]
+  )
 
-  const handleOptionPress = (option: SelectValue) => {
-    setValue('selectedOption', option)
-  }
+  const handleOptionPress = useCallback(
+    (option: SelectValue) => {
+      setValue('selectedOption', option)
+    },
+    [setValue]
+  )
 
   return (
     <BottomSheet

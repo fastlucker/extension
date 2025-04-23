@@ -46,7 +46,7 @@ const KeyStoreSetupScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel
           type="onboarding"
-          title={t('Set a device password')}
+          title={t('Set extension password')}
           spacingsSize="small"
           withBackButton
           onBackButtonPress={goToPrevRoute}
@@ -59,7 +59,7 @@ const KeyStoreSetupScreen = () => {
               appearance="secondaryText"
               style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}
             >
-              {t('Used to access your wallet and encrypt your data.')}
+              {t('Used to access your local wallet and encrypt your data.')}
             </Text>
             <KeyStoreSetupForm agreedWithTerms={agreedWithTerms}>
               <Checkbox

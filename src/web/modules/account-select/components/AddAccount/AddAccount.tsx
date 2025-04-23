@@ -6,6 +6,7 @@ import { useModalize } from 'react-native-modalize'
 import AddCircularIcon from '@common/assets/svg/AddCircularIcon'
 import AddFromCurrentRecoveryPhraseIcon from '@common/assets/svg/AddFromCurrentRecoveryPhraseIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
+import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
 import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
 import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
@@ -78,6 +79,13 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
             iconProps={{ width: 30, height: 30 }}
             onPress={() => goToNextRoute(WEB_ROUTES.importPrivateKey)}
             testID="import-private-key"
+          />
+          <Option
+            text={t('Import JSON backup file')}
+            icon={ImportJsonIcon}
+            iconProps={{ width: 30, height: 30 }}
+            onPress={() => goToNextRoute(WEB_ROUTES.importSmartAccountJson)}
+            testID="import-json-backup-file"
           />
         </View>
         <View style={styles.optionsWrapper}>

@@ -120,7 +120,7 @@ const SavedSeedScreen = () => {
       {!passwordConfirmed && (
         <PasswordConfirmation
           onPasswordConfirmed={onPasswordConfirmed}
-          text={t('Please enter your device password to view your seed')}
+          text={t('Please enter your extension password to view your seed')}
         />
       )}
       {passwordConfirmed && (

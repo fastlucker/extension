@@ -99,7 +99,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     <>
       <View style={{ maxWidth: 440 }}>
         <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-          {t('Change Device Password')}
+          {t('Change extension password')}
         </Text>
         <Controller
           control={control}
@@ -182,7 +182,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           text={
             state.statuses.changeKeystorePassword === 'LOADING'
               ? t('Loading...')
-              : t('Change Device Password')
+              : t('Change extension password')
           }
           onPress={handleChangeKeystorePassword}
         />
@@ -194,11 +194,11 @@ const DevicePasswordChangeSettingsScreen = () => {
         autoWidth
       >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
-          {t('Device Password')}
+          {t('Extension password')}
         </Text>
         <KeyStoreLogo style={[flexbox.alignSelfCenter, spacings.mbXl]} />
         <Text fontSize={16} style={[spacings.mbLg, text.center]}>
-          {t('Your Device Password was successfully changed!')}
+          {t('Your extension password was successfully changed!')}
         </Text>
         <Button
           testID="device-pass-success-modal"

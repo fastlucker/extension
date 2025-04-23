@@ -99,7 +99,7 @@ const routesConfig: RouteConfig = {
   [ROUTES.keyStoreSetup]: {
     route: ROUTES.keyStoreSetup,
     title: i18n.t('Welcome to Ambire Wallet'),
-    name: i18n.t('Device Password Setup')
+    name: i18n.t('Extension Password Setup')
   },
   [ROUTES.keyStoreReset]: {
     route: ROUTES.keyStoreReset,
@@ -357,18 +357,18 @@ const routesConfig: RouteConfig = {
   },
   [ROUTES.devicePasswordSet]: {
     route: ROUTES.devicePasswordSet,
-    title: Platform.select({ default: i18n.t('Set Device Password') }),
-    name: Platform.select({ default: i18n.t('Set Device Password') })
+    title: Platform.select({ default: i18n.t('Set Extension Password') }),
+    name: Platform.select({ default: i18n.t('Set Extension Password') })
   },
   [ROUTES.devicePasswordChange]: {
     route: ROUTES.devicePasswordChange,
-    title: Platform.select({ default: i18n.t('Change Device Password') }),
-    name: Platform.select({ default: i18n.t('Change Device Password') })
+    title: Platform.select({ default: i18n.t('Change Extension Password') }),
+    name: Platform.select({ default: i18n.t('Change Extension Password') })
   },
   [ROUTES.devicePasswordRecovery]: {
     route: ROUTES.devicePasswordRecovery,
-    title: Platform.select({ default: i18n.t('Recover Device Password') }),
-    name: Platform.select({ default: i18n.t('Recover Device Password') })
+    title: Platform.select({ default: i18n.t('Recover Extension Password') }),
+    name: Platform.select({ default: i18n.t('Recover Extension Password') })
   },
   [ROUTES.manageTokens]: {
     route: ROUTES.manageTokens,
