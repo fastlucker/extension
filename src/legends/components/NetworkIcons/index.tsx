@@ -17,7 +17,10 @@ const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
   '534352': <ScrollLogo />,
   '56': <BinanceSmartChainLogo />
 }
-
-export function NetworkIcon({ chainId }: { chainId: Networks }) {
-  return NETWORK_ICONS[chainId]
+interface Props {
+  chainId: Networks
+}
+export const NetworkIcon = ({ chainId }: Props) => {
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{NETWORK_ICONS[chainId]}</>
 }
