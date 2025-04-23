@@ -15,9 +15,10 @@ import AdvancedModeBottomSheet from './AdvancedModeBottomSheet'
 
 type Props = {
   setPage: (page: number) => void
+  disabled?: boolean
 }
 
-const ChangeHdPath: React.FC<Props> = ({ setPage }) => {
+const ChangeHdPath: React.FC<Props> = ({ setPage, disabled }) => {
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -56,6 +57,7 @@ const ChangeHdPath: React.FC<Props> = ({ setPage }) => {
         type="ghost"
         onPress={() => openBottomSheet()}
         hasBottomSpacing={false}
+        disabled={disabled}
         style={spacings.pr0}
       >
         <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>

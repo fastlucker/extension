@@ -127,7 +127,12 @@ const AccountPickerScreen = () => {
               title={setTitle(accountPickerState.type, accountPickerState.subType)}
               style={{ textAlign: 'left', flex: 1 }}
             />
-            {!!shouldDisplayChangeHdPath && <ChangeHdPath setPage={setPage} />}
+            {!!shouldDisplayChangeHdPath && (
+              <ChangeHdPath
+                disabled={accountPickerState.accountsLoading || !!isLoading}
+                setPage={setPage}
+              />
+            )}
           </View>
 
           <AccountsOnPageList
