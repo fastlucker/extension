@@ -63,7 +63,7 @@ const ChangeHdPath: React.FC<Props> = ({ setPage, disabled }) => {
         <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
           {t('Advanced mode')}
         </Text>
-        <SettingsIcon width={14} />
+        <SettingsIcon width={16} />
       </Button>
 
       <AdvancedModeBottomSheet

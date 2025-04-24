@@ -12,6 +12,7 @@ import useAccountPickerControllerState from '@web/hooks/useAccountPickerControll
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
+import { getUiType } from '@web/utils/uiType'
 
 export type OnboardingRoute = typeof ONBOARDING_WEB_ROUTES[number]
 type HwWalletsNeedingRedirect = 'trezor' | 'lattice' | null
@@ -251,6 +252,8 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const [triggeredHwWalletFlow, setTriggeredHwWalletFlow] = useState<HwWalletsNeedingRedirect>(null)
 
   useEffect(() => {
+    if (getUiType().isPopup) return
+
     const currentRoute = path?.substring(1)
     if (!currentRoute) return
 
@@ -301,6 +304,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   // If a user attempts to access one of these routes directly via the URL bar,
   // this hook should block the navigation and redirect them back to the previous route.
   useEffect(() => {
+    if (getUiType().isPopup) return
     const currentRoute = path?.substring(1)
     const prevRoute = prevPath?.substring(1)
     if (!currentRoute) return
@@ -327,6 +331,8 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   }, [history.length, path])
 
   useEffect(() => {
+    if (getUiType().isPopup) return
+
     const handleBackButton = () => {
       const changedRoute = window.location.hash.replace('#/', '')
       if (!history.length) return

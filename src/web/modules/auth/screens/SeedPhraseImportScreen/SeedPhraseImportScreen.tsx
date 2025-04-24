@@ -222,9 +222,14 @@ const SeedPhraseImportScreen = () => {
                 isOn={enablePassphrase}
                 onToggle={() => setEnablePassphrase((prev) => !prev)}
                 label={t('Advanced mode')}
+                labelProps={{
+                  fontSize: 14,
+                  weight: 'regular',
+                  appearance: 'secondaryText'
+                }}
                 style={flexbox.alignSelfStart}
               />
-              {enablePassphrase && (
+              {!!enablePassphrase && (
                 <View style={styles.passphraseContainer}>
                   <Controller
                     control={control}

@@ -19,7 +19,7 @@ const getStyles = () =>
       paddingTop: SPACING_MI / 2
     },
     passphraseContainer: {
-      ...spacings.ptSm,
+      ...spacings.pt,
       ...flexbox.directionRow,
       ...flexbox.alignStart
     },
