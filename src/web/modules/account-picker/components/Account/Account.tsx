@@ -252,7 +252,7 @@ const Account = ({
             )}
             {!!unused && (
               <Badge
-                type={type === 'smart' ? 'info' : 'default'}
+                type={type === 'smart' ? 'new' : 'default'}
                 text={type === 'smart' ? t('new') : t('unused')}
               />
             )}
