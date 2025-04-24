@@ -106,7 +106,7 @@ const Feedback = () => {
       disabled={disabledButton || (isFeedbackFormOpen && !surveyCode)}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Legends quests'
+          ? 'Switch to a smart account to unlock Rewards quests'
           : isFeedbackFormOpen
           ? 'Claim xp'
           : 'Open feedback form'

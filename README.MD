@@ -200,9 +200,9 @@ yarn build:web:benzin
 
 And find the resulting build in the "build/benzin-prod" folder.
 
-## Ambire Legends
+## Ambire Rewards
 
-Ambire Legends is a gamified testing web3 app for the Ambire browser extensions. It is designed to users you discover the power of Smart Accounts via an epic onchain adventure. [Read more](https://legends.ambire.com/).
+Ambire Rewards is a gamified testing web3 app for the Ambire browser extensions. It is designed to users you discover the power of Smart Accounts via an epic onchain adventure. [Read more](https://rewards.ambire.com/).
 
 ### Development-optimized Build
 

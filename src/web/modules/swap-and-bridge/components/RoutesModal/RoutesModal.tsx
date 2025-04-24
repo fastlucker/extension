@@ -115,6 +115,7 @@ const RoutesModal = ({
       const { steps } = item
       const isDisabled = disabledRoutes.indexOf(item.routeId) !== -1
       const isEstimatingRoute = isEstimationLoading && item.routeId === userSelectedRoute?.routeId
+      const isSelected = item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute
 
       return (
         <Pressable
@@ -123,6 +124,7 @@ const RoutesModal = ({
             styles.itemContainer,
             index + 1 === quote?.routes?.length && spacings.mb0,
             isDisabled && styles.disabledItem,
+            isSelected && styles.selectedItem,
             isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
           onPress={() => handleSelectRoute(item)}

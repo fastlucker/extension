@@ -104,7 +104,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
         if (!allowNonV2Connection) {
           setConnectedAccount(null)
-          localStorage.setItem(LOCAL_STORAGE_ACC_KEY, null)
+          localStorage.setItem(LOCAL_STORAGE_ACC_KEY, '')
         }
 
         setNonV2Account(address)
@@ -130,7 +130,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
         console.log(e)
       }
     },
-    [addToast, connectedAccount]
+    [addToast, allowNonV2Connection, connectedAccount]
   )
 
   const handleDisconnectFromWallet = useCallback(async () => {

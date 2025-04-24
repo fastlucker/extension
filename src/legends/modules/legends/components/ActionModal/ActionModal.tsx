@@ -42,19 +42,19 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'action'
+    'meta' | 'xp' | 'contentImageV2' | 'contentSteps' | 'contentVideoV2' | 'title' | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
   title,
   xp,
-  contentImage,
+  contentImageV2,
   buttonText,
   onLegendCompleteWrapped,
   closeActionModal,
   contentSteps,
-  contentVideo,
+  contentVideoV2,
   meta,
   action,
   predefinedId
@@ -95,9 +95,9 @@ const ActionModal: FC<ActionModalProps> = ({
         <HowTo
           steps={contentSteps}
           activeStep={activeStep}
-          image={contentImage}
+          image={contentImageV2}
           imageAlt={title}
-          video={contentVideo}
+          video={contentVideoV2}
         >
           {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||
             (predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />)}

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BottomSheet from '@common/components/BottomSheet'
@@ -12,28 +12,79 @@ type Props = {
   sheetRef: React.RefObject<any>
   closeBottomSheet: () => void
   acknowledgeHighPriceImpact: () => void
-  highPriceImpactInPercentage: number | null
+  highPriceImpactOrSlippageWarning:
+    | { type: 'highPriceImpact'; percentageDiff: number }
+    | {
+        type: 'slippageImpact'
+        possibleSlippage: number
+        minInUsd: number
+        minInToken: string
+        symbol: string
+      }
+    | null
 }
 
 const PriceImpactWarningModal: FC<Props> = ({
   sheetRef,
   closeBottomSheet,
   acknowledgeHighPriceImpact,
-  highPriceImpactInPercentage
+  highPriceImpactOrSlippageWarning
 }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const [isConfirmed, setIsConfirmed] = useState(false)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
 
   const closeBottomSheetWrapped = () => {
     closeBottomSheet()
     setIsConfirmed(false)
+    setTitle('')
+    setDescription('')
   }
 
   const acknowledgeWarningWrapped = () => {
     acknowledgeHighPriceImpact()
     setIsConfirmed(false)
+    setTitle('')
+    setDescription('')
   }
+
+  useEffect(() => {
+    if (!highPriceImpactOrSlippageWarning) return
+
+    if (highPriceImpactOrSlippageWarning.type === 'highPriceImpact') {
+      setTitle(
+        t(
+          `Ouch! Very high price impact (-${highPriceImpactOrSlippageWarning.percentageDiff.toFixed(
+            2
+          )}%)`
+        )
+      )
+      setDescription(
+        t(
+          'This route will significantly affect the market price of this pool and will reduce your expected return.'
+        )
+      )
+    }
+
+    if (highPriceImpactOrSlippageWarning.type === 'slippageImpact') {
+      setTitle(
+        t(
+          `Warning! This route has a higher slippage than usual (${highPriceImpactOrSlippageWarning.possibleSlippage.toFixed(
+            2
+          )}%)`
+        )
+      )
+      setDescription(
+        t(
+          `If slippage occurs, you might receive ${highPriceImpactOrSlippageWarning.minInToken} ${
+            highPriceImpactOrSlippageWarning.symbol
+          } (${highPriceImpactOrSlippageWarning.minInUsd.toFixed(2)}$)`
+        )
+      )
+    }
+  }, [title, description, highPriceImpactOrSlippageWarning, t])
 
   return (
     <BottomSheet
@@ -51,15 +102,9 @@ const PriceImpactWarningModal: FC<Props> = ({
       shouldBeClosableOnDrag={false}
     >
       <DualChoiceWarningModal
-        title={t(
-          `Ouch! Very high price impact (${
-            highPriceImpactInPercentage ? `-${highPriceImpactInPercentage.toFixed(2)}%` : ''
-          })`
-        )}
+        title={title}
         type="error"
-        description={t(
-          'This swap will significantly affect the market price of this pool and will reduce your expected return.'
-        )}
+        description={description}
         primaryButtonText={t('Continue anyway')}
         secondaryButtonText={t('Cancel')}
         primaryButtonProps={{

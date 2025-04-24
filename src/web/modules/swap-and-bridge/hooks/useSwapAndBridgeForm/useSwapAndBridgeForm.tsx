@@ -1,8 +1,9 @@
-import { getAddress, parseUnits } from 'ethers'
+import { formatUnits, getAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
+import { getUsdAmount } from '@ambire-common/controllers/signAccountOp/helper'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
@@ -258,7 +259,16 @@ const useSwapAndBridgeForm = () => {
     supportedChainIds
   })
 
-  const highPriceImpactInPercentage = useMemo(() => {
+  const highPriceImpactOrSlippageWarning:
+    | { type: 'highPriceImpact'; percentageDiff: number }
+    | {
+        type: 'slippageImpact'
+        possibleSlippage: number
+        minInUsd: number
+        minInToken: string
+        symbol: string
+      }
+    | null = useMemo(() => {
     if (updateQuoteStatus === 'LOADING') return null
 
     if (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) return null
@@ -289,8 +299,35 @@ const useSwapAndBridgeForm = () => {
 
       const percentageDiff = (difference / inputValueInUsd) * 100
 
-      // show the warning banner only if the percentage diff is higher than 5%
-      return percentageDiff < 5 ? null : percentageDiff
+      if (percentageDiff >= 5) {
+        return {
+          type: 'highPriceImpact',
+          percentageDiff
+        }
+      }
+
+      // try to calculate the slippage
+      const minAmountOutInWei = BigInt(
+        quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
+      )
+      const minInUsd = getUsdAmount(
+        Number(quote.selectedRoute.toToken.priceUSD),
+        quote.selectedRoute.toToken.decimals,
+        minAmountOutInWei
+      )
+      const allowedSlippage = inputValueInUsd <= 400 ? 1.15 : 0.65
+      const possibleSlippage = quote.selectedRoute.outputValueInUsd / Number(minInUsd)
+      if (possibleSlippage > allowedSlippage) {
+        return {
+          type: 'slippageImpact',
+          possibleSlippage,
+          minInUsd: Number(minInUsd),
+          minInToken: formatUnits(minAmountOutInWei, quote.selectedRoute.toToken.decimals),
+          symbol: quote.selectedRoute.toToken.symbol
+        }
+      }
+
+      return null
     } catch (error) {
       return null
     }
@@ -328,7 +365,7 @@ const useSwapAndBridgeForm = () => {
   const handleSubmitForm = useCallback(
     (isOneClickMode: boolean) => {
       setIsOneClickModeDuringPriceImpact(isOneClickMode)
-      if (highPriceImpactInPercentage) {
+      if (highPriceImpactOrSlippageWarning) {
         openPriceImpactModal()
         return
       }
@@ -347,7 +384,7 @@ const useSwapAndBridgeForm = () => {
     },
     [
       dispatch,
-      highPriceImpactInPercentage,
+      highPriceImpactOrSlippageWarning,
       openEstimationModalAndDispatch,
       openPriceImpactModal,
       quote
@@ -419,7 +456,7 @@ const useSwapAndBridgeForm = () => {
     fromTokenValue,
     closeEstimationModalWrapped,
     handleSubmitForm,
-    highPriceImpactInPercentage,
+    highPriceImpactOrSlippageWarning,
     priceImpactModalRef,
     closePriceImpactModal,
     acknowledgeHighPriceImpact,

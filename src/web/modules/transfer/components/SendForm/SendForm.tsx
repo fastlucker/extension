@@ -35,6 +35,7 @@ const { isPopup } = getUiType()
 const SendForm = ({
   addressInputState,
   isSmartAccount = false,
+  hasGasTank,
   amountErrorMessage,
   isRecipientAddressUnknown,
   isSWWarningVisible,
@@ -44,6 +45,7 @@ const SendForm = ({
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
+  hasGasTank: boolean
   amountErrorMessage: string
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
@@ -90,7 +92,7 @@ const SendForm = ({
     isToToken: false
   })
 
-  const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
+  const disableForm = (!hasGasTank && isTopUp) || !tokens.length
 
   const handleChangeToken = useCallback(
     (value: string) => {

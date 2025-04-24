@@ -48,7 +48,7 @@ const CharacterSelect = () => {
   }
 
   useEffect(() => {
-    document.title = 'Ambire Legends'
+    document.title = 'Ambire Rewards'
   }, [])
   if (!!nonV2Account || (!connectedAccount && !nonV2Account)) return <Navigate to="/" />
 
