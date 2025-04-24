@@ -1,10 +1,13 @@
 /* eslint-disable react/prop-types */
-import React, { FC, useEffect } from 'react'
-import spacings from '@common/styles/spacings'
+import React, { FC, useEffect, useMemo } from 'react'
 import { useModalize } from 'react-native-modalize'
+import { v4 as uuidv4 } from 'uuid'
+
 import BottomSheet from '@common/components/BottomSheet'
-import { getUiType } from '@web/utils/uiType'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
+import { getUiType } from '@web/utils/uiType'
+
 import { RenderSelectedOptionParams } from '../types'
 
 const { isPopup } = getUiType()
@@ -17,6 +20,9 @@ const BottomSheetContainer: FC<Props> = ({ isMenuOpen, toggleMenu, children }) =
   const { theme } = useTheme()
   const { ref: sheetRef, open: openSheet, close: closeSheet } = useModalize()
 
+  // Ensure bottom sheet ID is unique per component to avoid duplicates when multiple are rendered
+  const id = useMemo(() => `select-bottom-sheet-${uuidv4()}`, [])
+
   useEffect(() => {
     if (isMenuOpen) {
       openSheet()
@@ -27,7 +33,7 @@ const BottomSheetContainer: FC<Props> = ({ isMenuOpen, toggleMenu, children }) =
 
   return (
     <BottomSheet
-      id="select-bottom-sheet"
+      id={id}
       sheetRef={sheetRef}
       closeBottomSheet={toggleMenu}
       containerInnerWrapperStyles={{
