@@ -199,9 +199,7 @@ async function verifyRouteFound(page) {
   while (attempts < 2 && isTextPresent) {
     // Wait for Proceed to be enabled (Wait for "Fetching best route..." to appear and disappear)
     // eslint-disable-next-line no-await-in-loop
-    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { visible: true }).catch(() => null)
-    // eslint-disable-next-line no-await-in-loop
-    await page.waitForSelector(SELECTORS.routeLoadingTextSab, { hidden: true })
+    await page.waitForXPath("//*[text()='Select route']", { visible: true, timeout: 9000 })
 
     // Check if "No Route Found!" is displayed
     // eslint-disable-next-line no-await-in-loop
@@ -274,7 +272,7 @@ export async function verifyNonDefaultReceiveToken(
 ) {
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, recieve_network)
-  await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
+  await page.waitForTimeout(1000)
   await clickOnElement(page, SELECTORS.receiveTokenSab)
   await typeText(page, SELECTORS.searchInput, receive_token)
   await expect(page).toMatchElement('div', { text: 'Not found. Try with token address?' })
@@ -293,7 +291,7 @@ export async function verifyNonDefaultReceiveToken(
 export async function verifyDefaultReceiveToken(page, send_token, recieve_network, receive_token) {
   await openSwapAndBridge(page)
   await selectSendTokenOnNetwork(page, send_token, recieve_network)
-  await page.waitForTimeout(1000) // Wait before click for the Receive Token list to be populated
+  await page.waitForTimeout(1000)
   await clickOnElement(page, SELECTORS.receiveTokenSab)
   await typeText(page, SELECTORS.searchInput, receive_token)
   const selector = `[data-testid*="${receive_token.toLowerCase()}"]`
@@ -338,7 +336,7 @@ export async function prepareSwapAndBridge(
     }
 
     // Enter the amount
-    await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
+    await page.type(SELECTORS.fromAmountInputSab, send_amount.toString())
 
     await verifyRouteFound(page)
 
@@ -400,16 +398,12 @@ export async function batchActionPage(actionPage) {
 }
 
 export async function signActionPage(actionPage) {
-  // Select Sign and not wait for confirmation as suggested on PR review
   await clickOnElement(actionPage, SELECTORS.signTransactionButton)
   await actionPage.waitForTimeout(1500)
 }
 
 export async function wiatForConfirmed(actionPage) {
-  // Wait for transaction to be confirmed
   await actionPage.waitForSelector('text=Timestamp', { visible: true })
-
-  // Asset if the transaction is confirmed
   await expect(actionPage).toMatchElement('div', { text: 'Confirmed' })
 }
 

@@ -160,7 +160,6 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   it('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
     await verifySendMaxTokenAmount(page, 'DAI', '10')
     await verifySendMaxTokenAmount(page, 'USDC', '8453')
-    // POL: await verifySendMaxTokenAmount(page, 'POL', 'polygon')
   })
 
   it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
@@ -174,13 +173,11 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
 
   it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
     await verifyNonDefaultReceiveToken(page, 'ETH', '1', 'wCRES')
-    // POL: await verifyNonDefaultReceiveToken(page, 'POL', 'polygon', 'AMUSDC')
   })
 
   it('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async () => {
     await verifyDefaultReceiveToken(page, 'USDC', '8453', 'WALLET')
     await verifyDefaultReceiveToken(page, 'WALLET', '8453', 'USDC')
-    // await verifyDefaultReceiveToken(page, 'ETH', '10', 'DAI')
   })
 
   it('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
