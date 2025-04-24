@@ -74,7 +74,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
     return (
       <CardActionButton
         buttonText={
-          disabledButton ? 'Switch to a smart account to unlock Legends quests' : 'Proceed'
+          disabledButton ? 'Switch to a smart account to unlock Rewards quests' : 'Proceed'
         }
         onButtonClick={() => {
           window.open(action.link, '_blank')
@@ -89,7 +89,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
     return (
       <CardActionButton
         buttonText={
-          disabledButton ? 'Switch to a smart account to unlock Legends quests' : 'Proceed'
+          disabledButton ? 'Switch to a smart account to unlock Rewards quests' : 'Proceed'
         }
         onButtonClick={handleWalletRouteButtonPress}
         loadingText=""

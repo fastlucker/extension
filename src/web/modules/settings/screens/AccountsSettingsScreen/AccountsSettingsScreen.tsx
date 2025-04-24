@@ -23,7 +23,7 @@ import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { accounts, control, onContentSizeChange, keyExtractor, getItemLayout } = useAccountsList()
+  const { accounts, control, keyExtractor, getItemLayout } = useAccountsList()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
@@ -79,7 +79,6 @@ const AccountsSettingsScreen = () => {
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
-          onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />

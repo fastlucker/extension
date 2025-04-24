@@ -51,14 +51,9 @@ const extractTriggerAddAccountSheetParam = (search: string | undefined): boolean
 const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
   const flatlistRef = useRef(null)
-  const {
-    accounts,
-    control,
-    onContentSizeChange,
-    keyExtractor,
-    getItemLayout,
-    isReadyToScrollToSelectedAccount
-  } = useAccountsList({ flatlistRef })
+  const { accounts, control, keyExtractor, getItemLayout, shouldDisplayAccounts } = useAccountsList(
+    { flatlistRef }
+  )
   const { search: routeParams } = useRoute()
   const { navigate } = useNavigation()
   const { account } = useSelectedAccountControllerState()
@@ -119,14 +114,13 @@ const AccountSelectScreen = () => {
           style={[
             styles.container,
             {
-              opacity: isReadyToScrollToSelectedAccount ? 1 : 0
+              opacity: shouldDisplayAccounts ? 1 : 0
             }
           ]}
           wrapperRef={flatlistRef}
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
-          onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />

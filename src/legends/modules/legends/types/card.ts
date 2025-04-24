@@ -113,8 +113,8 @@ export interface CardFromResponse {
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
   }
   contentSteps?: string[]
-  contentImage?: string
-  contentVideo?: string
+  contentImageV2?: string
+  contentVideoV2?: string
 }
 
 export interface ChestCard extends Omit<CardFromResponse, 'id' | 'meta'> {

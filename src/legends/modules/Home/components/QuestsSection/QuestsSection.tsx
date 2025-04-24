@@ -65,16 +65,27 @@ const QuestsSection = () => {
             <RightArrowIcon color="currentColor" />
           </button>
         </div>
-        {error && <Alert type="error" message={error} className={styles.error} />}
+        {error && <Alert type="error" title={error} className={styles.error} />}
       </div>
       <Swiper
         ref={sliderRef}
         slidesPerView="auto"
         spaceBetween={16}
         navigation
-        speed={100}
-        modules={[Mousewheel, Navigation]}
-        mousewheel={{ enabled: true, sensitivity: 0, releaseOnEdges: true }}
+        modules={[FreeMode, Navigation, Mousewheel]}
+        scrollbar={{ draggable: true }}
+        freeMode={{
+          enabled: true,
+          momentumVelocityRatio: 0.5,
+          momentumRatio: 2
+        }}
+        mousewheel={{
+          enabled: true,
+          sensitivity: 10,
+          sticky: true,
+          releaseOnEdges: true,
+          forceToAxis: true
+        }}
       >
         {sortedLegends.map((card) => (
           <SwiperSlide className={`${styles.slide}`} key={card.title + card.card.type}>

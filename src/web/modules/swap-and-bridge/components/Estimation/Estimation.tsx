@@ -106,6 +106,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         customZIndex={5}
         autoOpen={hasProceeded || (isActionWindow && !!signAccountOpController)}
         isScrollEnabled={false}
+        shouldBeClosableOnDrag={false}
       >
         {!!signAccountOpController && (
           <View>

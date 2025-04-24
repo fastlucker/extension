@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -79,7 +80,9 @@ const Footer = ({
             hasBottomSpacing={false}
             style={{ minWidth: 160, ...spacings.ph, ...spacings.mr }}
             size="large"
-          />
+          >
+            <BatchIcon style={spacings.mlTy} />
+          </Button>
         )}
         <Button
           testID="transaction-button-sign"

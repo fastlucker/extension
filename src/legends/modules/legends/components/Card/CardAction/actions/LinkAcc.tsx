@@ -59,11 +59,11 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
   const {
     connectedAccount,
     allAccounts,
+    setAllowNonV2Connection,
     allowNonV2Connection,
-    nonV2Account,
-    setAllowNonV2Connection
+    nonV2Account
   } = useAccountContext()
-  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const isInvalidAccount = !connectedAccount || (!allowNonV2Connection && !!nonV2Account)
   const [isInProgress, setIsInProgress] = useState(false)
   const [v1OrBasicSignature, setV1OrBasicSignature] = useState('')
   const [messageSignedForV2Account, setMessageSignedForV2Account] = useState('')
@@ -109,12 +109,15 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
   })
 
   const isActionEnabled = useMemo(() => {
+    if (isInvalidAccount) return false
+
     if (activeStep === STEPS.SIGN_MESSAGE) {
       return !validation?.isError && !addressState.isDomainResolving
     }
 
     return messageSignedForV2Account === connectedAccount
   }, [
+    isInvalidAccount,
     activeStep,
     messageSignedForV2Account,
     connectedAccount,
@@ -128,7 +131,6 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
 
   // We don't allow non-v2 accounts to connect to Legends,
   // except when the user needs to link an EOA/v1 account to their main v2 account.
-  // Therefore, we add this exception here, setting the `allowNonV2Connection` flag to true.
   // Upon unmounting, we disallow it again.
   useEffect(() => {
     setAllowNonV2Connection(true)
@@ -147,7 +149,7 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
       setIsInProgress(true)
       const signature = await window.ambire.request({
         method: 'personal_sign',
-        params: [`Assign ${v1OrEoaAddress} to Ambire Legends ${connectedAccount}`, v1OrEoaAddress]
+        params: [`Assign ${v1OrEoaAddress} to Ambire Rewards ${connectedAccount}`, v1OrEoaAddress]
       })
       setMessageSignedForV2Account(connectedAccount)
 
@@ -199,8 +201,6 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
 
       console.error(e)
       addToast(message, { type: 'error' })
-
-      setAllowNonV2Connection(false)
     } finally {
       setIsInProgress(false)
     }
@@ -213,8 +213,7 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
     getCallsStatus,
     onComplete,
     handleClose,
-    addToast,
-    setAllowNonV2Connection
+    addToast
   ])
 
   const onButtonClick = useCallback(async () => {
@@ -225,14 +224,18 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
     } else if (activeStep === STEPS.SIGN_TRANSACTION) {
       await sendV2Transaction()
     }
-  }, [activeStep, switchNetwork, signV1OrBasicAccountMessage, sendV2Transaction])
+  }, [switchNetwork, activeStep, signV1OrBasicAccountMessage, sendV2Transaction])
 
   return (
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
       disabled={!isActionEnabled}
-      buttonText={BUTTON_TEXT[activeStep]}
+      buttonText={
+        !isInvalidAccount
+          ? BUTTON_TEXT[activeStep]
+          : 'Switch to a smart account to unlock Rewards quests'
+      }
       onButtonClick={onButtonClick}
     >
       {activeStep === STEPS.SIGN_TRANSACTION && !isActionEnabled && (
@@ -240,6 +243,7 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
           type="warning"
           title="You have connected a wrong account"
           message={`Please connect ${messageSignedForV2Account} to continue`}
+          className={styles.alert}
         />
       )}
 
@@ -251,29 +255,31 @@ const LinkAcc = ({ alreadyLinkedAccounts = [], accountLinkingHistory = [] }: Pro
           label="Ambire v1 or Basic Account address"
         />
       )}
-      <Accordion
-        title={
-          accountLinkingHistory.length
-            ? `Successfully linked accounts (${accountLinkingHistory.length})`
-            : 'No linked accounts yet'
-        }
-        expandable={!!accountLinkingHistory.length}
-      >
-        <div className={`${styles.scrollableHistory}`}>
-          {accountLinkingHistory.map(({ invitedEoaOrV1, date }) => (
-            <div className={`${styles.invitationItem}`} key={invitedEoaOrV1}>
-              <Address className={`${styles.address}`} address={invitedEoaOrV1} />
-              <div className={`${styles.timeAgo}`}>
-                {new Date(date).toLocaleString([], {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit'
-                })}
+      {!nonV2Account && (
+        <Accordion
+          title={
+            accountLinkingHistory.length
+              ? `Successfully linked accounts (${accountLinkingHistory.length})`
+              : 'No linked accounts yet'
+          }
+          expandable={!!accountLinkingHistory.length}
+        >
+          <div className={`${styles.scrollableHistory}`}>
+            {accountLinkingHistory.map(({ invitedEoaOrV1, date }) => (
+              <div className={`${styles.invitationItem}`} key={invitedEoaOrV1}>
+                <Address className={`${styles.address}`} address={invitedEoaOrV1} />
+                <div className={`${styles.timeAgo}`}>
+                  {new Date(date).toLocaleString([], {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </Accordion>
+            ))}
+          </div>
+        </Accordion>
+      )}
     </CardActionWrapper>
   )
 }

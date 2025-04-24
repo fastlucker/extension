@@ -304,7 +304,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             }
             onClick={onButtonClick}
           >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Legends quests' : buttonLabel}
+            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
           </button>
         </div>
       </div>
