@@ -7,7 +7,7 @@ const BatchIcon: FC<SvgProps> = ({
   width = 16,
   height = 16,
   style,
-  color = iconColors.primary
+  color = iconColors.primary2
 }) => {
   return (
     <Svg viewBox="0 0 16.944 17.555" width={width} height={height} style={style}>
