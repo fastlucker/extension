@@ -398,10 +398,7 @@ const TransferScreen = () => {
     >
       <TabLayoutWrapperMainContent contentContainerStyle={!isPopup ? spacings.pt2Xl : undefined}>
         {state?.isInitialized ? (
-          <FormWrapper
-            style={[styles.panel]}
-            {...(!isPopup && { forceContainerSmallSpacings: true })}
-          >
+          <FormWrapper style={[styles.panel]} {...(!isPopup && { spacingsSize: 'small' })}>
             <SendForm
               addressInputState={addressInputState}
               isSmartAccount={isSmartAccount}

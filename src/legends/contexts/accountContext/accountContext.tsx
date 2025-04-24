@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
-import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
+import { getIdentity } from '@ambire-common/libs/accountPicker/accountPicker'
 import { RELAYER_URL } from '@env'
 import useToast from '@legends/hooks/useToast'
 

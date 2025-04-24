@@ -120,7 +120,7 @@ const SelectedMenuOption: React.FC<{
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
-      label="Add Recipient"
+      label="Add recipient"
       value={address}
       onChangeText={setAddress}
       disabled={disabled}
@@ -354,17 +354,6 @@ const Recipient: React.FC<Props> = ({
         menuPosition={menuPosition}
       />
       <View style={styles.inputBottom}>
-        <Text
-          style={styles.doubleCheckMessage}
-          weight="regular"
-          fontSize={12}
-          appearance="secondaryText"
-        >
-          {t(
-            'Please double-check the recipient address, blockchain transactions are not reversible.'
-          )}
-        </Text>
-
         <ConfirmAddress
           onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
           isRecipientHumanizerKnownTokenOrSmartContract={
