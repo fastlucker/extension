@@ -20,7 +20,7 @@
   position: relative;
   width: 46.5625rem;
   height: 42.1875rem;
-  transform: scale(0.85);
+  transform: scale(0.55);
 
   background-color: $neutral-700;
   border-radius: $tertiaryBorderRadius;
@@ -214,6 +214,14 @@
     max-width: 37.625rem;
     z-index: 10;
   }
+}
+
+@media screen and (min-width: 768px) {
+  .wrapper {
+    transform: scale(0.85);
+  }
+
+  
 }
 
 
