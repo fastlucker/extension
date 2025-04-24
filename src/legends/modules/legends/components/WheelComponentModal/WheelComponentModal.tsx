@@ -230,7 +230,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             }`}
             onClick={onButtonClick}
           >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Legends quests' : buttonLabel}
+            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
           </button>
         </div>
       </div>

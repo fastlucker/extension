@@ -132,7 +132,7 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Legends quests'
+          ? 'Switch to a smart account to unlock Rewards quests'
           : isLoading
           ? 'Loading...'
           : !walletBalance

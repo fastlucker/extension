@@ -24,6 +24,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
+import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -41,9 +42,9 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
-import Header from '@common/modules/header/components/Header'
 import { getUiType } from '@web/utils/uiType'
 
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
@@ -76,6 +77,7 @@ const TransferScreen = () => {
   } = useModalize()
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
   const recipientMenuClosedAutomatically = useRef(false)
 
   const hasFocusedActionWindow = useMemo(
@@ -272,7 +274,8 @@ const TransferScreen = () => {
       actionsState,
       isFormValid,
       dispatch,
-      openBottomSheet
+      openBottomSheet,
+      resetTransferForm
     ]
   )
 
@@ -407,6 +410,7 @@ const TransferScreen = () => {
             <SendForm
               addressInputState={addressInputState}
               isSmartAccount={isSmartAccount}
+              hasGasTank={hasGasTank}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
               isRecipientAddressUnknown={isRecipientAddressUnknown}
               isRecipientHumanizerKnownTokenOrSmartContract={
@@ -416,7 +420,7 @@ const TransferScreen = () => {
               recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
               formTitle={formTitle}
             />
-            {isTopUp && !isSmartAccount && (
+            {isTopUp && !hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -447,7 +451,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-            {isTopUp && isSmartAccount && (
+            {isTopUp && hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
