@@ -2,10 +2,9 @@ import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -23,7 +22,6 @@ const { isActionWindow } = getUiType()
 
 const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
   const { fromSelectedToken } = useSwapAndBridgeControllerState()
   const { userRequests } = useMainControllerState()
   const { account } = useSelectedAccountControllerState()
@@ -61,21 +59,19 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
         <View dataSet={{ tooltipId: 'batch-btn-tooltip' }}>
           <Button
             hasBottomSpacing={false}
-            text={!oneClickDisabledReason ? t('Start a batch') : t('Add to batch')}
+            text={
+              networkUserRequests.length > 0 && !batchDisabledReason
+                ? t('Add to batch ({{count}})', {
+                    count: networkUserRequests.length
+                  })
+                : t('Start a batch')
+            }
             disabled={isNotReadyToProceed || !!batchDisabledReason}
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
             onPress={() => handleSubmitForm(false)}
           >
-            {!!networkUserRequests.length && (
-              <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                <Text
-                  fontSize={16}
-                  weight="medium"
-                  color={theme.primary}
-                >{` (${networkUserRequests.length})`}</Text>
-              </View>
-            )}
+            <BatchIcon style={spacings.mlTy} />
           </Button>
         </View>
       )}
