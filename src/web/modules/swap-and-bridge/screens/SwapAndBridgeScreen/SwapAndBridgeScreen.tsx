@@ -47,7 +47,7 @@ const SwapAndBridgeScreen = () => {
     fromTokenValue,
     fromTokenAmountSelectDisabled,
     handleSubmitForm,
-    highPriceImpactInPercentage,
+    highPriceImpactOrSlippageWarning,
     priceImpactModalRef,
     closePriceImpactModal,
     acknowledgeHighPriceImpact,
@@ -253,7 +253,7 @@ const SwapAndBridgeScreen = () => {
         sheetRef={priceImpactModalRef}
         closeBottomSheet={closePriceImpactModal}
         acknowledgeHighPriceImpact={acknowledgeHighPriceImpact}
-        highPriceImpactInPercentage={highPriceImpactInPercentage}
+        highPriceImpactOrSlippageWarning={highPriceImpactOrSlippageWarning}
       />
     </TabLayoutContainer>
   )
