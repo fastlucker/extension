@@ -6,6 +6,7 @@ import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
+import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
@@ -13,10 +14,12 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwapAndBridgeEstimation from '@web/modules/swap-and-bridge/components/Estimation'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
@@ -57,6 +60,7 @@ const SwapAndBridgeScreen = () => {
     closeRoutesModal,
     estimationModalRef,
     setHasBroadcasted,
+    isInitialized,
     displayedView,
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
@@ -72,6 +76,7 @@ const SwapAndBridgeScreen = () => {
     signAccountOpController,
     isAutoSelectRouteDisabled
   } = useSwapAndBridgeControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
 
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
@@ -134,7 +139,17 @@ const SwapAndBridgeScreen = () => {
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
 
-  if (!sessionIds.includes(sessionId)) return null
+  if (!sessionIds.includes(sessionId) || !isInitialized) {
+    // If the portfolio has loaded we can skip the spinner as initializing the screen
+    // takes a short time and the spinner will only flash.
+    if (portfolio.isReadyToVisualize) return null
+
+    return (
+      <View style={[flexbox.flex1, flexbox.justifyCenter, flexbox.alignCenter]}>
+        <Spinner />
+      </View>
+    )
+  }
 
   if (displayedView === 'track') {
     return (
