@@ -88,8 +88,8 @@ const createFullScreenWindow = async (
       let desiredHeight = getScreenHeight(screenHeight * ratio)
 
       if (customSize) {
-        desiredHeight = customSize.height
         desiredWidth = customSize.width
+        desiredHeight = Math.min(customSize.height, screenHeight * ratio)
       }
 
       let leftPosition = (screenWidth - desiredWidth) / 2
@@ -111,7 +111,12 @@ const createFullScreenWindow = async (
               desiredWidth = getScreenWidth(activeTab.width * ratio)
               if (customSize) desiredWidth = customSize.width
               leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
-              desiredHeight = customSize?.height || getScreenHeight(activeTab.height * ratio)
+              // Pass customSize height to the helper as the height may be lower than the minimum height
+              desiredHeight = getScreenHeight(
+                customSize?.height
+                  ? Math.min(customSize.height, activeTab.height * ratio)
+                  : activeTab.height * ratio
+              )
               topPosition =
                 (activeTab.height - desiredHeight) / 2 +
                 topOffset +
