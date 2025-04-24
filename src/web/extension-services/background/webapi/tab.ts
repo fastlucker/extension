@@ -23,7 +23,7 @@ const createTab = async (url: string): Promise<number | undefined> => {
       const existingUrl = new URL(existingTab.url)
       const tabRoute = existingUrl.hash.replace(/^#/, '')
       const samePath = tabRoute === route
-      console.log(tabRoute, route)
+
       if (samePath) {
         await browser.tabs.update(existingTab.id, { active: true })
       } else {
