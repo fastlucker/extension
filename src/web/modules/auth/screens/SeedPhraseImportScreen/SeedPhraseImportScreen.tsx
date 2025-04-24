@@ -42,7 +42,8 @@ const SeedPhraseImportScreen = () => {
     handleSubmit,
     setValue,
     getValues,
-    formState: { isValid }
+    formState: { isValid },
+    unregister
   } = useForm({
     mode: 'all',
     defaultValues: { seed: '', passphrase: '' }
@@ -71,7 +72,7 @@ const SeedPhraseImportScreen = () => {
       setSeedPhraseStatus('valid')
     })
     return () => unsubscribe()
-  }, [watch, t])
+  }, [watch])
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seed, passphrase }) => {
@@ -99,6 +100,13 @@ const SeedPhraseImportScreen = () => {
       goToNextRoute()
     }
   }, [goToNextRoute, dispatch, getValues, initParams, subType, importButtonPressed])
+
+  useEffect(() => {
+    if (!enablePassphrase) {
+      setValue('passphrase', '')
+      unregister('passphrase')
+    }
+  }, [enablePassphrase, setValue, unregister])
 
   const validateSeedPhraseWord = useCallback(
     (value: string) => {
@@ -229,11 +237,11 @@ const SeedPhraseImportScreen = () => {
                 }}
                 style={flexbox.alignSelfStart}
               />
-              {!!enablePassphrase && (
+              {enablePassphrase ? (
                 <View style={styles.passphraseContainer}>
                   <Controller
                     control={control}
-                    rules={{ required: true }}
+                    rules={{ required: enablePassphrase }}
                     render={({ field: { onChange, onBlur, value } }) => (
                       <InputPassword
                         onBlur={onBlur}
@@ -246,7 +254,7 @@ const SeedPhraseImportScreen = () => {
                     name="passphrase"
                   />
                 </View>
-              )}
+              ) : null}
             </View>
 
             <Button
