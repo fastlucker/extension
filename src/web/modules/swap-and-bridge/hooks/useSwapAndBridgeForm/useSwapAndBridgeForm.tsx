@@ -311,7 +311,7 @@ const useSwapAndBridgeForm = () => {
         quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
       )
       const minInUsd = getUsdAmount(
-        quote.selectedRoute.toToken.priceUSD,
+        Number(quote.selectedRoute.toToken.priceUSD),
         quote.selectedRoute.toToken.decimals,
         minAmountOutInWei
       )
