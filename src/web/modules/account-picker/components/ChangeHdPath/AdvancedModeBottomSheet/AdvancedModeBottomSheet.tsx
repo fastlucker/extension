@@ -69,10 +69,8 @@ const CustomHDPathBottomSheet: FC<Props> = ({
   const onSubmit = useCallback(
     (data: FormData) => {
       const parsed = parseInt(data.startIndex, 10)
-      if (parsed >= 1 && parsed <= 50) {
-        onConfirm(selectedOption, parsed)
-        closeBottomSheetWrapped()
-      }
+      onConfirm(selectedOption, parsed)
+      closeBottomSheetWrapped()
     },
     [closeBottomSheetWrapped, onConfirm, selectedOption]
   )
