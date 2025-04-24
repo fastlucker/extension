@@ -1,4 +1,5 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, ReactNode, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
@@ -23,6 +24,7 @@ interface Props {
   customValue?: string
   setCustomValue?: (value: string) => void
   testID?: string
+  children?: ReactNode
 }
 
 const Editable: FC<Props> = ({
@@ -34,11 +36,13 @@ const Editable: FC<Props> = ({
   fontSize = 16,
   height = 30,
   textProps = {},
-  minWidth = 80,
+  minWidth = 100,
   maxLength = 20,
-  testID
+  testID,
+  children
 }) => {
   const { theme } = useTheme()
+  const { t } = useTranslation()
   const [value, setValue] = useState(initialValue)
   const [isEditing, setIsEditing] = useState(false)
   const [textWidth, setTextWidth] = useState(0)
@@ -137,13 +141,19 @@ const Editable: FC<Props> = ({
               />
             )}
             {isEditing && actualValue !== initialValue && !!actualValue && (
-              <View style={{ opacity: hovered ? 0.9 : 1 }}>
-                <CheckIcon width={iconSize} height={iconSize} />
+              <View
+                style={[flexbox.directionRow, flexbox.alignCenter, { opacity: hovered ? 0.8 : 1 }]}
+              >
+                <CheckIcon width={iconSize} height={iconSize} style={spacings.mrMi} />
+                <Text fontSize={12} weight="medium" color={theme.successText}>
+                  {t('Save')}
+                </Text>
               </View>
             )}
           </>
         )}
       </Pressable>
+      {children}
     </View>
   )
 }

@@ -200,9 +200,18 @@ const Account = ({
           <View style={flexbox.flex1}>
             <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
               {!withSettings ? (
-                <Text fontSize={isTab ? 16 : 14} weight="medium" numberOfLines={1}>
-                  {account.preferences.label}
-                </Text>
+                <>
+                  <Text fontSize={isTab ? 16 : 14} weight="medium" numberOfLines={1}>
+                    {account.preferences.label}
+                  </Text>
+                  {!!withKeyType && (
+                    <View style={[spacings.mlMi]}>
+                      <AccountKeyIcons isExtended account={account} />
+                    </View>
+                  )}
+
+                  <AccountBadges accountData={account} />
+                </>
               ) : (
                 <Editable
                   initialValue={account.preferences.label}
@@ -214,16 +223,16 @@ const Account = ({
                   }}
                   minWidth={100}
                   maxLength={40}
-                />
-              )}
+                >
+                  {!!withKeyType && (
+                    <View style={[spacings.mlMi]}>
+                      <AccountKeyIcons isExtended account={account} />
+                    </View>
+                  )}
 
-              {!!withKeyType && (
-                <View style={[spacings.mlMi]}>
-                  <AccountKeyIcons isExtended account={account} />
-                </View>
+                  <AccountBadges accountData={account} />
+                </Editable>
               )}
-
-              <AccountBadges accountData={account} />
             </View>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <DomainBadge ens={ens} />

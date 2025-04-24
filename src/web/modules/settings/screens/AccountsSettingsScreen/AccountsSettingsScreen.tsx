@@ -59,6 +59,7 @@ const AccountsSettingsScreen = () => {
           account={account}
           maxAccountAddrLength={shortenAccountAddr()}
           showExportImport
+          isSelectable={false}
           openAddAccountBottomSheet={openBottomSheet}
         />
       )
