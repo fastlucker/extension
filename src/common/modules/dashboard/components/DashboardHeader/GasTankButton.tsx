@@ -14,6 +14,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
+import Tooltip from '@common/components/Tooltip'
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
 type Props = {
@@ -68,14 +69,18 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
     <View>
       <AnimatedPressable
         ref={buttonRef}
-        onPress={onPress}
+        onPress={hasGasTank ? onPress : () => {}}
         style={{
           ...flexbox.directionRow,
           ...flexbox.center,
           ...spacings.phTy,
           ...common.borderRadiusPrimary,
           ...removeTankBtnStyle,
-          ...(gasTankTotalBalanceInUsd === 0 && { borderWidth: 1, borderColor: theme.primaryLight })
+          ...(gasTankTotalBalanceInUsd === 0 && {
+            borderWidth: 1,
+            borderColor: theme.primaryLight
+          }),
+          ...{ cursor: !hasGasTank ? 'default' : 'pointer' }
         }}
         {...bindGasTankBtnAim}
         testID="dashboard-gas-tank-button"
@@ -97,11 +102,15 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
             </Text>
           )
         ) : (
-          <Text style={[spacings.mhTy]} color="white" weight="number_bold" fontSize={12}>
-            {t('Discover Gas Tank')}
-          </Text>
+          // @ts-ignore
+          <View dataSet={{ tooltipId: 'gas-tank-soon' }}>
+            <Text style={[spacings.mhTy]} color="white" weight="number_bold" fontSize={12}>
+              {t('Gas Tank Soon')}
+            </Text>
+          </View>
         )}
       </AnimatedPressable>
+      <Tooltip content="Not available for hardware wallets yet" id="gas-tank-soon" />
     </View>
   )
 }
