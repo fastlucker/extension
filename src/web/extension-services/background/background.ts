@@ -22,8 +22,7 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -32,13 +31,14 @@ import {
   getActiveRoutesLowestServiceTime,
   getActiveRoutesUpdateInterval
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
 import { isProd } from '@common/config/env'
-import { createRecurringTimeout } from '@common/utils/timeout'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  LI_FI_API_KEY,
   RELAYER_URL,
-  SOCKET_API_KEY,
+  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
 import { browser } from '@web/constants/browserapi'
@@ -201,7 +201,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
     updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
     swapAndBridgeQuoteStatus: 'INITIAL' | 'LOADING'
-    gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
     accountStatePendingInterval?: ReturnType<typeof setTimeout>
@@ -280,7 +279,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    socketApiKey: SOCKET_API_KEY,
+    swapApiKey: USE_SWAP_KEY ? LI_FI_API_KEY : undefined,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -435,7 +434,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: SwapAndBridgeActiveRoute[]) {
     if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
       !!backgroundState.updateActiveRoutesInterval &&
         clearTimeout(backgroundState.updateActiveRoutesInterval)
@@ -672,21 +671,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     )
   }
 
-  function createGasPriceRecurringTimeout(accountOp: AccountOp) {
-    const currentNetwork = mainCtrl.networks.networks.filter(
-      (n) => n.chainId === accountOp.chainId
-    )[0]
-    // 12 seconds is the time needed for a new ethereum block
-    const time = currentNetwork.reestimateOn ?? 12000
-
-    return createRecurringTimeout(
-      () => mainCtrl.updateSignAccountOpGasPrice({ emitLevelOnFailure: 'major' }),
-      time
-    )
-  }
-
   function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 30000)
+    return createRecurringTimeout(() => {
+      if (mainCtrl.signAccountOp) return mainCtrl.signAccountOp.simulate()
+      return new Promise((resolve) => {
+        resolve()
+      })
+    }, 30000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
@@ -753,18 +744,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
       if (mainCtrl.signAccountOp) {
-        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
         backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
-
-        backgroundState.gasPriceTimeout = createGasPriceRecurringTimeout(
-          mainCtrl.signAccountOp.accountOp
-        )
-        backgroundState.gasPriceTimeout.start()
 
         backgroundState.estimateTimeout = createEstimateRecurringTimeout()
         backgroundState.estimateTimeout.start()
       } else {
-        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
         backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
       }
 

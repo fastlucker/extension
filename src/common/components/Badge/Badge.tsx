@@ -76,7 +76,7 @@ const Badge = ({
         {
           height: sizeMultiplier * 20
         },
-        withRightSpacing && spacings.mrSm,
+        withRightSpacing && spacings.mrMd,
         !!tooltipText && spacings.prMi,
         style
       ]}
