@@ -121,7 +121,8 @@ export const TEST_IDS = {
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
   removeNetworkConfirmButton: 'remove-network-confirm-btn',
-  dappConnectButton: 'dapp-connect-button'
+  dappConnectButton: 'dapp-connect-button',
+  signButtonSwap: 'swap-button-sign'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

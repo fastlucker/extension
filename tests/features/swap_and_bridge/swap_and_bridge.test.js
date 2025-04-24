@@ -8,6 +8,7 @@ import {
   enterNumber,
   prepareSwapAndBridge,
   openSwapAndBridgeActionPage,
+  newSwapAndBridgeActionPage,
   batchActionPage,
   signActionPage,
   verifyIfSwitchIsActive,
@@ -42,7 +43,7 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
     const text = await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
     await signActionPage(
-      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
+      await newSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
     )
   })
 })

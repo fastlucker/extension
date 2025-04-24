@@ -338,6 +338,7 @@ export async function prepareSwapAndBridge(
     // Enter the amount
     await page.type(SELECTORS.fromAmountInputSab, send_amount.toString())
 
+    // ToDo: The test will fail if No Route Found. To improve the code handle that
     await verifyRouteFound(page)
 
     // If Warning: The price impact is too high
@@ -355,9 +356,19 @@ export async function prepareSwapAndBridge(
   }
 }
 
+export async function newSwapAndBridgeActionPage(page, callback = 'null') {
+  try {
+    await callback(page)
+    await page.waitForTimeout(2000)
+    return page
+  } catch (error) {
+    console.error(`[ERROR] Open Swap & Bridge Action Page Failed: ${error.message}`)
+    throw error
+  }
+}
+
 export async function openSwapAndBridgeActionPage(page, callback = 'null') {
   try {
-    // Get the browser context of the page
     const context = page.browserContext()
 
     const [actionPagePromise] = await Promise.all([
@@ -367,17 +378,13 @@ export async function openSwapAndBridgeActionPage(page, callback = 'null') {
           resolve(actionPage)
         })
       }),
-      // The callback function to be executed
       await callback(page)
     ])
 
-    // Use actionPage for interactions the with Action Page
     const actionPage = await actionPagePromise
 
-    // Wait for Action Page to open
     await actionPage.waitForTimeout(2000)
 
-    // Assert if Action Page is opened
     const txnSimulation = await page
       .waitForSelector('div', { text: 'Transaction simulation', timeout: 10000 })
       .catch(() => null)
@@ -398,7 +405,7 @@ export async function batchActionPage(actionPage) {
 }
 
 export async function signActionPage(actionPage) {
-  await clickOnElement(actionPage, SELECTORS.signTransactionButton)
+  await clickOnElement(actionPage, SELECTORS.signButtonSwap)
   await actionPage.waitForTimeout(1500)
 }
 

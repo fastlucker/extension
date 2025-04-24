@@ -155,6 +155,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
                 style={{ width: 98 }}
               />
               <Button
+                testID="swap-button-sign"
                 text={t('Sign')}
                 hasBottomSpacing={false}
                 disabled={isSignDisabled || signingErrors.length > 0}
