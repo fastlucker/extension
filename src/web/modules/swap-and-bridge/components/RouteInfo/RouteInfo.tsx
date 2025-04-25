@@ -12,6 +12,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
+import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
 type Props = {
@@ -29,6 +30,7 @@ const RouteInfo: FC<Props> = ({
 }) => {
   const { formStatus, signAccountOpController, quote, swapSignErrors } =
     useSwapAndBridgeControllerState()
+  const { isOG } = useInviteControllerState()
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -56,7 +58,7 @@ const RouteInfo: FC<Props> = ({
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <WarningIcon width={14} height={14} color={theme.warningDecorative} />
           <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
-            {t('No routes found!')}
+            {t('No routes found, please try again by changing the amount')}
           </Text>
         </View>
       )}
@@ -74,7 +76,9 @@ const RouteInfo: FC<Props> = ({
             {signAccountOpController?.estimation.status === EstimationStatus.Success && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Text appearance="tertiaryText" fontSize={14} weight="medium">
-                  {t('Ambire fee: {{fee}}%', { fee: FEE_PERCENT })}
+                  {t('Ambire fee: {{fee}}', {
+                    fee: isOG ? "0% - you're an OG 🎉" : `${FEE_PERCENT}%`
+                  })}
                 </Text>
                 {quote?.selectedRoute?.serviceTime ? (
                   <Text

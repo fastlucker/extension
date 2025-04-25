@@ -70,10 +70,10 @@ const Footer = ({
             accentColor={theme.primary}
             text={
               batchCount > 1
-                ? t('Add to Batch ({{batchCount}})', {
+                ? t('Add to batch ({{batchCount}})', {
                     batchCount
                   })
-                : t('Start a Batch')
+                : t('Start a batch')
             }
             onPress={onAddToCart}
             disabled={isAddToCartDisabled}

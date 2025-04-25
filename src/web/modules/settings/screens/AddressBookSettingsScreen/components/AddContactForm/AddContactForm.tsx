@@ -114,7 +114,7 @@ const AddContactForm = () => {
   })
 
   return (
-    <Section title="Add new Contact">
+    <Section title="Add new contact">
       <Controller
         name="name"
         control={control}

@@ -93,7 +93,11 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
           backgroundColor="primaryBackground"
           displayBackButtonIn="never"
           mode="title"
-          customTitle={t('Swap & Bridge')}
+          customTitle={
+            <Text fontSize={20} weight="medium">
+              {t('Swap & Bridge')}
+            </Text>
+          }
           withAmbireLogo
         />
       }

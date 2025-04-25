@@ -37,7 +37,14 @@ const Select = ({
   } = selectData
 
   return (
-    <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
+    <SelectContainer
+      value={value}
+      setValue={setValue}
+      {...selectData}
+      {...props}
+      id={testID}
+      testID={testID}
+    >
       <FlatList
         ref={listRef}
         // get the data (the options) from the default section

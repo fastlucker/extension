@@ -1,6 +1,6 @@
+import { nanoid } from 'nanoid'
 import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
-import { v4 as uuidv4 } from 'uuid'
 
 import { Network } from '@ambire-common/interfaces/network'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
@@ -94,7 +94,7 @@ const NetworkIcon = ({
   )
 
   // Ensure tooltip ID is unique per component to avoid duplicates when multiple are rendered (with same network name)
-  const tooltipId = useMemo(() => `${networkName}-${uuidv4()}`, [networkName])
+  const tooltipId = useMemo(() => `${networkName}-${nanoid(6)}`, [networkName])
 
   return (
     <>
