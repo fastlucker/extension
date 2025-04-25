@@ -11,11 +11,11 @@ import MobileDisclaimerModal from './components/MobileDisclaimerModal'
 import QuestsSection from './components/QuestsSection'
 
 const Character = () => {
-  const { nonV2Account, connectedAccount, allowNonV2Connection } = useAccountContext()
-
+  const { v1Account, connectedAccount } = useAccountContext()
+  console.log('v1Account', v1Account, 'connectedAccount', connectedAccount)
   return (
     <Page containerSize="full">
-      {!allowNonV2Connection && !!nonV2Account ? (
+      {v1Account && !connectedAccount ? (
         <LandingSection nonV2acc />
       ) : connectedAccount ? (
         <CharacterSection />
@@ -27,9 +27,9 @@ const Character = () => {
       )}
 
       <QuestsSection />
-      {connectedAccount && !nonV2Account && <ActivitySection />}
+      {connectedAccount && !v1Account && <ActivitySection />}
 
-      {(!connectedAccount || !!nonV2Account) && <FaqSection />}
+      {(!connectedAccount || !!v1Account) && <FaqSection />}
     </Page>
   )
 }
