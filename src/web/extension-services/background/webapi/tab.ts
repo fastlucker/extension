@@ -10,7 +10,9 @@ const createTab = async (url: string): Promise<number | undefined> => {
     return tab
   }
   try {
-    const allTabs = await browser.tabs.query({})
+    const allTabs = ((await browser.tabs.query({})) || []).filter(
+      (t) => !t.url.includes('action-window.html')
+    )
     const base = browser.runtime.getURL('/')
     const fullUrl = new URL(url, base)
     const route = fullUrl.hash.replace(/^#/, '')
