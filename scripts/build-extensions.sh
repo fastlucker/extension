@@ -47,7 +47,7 @@ echo "Creating zip files..."
 if [ -d "$WEBKIT_BUILD_DIR" ]; then
   (
     cd "$WEBKIT_BUILD_DIR"
-    zip -r "../${WEBKIT_FILENAME}" .
+    zip -X -r "../${WEBKIT_FILENAME}" . -x "*.DS_Store"
   )
   echo "Created $WEBKIT_ZIP"
 else
@@ -58,7 +58,7 @@ fi
 if [ -d "$GECKO_BUILD_DIR" ]; then
   (
     cd "$GECKO_BUILD_DIR"
-    zip -r "../${GECKO_FILENAME}" .
+    zip -X -r "../${GECKO_FILENAME}" . -x "*.DS_Store"
   )
   echo "Created $GECKO_ZIP"
 else
@@ -69,7 +69,7 @@ fi
 if [ -d "$WEBKIT_SOURCEMAPS_BUILD_DIR" ]; then
   (
     cd "$WEBKIT_SOURCEMAPS_BUILD_DIR"
-    zip -r "../${WEBKIT_SOURCEMAPS_FILENAME}" .
+    zip -X -r "../${WEBKIT_SOURCEMAPS_FILENAME}" . -x "*.DS_Store"
   )
   echo "Created $WEBKIT_SOURCEMAPS_ZIP"
 else
@@ -80,7 +80,7 @@ fi
 if [ -d "$GECKO_SOURCEMAPS_BUILD_DIR" ]; then
   (
     cd "$GECKO_SOURCEMAPS_BUILD_DIR"
-    zip -r "../${GECKO_SOURCEMAPS_FILENAME}" .
+    zip -X -r "../${GECKO_SOURCEMAPS_FILENAME}" . -x "*.DS_Store"
   )
   echo "Created $GECKO_SOURCEMAPS_ZIP"
 else
