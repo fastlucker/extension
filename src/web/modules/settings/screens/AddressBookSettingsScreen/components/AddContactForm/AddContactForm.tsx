@@ -70,7 +70,7 @@ const AddContactForm = () => {
     }
 
     if (contacts.some((contact) => contact.address.toLowerCase() === address.toLowerCase())) {
-      return t('This address is already in your address book')
+      return t('This address is already in your Address Book')
     }
 
     return ''

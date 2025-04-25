@@ -27,7 +27,8 @@ const RouteInfo: FC<Props> = ({
   isAutoSelectRouteDisabled,
   openRoutesModal
 }) => {
-  const { formStatus, signAccountOpController, quote } = useSwapAndBridgeControllerState()
+  const { formStatus, signAccountOpController, quote, swapSignErrors } =
+    useSwapAndBridgeControllerState()
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -43,6 +44,14 @@ const RouteInfo: FC<Props> = ({
         spacings.mbLg
       ]}
     >
+      {swapSignErrors.length > 0 && (
+        <View style={[flexbox.directionRow, flexbox.alignCenter, { maxWidth: '100%' }]}>
+          <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+          <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
+            {swapSignErrors[0].title}
+          </Text>
+        </View>
+      )}
       {formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <WarningIcon width={14} height={14} color={theme.warningDecorative} />

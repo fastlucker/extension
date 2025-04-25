@@ -16,6 +16,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
+import { getUiType } from '@web/utils/uiType'
 
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
@@ -58,6 +59,7 @@ const AccountsSettingsScreen = () => {
           account={account}
           maxAccountAddrLength={shortenAccountAddr()}
           showExportImport
+          isSelectable={false}
           openAddAccountBottomSheet={openBottomSheet}
         />
       )
@@ -90,9 +92,11 @@ const AccountsSettingsScreen = () => {
       <BottomSheet
         id="account-settings-add-account"
         sheetRef={sheetRef}
+        adjustToContentHeight={!getUiType().isPopup}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeBottomSheet as any} />
       </BottomSheet>
     </>
   )

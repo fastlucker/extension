@@ -19,9 +19,8 @@ import text from '@common/styles/utils/text'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import { getUiType } from '@web/utils/uiType'
-
-import useLedger from '../../hooks/useLedger'
 
 type Props = {
   isVisible: boolean
@@ -73,13 +72,12 @@ const LedgerConnectModal = ({
   }
 
   const handleOnLedgerReauthorize = useCallback(
-    () =>
-      openInternalPageInTab(`${WEB_ROUTES.hardwareWalletReconnect}?actionId=${currentAction?.id}`),
+    () => openInternalPageInTab(`${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`),
     [currentAction?.id]
   )
 
   const isLoading =
-    isGrantingPermission || mainCtrlState.statuses.handleAccountAdderInitLedger === 'LOADING'
+    isGrantingPermission || mainCtrlState.statuses.handleAccountPickerInitLedger === 'LOADING'
 
   return (
     <BottomSheet

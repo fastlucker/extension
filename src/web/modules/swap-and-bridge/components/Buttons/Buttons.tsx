@@ -22,7 +22,7 @@ const { isActionWindow } = getUiType()
 
 const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
   const { t } = useTranslation()
-  const { fromSelectedToken } = useSwapAndBridgeControllerState()
+  const { fromSelectedToken, swapSignErrors } = useSwapAndBridgeControllerState()
   const { userRequests } = useMainControllerState()
   const { account } = useSelectedAccountControllerState()
   const fromChainId = fromSelectedToken?.chainId
@@ -43,8 +43,12 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
       )
     }
 
+    if (swapSignErrors.length > 0) {
+      return swapSignErrors[0].title
+    }
+
     return ''
-  }, [isBridge, networkUserRequests.length, t])
+  }, [isBridge, networkUserRequests.length, t, swapSignErrors])
 
   const batchDisabledReason = useMemo(() => {
     if (isBridge) return t('Batching is not available for bridges.')
