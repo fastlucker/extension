@@ -18,15 +18,12 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import Account from '@web/modules/account-picker/components/Account'
+import AnimatedDownArrow from '@web/modules/account-picker/components/AccountsOnPageList/AnimatedDownArrow/AnimatedDownArrow'
 import AccountsRetrieveError from '@web/modules/account-picker/components/AccountsRetrieveError'
-import { AccountPickerIntroStepsProvider } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
-import AnimatedDownArrow from './AnimatedDownArrow/AnimatedDownArrow'
 import getStyles from './styles'
 
 const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
@@ -53,8 +50,6 @@ const AccountsOnPageList = ({
 }: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const accountsState = useAccountsControllerState()
-  const keystoreState = useKeystoreControllerState()
   const { networks } = useNetworksControllerState()
   const accountPickerState = useAccountPickerControllerState()
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
@@ -111,21 +106,12 @@ const AccountsOnPageList = ({
     return 'smart'
   }, [])
 
-  const accountsWithKeys = useMemo(
-    () =>
-      accountsState.accounts.filter((acc) =>
-        keystoreState.keys.some((k) => acc.associatedKeys.includes(k.addr))
-      ),
-    [keystoreState.keys, accountsState.accounts]
-  )
-
   const isImportingFromPrivateKey = subType === 'private-key'
 
   const getAccounts = useCallback(
     ({
       accounts,
       shouldCheckForLastAccountInTheList,
-      slotIndex,
       byType = ['basic', 'smart'],
       withQuaternaryBackground = false
     }: {
@@ -152,11 +138,6 @@ const AccountsOnPageList = ({
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
-            shouldAddIntroStepsIds={
-              ['basic', 'smart'].includes(getType(acc)) &&
-              slotIndex === 0 &&
-              !isImportingFromPrivateKey
-            }
             withBottomSpacing={hasBottomSpacing}
             unused={isUnused}
             isSelected={isSelected}
@@ -169,13 +150,7 @@ const AccountsOnPageList = ({
         )
       })
     },
-    [
-      getType,
-      state.selectedAccounts,
-      isImportingFromPrivateKey,
-      handleSelectAccount,
-      handleDeselectAccount
-    ]
+    [getType, state.selectedAccounts, handleSelectAccount, handleDeselectAccount]
   )
 
   const networkNamesWithAccountStateError = useMemo(() => {
@@ -226,48 +201,113 @@ const AccountsOnPageList = ({
   if (!state.isInitialized) return null
 
   return (
-    <AccountPickerIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
-      <View style={flexbox.flex1} nativeID="account-picker-page-list">
-        <View style={flexbox.flex1}>
-          {!!networkNamesWithAccountStateError.length && (
-            <Alert
-              type="warning"
-              style={spacings.mbTy}
-              title={`We cannot determine if your accounts are used on ${networkNamesWithAccountStateError.join(
-                ', '
-              )}`}
+    <View style={flexbox.flex1} nativeID="account-picker-page-list">
+      <View style={flexbox.flex1}>
+        {!!networkNamesWithAccountStateError.length && (
+          <Alert
+            type="warning"
+            style={spacings.mbTy}
+            title={`We cannot determine if your accounts are used on ${networkNamesWithAccountStateError.join(
+              ', '
+            )}`}
+          />
+        )}
+        <ScrollableWrapper
+          style={!isImportingFromPrivateKey && spacings.mbLg}
+          contentContainerStyle={{
+            flexGrow: 1
+          }}
+          onScroll={(e) => {
+            if (isCloseToBottom(e.nativeEvent) && setHasReachedBottom) setHasReachedBottom(true)
+          }}
+          onLayout={(e) => {
+            setContainerHeight(e.nativeEvent.layout.height)
+          }}
+          onContentSizeChange={(_, height) => {
+            setContentHeight(height)
+          }}
+          scrollEventThrottle={400}
+        >
+          {!isLoading && (isAccountPickerEmpty || !!accountPickerState.pageError) && (
+            <AccountsRetrieveError
+              pageError={accountPickerState.pageError}
+              page={accountPickerState.page}
+              setPage={setPage}
             />
           )}
-          <ScrollableWrapper
-            style={!isImportingFromPrivateKey && spacings.mbLg}
-            contentContainerStyle={{
-              flexGrow: 1
-            }}
-            onScroll={(e) => {
-              if (isCloseToBottom(e.nativeEvent) && setHasReachedBottom) setHasReachedBottom(true)
-            }}
-            onLayout={(e) => {
-              setContainerHeight(e.nativeEvent.layout.height)
-            }}
-            onContentSizeChange={(_, height) => {
-              setContentHeight(height)
-            }}
-            scrollEventThrottle={400}
-          >
-            {!isLoading && (isAccountPickerEmpty || !!accountPickerState.pageError) && (
-              <AccountsRetrieveError
-                pageError={accountPickerState.pageError}
-                page={accountPickerState.page}
-                setPage={setPage}
-              />
-            )}
-            {state.accountsLoading || !!isLoading ? (
-              <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
-                <Spinner style={styles.spinner} />
+          {state.accountsLoading || !!isLoading ? (
+            <View style={[flexbox.flex1, flexbox.center, spacings.mt2Xl]}>
+              <Spinner style={styles.spinner} />
+            </View>
+          ) : (
+            <>
+              <View style={[spacings.ph, spacings.pbLg]}>
+                {Object.keys(slots).map((key, i) => {
+                  return (
+                    <View key={key}>
+                      {getAccounts({
+                        accounts: slots[key],
+                        shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                        slotIndex: 1,
+                        byType: ['basic']
+                      })}
+                    </View>
+                  )
+                })}
               </View>
-            ) : (
-              <>
-                <View style={[spacings.ph, spacings.pbLg]}>
+              {!!Object.keys(slots).length && (
+                <View
+                  style={[
+                    styles.smartAccountWrapper,
+                    // @ts-ignore
+                    { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
+                  ]}
+                >
+                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
+                    <Text fontSize={16} weight="medium" style={spacings.mrMd}>
+                      {t('Smart Accounts')}
+                      {/* TODO: Add an info icon here with a tooltip */}
+                    </Text>
+                    <View
+                      style={[
+                        flexbox.directionRow,
+                        flexbox.justifySpaceBetween,
+                        flexbox.alignCenter
+                      ]}
+                    >
+                      {lookingForLinkedAccounts && (
+                        <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                          <Spinner style={{ width: 16, height: 16 }} />
+                          <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
+                            {t('Looking for linked smart accounts')}
+                          </Text>
+                        </View>
+                      )}
+                      {!lookingForLinkedAccounts && hasLinkedAccounts && (
+                        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                          <Badge
+                            type="info"
+                            size="md"
+                            withRightSpacing
+                            text={`Linked Smart Account (found on page ${state.page})`}
+                            tooltipText="Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network."
+                          />
+
+                          <WarningFilledIcon data-tooltip-id="linked-accounts-warning" />
+                          <Tooltip
+                            id="linked-accounts-warning"
+                            border={`1px solid ${theme.warningDecorative as any}`}
+                            style={{
+                              backgroundColor: theme.warningBackground as any,
+                              color: theme.warningText as any
+                            }}
+                            content="Do not add linked accounts you are not aware of!"
+                          />
+                        </View>
+                      )}
+                    </View>
+                  </View>
+
                   {Object.keys(slots).map((key, i) => {
                     return (
                       <View key={key}>
@@ -275,99 +315,32 @@ const AccountsOnPageList = ({
                           accounts: slots[key],
                           shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
                           slotIndex: 1,
-                          byType: ['basic']
+                          byType: ['smart', 'linked'],
+                          withQuaternaryBackground: true
                         })}
                       </View>
                     )
                   })}
                 </View>
-                {!!Object.keys(slots).length && (
-                  <View
-                    style={[
-                      styles.smartAccountWrapper,
-                      // @ts-ignore
-                      { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
-                    ]}
-                  >
-                    <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-                      <Text fontSize={16} weight="medium" style={spacings.mrMd}>
-                        {t('Smart Accounts')}
-                        {/* TODO: Add an info icon here with a tooltip */}
-                      </Text>
-                      <View
-                        style={[
-                          flexbox.directionRow,
-                          flexbox.justifySpaceBetween,
-                          flexbox.alignCenter
-                        ]}
-                      >
-                        {lookingForLinkedAccounts && (
-                          <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-                            <Spinner style={{ width: 16, height: 16 }} />
-                            <Text appearance="primary" style={[spacings.mlTy]} fontSize={14}>
-                              {t('Looking for linked smart accounts')}
-                            </Text>
-                          </View>
-                        )}
-                        {!lookingForLinkedAccounts && hasLinkedAccounts && (
-                          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                            <Badge
-                              type="info"
-                              size="md"
-                              withRightSpacing
-                              text={`Linked Smart Account (found on page ${state.page})`}
-                              tooltipText="Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network."
-                            />
-
-                            <WarningFilledIcon data-tooltip-id="linked-accounts-warning" />
-                            <Tooltip
-                              id="linked-accounts-warning"
-                              border={`1px solid ${theme.warningDecorative as any}`}
-                              style={{
-                                backgroundColor: theme.warningBackground as any,
-                                color: theme.warningText as any
-                              }}
-                              content="Do not add linked accounts you are not aware of!"
-                            />
-                          </View>
-                        )}
-                      </View>
-                    </View>
-
-                    {Object.keys(slots).map((key, i) => {
-                      return (
-                        <View key={key}>
-                          {getAccounts({
-                            accounts: slots[key],
-                            shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                            slotIndex: 1,
-                            byType: ['smart', 'linked'],
-                            withQuaternaryBackground: true
-                          })}
-                        </View>
-                      )
-                    })}
-                  </View>
-                )}
-              </>
-            )}
-          </ScrollableWrapper>
-          <AnimatedDownArrow isVisible={shouldDisplayAnimatedDownArrow} />
-        </View>
-        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-          {!isImportingFromPrivateKey && (
-            <Pagination
-              page={state.page}
-              maxPages={1000}
-              setPage={setPage}
-              isDisabled={state.isPageLocked}
-              hideLastPage
-            />
+              )}
+            </>
           )}
-          {children}
-        </View>
+        </ScrollableWrapper>
+        <AnimatedDownArrow isVisible={shouldDisplayAnimatedDownArrow} />
       </View>
-    </AccountPickerIntroStepsProvider>
+      <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
+        {!isImportingFromPrivateKey && (
+          <Pagination
+            page={state.page}
+            maxPages={1000}
+            setPage={setPage}
+            isDisabled={state.isPageLocked}
+            hideLastPage
+          />
+        )}
+        {children}
+      </View>
+    </View>
   )
 }
 
