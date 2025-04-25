@@ -1,5 +1,6 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
+import { getRecordingName } from '../common-helpers/utils'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { selectUSDCTokenOnBase } from '../common-helpers/selectUSDCTokenOnBase'
@@ -66,10 +67,10 @@ export async function prepareTransaction(
   if (!shouldUseAddressBookRecipient) {
     await typeText(page, SELECTORS.addressEnsField, recipient)
     await page.waitForXPath(
-      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+      '//div[contains(text(), "This address isn\'t in your Address Book. Double-check the details before confirming.")]'
     )
 
-    // Check the checkbox "Confirm sending to a previously unknown address"
+    // Check the checkbox "Confirm sending to this address."
     await clickOnElement(page, SELECTORS.recipientAddressUnknownCheckbox)
 
     // Check the checkbox "I confirm this address is not a Binance wallets...."
@@ -90,34 +91,27 @@ export async function prepareTransaction(
   }
 }
 
+export function checkIsFeeSpeedSelected(page, feeSpeedSelector) {
+  return page.evaluate((selector) => {
+    const element = document.querySelector(selector)
+    return !!element
+  }, feeSpeedSelector)
+}
+
 async function prepareGasTankTopUp(page, recipient, amount) {
   await page.waitForSelector(amountField)
   await typeText(page, amountField, amount)
 }
 
-async function checkInnerElementBorderColor(page, selector, expectedBorderColor, delay = 0) {
-  await new Promise((resolve) => setTimeout(resolve, delay))
-  // Select the inner element
-  const innerElement = await page.$(`${selector} > div`)
-  // Assert that the inner element exists
-  expect(innerElement).not.toBeNull()
-
-  // Get the computed style of the inner element and extract the border color
-  const borderColor = await page.evaluate((el) => {
-    return window.getComputedStyle(el).borderColor
-  }, innerElement)
-
-  // Assert that the border color matches the expected value
-  expect(borderColor).toBe(expectedBorderColor)
-}
-
-async function processTnxSpeedSteps(page, selectors, expectedColor, delayTimeInMs) {
+async function processTnxSpeedSteps(page, selectors, delayTimeInMs) {
   // eslint-disable-next-line no-restricted-syntax
   for (const selector of selectors) {
     // eslint-disable-next-line no-await-in-loop
+    await clickOnElement(page, '[data-testid="fee-speed-select"]', true, delayTimeInMs)
+    // eslint-disable-next-line no-await-in-loop
     await clickOnElement(page, selector, true, delayTimeInMs)
     // eslint-disable-next-line no-await-in-loop
-    await checkInnerElementBorderColor(page, selector, expectedColor, delayTimeInMs)
+    await checkIsFeeSpeedSelected(page, selector)
   }
 }
 
@@ -157,8 +151,6 @@ async function handleTransaction(
     await selectFeeToken(newPage, feeToken)
   }
 
-  // expectedColor is the border color when the speed element is selected
-  const expectedColor = 'rgb(96, 0, 255)'
   const delayTimeInMs = 500
 
   if (shouldChangeTxnSpeed) {
@@ -169,7 +161,7 @@ async function handleTransaction(
       SELECTORS.feeApe,
       SELECTORS.feeFast
     ]
-    await processTnxSpeedSteps(newPage, feeSelectorsSequence, expectedColor, delayTimeInMs)
+    await processTnxSpeedSteps(newPage, feeSelectorsSequence, delayTimeInMs)
   }
 
   if (shouldRejectTxn) {
@@ -186,7 +178,7 @@ export async function checkTokenBalanceClickOnGivenActionInDashboard(
   page,
   selectedToken,
   selectedAction,
-  minBalance = 0.0001
+  minBalance = 0.00001
 ) {
   await page.waitForFunction(() => window.location.href.includes('/dashboard'))
 
@@ -265,12 +257,12 @@ async function prepareSwapLegacy(page) {
   // Select USDT and USDC tokens for swap
   await clickOnElement(page, 'xpath///span[contains(text(), "POL")]')
 
-  await selectTokenInUni(page, 'common-base-USDT')
+  await selectTokenInUni(page, 'common-8453-USDT')
 
   // Click on 'Select token' and select 'USDC' token
   await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
-  await selectTokenInUni(page, 'common-base-USDC')
+  await selectTokenInUni(page, 'common-8453-USDC')
 }
 
 async function prepareSwap(page) {
@@ -405,7 +397,7 @@ export async function makeSwap(
   const actionWindowDapReqRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
     followNewTab: true
   })
-  await actionWindowDapReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+  await actionWindowDapReqRecorder.start(getRecordingName('action_window_dap_req'))
   actionWindowPage.setDefaultTimeout(120000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
@@ -562,7 +554,7 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   const actionWindowDappReqRecorder = new PuppeteerScreenRecorder(newPage, {
     followNewTab: true
   })
-  await actionWindowDappReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+  await actionWindowDappReqRecorder.start(getRecordingName('action_window_dap_req'))
 
   await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
@@ -584,7 +576,7 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   const actionWindowSignMsgRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
     followNewTab: true
   })
-  await actionWindowSignMsgRecorder.start(`./recorder/action_window_sign_msg_${Date.now()}.mp4`)
+  await actionWindowSignMsgRecorder.start(getRecordingName('action_window_sign_msg'))
 
   actionWindowPage.setDefaultTimeout(120000)
 

@@ -3,6 +3,7 @@ type LeaderboardEntry = {
   account: string
   level: number
   xp: number
+  weight: number
   image: string
   image_avatar: string
 }

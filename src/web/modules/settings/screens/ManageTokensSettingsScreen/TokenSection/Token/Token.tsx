@@ -25,7 +25,7 @@ type Props = {
 
 const Token: FC<Props> = ({
   address,
-  networkId,
+  chainId,
   flags,
   symbol,
   onTokenPreferenceOrCustomTokenChange
@@ -39,35 +39,32 @@ const Token: FC<Props> = ({
   // flags.isHidden is updated after the portfolio is updated
   // so we use tokenPreferences to get the value faster
   const isHidden = !!tokenPreferences?.find(
-    ({ address: addr, networkId: nId }) =>
-      addr.toLowerCase() === address.toLowerCase() && nId === networkId
+    ({ address: addr, chainId: nChainId }) =>
+      addr.toLowerCase() === address.toLowerCase() && nChainId === chainId
   )?.isHidden
 
   const toggleHideToken = useCallback(async () => {
-    addToast(t('Token is now visible. You can hide it again from the dashboard.'))
+    addToast(t('Token is now visible. You can hide it again from the dashboard.'), {
+      timeout: 2000
+    })
 
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
-      params: {
-        token: {
-          address,
-          networkId
-        }
-      }
+      params: { token: { address, chainId } }
     })
     onTokenPreferenceOrCustomTokenChange()
-  }, [addToast, t, dispatch, address, networkId, onTokenPreferenceOrCustomTokenChange])
+  }, [addToast, t, dispatch, address, chainId, onTokenPreferenceOrCustomTokenChange])
 
   const removeCustomToken = useCallback(() => {
-    addToast(t('Token removed'))
+    addToast(t('Token removed'), {
+      timeout: 2000
+    })
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN',
-      params: {
-        token: { address, networkId }
-      }
+      params: { token: { address, chainId } }
     })
     onTokenPreferenceOrCustomTokenChange()
-  }, [addToast, address, dispatch, networkId, onTokenPreferenceOrCustomTokenChange, t])
+  }, [addToast, address, dispatch, chainId, onTokenPreferenceOrCustomTokenChange, t])
 
   const dropdownOptions = useMemo(() => {
     return [
@@ -85,13 +82,13 @@ const Token: FC<Props> = ({
         return
       }
       if (value === 'explorer') {
-        const network = networks.find(({ id }) => id === networkId)
+        const network = networks.find(({ chainId: nChainId }) => nChainId === chainId)
         if (!network) return
 
         await openInTab(`${network.explorerUrl}/address/${address}`, false)
       }
     },
-    [address, networkId, networks, removeCustomToken]
+    [address, chainId, networks, removeCustomToken]
   )
 
   return (
@@ -112,7 +109,7 @@ const Token: FC<Props> = ({
         <TokenIcon
           withContainer
           address={address}
-          networkId={networkId}
+          chainId={chainId}
           onGasTank={flags.onGasTank}
           containerHeight={40}
           containerWidth={40}
@@ -125,8 +122,11 @@ const Token: FC<Props> = ({
         {flags.isCustom && <Badge text="Custom" />}
       </View>
       <View style={[flexbox.directionRow, flexbox.alignCenter, { flex: 1.5 }]}>
-        <NetworkIcon id={networkId} style={spacings.mrTy} />
-        <Text>{networks.find(({ id }) => id === networkId)?.name || 'Unknown Network'}</Text>
+        <NetworkIcon id={chainId.toString()} style={spacings.mrTy} />
+        <Text>
+          {networks.find(({ chainId: nChainId }) => nChainId === chainId)?.name ||
+            'Unknown Network'}
+        </Text>
       </View>
       <View
         style={[

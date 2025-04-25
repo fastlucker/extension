@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
 import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
-import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
+import { getIdentity } from '@ambire-common/libs/accountPicker/accountPicker'
 import { RELAYER_URL } from '@env'
 import useToast from '@legends/hooks/useToast'
 
@@ -22,9 +22,15 @@ type AccountContextType = {
 const accountContext = createContext<AccountContextType>({} as AccountContextType)
 
 const LOCAL_STORAGE_ACC_KEY = 'connectedAccount'
+const LOCAL_STORAGE_IS_DISCONNECTED = 'isDisconnected'
 
 const AccountContextProvider = ({ children }: { children: React.ReactNode }) => {
   const { addToast } = useToast()
+  const [isDisconnected, setIsDisconnected] = React.useState<boolean>(() => {
+    const isDappDisconnected = localStorage.getItem(LOCAL_STORAGE_IS_DISCONNECTED)
+
+    return isDappDisconnected === 'true'
+  })
   // We keep only V2 accounts
   const [connectedAccount, setConnectedAccount] = React.useState<string | null>(() => {
     const storedAccount = localStorage.getItem(LOCAL_STORAGE_ACC_KEY)
@@ -43,19 +49,20 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const requestAccounts = useCallback(async () => {
     if (!window.ambire) return
+
+    if (isDisconnected) {
+      setIsDisconnected(false)
+      localStorage.setItem(LOCAL_STORAGE_IS_DISCONNECTED, 'false')
+    }
     await window.ambire.request({
       method: 'eth_requestAccounts',
       params: []
     })
-  }, [])
-
-  const disconnectAccount = useCallback(() => {
-    alert('TODO: disconnect logic')
-    // TODO: disconnect logic
-  }, [])
+  }, [isDisconnected])
 
   const getConnectedAccount = useCallback(async (): Promise<string | null> => {
-    if (!window.ambire) return null
+    if (!window.ambire || isDisconnected) return null
+
     const accounts = await window.ambire.request({
       method: 'eth_accounts',
       params: []
@@ -64,7 +71,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
 
     // @ts-ignore
     return accounts[0]
-  }, [])
+  }, [isDisconnected])
 
   const getChainId = useCallback(async (): Promise<bigint | null> => {
     if (!window.ambire) return null
@@ -94,6 +101,12 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
           localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
           return
         }
+
+        if (!allowNonV2Connection) {
+          setConnectedAccount(null)
+          localStorage.setItem(LOCAL_STORAGE_ACC_KEY, '')
+        }
+
         setNonV2Account(address)
 
         if (!connectedAccount) {
@@ -117,16 +130,22 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
         console.log(e)
       }
     },
-    [addToast, connectedAccount]
+    [addToast, allowNonV2Connection, connectedAccount]
   )
 
-  const handleDisconnectFromWallet = useCallback(() => {
+  const handleDisconnectFromWallet = useCallback(async () => {
     setConnectedAccount(null)
     setNonV2Account(null)
     setIsLoading(false)
     setAllAccounts([])
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
   }, [])
+
+  const disconnectAccount = useCallback(async () => {
+    setIsDisconnected(true)
+    localStorage.setItem(LOCAL_STORAGE_IS_DISCONNECTED, 'true')
+    handleDisconnectFromWallet()
+  }, [handleDisconnectFromWallet])
 
   useEffect(() => {
     getChainId()

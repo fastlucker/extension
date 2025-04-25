@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { ColorValue, Image, View, ViewStyle } from 'react-native'
+import React, { ReactNode, useEffect, useMemo, useState } from 'react'
+import { Image, View, ViewStyle } from 'react-native'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Text from '@common/components/Text'
@@ -13,17 +13,19 @@ import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
+import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
 
 import getStyles from './styles'
 
 interface Props {
   mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
-  customTitle?: string
+  customTitle?: string | ReactNode
   displayBackButtonIn?: 'popup' | 'tab' | 'always' | 'never'
   withAmbireLogo?: boolean
+  withOG?: boolean
   image?: string
   children?: any
-  backgroundColor?: ColorValue
+  backgroundColor?: string
   forceBack?: boolean
   onGoBackPress?: () => void
   width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
@@ -37,6 +39,7 @@ const Header = ({
   customTitle,
   displayBackButtonIn,
   withAmbireLogo,
+  withOG,
   children,
   backgroundColor,
   forceBack,
@@ -96,8 +99,8 @@ const Header = ({
           {mode === 'title' && (
             <View style={styles.containerInner}>
               <Text
-                weight="medium"
-                fontSize={isTab ? 24 : 20}
+                weight="regular"
+                fontSize={isTab ? 32 : 24}
                 style={styles.title}
                 numberOfLines={2}
               >
@@ -115,9 +118,15 @@ const Header = ({
           )}
           {mode === 'custom-inner-content' && <View style={styles.containerInner}>{children}</View>}
           {/* Middle content end */}
-          <View style={[styles.sideContainer, flexbox.alignEnd]}>
-            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
-          </View>
+          {!!withAmbireLogo && (
+            <View style={[styles.sideContainer, flexbox.alignEnd]}>
+              {withOG ? (
+                <AmbireLogoHorizontalWithOG width={72} />
+              ) : (
+                <AmbireLogoHorizontal width={72} />
+              )}
+            </View>
+          )}
         </View>
       ) : (
         children

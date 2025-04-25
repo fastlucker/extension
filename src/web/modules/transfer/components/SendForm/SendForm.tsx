@@ -1,16 +1,16 @@
-import { formatUnits, JsonRpcProvider, ZeroAddress } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { formatUnits, ZeroAddress } from 'ethers'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
 import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
-import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import Select from '@common/components/Select'
+import SendToken from '@common/components/SendToken'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -24,25 +24,34 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
+import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
 
+const { isPopup } = getUiType()
+
 const SendForm = ({
   addressInputState,
   isSmartAccount = false,
+  hasGasTank,
   amountErrorMessage,
   isRecipientAddressUnknown,
   isSWWarningVisible,
-  isRecipientHumanizerKnownTokenOrSmartContract
+  isRecipientHumanizerKnownTokenOrSmartContract,
+  recipientMenuClosedAutomaticallyRef,
+  formTitle
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
+  hasGasTank: boolean
   amountErrorMessage: string
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
+  formTitle: string | ReactNode
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
@@ -66,7 +75,7 @@ const SendForm = ({
   const [isEstimationLoading, setIsEstimationLoading] = useState(true)
   const [estimation, setEstimation] = useState<null | {
     totalGasWei: bigint
-    networkId: string
+    chainId: bigint
     updatedAt: number
   }>(null)
 
@@ -78,20 +87,22 @@ const SendForm = ({
     amountSelectDisabled
   } = useGetTokenSelectProps({
     tokens,
-    token: selectedToken ? getTokenId(selectedToken) : '',
+    token: selectedToken ? getTokenId(selectedToken, networks) : '',
     networks,
     isToToken: false
   })
 
-  const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
+  const disableForm = (!hasGasTank && isTopUp) || !tokens.length
 
   const handleChangeToken = useCallback(
     (value: string) => {
-      const tokenToSelect = tokens.find((tokenRes: TokenResult) => getTokenId(tokenRes) === value)
+      const tokenToSelect = tokens.find(
+        (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
+      )
 
       transferCtrl.update({ selectedToken: tokenToSelect, amount: '' })
     },
-    [tokens, transferCtrl]
+    [tokens, transferCtrl, networks]
   )
 
   const setAddressStateFieldValue = useCallback(
@@ -103,7 +114,7 @@ const SendForm = ({
 
   const setMaxAmount = useCallback(() => {
     const shouldDeductGas = selectedToken?.address === ZeroAddress && !isSmartAccount
-    const canDeductGas = estimation && estimation.networkId === selectedToken?.networkId
+    const canDeductGas = estimation && estimation.chainId === selectedToken?.chainId
 
     if (!shouldDeductGas || !canDeductGas) {
       transferCtrl.update({
@@ -186,7 +197,7 @@ const SendForm = ({
         const correspondingToken = tokens.find(
           (token) =>
             token.address === selectedTokenFromUrl.addr &&
-            token.networkId === selectedTokenFromUrl.networkId &&
+            token.chainId.toString() === selectedTokenFromUrl.chainId &&
             token.flags.onGasTank === false
         )
 
@@ -196,7 +207,7 @@ const SendForm = ({
       }
 
       if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
-        transferCtrl.update({ selectedToken: tokenToSelect })
+        transferCtrl.update({ selectedToken: tokenToSelect }, { shouldPersist: false })
       }
     }
   }, [tokens, selectedTokenFromUrl, state.selectedToken, transferCtrl])
@@ -204,18 +215,19 @@ const SendForm = ({
   useEffect(() => {
     if (
       estimation &&
-      estimation.networkId === selectedToken?.networkId &&
+      estimation.chainId === selectedToken?.chainId &&
       estimation.updatedAt > Date.now() - ONE_MINUTE
     )
       return
-    const networkData = networks.find((network) => network.id === selectedToken?.networkId)
+    const networkData = networks.find((n) => n.chainId === selectedToken?.chainId)
 
-    if (!networkData) return
-
-    if (isSmartAccount || !account || !selectedToken?.networkId) return
+    if (!networkData || isSmartAccount || !account || !selectedToken?.chainId) return
 
     const rpcUrl = networkData.selectedRpcUrl
-    const provider = new JsonRpcProvider(rpcUrl)
+    const provider = getRpcProvider([rpcUrl], selectedToken.chainId)
+    const nonce = accountStates?.[account.addr]?.[selectedToken.chainId.toString()]?.nonce
+
+    if (typeof nonce !== 'bigint') return
 
     setIsEstimationLoading(true)
 
@@ -225,10 +237,10 @@ const SendForm = ({
         account,
         {
           accountAddr: account.addr,
-          networkId: selectedToken.networkId,
+          chainId: selectedToken.chainId,
           signingKeyAddr: null,
           signingKeyType: null,
-          nonce: accountStates[account.addr][selectedToken.networkId].nonce,
+          nonce,
           calls: [
             {
               to: ZeroAddress,
@@ -269,7 +281,7 @@ const SendForm = ({
 
         setEstimation({
           totalGasWei,
-          networkId: selectedToken.networkId,
+          chainId: selectedToken.chainId,
           updatedAt: Date.now()
         })
       })
@@ -298,34 +310,30 @@ const SendForm = ({
               ? t('Loading tokens...')
               : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
-          <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
+          <SkeletonLoader width="100%" height={120} style={spacings.mbLg} />
         </View>
       ) : (
-        <Select
-          setValue={({ value }) => handleChangeToken(value as string)}
-          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
-          options={options}
-          value={tokenSelectValue}
-          disabled={disableForm}
-          containerStyle={styles.tokenSelect}
-          testID="tokens-select"
+        <SendToken
+          fromTokenOptions={options}
+          fromTokenValue={tokenSelectValue}
+          fromAmountValue={amountFieldMode === 'token' ? amount : amountInFiat}
+          fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
+          handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
+          fromSelectedToken={selectedToken}
+          fromAmount={amount}
+          fromAmountInFiat={amountInFiat}
+          fromAmountFieldMode={amountFieldMode}
+          maxFromAmount={maxAmount}
+          validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
+          onFromAmountChange={setAmount}
+          handleSwitchFromAmountFieldMode={switchAmountFieldMode}
+          handleSetMaxFromAmount={setMaxAmount}
+          inputTestId="amount-field"
+          selectTestId="tokens-select"
+          title={formTitle}
+          maxAmountDisabled={!isMaxAmountEnabled}
         />
       )}
-      <InputSendToken
-        amount={amount}
-        onAmountChange={setAmount}
-        selectedTokenSymbol={selectedToken?.symbol || ''}
-        errorMessage={amountErrorMessage}
-        setMaxAmount={setMaxAmount}
-        maxAmount={maxAmount}
-        amountInFiat={amountInFiat}
-        amountFieldMode={amountFieldMode}
-        maxAmountInFiat={maxAmountInFiat}
-        switchAmountFieldMode={switchAmountFieldMode}
-        disabled={disableForm || amountSelectDisabled}
-        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
-        isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
-      />
       <View>
         {!isTopUp && (
           <Recipient
@@ -333,7 +341,6 @@ const SendForm = ({
             address={addressState.fieldValue}
             setAddress={setAddressStateFieldValue}
             validation={validation}
-            uDAddress={addressState.udAddress}
             ensAddress={addressState.ensAddress}
             addressValidationMsg={validation.message}
             isRecipientHumanizerKnownTokenOrSmartContract={
@@ -346,6 +353,8 @@ const SendForm = ({
             isSWWarningVisible={isSWWarningVisible}
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
+            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
+            menuPosition={isPopup ? 'top' : undefined}
           />
         )}
       </View>

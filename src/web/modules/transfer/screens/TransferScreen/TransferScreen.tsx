@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -7,8 +7,7 @@ import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
-import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
-import CartIcon from '@common/assets/svg/CartIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
@@ -26,6 +25,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
+import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -38,13 +38,17 @@ import {
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const { isPopup } = getUiType()
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
@@ -60,6 +64,7 @@ const TransferScreen = () => {
     isRecipientAddressUnknown,
     isFormValid
   } = state
+
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -71,29 +76,48 @@ const TransferScreen = () => {
     open: openGasTankInfoBottomSheet,
     close: closeGasTankInfoBottomSheet
   } = useModalize()
-  const { userRequests, isOffline } = useMainControllerState()
+  const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
+  const recipientMenuClosedAutomatically = useRef(false)
 
   const hasFocusedActionWindow = useMemo(
     () => actionsState.actionWindow.windowProps?.focused,
     [actionsState.actionWindow.windowProps]
   )
 
-  const transactionUserRequests = useMemo(() => {
+  // Requests filtered by the selected account only.
+  // This enables the "Sign all Pending" button even if the selected token's network differs
+  // from the network of active requests and the form is empty.
+  // For example, on a particular network, if the user has only one token and sends its maximum amount,
+  // the auto-selected token could belong to a different network.
+  // In such cases, we ensure a simple way to sign the current transaction, even across networks.
+  const transactionUserRequestsByAccount = useMemo(() => {
     return userRequests.filter((r) => {
-      if (!state.amount || !state.selectedToken) return true
-
       const isSelectedAccountAccountOp =
         r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
-      const isMatchingSelectedTokenNetwork = r.meta.networkId === state.selectedToken?.networkId
 
-      return isSelectedAccountAccountOp && isMatchingSelectedTokenNetwork
+      return isSelectedAccountAccountOp
     })
-  }, [account?.addr, state.amount, state.selectedToken, userRequests])
+  }, [account?.addr, userRequests])
+
+  // Requests filtered by current account and the selected token's network
+  const transactionUserRequests = useMemo(() => {
+    return transactionUserRequestsByAccount.filter((r) => {
+      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
+
+      return !state.selectedToken || isMatchingSelectedTokenNetwork
+    })
+  }, [transactionUserRequestsByAccount, state.selectedToken])
 
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10
   }, [portfolio.totalBalance])
+
+  const hasActiveRequests = useMemo(
+    () => !!transactionUserRequests.length && !hasFocusedActionWindow,
+    [transactionUserRequests, hasFocusedActionWindow]
+  )
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -103,7 +127,7 @@ const TransferScreen = () => {
   )
 
   const handleCacheResolvedDomain = useCallback(
-    (address: string, domain: string, type: 'ens' | 'ud') => {
+    (address: string, domain: string, type: 'ens') => {
       dispatch({
         type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
         params: {
@@ -135,11 +159,15 @@ const TransferScreen = () => {
   }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
 
   const submitButtonText = useMemo(() => {
-    if (isOffline) return t("You're offline")
-
     if (hasFocusedActionWindow) return isTopUp ? t('Top Up') : t('Send')
 
     let numOfRequests = transactionUserRequests.length
+
+    // This ensures the button count updates correctly when there are no transactionUserRequests on the selected token network,
+    // but pending requests exist for the current account.
+    if (!numOfRequests && isFormEmpty && transactionUserRequestsByAccount.length) {
+      numOfRequests = transactionUserRequestsByAccount.length
+    }
 
     if (numOfRequests) {
       if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
@@ -147,16 +175,14 @@ const TransferScreen = () => {
       }
 
       if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
-      return isTopUp
-        ? t('Top Up ({{count}})', { count: numOfRequests })
-        : t('Send ({{count}})', { count: numOfRequests })
+      return isTopUp ? t('Top Up') : t('Send')
     }
 
     return isTopUp ? t('Top Up') : t('Send')
   }, [
-    isOffline,
     isTopUp,
     transactionUserRequests,
+    transactionUserRequestsByAccount.length,
     addressInputState.validation.isError,
     isFormValid,
     isFormEmpty,
@@ -170,23 +196,34 @@ const TransferScreen = () => {
   )
 
   const isSendButtonDisabled = useMemo(() => {
-    if (isOffline) return true
-
     if (transactionUserRequests.length && !hasFocusedActionWindow) {
       return !isFormEmpty && !isTransferFormValid
     }
+
+    // This ensures the button remains enabled even when there are no transactionUserRequests on the selected token network,
+    // but pending requests exist for the current account.
+    if (transactionUserRequestsByAccount.length && !hasFocusedActionWindow) {
+      return !isFormEmpty && !isTransferFormValid
+    }
+
     return !isTransferFormValid
   }, [
     isFormEmpty,
     isTransferFormValid,
-    isOffline,
     transactionUserRequests.length,
+    transactionUserRequestsByAccount.length,
     hasFocusedActionWindow
   ])
 
   const onBack = useCallback(() => {
+    transferCtrl.resetForm()
     navigate(ROUTES.dashboard)
   }, [navigate])
+
+  const resetTransferForm = useCallback(() => {
+    transferCtrl.resetForm()
+    recipientMenuClosedAutomatically.current = false
+  }, [transferCtrl])
 
   const addTransaction = useCallback(
     (actionExecutionType: ActionExecutionType) => {
@@ -205,30 +242,19 @@ const TransferScreen = () => {
           }
         })
 
-        transferCtrl.resetForm()
+        resetTransferForm()
         return
       }
 
       if (
         actionExecutionType === 'open-action-window' &&
-        transactionUserRequests.length &&
+        (transactionUserRequests.length || transactionUserRequestsByAccount.length) &&
         isFormEmpty
       ) {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
-        if (!firstAccountOpAction) {
-          const entryPointAction = actionsState.visibleActionsQueue.find(
-            (a) => a.id.toString() === ENTRY_POINT_AUTHORIZATION_REQUEST_ID
-          )
-          if (entryPointAction) {
-            dispatch({
-              type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-              params: { actionId: ENTRY_POINT_AUTHORIZATION_REQUEST_ID }
-            })
-          }
-          return
-        }
+        if (!firstAccountOpAction) return
         dispatch({
           type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
           params: { actionId: firstAccountOpAction?.id }
@@ -243,10 +269,12 @@ const TransferScreen = () => {
       state.selectedToken,
       isFormEmpty,
       transactionUserRequests.length,
+      transactionUserRequestsByAccount.length,
       actionsState,
       isFormValid,
       dispatch,
-      openBottomSheet
+      openBottomSheet,
+      resetTransferForm
     ]
   )
 
@@ -276,40 +304,71 @@ const TransferScreen = () => {
     )
   }, [handleGasTankInfoPressed, maxWidthSize, t])
 
+  // Title shown in BottomSheet header
+  const headerTitle = useMemo(
+    () => (state.isTopUp ? gasTankLabelWithInfo : t('Send')),
+    [state.isTopUp, gasTankLabelWithInfo]
+  )
+
+  // Title shown before SendToken component
+  const formTitle = useMemo(() => {
+    if (state.isTopUp) {
+      if (isPopup) {
+        return t('Top Up')
+      }
+
+      return gasTankLabelWithInfo
+    }
+
+    return t('Send')
+  }, [state.isTopUp, t, gasTankLabelWithInfo])
+
+  const header = useMemo(
+    () =>
+      isPopup ? (
+        <Header
+          customTitle={headerTitle}
+          withAmbireLogo
+          withOG
+          forceBack
+          onGoBackPress={() => {
+            transferCtrl.resetForm()
+            navigate(ROUTES.dashboard)
+          }}
+        />
+      ) : (
+        <HeaderAccountAndNetworkInfo withOG />
+      ),
+    []
+  )
+
+  const FormWrapper = isPopup ? View : Panel
+
   return (
     <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
+      backgroundColor={isPopup ? theme.primaryBackground : theme.secondaryBackground}
       width="xl"
-      header={<HeaderAccountAndNetworkInfo withOG />}
+      header={header}
       footer={
         <>
-          <BackButton onPress={onBack} />
-          <View
-            style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
-          >
+          {!isPopup && <BackButton onPress={onBack} />}
+          <View style={[flexbox.directionRow, flexbox.flex1, flexbox.justifyEnd]}>
             <Button
               testID="transfer-queue-and-add-more-button"
               type="outline"
               accentColor={theme.primary}
-              text={t('Queue and Add More')}
-              onPress={() => addTransaction('queue')}
-              disabled={
-                !isFormValid || (!isTopUp && addressInputState.validation.isError) || isOffline
+              text={
+                hasActiveRequests
+                  ? t('Add to Batch ({{count}})', { count: transactionUserRequests.length })
+                  : t('Start a Batch')
               }
+              onPress={() => addTransaction('queue')}
+              disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
               hasBottomSpacing={false}
               style={spacings.mr}
               size="large"
             >
-              <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                <CartIcon color={theme.primary} />
-                {!!transactionUserRequests.length && !hasFocusedActionWindow && (
-                  <Text
-                    fontSize={16}
-                    weight="medium"
-                    color={theme.primary}
-                  >{` (${transactionUserRequests.length})`}</Text>
-                )}
-              </View>
+              <BatchIcon style={spacings.mlTy} />
             </Button>
             <Button
               testID="transfer-button-confirm"
@@ -320,43 +379,40 @@ const TransferScreen = () => {
               size="large"
               disabled={isSendButtonDisabled}
             >
-              {!isOffline && (
-                <View style={spacings.plTy}>
-                  {isTopUp ? (
-                    <TopUpIcon
-                      strokeWidth={1}
-                      width={24}
-                      height={24}
-                      color={theme.primaryBackground}
-                    />
-                  ) : (
-                    <SendIcon width={24} height={24} color={theme.primaryBackground} />
-                  )}
-                </View>
-              )}
+              <View style={spacings.plTy}>
+                {isTopUp ? (
+                  <TopUpIcon
+                    strokeWidth={1}
+                    width={24}
+                    height={24}
+                    color={theme.primaryBackground}
+                  />
+                ) : (
+                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
+                )}
+              </View>
             </Button>
           </View>
         </>
       }
     >
-      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
+      <TabLayoutWrapperMainContent contentContainerStyle={!isPopup ? spacings.pt2Xl : undefined}>
         {state?.isInitialized ? (
-          <Panel
-            style={[styles.panel]}
-            forceContainerSmallSpacings
-            title={state.isTopUp ? gasTankLabelWithInfo : 'Send'}
-          >
+          <FormWrapper style={[styles.panel]} {...(!isPopup && { spacingsSize: 'small' })}>
             <SendForm
               addressInputState={addressInputState}
               isSmartAccount={isSmartAccount}
+              hasGasTank={hasGasTank}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
               isRecipientAddressUnknown={isRecipientAddressUnknown}
               isRecipientHumanizerKnownTokenOrSmartContract={
                 isRecipientHumanizerKnownTokenOrSmartContract
               }
               isSWWarningVisible={isSWWarningVisible}
+              recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
+              formTitle={formTitle}
             />
-            {isTopUp && !isSmartAccount && (
+            {isTopUp && !hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -387,7 +443,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-            {isTopUp && isSmartAccount && (
+            {isTopUp && hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -403,7 +459,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-          </Panel>
+          </FormWrapper>
         ) : (
           <SkeletonLoader
             width={640}
@@ -422,7 +478,7 @@ const TransferScreen = () => {
         type="modal"
       >
         <DualChoiceModal
-          title={t('Transaction queued')}
+          title={t('Transaction added to batch')}
           description={
             <View>
               <Text style={spacings.mbTy} appearance="secondaryText">
@@ -431,7 +487,7 @@ const TransferScreen = () => {
                 )}
               </Text>
               <Text appearance="secondaryText" style={spacings.mbLg}>
-                {t('The queued pending transactions are available on your Dashboard.')}
+                {t('All pending batch transactions are available on your Dashboard.')}
               </Text>
               <Checkbox
                 value={transferCtrl.shouldSkipTransactionQueuedModal}

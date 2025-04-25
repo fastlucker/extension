@@ -1,20 +1,9 @@
 import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
+import { v4 as uuidv4 } from 'uuid'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
-import ArbitrumLogo from '@common/assets/svg/ArbitrumLogo'
-import AvalancheLogo from '@common/assets/svg/AvalancheLogo'
-import BinanceLogo from '@common/assets/svg/BinanceLogo'
-import EthereumLogo from '@common/assets/svg/EthereumLogo'
-import FantomLogo from '@common/assets/svg/FantomLogo'
+import { Network } from '@ambire-common/interfaces/network'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
-import GnosisLogo from '@common/assets/svg/GnosisLogo'
-import KCCKuCoinLogo from '@common/assets/svg/KCCKuCoinLogo'
-import MoonbeamLogo from '@common/assets/svg/MoonbeamLogo'
-import MoonriverLogo from '@common/assets/svg/MoonriverLogo'
-import OptimismLogo from '@common/assets/svg/OptimismLogo'
-import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
@@ -24,7 +13,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-export type NetworkIconIdType = NetworkId | 'gasTank' | 'rewards'
+export type NetworkIconIdType = string | 'gasTank' | 'rewards'
 
 type Props = {
   id: NetworkIconIdType
@@ -37,20 +26,7 @@ type Props = {
   benzinNetwork?: Network
 }
 
-const icons: { [key: NetworkId]: any } = {
-  ethereum: EthereumLogo,
-  rinkeby: EthereumLogo,
-  polygon: PolygonLogo,
-  avalanche: AvalancheLogo,
-  'binance-smart-chain': BinanceLogo,
-  fantom: FantomLogo,
-  moonbeam: MoonbeamLogo,
-  moonriver: MoonriverLogo,
-  arbitrum: ArbitrumLogo,
-  optimism: OptimismLogo,
-  gnosis: GnosisLogo,
-  kucoin: KCCKuCoinLogo,
-  andromeda: AndromedaLogo,
+const icons: { [key: string]: any } = {
   gastank: GasTankIcon,
   rewards: RewardsIcon
 }
@@ -67,33 +43,29 @@ const NetworkIcon = ({
 }: Props) => {
   const { networks } = useNetworksControllerState()
 
-  const networkId = useMemo(() => {
-    if (id.startsWith('bnb')) {
-      return 'binance-smart-chain'
-    }
-
-    return id.toLowerCase()
-  }, [id])
-
   const network = useMemo(() => {
-    return benzinNetwork ?? networks.find((n) => n.id === networkId)
-  }, [networkId, networks, benzinNetwork])
+    return benzinNetwork ?? networks.find((n) => n.chainId.toString() === id)
+  }, [benzinNetwork, networks, id])
+
+  const networkName = useMemo(() => {
+    return network?.name || `Chain with id ${id}`
+  }, [id, network])
 
   const iconUrls = useMemo(
     () => [
       ...((network as Network)?.iconUrls || []),
-      `https://icons.llamao.fi/icons/chains/rsz_${networkId.split(/\s+/)[0].toLowerCase()}.jpg`,
+      `https://icons.llamao.fi/icons/chains/rsz_${networkName.split(/\s+/)[0].toLowerCase()}.jpg`,
       `https://icons.llamao.fi/icons/chains/rsz_${network?.nativeAssetSymbol?.toLowerCase()}.jpg`,
-      `https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/64/${networkId.toLowerCase()}.png`,
-      `https://github.com/ErikThiart/cryptocurrency-icons/tree/master/64/${networkId.toLowerCase()}.png`
+      `https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/64/${networkName.toLowerCase()}.png`,
+      `https://github.com/ErikThiart/cryptocurrency-icons/tree/master/64/${networkName.toLowerCase()}.png`
     ],
-    [networkId, network]
+    [networkName, network]
   )
 
   const iconScale = useMemo(() => scale || (size < 28 ? 0.8 : 0.6), [size, scale])
 
   const { theme } = useTheme()
-  const Icon = icons[networkId]
+  const Icon = icons[networkName]
 
   const renderDefaultIcon = useCallback(
     () => (
@@ -113,20 +85,23 @@ const NetworkIcon = ({
           ]}
         >
           <Text weight="medium" fontSize={size * 0.4} color="#fff">
-            {networkId[0].toUpperCase()}
+            {networkName[0].toUpperCase()}
           </Text>
         </View>
       </View>
     ),
-    [iconScale, networkId, size, style, theme]
+    [iconScale, networkName, size, style, theme]
   )
+
+  // Ensure tooltip ID is unique per component to avoid duplicates when multiple are rendered (with same network name)
+  const tooltipId = useMemo(() => `${networkName}-${uuidv4()}`, [networkName])
 
   return (
     <>
       <View
         // @ts-ignore
         dataSet={{
-          tooltipId: `${networkId}`,
+          tooltipId,
           tooltipContent: `${network?.name}`
         }}
         style={[
@@ -158,7 +133,7 @@ const NetworkIcon = ({
       </View>
       {!!network && withTooltip && (
         <Tooltip
-          id={networkId}
+          id={tooltipId}
           style={{
             paddingRight: SPACING_TY,
             paddingLeft: SPACING_TY,

@@ -3,12 +3,12 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 
 const getDoesNetworkMatch = ({
   networks,
-  itemNetworkId,
+  itemChainId,
   tokenFlags,
   lowercaseSearch
 }: {
   networks: Network[]
-  itemNetworkId: string
+  itemChainId: bigint
   tokenFlags?: TokenResult['flags']
   lowercaseSearch: string
 }) => {
@@ -22,7 +22,7 @@ const getDoesNetworkMatch = ({
     }
   }
 
-  const networkName = networks.find((n) => n.id === itemNetworkId)?.name || ''
+  const networkName = networks.find((n) => n.chainId === itemChainId)?.name || ''
 
   return networkName.toLowerCase().includes(lowercaseSearch) || isMatchingByFlag
 }
@@ -49,7 +49,7 @@ const tokenSearch = ({
     getDoesNetworkMatch({
       networks,
       tokenFlags: token.flags,
-      itemNetworkId: token.networkId,
+      itemChainId: token.chainId,
       lowercaseSearch
     })
   )

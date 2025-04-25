@@ -5,6 +5,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Network } from '@ambire-common/interfaces/network'
+import { AssetType } from '@ambire-common/libs/defiPositions/types'
 import { getTokenAmount, getTokenBalanceInUSD } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -50,7 +51,7 @@ const hasAmount = (token: TokenResult) => {
 // if the token is on the gas tank and the network is not a relayer network (a custom network)
 // we should not show it on dashboard
 const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) => {
-  return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
+  return token.flags.onGasTank && !networks.find((n) => n.chainId === token.chainId && n.hasRelayer)
 }
 
 const { isPopup } = getUiType()
@@ -86,13 +87,17 @@ const Tokens = ({
   const tokens = useMemo(
     () =>
       (portfolio?.tokens || [])
-        .filter((token) => !token.flags.onGasTank) // Hide gas tank tokens from the list
+        // Hide gas tank and borrowed defi tokens from the list
+        .filter((token) => !token.flags.onGasTank && token.flags.defiTokenType !== AssetType.Borrow)
         .filter((token) => {
           if (!dashboardNetworkFilter) return true
           if (dashboardNetworkFilter === 'rewards') return token.flags.rewardsType
           if (dashboardNetworkFilter === 'gasTank') return token.flags.onGasTank
 
-          return token.networkId === dashboardNetworkFilter && !token.flags.onGasTank
+          return (
+            token?.chainId?.toString() === dashboardNetworkFilter.toString() &&
+            !token.flags.onGasTank
+          )
         })
         .filter((token) => tokenSearch({ search: searchValue, token, networks })),
     [portfolio?.tokens, dashboardNetworkFilter, searchValue, networks]
@@ -114,12 +119,12 @@ const Tokens = ({
 
           const hasTokenAmount = hasAmount(token)
           const isCustom = customTokens.find(
-            ({ address, networkId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+            ({ address, chainId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
           )
           const isPinned = PINNED_TOKENS.find(
-            ({ address, networkId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+            ({ address, chainId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
           )
 
           return (
@@ -298,9 +303,7 @@ const Tokens = ({
       return (
         <TokenItem
           token={item}
-          testID={`token-${item.address}-${item.networkId}${
-            item.flags.onGasTank ? '-gastank' : ''
-          }`}
+          testID={`token-${item.address}-${item.chainId}${item.flags.onGasTank ? '-gastank' : ''}`}
         />
       )
     },
@@ -325,13 +328,16 @@ const Tokens = ({
     ]
   )
 
-  const keyExtractor = useCallback((tokenOrElement: any) => {
-    if (typeof tokenOrElement === 'string') {
-      return tokenOrElement
-    }
+  const keyExtractor = useCallback(
+    (tokenOrElement: any) => {
+      if (typeof tokenOrElement === 'string') {
+        return tokenOrElement
+      }
 
-    return getTokenId(tokenOrElement)
-  }, [])
+      return getTokenId(tokenOrElement, networks)
+    },
+    [networks]
+  )
 
   useEffect(() => {
     setValue('search', '')
@@ -345,11 +351,11 @@ const Tokens = ({
         ListHeaderComponent={<DashboardBanners />}
         data={[
           'header',
-          !portfolio?.isReadyToVisualize && !sortedTokens.length
+          !sortedTokens.length && !portfolio?.isAllReady
             ? 'skeleton'
             : 'keep-this-to-avoid-key-warning',
           ...(initTab?.tokens ? sortedTokens : []),
-          portfolio.isReadyToVisualize && !portfolio.isAllReady
+          sortedTokens.length && !portfolio?.isAllReady
             ? 'skeleton'
             : 'keep-this-to-avoid-key-warning-2',
           !sortedTokens.length && portfolio?.isAllReady ? 'empty' : '',

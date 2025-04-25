@@ -9,7 +9,7 @@ import styles from './styles'
 interface Props {
   symbol: string
   address: string
-  networkIdOrChainId?: string | number
+  chainId?: bigint
   uri?: string
   isLast?: boolean
   amount?: string
@@ -18,7 +18,7 @@ interface Props {
 const RouteStepsToken: React.FC<Props> = ({
   symbol,
   address,
-  networkIdOrChainId,
+  chainId,
   uri,
   isLast = false,
   amount = ''
@@ -30,7 +30,7 @@ const RouteStepsToken: React.FC<Props> = ({
         width={30}
         height={30}
         address={address}
-        networkId={networkIdOrChainId}
+        chainId={chainId}
         withNetworkIcon
       />
     </View>
@@ -44,4 +44,4 @@ const RouteStepsToken: React.FC<Props> = ({
   </View>
 )
 
-export default RouteStepsToken
+export default React.memo(RouteStepsToken)

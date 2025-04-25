@@ -1,13 +1,13 @@
 import { ZeroAddress } from 'ethers'
 import * as Clipboard from 'expo-clipboard'
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
+import { v4 as uuidv4 } from 'uuid'
 
 import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
-import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { NetworkId } from '@ambire-common/interfaces/network'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 // import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -27,18 +27,21 @@ import Option from './BaseAddressOption'
 
 interface Props extends TextProps {
   address: string
-  explorerNetworkId?: NetworkId
+  explorerChainId?: bigint
 }
 
 const { isActionWindow } = getUiType()
 
-const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest }) => {
+const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
+  const { benzinNetworks } = useBenzinNetworksContext()
   // Standalone Benzin doesn't have access to controllers
-  const { networks = constantNetworks } = useNetworksControllerState()
-  const network = networks?.find((n) => n.id === explorerNetworkId)
+  const { networks } = useNetworksControllerState()
+
+  const actualNetworks = networks ?? benzinNetworks
+  const network = actualNetworks?.find((n) => n.chainId === explorerChainId)
 
   const handleCopyAddress = useCallback(async () => {
     try {
@@ -76,6 +79,11 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
     }
   }, [addToast, address, network, t])
 
+  // The uuid must be unique for each tooltip, otherwise multiple tooltips
+  // will be show at the same time. We cannot use a shared tooltip as the content
+  // is JSX and not a string.
+  const tooltipId = useMemo(() => `address-${address}-${uuidv4()}`, [address])
+
   return (
     <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.wrap]}>
       <Text fontSize={14} weight="medium" appearance="primaryText" selectable {...rest}>
@@ -84,7 +92,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
       <Pressable style={spacings.mlMi}>
         {({ hovered }: any) => (
           <InfoIcon
-            data-tooltip-id={`address-${address}`}
+            data-tooltip-id={tooltipId}
             color={hovered ? theme.primaryText : theme.secondaryText}
             width={14}
             height={14}
@@ -92,7 +100,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
         )}
       </Pressable>
       <Tooltip
-        id={`address-${address}`}
+        id={tooltipId}
         style={{
           padding: 0,
           overflow: 'hidden'

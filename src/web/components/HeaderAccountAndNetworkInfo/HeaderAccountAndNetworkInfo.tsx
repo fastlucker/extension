@@ -25,17 +25,22 @@ import getStyles from './styles'
 interface Props {
   withAmbireLogo?: boolean
   withOG?: boolean
+  backgroundColor?: string
 }
 
 // @TODO: Not renamed because this component will no longer exist in the near future
 // @TODO: refactor the header component @petromir.
-const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG = false }) => {
+const HeaderAccountAndNetworkInfo: FC<Props> = ({
+  withAmbireLogo = true,
+  withOG = false,
+  backgroundColor
+}) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
   const { account } = useSelectedAccountControllerState()
 
-  const { isLoading, ens, ud } = useReverseLookup({ address: account?.addr || '' })
+  const { isLoading, ens } = useReverseLookup({ address: account?.addr || '' })
 
   const isActionWindow = getUiType().isActionWindow
 
@@ -46,27 +51,28 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG 
       mode="custom"
       withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}
       style={styles.container}
+      backgroundColor={backgroundColor}
     >
       <View
         style={[headerStyles.widthContainer, !isActionWindow && { maxWidth: tabLayoutWidths.xl }]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} />
-          <View>
-            <View style={[flexbox.directionRow]}>
-              <Text fontSize={16} weight="medium">
+          <View style={flexbox.flex1}>
+            <View style={[flexbox.flex1, flexbox.directionRow]}>
+              <Text fontSize={16} weight="medium" numberOfLines={1}>
                 {account.preferences.label}
               </Text>
 
               <AccountBadges accountData={account} />
             </View>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <DomainBadge ens={ens} ud={ud} />
-              <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={account.addr} />
+              <DomainBadge ens={ens} />
+              <AccountAddress isLoading={isLoading} ens={ens} address={account.addr} />
             </View>
           </View>
         </View>
-        {!!withAmbireLogo && maxWidthSize(700) && (
+        {!!withAmbireLogo && (maxWidthSize(700) || isActionWindow) && (
           <View style={spacings.pl}>
             {withOG ? <AmbireLogoHorizontalWithOG /> : <AmbireLogoHorizontal />}
           </View>

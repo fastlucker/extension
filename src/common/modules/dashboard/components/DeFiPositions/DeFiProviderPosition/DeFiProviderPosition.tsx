@@ -13,7 +13,7 @@ const DeFiProviderPosition: FC<PositionsByProvider> = ({
   providerName,
   positionInUSD,
   type,
-  networkId,
+  chainId,
   positions
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -37,7 +37,7 @@ const DeFiProviderPosition: FC<PositionsByProvider> = ({
     >
       <DeFiPositionHeader
         providerName={providerName}
-        networkId={networkId}
+        chainId={chainId}
         toggleExpanded={toggleExpanded}
         isExpanded={isExpanded}
         positionInUSD={positionInUSDFormatted}
@@ -52,7 +52,7 @@ const DeFiProviderPosition: FC<PositionsByProvider> = ({
             type={type}
             assets={assets}
             providerName={providerName}
-            networkId={networkId}
+            chainId={chainId}
             additionalData={additionalData}
             positionInUSD={formatDecimals(additionalData.positionInUSD || 0, 'value')}
           />

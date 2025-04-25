@@ -5,7 +5,6 @@ import { Image, Linking, View } from 'react-native'
 import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import HumanizerAddress from '@common/components/HumanizerAddress'
-import NetworkBadge from '@common/components/NetworkBadge'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -40,11 +39,11 @@ const Info: FC<Props> = () => {
   const { dapp, messageToSign } = useSignMessageControllerState()
 
   return (
-    <View style={[styles.container, maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd]}>
+    <View>
       {(!messageToSign ||
         (messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID &&
           messageToSign.content.kind !== 'authorization-7702')) && (
-        <View style={spacings.mbMd}>
+        <View style={[flexbox.directionRow, spacings.mb]}>
           {dapp?.icon ? (
             <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
           ) : (
@@ -52,7 +51,7 @@ const Info: FC<Props> = () => {
               <DAppsIcon style={{ width: '100%', height: '100%' }} />
             </View>
           )}
-          <View style={[flexbox.flex1, spacings.ptSm]}>
+          <View style={[flexbox.flex1, spacings.mlSm]}>
             <Text
               fontSize={maxWidthSize('xl') ? 20 : 16}
               appearance="secondaryText"
@@ -72,12 +71,12 @@ const Info: FC<Props> = () => {
         typeof messageToSign?.content?.domain?.verifyingContract === 'string' && (
           <View style={styles.verifyingContract}>
             <HumanizerAddress
-              fontSize={maxWidthSize('xl') ? 14 : 12}
+              fontSize={14}
               style={{ maxWidth: '100%' }}
               address={messageToSign.content.domain.verifyingContract}
-              explorerNetworkId={messageToSign.networkId}
+              explorerChainId={messageToSign.chainId}
             />
-            <Text fontSize={12} appearance="secondaryText">
+            <Text fontSize={14} appearance="secondaryText" style={spacings.mlTy}>
               {t('Will verify this signature')}
             </Text>
           </View>
@@ -86,14 +85,13 @@ const Info: FC<Props> = () => {
       {(!messageToSign || messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
         <>
           <Text
-            style={spacings.mbMd}
+            style={spacings.mb}
             fontSize={maxWidthSize('xl') ? 24 : 20}
             appearance="secondaryText"
             weight="medium"
           >
             {t('Entry point authorization')}
           </Text>
-          <NetworkBadge withOnPrefix style={spacings.mbMd} networkId={messageToSign?.networkId} />
           <Trans t={t}>
             <Text
               appearance="secondaryText"

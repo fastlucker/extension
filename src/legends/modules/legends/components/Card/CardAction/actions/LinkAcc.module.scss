@@ -1,5 +1,9 @@
 @import '@legends/styles/base.scss';
 
+.alert {
+  margin-bottom: 1rem;
+}
+
 .scrollableHistory {
   flex-wrap: wrap;
   max-height: 10rem;

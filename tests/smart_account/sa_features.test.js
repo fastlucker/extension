@@ -34,14 +34,14 @@ describe('sa_features', () => {
     // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
+      '[data-testid="token-0x0000000000000000000000000000000000000000-10"]',
       0.00000001
     )
 
     // Click on ETH (not Gas Tank token)
     await clickOnElement(
       page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]'
+      '[data-testid="token-0x0000000000000000000000000000000000000000-10"]'
     )
 
     const buttonSelector = '[data-testid="top-up-button"]'
@@ -74,11 +74,11 @@ describe('sa_features', () => {
     // Type the address of the recipient
     await typeText(page, SELECTORS.addressEnsField, SMART_ACC_VIEW_ONLY_ADDRESS)
     await page.waitForXPath(
-      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+      '//div[contains(text(), "This address isn\'t in your Address Book. Double-check the details before confirming.")]'
     )
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
-    // Check the checkbox "Confirm sending to a previously unknown address"
+    // Check the checkbox "Confirm sending to this address."
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
@@ -110,7 +110,7 @@ describe('sa_features', () => {
     // Check if ETH in optimism are under 0.0000001
     await checkBalanceOfToken(
       page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-optimism"]',
+      '[data-testid="token-0x0000000000000000000000000000000000000000-10"]',
       0.0000001
     )
     // Check if ETH on Base are under 0.02
@@ -118,7 +118,7 @@ describe('sa_features', () => {
     // Check if USDC on Gas Tank are under 0.01
     await checkBalanceOfToken(
       page,
-      '[data-testid="token-0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48-ethereum-gastank"]',
+      '[data-testid="token-0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48-1-gastank"]',
       0.01
     )
   })

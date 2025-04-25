@@ -23,8 +23,8 @@ const BalanceAffectingErrorActions: FC<Props> = ({ actionName, meta, closeBottom
 
   if (actionName === 'select-rpc-url') {
     const network = useMemo(() => {
-      return networks.find((n) => n.id === meta?.network?.id)
-    }, [meta?.network?.id, networks])
+      return networks.find((n) => n.chainId === meta?.network?.chainId)
+    }, [meta?.network?.chainId, networks])
 
     useEffect(() => {
       if (statuses.updateNetwork === 'SUCCESS') {
@@ -47,7 +47,7 @@ const BalanceAffectingErrorActions: FC<Props> = ({ actionName, meta, closeBottom
           setTimeout(() => {
             dispatch({
               type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
-              params: { network: { selectedRpcUrl: value }, networkId: network.id }
+              params: { network: { selectedRpcUrl: value }, chainId: network.chainId }
             })
           }, 1)
           closeBottomSheet()

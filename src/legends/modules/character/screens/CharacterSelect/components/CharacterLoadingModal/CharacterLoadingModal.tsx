@@ -31,14 +31,13 @@ const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
     <Modal isOpen={isOpen} isClosable={false} className={styles.modal}>
       {showOnMintModal ? (
         <div>
-          <p className={styles.title}>⚔️ Welcome to the Adventure! ⚔️</p>
+          <p className={styles.title}>Welcome to Ambire Rewards</p>
           <p className={styles.description}>
             Remember, every transaction made with this Smart Account on Ethereum, Base, Optimism,
-            Arbitrum, and Scroll earns you XP, regardless of the app you’re using. <br />
-            Embark on your journey to becoming a Legend! 🌟
+            Arbitrum, and Scroll earns you XP, regardless of the app you’re using.
           </p>
           <div className={styles.stackedWrapper}>
-            <Stacked chains={['ethereum', 'base', 'arbitrum', 'scroll', 'optimism']} />
+            <Stacked chains={['1', '8453', '42161', '534352', '10']} />
           </div>
           <button onClick={onButtonClick} type="button" className={styles.button}>
             Continue

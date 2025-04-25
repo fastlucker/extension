@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Spinner from '@common/components/Spinner'
@@ -22,7 +22,7 @@ const RouteStepsPlaceholder = ({
   withBadge
 }: {
   fromSelectedToken: TokenResult
-  toSelectedToken: SocketAPIToken
+  toSelectedToken: SwapAndBridgeToToken
   withBadge?: 'loading' | 'no-route-found'
 }) => {
   const { theme } = useTheme()
@@ -33,7 +33,7 @@ const RouteStepsPlaceholder = ({
       return (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Spinner style={{ width: 16, height: 16, ...spacings.mrTy }} />
-          <Text weight="medium" fontSize={12}>
+          <Text weight="medium" fontSize={12} testID="route-loading-text-sab">
             {t('Fetching best route...')}
           </Text>
         </View>
@@ -69,7 +69,7 @@ const RouteStepsPlaceholder = ({
       <View style={[styles.container, spacings.mb]}>
         <RouteStepsToken
           address={fromSelectedToken.address}
-          networkIdOrChainId={fromSelectedToken.networkId}
+          chainId={fromSelectedToken.chainId}
           symbol={fromSelectedToken.symbol}
         />
         <RouteStepsArrow
@@ -81,18 +81,12 @@ const RouteStepsPlaceholder = ({
         <RouteStepsToken
           address={toSelectedToken.address}
           uri={toSelectedToken.icon}
-          networkIdOrChainId={toSelectedToken.chainId}
+          chainId={BigInt(toSelectedToken.chainId)}
           symbol={toSelectedToken.symbol}
           isLast
         />
       </View>
       <Text fontSize={12} weight="medium">
-        <Text fontSize={12} weight="medium">
-          {t('Total gas fees: {{fees}}', { fees: '-/-' })}
-        </Text>
-        <Text fontSize={12} weight="medium" appearance="secondaryText">
-          {'  |  '}
-        </Text>
         <Text fontSize={12} weight="medium">
           {t('Estimation: {{time}}', { time: '-/-' })}
         </Text>

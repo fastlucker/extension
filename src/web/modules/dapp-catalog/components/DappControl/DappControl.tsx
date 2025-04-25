@@ -46,7 +46,7 @@ const DappControl = ({
   const network = useMemo(
     () =>
       networks.filter((n) => Number(n.chainId) === dapp?.chainId)[0] ||
-      networks.filter((n) => n.id === 'ethereum')[0],
+      networks.filter((n) => n.chainId === 1n)[0],
     [dapp?.chainId, networks]
   )
 

@@ -24,6 +24,7 @@ interface Props {
   submittedAccountOp: SubmittedAccountOp
   style?: ViewStyle
   size?: 'sm' | 'md' | 'lg'
+  // The primary difference is the ability to expand and view raw transaction details in 'full-info'. All other features are identical.
   defaultType: 'summary' | 'full-info'
 }
 
@@ -37,8 +38,8 @@ const SubmittedTransactionSummaryInner = ({
   const { networks } = useNetworksControllerState()
 
   const network: Network | undefined = useMemo(
-    () => networks.find((n) => n.id === submittedAccountOp.networkId),
-    [networks, submittedAccountOp.networkId]
+    () => networks.find((n) => n.chainId === submittedAccountOp.chainId),
+    [networks, submittedAccountOp.chainId]
   )
 
   const calls = useMemo(
@@ -81,7 +82,7 @@ const SubmittedTransactionSummaryInner = ({
           key={call.id}
           style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
           call={call}
-          networkId={submittedAccountOp.networkId}
+          chainId={submittedAccountOp.chainId}
           isHistory
           enableExpand={defaultType === 'full-info'}
           size={size}
@@ -89,7 +90,6 @@ const SubmittedTransactionSummaryInner = ({
       ))}
       <Footer
         size={size}
-        defaultType={defaultType}
         network={network}
         rawCalls={submittedAccountOp.calls}
         txnId={submittedAccountOp.txnId}

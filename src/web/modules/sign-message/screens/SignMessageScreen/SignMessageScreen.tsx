@@ -14,6 +14,7 @@ import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
+import SmallNotificationWindowWrapper from '@web/components/SmallNotificationWindowWrapper'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -83,7 +84,7 @@ const SignMessageScreen = () => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
           ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
-          : n.id === signMessageState.messageToSign?.networkId
+          : n.chainId === signMessageState.messageToSign?.chainId
       }),
     [networks, signMessageState.messageToSign]
   )
@@ -121,7 +122,7 @@ const SignMessageScreen = () => {
         },
         messageToSign: {
           accountAddr: userRequest.meta.accountAddr,
-          networkId: userRequest.meta.networkId,
+          chainId: userRequest.meta.chainId,
           content: userRequest.action as PlainTextMessage | TypedMessage,
           fromActionId: signMessageAction.id,
           signature: null
@@ -234,55 +235,57 @@ const SignMessageScreen = () => {
   }
 
   return (
-    <TabLayoutContainer
-      width="full"
-      header={<HeaderAccountAndNetworkInfo />}
-      footer={
-        <ActionFooter
-          onReject={handleReject}
-          onResolve={handleSign}
-          resolveButtonText={resolveButtonText}
-          resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
-          resolveButtonTestID="button-sign"
-          rejectButtonText={rejectButtonText}
-        />
-      }
-    >
-      <SigningKeySelect
-        isVisible={isChooseSignerShown}
-        isSigning={signStatus === 'LOADING'}
-        selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-        handleChooseSigningKey={handleSign}
-        handleClose={() => setIsChooseSignerShown(false)}
-        account={account}
-      />
-      {isViewOnly && (
-        <View style={styles.noKeysToSignAlert}>
-          <NoKeysToSignAlert
-            style={{
-              width: 640
-            }}
-            isTransaction={false}
+    <SmallNotificationWindowWrapper>
+      <TabLayoutContainer
+        width="full"
+        header={<HeaderAccountAndNetworkInfo />}
+        footer={
+          <ActionFooter
+            onReject={handleReject}
+            onResolve={handleSign}
+            resolveButtonText={resolveButtonText}
+            resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
+            resolveButtonTestID="button-sign"
+            rejectButtonText={rejectButtonText}
           />
-        </View>
-      )}
-      {isAuthorization && !makeItSmartConfirmed ? (
-        <Authorization7702
-          onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
-          doNotAskMeAgain={doNotAskMeAgain}
-          displayFullInformation
+        }
+      >
+        <SigningKeySelect
+          isVisible={isChooseSignerShown}
+          isSigning={signStatus === 'LOADING'}
+          selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+          handleChooseSigningKey={handleSign}
+          handleClose={() => setIsChooseSignerShown(false)}
+          account={account}
         />
-      ) : (
-        <Main
-          shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
-          isLedgerConnected={isLedgerConnected}
-          handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
-          hasReachedBottom={hasReachedBottom}
-          setHasReachedBottom={setHasReachedBottom}
-          shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
-        />
-      )}
-    </TabLayoutContainer>
+        {isViewOnly && (
+          <View style={styles.noKeysToSignAlert}>
+            <NoKeysToSignAlert
+              style={{
+                width: 640
+              }}
+              isTransaction={false}
+            />
+          </View>
+        )}
+        {isAuthorization && !makeItSmartConfirmed ? (
+          <Authorization7702
+            onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
+            doNotAskMeAgain={doNotAskMeAgain}
+            displayFullInformation
+          />
+        ) : (
+          <Main
+            shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+            isLedgerConnected={isLedgerConnected}
+            handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+            hasReachedBottom={hasReachedBottom}
+            setHasReachedBottom={setHasReachedBottom}
+            shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
+          />
+        )}
+      </TabLayoutContainer>
+    </SmallNotificationWindowWrapper>
   )
 }
 

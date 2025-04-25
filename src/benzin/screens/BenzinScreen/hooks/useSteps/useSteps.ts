@@ -13,12 +13,13 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { BUNDLER } from '@ambire-common/consts/bundlers'
-import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
+import { AMBIRE_PAYMASTER, ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import {
   AccountOpIdentifiedBy,
+  fetchFrontRanTxnId,
   fetchTxnId,
   isIdentifiedByTxn,
   SubmittedAccountOp
@@ -48,6 +49,8 @@ export type FeePaidWith = {
   symbol: string
   usdValue: string
   isErc20: boolean
+  isSponsored: boolean
+  chainId: bigint
 }
 
 interface Props {
@@ -63,6 +66,7 @@ interface Props {
   provider: JsonRpcProvider | null
   bundler?: BUNDLER
   extensionAccOp?: SubmittedAccountOp // only for in-app benzina
+  networks: Network[]
 }
 
 export interface StepsData {
@@ -131,7 +135,8 @@ const useSteps = ({
   setActiveStep,
   provider,
   bundler,
-  extensionAccOp
+  extensionAccOp,
+  networks
 }: Props): StepsData => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
@@ -154,6 +159,7 @@ const useSteps = ({
   const [calls, setCalls] = useState<IrCall[]>([])
   const [feeCall, setFeeCall] = useState<Call | null>(null)
   const [from, setFrom] = useState<null | string>(null)
+  const [isFrontRan, setIsFrontRan] = useState<boolean>(false)
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
@@ -289,6 +295,13 @@ const useSteps = ({
         // as it will set incorrect data for sender (from)
         if (!txn) return
 
+        // if there's a receipt, the status is failure and it's an userOp,
+        // the txn might have been front ran. Try to find it
+        if (!receipt.status && userOpHash && !hasCheckedFrontRun) {
+          setIsFrontRan(true)
+          return
+        }
+
         setTxnReceipt({
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
@@ -334,13 +347,30 @@ const useSteps = ({
     txn,
     receiptAlreadyFetched,
     userOpHash,
-    refetchReceiptCounter
+    refetchReceiptCounter,
+    hasCheckedFrontRun
   ])
+
+  // fix: front running
+  useEffect(() => {
+    if (!isFrontRan || !foundTxnId || !network) return
+
+    fetchFrontRanTxnId(identifiedBy, foundTxnId, network)
+      .then((frontRanTxnId) => {
+        setFoundTxnId(frontRanTxnId)
+        setActiveStep('in-progress')
+        setUrlToTxnId(frontRanTxnId, userOpHash, relayerId, network.chainId, bundler)
+        setIsFrontRan(false)
+        setHasCheckedFrontRun(true)
+      })
+      .catch(() => null)
+  }, [isFrontRan, identifiedBy, foundTxnId, network, bundler, relayerId, userOpHash, setActiveStep])
 
   // check for error reason
   useEffect(() => {
     if (
       !txn ||
+      !txnReceipt ||
       (finalizedStatus && finalizedStatus.status !== 'failed') ||
       (finalizedStatus && finalizedStatus.reason) ||
       !provider
@@ -362,17 +392,6 @@ const useSteps = ({
       })
       .then(() => null)
       .catch((error: Error) => {
-        // when we get a failed status, it could be a front run.
-        // so we try to refetch the tx id one more time before
-        // declaring it a failure
-        if (userOpHash && !hasCheckedFrontRun) {
-          setFoundTxnId(null)
-          setTxn(null)
-          setTxnReceipt({ actualGasCost: null, originatedFrom: null, blockNumber: null })
-          setHasCheckedFrontRun(true)
-          return
-        }
-
         if (error.message.includes('missing revert data')) {
           setFinalizedStatus({
             status: 'failed',
@@ -389,7 +408,7 @@ const useSteps = ({
               : error.message
         })
       })
-  }, [provider, txn, finalizedStatus, hasCheckedFrontRun, userOpHash])
+  }, [provider, txn, finalizedStatus, userOpHash, txnReceipt])
 
   // calculate pending time
   useEffect(() => {
@@ -568,16 +587,25 @@ const useSteps = ({
     let isMounted = true
     let address: string | undefined
     let amount = 0n
+    let isGasTank = false
+    let tokenChainId = 1n
 
     // Smart account
     // Decode the fee call and get the token address and amount
     // that was used to cover the gas feePaidWith
     if (feeCall) {
       try {
-        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.id)
+        const {
+          address: addr,
+          amount: tokenAmount,
+          isGasTank: isTokenGasTank,
+          chainId
+        } = decodeFeeCall(feeCall, network)
 
         address = addr
         amount = tokenAmount
+        isGasTank = isTokenGasTank
+        tokenChainId = chainId
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error decoding fee call', e)
@@ -591,40 +619,50 @@ const useSteps = ({
       address = ZeroAddress
     }
 
-    if (!address || !amount) return
+    const isSponsored =
+      (amount === 0n && isGasTank) || (!!userOp && userOp.paymaster !== AMBIRE_PAYMASTER)
+    if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    resolveAssetInfo(address, network, ({ tokenInfo }) => {
-      if (!tokenInfo || !amount) return
-      const { decimals, priceIn } = tokenInfo
-      const price = priceIn.length ? priceIn[0].price : null
+    resolveAssetInfo(
+      address,
+      networks.find((net: Network) => net.chainId === tokenChainId)!,
+      ({ tokenInfo }) => {
+        if (!tokenInfo || (!amount && !isSponsored)) return
+        const { decimals, priceIn } = tokenInfo
+        const price = priceIn.length ? priceIn[0].price : null
 
-      const fee = parseFloat(formatUnits(amount, decimals))
+        const fee = parseFloat(formatUnits(amount, decimals))
 
-      if (!isMounted) return
+        if (!isMounted) return
 
-      setFeePaidWith({
-        amount: formatDecimals(fee),
-        symbol: tokenInfo.symbol,
-        usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
-        isErc20: address !== ZeroAddress,
-        address: address as string
-      })
-    }).catch(() => {
+        setFeePaidWith({
+          amount: formatDecimals(fee),
+          symbol: tokenInfo.symbol,
+          usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
+          isErc20: address !== ZeroAddress,
+          address: address as string,
+          isSponsored,
+          chainId: tokenChainId
+        })
+      }
+    ).catch(() => {
       if (!isMounted) return
       setFeePaidWith({
         amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
         symbol: address === ZeroAddress ? 'ETH' : '',
         usdValue: '-$',
         isErc20: false,
-        address: address as string
+        address: address as string,
+        isSponsored,
+        chainId: network.chainId
       })
     })
 
     return () => {
       isMounted = false
     }
-  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network])
+  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network, userOp, networks])
 
   useEffect(() => {
     if (!network) return
@@ -658,7 +696,7 @@ const useSteps = ({
       } = userOp ? decodeUserOp(userOp) : reproduceCallsFromTxn(txn)
       const accountOp: AccountOp = {
         accountAddr: userOp?.sender || account || txnReceipt.originatedFrom || 'Loading...',
-        networkId: network.id,
+        chainId: network.chainId,
         signingKeyAddr: txnReceipt.originatedFrom, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant

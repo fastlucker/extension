@@ -9,6 +9,7 @@ import useBenzin from '@benzin/screens/BenzinScreen/hooks/useBenzin'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper'
@@ -20,6 +21,7 @@ const BenzinScreen = () => {
   const { dispatch } = useBackgroundService()
   const actionsState = useActionsControllerState()
   const { theme } = useTheme()
+  const { maxWidthSize } = useWindowSize()
   const resolveAction = useCallback(() => {
     if (!actionsState.currentAction) return
     dispatch({
@@ -54,7 +56,7 @@ const BenzinScreen = () => {
           <Button
             type="secondary"
             onPress={resolveAction}
-            style={{ minWidth: 180 }}
+            style={{ minWidth: maxWidthSize('m') ? 180 : 140 }}
             hasBottomSpacing={false}
             text={pendingRequests.length ? t('Proceed to Next Request') : t('Close')}
           >

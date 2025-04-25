@@ -3,12 +3,12 @@ import { ITooltip, Tooltip as ReactTooltip } from 'react-tooltip'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { Portal } from '@gorhom/portal'
 
 type Props = ITooltip & { tooltipRef?: any; withPortal?: boolean }
 
-const TooltipInner = ({ tooltipRef, style, ...rest }: Props) => {
+const TooltipInner = ({ tooltipRef, style, border, ...rest }: Props) => {
   const { theme } = useTheme()
 
   return (
@@ -29,7 +29,7 @@ const TooltipInner = ({ tooltipRef, style, ...rest }: Props) => {
         ...style
       }}
       opacity={1}
-      border={`1px solid ${theme.secondaryBorder as any}`}
+      border={border || `1px solid ${theme.secondaryBorder as any}`}
       {...rest}
     />
   )

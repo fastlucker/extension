@@ -31,7 +31,10 @@ const ChainVisualization: FC<Props> = ({ chainId, marginRight }) => {
     <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {destinationNetwork && !isNetworkLoading && (
         <>
-          <NetworkIcon id={destinationNetwork.id} benzinNetwork={destinationNetwork} />
+          <NetworkIcon
+            id={destinationNetwork.chainId.toString()}
+            benzinNetwork={destinationNetwork}
+          />
           <Text onPress={handleLink} weight="semiBold" style={spacings.mlMi}>
             {destinationNetwork.name}
           </Text>

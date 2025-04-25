@@ -11,7 +11,7 @@ import {
   getIsTokenEligibleForSwapAndBridge
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
-import CartIcon from '@common/assets/svg/CartIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -117,20 +117,21 @@ const useGetTokenSelectProps = ({
     const network = networks.find((n) =>
       getIsToTokenTypeGuard(currentToken)
         ? Number(n.chainId) === currentToken.chainId
-        : n.id === currentToken.networkId
+        : n.chainId === currentToken.chainId
     )
-    const tooltipIdNotSupported = `token-${currentToken.address}-on-network-${network?.chainId}-not-supported-tooltip`
-    const tooltipIdPendingBalance = `token-${currentToken.address}-on-network-${network?.chainId}-pending-balance`
+    const tooltipIdNotSupported = `token-${currentToken.address}-on-network-${currentToken.chainId}-not-supported-tooltip`
+    const tooltipIdPendingBalance = `token-${currentToken.address}-on-network-${currentToken.chainId}-pending-balance`
     const isTokenNetworkSupported = supportedChainIds
       ? getIsNetworkSupported(supportedChainIds, network)
       : true
-    const networkId = network?.id || ''
-    const simulatedAccountOp = portfolio.networkSimulatedAccountOp[networkId]
+
+    const simulatedAccountOp =
+      portfolio.networkSimulatedAccountOp[currentToken.chainId.toString() || '']
     const tokenInPortfolio = getIsToTokenTypeGuard(currentToken)
       ? portfolio.tokens.find(
           (pt) =>
             pt.address === currentToken.address &&
-            pt.networkId === networkId &&
+            pt.chainId === BigInt(currentToken.chainId) &&
             getIsTokenEligibleForSwapAndBridge(pt)
         )
       : currentToken
@@ -201,7 +202,7 @@ const useGetTokenSelectProps = ({
                   label={t('{{symbol}} Pending transaction signature', { symbol })}
                   backgroundColor={colors.lightBrown}
                   textColor={theme.warningText}
-                  Icon={CartIcon}
+                  Icon={BatchIcon}
                 />
               )}
               {!!pendingToBeConfirmed && !!pendingToBeConfirmedFormatted && (
@@ -276,20 +277,16 @@ const useGetTokenSelectProps = ({
       </>
     )
 
-    const networkIdOrChainId = getIsToTokenTypeGuard(currentToken)
-      ? currentToken.chainId
-      : currentToken.networkId
-
     return {
-      value: getTokenId(currentToken),
+      value: getTokenId(currentToken, networks),
       address: currentToken.address,
-      networkId,
+      chainId: currentToken.chainId,
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
       label,
       icon: (
         <TokenIcon
-          key={`${networkIdOrChainId}-${currentToken.address}`}
+          key={`${currentToken.chainId}-${currentToken.address}`}
           containerHeight={30}
           containerWidth={30}
           networkSize={12}
@@ -297,14 +294,14 @@ const useGetTokenSelectProps = ({
           withNetworkIcon={!_isToToken}
           uri={getIsToTokenTypeGuard(currentToken) ? currentToken.icon : undefined}
           address={currentToken.address}
-          networkId={networkIdOrChainId}
+          chainId={BigInt(currentToken.chainId)}
         />
       )
     }
   }
 
   const options = tokens.map((tk) => renderItem(tk, false))
-  const selectedToken = tokens.find((tk) => getTokenId(tk) === token)
+  const selectedToken = tokens.find((tk) => getTokenId(tk, networks) === token)
 
   return {
     options,

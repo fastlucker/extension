@@ -1,9 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -20,9 +18,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import GasTankButton from '../DashboardHeader/GasTankButton'
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
@@ -62,8 +60,7 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
-
-  const isSA = useMemo(() => isSmartAccount(account), [account])
+  const { hasGasTank } = useHasGasTank({ account })
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -83,7 +80,7 @@ const DashboardOverview: FC<Props> = ({
 
     if (!account) return 0
 
-    return Number(portfolio?.latest?.[dashboardNetworkFilter]?.result?.total?.usd) || 0
+    return Number(portfolio?.latest?.[dashboardNetworkFilter.toString()]?.result?.total?.usd) || 0
   }, [portfolio, dashboardNetworkFilter, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
@@ -95,7 +92,7 @@ const DashboardOverview: FC<Props> = ({
     dispatch({
       type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT',
       params: {
-        networkId: dashboardNetworkFilter ?? undefined
+        chainId: dashboardNetworkFilter ?? undefined
       }
     })
   }, [dashboardNetworkFilter, dispatch])
@@ -233,7 +230,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady && isSA ? (
+                  {!portfolio?.isAllReady && hasGasTank ? (
                     <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
@@ -241,6 +238,7 @@ const DashboardOverview: FC<Props> = ({
                       onPosition={onGasTankButtonPositionWrapped}
                       portfolio={portfolio}
                       account={account}
+                      hasGasTank={hasGasTank}
                     />
                   )}
                   <BalanceAffectingErrors
