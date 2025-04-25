@@ -18,6 +18,11 @@
 
     width: calc(100% - 6rem);
   }
+
+  @include breakpoint-down-from(large-tablet) {
+    margin-left: 1rem;
+    width: calc(100% - 2rem);
+  }
 }
 
 .accordionWrapper {

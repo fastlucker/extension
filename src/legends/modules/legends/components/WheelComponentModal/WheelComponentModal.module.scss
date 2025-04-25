@@ -127,6 +127,22 @@
       font-weight: 400;
     }
   }
+
+  @include breakpoint-down-from(large-tablet) {
+    transform: scale(1.2);
+
+    .content {
+      .title {
+        font-size: 1.5rem;
+      }
+
+      .pointer {
+        top: 5.5em;
+        left: 21em;
+        width: 1.5rem;
+      }
+    }
+  }
 }
 
 @keyframes tease {
