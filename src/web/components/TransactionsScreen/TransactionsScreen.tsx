@@ -47,6 +47,7 @@ const Wrapper: FC<WrapperProps> = ({ children, title, handleGoBack, buttons }) =
             </Text>
           }
           withAmbireLogo
+          withOG
           forceBack
           onGoBackPress={handleGoBack}
         />
