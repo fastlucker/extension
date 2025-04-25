@@ -9,9 +9,10 @@ interface Style {
   form: ViewStyle
   container: ViewStyle
   nonTabButtons: ViewStyle
+  headerSideContainer: ViewStyle
 }
 
-const { isActionWindow } = getUiType()
+const { isActionWindow, isTab } = getUiType()
 
 // Make the form slightly larger in action window
 // so it stretches as much as the header
@@ -43,7 +44,8 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1,
       ...spacings.pbLg,
       ...flexbox.justifyEnd
-    }
+    },
+    headerSideContainer: { width: isTab ? 300 : 200, minWidth: isTab ? 300 : 200 }
   })
 
 export default getStyles
