@@ -62,7 +62,7 @@ const WEB_ROUTES = {
   ledgerConnect: 'ledger-connect',
   benzin: 'benzin',
   swapAndBridge: 'swap-and-bridge',
-  savedSeed: 'saved-seed',
+  recoveryPhrasesSettings: 'settings/recovery-phrases',
   securityAndPrivacy: 'settings/security-and-privacy',
   onboardingCompleted: 'wallet-setup-completed'
 }

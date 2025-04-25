@@ -30,7 +30,7 @@ const SettingsRoutesProvider = () => {
   const { maxWidthSize } = useWindowSize()
   const isScreenXxl = maxWidthSize('xxl')
   const isScreenXl = maxWidthSize('xl')
-  const panelPaddings = getPanelPaddings(maxWidthSize, false)
+  const panelPaddings = getPanelPaddings(maxWidthSize, 'large')
   const { pathname } = useRoute()
   const [currentSettingsPage, setCurrentSettingsPage] = useState<string | undefined>()
 
