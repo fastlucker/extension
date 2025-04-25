@@ -86,7 +86,7 @@ const AccountsSettingsScreen = () => {
       <Button
         type="secondary"
         onPress={openBottomSheet as any}
-        text="Add account"
+        text="+ Add account"
         hasBottomSpacing={false}
       />
       <BottomSheet
