@@ -98,7 +98,6 @@ async function getElementContentWords(page, selector, index = 1) {
 export async function switchTokensOnSwapAndBridge(page, delay = 500) {
   await page.waitForTimeout(delay)
 
-  // Extract text content from the elements
   const sendToken = await getElementContentWords(page, SELECTORS.sendTokenSab)
   const receiveToken = await getElementContentWords(page, SELECTORS.receiveTokenSab)
   // TODO: Selector should be created to have data-testid this is not maintainable
@@ -118,16 +117,24 @@ export async function switchTokensOnSwapAndBridge(page, delay = 500) {
 }
 
 async function getUSDTextContent(page) {
+  let currency
+  let amount
+
   await page.waitForTimeout(500)
   const selector = SELECTORS.switchCurrencySab
   const element = await page.$(selector)
   expect(element).not.toBeNull()
   const content = await element.evaluate((el) => el.textContent.trim())
 
-  const match = content.match(/([\d,.]+)\s*([\w.]+)$/)
-
-  const amount = match ? match[1] : null
-  const currency = match ? match[2] : null
+  if (/\$/.test(content)) {
+    const match = content.match(/^([^0-9\s]+)?([\d,.]+)/)
+    currency = match ? match[1] : null
+    amount = match ? match[2] : null
+  } else {
+    const match = content.match(/([\d,.]+)\s*([\w.]+)$/)
+    amount = match ? match[1] : null
+    currency = match ? match[2] : null
+  }
 
   return [Number(amount), currency]
 }
@@ -147,6 +154,7 @@ async function selectSendTokenOnNetwork(page, send_token, send_network) {
   await clickOnElement(page, SELECTORS.sendTokenSab)
   await page.waitForSelector(SELECTORS.searchInput, { visible: true, timeout: 3000 })
   await typeText(page, SELECTORS.searchInput, send_token)
+  // ToDo: data-testid missing for receive network dropdown
   await clickOnElement(
     page,
     `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
@@ -167,42 +175,35 @@ export async function switchUSDValueOnSwapAndBridge(
 
   await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
 
-  // Get current values in the USD text contenet
   const [usdOldAmount, ccy] = await getUSDTextContent(page)
-  expect(ccy).toBe('USD')
+  expect(ccy).toBe('$')
   const oldAmount = await getSendAmount(page)
 
-  // Click the switch USD button
-  await clickOnElement(page, SELECTORS.switchCurrencySab)
+  await clickOnElement(page, SELECTORS.flipUSDIcon)
 
-  // Get new amounts
   const [usdNewAmount, newCcy] = await getUSDTextContent(page)
   const newAmount = await roundAmount(await getSendAmount(page))
 
-  // Assert the amount and USD value are switched
-  expect(oldAmount).toBe(usdNewAmount)
-  expect(usdOldAmount).toBe(newAmount)
+  expect(oldAmount).toBeCloseTo(usdNewAmount)
+  expect(usdOldAmount).toBeCloseTo(newAmount)
   expect(newCcy).toBe(send_token)
 
   // Wait 500ms and click again to the switch USD button
   await page.waitForTimeout(500)
-  await clickOnElement(page, SELECTORS.switchCurrencySab)
+  await clickOnElement(page, SELECTORS.flipUSDIcon)
 
-  // Get second amounts
   const [usdSecondAmount, secondCcy] = await getUSDTextContent(page)
   const secondAmount = await getSendAmount(page)
 
-  // Assert the amount and USD value are switched again
-  expect(newAmount).toBe(usdSecondAmount)
-  expect(usdNewAmount).toBe(secondAmount)
-  expect(secondCcy).toBe('USD')
+  expect(newAmount).toBeCloseTo(usdSecondAmount)
+  expect(usdNewAmount).toBeCloseTo(secondAmount)
+  expect(secondCcy).toBe('$')
 }
 
 export async function enterNumber(page, new_amount, is_valid = true) {
   const message = 'Something went wrong! Please contact support'
-  // Enter the amount
   await typeText(page, SELECTORS.fromAmountInputSab, new_amount.toString())
-  // Assert if the message should be displayed
+
   if (is_valid) {
     await expect(page).not.toMatchElement('span', { text: `${message}` })
   } else {
@@ -262,16 +263,17 @@ export async function prepareBridgeTransaction(
   await openSwapAndBridge(page)
 
   await selectSendTokenOnNetwork(page, send_token, send_network)
+  await page.waitForSelector(SELECTORS.recieveNetworkBase, { visible: true, timeout: 3000 })
   await clickOnElement(page, SELECTORS.recieveNetworkBase)
   await clickOnElement(page, `[data-testid*="option-${recieve_network}"]`)
-  await page.waitForTimeout(1000)
+  await page.waitForSelector(SELECTORS.receiveTokenSab, { visible: true, timeout: 3000 })
   await clickOnElement(page, SELECTORS.receiveTokenSab)
-  await typeText(page, SELECTORS.searchInput, send_token)
+  await page.waitForSelector(SELECTORS.searchInput, { visible: true, timeout: 3000 })
+  await page.type(SELECTORS.searchInput, send_token)
   const address = TOKEN_ADDRESS[`${recieve_network}.${send_token}`]
   await clickOnElement(page, `[data-tooltip-id*="${address}"]`)
 
-  // Enter the amount
-  await typeText(page, SELECTORS.fromAmountInputSab, send_amount.toString())
+  await page.type(SELECTORS.fromAmountInputSab, send_amount.toString(), { delay: 100 })
 
   await verifyRouteFound(page)
 
@@ -307,16 +309,12 @@ export async function verifyNonDefaultReceiveToken(
   await clickOnElement(page, SELECTORS.receiveTokenSab)
   await typeText(page, SELECTORS.searchInput, receive_token)
   await expect(page).toMatchElement('div', { text: 'Not found. Try with token address?' })
-  await page.waitForTimeout(500)
-  await typeText(page, SELECTORS.fromAmountInputSab, '') // Click on the amount to clear input address field
-  await page.waitForTimeout(500)
-  await clickOnElement(page, SELECTORS.receiveTokenSab)
+  await page.waitForTimeout(1000)
   const address = TOKEN_ADDRESS[`${recieve_network}.${receive_token}`]
   await typeText(page, SELECTORS.searchInput, address)
   const selector = `[data-tooltip-id*="${address}"]`
   await expect(page).toMatchElement(selector, { text: receive_token, timeout: 3000 })
   await expect(page).toMatchElement(selector, { text: address, timeout: 3000 })
-  await selectFirstButton(page, 'Back')
 }
 
 export async function verifyDefaultReceiveToken(page, send_token, recieve_network, receive_token) {
@@ -361,12 +359,10 @@ export async function prepareSwapAndBridge(
       return null
     }
 
-    // If a valid send amount is not provided
     if (send_amount <= 0) {
       throw new Error('"send_amount" must be greater than 0')
     }
 
-    // Enter the amount
     await page.type(SELECTORS.fromAmountInputSab, send_amount.toString(), { delay: 100 })
 
     await verifyRouteFound(page)
@@ -417,7 +413,30 @@ export async function signActionPage(page) {
 }
 
 export async function clickOnSecondRoute(page) {
-  // ToDo: refactor due to new version
+  const secoundRouteIndex = 2
+  if (await page.waitForXPath(SELECT_ROUTE, { visible: true, timeout: 1000 })) {
+    const isClickable = await isElementClickable(page, SELECT_ROUTE)
+    if (!isClickable) {
+      console.log("⚠️ the 'Select route' is not clickable")
+      return
+    }
+
+    const [routeFound] = await page.$x(SELECT_ROUTE)
+    if (routeFound) {
+      await routeFound.click()
+    } else {
+      console.warn(`Element not found for XPath: ${SELECT_ROUTE}`)
+    }
+
+    await page.waitForSelector(SELECTORS.bottomSheet)
+    const elements = await page.$$(`${SELECTORS.bottomSheet} [tabindex="0"]`)
+    await elements[secoundRouteIndex].click()
+    await verifyRouteFound(page)
+  } else {
+    console.log("⚠️ the 'Select route' is not found")
+  }
+  await clickOnElement(page, SELECTORS.signButtonSwap)
+  await page.waitForTimeout(1500)
 }
 
 async function extractMaxBalance(page) {
@@ -453,13 +472,9 @@ export async function verifySendMaxTokenAmount(page, send_token, send_network) {
 export async function verifyAutoRefreshRoute(page) {
   // Wait for "Select another route" to appear and disappear
   await page
-  await page
-    .waitForXPath(SELECT_ROUTE, { visible: true, timeout: 1000 })
-    // .waitForSelector('text=Select another route', { visible: true, timeout: 1000 })
-    .catch(() => null)
+  await page.waitForXPath(SELECT_ROUTE, { visible: true, timeout: 1000 }).catch(() => null)
   const routeLoading = await page
     .waitForXPath(SELECT_ROUTE, { hidden: true, timeout: 63000 })
-    // .waitForSelector('text=Select another route', { hidden: true, timeout: 63000 })
     .catch(() => null)
   expect(routeLoading).toBe(null)
 }

@@ -84,15 +84,14 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await enterNumber(page, 'abc', true)
   })
 
-  it.skip('should Bridge tokens with a Smart Account', async () => {
-    // ToDo: refactor due to new version
+  it('should Bridge tokens with a Smart Account', async () => {
     await prepareBridgeTransaction(page, '0.0063', 'USDC', '8453', '10')
     await selectButton(page)
     await signActionPage(page)
   })
 
   it.skip('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    // ToDo: This functionaliy is depricated, so this tess are obsolite
+    // ToDo: rewrite this particular test in playwright due to changes of new version
     await prepareSwapAndBridge(page, 0.01, 'USDC.E', '10', 'DAI')
     await selectButton(page)
     await signActionPage(page)
@@ -103,7 +102,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it.skip('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    // ToDo: This functionaliy is depricated, so this tess are obsolite
+    // ToDo: rewrite this particular test in playwright due to changes of new version
     await prepareSwapAndBridge(page, 0.008, 'USDC', '8453', 'WALLET')
     await selectButton(page)
     await signActionPage(page)
@@ -112,13 +111,14 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it.skip('should select a different route when Swap & Bridge with a Smart Account', async () => {
+  it('should select a different route when Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
-    // ToDo: refactor due to new version
+    // ToDo: rewrite this particular test in playwright due to changes of new version
     await clickOnSecondRoute(page)
   })
 
   it('should auto-refresh active route on 60s during Swap & Bridge with a Smart Account', async () => {
+    // ToDo: Read the duration and check refresh after duration
     await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
     await verifyAutoRefreshRoute(page)
   })
@@ -136,18 +136,16 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await verifySendMaxTokenAmount(page, 'USDC', '8453')
   })
 
-  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
-    // ToDo: refactor due to new version
+  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
     await switchUSDValueOnSwapAndBridge(page, 'USDC.E', '10', 0.34)
-    await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.02)
+    await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.2)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', '8453', 0.012)
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', '1', 1)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.51)
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', '1', 0.9)
   })
 
-  it.skip('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
-    // ToDo: refactor due to new version
+  it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
     await verifyNonDefaultReceiveToken(page, 'ETH', '1', 'wCRES')
   })
 
@@ -157,6 +155,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
+    // ToDo: rewrite this particular test in playwright due to changes of new version
     // Use Fastest Transfer route
     await changeRoutePriority(page, 'Fastest Transfer')
     await prepareSwapAndBridge(page, 0.1, 'DAI', '10', 'USDC.E')

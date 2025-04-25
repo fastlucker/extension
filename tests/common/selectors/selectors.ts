@@ -123,7 +123,8 @@ export const TEST_IDS = {
   removeNetworkConfirmButton: 'remove-network-confirm-btn',
   dappConnectButton: 'dapp-connect-button',
   signButtonSwap: 'swap-button-sign',
-  addMoreSwaps: 'add-more-swaps'
+  addMoreSwaps: 'add-more-swaps',
+  flipUSDIcon: 'flip-icon'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
