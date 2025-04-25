@@ -1,6 +1,6 @@
+import { nanoid } from 'nanoid'
 import React from 'react'
 import { View } from 'react-native'
-import { v4 as uuidv4 } from 'uuid'
 
 import InformationIcon from '@common/assets/svg/InformationIcon'
 import StarsIcon from '@common/assets/svg/StarsIcon'
@@ -65,7 +65,7 @@ const Badge = ({
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type] || badgeTypes.default
-  const tooltipId = uuidv4()
+  const tooltipId = nanoid(6)
   const sizeMultiplier = SIZES[size]
 
   return (

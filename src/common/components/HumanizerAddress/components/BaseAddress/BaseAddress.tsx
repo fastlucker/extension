@@ -1,9 +1,9 @@
 import { ZeroAddress } from 'ethers'
 import * as Clipboard from 'expo-clipboard'
+import { nanoid } from 'nanoid'
 import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
-import { v4 as uuidv4 } from 'uuid'
 
 import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
@@ -82,7 +82,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest })
   // The uuid must be unique for each tooltip, otherwise multiple tooltips
   // will be show at the same time. We cannot use a shared tooltip as the content
   // is JSX and not a string.
-  const tooltipId = useMemo(() => `address-${address}-${uuidv4()}`, [address])
+  const tooltipId = useMemo(() => `address-${address}-${nanoid(6)}`, [address])
 
   return (
     <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.wrap]}>
