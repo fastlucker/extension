@@ -326,7 +326,7 @@ const TransferScreen = () => {
             onPress={() => addTransaction('queue')}
             disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
             hasBottomSpacing={false}
-            style={{ minWidth: 160 }}
+            style={{ minWidth: 160, ...spacings.phMd }}
           >
             <BatchIcon style={spacings.mlTy} />
           </Button>
@@ -336,7 +336,7 @@ const TransferScreen = () => {
             text={submitButtonText}
             onPress={() => addTransaction('open-action-window')}
             hasBottomSpacing={false}
-            style={{ minWidth: 160, ...spacings.mlLg }}
+            style={{ minWidth: 160, ...spacings.ph, ...spacings.mlLg }}
             disabled={isSendButtonDisabled}
           />
         </View>
