@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
@@ -50,7 +50,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
 
   return (
     <>
-      <Text style={[spacings.mvXl]} fontSize={20} weight="medium">
+      <Text style={[spacings.mvLg, { lineHeight: 23 }]} fontSize={20} weight="medium">
         {t('Enter an invite code')}
       </Text>
       <Controller
@@ -77,9 +77,10 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
         type="primary"
         text={isSubmitting ? t('Validating...') : t('Continue')}
         onPress={handleFormSubmit}
+        hasBottomSpacing={false}
       />
     </>
   )
 }
 
-export default VerifyInviteCodeForm
+export default React.memo(VerifyInviteCodeForm)
