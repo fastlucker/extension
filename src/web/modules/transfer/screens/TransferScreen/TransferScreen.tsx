@@ -359,8 +359,8 @@ const TransferScreen = () => {
               accentColor={theme.primary}
               text={
                 hasActiveRequests
-                  ? t('Add to Batch ({{count}})', { count: transactionUserRequests.length })
-                  : t('Start a Batch')
+                  ? t('Add to batch ({{count}})', { count: transactionUserRequests.length })
+                  : t('Start a batch')
               }
               onPress={() => addTransaction('queue')}
               disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
