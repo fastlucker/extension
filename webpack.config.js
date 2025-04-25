@@ -211,7 +211,8 @@ module.exports = async function (env, argv) {
     // Defaults to using 'auto', but this is causing problems in some environments
     // like in certain browsers, when building (and running) in extension context.
     publicPath: '',
-    environment: { dynamicImport: true }
+    environment: { dynamicImport: true },
+    hashSalt: 'ambire-salt'
   }
 
   if (isGecko) {
@@ -352,8 +353,8 @@ module.exports = async function (env, argv) {
     }
 
     if (config.mode === 'production') {
-      config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
-      config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
+      config.optimization.chunkIds = 'deterministic' // Ensures same id for chunks across builds
+      config.optimization.moduleIds = 'deterministic' // Ensures same id for modules across builds
       config.optimization.splitChunks.maxSize = 4 * 1024 * 1024 // ensures max file size of 4MB
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
