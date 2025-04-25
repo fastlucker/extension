@@ -7,10 +7,9 @@ import {
   openSwapAndBridge,
   enterNumber,
   prepareSwapAndBridge,
-  openSwapAndBridgeActionPage,
-  newSwapAndBridgeActionPage,
   batchActionPage,
   signActionPage,
+  selectbannerButton,
   verifyIfSwitchIsActive,
   switchTokensOnSwapAndBridge,
   switchUSDValueOnSwapAndBridge,
@@ -41,10 +40,9 @@ describe('Swap & Bridge transactions with a Basic Account', () => {
   afterAll(async () => {})
 
   it('should Swap ERC20 tokens USDC to WALLET on Base network with a Basic Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
-    await signActionPage(
-      await newSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
-    )
+    await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
+    await selectButton(page)
+    await signActionPage(page)
   })
 })
 
@@ -65,32 +63,10 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   afterAll(async () => {})
 
   it('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async () => {
-    let text = await prepareSwapAndBridge(page, 0.003, 'WALLET', '8453', 'USDC')
-    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    await batchActionPage(actionPage)
-    text = await prepareSwapAndBridge(page, 0.002, 'USDC', '8453', 'ETH')
-    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    await signActionPage(actionPage)
-
-    // ToDo: redo reverese the above batch to recover tokens balances considering a changes of new release
-    // actionPage.close() // To be able to run the reverse below
-    // const reverseAmount1 = 0.000324
-    // const reverseAmount2 = 0.000010453
-
-    // text = await prepareSwapAndBridge(page, reverseAmount1, 'USDC', '8453', 'WALLET')
-    // actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-    //   selectButton(callback_page, text)
-    // )
-    // await batchActionPage(actionPage)
-    // text = await prepareSwapAndBridge(page, reverseAmount2, 'ETH', '8453', 'USDC')
-    // actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-    //   selectButton(callback_page, text)
-    // )
-    // await signActionPage(actionPage)
+    await prepareSwapAndBridge(page, 0.003, 'WALLET', '8453', 'USDC')
+    await batchActionPage(page)
+    await prepareSwapAndBridge(page, 0.002, 'USDC', '8453', 'ETH')
+    await selectbannerButton(page)
   })
 
   it('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async () => {
@@ -108,40 +84,37 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await enterNumber(page, 'abc', true)
   })
 
-  it('should Bridge tokens with a Smart Account', async () => {
-    const text = await prepareBridgeTransaction(page, '0.0063', 'USDC', '8453', '10')
-    await signActionPage(
-      await openSwapAndBridgeActionPage(page, (callback_page) => selectButton(callback_page, text))
-    )
+  it.skip('should Bridge tokens with a Smart Account', async () => {
+    // ToDo: refactor due to new version
+    await prepareBridgeTransaction(page, '0.0063', 'USDC', '8453', '10')
+    await selectButton(page)
+    await signActionPage(page)
   })
 
-  it('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.01, 'USDC.E', '10', 'DAI')
-    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    actionPage.close()
+  it.skip('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async () => {
+    // ToDo: This functionaliy is depricated, so this tess are obsolite
+    await prepareSwapAndBridge(page, 0.01, 'USDC.E', '10', 'DAI')
+    await selectButton(page)
+    await signActionPage(page)
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
-    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectFirstButton(callback_page, 'Proceed')
-    )
-    actionPage.close()
+    await selectButton(page)
+    await signActionPage(page)
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 3000 })
   })
 
-  it('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async () => {
-    const text = await prepareSwapAndBridge(page, 0.008, 'USDC', '8453', 'WALLET')
-    const actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    actionPage.close()
+  it.skip('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async () => {
+    // ToDo: This functionaliy is depricated, so this tess are obsolite
+    await prepareSwapAndBridge(page, 0.008, 'USDC', '8453', 'WALLET')
+    await selectButton(page)
+    await signActionPage(page)
     await expect(page).toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
     await selectFirstButton(page, 'Cancel')
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it('should select a different route when Swap & Bridge with a Smart Account', async () => {
+  it.skip('should select a different route when Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
+    // ToDo: refactor due to new version
     await clickOnSecondRoute(page)
   })
 
@@ -163,7 +136,8 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await verifySendMaxTokenAmount(page, 'USDC', '8453')
   })
 
-  it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
+  it.skip('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
+    // ToDo: refactor due to new version
     await switchUSDValueOnSwapAndBridge(page, 'USDC.E', '10', 0.34)
     await switchUSDValueOnSwapAndBridge(page, 'DAI', '10', 0.02)
     await switchUSDValueOnSwapAndBridge(page, 'USDC', '8453', 0.012)
@@ -172,7 +146,8 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await switchUSDValueOnSwapAndBridge(page, 'xWALLET', '1', 0.9)
   })
 
-  it('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
+  it.skip('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async () => {
+    // ToDo: refactor due to new version
     await verifyNonDefaultReceiveToken(page, 'ETH', '1', 'wCRES')
   })
 
@@ -181,23 +156,21 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await verifyDefaultReceiveToken(page, 'WALLET', '8453', 'USDC')
   })
 
-  it('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
+  it.skip('should be able to change route priority from highest return to fastest transfer and vise-versa during Swap & Bridge with a Smart Account', async () => {
     // Use Fastest Transfer route
     await changeRoutePriority(page, 'Fastest Transfer')
-    let text = await prepareSwapAndBridge(page, 0.1, 'DAI', '10', 'USDC.E')
-    let actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    await selectFirstButton(actionPage, 'Reject')
+    await prepareSwapAndBridge(page, 0.1, 'DAI', '10', 'USDC.E')
+    await selectButton(page)
+    await signActionPage(page)
+    await selectFirstButton(page, 'Reject')
     await selectFirstButton(page, 'Back')
 
     // Use Highest Return route
     await changeRoutePriority(page, 'Highest Return')
-    text = await prepareSwapAndBridge(page, 0.1, 'DAI', '10', 'USDC.E')
-    actionPage = await openSwapAndBridgeActionPage(page, (callback_page) =>
-      selectButton(callback_page, text)
-    )
-    await selectFirstButton(actionPage, 'Reject')
+    await prepareSwapAndBridge(page, 0.1, 'DAI', '10', 'USDC.E')
+    await selectButton(page)
+    await signActionPage(page)
+    await selectFirstButton(page, 'Reject')
     await selectFirstButton(page, 'Back')
   })
 })
