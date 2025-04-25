@@ -265,7 +265,7 @@ const AccountsOnPageList = ({
                 >
                   <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
                     <Text fontSize={16} weight="medium" style={spacings.mrMd}>
-                      {t('Smart Accounts')}
+                      {t('Smart accounts')}
                       {/* TODO: Add an info icon here with a tooltip */}
                     </Text>
                     <View
