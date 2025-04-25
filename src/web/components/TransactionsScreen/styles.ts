@@ -1,21 +1,21 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
 
 interface Style {
   form: ViewStyle
   container: ViewStyle
-  followUpTxnText: TextStyle
+  nonTabButtons: ViewStyle
 }
 
 const { isActionWindow } = getUiType()
 
 // Make the form slightly larger in action window
 // so it stretches as much as the header
-export const SWAP_AND_BRIDGE_FORM_WIDTH = isActionWindow ? 656 : 600
+export const TRANSACTION_FORM_WIDTH = isActionWindow ? 656 : 600
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
@@ -34,17 +34,15 @@ const getStyles = (theme: ThemeProps) =>
     },
     container: {
       width: '100%',
-      maxWidth: SWAP_AND_BRIDGE_FORM_WIDTH,
+      maxWidth: TRANSACTION_FORM_WIDTH,
       flex: 1,
       alignSelf: 'center',
       overflow: 'visible'
     },
-    followUpTxnText: {
-      ...spacings.plTy,
-      ...spacings.prMi,
-      ...spacings.mrMi,
-      ...spacings.pvMi,
-      ...common.borderRadiusPrimary
+    nonTabButtons: {
+      ...flexbox.flex1,
+      ...spacings.pbLg,
+      ...flexbox.justifyEnd
     }
   })
 
