@@ -12,7 +12,7 @@ import QuestsSection from './components/QuestsSection'
 
 const Character = () => {
   const { v1Account, connectedAccount } = useAccountContext()
-  console.log('v1Account', v1Account, 'connectedAccount', connectedAccount)
+
   return (
     <Page containerSize="full">
       {v1Account && !connectedAccount ? (
