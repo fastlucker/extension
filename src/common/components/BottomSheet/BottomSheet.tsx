@@ -1,5 +1,6 @@
+import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { BackHandler, StyleSheet, View, ViewStyle } from 'react-native'
+import { BackHandler, View, ViewStyle } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
@@ -16,7 +17,7 @@ import Backdrop from './Backdrop'
 import getStyles from './styles'
 
 interface Props {
-  id: string
+  id?: string
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet?: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onBackdropPress?: () => void
@@ -44,8 +45,7 @@ const ANIMATION_DURATION: number = 250
 const { isPopup } = getUiType()
 
 const BottomSheet: React.FC<Props> = ({
-  // Unique identifier for the bottom sheet
-  id,
+  id: _id,
   type: _type,
   sheetRef,
   children,
@@ -73,6 +73,9 @@ const BottomSheet: React.FC<Props> = ({
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
   const { isScrollable, checkIsScrollable, scrollViewRef } = useIsScrollable()
+
+  // Ensures ID is unique per component to avoid duplicates when multiple bottom sheets are rendered
+  const id = useMemo(() => `${_id || 'bottom-sheet'}-${nanoid(6)}`, [_id])
 
   const autoOpened: React.MutableRefObject<boolean> = useRef(false)
   const setRef = useCallback(

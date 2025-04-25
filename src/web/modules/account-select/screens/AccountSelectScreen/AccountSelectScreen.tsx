@@ -127,7 +127,7 @@ const AccountSelectScreen = () => {
         <View style={[spacings.ptSm, { width: '100%' }]}>
           <Button
             testID="button-add-account"
-            text={t('Add Account')}
+            text={t('Add account')}
             type="secondary"
             hasBottomSpacing={false}
             onPress={openBottomSheet as any}
