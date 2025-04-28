@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
@@ -27,7 +28,6 @@ import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTok
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
 
-import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
@@ -38,7 +38,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
-    isSwitchFromAndToTokensEnabled,
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
     toTokenList,
@@ -222,10 +221,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           spacings.mbTy
         ]}
       >
-        <SwitchTokensButton
-          onPress={handleSwitchFromAndToTokens}
-          disabled={!isSwitchFromAndToTokensEnabled}
-        />
+        <SwitchTokensButton onPress={handleSwitchFromAndToTokens} />
         <Text appearance="secondaryText" fontSize={16} weight="medium">
           {t('Receive')}
         </Text>
