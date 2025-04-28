@@ -150,7 +150,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                     }}
                   />
                 </View>
-                {fromAsset && toAsset && (
+                {!!fromAsset && !!toAsset && (
                   <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb2Xl]}>
                     <RouteStepsToken
                       uri={fromAsset.icon}
@@ -180,7 +180,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                     />
                   </View>
                 )}
-                {lastCompletedRoute.route?.serviceTime && (
+                {!!lastCompletedRoute.route?.serviceTime && (
                   <Text
                     fontSize={12}
                     weight="medium"
