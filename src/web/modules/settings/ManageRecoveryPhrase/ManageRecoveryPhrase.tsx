@@ -12,56 +12,64 @@ import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
+import Editable from '@common/components/Editable'
+import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { delayPromise } from '@common/utils/promises'
+import text from '@common/styles/utils/text'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import PasswordConfirmation from '@web/modules/settings/components/PasswordConfirmation'
-import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 import getStyles from './styles'
 
-const DUMMY_SEED = 'anchor foil velvet canyon pigeon meadow orbit lunch erupt promote silver casino'
+const DUMMY_SEED = 'dummy seed phrase canyon pigeon meadow orbit lunch erupt promote silver casino'
 
 const ManageRecoveryPhrase = ({
-  recoveryPhrase
+  recoveryPhrase,
+  onBackButtonPress
 }: {
   recoveryPhrase: {
     id: string
     label: string
     hdPathTemplate: HD_PATH_TEMPLATE_TYPE
   }
+  onBackButtonPress: () => void
 }) => {
   const { dispatch } = useBackgroundService()
-  const [passwordConfirmed, setPasswordConfirmed] = useState<boolean>(false)
   const [deleteSeedIsConfirmed, setDeleteSeedIsConfirmed] = useState<boolean>(false)
-  const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const keystoreState = useKeystoreControllerState()
-  const [decryptedSeed, setDecryptedSeed] = useState<string | null>(null)
+  const [seed, setSeed] = useState<string | null>(DUMMY_SEED)
   const [seedPassphrase, setSeedPassphrase] = useState<string | null>(null)
   const [blurred, setBlurred] = useState<boolean>(true)
   const {
     ref: sheetRefDeleteConfirmation,
-    openDeleteConfirmation,
-    closeDeleteConfirmation
+    open: openDeleteConfirmation,
+    close: closeDeleteConfirmation
   } = useModalize()
-  const { navigate } = useNavigation()
+  const {
+    ref: sheetRefConfirmPassword,
+    open: openConfirmPassword,
+    close: closeConfirmPassword
+  } = useModalize()
 
   const { addToast } = useToast()
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
 
   const onPasswordConfirmed = () => {
-    setPasswordConfirmed(true)
-    dispatch({ type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI' })
+    dispatch({
+      type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI',
+      params: { id: recoveryPhrase.id }
+    })
+    if (blurred) setBlurred(false)
+    closeConfirmPassword()
   }
 
   useEffect(() => {
@@ -78,71 +86,77 @@ const ManageRecoveryPhrase = ({
   }, [])
 
   const toggleKeyVisibility = useCallback(async () => {
-    if (!decryptedSeed) {
+    if (!seed || seed === DUMMY_SEED) {
+      openConfirmPassword()
+      return
     }
 
     setBlurred((prev) => !prev)
-  }, [])
+  }, [seed, openConfirmPassword])
 
   const handleCopySeed = useCallback(async () => {
-    if (!seed) return
+    if (!seed || seed === DUMMY_SEED) return
     try {
       await setStringAsync(seed)
     } catch {
       addToast(t('Error copying to clipboard'), { type: 'error' })
     }
-    addToast(t('Seed copied to clipboard!'))
+    addToast(t('Recovery phrase copied to clipboard!'))
   }, [addToast, seed, t])
 
-  const handleCopySeedPassphrase = useCallback(async () => {
-    if (!seedPassphrase) return
-    try {
-      await setStringAsync(seedPassphrase)
-    } catch {
-      addToast(t('Error copying to clipboard'), { type: 'error' })
-    }
-    addToast(t('Passphrase copied to clipboard!'))
-  }, [addToast, seedPassphrase, t])
-
   useEffect(() => {
-    if (keystoreState.statuses.deleteSavedSeed === 'SUCCESS') {
-      addToast(t('Saved seed deleted successfully'))
-      navigate(WEB_ROUTES.securityAndPrivacy)
+    if (keystoreState.statuses.deleteSeed === 'SUCCESS') {
+      addToast(t('Recovery phrase deleted successfully'))
+      !!onBackButtonPress && onBackButtonPress()
     }
-  }, [keystoreState.statuses.deleteSavedSeed, navigate, addToast, t])
+  }, [keystoreState.statuses.deleteSeed, onBackButtonPress, addToast, t])
 
   const deleteSavedSeed = async () => {
-    setIsDeleting(true)
-
-    // the below dispatch happens instantaniously, causing actually
-    // bad UX
-    await delayPromise(600)
-
-    dispatch({
-      type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
-    })
+    if (!deleteSeedIsConfirmed) return
+    dispatch({ type: 'KEYSTORE_CONTROLLER_DELETE_SEED', params: { id: recoveryPhrase.id } })
   }
+
+  const onSave = useCallback(
+    (value: string) => {
+      dispatch({
+        type: 'KEYSTORE_CONTROLLER_UPDATE_SEED',
+        params: { id: recoveryPhrase.id, label: value }
+      })
+      addToast(t('Recovery phrase label updated.'))
+    },
+    [addToast, dispatch, recoveryPhrase.id, t]
+  )
 
   return (
     <>
-      <View
-        style={[
-          { borderBottomWidth: 1, borderColor: theme.primaryBorder },
-          spacings.pbLg,
-          spacings.mbLg
-        ]}
-      >
-        <SettingsPageHeader title={t('Saved seed phrase')} />
+      <View style={flexbox.flex1}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+          <PanelBackButton onPress={onBackButtonPress} style={spacings.mrTy} />
+          <PanelTitle title={t('Manage recovery phrase')} style={text.left} />
+        </View>
+        <View style={spacings.mb}>
+          <Editable
+            initialValue={recoveryPhrase.label}
+            onSave={onSave}
+            fontSize={16}
+            height={24}
+            textProps={{
+              weight: 'medium'
+            }}
+            minWidth={100}
+            maxLength={40}
+          />
+        </View>
         <View
           style={[
-            blurred ? styles.blurred : styles.notBlurred,
+            !blurred && seed !== DUMMY_SEED ? styles.notBlurred : styles.blurred,
             spacings.pvMd,
             spacings.phMd,
-            { backgroundColor: theme.secondaryBackground }
+            { backgroundColor: theme.primaryBackground, borderRadius: BORDER_RADIUS_PRIMARY }
           ]}
         >
           <Text fontSize={14} color={theme.secondaryText}>
-            {seed || DUMMY_SEED}
+            {seed}
           </Text>
           {!!seedPassphrase && (
             <View style={spacings.ptSm}>
@@ -169,28 +183,17 @@ const ManageRecoveryPhrase = ({
             hasBottomSpacing={false}
             type="ghost"
             size="small"
-            text={t('Copy seed')}
+            text={t('Copy phrase')}
           >
             <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
           </Button>
-          {!!seedPassphrase && (
-            <Button
-              onPress={handleCopySeedPassphrase}
-              hasBottomSpacing={false}
-              type="ghost"
-              size="small"
-              text={t('Copy passphrase')}
-            >
-              <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
-            </Button>
-          )}
           <Button
             onPress={toggleKeyVisibility}
             hasBottomSpacing={false}
             type="ghost"
             size="small"
             style={{ minWidth: 137 }}
-            text={blurred ? t('Reveal seed') : t('Hide seed')}
+            text={blurred ? t('Reveal phrase') : t('Hide phrase')}
           >
             {blurred ? (
               <VisibilityIcon color={iconColors.primary} style={spacings.mlTy} width={18} />
@@ -199,64 +202,80 @@ const ManageRecoveryPhrase = ({
             )}
           </Button>
         </View>
-        <View style={spacings.mtLg}>
-          <Alert
-            size="sm"
-            type="warning"
-            title={t(
-              'Keep your seed phrase safe and private. Anyone with access to it can control all accounts derived from it.'
-            )}
+        <View style={[flexbox.flex1, flexbox.justifyEnd, flexbox.alignCenter]}>
+          <Button
+            type="danger"
+            style={spacings.mtTy}
+            text="Remove recovery phrase"
+            onPress={openDeleteConfirmation as any}
+            hasBottomSpacing={false}
           />
         </View>
       </View>
-      <View>
-        <Alert
-          type="error"
-          isTypeLabelHidden
-          titleWeight="semiBold"
-          title="Remove saved seed"
-          text={t(
-            "Deleting the saved seed will not remove any accounts imported from it. It will let you save a new one, but the deleted seed will not be backed up in the extension.\nMake sure you've stored a copy in a safe place before deleting it."
-          )}
-        />
-        <Button type="danger" style={spacings.mtTy} text="Delete" onPress={() => open()} />
-      </View>
+
       <BottomSheet
         id="delete-saved-seed-sheet"
-        sheetRef={sheetRef}
-        closeBottomSheet={close}
+        type="modal"
+        sheetRef={sheetRefDeleteConfirmation}
+        closeBottomSheet={closeDeleteConfirmation}
+        scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+        containerInnerWrapperStyles={{ flex: 1 }}
         style={{
-          width: 512
+          maxWidth: 432,
+          minHeight: 432,
+          ...spacings.pvLg
         }}
       >
-        <Text fontSize={20} style={spacings.mbXl} weight="light">
-          {t('Confirm saved seed removal')}
-        </Text>
-        <Checkbox
-          value={deleteSeedIsConfirmed}
-          onValueChange={() => setDeleteSeedIsConfirmed(!deleteSeedIsConfirmed)}
-          uncheckedBorderColor={theme.secondaryText}
-          label={t(
-            'I acknowledge the seed will no longer be available as a backup in the extension'
-          )}
-          labelProps={{
-            style: {
-              color: theme.secondaryText,
-              fontSize: 14
-            },
-            weight: 'medium'
-          }}
-        />
-        <Button
-          type="danger"
-          style={spacings.mtTy}
-          text={isDeleting ? t('Deleting...') : t('Delete')}
-          disabled={!deleteSeedIsConfirmed || isDeleting}
-          onPress={deleteSavedSeed}
-        />
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+          <PanelBackButton onPress={closeDeleteConfirmation} style={spacings.mrTy} />
+          <PanelTitle title={t('Confirm phrase removal')} style={text.left} />
+        </View>
+        <View style={[flexbox.flex1, flexbox.justifyEnd]}>
+          <Alert
+            type="warning"
+            isTypeLabelHidden
+            titleWeight="semiBold"
+            size="md"
+            text={t('Deleting the recovery phrase will not remove any accounts imported from it.')}
+            style={spacings.mbLg}
+          />
+          <Checkbox
+            value={deleteSeedIsConfirmed}
+            onValueChange={() => setDeleteSeedIsConfirmed(!deleteSeedIsConfirmed)}
+            uncheckedBorderColor={theme.secondaryText}
+            label={t(
+              `I acknowledge ${recoveryPhrase.label} will no longer be available as a backup in the extension`
+            )}
+            labelProps={{
+              style: { color: theme.secondaryText, fontSize: 14 },
+              weight: 'medium'
+            }}
+          />
+          <View style={flexbox.alignCenter}>
+            <Button
+              type="danger"
+              style={spacings.mtTy}
+              text={t('Remove recovery phrase')}
+              disabled={!deleteSeedIsConfirmed}
+              onPress={deleteSavedSeed}
+            />
+          </View>
+        </View>
       </BottomSheet>
-      <BottomSheet>
-        <PasswordConfirmation onPasswordConfirmed={() => {}} />
+      <BottomSheet
+        sheetRef={sheetRefConfirmPassword}
+        id="confirm-password-bottom-sheet"
+        type="modal"
+        closeBottomSheet={closeConfirmPassword}
+        scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+        containerInnerWrapperStyles={{ flex: 1 }}
+        style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
+      >
+        <PasswordConfirmation
+          text={t('Please enter your extension password to reveal your recovery phrase.')}
+          onPasswordConfirmed={onPasswordConfirmed}
+          onBackButtonPress={closeConfirmPassword}
+        />
       </BottomSheet>
     </>
   )

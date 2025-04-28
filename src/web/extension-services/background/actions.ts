@@ -405,6 +405,14 @@ type KeystoreControllerAddTempSeedAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED'
   params: Omit<KeystoreSeed, 'id' | 'label'>
 }
+type KeystoreControllerUpdateSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_UPDATE_SEED'
+  params: {
+    id: KeystoreSeed['id']
+    label?: KeystoreSeed['label']
+    hdPathTemplate?: KeystoreSeed['hdPathTemplate']
+  }
+}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
@@ -424,8 +432,9 @@ type KeystoreControllerSendPrivateKeyOverChannel = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
   params: { keyAddr: string }
 }
-type KeystoreControllerDeleteSavedSeed = {
-  type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
+type KeystoreControllerDeleteSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
+  params: { id: string }
 }
 type KeystoreControllerSendSeedToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI'
@@ -731,6 +740,7 @@ export type Action =
   | PortfolioControllerUpdateConfettiToShown
   | KeystoreControllerAddSecretAction
   | KeystoreControllerAddTempSeedAction
+  | KeystoreControllerUpdateSeedAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
@@ -782,7 +792,7 @@ export type Action =
   | KeystoreControllerSendSeedToUiAction
   | KeystoreControllerSendTempSeedToUiAction
   | MainControllerActivityHideBanner
-  | KeystoreControllerDeleteSavedSeed
+  | KeystoreControllerDeleteSeedAction
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction

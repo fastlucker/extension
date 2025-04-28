@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FlatList, View } from 'react-native'
+import { FlatList, StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
@@ -9,15 +9,16 @@ import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
-
-import ManageRecoveryPhrase from '../../ManageRecoveryPhrase'
+import ManageRecoveryPhrase from '@web/modules/settings/ManageRecoveryPhrase'
 
 const RecoveryPhraseSettingsScreen = () => {
   const { t } = useTranslation()
@@ -30,6 +31,7 @@ const RecoveryPhraseSettingsScreen = () => {
     label: string
     hdPathTemplate: HD_PATH_TEMPLATE_TYPE
   } | null>(null)
+  const prevRecoveryPhraseToManage = usePrevious(recoveryPhraseToManage)
 
   const getAccountsForSeed = useCallback(
     (seedId: string) => {
@@ -42,7 +44,17 @@ const RecoveryPhraseSettingsScreen = () => {
 
   useEffect(() => {
     if (!recoveryPhraseToManage) return
-  }, [])
+
+    if (prevRecoveryPhraseToManage !== recoveryPhraseToManage) {
+      openBottomSheet()
+    }
+  }, [openBottomSheet, recoveryPhraseToManage, prevRecoveryPhraseToManage])
+
+  useEffect(() => {
+    if (!!prevRecoveryPhraseToManage && !recoveryPhraseToManage) {
+      closeBottomSheet()
+    }
+  }, [closeBottomSheet, prevRecoveryPhraseToManage, recoveryPhraseToManage])
 
   const renderItem = ({ item, index }: any): ReactElement<any, any> => {
     const associatedAccounts = getAccountsForSeed(item.id)
@@ -100,9 +112,47 @@ const RecoveryPhraseSettingsScreen = () => {
   return (
     <View style={[spacings.ptSm, flexbox.flex1]}>
       <SettingsPageHeader title={t('Recovery phrases')} />
-      <FlatList data={seeds} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      <BottomSheet sheetRef={sheetRef} id="manage-recovery-phrase-bottom-sheet">
-        <ManageRecoveryPhrase recoveryPhrase={recoveryPhraseToManage} />
+      {seeds.length ? (
+        <FlatList data={seeds} renderItem={renderItem} keyExtractor={(item) => item.id} />
+      ) : (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            flexbox.flex1,
+            flexbox.alignCenter,
+            flexbox.justifyCenter
+          ]}
+        >
+          <Text style={text.center}>
+            {t("You don't have any recovery phrases added to the extension.")}
+          </Text>
+        </View>
+      )}
+
+      <BottomSheet
+        sheetRef={sheetRef}
+        id="manage-recovery-phrase-bottom-sheet"
+        onBackdropPress={() => {
+          setRecoveryPhraseToManage(null)
+          closeBottomSheet()
+        }}
+        scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+        containerInnerWrapperStyles={{ flex: 1 }}
+        style={{
+          maxWidth: 432,
+          minHeight: 432,
+          ...spacings.pvLg
+        }}
+      >
+        {!!recoveryPhraseToManage && (
+          <ManageRecoveryPhrase
+            recoveryPhrase={recoveryPhraseToManage}
+            onBackButtonPress={() => {
+              setRecoveryPhraseToManage(null)
+              closeBottomSheet()
+            }}
+          />
+        )}
       </BottomSheet>
     </View>
   )

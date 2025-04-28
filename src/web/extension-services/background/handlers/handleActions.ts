@@ -409,6 +409,8 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED':
       return await mainCtrl.keystore.addTempSeed(params)
+    case 'KEYSTORE_CONTROLLER_UPDATE_SEED':
+      return await mainCtrl.keystore.updateSeed(params)
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
@@ -433,8 +435,8 @@ export const handleActions = async (
       return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
       return await mainCtrl.keystore.sendTempSeedToUi()
-    case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
-      return await mainCtrl.keystore.deleteSavedSeed()
+    case 'KEYSTORE_CONTROLLER_DELETE_SEED':
+      return await mainCtrl.keystore.deleteSeed(params.id)
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
       return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
