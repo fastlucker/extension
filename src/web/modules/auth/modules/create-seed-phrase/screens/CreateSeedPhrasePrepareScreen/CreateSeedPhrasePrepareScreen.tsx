@@ -69,14 +69,14 @@ const CreateSeedPhrasePrepareScreen = () => {
     return () => eventBus.removeEventListener('receiveOneTimeData', onReceiveOneTimeData)
   }, [])
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (hasTempSeed && (!initTempSeed || initTempSeed.seed.split(' ').length === 12)) {
       goToNextRoute(WEB_ROUTES.createSeedPhraseWrite)
       return
     }
 
     const entropyGenerator = new EntropyGenerator()
-    const seed = entropyGenerator.generateRandomMnemonic(12, getExtraEntropy()).phrase
+    const seed = entropyGenerator.generateRandomMnemonic(12, await getExtraEntropy()).phrase
 
     dispatch({
       type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED',
