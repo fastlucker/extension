@@ -90,7 +90,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
     } catch {
       addToast('Error opening explorer', { type: 'error' })
     }
-  }, [addToast, lastCompletedRoute])
+  }, [addToast, isSwap, lastCompletedRoute])
 
   return (
     <TabLayoutContainer
