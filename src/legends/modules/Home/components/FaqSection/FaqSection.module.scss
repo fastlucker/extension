@@ -20,8 +20,8 @@
   }
 
   @include breakpoint-down-from(large-tablet) {
-    margin-left: 1rem;
-    width: calc(100% - 2rem);
+    margin-left: 0;
+    width: 100%;
   }
 }
 
@@ -31,5 +31,4 @@
 
 .accordionTitle {
     font-size: 1.25rem !important;
-    // font-weight: 300 !important;
 }

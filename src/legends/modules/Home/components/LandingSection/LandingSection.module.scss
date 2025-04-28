@@ -151,9 +151,9 @@
 .wrapper {
     @include on-mobile {
         margin-top: 0;
-        margin-left: 1rem;
-        margin-right: 1rem;
-        width: calc(100% - 2rem);
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
 
         .title {
             font-size: 1rem;
