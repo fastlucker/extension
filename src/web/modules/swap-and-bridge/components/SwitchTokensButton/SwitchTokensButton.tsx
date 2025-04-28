@@ -9,7 +9,7 @@ import getStyles from './styles'
 
 const SWITCH_TOKENS_CONDITION_TOOLTIP_ID = 'switch-tokens-condition-tooltip-sab'
 
-const SwitchTokensButton = ({ ...rest }: PressableProps) => {
+const SwitchTokensButton = ({ disabled, ...rest }: PressableProps) => {
   const { styles } = useTheme(getStyles)
   const [bindAnim, , , , animatedValues] = useCustomHover({
     property: 'rotateZ' as any,
@@ -26,7 +26,12 @@ const SwitchTokensButton = ({ ...rest }: PressableProps) => {
 
   return (
     <View style={styles.switchTokensButtonWrapper} testID={SWITCH_TOKENS_CONDITION_TOOLTIP_ID}>
-      <Pressable style={styles.switchTokensButton} {...bindAnim} {...rest}>
+      <Pressable
+        style={[styles.switchTokensButton, disabled ? { opacity: 0.5 } : {}]}
+        disabled={disabled}
+        {...bindAnim}
+        {...rest}
+      >
         <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate || '0deg' }] }}>
           <RepeatIcon />
         </Animated.View>

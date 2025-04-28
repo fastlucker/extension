@@ -40,6 +40,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const {
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
+    updateQuoteStatus,
     toTokenList,
     quote,
     formStatus,
@@ -221,7 +222,10 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           spacings.mbTy
         ]}
       >
-        <SwitchTokensButton onPress={handleSwitchFromAndToTokens} />
+        <SwitchTokensButton
+          onPress={handleSwitchFromAndToTokens}
+          disabled={updateQuoteStatus === 'LOADING'}
+        />
         <Text appearance="secondaryText" fontSize={16} weight="medium">
           {t('Receive')}
         </Text>
