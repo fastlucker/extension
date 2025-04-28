@@ -37,6 +37,8 @@ type Props = {
   handleClose: () => void
 }
 
+const LIFI_EXPLORER_URL = 'https://scan.li.fi'
+
 const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
@@ -67,6 +69,11 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
   const handleOpenExplorer = useCallback(async () => {
     try {
+      if (!isSwap) {
+        const link = `${LIFI_EXPLORER_URL}/tx/${lastCompletedRoute.userTxHash}`
+        await openInTab(link, false)
+        return
+      }
       const toChainId = lastCompletedRoute.route?.toChainId
       if (!toChainId) throw new Error('No toChainId')
 
