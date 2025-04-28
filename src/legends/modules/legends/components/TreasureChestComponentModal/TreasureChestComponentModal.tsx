@@ -14,6 +14,7 @@ import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
@@ -44,6 +45,18 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
 
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const chainRef = React.useRef<HTMLImageElement>(null)
@@ -226,95 +239,105 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   return createPortal(
     <div>
-      <div className={styles.backdrop}>
-        <div className={styles.wrapper}>
-          <div
-            className={styles.backgroundEffect}
-            style={{
-              backgroundImage: `url(${smokeAndLights})`
-            }}
-          />
+      {isMobile && isOpen ? (
+        <MobileDisclaimerModal shouldClose modalOpened closeModal={closeModal} />
+      ) : (
+        <>
+          <div className={styles.backdrop}>
+            <div className={styles.wrapper}>
+              <div
+                className={styles.backgroundEffect}
+                style={{
+                  backgroundImage: `url(${smokeAndLights})`
+                }}
+              />
 
-          {!!treasureLegend.meta.streak && (
-            <div className={styles.streak}>
-              <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
-              <p className={styles.streakLabel}>
-                <ZapIcon />
-                {treasureLegend.meta.streak === 1 ? 'Day' : 'Days'} Streak
-              </p>
-            </div>
-          )}
+              {!!treasureLegend.meta.streak && (
+                <div className={styles.streak}>
+                  <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
+                  <p className={styles.streakLabel}>
+                    <ZapIcon />
+                    {treasureLegend.meta.streak === 1 ? 'Day' : 'Days'} Streak
+                  </p>
+                </div>
+              )}
 
-          <div className={styles.header}>
-            <h2 className={styles.heading}>Daily Loot</h2>
-            <button type="button" onClick={closeModal} className={styles.closeButton}>
-              <CloseIcon />
-            </button>
-          </div>
-          <div className={styles.content}>
-            {treasureLegend.meta.points.map((point, index) => {
-              const streak = treasureLegend.meta.streak % 7
-              const isOpened = !isActive && chestState === 'opened'
+              <div className={styles.header}>
+                <h2 className={styles.heading}>Daily Loot</h2>
+                <button type="button" onClick={closeModal} className={styles.closeButton}>
+                  <CloseIcon />
+                </button>
+              </div>
+              <div className={styles.content}>
+                {treasureLegend.meta.points.map((point, index) => {
+                  const streak = treasureLegend.meta.streak % 7
+                  const isOpened = !isActive && chestState === 'opened'
 
-              const isCurrentDay = isOpened
-                ? streak - 1 === index
-                : !isActive
-                ? streak - 1 === index
-                : streak === index
+                  const isCurrentDay = isOpened
+                    ? streak - 1 === index
+                    : !isActive
+                    ? streak - 1 === index
+                    : streak === index
 
-              const isPassedDay = isOpened
-                ? index < streak
-                : !isActive
-                ? index < streak - 1 // Prevent marking next day as passed too soon
-                : index < streak
+                  const isPassedDay = isOpened
+                    ? index < streak
+                    : !isActive
+                    ? index < streak - 1 // Prevent marking next day as passed too soon
+                    : index < streak
 
-              return (
-                <div
-                  key={point}
-                  className={`${styles.day} 
+                  return (
+                    <div
+                      key={point}
+                      className={`${styles.day} 
                     ${isCurrentDay ? styles.current : ''} 
                     ${isPassedDay ? styles.passed : ''}`}
-                >
-                  <div className={styles.icon}>
-                    {isPassedDay ? (
-                      <CheckIcon width={20} height={20} />
-                    ) : (
-                      <>
-                        +{point}
-                        <span className={styles.xpText}>XP</span>
-                      </>
-                    )}
-                  </div>
-                  <p className={styles.dayText}>{isCurrentDay ? 'Today' : `Day ${index + 1}`}</p>
-                </div>
-              )
-            })}
+                    >
+                      <div className={styles.icon}>
+                        {isPassedDay ? (
+                          <CheckIcon width={20} height={20} />
+                        ) : (
+                          <>
+                            +{point}
+                            <span className={styles.xpText}>XP</span>
+                          </>
+                        )}
+                      </div>
+                      <p className={styles.dayText}>
+                        {isCurrentDay ? 'Today' : `Day ${index + 1}`}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className={styles.chestWrapper}>
+                <img src={chestImage} alt="spinner" className={styles.chest} />
+              </div>
+              <button
+                type="button"
+                className={styles.button}
+                disabled={
+                  nonConnectedAcc ||
+                  chestState === 'opening' ||
+                  chestState === 'opened' ||
+                  chestState === 'unlocking'
+                }
+                onClick={onButtonClick}
+              >
+                {nonConnectedAcc
+                  ? 'Switch to a smart account to unlock Rewards quests'
+                  : buttonLabel}
+              </button>
+            </div>
           </div>
-          <div className={styles.chestWrapper}>
-            <img src={chestImage} alt="spinner" className={styles.chest} />
-          </div>
-          <button
-            type="button"
-            className={styles.button}
-            disabled={
-              nonConnectedAcc ||
-              chestState === 'opening' ||
-              chestState === 'opened' ||
-              chestState === 'unlocking'
-            }
-            onClick={onButtonClick}
-          >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
-          </button>
-        </div>
-      </div>
 
-      <CongratsModal
-        isOpen={isCongratsModalOpen}
-        setIsOpen={setCongratsModalOpen}
-        prizeNumber={prizeNumber}
-        onButtonClick={onCongratsModalButtonClick}
-      />
+          <CongratsModal
+            isOpen={isCongratsModalOpen}
+            setIsOpen={setCongratsModalOpen}
+            prizeNumber={prizeNumber}
+            onButtonClick={onCongratsModalButtonClick}
+          />
+        </>
+      )}
     </div>,
     document.getElementById('modal-root') as HTMLElement
   )

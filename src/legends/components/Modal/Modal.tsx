@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 
 import CloseIcon from '@legends/components/CloseIcon'
 import useEscModal from '@legends/hooks/useEscModal'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 
 import styles from './Modal.module.scss'
 
@@ -56,16 +57,33 @@ const Modal = ({
     }
   })
 
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
+
   const modalContent = (
     <div className={`${styles.wrapper} ${isOpen ? styles.open : ''}`}>
-      <div ref={modalRef} className={`${styles.modal} ${className}`}>
-        {isClosable && showCloseButton && (
-          <button onClick={closeModal} type="button" className={styles.closeButton}>
-            <CloseIcon />
-          </button>
-        )}
-        {isOpen && children}
-      </div>
+      {isMobile && isOpen ? (
+        <MobileDisclaimerModal shouldClose modalOpened closeModal={closeModal} />
+      ) : (
+        <div ref={modalRef} className={`${styles.modal} ${className}`}>
+          {isClosable && showCloseButton && (
+            <button onClick={closeModal} type="button" className={styles.closeButton}>
+              <CloseIcon />
+            </button>
+          )}
+          {isOpen && children}
+        </div>
+      )}
     </div>
   )
 

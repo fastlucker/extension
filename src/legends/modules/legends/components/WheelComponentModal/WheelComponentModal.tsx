@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { ethers, hexlify, Interface, randomBytes } from 'ethers'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { Legends as LEGENDS_CONTRACT_ABI } from '@ambire-common/libs/humanizer/const/abis/Legends'
@@ -16,6 +16,7 @@ import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 
 import { humanizeError } from '../../utils/errors/humanizeError'
@@ -41,6 +42,18 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
   >('locked')
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
   const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
@@ -203,38 +216,48 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   if (!isOpen) return null
 
   return createPortal(
-    <div className={styles.backdrop}>
-      <div className={styles.wrapper}>
-        <div
-          className={styles.backgroundEffect}
-          style={{
-            backgroundImage: `url(${smokeAndLights})`
-          }}
-        />
-        <div className={styles.content}>
-          {wheelState === 'spun' ? (
-            <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
-          ) : null}
-          <button type="button" onClick={closeModal} className={styles.closeButton}>
-            <CloseIcon />
-          </button>
-          <h2 className={styles.title}>Wheel of Fortune</h2>
-          <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
-          <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
-          <img src={pointerImage} alt="pointer" className={styles.pointer} />
-          <button
-            disabled={nonConnectedAcc || wheelState === 'spinning' || wheelState === 'unlocking'}
-            type="button"
-            className={`${styles.spinButton} ${
-              POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
-            }`}
-            onClick={onButtonClick}
-          >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
-          </button>
+    isMobile && isOpen ? (
+      <MobileDisclaimerModal shouldClose modalOpened closeModal={closeModal} />
+    ) : (
+      <div className={styles.backdrop}>
+        <div className={styles.wrapper}>
+          <div
+            className={styles.backgroundEffect}
+            style={{
+              backgroundImage: `url(${smokeAndLights})`
+            }}
+          />
+          <div className={styles.content}>
+            {wheelState === 'spun' ? (
+              <ConfettiAnimation
+                width={650}
+                height={500}
+                autoPlay
+                loop
+                className={styles.confetti}
+              />
+            ) : null}
+            <button type="button" onClick={closeModal} className={styles.closeButton}>
+              <CloseIcon />
+            </button>
+            <h2 className={styles.title}>Wheel of Fortune</h2>
+            <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
+            <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
+            <img src={pointerImage} alt="pointer" className={styles.pointer} />
+            <button
+              disabled={nonConnectedAcc || wheelState === 'spinning' || wheelState === 'unlocking'}
+              type="button"
+              className={`${styles.spinButton} ${
+                POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
+              }`}
+              onClick={onButtonClick}
+            >
+              {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
+            </button>
+          </div>
         </div>
       </div>
-    </div>,
+    ),
     document.getElementById('modal-root') as HTMLElement
   )
 }
