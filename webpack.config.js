@@ -212,8 +212,7 @@ module.exports = async function (env, argv) {
     // like in certain browsers, when building (and running) in extension context.
     publicPath: '',
     environment: { dynamicImport: true },
-    hashSalt: 'ambire-salt',
-    deterministicChunkIds: true
+    hashSalt: 'ambire-salt'
   }
 
   if (isGecko) {
