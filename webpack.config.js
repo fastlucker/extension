@@ -359,12 +359,14 @@ module.exports = async function (env, argv) {
       config.optimization.moduleIds = 'deterministic' // Ensures same id for modules across builds
       // Disables auto-generated runtime chunks, because they cause ID drift
       config.optimization.runtimeChunk = false
-      // Since v5.0.1 we're no longer setting maxSize (4 * 1024 * 1024) to ensure max file size that
-      // complies with Firefox requirements. This is because it turns on automatic chunk splitting
-      // which creates random chunk names, making the build non-deterministic.
-      config.optimization.splitChunks.maxSize = undefined
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
+        // Since v5.0.1 we're no longer setting maxSize (4 * 1024 * 1024) to ensure max file size that
+        // complies with Firefox requirements. This is because it turns on automatic chunk splitting
+        // which creates random chunk names, making the build non-deterministic.
+        // maxSize = 4 * 1024 * 1024
+        maxSize: undefined,
+        minSize: 0, // prevents merging small modules together automatically
         chunks(chunk) {
           // do not split into chunks the files that should be injected
           return (
@@ -373,7 +375,6 @@ module.exports = async function (env, argv) {
             chunk.name !== 'content-script'
           )
         },
-        minSize: 0, // prevents merging small modules together automatically
         // Disable random cache groups (resulting non-deterministic chunk names)
         cacheGroups: {
           default: false,
