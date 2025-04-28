@@ -73,7 +73,7 @@
 
   @include breakpoint-down-from(large-tablet) {
     .scroll {
-      padding: 0 1rem;
+      padding: 0;
 
     }
   }
