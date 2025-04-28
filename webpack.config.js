@@ -353,9 +353,16 @@ module.exports = async function (env, argv) {
     }
 
     if (config.mode === 'production') {
+      // In production mode, we need to ensure that the chunks are deterministic
+      // in order to comply with the Firefox requirements for extension submission.
       config.optimization.chunkIds = 'deterministic' // Ensures same id for chunks across builds
       config.optimization.moduleIds = 'deterministic' // Ensures same id for modules across builds
-      config.optimization.splitChunks.maxSize = 4 * 1024 * 1024 // ensures max file size of 4MB
+      // Disables auto-generated runtime chunks, because they cause ID drift
+      config.optimization.runtimeChunk = false
+      // Since v5.0.1 we're no longer setting maxSize (4 * 1024 * 1024) to ensure max file size that
+      // complies with Firefox requirements. This is because it turns on automatic chunk splitting
+      // which creates random chunk names, making the build non-deterministic.
+      config.optimization.splitChunks.maxSize = undefined
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
         chunks(chunk) {
@@ -365,6 +372,12 @@ module.exports = async function (env, argv) {
             chunk.name !== 'ethereum-inpage' &&
             chunk.name !== 'content-script'
           )
+        },
+        minSize: 0, // prevents merging small modules together automatically
+        // Disable random cache groups (resulting non-deterministic chunk names)
+        cacheGroups: {
+          default: false,
+          vendors: false
         }
       }
     }
