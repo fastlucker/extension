@@ -252,12 +252,13 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
           <View style={[flexbox.flex1]}>
-            {formStatus === SwapAndBridgeFormStatus.Empty ||
-            formStatus === SwapAndBridgeFormStatus.Invalid ||
-            formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
-            formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
-            formStatus === SwapAndBridgeFormStatus.Proceeded ||
-            shouldShowAmountOnEstimationFailure ? (
+            {(formStatus === SwapAndBridgeFormStatus.Empty ||
+              formStatus === SwapAndBridgeFormStatus.Invalid ||
+              formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
+              formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+              formStatus === SwapAndBridgeFormStatus.Proceeded ||
+              shouldShowAmountOnEstimationFailure) &&
+            updateQuoteStatus !== 'LOADING' ? (
               <Text
                 fontSize={20}
                 weight="medium"
