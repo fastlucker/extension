@@ -13,8 +13,8 @@ global.Buffer = Buffer
 
 // Ethers.js installation guide for RN:
 // https://docs.ethers.io/v5/cookbook/react-native/#cookbook-reactnative-shims
-import 'react-native-get-random-values'
-import '@ethersproject/shims'
+// import 'react-native-get-random-values'
+// import '@ethersproject/shims'
 
 // rn-nodeify specific shims
 // {@link https://github.com/tradle/rn-nodeify/blob/v10.0.1/shim.js}
