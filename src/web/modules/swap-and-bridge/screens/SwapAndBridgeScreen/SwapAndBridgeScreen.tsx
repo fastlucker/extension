@@ -6,17 +6,16 @@ import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
+import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
-import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
-import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
-import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import flexbox from '@common/styles/utils/flexbox'
+import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwapAndBridgeEstimation from '@web/modules/swap-and-bridge/components/Estimation'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
@@ -30,15 +29,12 @@ import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
 import RouteInfo from '../../components/RouteInfo'
 import ToToken from '../../components/ToToken'
-import getStyles from './styles'
 
-const { isTab, isActionWindow, isPopup } = getUiType()
+const { isTab, isActionWindow } = getUiType()
 
 const SwapAndBridgeScreen = () => {
-  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { maxWidthSize } = useWindowSize()
   const {
     sessionId,
     fromAmountValue,
@@ -57,6 +53,7 @@ const SwapAndBridgeScreen = () => {
     closeRoutesModal,
     estimationModalRef,
     setHasBroadcasted,
+    isInitialized,
     displayedView,
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
@@ -72,6 +69,7 @@ const SwapAndBridgeScreen = () => {
     signAccountOpController,
     isAutoSelectRouteDisabled
   } = useSwapAndBridgeControllerState()
+  const { portfolio } = useSelectedAccountControllerState()
 
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
@@ -106,8 +104,6 @@ const SwapAndBridgeScreen = () => {
   // TODO: Confirmation modal (warn) if the diff in dollar amount between the
   // FROM and TO tokens is too high (therefore, user will lose money).
 
-  const paddingHorizontalStyle = useMemo(() => getTabLayoutPadding(maxWidthSize), [maxWidthSize])
-
   const isEstimatingRoute =
     formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
     (!signAccountOpController ||
@@ -134,7 +130,44 @@ const SwapAndBridgeScreen = () => {
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
 
-  if (!sessionIds.includes(sessionId)) return null
+  const onBackButtonPress = useCallback(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
+      params: { sessionId, forceUnload: true }
+    })
+    if (isActionWindow) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+      })
+    } else {
+      navigate(ROUTES.dashboard)
+    }
+  }, [dispatch, navigate, sessionId])
+
+  const buttons = useMemo(() => {
+    return (
+      <>
+        {isTab && <BackButton onPress={handleBackButtonPress} />}
+        <Buttons
+          isNotReadyToProceed={isNotReadyToProceed}
+          handleSubmitForm={handleSubmitForm}
+          isBridge={isBridge}
+        />
+      </>
+    )
+  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
+
+  if (!sessionIds.includes(sessionId) || !isInitialized) {
+    // If the portfolio has loaded we can skip the spinner as initializing the screen
+    // takes a short time and the spinner will only flash.
+    if (portfolio.isReadyToVisualize) return null
+
+    return (
+      <View style={[flexbox.flex1, flexbox.justifyCenter, flexbox.alignCenter]}>
+        <Spinner />
+      </View>
+    )
+  }
 
   if (displayedView === 'track') {
     return (
@@ -156,94 +189,39 @@ const SwapAndBridgeScreen = () => {
   }
 
   return (
-    <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
-      header={
-        <Header
-          displayBackButtonIn="always"
-          mode="title"
-          customTitle={t('Swap & Bridge')}
-          withAmbireLogo
-          forceBack
-          onGoBackPress={() => {
-            dispatch({
-              type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
-              params: { sessionId, forceUnload: true }
-            })
-            if (isActionWindow) {
-              dispatch({
-                type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
-              })
-            } else {
-              navigate(ROUTES.dashboard)
-            }
-          }}
-        />
-      }
-      withHorizontalPadding={false}
-      footer={
-        isTab ? (
-          <>
-            <BackButton onPress={handleBackButtonPress} />
-            <Buttons
-              isNotReadyToProceed={isNotReadyToProceed}
-              handleSubmitForm={handleSubmitForm}
-              isBridge={isBridge}
-            />
-          </>
-        ) : null
-      }
-    >
-      <TabLayoutWrapperMainContent
-        contentContainerStyle={{
-          ...spacings.pv0,
-          ...paddingHorizontalStyle,
-          ...(!isPopup ? spacings.pt2Xl : {}),
-          flexGrow: 1
-        }}
-        wrapperRef={scrollViewRef}
-      >
-        <View style={styles.container}>
-          {isHealthy === false && (
-            <Alert
-              type="error"
-              title={t('Temporarily unavailable.')}
-              text={t(
-                "We're currently unable to initiate a swap or bridge request because our service provider's API is temporarily unavailable. Please try again later. If the issue persists, check for updates or contact support."
-              )}
-              style={spacings.mb}
-            />
-          )}
-
-          <View style={styles.form}>
-            <FromToken
-              fromTokenOptions={fromTokenOptions}
-              fromTokenValue={fromTokenValue}
-              fromAmountValue={fromAmountValue}
-              fromTokenAmountSelectDisabled={fromTokenAmountSelectDisabled}
-              onFromAmountChange={onFromAmountChange}
-              setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
-            />
-            <ToToken
-              isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
-              setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
-            />
-          </View>
-          <RouteInfo
-            isEstimatingRoute={isEstimatingRoute}
-            openRoutesModal={openRoutesModal}
-            shouldEnableRoutesSelection={shouldEnableRoutesSelection}
-            isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
+    <Wrapper title={t('Swap & Bridge')} handleGoBack={onBackButtonPress} buttons={buttons}>
+      <Content scrollViewRef={scrollViewRef} buttons={buttons}>
+        {isHealthy === false && (
+          <Alert
+            type="error"
+            title={t('Temporarily unavailable.')}
+            text={t(
+              "We're currently unable to initiate a swap or bridge request because our service provider's API is temporarily unavailable. Please try again later. If the issue persists, check for updates or contact support."
+            )}
+            style={spacings.mb}
           />
-          {!isTab && (
-            <Buttons
-              isNotReadyToProceed={isNotReadyToProceed}
-              isBridge={isBridge}
-              handleSubmitForm={handleSubmitForm}
-            />
-          )}
-        </View>
-      </TabLayoutWrapperMainContent>
+        )}
+        <Form>
+          <FromToken
+            fromTokenOptions={fromTokenOptions}
+            fromTokenValue={fromTokenValue}
+            fromAmountValue={fromAmountValue}
+            fromTokenAmountSelectDisabled={fromTokenAmountSelectDisabled}
+            onFromAmountChange={onFromAmountChange}
+            setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+          />
+          <ToToken
+            isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
+            setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+          />
+        </Form>
+        <RouteInfo
+          isEstimatingRoute={isEstimatingRoute}
+          openRoutesModal={openRoutesModal}
+          shouldEnableRoutesSelection={shouldEnableRoutesSelection}
+          isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
+        />
+      </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModalWrapped}
@@ -255,7 +233,7 @@ const SwapAndBridgeScreen = () => {
         acknowledgeHighPriceImpact={acknowledgeHighPriceImpact}
         highPriceImpactOrSlippageWarning={highPriceImpactOrSlippageWarning}
       />
-    </TabLayoutContainer>
+    </Wrapper>
   )
 }
 

@@ -7,12 +7,13 @@ import SeparatorWithText from '@common/components/SeparatorWithText'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { DISCORD_URL, TELEGRAM_URL, TWITTER_URL } from '@web/constants/social'
 import VerifyInviteCodeForm from '@web/modules/invite/components/VerifyInviteCodeForm'
 
-import getStyles from './style'
+import getStyles from './styles'
 
 const InviteVerifyScreen = () => {
   const { t } = useTranslation()
@@ -25,19 +26,16 @@ const InviteVerifyScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={
-        <View style={styles.headerContainer}>
-          <AmbireLogoWithTextMonochrome width={115} height={120} />
-          <View style={styles.backgroundSVG}>
-            {/* A little bit larger, because the SVG is rounded at the bottom, */}
-            {/* and this way the rounded part overlaps with the overflow hidden parent */}
-            <UnlockScreenBackground width={410} height={246} />
-          </View>
-        </View>
-      }
+      header={<Header withAmbireLogo customTitle=" " />}
     >
-      <TabLayoutWrapperMainContent style={spacings.mb0} contentContainerStyle={spacings.pt0}>
+      <TabLayoutWrapperMainContent>
         <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            <View style={styles.backgroundSVG}>
+              <UnlockScreenBackground width={400} />
+            </View>
+            <AmbireLogoWithTextMonochrome width={100} />
+          </View>
           <VerifyInviteCodeForm />
           <SeparatorWithText text={t("Don't have one?")} />
           <Trans>

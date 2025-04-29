@@ -37,6 +37,8 @@ type Props = {
   handleClose: () => void
 }
 
+const LIFI_EXPLORER_URL = 'https://scan.li.fi'
+
 const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
@@ -67,6 +69,11 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
   const handleOpenExplorer = useCallback(async () => {
     try {
+      if (!isSwap) {
+        const link = `${LIFI_EXPLORER_URL}/tx/${lastCompletedRoute.userTxHash}`
+        await openInTab(link, false)
+        return
+      }
       const toChainId = lastCompletedRoute.route?.toChainId
       if (!toChainId) throw new Error('No toChainId')
 
@@ -83,7 +90,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
     } catch {
       addToast('Error opening explorer', { type: 'error' })
     }
-  }, [addToast, lastCompletedRoute])
+  }, [addToast, isSwap, lastCompletedRoute])
 
   return (
     <TabLayoutContainer
@@ -93,7 +100,11 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
           backgroundColor="primaryBackground"
           displayBackButtonIn="never"
           mode="title"
-          customTitle={t('Swap & Bridge')}
+          customTitle={
+            <Text fontSize={20} weight="medium">
+              {t('Swap & Bridge')}
+            </Text>
+          }
           withAmbireLogo
         />
       }
@@ -139,7 +150,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                     }}
                   />
                 </View>
-                {fromAsset && toAsset && (
+                {!!fromAsset && !!toAsset && (
                   <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb2Xl]}>
                     <RouteStepsToken
                       uri={fromAsset.icon}
@@ -169,7 +180,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                     />
                   </View>
                 )}
-                {lastCompletedRoute.route?.serviceTime && (
+                {!!lastCompletedRoute.route?.serviceTime && (
                   <Text
                     fontSize={12}
                     weight="medium"

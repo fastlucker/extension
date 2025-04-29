@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
-import CartIcon from '@common/assets/svg/CartIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import Banner, { BannerButton } from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -33,7 +33,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
-    if (category === 'pending-to-be-signed-acc-op') return CartIcon
+    if (category === 'pending-to-be-signed-acc-op') return BatchIcon
     if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
 
     return null
@@ -126,10 +126,6 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
             type: 'ACTIVITY_CONTROLLER_HIDE_BANNER',
             params: action.meta
           })
-          break
-
-        case 'confirm-temp-seed':
-          navigate(ROUTES.saveImportedSeed)
           break
 
         case 'update-extension-version': {

@@ -2,6 +2,7 @@ import { formatUnits, getAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
+import { useLocation } from 'react-router-dom'
 
 import { getUsdAmount } from '@ambire-common/controllers/signAccountOp/helper'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
@@ -54,7 +55,8 @@ const useSwapAndBridgeForm = () => {
     useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { searchParams, setSearchParams, navigate } = useNavigation()
+  const currentRoute = useLocation()
+  const { setSearchParams, navigate } = useNavigation()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
@@ -68,6 +70,7 @@ const useSwapAndBridgeForm = () => {
     open: openPriceImpactModal,
     close: closePriceImpactModal
   } = useModalize()
+  const [isInitialized, setIsInitialized] = useState(false)
   const { visibleActionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => {
@@ -101,16 +104,30 @@ const useSwapAndBridgeForm = () => {
   )
 
   useEffect(() => {
+    if (isInitialized || !portfolio.isReadyToVisualize) return
+
     if (
-      searchParams.get('address') &&
-      searchParams.get('chainId') &&
-      !!portfolio?.isReadyToVisualize &&
-      (sessionIds || []).includes(sessionId)
+      currentRoute &&
+      currentRoute.state &&
+      currentRoute.state.chainId &&
+      currentRoute.state.address
     ) {
+      const { address, chainId } = currentRoute.state as {
+        address: string
+        chainId: string
+      }
+
+      if (
+        fromSelectedToken?.address === address &&
+        String(fromSelectedToken?.chainId) === chainId
+      ) {
+        setIsInitialized(true)
+        return
+      }
       const tokenToSelectOnInit = portfolio.tokens.find(
         (t) =>
-          t.address === searchParams.get('address') &&
-          t.chainId.toString() === searchParams.get('chainId') &&
+          t.address === address &&
+          t.chainId.toString() === chainId &&
           getIsTokenEligibleForSwapAndBridge(t)
       )
 
@@ -119,22 +136,18 @@ const useSwapAndBridgeForm = () => {
           type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
           params: { fromSelectedToken: tokenToSelectOnInit }
         })
-        // Reset search params once updated in the state
-        setSearchParams((prev) => {
-          prev.delete('address')
-          prev.delete('chainId')
-          return prev
-        })
       }
+    } else {
+      setIsInitialized(true)
     }
   }, [
+    currentRoute,
     dispatch,
-    setSearchParams,
+    fromSelectedToken?.address,
+    fromSelectedToken?.chainId,
+    isInitialized,
     portfolio?.isReadyToVisualize,
-    portfolio.tokens,
-    searchParams,
-    sessionIds,
-    sessionId
+    portfolio.tokens
   ])
 
   useEffect(() => {
@@ -311,12 +324,12 @@ const useSwapAndBridgeForm = () => {
         quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
       )
       const minInUsd = getUsdAmount(
-        quote.selectedRoute.toToken.priceUSD,
+        Number(quote.selectedRoute.toToken.priceUSD),
         quote.selectedRoute.toToken.decimals,
         minAmountOutInWei
       )
-      const allowedSlippage = inputValueInUsd <= 400 ? 1.15 : 0.65
-      const possibleSlippage = quote.selectedRoute.outputValueInUsd / Number(minInUsd)
+      const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
+      const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
       if (possibleSlippage > allowedSlippage) {
         return {
           type: 'slippageImpact',
@@ -449,6 +462,7 @@ const useSwapAndBridgeForm = () => {
 
   return {
     sessionId,
+    isInitialized,
     fromAmountValue,
     onFromAmountChange,
     fromTokenAmountSelectDisabled,

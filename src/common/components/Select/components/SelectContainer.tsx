@@ -23,6 +23,7 @@ type Props = CommonSelectProps &
   }
 
 const SelectContainer: FC<Props> = ({
+  id,
   label,
   bottomSheetTitle,
   value,
@@ -128,7 +129,7 @@ const SelectContainer: FC<Props> = ({
           </MenuContainer>
         )
       ) : (
-        <BottomSheetContainer isMenuOpen={isMenuOpen} toggleMenu={toggleMenu}>
+        <BottomSheetContainer id={id} isMenuOpen={isMenuOpen} toggleMenu={toggleMenu}>
           <BottomSheetHeader label={bottomSheetTitle} toggleMenu={toggleMenu} />
           <View style={[spacings.phMd, flexbox.flex1, { height: 600 }]}>
             <Search

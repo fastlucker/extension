@@ -1,17 +1,14 @@
 import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 
-import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
-import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
+import { getIdentity } from '@ambire-common/libs/accountPicker/accountPicker'
 import { RELAYER_URL } from '@env'
 import useToast from '@legends/hooks/useToast'
 
 type AccountContextType = {
   connectedAccount: string | null
-  nonV2Account: string | null
+  v1Account: string | null
   allAccounts: string[]
-  allowNonV2Connection: boolean
-  setAllowNonV2Connection: (arg: boolean) => void
   chainId: bigint | null
   isLoading: boolean
   error: string | null
@@ -41,8 +38,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   })
 
   const [allAccounts, setAllAccounts] = React.useState<string[]>([])
-  const [nonV2Account, setNonV2Account] = React.useState<string | null>(null)
-  const [allowNonV2Connection, setAllowNonV2Connection] = React.useState<boolean>(false)
+  const [v1Account, setV1Account] = React.useState<string | null>(null)
   const [chainId, setChainId] = React.useState<bigint | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
@@ -92,35 +88,19 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
         // Add: timeout to this request
         const identity = await getIdentity(address, fetch as any, RELAYER_URL)
         const factoryAddr = identity.creation?.factoryAddr
-        const isV2 = factoryAddr === AMBIRE_ACCOUNT_FACTORY
+        const isV1 = isAmbireV1LinkedAccount(factoryAddr)
 
-        if (isV2) {
-          setError(null)
-          setNonV2Account(null)
-          setConnectedAccount(address)
-          localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
-          return
-        }
-
-        if (!allowNonV2Connection) {
+        if (isV1) {
+          setV1Account(address)
           setConnectedAccount(null)
           localStorage.setItem(LOCAL_STORAGE_ACC_KEY, '')
-        }
 
-        setNonV2Account(address)
-
-        if (!connectedAccount) {
-          const isV1 = isAmbireV1LinkedAccount(factoryAddr)
-
-          if (isV1) {
-            setError('You are trying to connect an Ambire v1 account. Please switch your account!')
-          } else {
-            setError(
-              'You are trying to connect a non Ambire v2 account. Please switch your account!'
-            )
-          }
-
-          return
+          setError('You are trying to connect an Ambire v1 account. Please switch your account!')
+        } else {
+          setError(null)
+          setV1Account(null)
+          setConnectedAccount(address)
+          localStorage.setItem(LOCAL_STORAGE_ACC_KEY, address)
         }
       } catch (e: any) {
         addToast(
@@ -130,12 +110,12 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
         console.log(e)
       }
     },
-    [addToast, allowNonV2Connection, connectedAccount]
+    [addToast]
   )
 
   const handleDisconnectFromWallet = useCallback(async () => {
     setConnectedAccount(null)
-    setNonV2Account(null)
+    setV1Account(null)
     setIsLoading(false)
     setAllAccounts([])
     localStorage.removeItem(LOCAL_STORAGE_ACC_KEY)
@@ -198,9 +178,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
   const contextValue: AccountContextType = useMemo(
     () => ({
       connectedAccount,
-      nonV2Account,
-      allowNonV2Connection,
-      setAllowNonV2Connection,
+      v1Account,
       error,
       requestAccounts,
       disconnectAccount,
@@ -210,9 +188,7 @@ const AccountContextProvider = ({ children }: { children: React.ReactNode }) => 
     }),
     [
       connectedAccount,
-      nonV2Account,
-      allowNonV2Connection,
-      setAllowNonV2Connection,
+      v1Account,
       allAccounts,
       error,
       requestAccounts,
