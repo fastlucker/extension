@@ -381,6 +381,28 @@ module.exports = async function (env, argv) {
           vendors: false
         }
       }
+
+      // TODO: Check if this gives results
+      const minimizer = config.optimization.minimizer?.[0]
+      if (minimizer && minimizer.constructor.name === 'TerserPlugin') {
+        const terserRealOptions = minimizer.options.minimizer?.options
+
+        if (terserRealOptions) {
+          terserRealOptions.compress = {
+            ...(terserRealOptions.compress || {}),
+            pure_getters: true,
+            passes: 3
+          }
+
+          terserRealOptions.output = {
+            ...(terserRealOptions.output || {}),
+            ascii_only: true,
+            comments: false
+          }
+        }
+
+        minimizer.options.parallel = false
+      }
     }
 
     config.experiments = {
