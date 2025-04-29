@@ -27,9 +27,9 @@ const StakeWallet = () => {
   const { onComplete, handleClose } = useCardActionContext()
 
   const { addToast } = useToast()
-  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
-  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const disabledButton = Boolean(!connectedAccount || v1Account)
 
   const [walletBalance, setWalletBalance] = useState(null)
 
