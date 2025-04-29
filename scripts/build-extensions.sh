@@ -7,7 +7,7 @@ echo "This script automates the process of building the browser extension and th
 echo "source maps, then packages them into .zip files ready for store submissions 💪"
 
 # Get version from app.json
-VERSION=$(jq -r '.expo.version' ./app.json)
+VERSION=$(grep '"version"' ./app.json | head -n1 | cut -d':' -f2 | tr -d ' ",')
 
 if [ -z "$VERSION" ]; then
   echo "Version not found in app.json. Make sure the 'expo.version' key exists."
