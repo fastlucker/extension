@@ -15,6 +15,7 @@ export enum CardActionType {
 export type CardActionCalls = {
   type: CardActionType.calls
   calls: [string, string, string][]
+  chainId?: number
 }
 
 export type CardActionPredefined = {
