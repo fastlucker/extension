@@ -337,6 +337,10 @@ export const handleActions = async (
       return mainCtrl.actions.removeAction(
         `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`
       )
+    case 'TRANSFER_CONTROLLER_UPDATE_FORM':
+      return mainCtrl.transfer.update(params.formValues, params.options)
+    case 'TRANSFER_CONTROLLER_RESET_FORM':
+      return mainCtrl.transfer.resetForm()
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 

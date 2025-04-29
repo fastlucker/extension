@@ -32,6 +32,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 
+import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
@@ -569,6 +570,13 @@ type SwapAndBridgeControllerOpenSigningActionWindow = {
 type SwapAndBridgeControllerCloseSigningActionWindow = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
 }
+type TransferControllerUpdateForm = {
+  type: 'TRANSFER_CONTROLLER_UPDATE_FORM'
+  params: { formValues: TransferUpdate; options?: { shouldPersist: boolean } }
+}
+type TransferControllerResetForm = {
+  type: 'TRANSFER_CONTROLLER_RESET_FORM'
+}
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
   params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
@@ -794,3 +802,5 @@ export type Action =
   | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
+  | TransferControllerUpdateForm
+  | TransferControllerResetForm

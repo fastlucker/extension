@@ -1,24 +1,21 @@
-import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { createContext, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
-
-import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { sortPortfolioTokenList } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
-import { storage } from '@web/extension-services/background/webapi/storage'
-import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
-import { APP_VERSION } from '@common/config/env'
+import useControllerState from '@web/hooks/useControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 
 type ContextReturn = {
   state: TransferController
-  transferCtrl: TransferController
   tokens: TokenResult[]
 }
 
@@ -42,18 +39,25 @@ const TransferControllerStateProvider = ({
   children: any
   isTopUp?: boolean
 }) => {
+  const controller = 'transfer'
+  const state = useControllerState(controller)
+  const { dispatch } = useBackgroundService()
+  const mainState = useMainControllerState()
+
+  useEffect(() => {
+    if (!Object.keys(state).length) {
+      dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
+    }
+  }, [dispatch, mainState.isReady, state])
+
+  const memoizedState = useDeepMemo(state, controller)
+
   const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
-  const { contacts } = useAddressBookControllerState()
   const { search } = useRoute()
-  const [state, setState] = useState<TransferController>({} as TransferController)
 
   const { portfolio } = useSelectedAccountControllerState()
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
-  const transferCtrlRef = useRef<TransferController | null>(null)
-  const transferCtrl = transferCtrlRef.current
-
-  const forceUpdate = useCallback(() => setState({} as TransferController), [])
 
   const tokens = useMemo(
     () =>
@@ -79,57 +83,16 @@ const TransferControllerStateProvider = ({
   )
 
   useEffect(() => {
-    // Don't reinit the controller if it already exists. Only update its properties
-    if (transferCtrl || !account || !portfolio) return
+    if (!account) return
 
-    transferCtrlRef.current = new TransferController(
-      storage,
-      humanizerInfo as HumanizerMeta,
-      account,
-      networks,
-      portfolio,
-      !isTopUp, // Hydrate and persist in case of Transfer, if it's PopUp don't
-      APP_VERSION
-    )
-    forceUpdate()
-  }, [forceUpdate, account, networks, transferCtrl, portfolio, isTopUp])
-
-  useEffect(() => {
-    if (!transferCtrl) return
-    transferCtrl.onUpdate(() => {
-      setState(transferCtrl.toJSON())
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: { formValues: { selectedAccountData: account } }
     })
-  }, [transferCtrl])
+  }, [account, dispatch])
 
   useEffect(() => {
-    if (!account || !transferCtrl) return
-
-    transferCtrl.update({ selectedAccountData: account })
-  }, [account, transferCtrl])
-
-  useEffect(() => {
-    if (!transferCtrl) return
-    transferCtrl.update({
-      networks
-    })
-  }, [transferCtrl, networks])
-
-  useEffect(() => {
-    if (!transferCtrl) return
-    transferCtrl.update({
-      contacts
-    })
-  }, [contacts, transferCtrl])
-
-  useEffect(() => {
-    if (!transferCtrl) return
-    transferCtrl.update({
-      humanizerInfo: humanizerInfo as HumanizerMeta
-    })
-  }, [transferCtrl])
-
-  useEffect(() => {
-    if (!state.selectedToken?.address || !transferCtrl) return
+    if (!memoizedState.selectedToken?.address || !memoizedState) return
 
     // If a token is already selected, we should retrieve its latest value from tokens.
     // This is important because the token amount is likely to change,
@@ -137,31 +100,33 @@ const TransferControllerStateProvider = ({
     // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
     const selectedToken = tokens.find(
       (token) =>
-        token.address === transferCtrl.selectedToken?.address &&
-        token.chainId === transferCtrl.selectedToken?.chainId
+        token.address === memoizedState.selectedToken?.address &&
+        token.chainId === memoizedState.selectedToken?.chainId
     )
 
     // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
     // In that case we do not update the selected token
     if (selectedToken) {
-      transferCtrl.update(
-        {
-          selectedToken
-        },
-        { shouldPersist: false }
-      )
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { selectedToken }, options: { shouldPersist: false } }
+      })
     }
-  }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.chainId, tokens, transferCtrl])
+  }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.chainId, tokens, memoizedState, dispatch])
 
   useEffect(() => {
-    if (!transferCtrl) return
-    transferCtrl.update({ isTopUp })
-  }, [isTopUp, transferCtrl])
+    if (!memoizedState) return
+
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: { formValues: { isTopUp } }
+    })
+  }, [isTopUp, memoizedState, dispatch])
 
   // If the user sends the max amount of a token it will disappear from the list of tokens
   // and we need to select another token
   useEffect(() => {
-    if (!state.selectedToken?.address || !transferCtrl) return
+    if (!state.selectedToken?.address || !memoizedState) return
     const isSelectedTokenNetworkLoading =
       portfolio.pending[state.selectedToken.chainId.toString()]?.isLoading ||
       portfolio.latest[state.selectedToken.chainId.toString()]?.isLoading
@@ -177,12 +142,10 @@ const TransferControllerStateProvider = ({
 
     if (isSelectedTokenInTokens) return
 
-    transferCtrl.update(
-      {
-        selectedToken: tokens[0]
-      },
-      { shouldPersist: false }
-    )
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: { formValues: { selectedToken: tokens[0] }, options: { shouldPersist: false } }
+    })
   }, [
     portfolio.latest,
     portfolio.pending,
@@ -190,18 +153,15 @@ const TransferControllerStateProvider = ({
     state.selectedToken?.flags.rewardsType,
     state.selectedToken?.chainId,
     tokens,
-    transferCtrl
+    memoizedState,
+    dispatch
   ])
 
   return (
     <TransferControllerStateContext.Provider
-      value={useMemo(
-        // Typecasting to TransferController is safe because children are rendered only when state is not empty
-        () => ({ state, transferCtrl: transferCtrl as TransferController, tokens }),
-        [state, transferCtrl, tokens]
-      )}
+      value={useMemo(() => ({ state: memoizedState, tokens }), [memoizedState, tokens])}
     >
-      {Object.keys(state).length ? (
+      {Object.keys(memoizedState).length ? (
         children
       ) : (
         <View style={[flexbox.flex1, flexbox.center]}>

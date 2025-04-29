@@ -26,6 +26,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -54,7 +55,8 @@ const SendForm = ({
   formTitle: string | ReactNode
 }) => {
   const { validation } = addressInputState
-  const { state, tokens, transferCtrl } = useTransferControllerState()
+  const { state, tokens } = useTransferControllerState()
+  const { dispatch } = useBackgroundService()
   const { accountStates } = useAccountsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const {
@@ -99,17 +101,22 @@ const SendForm = ({
       const tokenToSelect = tokens.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
-
-      transferCtrl.update({ selectedToken: tokenToSelect, amount: '' })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { selectedToken: tokenToSelect, amount: '' } }
+      })
     },
-    [tokens, transferCtrl, networks]
+    [tokens, networks, dispatch]
   )
 
   const setAddressStateFieldValue = useCallback(
     (value: string) => {
-      transferCtrl.update({ addressState: { fieldValue: value } })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { addressState: { fieldValue: value } } }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const setMaxAmount = useCallback(() => {
@@ -117,8 +124,11 @@ const SendForm = ({
     const canDeductGas = estimation && estimation.chainId === selectedToken?.chainId
 
     if (!shouldDeductGas || !canDeductGas) {
-      transferCtrl.update({
-        amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat }
+        }
       })
 
       return
@@ -129,12 +139,22 @@ const SendForm = ({
 
     // Let the user see for himself that the amount is less than the gas fee
     if (gasDeductedAmountBigInt < 0n) {
-      transferCtrl.update({ amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat }
+        }
+      })
       return
     }
 
     if (amountFieldMode === 'token') {
-      transferCtrl.update({ amount: gasDeductedAmount })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: gasDeductedAmount }
+        }
+      })
       return
     }
 
@@ -147,7 +167,12 @@ const SendForm = ({
         tokenPriceDecimals + selectedToken.decimals
       )
 
-      transferCtrl.update({ amount: String(gasDeductedAmountInFiat) })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: String(gasDeductedAmountInFiat) }
+        }
+      })
     }
   }, [
     amountFieldMode,
@@ -156,27 +181,38 @@ const SendForm = ({
     maxAmount,
     maxAmountInFiat,
     selectedToken,
-    transferCtrl
+    dispatch
   ])
 
   const switchAmountFieldMode = useCallback(() => {
-    transferCtrl.update({
-      amountFieldMode: amountFieldMode === 'token' ? 'fiat' : 'token'
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: { amountFieldMode: amountFieldMode === 'token' ? 'fiat' : 'token' }
+      }
     })
-  }, [amountFieldMode, transferCtrl])
+  }, [amountFieldMode, dispatch])
 
   const setAmount = useCallback(
     (value: string) => {
-      transferCtrl.update({ amount: value })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: value }
+        }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
-    transferCtrl.update({
-      isRecipientAddressUnknownAgreed: true
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: { isRecipientAddressUnknownAgreed: true }
+      }
     })
-  }, [transferCtrl])
+  }, [dispatch])
 
   const isMaxAmountEnabled = useMemo(() => {
     if (!maxAmount) return false
@@ -207,10 +243,16 @@ const SendForm = ({
       }
 
       if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
-        transferCtrl.update({ selectedToken: tokenToSelect }, { shouldPersist: false })
+        dispatch({
+          type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+          params: {
+            formValues: { selectedToken: tokenToSelect },
+            options: { shouldPersist: false }
+          }
+        })
       }
     }
-  }, [tokens, selectedTokenFromUrl, state.selectedToken, transferCtrl])
+  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
 
   useEffect(() => {
     if (

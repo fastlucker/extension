@@ -42,7 +42,7 @@ const { isPopup } = getUiType()
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { state, transferCtrl } = useTransferControllerState()
+  const { state } = useTransferControllerState()
   const {
     isTopUp,
     validationFormMsgs,
@@ -109,9 +109,12 @@ const TransferScreen = () => {
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
-      transferCtrl.update({ addressState: newPartialAddressState })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { addressState: newPartialAddressState } }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const handleCacheResolvedDomain = useCallback(
@@ -143,8 +146,8 @@ const TransferScreen = () => {
   })
 
   const isFormEmpty = useMemo(() => {
-    return (!transferCtrl.amount && !transferCtrl.recipientAddress) || !transferCtrl.selectedToken
-  }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
+    return (!state.amount && !state.recipientAddress) || !state.selectedToken
+  }, [state.amount, state.recipientAddress, state.selectedToken])
 
   const submitButtonText = useMemo(() => {
     if (hasFocusedActionWindow) return isTopUp ? t('Top Up') : t('Send')
@@ -204,19 +207,23 @@ const TransferScreen = () => {
   ])
 
   const onBack = useCallback(() => {
-    transferCtrl.resetForm()
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
     navigate(ROUTES.dashboard)
-  }, [navigate, transferCtrl])
+  }, [navigate, dispatch])
 
   const resetTransferForm = useCallback(() => {
-    transferCtrl.resetForm()
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
     recipientMenuClosedAutomatically.current = false
-  }, [transferCtrl])
+  }, [dispatch])
 
   const addTransaction = useCallback(
     (actionExecutionType: ActionExecutionType) => {
       if (isFormValid && state.selectedToken) {
-        if (actionExecutionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
+        if (actionExecutionType === 'queue' && !state.shouldSkipTransactionQueuedModal) {
           openBottomSheet()
         }
 
@@ -250,7 +257,7 @@ const TransferScreen = () => {
       }
     },
     [
-      transferCtrl,
+      state,
       addressState,
       isTopUp,
       state.amount,
@@ -357,9 +364,11 @@ const TransferScreen = () => {
   ])
 
   const handleGoBackPress = useCallback(() => {
-    transferCtrl.resetForm()
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
     navigate(ROUTES.dashboard)
-  }, [navigate, transferCtrl])
+  }, [navigate, dispatch])
 
   return (
     <Wrapper title={headerTitle} handleGoBack={handleGoBackPress} buttons={buttons}>
@@ -457,10 +466,11 @@ const TransferScreen = () => {
                 {t('All pending batch transactions are available on your Dashboard.')}
               </Text>
               <Checkbox
-                value={transferCtrl.shouldSkipTransactionQueuedModal}
+                value={state.shouldSkipTransactionQueuedModal}
                 onValueChange={() => {
-                  transferCtrl.shouldSkipTransactionQueuedModal =
-                    !transferCtrl.shouldSkipTransactionQueuedModal
+                  // TODO
+                  // transferCtrl.shouldSkipTransactionQueuedModal =
+                  //   !transferCtrl.shouldSkipTransactionQueuedModal
                 }}
                 uncheckedBorderColor={theme.secondaryText}
                 label={t("Don't show this modal again")}
