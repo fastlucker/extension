@@ -247,15 +247,22 @@ module.exports = async function (env, argv) {
     }
     locations.template = templatePaths
 
-    config.entry = {
-      main: config.entry[0], // the app entry
-      // extension services
-      background: './src/web/extension-services/background/background.ts',
-      'content-script':
-        './src/web/extension-services/content-script/content-script-messenger-bridge.ts',
-      'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts',
-      'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts'
-    }
+    config.entry = Object.fromEntries(
+      Object.entries({
+        main: config.entry[0],
+        background: './src/web/extension-services/background/background.ts',
+        'content-script':
+          './src/web/extension-services/content-script/content-script-messenger-bridge.ts',
+        'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts',
+        'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts',
+        ...(isGecko && {
+          'content-script-ambire-injection':
+            './src/web/extension-services/content-script/content-script-ambire-injection.ts',
+          'content-script-ethereum-injection':
+            './src/web/extension-services/content-script/content-script-ethereum-injection.ts'
+        })
+      }).sort(([a], [b]) => a.localeCompare(b)) // different order (based on OS) makes the build non-deterministic
+    )
 
     if (isGecko) {
       config.entry['content-script-ambire-injection'] =
@@ -353,6 +360,7 @@ module.exports = async function (env, argv) {
     }
 
     if (config.mode === 'production') {
+      config.cache = false
       // In production mode, we need to ensure that the chunks are deterministic
       // in order to comply with the Firefox requirements for extension submission.
       config.optimization.chunkIds = 'deterministic' // Ensures same id for chunks across builds
