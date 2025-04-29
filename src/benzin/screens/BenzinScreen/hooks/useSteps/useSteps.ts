@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { BUNDLER } from '@ambire-common/consts/bundlers'
-import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
+import { AMBIRE_PAYMASTER, ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -619,7 +619,8 @@ const useSteps = ({
       address = ZeroAddress
     }
 
-    const isSponsored = amount === 0n && isGasTank
+    const isSponsored =
+      (amount === 0n && isGasTank) || (!!userOp && userOp.paymaster !== AMBIRE_PAYMASTER)
     if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -661,7 +662,7 @@ const useSteps = ({
     return () => {
       isMounted = false
     }
-  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network])
+  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network, userOp, networks])
 
   useEffect(() => {
     if (!network) return

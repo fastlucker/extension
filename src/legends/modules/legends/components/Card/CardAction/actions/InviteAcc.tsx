@@ -36,8 +36,8 @@ const InviteAcc: FC<Props> = ({
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
 
-  const { connectedAccount, allAccounts, allowNonV2Connection, nonV2Account } = useAccountContext()
-  const isInvalidAccount = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const { connectedAccount, allAccounts, v1Account } = useAccountContext()
+  const isInvalidAccount = Boolean(!connectedAccount || v1Account)
   const [isInProgress, setIsInProgress] = useState(false)
 
   const {

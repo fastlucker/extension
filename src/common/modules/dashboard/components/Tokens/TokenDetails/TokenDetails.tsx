@@ -117,7 +117,12 @@ const TokenDetails = ({
         icon: SwapAndBridgeIcon,
         iconWidth: 86,
         onPress: ({ chainId, address }: TokenResult) =>
-          navigate(`${WEB_ROUTES.swapAndBridge}?chainId=${chainId}&address=${address}`),
+          navigate(WEB_ROUTES.swapAndBridge, {
+            state: {
+              chainId: String(chainId),
+              address
+            }
+          }),
         isDisabled: shouldDisableSwapAndBridge,
         tooltipText: isNetworkNotSupportedForSwapAndBridge
           ? t(

@@ -43,7 +43,14 @@ const SectionedSelect = ({
   } = selectData
 
   return (
-    <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
+    <SelectContainer
+      value={value}
+      setValue={setValue}
+      {...selectData}
+      {...props}
+      id={testID}
+      testID={testID}
+    >
       <SectionList
         ref={listRef}
         sections={filteredData as SectionedSelectProps['sections']}

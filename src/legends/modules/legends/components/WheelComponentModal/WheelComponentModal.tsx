@@ -54,13 +54,13 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
     return () => window.removeEventListener('resize', checkIfMobile)
   }, [])
-  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus } = useErc5792()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
   const chainRef = React.useRef<HTMLImageElement>(null)
-  const nonConnectedAcc = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
 
   const stopSpinnerTeaseAnimation = useCallback(() => {
     if (!spinnerRef.current) return

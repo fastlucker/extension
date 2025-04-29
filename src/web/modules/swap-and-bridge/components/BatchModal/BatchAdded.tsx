@@ -2,7 +2,7 @@ import React, { FC, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import CartIcon from '@common/assets/svg/CartIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -60,7 +60,7 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
             spacings.pbXl
           ]}
         >
-          <CartIcon width={64} height={64} color={theme.secondaryText} />
+          <BatchIcon width={64} height={64} color={theme.secondaryText} />
           <Text fontSize={20} weight="medium" style={[spacings.mbTy, spacings.mtLg, text.center]}>
             {t('Added to batch')}
           </Text>

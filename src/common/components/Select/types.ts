@@ -16,6 +16,7 @@ export type RenderSelectedOptionParams = {
 }
 
 export type CommonSelectProps = {
+  id?: string
   value?: SelectValue | null
   setValue?: (value: SelectValue) => void
   handleSearch?: (search: string) => void

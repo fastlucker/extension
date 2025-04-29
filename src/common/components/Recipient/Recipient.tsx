@@ -120,7 +120,7 @@ const SelectedMenuOption: React.FC<{
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
-      label="Add Recipient"
+      label="Add recipient"
       value={address}
       onChangeText={setAddress}
       disabled={disabled}
@@ -288,7 +288,7 @@ const Recipient: React.FC<Props> = ({
       if (section.data.length === 0) return null
 
       return section.key === 'contacts' ? (
-        <TitleAndIcon title={t('Contacts')} icon={AccountsFilledIcon}>
+        <TitleAndIcon title={t('Address Book')} icon={AccountsFilledIcon}>
           <AnimatedPressable
             style={[flexbox.directionRow, flexbox.alignCenter, manageBtnAnimStyle]}
             onPress={onManagePress}
@@ -296,12 +296,12 @@ const Recipient: React.FC<Props> = ({
           >
             <SettingsIcon width={18} height={18} color={theme.secondaryText} />
             <Text fontSize={14} style={spacings.mlMi} appearance="secondaryText">
-              {t('Manage Contacts')}
+              {t('Manage contacts')}
             </Text>
           </AnimatedPressable>
         </TitleAndIcon>
       ) : (
-        <TitleAndIcon title={t('My Wallets')} icon={WalletFilledIcon} />
+        <TitleAndIcon title={t('My wallets')} icon={WalletFilledIcon} />
       )
     },
     [bindManageBtnAnim, manageBtnAnimStyle, onManagePress, t, theme.secondaryText]
@@ -354,17 +354,6 @@ const Recipient: React.FC<Props> = ({
         menuPosition={menuPosition}
       />
       <View style={styles.inputBottom}>
-        <Text
-          style={styles.doubleCheckMessage}
-          weight="regular"
-          fontSize={12}
-          appearance="secondaryText"
-        >
-          {t(
-            'Please double-check the recipient address, blockchain transactions are not reversible.'
-          )}
-        </Text>
-
         <ConfirmAddress
           onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
           isRecipientHumanizerKnownTokenOrSmartContract={
