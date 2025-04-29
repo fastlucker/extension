@@ -4,34 +4,19 @@ import { View } from 'react-native'
 
 import { SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET } from '@ambire-common/consts/derivation'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@ambire-common/consts/hardwareWallets'
-import { Account } from '@ambire-common/interfaces/account'
 import { ExternalKey, InternalKey } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
-import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
-import Text from '@common/components/Text'
-import useTheme from '@common/hooks/useTheme'
+import { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import spacings from '@common/styles/spacings'
 
 import Row from './Row'
-import getStyles from './styles'
 
 interface Props {
   details: AccountKeyType
-  closeDetails: () => void
-  account: Account
-  keyIconColor?: string
-  showExportImport?: boolean
 }
 
-const AccountKeyDetails: FC<Props> = ({
-  details,
-  closeDetails,
-  account,
-  keyIconColor,
-  showExportImport = false
-}) => {
-  const { styles } = useTheme(getStyles)
+const AccountKeyDetails: FC<Props> = ({ details }) => {
   const { t } = useTranslation()
   const { type, addr, dedicatedToOneSA } = details
 
@@ -44,18 +29,7 @@ const AccountKeyDetails: FC<Props> = ({
         key: string
         value: string
         [key: string]: any
-      }[] = [
-        {
-          key: t('Address'),
-          value: addr,
-          tooltip: dedicatedToOneSA
-            ? t(
-                'Ambire derives a different key from your private key, for security and privacy reasons.'
-              )
-            : undefined,
-          suffix: dedicatedToOneSA ? `\n${t('(dedicated key derived from the private key)')}` : ''
-        }
-      ]
+      }[] = []
 
       if (meta?.createdAt && new Date(meta.createdAt).toString() !== 'Invalid Date') {
         internalKeyDetails.push({
@@ -117,24 +91,10 @@ const AccountKeyDetails: FC<Props> = ({
   }, [type, details.meta, t, dedicatedToOneSA, addr])
 
   return (
-    <View>
-      <Text fontSize={18} weight="medium" style={spacings.mbSm}>
-        {t('Key Details')}
-      </Text>
-      <View style={styles.container}>
-        <AccountKey
-          {...details}
-          account={account}
-          keyIconColor={keyIconColor}
-          showExportImport={showExportImport}
-          closeDetails={closeDetails}
-        />
-        <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
-          {metaDetails.map(({ key, value, tooltip, suffix }) => (
-            <Row key={key} rowKey={key} value={value} tooltip={tooltip} suffix={suffix} />
-          ))}
-        </View>
-      </View>
+    <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
+      {metaDetails.map(({ key, value, tooltip, suffix }) => (
+        <Row key={key} rowKey={key} value={value} tooltip={tooltip} suffix={suffix} />
+      ))}
     </View>
   )
 }

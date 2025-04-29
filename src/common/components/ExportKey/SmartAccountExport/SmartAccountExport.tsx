@@ -9,7 +9,6 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 interface Props {
   account: Account
@@ -34,7 +33,6 @@ const SmartAccountExport: FC<Props> = ({ account, privateKey }) => {
 
   return (
     <>
-      <SettingsPageHeader title="Smart account export" />
       <View style={[spacings.mbTy]}>
         <Alert
           size="sm"

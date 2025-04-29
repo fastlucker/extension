@@ -132,17 +132,14 @@ const RecoveryPhraseSettingsScreen = () => {
       <BottomSheet
         sheetRef={sheetRef}
         id="manage-recovery-phrase-bottom-sheet"
+        backgroundColor="primaryBackground"
         onBackdropPress={() => {
           setRecoveryPhraseToManage(null)
           closeBottomSheet()
         }}
         scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
         containerInnerWrapperStyles={{ flex: 1 }}
-        style={{
-          maxWidth: 432,
-          minHeight: 432,
-          ...spacings.pvLg
-        }}
+        style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
       >
         {!!recoveryPhraseToManage && (
           <ManageRecoveryPhrase

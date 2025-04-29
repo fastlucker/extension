@@ -429,7 +429,7 @@ export const handleActions = async (
         undefined,
         params.extraEntropy
       )
-    case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
+    case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi(params.id)

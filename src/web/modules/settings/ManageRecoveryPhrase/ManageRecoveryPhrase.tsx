@@ -152,7 +152,7 @@ const ManageRecoveryPhrase = ({
             !blurred && seed !== DUMMY_SEED ? styles.notBlurred : styles.blurred,
             spacings.pvMd,
             spacings.phMd,
-            { backgroundColor: theme.primaryBackground, borderRadius: BORDER_RADIUS_PRIMARY }
+            { backgroundColor: theme.secondaryBackground, borderRadius: BORDER_RADIUS_PRIMARY }
           ]}
         >
           <Text fontSize={14} color={theme.secondaryText}>
@@ -178,15 +178,25 @@ const ManageRecoveryPhrase = ({
             { marginHorizontal: -SPACING_SM }
           ]}
         >
-          <Button
-            onPress={handleCopySeed}
-            hasBottomSpacing={false}
-            type="ghost"
-            size="small"
-            text={t('Copy phrase')}
+          <View
+            style={{
+              opacity: !seed || seed === DUMMY_SEED ? 0 : 1
+            }}
           >
-            <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
-          </Button>
+            <Button
+              onPress={handleCopySeed}
+              hasBottomSpacing={false}
+              type="ghost"
+              size="small"
+              text={t('Copy phrase')}
+              style={{
+                // @ts-ignore
+                cursor: !seed || seed === DUMMY_SEED ? 'default' : 'pointer'
+              }}
+            >
+              <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
+            </Button>
+          </View>
           <Button
             onPress={toggleKeyVisibility}
             hasBottomSpacing={false}
@@ -217,14 +227,11 @@ const ManageRecoveryPhrase = ({
         id="delete-saved-seed-sheet"
         type="modal"
         sheetRef={sheetRefDeleteConfirmation}
+        backgroundColor="primaryBackground"
         closeBottomSheet={closeDeleteConfirmation}
         scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
         containerInnerWrapperStyles={{ flex: 1 }}
-        style={{
-          maxWidth: 432,
-          minHeight: 432,
-          ...spacings.pvLg
-        }}
+        style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
           <PanelBackButton onPress={closeDeleteConfirmation} style={spacings.mrTy} />
@@ -266,6 +273,7 @@ const ManageRecoveryPhrase = ({
         sheetRef={sheetRefConfirmPassword}
         id="confirm-password-bottom-sheet"
         type="modal"
+        backgroundColor="primaryBackground"
         closeBottomSheet={closeConfirmPassword}
         scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
         containerInnerWrapperStyles={{ flex: 1 }}

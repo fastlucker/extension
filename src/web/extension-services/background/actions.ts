@@ -428,8 +428,8 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string; extraEntropy: string }
 }
-type KeystoreControllerSendPrivateKeyOverChannel = {
-  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
+type KeystoreControllerSendPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string }
 }
 type KeystoreControllerDeleteSeedAction = {
@@ -745,7 +745,7 @@ export type Action =
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction
-  | KeystoreControllerSendPrivateKeyOverChannel
+  | KeystoreControllerSendPrivateKeyToUiAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
   | EmailVaultControllerCancelConfirmationAction

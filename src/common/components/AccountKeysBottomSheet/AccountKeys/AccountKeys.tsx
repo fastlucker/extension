@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction } from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -7,24 +7,26 @@ import { Account } from '@ambire-common/interfaces/account'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Alert from '@common/components/Alert'
-import Text from '@common/components/Text'
+import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 interface Props {
-  setCurrentKeyDetails: Dispatch<SetStateAction<AccountKeyType | null>>
   account: Account
   openAddAccountBottomSheet?: () => void
+  closeBottomSheet: () => void
   keyIconColor?: string
   showExportImport?: boolean
 }
 
 const AccountKeys: FC<Props> = ({
-  setCurrentKeyDetails,
   account,
   openAddAccountBottomSheet,
+  closeBottomSheet,
   keyIconColor,
   showExportImport
 }) => {
@@ -63,13 +65,19 @@ const AccountKeys: FC<Props> = ({
 
   return (
     <>
-      <Text fontSize={18} weight="medium" style={spacings.mbSm}>
-        {t('Account keys')}
-      </Text>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+        <PanelBackButton onPress={closeBottomSheet} style={spacings.mrTy} />
+        <PanelTitle
+          title={t('{{accName}} keys', {
+            accName: account.preferences.label
+          })}
+          style={text.left}
+        />
+      </View>
       <View
         style={[
           {
-            backgroundColor: theme.primaryBackground,
+            backgroundColor: theme.secondaryBackground,
             borderRadius: BORDER_RADIUS_PRIMARY,
             overflow: 'hidden',
             ...spacings.mbMd
@@ -80,10 +88,6 @@ const AccountKeys: FC<Props> = ({
           const isLast = index === accountKeys.length - 1
           const accountKeyProps = { label, addr, type, isLast, isImported }
 
-          const handleOnKeyDetailsPress = () => {
-            setCurrentKeyDetails({ type, addr, label, isImported, meta, dedicatedToOneSA })
-          }
-
           return (
             <AccountKey
               key={addr + type}
@@ -91,7 +95,6 @@ const AccountKeys: FC<Props> = ({
               dedicatedToOneSA={dedicatedToOneSA}
               showCopyAddr={!dedicatedToOneSA}
               {...accountKeyProps}
-              handleOnKeyDetailsPress={handleOnKeyDetailsPress}
               account={account}
               openAddAccountBottomSheet={openAddAccountBottomSheet}
               keyIconColor={keyIconColor}

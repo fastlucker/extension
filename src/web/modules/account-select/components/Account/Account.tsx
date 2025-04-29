@@ -7,7 +7,6 @@ import { canBecomeSmarter, isSmartAccount } from '@ambire-common/libs/account/ac
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
-import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Avatar from '@common/components/Avatar'
 import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Dialog from '@common/components/Dialog'
@@ -46,8 +45,7 @@ const Account = ({
   isSelectable = true,
   withKeyType = true,
   renderRightChildren,
-  showExportImport = false,
-  openAddAccountBottomSheet,
+  setAccountToImportOrExport = null,
   containerStyle
 }: {
   account: AccountInterface
@@ -57,8 +55,7 @@ const Account = ({
   isSelectable?: boolean
   withKeyType?: boolean
   renderRightChildren?: () => React.ReactNode
-  showExportImport?: boolean
-  openAddAccountBottomSheet?: () => void
+  setAccountToImportOrExport?: React.Dispatch<React.SetStateAction<AccountInterface | null>> | null
   containerStyle?: ViewStyle
 }) => {
   const { addr, preferences } = account
@@ -78,15 +75,13 @@ const Account = ({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
-      to: !showExportImport ? theme.secondaryBackground : theme.primaryBackground
+      to: !setAccountToImportOrExport ? theme.secondaryBackground : theme.primaryBackground
     },
-    forceHoveredStyle: !showExportImport && addr === selectedAccount?.addr
+    forceHoveredStyle: !setAccountToImportOrExport && addr === selectedAccount?.addr
   })
 
-  const { ref: sheetRef, open: openKeysBottomSheet, close: closeBottomSheet } = useModalize()
-
   const selectAccount = useCallback(() => {
-    if (showExportImport) {
+    if (setAccountToImportOrExport) {
       return
     }
 
@@ -98,7 +93,7 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }, [addr, dispatch, onSelect, selectedAccount, showExportImport])
+  }, [addr, dispatch, onSelect, selectedAccount, setAccountToImportOrExport])
 
   const removeAccount = useCallback(() => {
     dispatch({
@@ -148,7 +143,7 @@ const Account = ({
     }
 
     if (item.value === 'keys') {
-      openKeysBottomSheet()
+      !!setAccountToImportOrExport && setAccountToImportOrExport(account)
     }
 
     if (item.value === 'toSmarter') {
@@ -183,7 +178,7 @@ const Account = ({
         {...bindAnim}
         testID="account"
         // @ts-ignore
-        style={showExportImport ? { cursor: 'default' } : {}}
+        style={setAccountToImportOrExport ? { cursor: 'default' } : {}}
       >
         {children}
       </Pressable>
@@ -248,16 +243,7 @@ const Account = ({
         </View>
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
-          {showExportImport && (
-            <AccountKeysBottomSheet
-              sheetRef={sheetRef}
-              account={account}
-              closeBottomSheet={closeBottomSheet}
-              openAddAccountBottomSheet={openAddAccountBottomSheet}
-              showExportImport={showExportImport}
-            />
-          )}
-          {showExportImport && <Dropdown data={submenu} onSelect={onDropdownSelect} />}
+          {setAccountToImportOrExport && <Dropdown data={submenu} onSelect={onDropdownSelect} />}
         </View>
       </Animated.View>
       <Dialog

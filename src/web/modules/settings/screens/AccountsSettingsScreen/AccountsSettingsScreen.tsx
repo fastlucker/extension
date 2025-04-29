@@ -1,8 +1,10 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
@@ -10,6 +12,7 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useAccountsList from '@common/hooks/useAccountsList'
 import useElementSize from '@common/hooks/useElementSize'
+import usePrevious from '@common/hooks/usePrevious'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -28,10 +31,25 @@ const AccountsSettingsScreen = () => {
   const accountsContainerRef = useRef(null)
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
-
+  const {
+    ref: sheetRefExportImportKey,
+    open: openExportImportKey,
+    close: closeExportImportKey
+  } = useModalize()
   useEffect(() => {
     setCurrentSettingsPage('accounts')
   }, [setCurrentSettingsPage])
+
+  const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
+  const prevExportImportAccount = usePrevious(exportImportAccount)
+
+  useEffect(() => {
+    if (!exportImportAccount) return
+
+    if (prevExportImportAccount !== exportImportAccount) {
+      openExportImportKey()
+    }
+  }, [openExportImportKey, exportImportAccount, prevExportImportAccount])
 
   const shortenAccountAddr = useCallback(() => {
     if (maxElementWidthSize(800)) return undefined
@@ -58,13 +76,12 @@ const AccountsSettingsScreen = () => {
           key={account.addr}
           account={account}
           maxAccountAddrLength={shortenAccountAddr()}
-          showExportImport
+          setAccountToImportOrExport={setExportImportAccount}
           isSelectable={false}
-          openAddAccountBottomSheet={openBottomSheet}
         />
       )
     },
-    [onSelectAccount, shortenAccountAddr, openBottomSheet]
+    [onSelectAccount, shortenAccountAddr]
   )
 
   return (
@@ -88,6 +105,13 @@ const AccountsSettingsScreen = () => {
         onPress={openBottomSheet as any}
         text="+ Add account"
         hasBottomSpacing={false}
+      />
+      <AccountKeysBottomSheet
+        sheetRef={sheetRefExportImportKey}
+        account={exportImportAccount}
+        closeBottomSheet={closeExportImportKey}
+        openAddAccountBottomSheet={openBottomSheet}
+        showExportImport
       />
       <BottomSheet
         id="account-settings-add-account"
