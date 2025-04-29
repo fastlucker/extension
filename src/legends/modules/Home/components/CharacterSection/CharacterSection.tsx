@@ -4,6 +4,7 @@ import React, { useRef } from 'react'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
+import { RELAYER_URL } from '@env'
 import LockIcon from '@legends/common/assets/svg/LockIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
@@ -15,6 +16,7 @@ import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerSt
 import styles from './CharacterSection.module.scss'
 import rewardsCoverImg from './rewards-cover-image.png'
 
+const IS_STAGING = RELAYER_URL.includes('staging')
 const CharacterSection = () => {
   const { character } = useCharacterContext()
   const { accountPortfolio, claimableRewardsError, claimableRewards, isLoadingClaimableRewards } =
@@ -88,9 +90,10 @@ const CharacterSection = () => {
 
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
 
-  const rewardsDisabledState =
-    Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
-    (userLeaderboardData?.level ?? 0) <= 2
+  const rewardsDisabledState = !IS_STAGING
+    ? Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
+      (userLeaderboardData?.level ?? 0) <= 2
+    : false
 
   return (
     <>
@@ -129,19 +132,16 @@ const CharacterSection = () => {
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
-                    Soon
-                    {/* 
-                    Also update the font-size in the scss file
                     {formatDecimals(
                       parseFloat(
                         claimableRewards
                           ? formatUnits(
-                              BigInt(claimableRewards?.value || '0'),
+                              BigInt(claimableRewards?.amount || '0'),
                               claimableRewards?.decimals || 18
                             )
                           : '0'
                       )
-                    )} */}
+                    )}
                   </p>
                 </>
               )}
