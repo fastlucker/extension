@@ -32,6 +32,8 @@
     "build:web:webkit": "rm -rf ./build/webkit-prod && APP_ENV=production WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=webkit-prod expo export:web",
     "build:web:safari": "./scripts/safari-prod-build.sh",
     "build:web:gecko": "rm -rf ./build/gecko-prod && APP_ENV=production WEB_ENGINE=gecko WEBPACK_BUILD_OUTPUT_PATH=gecko-prod expo export:web",
+    "docker:build:web:gecko": "docker build -f Dockerfile.gecko -t gecko-review-env:22.12 .",
+    "docker:run:web:gecko": "docker run --rm gecko-review-env:22.12",
     "build:extensions": "sh ./scripts/build-extensions.sh",
     "build:extensions:gecko": "sh ./scripts/build-extensions.sh --gecko",
     "build:web:benzin": "rm -rf ./build/benzin-prod && APP_ENV=production WEBPACK_BUILD_OUTPUT_PATH=benzin-prod expo export:web",
