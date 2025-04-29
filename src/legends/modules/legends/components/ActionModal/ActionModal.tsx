@@ -98,7 +98,13 @@ const ActionModal: FC<ActionModalProps> = ({
   )
 
   if (isMobile) {
-    ;<MobileDisclaimerModal shouldClose modalOpened closeModal={closeActionModalWrapped} />
+    return (
+      <MobileDisclaimerModal
+        shouldClose
+        modalOpened={isOpen}
+        closeModal={closeActionModalWrapped}
+      />
+    )
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {

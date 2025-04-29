@@ -71,7 +71,7 @@
     }
   }
 
-  @include breakpoint-down-from(large-tablet) {
+  @include breakpoint-down-from(tablet) {
     .scroll {
       padding: 0;
 

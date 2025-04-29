@@ -253,7 +253,7 @@
   }
 
 
-  @include breakpoint-down-from(large-tablet) {
+  @include breakpoint-down-from(tablet) {
     width: 100%;
     .contentAndAction {
       .content {
