@@ -34,7 +34,6 @@ const FromToken: FC<Props> = ({
     fromSelectedToken,
     fromAmount,
     fromAmountInFiat,
-    maxFromAmountInFiat,
     portfolioTokenList,
     fromAmountFieldMode,
     maxFromAmount,
@@ -60,9 +59,9 @@ const FromToken: FC<Props> = ({
   const handleSetMaxFromAmount = useCallback(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-      params: { fromAmount: fromAmountFieldMode === 'token' ? maxFromAmount : maxFromAmountInFiat }
+      params: { fromAmount: maxFromAmount, fromAmountFieldMode: 'token' }
     })
-  }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
+  }, [maxFromAmount, dispatch])
 
   const handleSwitchFromAmountFieldMode = useCallback(() => {
     dispatch({
