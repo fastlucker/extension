@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useState
 } from 'react'
+import { createPortal } from 'react-dom'
 
 import Modal from '@legends/components/Modal'
 import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
@@ -98,12 +99,13 @@ const ActionModal: FC<ActionModalProps> = ({
   )
 
   if (isMobile) {
-    return (
+    return createPortal(
       <MobileDisclaimerModal
         shouldClose
         modalOpened={isOpen}
         closeModal={closeActionModalWrapped}
-      />
+      />,
+      document.getElementById('modal-root') as HTMLElement
     )
   }
 
