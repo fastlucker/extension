@@ -48,7 +48,6 @@
       align-items: center;
       transition-duration: 0.2s !important;
       /*Ease-out for scrolling, big difference when changed*/
-
     }
   }
 
@@ -75,7 +74,6 @@
     }
   }
 
-
   @include breakpoint-down-from(large-tablet) {
     padding-left: 0;
 
@@ -83,5 +81,10 @@
       margin-right: 0;
     }
   }
-  
+
+  @include breakpoint-down-from(tablet) {
+    .slide {
+      width: 100%;
+    }
+  }
 }
