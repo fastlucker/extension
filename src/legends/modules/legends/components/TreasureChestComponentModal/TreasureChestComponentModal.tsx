@@ -14,6 +14,7 @@ import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
@@ -66,13 +67,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const { legends, getLegends } = useLegendsContext()
 
-  const closeModal = async () => {
-    handleClose()
-    if (chestState === 'opened') {
-      await onLegendComplete()
-    }
-  }
-
   const treasureLegend: ChestCard | undefined = useMemo(
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest)) as
@@ -86,6 +80,13 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const [chestState, setChestState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
   >(isActive ? 'locked' : 'opened')
+
+  const closeModal = async () => {
+    handleClose()
+    if (chestState === 'opened') {
+      await onLegendComplete()
+    }
+  }
 
   useEffect(() => {
     // In the case we quickly update legends route and switch accounts,

@@ -41,7 +41,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
   >('locked')
+
   const { connectedAccount, v1Account } = useAccountContext()
+
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus } = useErc5792()
