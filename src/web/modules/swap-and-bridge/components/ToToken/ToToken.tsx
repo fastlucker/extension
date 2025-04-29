@@ -46,6 +46,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     formStatus,
     toChainId,
     updateToTokenListStatus,
+    switchTokensStatus,
     supportedChainIds,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
@@ -224,7 +225,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       >
         <SwitchTokensButton
           onPress={handleSwitchFromAndToTokens}
-          disabled={updateQuoteStatus === 'LOADING'}
+          disabled={
+            switchTokensStatus === 'LOADING' ||
+            updateQuoteStatus === 'LOADING' ||
+            updateToTokenListStatus === 'LOADING'
+          }
         />
         <Text appearance="secondaryText" fontSize={16} weight="medium">
           {t('Receive')}
