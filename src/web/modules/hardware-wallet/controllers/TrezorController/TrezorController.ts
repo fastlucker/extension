@@ -38,17 +38,16 @@ class TrezorController implements ExternalSignerController {
   initialLoadPromise
 
   constructor() {
-    this.walletSDK?.on('DEVICE_EVENT', (event: any) => {
-      if (event?.payload?.name) {
-        this.deviceModel = event.payload.name.replace(/^Trezor\s*/, '').trim()
-      }
-
-      if (event?.payload?.id) {
-        this.deviceId = event.payload.id
-      }
-    })
-
-    this.initialLoadPromise = this.#init()
+    // TODO: Temporarily skip initialization.
+    // this.walletSDK?.on('DEVICE_EVENT', (event: any) => {
+    //   if (event?.payload?.name) {
+    //     this.deviceModel = event.payload.name.replace(/^Trezor\s*/, '').trim()
+    //   }
+    //   if (event?.payload?.id) {
+    //     this.deviceId = event.payload.id
+    //   }
+    // })
+    // this.initialLoadPromise = this.#init()
   }
 
   async #init() {
