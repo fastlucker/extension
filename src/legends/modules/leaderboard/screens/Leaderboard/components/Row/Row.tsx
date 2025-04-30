@@ -60,6 +60,23 @@ const Row: FC<Props> = ({
     return xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
 
+  const [maxAddressLength, setMaxAddressLength] = React.useState(23)
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768
+      setMaxAddressLength(isMobile ? 8 : 23)
+    }
+
+    // Set initial value
+    handleResize()
+
+    // Add event listener
+    window.addEventListener('resize', handleResize)
+
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const formattedXp = formatXp(xp)
   return (
     <div
@@ -80,7 +97,7 @@ const Row: FC<Props> = ({
               skeletonClassName={styles.addressSkeleton}
               className={styles.address}
               address={account}
-              maxAddressLength={23}
+              maxAddressLength={maxAddressLength}
             />
             )
           </>
@@ -89,7 +106,7 @@ const Row: FC<Props> = ({
             skeletonClassName={styles.addressSkeleton}
             className={styles.address}
             address={account}
-            maxAddressLength={23}
+            maxAddressLength={maxAddressLength}
           />
         )}
       </div>

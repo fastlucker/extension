@@ -86,7 +86,7 @@ const Wrapper: FC<WrapperProps> = ({ children, title, handleGoBack, buttons }) =
                   </View>
                 </View>
               )}
-              {!isTab && <HeaderBackButton onGoBackPress={handleGoBack} />}
+              {!isTab && <HeaderBackButton forceBack onGoBackPress={handleGoBack} />}
             </View>
             <Text fontSize={isTab ? 24 : 20} weight="medium">
               {title}

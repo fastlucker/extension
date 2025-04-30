@@ -70,4 +70,11 @@
       }
     }
   }
+
+  @include breakpoint-down-from(tablet) {
+    .scroll {
+      padding: 0;
+
+    }
+  }
 }
