@@ -14,7 +14,7 @@ import { PrivateModeProvider } from '@common/contexts/privateModeContext'
 import { StorageProvider } from '@common/contexts/storageContext'
 import { ThemeProvider } from '@common/contexts/themeContext'
 import { ToastProvider } from '@common/contexts/toastContext'
-import useFonts from '@common/hooks/useFonts'
+// import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { OnboardingNavigationProvider } from '@common/modules/auth/contexts/onboardingNavigationContext'
@@ -48,9 +48,10 @@ import { WalletStateControllerProvider } from '@web/contexts/walletStateControll
 const Router = isExtension ? HashRouter : BrowserRouter
 
 const AppInit = () => {
-  const { fontsLoaded, robotoFontsLoaded } = useFonts()
+  // FIXME: Need an alternative way to load fonts in deterministic way
+  // const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
-  if (!fontsLoaded && !robotoFontsLoaded) return null
+  // if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
     <Router>
@@ -89,12 +90,10 @@ const AppInit = () => {
                                                                       <NetInfoProvider>
                                                                         <AuthProvider>
                                                                           <OnboardingNavigationProvider>
-                                                                            <BiometricsProvider>
-                                                                              <PrivateModeProvider>
-                                                                                <AppRouter />
-                                                                              </PrivateModeProvider>
-                                                                              <PortalHost name="global" />
-                                                                            </BiometricsProvider>
+                                                                            <PrivateModeProvider>
+                                                                              <AppRouter />
+                                                                            </PrivateModeProvider>
+                                                                            <PortalHost name="global" />
                                                                           </OnboardingNavigationProvider>
                                                                         </AuthProvider>
                                                                       </NetInfoProvider>

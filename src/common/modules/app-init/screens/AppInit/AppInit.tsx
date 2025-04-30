@@ -12,7 +12,7 @@ import { PrivateModeProvider } from '@common/contexts/privateModeContext'
 import { StorageProvider } from '@common/contexts/storageContext'
 import { ThemeProvider } from '@common/contexts/themeContext'
 import { ToastProvider } from '@common/contexts/toastContext'
-import useFonts from '@common/hooks/useFonts'
+// import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { navigationContainerDarkTheme } from '@common/modules/router/styles'
@@ -28,9 +28,11 @@ const handleOnReady = () => {
 }
 
 const AppInit = () => {
-  const { fontsLoaded, robotoFontsLoaded } = useFonts()
+  // FIXME: Probably this file gets processed by webpack during web build?
+  // Causing mobile-deps land on the web build.
+  // const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
-  if (!fontsLoaded && !robotoFontsLoaded) return null
+  // if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
     <NavigationContainer
