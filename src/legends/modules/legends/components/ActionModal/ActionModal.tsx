@@ -16,6 +16,7 @@ import { CardActionComponentProps } from '@legends/modules/legends/components/Ca
 import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
+import ClaimRewards from '@legends/modules/legends/components/ClaimRewardsModal/ClaimRewardsModal'
 import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
@@ -67,7 +68,8 @@ const ActionModal: FC<ActionModalProps> = ({
   contentVideoV2,
   meta,
   action,
-  predefinedId
+  predefinedId,
+  id
 }) => {
   const [activeStep, setActiveStep] = useState<null | number>(null)
   const [isMobile, setIsMobile] = React.useState(false)
@@ -107,6 +109,10 @@ const ActionModal: FC<ActionModalProps> = ({
       />,
       document.getElementById('modal-root') as HTMLElement
     )
+  }
+
+  if (id === CARD_PREDEFINED_ID.claimRewards) {
+    return <ClaimRewards isOpen={isOpen} handleClose={closeActionModalWrapped} action={action} />
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {

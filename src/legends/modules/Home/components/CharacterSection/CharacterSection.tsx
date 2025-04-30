@@ -1,5 +1,5 @@
 import { formatUnits } from 'ethers'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -11,14 +11,20 @@ import Alert from '@legends/components/Alert'
 import Stacked from '@legends/components/Stacked'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import ClaimRewardsModal from '@legends/modules/legends/components/ClaimRewardsModal'
 
 import styles from './CharacterSection.module.scss'
 import rewardsCoverImg from './rewards-cover-image.png'
 
 const IS_STAGING = RELAYER_URL.includes('staging')
 const CharacterSection = () => {
+  const [isOpen, setIsOpen] = useState(false)
+
   const { character } = useCharacterContext()
+  const { legends } = useLegendsContext()
+  const claimWalletCard = legends?.find((card) => card.id === 'claim-rewards')
   const { accountPortfolio, claimableRewardsError, claimableRewards, isLoadingClaimableRewards } =
     usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
@@ -28,6 +34,12 @@ const CharacterSection = () => {
   }
   const cardRef = useRef<HTMLDivElement>(null)
 
+  const closeClaimModal = () => {
+    setIsOpen(false)
+  }
+  const openClaimModal = () => {
+    setIsOpen(true)
+  }
   const handleMouseMove = (e: any) => {
     const card = cardRef.current
     if (!card) return
@@ -98,11 +110,21 @@ const CharacterSection = () => {
   return (
     <>
       <div className={styles.rewardsWrapper}>
+        <ClaimRewardsModal
+          isOpen={isOpen}
+          handleClose={closeClaimModal}
+          action={claimWalletCard?.action}
+        />
         <div
           ref={cardRef}
           className={styles.rewardsBadgeWrapper}
           onMouseMove={handleMouseMove}
           onMouseLeave={resetRotation}
+          onClick={(e) => !rewardsDisabledState && openClaimModal()}
+          onKeyDown={(e) => e.key === 'Enter' && openClaimModal()}
+          role="button"
+          tabIndex={0}
+          aria-label="Open rewards claim modal"
         >
           <div className={styles.rewardsBadge}>
             <div className={styles.rewardsCoverImgWrapper}>
