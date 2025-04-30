@@ -1,4 +1,3 @@
-import { setStringAsync } from 'expo-clipboard'
 import React, { FC, useCallback, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -15,6 +14,7 @@ import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 import getStyles from './styles'

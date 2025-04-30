@@ -1,5 +1,4 @@
 import { ZeroAddress } from 'ethers'
-import * as Clipboard from 'expo-clipboard'
 import { nanoid } from 'nanoid'
 import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -18,6 +17,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -45,7 +45,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest })
 
   const handleCopyAddress = useCallback(async () => {
     try {
-      await Clipboard.setStringAsync(address)
+      await setStringAsync(address)
       addToast(t('Address copied to clipboard'))
     } catch {
       addToast(t('Failed to copy address'), {

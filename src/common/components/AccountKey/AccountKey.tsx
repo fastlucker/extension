@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
@@ -23,6 +22,7 @@ import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import { getUiType } from '@web/utils/uiType'
@@ -91,7 +91,7 @@ const AccountKey: React.FC<Props> = ({
 
   const handleCopy = async () => {
     try {
-      await Clipboard.setStringAsync(addr)
+      await setStringAsync(addr)
       addToast(t('Key address copied to clipboard'), { type: 'success' })
     } catch {
       addToast(t('Could not copy the key address to the clipboard'), { type: 'error' })
@@ -207,7 +207,7 @@ const AccountKey: React.FC<Props> = ({
             {isImported ? (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <View>
-                  {/* 
+                  {/*
                 When making the Pressable disabled, it disables literally everything in it.
                 So even the tooltip will not work.
                 The workaround is to set a wrapping <View> and make it the tooltip target
