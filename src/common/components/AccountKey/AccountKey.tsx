@@ -121,7 +121,8 @@ const AccountKey: React.FC<Props> = ({
       style={[
         {
           borderBottomWidth: isLast ? 0 : 1,
-          borderBottomColor: theme.secondaryBorder
+          borderBottomColor: theme.secondaryBorder,
+          flex: 1
         }
       ]}
     >
@@ -132,11 +133,19 @@ const AccountKey: React.FC<Props> = ({
           flexbox.directionRow,
           flexbox.justifySpaceBetween,
           flexbox.alignCenter,
+          flexbox.flex1,
           { minHeight: 48 },
           style
         ]}
       >
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.flex1,
+            !!showExportImport && spacings.mrSm
+          ]}
+        >
           {!!isImported && (
             <View style={spacings.mrTy}>
               <AccountKeyIcon type={type || 'internal'} color={keyIconColor} />
