@@ -1,6 +1,6 @@
-import React, { FC } from 'react'
+import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { AMBIRE_V1_QUICK_ACC_MANAGER } from '@ambire-common/consts/addresses'
 import { Account } from '@ambire-common/interfaces/account'
@@ -8,9 +8,7 @@ import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Alert from '@common/components/Alert'
 import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -30,7 +28,6 @@ const AccountKeys: FC<Props> = ({
   keyIconColor,
   showExportImport
 }) => {
-  const { theme } = useTheme()
   const { t } = useTranslation()
 
   const { keys } = useKeystoreControllerState()
@@ -63,8 +60,13 @@ const AccountKeys: FC<Props> = ({
     }))
   ]
 
+  const withAlert = useMemo(
+    () => associatedKeys.length > 1 && isAmbireV1LinkedAccount(account.creation?.factoryAddr),
+    [account.creation?.factoryAddr, associatedKeys.length]
+  )
+
   return (
-    <>
+    <View style={{ maxHeight: 384, flex: 1 }}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
         <PanelBackButton onPress={closeBottomSheet} style={spacings.mrTy} />
         <PanelTitle
@@ -74,15 +76,9 @@ const AccountKeys: FC<Props> = ({
           style={text.left}
         />
       </View>
-      <View
-        style={[
-          {
-            backgroundColor: theme.secondaryBackground,
-            borderRadius: BORDER_RADIUS_PRIMARY,
-            overflow: 'hidden',
-            ...spacings.mbMd
-          }
-        ]}
+      <ScrollView
+        style={[!!withAlert && spacings.mb, flexbox.flex1]}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
         {accountKeys.map(({ type, addr, label, isImported, meta, dedicatedToOneSA }, index) => {
           const isLast = index === accountKeys.length - 1
@@ -102,17 +98,19 @@ const AccountKeys: FC<Props> = ({
             />
           )
         })}
-      </View>
-      {associatedKeys.length > 1 && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+      </ScrollView>
+      {!!withAlert && (
         <Alert
+          withIcon={false}
           title={t('Some keys may no longer be signers of this account')}
           text={t(
             'The listed keys are based on historical data from the blockchain and may no longer be signers of this account.'
           )}
+          size="sm"
           type="info"
         />
       )}
-    </>
+    </View>
   )
 }
 

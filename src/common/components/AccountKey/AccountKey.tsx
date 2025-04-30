@@ -24,6 +24,7 @@ import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
@@ -83,9 +84,9 @@ const AccountKey: React.FC<Props> = ({
     preset: 'opacityInverted'
   })
   const fontSize = isPopup ? 14 : 16
-  const [isShowingDetails, setIsShowingDetails] = useState<boolean>(false)
   const isKeyAmbireV1 = addr === AMBIRE_V1_QUICK_ACC_MANAGER
   const canExportOrImportKey = showExportImport && !isKeyAmbireV1
+  const [isShowingDetails, setIsShowingDetails] = useState<boolean>(false)
 
   const handleCopy = async () => {
     try {
@@ -120,16 +121,16 @@ const AccountKey: React.FC<Props> = ({
     <View
       style={[
         {
-          borderBottomWidth: isLast ? 0 : 1,
-          borderBottomColor: theme.secondaryBorder,
-          flex: 1
-        }
+          backgroundColor: theme.secondaryBackground,
+          borderRadius: BORDER_RADIUS_PRIMARY
+        },
+        isLast ? spacings.mb0 : spacings.mbTy
       ]}
     >
       <View
         style={[
           spacings.phSm,
-          isImported ? spacings.pvTy : spacings.pvSm,
+          spacings.pvTy,
           flexbox.directionRow,
           flexbox.justifySpaceBetween,
           flexbox.alignCenter,
@@ -143,7 +144,7 @@ const AccountKey: React.FC<Props> = ({
             flexbox.directionRow,
             flexbox.alignCenter,
             flexbox.flex1,
-            !!showExportImport && spacings.mrSm
+            !!showExportImport && !isKeyAmbireV1 && spacings.mrSm
           ]}
         >
           {!!isImported && (
@@ -181,7 +182,7 @@ const AccountKey: React.FC<Props> = ({
                   dedicatedToOneSA && { letterSpacing: -0.2 }
                 ]}
               >
-                {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : addr}
+                {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : shortAddr}
               </Text>
               {!!showCopyAddr && (
                 <AnimatedPressable
@@ -205,86 +206,28 @@ const AccountKey: React.FC<Props> = ({
           )}
         </View>
 
-        {!isEditing && (
-          <>
-            {!!isKeyAmbireV1 && (
-              <Text appearance="secondaryText" fontSize={12}>
-                {t('(Email signers cannot be imported in Ambire v2)')}
-              </Text>
-            )}
-            {!!canExportOrImportKey && (
-              <View>
-                {isImported ? (
-                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                    <View>
-                      {/*
+        {!isEditing && !!canExportOrImportKey && (
+          <View>
+            {isImported ? (
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <View>
+                  {/*
                 When making the Pressable disabled, it disables literally everything in it.
                 So even the tooltip will not work.
                 The workaround is to set a wrapping <View> and make it the tooltip target
               */}
-                      {/* @ts-ignore */}
-                      <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
-                        <Button
-                          style={{
-                            ...spacings.mb0,
-                            height: 32
-                          }}
-                          onPress={openExportKey as any}
-                          size="small"
-                          disabled={!canExportKey}
-                          type="secondary"
-                          text={t('Export')}
-                        >
-                          <ExportIcon
-                            style={[spacings.mlTy]}
-                            color={theme.primary}
-                            width={16}
-                            height={16}
-                          />
-                        </Button>
-                      </View>
-                      {!canExportKey && (
-                        <Tooltip id="export-icon-tooltip">
-                          <View>
-                            <Text fontSize={14} appearance="secondaryText">
-                              {t('Export unavailable as this is a hardware wallet key')}
-                            </Text>
-                          </View>
-                        </Tooltip>
-                      )}
-                    </View>
-                    <AnimatedPressable
-                      onPress={() => {
-                        setIsShowingDetails((p) => !p)
-                      }}
-                      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlSm]}
-                      {...bindKeyDetailsAnim}
-                    >
-                      <Animated.View style={keyDetailsAnimStyles}>
-                        <RightArrowIcon
-                          width={16}
-                          height={16}
-                          color={theme.secondaryText}
-                          // @ts-ignore
-                          style={
-                            isShowingDetails
-                              ? { transform: 'rotate(270deg)' }
-                              : { transform: 'rotate(90deg)' }
-                          }
-                        />
-                      </Animated.View>
-                    </AnimatedPressable>
-                  </View>
-                ) : (
-                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  {/* @ts-ignore */}
+                  <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
                     <Button
-                      style={spacings.mb0}
-                      onPress={importKey}
+                      style={{ height: 32 }}
+                      hasBottomSpacing={false}
+                      onPress={openExportKey as any}
                       size="small"
+                      disabled={!canExportKey}
                       type="secondary"
-                      text={t('Import')}
+                      text={t('Export')}
                     >
-                      <ImportIcon
+                      <ExportIcon
                         style={[spacings.mlTy]}
                         color={theme.primary}
                         width={16}
@@ -292,10 +235,58 @@ const AccountKey: React.FC<Props> = ({
                       />
                     </Button>
                   </View>
-                )}
+                  {!canExportKey && (
+                    <Tooltip id="export-icon-tooltip">
+                      <View>
+                        <Text fontSize={14} appearance="secondaryText">
+                          {t('Export unavailable as this is a hardware wallet key')}
+                        </Text>
+                      </View>
+                    </Tooltip>
+                  )}
+                </View>
+                <AnimatedPressable
+                  onPress={() => {
+                    setIsShowingDetails((p) => !p)
+                  }}
+                  style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlSm]}
+                  {...bindKeyDetailsAnim}
+                >
+                  <Animated.View style={keyDetailsAnimStyles}>
+                    <RightArrowIcon
+                      width={16}
+                      height={16}
+                      color={theme.secondaryText}
+                      // @ts-ignore
+                      style={
+                        isShowingDetails
+                          ? { transform: 'rotate(270deg)' }
+                          : { transform: 'rotate(90deg)' }
+                      }
+                    />
+                  </Animated.View>
+                </AnimatedPressable>
+              </View>
+            ) : (
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Button
+                  onPress={importKey}
+                  size="small"
+                  type="secondary"
+                  text={t('Import')}
+                  style={{ height: 32 }}
+                  hasBottomSpacing={false}
+                >
+                  <ImportIcon
+                    style={[spacings.mlTy]}
+                    color={theme.primary}
+                    width={16}
+                    height={16}
+                  />
+                </Button>
               </View>
             )}
-          </>
+          </View>
         )}
       </View>
       {!!canExportOrImportKey && !!isImporting && !!openAddAccountBottomSheet && (
@@ -308,14 +299,23 @@ const AccountKey: React.FC<Props> = ({
             spacings.mbSm
           ]}
         >
-          <Text>{t('To import this key, you will need to reimport the account')}</Text>
+          <Text fontSize={14} appearance="secondaryText">
+            {t('To import this key, you have to reimport the account.')}
+          </Text>
           <Button
-            style={[spacings.mb0, spacings.mlTy]}
             onPress={reimportAccount}
             size="small"
-            text={t('Reimport Account')}
+            style={{ height: 32, ...spacings.mlTy }}
+            text={t('Reimport account')}
             hasBottomSpacing={false}
           />
+        </View>
+      )}
+      {!!isKeyAmbireV1 && (
+        <View style={[spacings.phSm, spacings.mbTy]}>
+          <Text appearance="secondaryText" weight="medium" fontSize={14} numberOfLines={2}>
+            {t('(Email signers cannot be imported in Ambire v2)')}
+          </Text>
         </View>
       )}
       {!!isShowingDetails && (

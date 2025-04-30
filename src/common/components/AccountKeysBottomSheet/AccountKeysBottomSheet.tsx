@@ -35,6 +35,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
       closeBottomSheet={closeBottomSheet}
       backgroundColor="primaryBackground"
       scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+      isScrollEnabled={false}
       containerInnerWrapperStyles={{ flex: 1 }}
       style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
     >
