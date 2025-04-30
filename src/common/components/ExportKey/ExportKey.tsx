@@ -102,7 +102,14 @@ const ExportKey = ({
           openConfirmPassword={openConfirmPassword}
         />
       )}
-      {isExportingV2SA && <SmartAccountExport account={account} privateKey={privateKey} />}
+      {isExportingV2SA && (
+        <SmartAccountExport
+          account={account}
+          privateKey={privateKey}
+          openConfirmPassword={openConfirmPassword}
+          goBack={onBackButtonPress}
+        />
+      )}
       <BottomSheet
         sheetRef={sheetRefConfirmPassword}
         id="confirm-password-bottom-sheet"

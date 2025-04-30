@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Animated, Pressable, View, ViewStyle } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { canBecomeSmarter, isSmartAccount } from '@ambire-common/libs/account/account'
@@ -9,9 +8,6 @@ import AccountBadges from '@common/components/AccountBadges'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
 import Avatar from '@common/components/Avatar'
 import DomainBadge from '@common/components/Avatar/DomainBadge'
-import Dialog from '@common/components/Dialog'
-import DialogButton from '@common/components/Dialog/DialogButton'
-import DialogFooter from '@common/components/Dialog/DialogFooter'
 import Dropdown from '@common/components/Dropdown'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
@@ -28,7 +24,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useFeatureFlagsControllerState from '@web/hooks/useFeatureFlagsControllerState'
 import { useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -45,7 +40,9 @@ const Account = ({
   isSelectable = true,
   withKeyType = true,
   renderRightChildren,
-  setAccountToImportOrExport = null,
+  options = {
+    withOptionsButton: false
+  },
   containerStyle
 }: {
   account: AccountInterface
@@ -55,19 +52,21 @@ const Account = ({
   isSelectable?: boolean
   withKeyType?: boolean
   renderRightChildren?: () => React.ReactNode
-  setAccountToImportOrExport?: React.Dispatch<React.SetStateAction<AccountInterface | null>> | null
+  options?: {
+    withOptionsButton: boolean
+    setAccountToImportOrExport?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
+    setAccountToRemove?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
+  }
   containerStyle?: ViewStyle
 }) => {
   const { addr, preferences } = account
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
-  const mainCtrlState = useMainControllerState()
   const featureFlagsState = useFeatureFlagsControllerState()
   const { statuses: accountsStatuses } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
-  const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const { ens, isLoading } = useReverseLookup({ address: addr })
   const { keys } = useKeystoreControllerState()
   const { navigate } = useNavigation()
@@ -75,13 +74,15 @@ const Account = ({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
-      to: !setAccountToImportOrExport ? theme.secondaryBackground : theme.primaryBackground
+      to: !options.setAccountToImportOrExport ? theme.secondaryBackground : theme.primaryBackground
     },
-    forceHoveredStyle: !setAccountToImportOrExport && addr === selectedAccount?.addr
+    forceHoveredStyle: !options.setAccountToImportOrExport && addr === selectedAccount?.addr
   })
 
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 })
+
   const selectAccount = useCallback(() => {
-    if (setAccountToImportOrExport) {
+    if (options.setAccountToImportOrExport) {
       return
     }
 
@@ -93,20 +94,7 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }, [addr, dispatch, onSelect, selectedAccount, setAccountToImportOrExport])
-
-  const removeAccount = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT',
-      params: {
-        accountAddr: addr
-      }
-    })
-  }, [addr, dispatch])
-
-  const promptRemoveAccount = useCallback(() => {
-    openDialog()
-  }, [openDialog])
+  }, [addr, dispatch, onSelect, selectedAccount, options.setAccountToImportOrExport])
 
   const onSave = useCallback(
     (value: string) => {
@@ -119,31 +107,16 @@ const Account = ({
     [addToast, addr, dispatch, preferences.pfp, t]
   )
 
-  const isRemoveAccountLoading = useMemo(
-    () => mainCtrlState.statuses.removeAccount === 'LOADING',
-    [mainCtrlState.statuses.removeAccount]
-  )
-
-  useEffect(() => {
-    if (mainCtrlState.statuses.removeAccount === 'SUCCESS') {
-      addToast(t('Account removed.'))
-      closeDialog()
-      return
-    }
-
-    if (mainCtrlState.statuses.removeAccount === 'ERROR') {
-      closeDialog()
-    }
-  }, [addToast, closeDialog, mainCtrlState.statuses.removeAccount, t])
-
   const onDropdownSelect = (item: { label: string; value: string }) => {
+    console.log('onDropdownSelect', item)
     if (item.value === 'remove') {
-      promptRemoveAccount()
+      !!options.setAccountToRemove && options.setAccountToRemove(account)
       return
     }
 
     if (item.value === 'keys') {
-      !!setAccountToImportOrExport && setAccountToImportOrExport(account)
+      !!options.setAccountToImportOrExport && options.setAccountToImportOrExport(account)
+      return
     }
 
     if (item.value === 'toSmarter') {
@@ -178,7 +151,7 @@ const Account = ({
         {...bindAnim}
         testID="account"
         // @ts-ignore
-        style={setAccountToImportOrExport ? { cursor: 'default' } : {}}
+        style={options.setAccountToImportOrExport ? { cursor: 'default' } : {}}
       >
         {children}
       </Pressable>
@@ -243,27 +216,16 @@ const Account = ({
         </View>
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
-          {setAccountToImportOrExport && <Dropdown data={submenu} onSelect={onDropdownSelect} />}
+          {!!options.withOptionsButton && (
+            <Dropdown
+              data={submenu}
+              externalPosition={dropdownPosition}
+              setExternalPosition={setDropdownPosition}
+              onSelect={onDropdownSelect}
+            />
+          )}
         </View>
       </Animated.View>
-      <Dialog
-        dialogRef={dialogRef}
-        id={`remove-account-${addr}`}
-        title={t('Remove Account')}
-        text={t('Are you sure you want to remove this account?')}
-        closeDialog={closeDialog}
-      >
-        <DialogFooter horizontalAlignment="justifyEnd">
-          <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
-          <DialogButton
-            disabled={isRemoveAccountLoading}
-            text={t('Remove')}
-            type="danger"
-            onPress={removeAccount}
-            style={spacings.ml}
-          />
-        </DialogFooter>
-      </Dialog>
     </Container>
   )
 }

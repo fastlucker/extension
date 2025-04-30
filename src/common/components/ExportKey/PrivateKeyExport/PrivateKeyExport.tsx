@@ -47,7 +47,7 @@ const PrivateKeyExport: FC<Props> = ({ privateKey, blurred, setBlurred, openConf
     }
 
     setBlurred((prev) => !prev)
-  }, [openConfirmPassword, privateKey])
+  }, [openConfirmPassword, setBlurred, privateKey])
 
   return (
     <>

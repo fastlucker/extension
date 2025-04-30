@@ -1,39 +1,64 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
-import { Link } from 'react-router-dom'
 
 import { Account } from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
-import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Props {
   account: Account
-  privateKey: string
+  privateKey: string | null
+  openConfirmPassword: () => void
+  goBack: () => void
 }
 
-const SmartAccountExport: FC<Props> = ({ account, privateKey }) => {
+const SmartAccountExport: FC<Props> = ({ account, privateKey, openConfirmPassword, goBack }) => {
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
-  const smartAccountJson = {
-    addr: account.addr,
-    associatedKeys: account.associatedKeys,
-    creation: account.creation,
-    initialPrivileges: account.initialPrivileges,
-    preferences: account.preferences,
-    privateKey
-  }
+  const [downloadButtonPressed, setDownloadButtonPressed] = useState(false)
 
-  const returnToAccounts = () => {
-    navigate(ROUTES.accountsSettings)
-  }
+  const smartAccountJson = useMemo(
+    () => ({
+      addr: account.addr,
+      associatedKeys: account.associatedKeys,
+      creation: account.creation,
+      initialPrivileges: account.initialPrivileges,
+      preferences: account.preferences,
+      privateKey
+    }),
+    [account, privateKey]
+  )
+
+  useEffect(() => {
+    if (downloadButtonPressed && privateKey) {
+      setDownloadButtonPressed(false)
+
+      if (isWeb) {
+        const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
+          JSON.stringify(smartAccountJson)
+        )}`
+        const downloadAnchorNode = document.createElement('a')
+        downloadAnchorNode.setAttribute('href', dataStr)
+        downloadAnchorNode.setAttribute(
+          'download',
+          `${smartAccountJson.preferences.label || 'smart-account'}.json`
+        )
+        document.body.appendChild(downloadAnchorNode)
+        downloadAnchorNode.click()
+        downloadAnchorNode.remove()
+      } else {
+        // TODO: impl for mobile
+      }
+      goBack()
+    }
+  }, [downloadButtonPressed, privateKey, smartAccountJson, goBack])
 
   return (
     <>
-      <View style={[spacings.mbTy]}>
+      <View style={[flexbox.flex1, spacings.mbTy]}>
         <Alert
           size="sm"
           type="warning"
@@ -42,14 +67,21 @@ const SmartAccountExport: FC<Props> = ({ account, privateKey }) => {
           )}
         />
       </View>
-      <Link
-        to={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(smartAccountJson))}`}
-        download="smartAccount.json"
-        style={{ textDecoration: 'none' }}
-      >
-        <Button style={[spacings.mb0, spacings.mt0]} text="Download" />
-      </Link>
-      <Button onPress={returnToAccounts} type="secondary" style={[spacings.mtTy]} text="Back" />
+
+      <View style={flexbox.alignCenter}>
+        <Button
+          style={[spacings.mb0, spacings.mt0]}
+          text="Download"
+          size="large"
+          onPress={async () => {
+            if (!privateKey) {
+              openConfirmPassword()
+            }
+
+            setDownloadButtonPressed(true)
+          }}
+        />
+      </View>
     </>
   )
 }

@@ -69,7 +69,7 @@ export const SETTINGS_LINKS = [
     path: ROUTES.signedMessages
   },
   {
-    key: 'security',
+    key: 'recovery-phrases',
     Icon: SidebarSecurityIcon,
     label: 'Recovery phrases',
     path: ROUTES.recoveryPhrasesSettings
