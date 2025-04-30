@@ -6,6 +6,7 @@ import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAcco
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -14,7 +15,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
-import Tooltip from '@common/components/Tooltip'
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
 type Props = {
@@ -90,7 +90,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
           gasTankTotalBalanceInUsd !== 0 ? (
             <>
               <Text style={[spacings.mlTy]} color="white" weight="number_bold" fontSize={12}>
-                {formatDecimals(gasTankTotalBalanceInUsd, 'price')}
+                {formatDecimals(gasTankTotalBalanceInUsd, 'value')}
               </Text>
               <Text style={[spacings.mlTy, { opacity: 0.57 }]} fontSize={12} color="white">
                 {t('on Gas Tank')}

@@ -28,11 +28,11 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import { useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import useHasGasTank from '@web/hooks/useHasGasTank'
 import getStyles from './styles'
 
 type Props = {
@@ -222,7 +222,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="successText">
-                    {formatDecimals(savedInUsd, 'price')}
+                    {formatDecimals(savedInUsd, 'value')}
                   </Text>
                 </View>
                 <View style={styles.rightPartInnerWrapper}>
@@ -245,7 +245,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="primary">
-                    {formatDecimals(cashbackInUsd, 'price')}
+                    {formatDecimals(cashbackInUsd, 'value')}
                   </Text>
                 </View>
               </View>
