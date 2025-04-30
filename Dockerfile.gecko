@@ -29,5 +29,9 @@ RUN npm install -g yarn && PUPPETEER_SKIP_DOWNLOAD='true' yarn install
 # Copy rest of the project
 COPY . .
 
-# Build
-CMD ["bash", "-c", "yarn build:web:gecko && yarn export:web:gecko:sourcemaps && echo 'Comparing builds...' && diff -qr ./build/gecko-prod ./build/gecko-prod-macos || true"]
+CMD ["bash", "-c", "\
+  yarn build:web:gecko && \
+  yarn export:web:gecko:sourcemaps && \
+  cp ./build/gecko-prod/249.js /tmp/249.js && \
+  echo 'Comparing builds...' && \
+  diff -qr ./build/gecko-prod ./build/gecko-prod-macos || true"]
