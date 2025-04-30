@@ -108,7 +108,6 @@ const Account = ({
   )
 
   const onDropdownSelect = (item: { label: string; value: string }) => {
-    console.log('onDropdownSelect', item)
     if (item.value === 'remove') {
       !!options.setAccountToRemove && options.setAccountToRemove(account)
       return
