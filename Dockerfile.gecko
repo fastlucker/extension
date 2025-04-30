@@ -30,5 +30,4 @@ RUN npm install -g yarn && PUPPETEER_SKIP_DOWNLOAD='true' yarn install
 COPY . .
 
 # Build
-RUN yarn build:web:gecko && \
-    yarn export:web:gecko:sourcemaps
+CMD ["bash", "-c", "yarn build:web:gecko && yarn export:web:gecko:sourcemaps"]
