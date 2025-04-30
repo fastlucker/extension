@@ -63,7 +63,7 @@ const SmartAccountExport: FC<Props> = ({ account, privateKey, openConfirmPasswor
           size="sm"
           type="warning"
           title={t(
-            'Warning: Below is a download option for a JSON backup of your smart account. Never disclose this file or share it with anyone. The file containts the private key with the privileges to execute transactions on behalf of the smart account. Anyone with it can steal any assets held in your account'
+            'Warning: Below is a download option for a JSON backup of your smart account. Never disclose this file or share it with anyone. The file containts the private key with the privileges to execute transactions on behalf of the smart account. Anyone with it can steal any assets held in your account.'
           )}
         />
       </View>
