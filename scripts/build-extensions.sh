@@ -63,22 +63,23 @@ build_gecko() {
   echo "Step 2: Exporting gecko extension sourcemaps"
   yarn export:web:gecko:sourcemaps
 
-  echo "Creating Gecko zip files..."
-  if [ -d "$GECKO_BUILD_DIR" ]; then
-    (cd "$GECKO_BUILD_DIR" && zip -X -r "../${GECKO_FILENAME}" . -x "*.DS_Store")
-    echo "Created $GECKO_FILENAME"
-  else
-    echo "Error: Directory $GECKO_BUILD_DIR does not exist."
-    exit 1
-  fi
+  # FIXME: This zip command doesn't work on Linux
+  # echo "Creating Gecko zip files..."
+  # if [ -d "$GECKO_BUILD_DIR" ]; then
+  #   (cd "$GECKO_BUILD_DIR" && zip -X -r "../${GECKO_FILENAME}" . -x "*.DS_Store")
+  #   echo "Created $GECKO_FILENAME"
+  # else
+  #   echo "Error: Directory $GECKO_BUILD_DIR does not exist."
+  #   exit 1
+  # fi
 
-  if [ -d "$GECKO_SOURCEMAPS_BUILD_DIR" ]; then
-    (cd "$GECKO_SOURCEMAPS_BUILD_DIR" && zip -X -r "../${GECKO_SOURCEMAPS_FILENAME}" . -x "*.DS_Store")
-    echo "Created $GECKO_SOURCEMAPS_FILENAME"
-  else
-    echo "Error: Directory $GECKO_SOURCEMAPS_BUILD_DIR does not exist."
-    exit 1
-  fi
+  # if [ -d "$GECKO_SOURCEMAPS_BUILD_DIR" ]; then
+  #   (cd "$GECKO_SOURCEMAPS_BUILD_DIR" && zip -X -r "../${GECKO_SOURCEMAPS_FILENAME}" . -x "*.DS_Store")
+  #   echo "Created $GECKO_SOURCEMAPS_FILENAME"
+  # else
+  #   echo "Error: Directory $GECKO_SOURCEMAPS_BUILD_DIR does not exist."
+  #   exit 1
+  # fi
 }
 
 # Decide what to build
