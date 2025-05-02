@@ -2,6 +2,7 @@
 import { nanoid } from 'nanoid'
 
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 const ambireId = nanoid()
 
@@ -147,6 +148,15 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
+  logInfoWithPrefix('Ambire Inpage', 'eip6963:requestProvider')
+  // Send a chainId request to the provider in order to mark the website
+  // as a dapp. Only dapps emit this event and eth_chainId doesn't make
+  // rpc provider requests.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  ambireProvider.request({
+    method: 'eth_chainId',
+    params: []
+  })
   announceEip6963Provider(ambireProvider)
 })
 
