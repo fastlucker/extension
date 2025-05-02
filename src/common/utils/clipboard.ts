@@ -1,2 +1,1 @@
-import { setStringAsync } from 'expo-clipboard'
-export { setStringAsync }
+export { setStringAsync } from 'expo-clipboard'
