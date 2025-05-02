@@ -328,8 +328,8 @@ const useSwapAndBridgeForm = () => {
         quote.selectedRoute.toToken.decimals,
         minAmountOutInWei
       )
-      const allowedSlippage = inputValueInUsd <= 400 ? 1.15 : 0.65
-      const possibleSlippage = quote.selectedRoute.outputValueInUsd / Number(minInUsd)
+      const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
+      const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
       if (possibleSlippage > allowedSlippage) {
         return {
           type: 'slippageImpact',

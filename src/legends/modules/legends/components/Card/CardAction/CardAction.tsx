@@ -6,7 +6,7 @@ import CardActionButton from '@legends/modules/legends/components/Card/CardActio
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
 
-import { InviteAcc, LinkAcc, SendAccOp, StakeWallet } from './actions'
+import { InviteAcc, SendAccOp, StakeWallet } from './actions'
 import Feedback from './actions/Feedback'
 
 export type CardActionComponentProps = {
@@ -17,8 +17,8 @@ export type CardActionComponentProps = {
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
   const { addToast } = useToast()
-  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
-  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const { connectedAccount, v1Account } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account)
 
   const handleWalletRouteButtonPress = useCallback(async () => {
     if (action.type !== CardActionType.walletRoute) return
@@ -48,14 +48,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
         />
       )
     }
-    if (action.predefinedId === CARD_PREDEFINED_ID.linkAccount) {
-      return (
-        <LinkAcc
-          alreadyLinkedAccounts={meta?.alreadyLinkedAccounts || []}
-          accountLinkingHistory={meta?.accountLinkingHistory || []}
-        />
-      )
-    }
+
     if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
       return <StakeWallet />
     }

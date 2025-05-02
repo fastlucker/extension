@@ -251,6 +251,19 @@
       }
     }
   }
+
+
+  @include breakpoint-down-from(tablet) {
+    width: 100%;
+    .contentAndAction {
+      .content {
+        .image {
+          width: 9.375rem;
+          height: 100%;
+        }
+      }
+    }
+  }
 }
 
 .disabled {
