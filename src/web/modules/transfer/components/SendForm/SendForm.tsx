@@ -246,8 +246,7 @@ const SendForm = ({
         dispatch({
           type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
           params: {
-            formValues: { selectedToken: tokenToSelect },
-            options: { shouldPersist: false }
+            formValues: { selectedToken: tokenToSelect }
           }
         })
       }

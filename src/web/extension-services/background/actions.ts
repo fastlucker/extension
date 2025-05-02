@@ -572,7 +572,7 @@ type SwapAndBridgeControllerCloseSigningActionWindow = {
 }
 type TransferControllerUpdateForm = {
   type: 'TRANSFER_CONTROLLER_UPDATE_FORM'
-  params: { formValues: TransferUpdate; options?: { shouldPersist: boolean } }
+  params: { formValues: TransferUpdate }
 }
 type TransferControllerResetForm = {
   type: 'TRANSFER_CONTROLLER_RESET_FORM'

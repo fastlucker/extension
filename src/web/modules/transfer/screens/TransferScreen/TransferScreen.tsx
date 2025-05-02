@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -39,7 +39,7 @@ import { getUiType } from '@web/utils/uiType'
 
 const { isPopup } = getUiType()
 
-const TransferScreen = () => {
+const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { state } = useTransferControllerState()
@@ -88,6 +88,13 @@ const TransferScreen = () => {
       return isSelectedAccountAccountOp
     })
   }, [account?.addr, userRequests])
+
+  useEffect(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: { formValues: { isTopUp: !!isTopUpScreen } }
+    })
+  }, [dispatch, isTopUpScreen])
 
   // Requests filtered by current account and the selected token's network
   const transactionUserRequests = useMemo(() => {

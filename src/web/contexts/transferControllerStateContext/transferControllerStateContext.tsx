@@ -109,7 +109,7 @@ const TransferControllerStateProvider = ({
     if (selectedToken) {
       dispatch({
         type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: { formValues: { selectedToken }, options: { shouldPersist: false } }
+        params: { formValues: { selectedToken } }
       })
     }
   }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.chainId, tokens, memoizedState, dispatch])
@@ -126,7 +126,13 @@ const TransferControllerStateProvider = ({
   // If the user sends the max amount of a token it will disappear from the list of tokens
   // and we need to select another token
   useEffect(() => {
-    if (!state.selectedToken?.address || !memoizedState) return
+    if (
+      !state.selectedToken?.address ||
+      !memoizedState ||
+      !portfolio?.latest ||
+      !portfolio?.pending
+    )
+      return
     const isSelectedTokenNetworkLoading =
       portfolio.pending[state.selectedToken.chainId.toString()]?.isLoading ||
       portfolio.latest[state.selectedToken.chainId.toString()]?.isLoading
@@ -144,11 +150,11 @@ const TransferControllerStateProvider = ({
 
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-      params: { formValues: { selectedToken: tokens[0] }, options: { shouldPersist: false } }
+      params: { formValues: { selectedToken: tokens[0] } }
     })
   }, [
-    portfolio.latest,
-    portfolio.pending,
+    portfolio?.latest,
+    portfolio?.pending,
     state.selectedToken?.address,
     state.selectedToken?.flags.rewardsType,
     state.selectedToken?.chainId,
