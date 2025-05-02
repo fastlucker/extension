@@ -39,16 +39,16 @@ jobs:
 
       - name: Generate .env file for review
         run: |
-          echo "RELAYER_URL=${{ vars.RELAYER_URL }}" >> .env
-          echo "VELCRO_URL=${{ vars.VELCRO_URL }}" >> .env
-          echo "BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD=${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}" >> .env
-          echo "BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV=${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}" >> .env
-          echo "BROWSER_EXTENSION_PUBLIC_KEY=${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}" >> .env
-          echo "REACT_APP_PIMLICO_API_KEY=${{ vars.REACT_APP_PIMLICO_API_KEY }}" >> .env
-          echo "REACT_APP_JIFFYSCAN_API_KEY=${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}" >> .env
-          echo "NFT_CDN_URL=${{ vars.NFT_CDN_URL }}" >> .env
-          echo "LEGENDS_NFT_ADDRESS=${{ vars.LEGENDS_NFT_ADDRESS }}" >> .env
-          echo "LI_FI_API_KEY=${{ vars.LI_FI_API_KEY }}" >> .env
+          echo "RELAYER_URL=\"${{ vars.RELAYER_URL }}\"" >> .env
+          echo "VELCRO_URL=\"${{ vars.VELCRO_URL }}\"" >> .env
+          echo "BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD=\"${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}\"" >> .env
+          echo "BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV=\"${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}\"" >> .env
+          echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
+          echo "REACT_APP_PIMLICO_API_KEY=\"${{ vars.REACT_APP_PIMLICO_API_KEY }}\"" >> .env
+          echo "REACT_APP_JIFFYSCAN_API_KEY=\"${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}\"" >> .env
+          echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
+          echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
+          echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
         shell: bash
 
       - name: Build extensions
