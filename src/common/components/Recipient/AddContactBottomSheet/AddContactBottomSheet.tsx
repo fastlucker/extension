@@ -69,7 +69,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
         ]}
       >
         <Text fontSize={20} weight="medium">
-          {t('Add new Contact')}
+          {t('Add new contact')}
         </Text>
         <AnimatedPressable
           style={[

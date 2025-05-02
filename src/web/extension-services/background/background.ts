@@ -910,9 +910,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               pm,
               port,
               mainCtrl,
-              ledgerCtrl,
-              trezorCtrl,
-              latticeCtrl,
               walletStateCtrl,
               autoLockCtrl,
               extensionUpdateCtrl
@@ -949,6 +946,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
+
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup

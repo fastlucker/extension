@@ -7,7 +7,6 @@ import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPric
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getRpcProvider } from '@ambire-common/services/provider'
-import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import SendToken from '@common/components/SendToken'
@@ -35,6 +34,7 @@ const { isPopup } = getUiType()
 const SendForm = ({
   addressInputState,
   isSmartAccount = false,
+  hasGasTank,
   amountErrorMessage,
   isRecipientAddressUnknown,
   isSWWarningVisible,
@@ -44,6 +44,7 @@ const SendForm = ({
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
+  hasGasTank: boolean
   amountErrorMessage: string
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
@@ -57,7 +58,6 @@ const SendForm = ({
   const { account, portfolio } = useSelectedAccountControllerState()
   const {
     maxAmount,
-    maxAmountInFiat,
     amountFieldMode,
     amountInFiat,
     selectedToken,
@@ -90,7 +90,7 @@ const SendForm = ({
     isToToken: false
   })
 
-  const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
+  const disableForm = (!hasGasTank && isTopUp) || !tokens.length
 
   const handleChangeToken = useCallback(
     (value: string) => {
@@ -116,7 +116,8 @@ const SendForm = ({
 
     if (!shouldDeductGas || !canDeductGas) {
       transferCtrl.update({
-        amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat
+        amount: maxAmount,
+        amountFieldMode: 'token'
       })
 
       return
@@ -125,37 +126,11 @@ const SendForm = ({
     const gasDeductedAmountBigInt = getTokenAmount(selectedToken) - estimation.totalGasWei
     const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
 
-    // Let the user see for himself that the amount is less than the gas fee
-    if (gasDeductedAmountBigInt < 0n) {
-      transferCtrl.update({ amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat })
-      return
-    }
-
-    if (amountFieldMode === 'token') {
-      transferCtrl.update({ amount: gasDeductedAmount })
-      return
-    }
-
-    if (amountFieldMode === 'fiat') {
-      const tokenPrice = selectedToken.priceIn[0].price
-      const { tokenPriceBigInt, tokenPriceDecimals } = convertTokenPriceToBigInt(tokenPrice)
-
-      const gasDeductedAmountInFiat = formatUnits(
-        gasDeductedAmountBigInt * tokenPriceBigInt,
-        tokenPriceDecimals + selectedToken.decimals
-      )
-
-      transferCtrl.update({ amount: String(gasDeductedAmountInFiat) })
-    }
-  }, [
-    amountFieldMode,
-    estimation,
-    isSmartAccount,
-    maxAmount,
-    maxAmountInFiat,
-    selectedToken,
-    transferCtrl
-  ])
+    transferCtrl.update({
+      amount: gasDeductedAmount,
+      amountFieldMode: 'token'
+    })
+  }, [estimation, isSmartAccount, maxAmount, selectedToken, transferCtrl])
 
   const switchAmountFieldMode = useCallback(() => {
     transferCtrl.update({

@@ -27,9 +27,9 @@ const StakeWallet = () => {
   const { onComplete, handleClose } = useCardActionContext()
 
   const { addToast } = useToast()
-  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
-  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const disabledButton = Boolean(!connectedAccount || v1Account)
 
   const [walletBalance, setWalletBalance] = useState(null)
 
@@ -132,7 +132,7 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Legends quests'
+          ? 'Switch to a smart account to unlock Rewards quests'
           : isLoading
           ? 'Loading...'
           : !walletBalance
