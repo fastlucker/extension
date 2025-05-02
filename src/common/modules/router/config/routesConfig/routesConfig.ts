@@ -244,13 +244,6 @@ const routesConfig: RouteConfig = {
       default: i18n.t('Accounts')
     })
   },
-  [ROUTES.inviteVerify]: {
-    route: ROUTES.inviteVerify,
-    title: Platform.select({
-      default: i18n.t('Invite Verify')
-    }),
-    name: Platform.select({ default: i18n.t('Invite Verify') })
-  },
   [ROUTES.importPrivateKey]: {
     route: ROUTES.importPrivateKey,
     title: Platform.select({
