@@ -1,5 +1,2 @@
-// import { setStringAsync } from 'expo-clipboard'
-
-const setStringAsync = () => {}
-
+import { setStringAsync } from 'expo-clipboard'
 export { setStringAsync }
