@@ -39,7 +39,7 @@ build_webkit() {
 
   echo "Creating Webkit zip files..."
   if [ -d "$WEBKIT_BUILD_DIR" ]; then
-    (cd "$WEBKIT_BUILD_DIR" && zip -X -r "../${WEBKIT_FILENAME}" . -x "*.DS_Store")
+    (cd "$WEBKIT_BUILD_DIR" && zip -r "../${WEBKIT_FILENAME}" .)
     echo "Created $WEBKIT_FILENAME"
   else
     echo "Error: Directory $WEBKIT_BUILD_DIR does not exist."
@@ -47,7 +47,7 @@ build_webkit() {
   fi
 
   if [ -d "$WEBKIT_SOURCEMAPS_BUILD_DIR" ]; then
-    (cd "$WEBKIT_SOURCEMAPS_BUILD_DIR" && zip -X -r "../${WEBKIT_SOURCEMAPS_FILENAME}" . -x "*.DS_Store")
+    (cd "$WEBKIT_SOURCEMAPS_BUILD_DIR" && zip -r "../${WEBKIT_SOURCEMAPS_FILENAME}" .)
     echo "Created $WEBKIT_SOURCEMAPS_FILENAME"
   else
     echo "Error: Directory $WEBKIT_SOURCEMAPS_BUILD_DIR does not exist."
@@ -63,23 +63,22 @@ build_gecko() {
   echo "Step 2: Exporting gecko extension sourcemaps"
   yarn export:web:gecko:sourcemaps
 
-  # FIXME: This zip command doesn't work on Linux
-  # echo "Creating Gecko zip files..."
-  # if [ -d "$GECKO_BUILD_DIR" ]; then
-  #   (cd "$GECKO_BUILD_DIR" && zip -X -r "../${GECKO_FILENAME}" . -x "*.DS_Store")
-  #   echo "Created $GECKO_FILENAME"
-  # else
-  #   echo "Error: Directory $GECKO_BUILD_DIR does not exist."
-  #   exit 1
-  # fi
+  echo "Creating Gecko zip files..."
+  if [ -d "$GECKO_BUILD_DIR" ]; then
+    (cd "$GECKO_BUILD_DIR" && zip -r "../${GECKO_FILENAME}" .)
+    echo "Created $GECKO_FILENAME"
+  else
+    echo "Error: Directory $GECKO_BUILD_DIR does not exist."
+    exit 1
+  fi
 
-  # if [ -d "$GECKO_SOURCEMAPS_BUILD_DIR" ]; then
-  #   (cd "$GECKO_SOURCEMAPS_BUILD_DIR" && zip -X -r "../${GECKO_SOURCEMAPS_FILENAME}" . -x "*.DS_Store")
-  #   echo "Created $GECKO_SOURCEMAPS_FILENAME"
-  # else
-  #   echo "Error: Directory $GECKO_SOURCEMAPS_BUILD_DIR does not exist."
-  #   exit 1
-  # fi
+  if [ -d "$GECKO_SOURCEMAPS_BUILD_DIR" ]; then
+    (cd "$GECKO_SOURCEMAPS_BUILD_DIR" && zip -r "../${GECKO_SOURCEMAPS_FILENAME}" .)
+    echo "Created $GECKO_SOURCEMAPS_FILENAME"
+  else
+    echo "Error: Directory $GECKO_SOURCEMAPS_BUILD_DIR does not exist."
+    exit 1
+  fi
 }
 
 # Decide what to build
