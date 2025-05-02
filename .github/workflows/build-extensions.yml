@@ -34,7 +34,7 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install Dependencies
-        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install
+        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
         shell: bash
 
       - name: Build extensions
