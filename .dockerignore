@@ -1,2 +1,6 @@
 .git
 node_modules
+build/gecko-prod
+build/gecko-prod-source-maps
+build/webkit-prod
+build/webkit-prod-source-maps
