@@ -1,0 +1,38 @@
+name: Build browser extensions ⚡
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build:
+    name: Build browser extension webkit and gecko .zips, ready for review submission
+    runs-on: ubuntu-24.04
+    environment: extension-production
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/composite-actions/setup
+
+      - name: Puppeteer Tests 🧑‍🔬
+        env:
+          RELAYER_URL: ${{ vars.RELAYER_URL }}
+          VELCRO_URL: ${{ vars.VELCRO_URL }}
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: ${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: ${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}
+          BROWSER_EXTENSION_PUBLIC_KEY: ${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}
+          REACT_APP_PIMLICO_API_KEY: ${{ vars.REACT_APP_PIMLICO_API_KEY }}
+          REACT_APP_JIFFYSCAN_API_KEY: ${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}
+          NFT_CDN_URL: ${{ vars.NFT_CDN_URL }}
+          LEGENDS_NFT_ADDRESS: ${{ vars.LEGENDS_NFT_ADDRESS }}
+          LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
+        run: yarn build:extensions
+
+      - name: Upload extension builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: gecko-prod
+          path: ./gecko-prod
