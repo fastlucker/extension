@@ -10,6 +10,7 @@ import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 
+// eslint-disable-next-line no-console
 const consoleWarn = console.warn
 const SUPPRESSED_WARNINGS = [
   // 2 <Routes > components are rendered in the tree at the same time to allow for lazy loading.
@@ -18,6 +19,7 @@ const SUPPRESSED_WARNINGS = [
   'Animated: `useNativeDriver` is not supported because the native animated module is missing. Falling back to JS-based animation.'
 ]
 
+// eslint-disable-next-line no-console
 console.warn = function filterWarnings(msg, ...args) {
   if (!SUPPRESSED_WARNINGS.some((entry) => msg?.includes(entry))) {
     consoleWarn(msg, ...args)
