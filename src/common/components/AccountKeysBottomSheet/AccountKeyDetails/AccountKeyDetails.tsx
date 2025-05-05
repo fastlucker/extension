@@ -18,7 +18,7 @@ interface Props {
 
 const AccountKeyDetails: FC<Props> = ({ details }) => {
   const { t } = useTranslation()
-  const { type, addr, dedicatedToOneSA } = details
+  const { type, addr, dedicatedToOneSA, label } = details
 
   // Ideally, the meta should be all in there for external keys,
   // but just in case, add fallbacks (that should never happen)
@@ -30,6 +30,13 @@ const AccountKeyDetails: FC<Props> = ({ details }) => {
         value: string
         [key: string]: any
       }[] = []
+
+      if (label) {
+        internalKeyDetails.push({
+          key: t('Label'),
+          value: label
+        })
+      }
 
       if (meta?.createdAt && new Date(meta.createdAt).toString() !== 'Invalid Date') {
         internalKeyDetails.push({
@@ -43,11 +50,22 @@ const AccountKeyDetails: FC<Props> = ({ details }) => {
     }
 
     const meta = details.meta as ExternalKey['meta']
-    const externalKeyDetails: {
+    let externalKeyDetails: {
       key: string
       value: string
       [key: string]: any
-    }[] = [
+    }[] = []
+
+    if (label) {
+      externalKeyDetails.push({
+        key: t('Label'),
+        value: label
+      })
+    }
+
+    externalKeyDetails = [
+      ...externalKeyDetails,
+
       {
         key: t('Device'),
         value: type ? HARDWARE_WALLET_DEVICE_NAMES[type] || type : '-'

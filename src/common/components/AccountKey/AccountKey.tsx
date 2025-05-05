@@ -171,19 +171,27 @@ const AccountKey: React.FC<Props> = ({
 
           {!isEditing && (
             <>
-              <Text
-                color={dedicatedToOneSA ? theme.infoDecorative : theme.primaryText}
-                fontSize={fontSize - 1}
-                weight={dedicatedToOneSA ? 'semiBold' : 'regular'}
-                style={[
-                  label || isImported ? spacings.mlMi : {},
-                  // Reduce the letter spacing as a hack to be able to fit all elements
-                  // on the row, even for the extreme case when the key label is max length
-                  dedicatedToOneSA && { letterSpacing: -0.2 }
-                ]}
-              >
-                {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : shortAddr}
-              </Text>
+              {/* @ts-ignore */}
+              <View dataSet={{ tooltipId: `key-${addr}-tooltip` }}>
+                <Text
+                  color={dedicatedToOneSA ? theme.infoDecorative : theme.primaryText}
+                  fontSize={fontSize - 1}
+                  weight={dedicatedToOneSA ? 'semiBold' : 'regular'}
+                  style={[
+                    label || isImported ? spacings.mlMi : {},
+                    // Reduce the letter spacing as a hack to be able to fit all elements
+                    // on the row, even for the extreme case when the key label is max length
+                    dedicatedToOneSA && { letterSpacing: -0.2 }
+                  ]}
+                >
+                  {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : shortAddr}
+                </Text>
+              </View>
+              <Tooltip id={`key-${addr}-tooltip`}>
+                <Text fontSize={14} weight="medium" appearance="secondaryText">
+                  {addr}
+                </Text>
+              </Tooltip>
               {!!showCopyAddr && (
                 <AnimatedPressable
                   style={[spacings.mlMi, copyIconAnimStyle]}
@@ -217,7 +225,7 @@ const AccountKey: React.FC<Props> = ({
                 The workaround is to set a wrapping <View> and make it the tooltip target
               */}
                   {/* @ts-ignore */}
-                  <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
+                  <View dataSet={{ tooltipId: `export-${addr}-tooltip` }}>
                     <Button
                       style={{ height: 32 }}
                       hasBottomSpacing={false}
@@ -236,7 +244,7 @@ const AccountKey: React.FC<Props> = ({
                     </Button>
                   </View>
                   {!canExportKey && (
-                    <Tooltip id="export-icon-tooltip">
+                    <Tooltip id={`export-${addr}-tooltip`}>
                       <View>
                         <Text fontSize={14} appearance="secondaryText">
                           {t('Export unavailable as this is a hardware wallet key')}
