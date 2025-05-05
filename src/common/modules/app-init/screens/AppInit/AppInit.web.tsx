@@ -6,7 +6,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
-import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { LoaderProvider } from '@common/contexts/loaderContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
@@ -14,7 +13,7 @@ import { PrivateModeProvider } from '@common/contexts/privateModeContext'
 import { StorageProvider } from '@common/contexts/storageContext'
 import { ThemeProvider } from '@common/contexts/themeContext'
 import { ToastProvider } from '@common/contexts/toastContext'
-// import useFonts from '@common/hooks/useFonts'
+import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { OnboardingNavigationProvider } from '@common/modules/auth/contexts/onboardingNavigationContext'
@@ -48,10 +47,9 @@ import { WalletStateControllerProvider } from '@web/contexts/walletStateControll
 const Router = isExtension ? HashRouter : BrowserRouter
 
 const AppInit = () => {
-  // FIXME: Need an alternative way to load fonts in deterministic way
-  // const { fontsLoaded, robotoFontsLoaded } = useFonts()
+  const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
-  // if (!fontsLoaded && !robotoFontsLoaded) return null
+  if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
     <Router>
