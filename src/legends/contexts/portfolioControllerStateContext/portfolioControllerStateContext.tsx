@@ -10,12 +10,24 @@ export type AccountPortfolio = {
   isReady?: boolean
   error?: string
 }
+export type ClaimableRewards = {
+  address: string
+  symbol: string
+  amount: string
+  decimals: number
+  networkId: string
+  chainId: number
+  priceIn: Array<{
+    baseCurrency: string
+    price: number
+  }>
+}
 
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio?: AccountPortfolio
   updateAccountPortfolio: () => void
   claimableRewardsError: string | null
-  claimableRewards: AdditionalPortfolioNetworkResult | null
+  claimableRewards: ClaimableRewards | null
   isLoadingClaimableRewards: boolean
 }>({
   updateAccountPortfolio: () => {},

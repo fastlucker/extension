@@ -111,7 +111,7 @@ const ActionModal: FC<ActionModalProps> = ({
     )
   }
 
-  if (id === CARD_PREDEFINED_ID.claimRewards) {
+  if (predefinedId === CARD_PREDEFINED_ID.claimRewards) {
     return <ClaimRewards isOpen={isOpen} handleClose={closeActionModalWrapped} action={action} />
   }
 

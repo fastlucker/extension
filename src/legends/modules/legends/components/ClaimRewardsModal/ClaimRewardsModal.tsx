@@ -9,7 +9,6 @@ import Alert from '@legends/components/Alert'
 import CloseIcon from '@legends/components/CloseIcon'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
-import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
@@ -20,15 +19,18 @@ import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smo
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import { CardAction } from '../../types'
+import { CardActionCalls, CardActionPredefined } from '../../types'
 import CardActionButton from '../Card/CardAction/actions/CardActionButton'
 import rewardsCoverImg from './assets/rewards-cover.png'
 import styles from './ClaimRewardsModal.module.scss'
 
+type Action = CardActionPredefined & {
+  calls: CardActionCalls['calls']
+}
 interface ClaimRewardsModalProps {
   isOpen: boolean
   handleClose: () => void
-  action: CardAction
+  action: Action | undefined
 }
 
 const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({ isOpen, handleClose, action }) => {
@@ -52,7 +54,8 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({ isOpen, handleClo
   useEscModal(isOpen, closeModal)
 
   const onButtonClick = useCallback(async () => {
-    await switchNetwork(action.chainId || ETHEREUM_CHAIN_ID)
+    if (!action || !action.calls) return
+    await switchNetwork(ETHEREUM_CHAIN_ID)
 
     try {
       const provider = new BrowserProvider(window.ambire)
@@ -76,16 +79,8 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({ isOpen, handleClo
       console.error(e)
       addToast(message, { type: 'error' })
     }
-  }, [
-    switchNetwork,
-    action.calls,
-    sendCalls,
-    chainId,
-    getCallsStatus,
-    onComplete,
-    handleClose,
-    addToast
-  ])
+  }, [switchNetwork, action, sendCalls, chainId, getCallsStatus, onComplete, handleClose, addToast])
+
   if (!character)
     return (
       <Alert

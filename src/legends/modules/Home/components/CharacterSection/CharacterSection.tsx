@@ -14,6 +14,8 @@ import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import ClaimRewardsModal from '@legends/modules/legends/components/ClaimRewardsModal'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
 import styles from './CharacterSection.module.scss'
 import rewardsCoverImg from './rewards-cover-image.png'
@@ -24,7 +26,10 @@ const CharacterSection = () => {
 
   const { character } = useCharacterContext()
   const { legends } = useLegendsContext()
-  const claimWalletCard = legends?.find((card) => card.id === 'claim-rewards')
+  const claimWalletCard = legends?.find((card) =>
+    isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
+  )
+
   const { accountPortfolio, claimableRewardsError, claimableRewards, isLoadingClaimableRewards } =
     usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
@@ -120,7 +125,9 @@ const CharacterSection = () => {
           className={styles.rewardsBadgeWrapper}
           onMouseMove={handleMouseMove}
           onMouseLeave={resetRotation}
-          onClick={(e) => !rewardsDisabledState && openClaimModal()}
+          onClick={(e) =>
+            !rewardsDisabledState && claimableRewards?.amount !== '0' && openClaimModal()
+          }
           onKeyDown={(e) => e.key === 'Enter' && openClaimModal()}
           role="button"
           tabIndex={0}
