@@ -26,7 +26,6 @@ class TrezorController implements ExternalSignerController {
 
   deviceId = ''
 
-  // walletSDK: TrezorConnect = trezorConnect
   walletSDK: TrezorConnect = trezorConnect
 
   // Trezor SDK gets initiated once (upon extension start) and never unloaded
@@ -40,10 +39,12 @@ class TrezorController implements ExternalSignerController {
       if (event?.payload?.name) {
         this.deviceModel = event.payload.name.replace(/^Trezor\s*/, '').trim()
       }
+
       if (event?.payload?.id) {
         this.deviceId = event.payload.id
       }
     })
+
     this.initialLoadPromise = this.#init()
   }
 
