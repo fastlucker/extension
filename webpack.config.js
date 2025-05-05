@@ -391,10 +391,12 @@ module.exports = async function (env, argv) {
         }
       }
 
-      // TODO: Check if this gives results
-      const minimizer = config.optimization.minimizer?.[0]
-      if (minimizer && minimizer.constructor.name === 'TerserPlugin') {
-        const terserRealOptions = minimizer.options.minimizer?.options
+      // Find and configure TerserPlugin in the minimizer array
+      const terserPlugin = config.optimization.minimizer?.find(
+        (minimizer) => minimizer.constructor.name === 'TerserPlugin'
+      )
+      if (terserPlugin) {
+        const terserRealOptions = terserPlugin.options.minimizer?.options
 
         if (terserRealOptions) {
           terserRealOptions.compress = {
@@ -410,7 +412,7 @@ module.exports = async function (env, argv) {
           }
         }
 
-        minimizer.options.parallel = false
+        terserPlugin.options.parallel = false
       }
     }
 
