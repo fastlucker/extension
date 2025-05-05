@@ -1,5 +1,5 @@
 // The 'react-native-dotenv' package doesn't work in the NodeJS context (and
-// with commonjs imports), so alternatively, use 'dotend' package to load the
+// with commonjs imports), so alternatively, use 'dotenv' package to load the
 // environment variables from the .env file.
 require('dotenv').config()
 
@@ -231,6 +231,7 @@ module.exports = async function (env, argv) {
 
   // Environment specific configurations
   if (isExtension) {
+    // eslint-disable-next-line no-console
     console.log('Building extension with relayer:', process.env.RELAYER_URL)
     if (process.env.IS_TESTING !== 'true') {
       validateEnvVariables({ ...process.env }, process.env.APP_ENV)
