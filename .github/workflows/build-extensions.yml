@@ -1,8 +1,10 @@
 name: Build production browser extensions ⚡
 
 on:
-  workflow_dispatch: # Manual trigger only
-  push: # TODO: Temporarily, to trigger the workflow manually while not in v2
+  workflow_dispatch: # Manual trigger
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
