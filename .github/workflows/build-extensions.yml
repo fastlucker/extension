@@ -67,17 +67,17 @@ jobs:
 
       - name: Generate .zip with the full source code (including .env)
         run: |
-          zip -r source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
+          zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
         shell: bash
 
       - name: Upload source code 📦
         uses: actions/upload-artifact@v4
         with:
-          name: extension-source
-          path: ./source-code.zip
+          name: extension-source-code
+          path: ./extension-source-code.zip
 
       - name: Upload extension builds 📦
         uses: actions/upload-artifact@v4
         with:
-          name: extension-zips
+          name: extension-builds-and-source-maps
           path: ./build/*.zip
