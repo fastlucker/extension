@@ -131,7 +131,7 @@ const ManageRecoveryPhrase = ({
     <>
       <View style={flexbox.flex1}>
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-          <PanelBackButton onPress={onBackButtonPress} style={spacings.mrTy} />
+          <PanelBackButton onPress={onBackButtonPress} style={spacings.mrSm} />
           <PanelTitle title={t('Manage recovery phrase')} style={text.left} />
         </View>
         <View style={spacings.mb}>
@@ -234,7 +234,7 @@ const ManageRecoveryPhrase = ({
         style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-          <PanelBackButton onPress={closeDeleteConfirmation} style={spacings.mrTy} />
+          <PanelBackButton onPress={closeDeleteConfirmation} style={spacings.mrSm} />
           <PanelTitle title={t('Confirm phrase removal')} style={text.left} />
         </View>
         <View style={[flexbox.flex1, flexbox.justifyEnd]}>

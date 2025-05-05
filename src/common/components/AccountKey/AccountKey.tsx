@@ -191,8 +191,8 @@ const AccountKey: React.FC<Props> = ({
                   {...bindCopyIconAnim}
                 >
                   <CopyIcon
-                    width={fontSize + 4}
-                    height={fontSize + 4}
+                    width={fontSize + 2}
+                    height={fontSize + 2}
                     color={theme.secondaryText}
                   />
                 </AnimatedPressable>

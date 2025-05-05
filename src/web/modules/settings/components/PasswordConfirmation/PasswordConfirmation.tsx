@@ -103,7 +103,7 @@ const PasswordConfirmation: React.FC<Props> = ({
   return (
     <View style={flexbox.flex1}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-        <PanelBackButton onPress={onBackButtonPress} style={spacings.mrTy} />
+        <PanelBackButton onPress={onBackButtonPress} style={spacings.mrSm} />
         <PanelTitle title={t('Confirm extension password')} style={textStyles.left} />
       </View>
       <Controller

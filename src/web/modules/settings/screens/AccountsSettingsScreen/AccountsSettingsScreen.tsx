@@ -162,7 +162,7 @@ const AccountsSettingsScreen = () => {
               setAccountToRemove(null)
               closeRemoveAccount()
             }}
-            style={spacings.mrTy}
+            style={spacings.mrSm}
           />
           <PanelTitle
             title={t('Remove {{ label }}', {

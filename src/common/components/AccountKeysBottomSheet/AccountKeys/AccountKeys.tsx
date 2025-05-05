@@ -68,11 +68,9 @@ const AccountKeys: FC<Props> = ({
   return (
     <View style={{ maxHeight: 384, flex: 1 }}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-        <PanelBackButton onPress={closeBottomSheet} style={spacings.mrTy} />
+        <PanelBackButton onPress={closeBottomSheet} style={spacings.mrSm} />
         <PanelTitle
-          title={t('{{accName}} keys', {
-            accName: account.preferences.label
-          })}
+          title={t('{{accName}} keys', { accName: account.preferences.label })}
           style={text.left}
         />
       </View>
