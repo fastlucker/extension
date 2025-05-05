@@ -2,15 +2,13 @@ import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import trezorConnect, { TrezorConnect } from '@trezor/connect-webextension'
 
-// TODO: Temporary skip trezor webextension import
-// import trezorConnect, { TrezorConnect } from '@trezor/connect-webextension'
-
-// export type {
-//   EthereumTransaction,
-//   EthereumTransactionEIP1559,
-//   TrezorConnect
-// } from '@trezor/connect-webextension'
+export type {
+  EthereumTransaction,
+  EthereumTransactionEIP1559,
+  TrezorConnect
+} from '@trezor/connect-webextension'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'wallet@ambire.com',
@@ -29,7 +27,7 @@ class TrezorController implements ExternalSignerController {
   deviceId = ''
 
   // walletSDK: TrezorConnect = trezorConnect
-  walletSDK = {}
+  walletSDK: TrezorConnect = trezorConnect
 
   // Trezor SDK gets initiated once (upon extension start) and never unloaded
   isInitiated = false
@@ -38,21 +36,20 @@ class TrezorController implements ExternalSignerController {
   initialLoadPromise
 
   constructor() {
-    // TODO: Temporarily skip initialization.
-    // this.walletSDK?.on('DEVICE_EVENT', (event: any) => {
-    //   if (event?.payload?.name) {
-    //     this.deviceModel = event.payload.name.replace(/^Trezor\s*/, '').trim()
-    //   }
-    //   if (event?.payload?.id) {
-    //     this.deviceId = event.payload.id
-    //   }
-    // })
-    // this.initialLoadPromise = this.#init()
+    this.walletSDK.on('DEVICE_EVENT', (event: any) => {
+      if (event?.payload?.name) {
+        this.deviceModel = event.payload.name.replace(/^Trezor\s*/, '').trim()
+      }
+      if (event?.payload?.id) {
+        this.deviceId = event.payload.id
+      }
+    })
+    this.initialLoadPromise = this.#init()
   }
 
   async #init() {
     try {
-      await this.walletSDK?.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
+      await this.walletSDK.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
       this.isInitiated = true
     } catch (error) {
       console.error('TrezorController: failed to init the Trezor SDK', error)
@@ -81,7 +78,7 @@ class TrezorController implements ExternalSignerController {
       return 'ALREADY_UNLOCKED'
     }
 
-    const response = await this.walletSDK?.ethereumGetAddress({
+    const response = await this.walletSDK.ethereumGetAddress({
       path,
       // Do not use this validation option, because if the expected key is not
       // on this path, the Trezor displays a not very user friendly error
