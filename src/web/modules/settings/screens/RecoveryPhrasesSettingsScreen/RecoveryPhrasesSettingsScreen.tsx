@@ -99,12 +99,22 @@ const RecoveryPhraseSettingsScreen = () => {
             />
           )
         })}
+        {!associatedAccounts.length && (
+          <Text
+            fontSize={14}
+            weight="medium"
+            appearance="secondaryText"
+            style={[spacings.mvM, text.center]}
+          >
+            {t('No accounts added from this seed.')}
+          </Text>
+        )}
       </Panel>
     )
   }
 
   return (
-    <View style={[spacings.ptSm, flexbox.flex1]}>
+    <View style={flexbox.flex1}>
       <SettingsPageHeader title={t('Recovery phrases')} />
       {seeds.length ? (
         <FlatList data={seeds} renderItem={renderItem} keyExtractor={(item) => item.id} />
