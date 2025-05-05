@@ -187,3 +187,10 @@
     margin-bottom: 0.75rem;
   }
 }
+
+
+@include breakpoint-down-from(large-tablet) {
+  .wrapper {
+    flex-direction: column;
+  }
+}

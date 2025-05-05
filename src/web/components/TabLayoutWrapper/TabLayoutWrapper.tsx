@@ -134,8 +134,7 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
       <ScrollableWrapper
         contentContainerStyle={[
           styles.contentContainer,
-          (isOnboardingRoute || path === `/${WEB_ROUTES.inviteVerify}`) &&
-            (minHeightSize('l') ? spacings.pv0 : spacings.pt2Xl),
+          isOnboardingRoute && (minHeightSize('l') ? spacings.pv0 : spacings.pt2Xl),
           contentContainerStyle
         ]}
         showsVerticalScrollIndicator={false}

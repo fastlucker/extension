@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
@@ -27,7 +28,6 @@ import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTok
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
 
-import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
@@ -38,14 +38,15 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
-    isSwitchFromAndToTokensEnabled,
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
+    updateQuoteStatus,
     toTokenList,
     quote,
     formStatus,
     toChainId,
     updateToTokenListStatus,
+    switchTokensStatus,
     supportedChainIds,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
@@ -224,7 +225,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       >
         <SwitchTokensButton
           onPress={handleSwitchFromAndToTokens}
-          disabled={!isSwitchFromAndToTokensEnabled}
+          disabled={
+            switchTokensStatus === 'LOADING' ||
+            updateQuoteStatus === 'LOADING' ||
+            updateToTokenListStatus === 'LOADING'
+          }
         />
         <Text appearance="secondaryText" fontSize={16} weight="medium">
           {t('Receive')}
@@ -252,12 +257,13 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
           <View style={[flexbox.flex1]}>
-            {formStatus === SwapAndBridgeFormStatus.Empty ||
-            formStatus === SwapAndBridgeFormStatus.Invalid ||
-            formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
-            formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
-            formStatus === SwapAndBridgeFormStatus.Proceeded ||
-            shouldShowAmountOnEstimationFailure ? (
+            {(formStatus === SwapAndBridgeFormStatus.Empty ||
+              formStatus === SwapAndBridgeFormStatus.Invalid ||
+              formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
+              formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+              formStatus === SwapAndBridgeFormStatus.Proceeded ||
+              shouldShowAmountOnEstimationFailure) &&
+            updateQuoteStatus !== 'LOADING' ? (
               <Text
                 fontSize={20}
                 weight="medium"
