@@ -46,7 +46,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
     <>
       <View style={spacings.ptSm}>
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-          <PanelBackButton onPress={handleClose} style={spacings.mr} />
+          <PanelBackButton onPress={handleClose} style={spacings.mrSm} />
           <PanelTitle title={t('Add an account')} style={text.left} />
         </View>
         <View style={styles.optionsWrapper}>
