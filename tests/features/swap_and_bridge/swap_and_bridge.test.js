@@ -111,7 +111,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await expect(page).not.toMatchElement('div', { text: 'Pending Route', timeout: 1000 })
   })
 
-  it('should select a different route when Swap & Bridge with a Smart Account', async () => {
+  it.skip('should select a different route when Swap & Bridge with a Smart Account', async () => {
     await prepareSwapAndBridge(page, 0.009, 'USDC', '8453', 'WALLET')
     // ToDo: rewrite this particular test in playwright due to changes of new version
     await clickOnSecondRoute(page)

@@ -322,6 +322,7 @@ export async function verifyDefaultReceiveToken(page, send_token, recieve_networ
   await selectSendTokenOnNetwork(page, send_token, recieve_network)
   await page.waitForTimeout(1000)
   await clickOnElement(page, SELECTORS.receiveTokenSab)
+  await page.waitForTimeout(900)
   await typeText(page, SELECTORS.searchInput, receive_token)
   const selector = `[data-testid*="${receive_token.toLowerCase()}"]`
   await expect(page).toMatchElement(selector, { text: receive_token.toUpperCase(), timeout: 3000 })
