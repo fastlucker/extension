@@ -52,7 +52,6 @@ const TransferControllerStateProvider = ({
 
   const memoizedState = useDeepMemo(state, controller)
 
-  const { account } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()
   const { search } = useRoute()
 
@@ -81,15 +80,6 @@ const TransferControllerStateProvider = ({
       ),
     [portfolio?.tokens, networks, isTopUp]
   )
-
-  useEffect(() => {
-    if (!account) return
-
-    dispatch({
-      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-      params: { formValues: { selectedAccountData: account } }
-    })
-  }, [account, dispatch])
 
   useEffect(() => {
     if (!memoizedState.selectedToken?.address || !memoizedState) return
