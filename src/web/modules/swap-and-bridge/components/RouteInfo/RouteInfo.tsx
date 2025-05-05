@@ -87,7 +87,12 @@ const RouteInfo: FC<Props> = ({
                     weight="medium"
                     style={spacings.mlLg}
                   >
-                    {t('Time: ~')} {formatTime(quote?.selectedRoute?.serviceTime)}
+                    {t('Time: {{time}}', {
+                      time:
+                        quote?.selectedRoute.fromChainId !== quote?.selectedRoute.toChainId
+                          ? `~ ${formatTime(quote?.selectedRoute?.serviceTime)}`
+                          : 'instant'
+                    })}
                   </Text>
                 ) : null}
               </View>
