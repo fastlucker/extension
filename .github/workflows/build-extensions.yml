@@ -1,4 +1,4 @@
-name: Build browser extensions ⚡
+name: Build production browser extensions ⚡
 
 on:
   workflow_dispatch: # Manual trigger only
