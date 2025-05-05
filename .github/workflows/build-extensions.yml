@@ -67,8 +67,7 @@ jobs:
 
       - name: Generate .zip with the full source code (including .env)
         run: |
-          cd ..
-          zip -r source-code.zip app/* -x "app/node_modules/*" -x "app/.git/*" -x "app/build/*" -x "app/*.zip"
+          zip -r source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
         shell: bash
 
       - name: Upload source code 📦
