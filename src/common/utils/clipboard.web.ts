@@ -1,1 +1,1 @@
-export const setStringAsync = async (text: string) => await navigator.clipboard.writeText(text)
+export const setStringAsync = (text: string) => navigator.clipboard.writeText(text)
