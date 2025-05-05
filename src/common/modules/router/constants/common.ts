@@ -46,7 +46,6 @@ const WEB_ROUTES = {
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
   basicToSmartSettingsScreen: 'settings/accounts/basic-to-smart',
-  exportKey: 'settings/accounts/exportKey',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',
@@ -61,7 +60,7 @@ const WEB_ROUTES = {
   ledgerConnect: 'ledger-connect',
   benzin: 'benzin',
   swapAndBridge: 'swap-and-bridge',
-  savedSeed: 'saved-seed',
+  recoveryPhrasesSettings: 'settings/recovery-phrases',
   securityAndPrivacy: 'settings/security-and-privacy',
   onboardingCompleted: 'wallet-setup-completed'
 }

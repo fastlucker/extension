@@ -44,11 +44,10 @@ import BasicToSmartSettingsScreen from '@web/modules/settings/screens/BasicToSma
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
-import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
 import ManageTokensSettingsScreen from '@web/modules/settings/screens/ManageTokensSettingsScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
-import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
+import RecoveryPhrasesSettingsScreen from '@web/modules/settings/screens/RecoveryPhrasesSettingsScreen'
 import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
 import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
@@ -121,8 +120,10 @@ const MainRoutes = () => {
                 path={WEB_ROUTES.basicToSmartSettingsScreen}
                 element={<BasicToSmartSettingsScreen />}
               />
-              <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
-              <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
+              <Route
+                path={WEB_ROUTES.recoveryPhrasesSettings}
+                element={<RecoveryPhrasesSettingsScreen />}
+              />
               <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
               <Route
                 path={WEB_ROUTES.transactions}
