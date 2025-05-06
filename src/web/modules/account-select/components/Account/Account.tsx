@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Animated, Pressable, View, ViewStyle } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import { canBecomeSmarter, isSmartAccount } from '@ambire-common/libs/account/account'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
@@ -12,23 +12,19 @@ import Dropdown from '@common/components/Dropdown'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useFeatureFlagsControllerState from '@web/hooks/useFeatureFlagsControllerState'
 import { useCustomHover } from '@web/hooks/useHover'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-import { SUBMENU_OPTION_7702, SUBMENU_OPTIONS } from './submenuOptions'
+import { SUBMENU_OPTIONS } from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -63,13 +59,10 @@ const Account = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
-  const featureFlagsState = useFeatureFlagsControllerState()
   const { statuses: accountsStatuses } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
   const { ens, isLoading } = useReverseLookup({ address: addr })
-  const { keys } = useKeystoreControllerState()
-  const { navigate } = useNavigation()
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -115,32 +108,8 @@ const Account = ({
 
     if (item.value === 'keys') {
       !!options.setAccountToImportOrExport && options.setAccountToImportOrExport(account)
-      return
-    }
-
-    if (item.value === 'toSmarter') {
-      navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${account.addr}`)
     }
   }
-
-  const getAccKeys = useCallback(
-    (acc: any) => {
-      return keys.filter((key) => acc?.associatedKeys.includes(key.addr))
-    },
-    [keys]
-  )
-
-  const featureFlags = useMemo(() => {
-    return featureFlagsState.flags
-  }, [featureFlagsState])
-
-  const add7702option = useMemo(() => {
-    return featureFlags && featureFlags.eip7702 && canBecomeSmarter(account, getAccKeys(account))
-  }, [account, getAccKeys, featureFlags])
-
-  const submenu = useMemo(() => {
-    return add7702option ? [SUBMENU_OPTION_7702, ...SUBMENU_OPTIONS] : SUBMENU_OPTIONS
-  }, [add7702option])
 
   const Container = React.memo(({ children }: any) => {
     return isSelectable ? (
@@ -217,7 +186,7 @@ const Account = ({
           {renderRightChildren && renderRightChildren()}
           {!!options.withOptionsButton && (
             <Dropdown
-              data={submenu}
+              data={SUBMENU_OPTIONS}
               externalPosition={dropdownPosition}
               setExternalPosition={setDropdownPosition}
               onSelect={onDropdownSelect}

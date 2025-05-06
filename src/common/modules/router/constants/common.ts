@@ -45,7 +45,6 @@ const WEB_ROUTES = {
   settingsAbout: 'settings/about',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
-  basicToSmartSettingsScreen: 'settings/accounts/basic-to-smart',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',
@@ -83,4 +82,4 @@ const ONBOARDING_WEB_ROUTES = [
   WEB_ROUTES.onboardingCompleted
 ] as const
 
-export { ROUTES, MOBILE_ROUTES, WEB_ROUTES, ONBOARDING_WEB_ROUTES }
+export { MOBILE_ROUTES, ONBOARDING_WEB_ROUTES, ROUTES, WEB_ROUTES }
