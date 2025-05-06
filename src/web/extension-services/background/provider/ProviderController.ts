@@ -17,7 +17,7 @@ import { APP_VERSION } from '@common/config/env'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
-import { canBecomeSmarterOnChain } from '@ambire-common/libs/account/account'
+import { getBaseAccount } from '@ambire-common/libs/account/getBaseAccount'
 import { createTab } from '../webapi/tab'
 import { RequestRes, Web3WalletPermission } from './types'
 
@@ -372,21 +372,23 @@ export class ProviderController {
           },
           paymasterService: {
             supported: false
+          },
+          atomic: {
+            status: 'unsupported'
           }
         }
         return
       }
 
       const accout = this.mainCtrl.accounts.accounts.find((acc) => acc.addr === accountAddr)!
-      const isSmart =
-        !accountState.isEOA ||
-        accountState.isSmarterEoa ||
-        canBecomeSmarterOnChain(
-          network,
-          accout,
-          accountState,
-          this.mainCtrl.keystore.keys.filter((key) => accout.associatedKeys.includes(key.addr))
-        )
+      const baseAccount = getBaseAccount(
+        accout,
+        accountState,
+        this.mainCtrl.keystore.keys.filter((key) => accout.associatedKeys.includes(key.addr)),
+        network
+      )
+      const isSmart = baseAccount.getAtomicStatus() !== 'unsupported'
+
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
           supported: true
@@ -402,6 +404,9 @@ export class ProviderController {
             // our default may be the relayer but we will broadcast an userOp
             // in case of sponsorships
             (network.erc4337.enabled || network.erc4337.hasBundlerSupport)
+        },
+        atomic: {
+          status: baseAccount.getAtomicStatus()
         }
       }
     })
