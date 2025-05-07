@@ -13,6 +13,7 @@ export type CardActionComponentProps = {
   action: CardAction
   buttonText: string
   meta: CardFromResponse['meta']
+  id: CardFromResponse['id']
 }
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
