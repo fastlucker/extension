@@ -74,6 +74,10 @@ const useGetTokenSelectProps = ({
   supportedChainIds?: Network['chainId'][]
   isLoading?: boolean
   isToToken?: boolean
+  isTokenInPortfolio?: boolean
+  isPending?: boolean
+  balanceLatestFormatted?: string
+  pendingBalanceFormatted?: string
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -283,6 +287,11 @@ const useGetTokenSelectProps = ({
       chainId: currentToken.chainId,
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
+      isTokenInPortfolio: !!tokenInPortfolio,
+      isPending,
+      balanceLatestFormatted,
+      pendingBalanceFormatted,
+      symbol,
       label,
       icon: (
         <TokenIcon
