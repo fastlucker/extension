@@ -1,4 +1,5 @@
 import { MainController } from '@ambire-common/controllers/main/main'
+import { ONBOARDING_WEB_ROUTES } from '@common/modules/router/constants/common'
 import { Port } from '@web/extension-services/messengers'
 
 export const handleCleanUpOnPortDisconnect = async ({
@@ -34,5 +35,13 @@ export const handleCleanUpOnPortDisconnect = async ({
 
   if (url.pathname.includes('sign-message')) {
     mainCtrl.signMessage.reset()
+  }
+
+  if (mainCtrl.accountPicker.isInitialized) {
+    const shouldResetAccountPicker = ONBOARDING_WEB_ROUTES.some(
+      (r) => url.pathname.includes(r) && port.name === 'tab'
+    )
+
+    if (shouldResetAccountPicker) await mainCtrl.accountPicker.reset()
   }
 }
