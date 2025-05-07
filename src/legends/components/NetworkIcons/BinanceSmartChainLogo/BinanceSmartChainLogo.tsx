@@ -1,5 +1,5 @@
 import React from 'react'
-import Svg, { Path, SvgProps } from 'react-native-svg'
+import Svg, { Path, Rect, SvgProps } from 'react-native-svg'
 
 interface Props extends SvgProps {
   width?: number
@@ -7,34 +7,56 @@ interface Props extends SvgProps {
 }
 
 const BinanceSmartChainLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => (
-  <Svg width={width} height={height} viewBox="0 0 2496 2496" fill="none" {...rest}>
-    <Path
-      fill="#F0B90B"
-      d="M1248,0c689.3,0,1248,558.7,1248,1248s-558.7,1248-1248,1248
-		S0,1937.3,0,1248S558.7,0,1248,0L1248,0z"
+  <Svg width={width} height={height} viewBox="0 0 28 28" fill="none" {...rest}>
+    <Rect
+      x={1.25}
+      y={1.25}
+      width={25.5}
+      height={25.5}
+      rx={12.75}
+      stroke="#6A6F86"
+      strokeOpacity={0.3}
+      strokeWidth={1.5}
     />
     <Path
-      fill="#FFFFFF"
-      d="M685.9,1248l0.9,330l280.4,165v193.2l-444.5-260.7v-524L685.9,1248L685.9,1248z M685.9,918v192.3
-		l-163.3-96.6V821.4l163.3-96.6l164.1,96.6L685.9,918L685.9,918z M1084.3,821.4l163.3-96.6l164.1,96.6L1247.6,918L1084.3,821.4
-		L1084.3,821.4z"
+      d="M14 0c7.734 0 14 6.266 14 14s-6.266 14-14 14S0 21.734 0 14 6.266 0 14 0zm0 0"
+      transform="matrix(.9067 0 0 .9067 1.29 1.28)"
+      stroke="none"
+      fillRule="evenodd"
+      fill="#f0b90b"
+      fillOpacity={1}
     />
     <Path
-      fill="#FFFFFF"
-      d="M803.9,1509.6v-193.2l163.3,96.6v192.3L803.9,1509.6L803.9,1509.6z M1084.3,1812.2l163.3,96.6
-		l164.1-96.6v192.3l-164.1,96.6l-163.3-96.6V1812.2L1084.3,1812.2z M1645.9,821.4l163.3-96.6l164.1,96.6v192.3l-164.1,96.6V918
-		L1645.9,821.4L1645.9,821.4L1645.9,821.4z M1809.2,1578l0.9-330l163.3-96.6v524l-444.5,260.7v-193.2L1809.2,1578L1809.2,1578
-		L1809.2,1578z"
-    />
-    <polygon
-      fill="#FFFFFF"
-      points="1692.1,1509.6 1528.8,1605.3 1528.8,1413 1692.1,1316.4 1692.1,1509.6 	"
+      d="M7.695 14l.008 3.703 3.149 1.852v2.164l-4.989-2.922v-5.879zm0-3.703v2.16l-1.832-1.086V9.215l1.832-1.086 1.84 1.086zm4.47-1.082l1.831-1.086 1.84 1.086-1.84 1.082zm0 0"
+      transform="matrix(.9067 0 0 .9067 1.29 1.28)"
+      stroke="none"
+      fillRule="nonzero"
+      fill="#fff"
+      fillOpacity={1}
     />
     <Path
-      fill="#FFFFFF"
-      d="M1692.1,986.4l0.9,193.2l-281.2,165v330.8l-163.3,95.7l-163.3-95.7v-330.8l-281.2-165V986.4
-		L968,889.8l279.5,165.8l281.2-165.8l164.1,96.6H1692.1L1692.1,986.4z M803.9,656.5l443.7-261.6l444.5,261.6l-163.3,96.6
-		l-281.2-165.8L967.2,753.1L803.9,656.5L803.9,656.5z"
+      d="M9.02 16.934v-2.168l1.832 1.086v2.156zm3.144 3.394l1.832 1.086 1.84-1.086v2.16l-1.84 1.082-1.832-1.082zm6.3-11.113l1.833-1.086 1.84 1.086v2.156l-1.84 1.086v-2.16zm1.833 8.488L20.305 14l1.832-1.082v5.875l-4.985 2.926V19.55zm0 0"
+      transform="matrix(.9067 0 0 .9067 1.29 1.28)"
+      stroke="none"
+      fillRule="nonzero"
+      fill="#fff"
+      fillOpacity={1}
+    />
+    <Path
+      d="M18.98 16.934l-1.832 1.074v-2.156l1.832-1.086zm0 0"
+      transform="matrix(.9067 0 0 .9067 1.29 1.28)"
+      stroke="none"
+      fillRule="nonzero"
+      fill="#fff"
+      fillOpacity={1}
+    />
+    <Path
+      d="M18.98 11.066l.012 2.168-3.156 1.848v3.711l-1.832 1.074-1.832-1.074v-3.711L9.02 13.234v-2.168l1.84-1.086 3.136 1.86 3.152-1.86 1.84 1.086zM9.02 7.363l4.976-2.933 4.984 2.933-1.832 1.086-3.152-1.86-3.144 1.86zm0 0"
+      transform="matrix(.9067 0 0 .9067 1.29 1.28)"
+      stroke="none"
+      fillRule="nonzero"
+      fill="#fff"
+      fillOpacity={1}
     />
   </Svg>
 )
