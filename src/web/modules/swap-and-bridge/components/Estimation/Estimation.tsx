@@ -106,6 +106,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         customZIndex={5}
         autoOpen={hasProceeded || (isActionWindow && !!signAccountOpController)}
         isScrollEnabled={false}
+        shouldBeClosableOnDrag={false}
       >
         {!!signAccountOpController && (
           <View>
@@ -126,8 +127,8 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               slowRequest={false}
               // TODO<oneClickSwap>
               isViewOnly={isViewOnly}
-              isSponsored={false}
-              sponsor={undefined}
+              isSponsored={signAccountOpController ? signAccountOpController.isSponsored : false}
+              sponsor={signAccountOpController ? signAccountOpController.sponsor : undefined}
             />
             {signingErrors.length > 0 && (
               <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>

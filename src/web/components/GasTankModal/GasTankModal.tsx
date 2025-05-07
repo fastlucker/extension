@@ -5,9 +5,6 @@ import { Animated, Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { PortfolioGasTankResult } from '@ambire-common/libs/portfolio/interfaces'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ReceivingIcon from '@common/assets/svg/ReceivingIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -22,13 +19,13 @@ import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
+import { getGasTankTokenDetails } from '@common/utils/getGasTankTokenDetails'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import { useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -63,6 +60,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
 
   const [bindAnim, , isHovered] = useCustomHover({
     property: 'borderColor',
@@ -72,30 +70,19 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     }
   })
 
-  const isSA = useMemo(() => isSmartAccount(account), [account])
-
-  const savedInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'saved'),
-    [account, isSA, portfolio]
-  )
-  const cashbackInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
-    [account, isSA, portfolio]
+  // Note: total balance Gas Tank details
+  const { token, balanceFormatted } = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'amount'),
+    [account, hasGasTank, networks, portfolio]
   )
 
-  const token = useMemo(() => {
-    const result = portfolio?.latest?.gasTank?.result as PortfolioGasTankResult
-
-    if (!isSA || !result) {
-      return null
-    }
-
-    return result.gasTankTokens ? result.gasTankTokens[0] : null
-  }, [isSA, portfolio?.latest?.gasTank?.result])
-
-  const balanceFormatted = useMemo(
-    () => (token ? getAndFormatTokenDetails(token, networks)?.balanceFormatted ?? 0 : 0),
-    [networks, token]
+  const savedGasTankDetails = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'saved'),
+    [account, hasGasTank, networks, portfolio]
+  )
+  const cashbackGasTankDetails = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'cashback'),
+    [account, hasGasTank, networks, portfolio]
   )
 
   const [visibleCount, setVisibleCount] = useState(0)
@@ -170,7 +157,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       style={{ maxWidth: 600 }}
       onOpen={handleOpen}
     >
-      {isSA ? (
+      {hasGasTank ? (
         <View style={styles.content}>
           <Text fontSize={20} weight="medium" style={[spacings.mb]}>
             Gas Tank
@@ -223,7 +210,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="successText">
-                    {formatDecimals(savedInUsd, 'price')}
+                    {`${savedGasTankDetails.balanceFormatted} ${
+                      savedGasTankDetails.token?.symbol || ''
+                    }`}
                   </Text>
                 </View>
                 <View style={styles.rightPartInnerWrapper}>
@@ -246,7 +235,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="primary">
-                    {formatDecimals(cashbackInUsd, 'price')}
+                    {`${cashbackGasTankDetails.balanceFormatted} ${
+                      cashbackGasTankDetails.token?.symbol || ''
+                    }`}
                   </Text>
                 </View>
               </View>
@@ -339,20 +330,22 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       <View style={styles.buttonWrapper}>
         <Button
           testID={
-            isSA ? 'top-up-gas-tank-modal-button' : 'create-smart-account-gas-tank-modal-button'
+            hasGasTank
+              ? 'top-up-gas-tank-modal-button'
+              : 'create-smart-account-gas-tank-modal-button'
           }
           type="primary"
-          text={isSA ? t('Top Up') : t('Ok, create a Smart Account')}
+          text={hasGasTank ? t('Top Up') : t('Ok, create a Smart Account')}
           size="large"
           hasBottomSpacing={false}
           textStyle={[spacings.prTy]}
           onPress={() =>
-            isSA
+            hasGasTank
               ? navigate('top-up-gas-tank')
               : navigate('account-select?triggerAddAccountBottomSheet=true')
           }
         >
-          {isSA && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
+          {hasGasTank && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
         </Button>
       </View>
     </BottomSheet>

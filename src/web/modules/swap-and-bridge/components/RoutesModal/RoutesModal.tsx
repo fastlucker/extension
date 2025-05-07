@@ -14,10 +14,10 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { TRANSACTION_FORM_WIDTH } from '@web/components/TransactionsScreen/styles'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
-import { SWAP_AND_BRIDGE_FORM_WIDTH } from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen/styles'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -115,6 +115,7 @@ const RoutesModal = ({
       const { steps } = item
       const isDisabled = disabledRoutes.indexOf(item.routeId) !== -1
       const isEstimatingRoute = isEstimationLoading && item.routeId === userSelectedRoute?.routeId
+      const isSelected = item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute
 
       return (
         <Pressable
@@ -123,6 +124,7 @@ const RoutesModal = ({
             styles.itemContainer,
             index + 1 === quote?.routes?.length && spacings.mb0,
             isDisabled && styles.disabledItem,
+            isSelected && styles.selectedItem,
             isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
           onPress={() => handleSelectRoute(item)}
@@ -169,6 +171,7 @@ const RoutesModal = ({
       userSelectedRoute?.routeId,
       styles.itemContainer,
       styles.disabledItem,
+      styles.selectedItem,
       styles.otherItemLoading,
       quote?.routes?.length,
       handleSelectRoute
@@ -195,7 +198,7 @@ const RoutesModal = ({
       backgroundColor="secondaryBackground"
       style={{
         overflow: 'hidden',
-        width: !isPopup ? SWAP_AND_BRIDGE_FORM_WIDTH : '100%',
+        width: !isPopup ? TRANSACTION_FORM_WIDTH : '100%',
         minHeight: height * 0.7
       }}
       scrollViewProps={{

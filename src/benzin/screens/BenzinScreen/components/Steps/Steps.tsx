@@ -14,7 +14,6 @@ import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
 interface Props {
-  chainId: bigint
   activeStep: ActiveStepType
   txnId: string | null
   userOpHash: string | null
@@ -22,7 +21,7 @@ interface Props {
   summary: any
 }
 
-const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, chainId, stepsState, summary }) => {
+const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }) => {
   const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
 
   const stepRows: any = [
@@ -34,7 +33,7 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, chainId, stepsState, 
       label: 'Transaction fee',
       // Render a specific element in case the fee was paid with an ERC20 token
       renderValue: () =>
-        feePaidWith?.isErc20 ? (
+        feePaidWith?.isErc20 || feePaidWith?.isSponsored ? (
           <View
             style={[
               flexbox.directionRow,
@@ -76,7 +75,10 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, chainId, stepsState, 
             )}
           </View>
         ) : null,
-      value: !feePaidWith?.isErc20 ? getFee(feePaidWith, finalizedStatus) : null
+      value:
+        !feePaidWith?.isErc20 && !feePaidWith?.isSponsored
+          ? getFee(feePaidWith, finalizedStatus)
+          : null
     }
   ]
 

@@ -36,8 +36,8 @@ const InviteAcc: FC<Props> = ({
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
 
-  const { connectedAccount, allAccounts, allowNonV2Connection, nonV2Account } = useAccountContext()
-  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const { connectedAccount, allAccounts, v1Account } = useAccountContext()
+  const isInvalidAccount = Boolean(!connectedAccount || v1Account)
   const [isInProgress, setIsInProgress] = useState(false)
 
   const {
@@ -127,9 +127,11 @@ const InviteAcc: FC<Props> = ({
       isLoading={isInProgress}
       loadingText="Signing..."
       buttonText={
-        disabledButton ? 'Switch to a smart account to unlock Legends quests' : buttonText
+        isInvalidAccount
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+          : buttonText
       }
-      disabled={disabledButton || validation.isError || addressState.isDomainResolving}
+      disabled={isInvalidAccount || validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}
     >
       <AddressInput

@@ -10,12 +10,24 @@ export type AccountPortfolio = {
   isReady?: boolean
   error?: string
 }
+export type ClaimableRewards = {
+  address: string
+  symbol: string
+  amount: string
+  decimals: number
+  networkId: string
+  chainId: number
+  priceIn: Array<{
+    baseCurrency: string
+    price: number
+  }>
+}
 
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio?: AccountPortfolio
   updateAccountPortfolio: () => void
   claimableRewardsError: string | null
-  claimableRewards: AdditionalPortfolioNetworkResult | null
+  claimableRewards: ClaimableRewards | null
   isLoadingClaimableRewards: boolean
 }>({
   updateAccountPortfolio: () => {},
@@ -42,22 +54,13 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
       const additionalPortfolioJson = await additionalPortfolioResponse.json()
 
-      setClaimableRewards(
-        additionalPortfolioJson?.data?.xWalletClaimableRewards || {
-          address: '0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935',
-          symbol: 'XWALLET',
-          amount: '0',
-          decimals: 18,
-          networkId: 'ethereum',
-          chainId: 1,
-          priceIn: [
-            {
-              baseCurrency: 'usd',
-              price: 0.25107801839139665
-            }
-          ]
-        }
-      )
+      const claimableBalance = additionalPortfolioJson?.data?.rewards?.stkWalletClaimableBalance
+
+      if (claimableBalance === undefined) {
+        throw new Error('Invalid response format')
+      }
+
+      setClaimableRewards(claimableBalance)
       setIsLoadingClaimableRewards(false)
     } catch (e) {
       console.error('Error fetching additional portfolio:', e)

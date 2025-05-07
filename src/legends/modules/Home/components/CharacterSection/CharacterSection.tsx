@@ -1,7 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
+import { RELAYER_URL } from '@env'
 import LockIcon from '@legends/common/assets/svg/LockIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
@@ -9,14 +10,25 @@ import Stacked from '@legends/components/Stacked'
 import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import ClaimRewardsModal from '@legends/modules/legends/components/ClaimRewardsModal'
+import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { Networks } from '@legends/modules/legends/types'
+import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
 import styles from './CharacterSection.module.scss'
 import rewardsCoverImg from './rewards-cover-image.png'
 
+const IS_STAGING = RELAYER_URL.includes('staging')
 const CharacterSection = () => {
+  const [isOpen, setIsOpen] = useState(false)
+
   const { character } = useCharacterContext()
+  const { legends, isLoading } = useLegendsContext()
+  const claimWalletCard = legends?.find((card) =>
+    isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
+  )
   const { accountPortfolio, claimableRewardsError, isLoadingClaimableRewards } =
     usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
@@ -26,6 +38,12 @@ const CharacterSection = () => {
   }
   const cardRef = useRef<HTMLDivElement>(null)
 
+  const closeClaimModal = () => {
+    setIsOpen(false)
+  }
+  const openClaimModal = () => {
+    setIsOpen(true)
+  }
   const handleMouseMove = (e: any) => {
     const card = cardRef.current
     if (!card) return
@@ -88,18 +106,33 @@ const CharacterSection = () => {
 
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
 
-  const rewardsDisabledState =
-    Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
-    (userLeaderboardData?.level ?? 0) <= 2
+  const rewardsDisabledState = !IS_STAGING
+    ? Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
+      (userLeaderboardData?.level ?? 0) <= 2
+    : false
 
   return (
     <>
       <div className={styles.rewardsWrapper}>
+        <ClaimRewardsModal
+          isOpen={isOpen}
+          handleClose={closeClaimModal}
+          action={claimWalletCard?.action}
+          meta={claimWalletCard?.meta}
+          card={claimWalletCard?.card}
+        />
         <div
           ref={cardRef}
           className={styles.rewardsBadgeWrapper}
           onMouseMove={handleMouseMove}
           onMouseLeave={resetRotation}
+          onClick={(e) =>
+            !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim && openClaimModal()
+          }
+          onKeyDown={(e) => e.key === 'Enter' && openClaimModal()}
+          role="button"
+          tabIndex={0}
+          aria-label="Open rewards claim modal"
         >
           <div className={styles.rewardsBadge}>
             <div className={styles.rewardsCoverImgWrapper}>
@@ -116,7 +149,7 @@ const CharacterSection = () => {
               )}
             </div>
             <div className={styles.rewardsInfo}>
-              {isLoadingClaimableRewards || !isReady ? (
+              {isLoadingClaimableRewards || isLoading ? (
                 <p>Loading rewards...</p>
               ) : claimableRewardsError ? (
                 <p>Error loading rewards</p>
@@ -129,19 +162,13 @@ const CharacterSection = () => {
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
-                    Soon
-                    {/* 
-                    Also update the font-size in the scss file
                     {formatDecimals(
                       parseFloat(
-                        claimableRewards
-                          ? formatUnits(
-                              BigInt(claimableRewards?.value || '0'),
-                              claimableRewards?.decimals || 18
-                            )
+                        claimWalletCard?.meta?.availableToClaim
+                          ? String(claimWalletCard.meta.availableToClaim)
                           : '0'
                       )
-                    )} */}
+                    )}
                   </p>
                 </>
               )}

@@ -1,10 +1,13 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
@@ -13,24 +16,49 @@ import useElementSize from '@common/hooks/useElementSize'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
-
-import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+import { getUiType } from '@web/utils/uiType'
 
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { accounts, control, onContentSizeChange, keyExtractor, getItemLayout } = useAccountsList()
+  const { accounts, control, keyExtractor, getItemLayout } = useAccountsList()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+  const { dispatch } = useBackgroundService()
+  const {
+    ref: sheetRefExportImportKey,
+    open: openExportImportKey,
+    close: closeExportImportKey
+  } = useModalize()
+
+  const {
+    ref: sheetRefRemoveAccount,
+    open: openRemoveAccount,
+    close: closeRemoveAccount
+  } = useModalize()
 
   useEffect(() => {
     setCurrentSettingsPage('accounts')
   }, [setCurrentSettingsPage])
+
+  const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
+  const [accountToRemove, setAccountToRemove] = useState<AccountInterface | null>(null)
+
+  useEffect(() => {
+    if (exportImportAccount) openExportImportKey()
+  }, [openExportImportKey, exportImportAccount])
+
+  useEffect(() => {
+    if (accountToRemove) openRemoveAccount()
+  }, [openRemoveAccount, accountToRemove])
 
   const shortenAccountAddr = useCallback(() => {
     if (maxElementWidthSize(800)) return undefined
@@ -57,13 +85,27 @@ const AccountsSettingsScreen = () => {
           key={account.addr}
           account={account}
           maxAccountAddrLength={shortenAccountAddr()}
-          showExportImport
-          openAddAccountBottomSheet={openBottomSheet}
+          options={{
+            withOptionsButton: true,
+            setAccountToImportOrExport: setExportImportAccount,
+            setAccountToRemove
+          }}
+          isSelectable={false}
         />
       )
     },
-    [onSelectAccount, shortenAccountAddr, openBottomSheet]
+    [onSelectAccount, shortenAccountAddr]
   )
+
+  const removeAccount = useCallback(() => {
+    if (!accountToRemove) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT',
+      params: { accountAddr: accountToRemove.addr }
+    })
+    closeRemoveAccount()
+  }, [accountToRemove, dispatch, closeRemoveAccount])
 
   return (
     <>
@@ -77,7 +119,6 @@ const AccountsSettingsScreen = () => {
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
-          onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
@@ -85,15 +126,74 @@ const AccountsSettingsScreen = () => {
       <Button
         type="secondary"
         onPress={openBottomSheet as any}
-        text="Add account"
+        text="+ Add account"
         hasBottomSpacing={false}
       />
+      <AccountKeysBottomSheet
+        sheetRef={sheetRefExportImportKey}
+        account={exportImportAccount}
+        closeBottomSheet={() => {
+          setExportImportAccount(null)
+          closeExportImportKey()
+        }}
+        openAddAccountBottomSheet={openBottomSheet}
+        showExportImport
+      />
+      <BottomSheet
+        id="remove-account-seed-sheet"
+        type="modal"
+        sheetRef={sheetRefRemoveAccount}
+        backgroundColor="primaryBackground"
+        closeBottomSheet={() => {
+          setAccountToRemove(null)
+          closeRemoveAccount()
+        }}
+        onBackdropPress={() => {
+          setAccountToRemove(null)
+          closeRemoveAccount()
+        }}
+        scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+        containerInnerWrapperStyles={{ flex: 1 }}
+        style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
+      >
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+          <PanelBackButton
+            onPress={() => {
+              setAccountToRemove(null)
+              closeRemoveAccount()
+            }}
+            style={spacings.mrSm}
+          />
+          <PanelTitle
+            title={t('Remove {{ label }}', {
+              label: accountToRemove?.preferences?.label || 'account'
+            })}
+            style={text.left}
+          />
+        </View>
+        <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+          <Text fontSize={16} weight="medium" style={{ ...spacings.mb, textAlign: 'center' }}>
+            {t('Are you sure you want to remove this account?')}
+          </Text>
+        </View>
+
+        <View style={flexbox.alignCenter}>
+          <Button
+            type="danger"
+            style={spacings.mtTy}
+            text={t('Remove account')}
+            onPress={removeAccount}
+          />
+        </View>
+      </BottomSheet>
       <BottomSheet
         id="account-settings-add-account"
         sheetRef={sheetRef}
+        adjustToContentHeight={!getUiType().isPopup}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeBottomSheet as any} />
       </BottomSheet>
     </>
   )

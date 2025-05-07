@@ -7,51 +7,41 @@ import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
-import SendIcon from '@common/assets/svg/SendIcon'
-import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import DualChoiceModal from '@common/components/DualChoiceModal'
-import Panel from '@common/components/Panel'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
-import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
-import {
-  TabLayoutContainer,
-  TabLayoutWrapperMainContent
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
-import Header from '@common/modules/header/components/Header'
 import { getUiType } from '@web/utils/uiType'
-
-import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { maxWidthSize } = useWindowSize()
   const { state, transferCtrl } = useTransferControllerState()
   const {
     isTopUp,
@@ -65,7 +55,7 @@ const TransferScreen = () => {
 
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme()
   const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -76,6 +66,7 @@ const TransferScreen = () => {
   } = useModalize()
   const { userRequests } = useMainControllerState()
   const actionsState = useActionsControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
   const recipientMenuClosedAutomatically = useRef(false)
 
   const hasFocusedActionWindow = useMemo(
@@ -172,9 +163,7 @@ const TransferScreen = () => {
       }
 
       if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
-      return isTopUp
-        ? t('Top Up ({{count}})', { count: numOfRequests })
-        : t('Send ({{count}})', { count: numOfRequests })
+      return isTopUp ? t('Top Up') : t('Send')
     }
 
     return isTopUp ? t('Top Up') : t('Send')
@@ -217,7 +206,7 @@ const TransferScreen = () => {
   const onBack = useCallback(() => {
     transferCtrl.resetForm()
     navigate(ROUTES.dashboard)
-  }, [navigate])
+  }, [navigate, transferCtrl])
 
   const resetTransferForm = useCallback(() => {
     transferCtrl.resetForm()
@@ -272,7 +261,8 @@ const TransferScreen = () => {
       actionsState,
       isFormValid,
       dispatch,
-      openBottomSheet
+      openBottomSheet,
+      resetTransferForm
     ]
   )
 
@@ -282,12 +272,10 @@ const TransferScreen = () => {
   )
 
   const gasTankLabelWithInfo = useMemo(() => {
-    const fontSize = maxWidthSize('xl') ? 20 : 18
-
     return (
       <View style={flexbox.directionRow}>
         <Text
-          fontSize={fontSize}
+          fontSize={20}
           weight="medium"
           appearance="primaryText"
           numberOfLines={1}
@@ -296,16 +284,16 @@ const TransferScreen = () => {
           {t('Top Up Gas Tank')}
         </Text>
         <Pressable style={[flexbox.center]} onPress={handleGasTankInfoPressed}>
-          <InfoIcon width={fontSize} height={fontSize} />
+          <InfoIcon width={20} height={20} />
         </Pressable>
       </View>
     )
-  }, [handleGasTankInfoPressed, maxWidthSize, t])
+  }, [handleGasTankInfoPressed, t])
 
   // Title shown in BottomSheet header
   const headerTitle = useMemo(
     () => (state.isTopUp ? gasTankLabelWithInfo : t('Send')),
-    [state.isTopUp, gasTankLabelWithInfo]
+    [state.isTopUp, gasTankLabelWithInfo, t]
   )
 
   // Title shown before SendToken component
@@ -319,94 +307,69 @@ const TransferScreen = () => {
     }
 
     return t('Send')
-  }, [state.isTopUp, gasTankLabelWithInfo])
+  }, [state.isTopUp, t, gasTankLabelWithInfo])
 
-  const header = useMemo(
-    () =>
-      isPopup ? (
-        <Header
-          customTitle={headerTitle}
-          withAmbireLogo
-          withOG
-          forceBack
-          onGoBackPress={() => {
-            transferCtrl.resetForm()
-            navigate(ROUTES.dashboard)
-          }}
-        />
-      ) : (
-        <HeaderAccountAndNetworkInfo withOG />
-      ),
-    []
-  )
+  const buttons = useMemo(() => {
+    return (
+      <>
+        {!isPopup && <BackButton onPress={onBack} />}
+        <View style={[flexbox.directionRow, !isPopup && flexbox.flex1, flexbox.justifyEnd]}>
+          <Button
+            testID="transfer-queue-and-add-more-button"
+            type="outline"
+            accentColor={theme.primary}
+            text={
+              hasActiveRequests
+                ? t('Add to batch ({{count}})', { count: transactionUserRequests.length })
+                : t('Start a batch')
+            }
+            onPress={() => addTransaction('queue')}
+            disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
+            hasBottomSpacing={false}
+            style={{ minWidth: 160, ...spacings.phMd }}
+          >
+            <BatchIcon style={spacings.mlTy} />
+          </Button>
+          <Button
+            testID="transfer-button-confirm"
+            type="primary"
+            text={submitButtonText}
+            onPress={() => addTransaction('open-action-window')}
+            hasBottomSpacing={false}
+            style={{ minWidth: 160, ...spacings.ph, ...spacings.mlLg }}
+            disabled={isSendButtonDisabled}
+          />
+        </View>
+      </>
+    )
+  }, [
+    addTransaction,
+    addressInputState.validation.isError,
+    hasActiveRequests,
+    isFormValid,
+    isSendButtonDisabled,
+    isTopUp,
+    onBack,
+    submitButtonText,
+    t,
+    theme.primary,
+    transactionUserRequests.length
+  ])
 
-  const FormWrapper = isPopup ? View : Panel
+  const handleGoBackPress = useCallback(() => {
+    transferCtrl.resetForm()
+    navigate(ROUTES.dashboard)
+  }, [navigate, transferCtrl])
 
   return (
-    <TabLayoutContainer
-      backgroundColor={isPopup ? theme.primaryBackground : theme.secondaryBackground}
-      width="xl"
-      header={header}
-      footer={
-        <>
-          {!isPopup && <BackButton onPress={onBack} />}
-          <View style={[flexbox.directionRow, flexbox.flex1, flexbox.justifyEnd]}>
-            <Button
-              testID="transfer-queue-and-add-more-button"
-              type="outline"
-              accentColor={theme.primary}
-              text={hasActiveRequests ? t('Add to Batch') : t('Start a Batch')}
-              onPress={() => addTransaction('queue')}
-              disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
-              hasBottomSpacing={false}
-              style={spacings.mr}
-              size="large"
-            >
-              <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                {hasActiveRequests && (
-                  <Text
-                    fontSize={16}
-                    weight="medium"
-                    color={theme.primary}
-                  >{` (${transactionUserRequests.length})`}</Text>
-                )}
-              </View>
-            </Button>
-            <Button
-              testID="transfer-button-confirm"
-              type="primary"
-              text={submitButtonText}
-              onPress={() => addTransaction('open-action-window')}
-              hasBottomSpacing={false}
-              size="large"
-              disabled={isSendButtonDisabled}
-            >
-              <View style={spacings.plTy}>
-                {isTopUp ? (
-                  <TopUpIcon
-                    strokeWidth={1}
-                    width={24}
-                    height={24}
-                    color={theme.primaryBackground}
-                  />
-                ) : (
-                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
-                )}
-              </View>
-            </Button>
-          </View>
-        </>
-      }
-    >
-      <TabLayoutWrapperMainContent contentContainerStyle={!isPopup ? spacings.pt2Xl : undefined}>
+    <Wrapper title={headerTitle} handleGoBack={handleGoBackPress} buttons={buttons}>
+      <Content buttons={buttons}>
         {state?.isInitialized ? (
-          <FormWrapper
-            style={[styles.panel]}
-            {...(!isPopup && { forceContainerSmallSpacings: true })}
-          >
+          <Form>
             <SendForm
               addressInputState={addressInputState}
               isSmartAccount={isSmartAccount}
+              hasGasTank={hasGasTank}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
               isRecipientAddressUnknown={isRecipientAddressUnknown}
               isRecipientHumanizerKnownTokenOrSmartContract={
@@ -416,7 +379,7 @@ const TransferScreen = () => {
               recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
               formTitle={formTitle}
             />
-            {isTopUp && !isSmartAccount && (
+            {isTopUp && !hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -447,7 +410,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-            {isTopUp && isSmartAccount && (
+            {isTopUp && hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -463,7 +426,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-          </FormWrapper>
+          </Form>
         ) : (
           <SkeletonLoader
             width={640}
@@ -472,7 +435,7 @@ const TransferScreen = () => {
             style={{ marginLeft: 'auto', marginRight: 'auto' }}
           />
         )}
-      </TabLayoutWrapperMainContent>
+      </Content>
       <BottomSheet
         id="import-seed-phrase"
         sheetRef={sheetRef}
@@ -524,7 +487,7 @@ const TransferScreen = () => {
         portfolio={portfolio}
         account={account}
       />
-    </TabLayoutContainer>
+    </Wrapper>
   )
 }
 

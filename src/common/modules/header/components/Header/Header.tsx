@@ -2,25 +2,25 @@ import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Image, View, ViewStyle } from 'react-native'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
 import Text from '@common/components/Text'
 import { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import BackButton from '@common/modules/header/components/HeaderBackButton'
+import BackButton, { DisplayIn } from '@common/modules/header/components/HeaderBackButton'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
-import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
 
 import getStyles from './styles'
 
 interface Props {
   mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
   customTitle?: string | ReactNode
-  displayBackButtonIn?: 'popup' | 'tab' | 'always' | 'never'
+  displayBackButtonIn?: DisplayIn | DisplayIn[]
   withAmbireLogo?: boolean
   withOG?: boolean
   image?: string
@@ -99,8 +99,8 @@ const Header = ({
           {mode === 'title' && (
             <View style={styles.containerInner}>
               <Text
-                weight="medium"
-                fontSize={isTab ? 24 : 20}
+                weight="regular"
+                fontSize={isTab ? 32 : 24}
                 style={styles.title}
                 numberOfLines={2}
               >

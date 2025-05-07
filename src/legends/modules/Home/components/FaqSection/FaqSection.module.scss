@@ -18,6 +18,11 @@
 
     width: calc(100% - 6rem);
   }
+
+  @include breakpoint-down-from(large-tablet) {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 
 .accordionWrapper {
@@ -26,5 +31,4 @@
 
 .accordionTitle {
     font-size: 1.25rem !important;
-    // font-weight: 300 !important;
 }

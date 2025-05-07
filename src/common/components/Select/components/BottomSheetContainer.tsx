@@ -1,19 +1,22 @@
 /* eslint-disable react/prop-types */
 import React, { FC, useEffect } from 'react'
-import spacings from '@common/styles/spacings'
 import { useModalize } from 'react-native-modalize'
+
 import BottomSheet from '@common/components/BottomSheet'
-import { getUiType } from '@web/utils/uiType'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
+import { getUiType } from '@web/utils/uiType'
+
 import { RenderSelectedOptionParams } from '../types'
 
 const { isPopup } = getUiType()
 
 type Props = Pick<RenderSelectedOptionParams, 'isMenuOpen' | 'toggleMenu'> & {
+  id?: string
   children: React.ReactNode
 }
 
-const BottomSheetContainer: FC<Props> = ({ isMenuOpen, toggleMenu, children }) => {
+const BottomSheetContainer: FC<Props> = ({ id, isMenuOpen, toggleMenu, children }) => {
   const { theme } = useTheme()
   const { ref: sheetRef, open: openSheet, close: closeSheet } = useModalize()
 
@@ -27,7 +30,7 @@ const BottomSheetContainer: FC<Props> = ({ isMenuOpen, toggleMenu, children }) =
 
   return (
     <BottomSheet
-      id="select-bottom-sheet"
+      id={id}
       sheetRef={sheetRef}
       closeBottomSheet={toggleMenu}
       containerInnerWrapperStyles={{

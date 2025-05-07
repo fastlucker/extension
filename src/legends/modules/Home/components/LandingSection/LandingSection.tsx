@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { FC, useState } from 'react'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
 
@@ -7,7 +7,11 @@ import ambireLogoGlass from './ambire-logo-glass.png'
 import ambireLogoSmall from './ambire-logo-small.png'
 import styles from './LandingSection.module.scss'
 
-const LandingSection = ({ nonV2acc = false }) => {
+type Props = {
+  nonV2acc?: boolean
+}
+
+const LandingSection: FC<Props> = ({ nonV2acc = false }) => {
   const { requestAccounts } = useAccountContext()
   const [isDownloadLinkClicked, setIsDownloadLinkClicked] = useState(false)
 
@@ -30,7 +34,7 @@ const LandingSection = ({ nonV2acc = false }) => {
         <span className={styles.kicker}>Welcome to Ambire Rewards</span>
         <h1 className={styles.title}>
           {nonV2acc
-            ? 'Switch to a smart account to unlock Legends quests'
+            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy accounts not supported.'
             : 'Complete onchain quests, earn XP, win prizes!'}
         </h1>
 

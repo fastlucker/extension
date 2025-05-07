@@ -15,6 +15,7 @@ export enum CardActionType {
 export type CardActionCalls = {
   type: CardActionType.calls
   calls: [string, string, string][]
+  chainId?: number
 }
 
 export type CardActionPredefined = {
@@ -111,10 +112,11 @@ export interface CardFromResponse {
     }[]
     usedInvitationSlots?: number
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
+    availableToClaim?: BigInt
   }
   contentSteps?: string[]
   contentImageV2?: string
-  contentVideo?: string
+  contentVideoV2?: string
 }
 
 export interface ChestCard extends Omit<CardFromResponse, 'id' | 'meta'> {

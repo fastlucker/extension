@@ -285,7 +285,7 @@ const Tokens = ({
             )}
             <Button
               type="secondary"
-              text={t('+ Add Custom Token')}
+              text={t('+ Add custom token')}
               onPress={navigateToAddCustomToken}
             />
           </View>

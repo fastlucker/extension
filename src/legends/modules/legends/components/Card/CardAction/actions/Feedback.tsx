@@ -28,8 +28,8 @@ const Feedback = () => {
   const { onComplete, handleClose } = useCardActionContext()
   const { addToast } = useToast()
   const switchNetwork = useSwitchNetwork()
-  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
-  const disabledButton = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const { connectedAccount, v1Account } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account)
 
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
@@ -106,7 +106,7 @@ const Feedback = () => {
       disabled={disabledButton || (isFeedbackFormOpen && !surveyCode)}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Legends quests'
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isFeedbackFormOpen
           ? 'Claim xp'
           : 'Open feedback form'
