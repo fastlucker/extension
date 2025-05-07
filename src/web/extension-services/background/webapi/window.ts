@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import { WindowProps } from '@ambire-common/interfaces/window'
 import { SPACING } from '@common/styles/spacings'
 import { browser, engine, isExtension, isSafari } from '@web/constants/browserapi'
-import { IS_WINDOWS } from '@web/constants/common'
+import { IS_FIREFOX, IS_WINDOWS } from '@web/constants/common'
 import {
   MIN_NOTIFICATION_WINDOW_HEIGHT,
   NOTIFICATION_WINDOW_HEIGHT,
@@ -99,7 +99,7 @@ const createFullScreenWindow = async (
       if (!chrome.runtime.lastError && activeTab) {
         chrome.windows.getCurrent(
           { populate: true, windowTypes: ['normal', 'panel', 'app'] },
-          (currentWindow: any) => {
+          async (currentWindow: any) => {
             let leftOffset = 0
             let topOffset = 0
             if (currentWindow) {
@@ -164,7 +164,19 @@ const create = async (url: string, customSize?: CustomSize): Promise<WindowProps
 }
 
 const remove = async (winId: number) => {
-  await chrome.windows.remove(winId)
+  const window = await chrome.windows.get(winId)
+  // In Firefox, closing a browser window (e.g., the action window) can also close the extension popup in the main window.
+  // As a workaround, we first unfocus the window, then change the route. On the next chrome.windows.create call,
+  // if a blank window exists, we close it before opening a new one. This prevents stacking multiple blank windows in the background.
+  if (window.type === 'popup' && IS_FIREFOX) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    chrome.windows.update(winId, { focused: false, top: 0, left: 0, width: 0, height: 0 })
+    const tabs = await chrome.tabs.query({ windowId: winId })
+    if (tabs[0].id) await chrome.tabs.update(tabs[0].id, { url: 'about:blank' })
+    event.emit('windowRemoved', winId)
+  } else {
+    await chrome.windows.remove(winId)
+  }
 }
 
 const open = async (
