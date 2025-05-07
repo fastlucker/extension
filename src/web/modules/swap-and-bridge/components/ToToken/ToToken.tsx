@@ -88,33 +88,9 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     isToToken: true
   })
 
-  const toTokenInPortfolio = useMemo(() => {
-    const [address] = toTokenValue.value.split('.')
-
-    if (!address || !toChainId) return null
-
-    const bigintChainId = BigInt(toChainId)
-
-    const tokenInPortfolio = portfolio?.tokens.find(
-      (token) =>
-        token.address === address &&
-        token.chainId === bigintChainId &&
-        !token.flags.onGasTank &&
-        !token.flags.rewardsType
-    )
-
-    if (!tokenInPortfolio) return null
-
-    const amountFormatted = formatDecimals(
-      parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
-      'amount'
-    )
-
-    return {
-      ...tokenInPortfolio,
-      amountFormatted
-    }
-  }, [portfolio?.tokens, toChainId, toTokenValue.value])
+  const toTokenOption = useMemo(() => {
+    return (toTokenOptions as SelectValue[]).find((opt) => opt.value === toTokenValue.value)
+  }, [toTokenOptions, toTokenValue.value])
 
   const shouldShowAmountOnEstimationFailure = useMemo(() => {
     return (
@@ -302,7 +278,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             }
           ]}
         >
-          {toTokenInPortfolio && (
+          {!!toTokenOption?.isTokenInPortfolio && (
             <>
               <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
               <Text
@@ -314,7 +290,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 appearance="tertiaryText"
                 ellipsizeMode="tail"
               >
-                {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
+                {`${
+                  toTokenOption?.isPending
+                    ? toTokenOption?.pendingBalanceFormatted
+                    : toTokenOption?.balanceLatestFormatted
+                } ${toTokenOption?.symbol}`}
               </Text>
             </>
           )}
