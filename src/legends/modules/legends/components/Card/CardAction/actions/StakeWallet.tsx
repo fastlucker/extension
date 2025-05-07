@@ -132,7 +132,7 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Rewards quests'
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isLoading
           ? 'Loading...'
           : !walletBalance
