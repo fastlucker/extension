@@ -49,7 +49,7 @@ export const handleCleanUpOnPortDisconnect = async ({
   // In Firefox, we don't close the action window directly to avoid a bug where closing it also closes the extension popup.
   // Instead, we turn it into a blank, unfocused page. Later, when the popup gets disconnected, we clean up any such leftover blank pages.
   // The rest of the logic is in the remove func in window.ts
-  if (port.name === 'popup' && IS_FIREFOX) {
+  if (IS_FIREFOX && port.name === 'popup') {
     const windows = await chrome.windows.getAll()
     const popupWindows = windows.filter((w) => w.type === 'popup')
 
