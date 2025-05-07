@@ -19,7 +19,7 @@ import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smo
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import { CardActionCalls, CardActionPredefined, CardFromResponse } from '../../types'
+import { CardActionCalls, CardActionPredefined, CardFromResponse, CardStatus } from '../../types'
 import CardActionButton from '../Card/CardAction/actions/CardActionButton'
 import rewardsCoverImg from './assets/rewards-cover.png'
 import styles from './ClaimRewardsModal.module.scss'
@@ -32,13 +32,15 @@ interface ClaimRewardsModalProps {
   handleClose: () => void
   action: Action | undefined
   meta: CardFromResponse['meta'] | undefined
+  card: CardFromResponse['card'] | undefined
 }
 
 const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
   isOpen,
   handleClose,
   action,
-  meta
+  meta,
+  card
 }) => {
   const { character } = useCharacterContext()
   const { claimableRewards } = usePortfolioControllerState()
@@ -47,6 +49,8 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
   const formatXp = (xp: number) => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
+
+  const cardDisabled = card?.status === CardStatus.disabled
 
   const { addToast } = useToast()
   const switchNetwork = useSwitchNetwork()
@@ -141,7 +145,11 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
             </div>
           </div>
 
-          <CardActionButton onButtonClick={onButtonClick} buttonText="Claim" />
+          <CardActionButton
+            onButtonClick={onButtonClick}
+            disabled={cardDisabled}
+            buttonText={cardDisabled ? 'Claim is not available yet' : 'Claim'}
+          />
         </div>
       </div>
     </div>,

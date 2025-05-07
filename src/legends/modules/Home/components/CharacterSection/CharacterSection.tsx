@@ -118,6 +118,7 @@ const CharacterSection = () => {
           handleClose={closeClaimModal}
           action={claimWalletCard?.action}
           meta={claimWalletCard?.meta}
+          card={claimWalletCard?.card}
         />
         <div
           ref={cardRef}

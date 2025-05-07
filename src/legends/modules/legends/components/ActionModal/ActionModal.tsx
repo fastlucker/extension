@@ -53,7 +53,14 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImageV2' | 'contentSteps' | 'contentVideoV2' | 'title' | 'action'
+    | 'meta'
+    | 'xp'
+    | 'card'
+    | 'contentImageV2'
+    | 'contentSteps'
+    | 'contentVideoV2'
+    | 'title'
+    | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
@@ -67,6 +74,7 @@ const ActionModal: FC<ActionModalProps> = ({
   contentSteps,
   contentVideoV2,
   meta,
+  card,
   action,
   predefinedId
 }) => {
@@ -117,6 +125,7 @@ const ActionModal: FC<ActionModalProps> = ({
         handleClose={closeActionModalWrapped}
         action={action}
         meta={meta}
+        card={card}
       />
     )
   }
