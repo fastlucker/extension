@@ -157,7 +157,9 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
               {activeRoute.error}
             </Text>
           )}
-          {activeRoute.routeStatus === 'in-progress' && <MoreDetails activeRoute={activeRoute} />}
+          {activeRoute.routeStatus === 'in-progress' && activeRoute.userTxHash && (
+            <MoreDetails activeRoute={activeRoute} />
+          )}
         </View>
       )}
       {activeRoute.routeStatus === 'completed' && activeRoute.userTxHash && (
