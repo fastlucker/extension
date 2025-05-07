@@ -24,7 +24,7 @@ const CharacterSection = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const { character } = useCharacterContext()
-  const { legends } = useLegendsContext()
+  const { legends, isLoading } = useLegendsContext()
   const claimWalletCard = legends?.find((card) =>
     isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
   )
@@ -147,7 +147,7 @@ const CharacterSection = () => {
               )}
             </div>
             <div className={styles.rewardsInfo}>
-              {isLoadingClaimableRewards || !isReady ? (
+              {isLoadingClaimableRewards || isLoading ? (
                 <p>Loading rewards...</p>
               ) : claimableRewardsError ? (
                 <p>Error loading rewards</p>
