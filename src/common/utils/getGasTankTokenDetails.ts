@@ -21,16 +21,20 @@ export const getGasTankTokenDetails = (
   networks: Network[],
   key: 'amount' | 'cashback' | 'saved'
 ) => {
-  const gasTankResult = portfolio?.latest?.gasTank?.result
+  const gasTankResult = portfolio?.latest?.gasTank?.result as
+    | { gasTankTokens: GasTankTokenResult[] }
+    | undefined
 
-  if (
-    !account?.addr ||
-    !gasTankResult ||
-    !('gasTankTokens' in gasTankResult) ||
+  const noAccount = !account || !account.addr
+  const noPortfolio = !portfolio || !portfolio.latest || !portfolio.latest.gasTank
+  const noGasTankResult = !gasTankResult || !('gasTankTokens' in gasTankResult)
+  const noGasTankTokens =
+    noGasTankResult ||
     !Array.isArray(gasTankResult.gasTankTokens) ||
-    gasTankResult.gasTankTokens.length === 0 ||
-    !hasGasTank
-  ) {
+    gasTankResult.gasTankTokens.length === 0
+  const noGasTank = !hasGasTank
+
+  if (noAccount || noPortfolio || noGasTankResult || noGasTankTokens || noGasTank) {
     return { token: null, balanceFormatted: null }
   }
 
