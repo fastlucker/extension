@@ -75,6 +75,7 @@ const useGetTokenSelectProps = ({
   isLoading?: boolean
   isToToken?: boolean
   isTokenInPortfolio?: boolean
+  symbol?: string
   isPending?: boolean
   balanceLatestFormatted?: string
   pendingBalanceFormatted?: string
