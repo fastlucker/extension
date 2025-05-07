@@ -68,8 +68,7 @@ const ActionModal: FC<ActionModalProps> = ({
   contentVideoV2,
   meta,
   action,
-  predefinedId,
-  id
+  predefinedId
 }) => {
   const [activeStep, setActiveStep] = useState<null | number>(null)
   const [isMobile, setIsMobile] = React.useState(false)
@@ -112,7 +111,14 @@ const ActionModal: FC<ActionModalProps> = ({
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.claimRewards) {
-    return <ClaimRewards isOpen={isOpen} handleClose={closeActionModalWrapped} action={action} />
+    return (
+      <ClaimRewards
+        isOpen={isOpen}
+        handleClose={closeActionModalWrapped}
+        action={action}
+        meta={meta}
+      />
+    )
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {

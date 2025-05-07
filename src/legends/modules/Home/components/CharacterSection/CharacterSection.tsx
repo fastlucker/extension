@@ -1,4 +1,3 @@
-import { formatUnits } from 'ethers'
 import React, { useRef, useState } from 'react'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -29,8 +28,7 @@ const CharacterSection = () => {
   const claimWalletCard = legends?.find((card) =>
     isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
   )
-
-  const { accountPortfolio, claimableRewardsError, claimableRewards, isLoadingClaimableRewards } =
+  const { accountPortfolio, claimableRewardsError, isLoadingClaimableRewards } =
     usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
@@ -119,6 +117,7 @@ const CharacterSection = () => {
           isOpen={isOpen}
           handleClose={closeClaimModal}
           action={claimWalletCard?.action}
+          meta={claimWalletCard?.meta}
         />
         <div
           ref={cardRef}
@@ -126,7 +125,7 @@ const CharacterSection = () => {
           onMouseMove={handleMouseMove}
           onMouseLeave={resetRotation}
           onClick={(e) =>
-            !rewardsDisabledState && claimableRewards?.amount !== '0' && openClaimModal()
+            !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim && openClaimModal()
           }
           onKeyDown={(e) => e.key === 'Enter' && openClaimModal()}
           role="button"
@@ -163,11 +162,8 @@ const CharacterSection = () => {
                   <p className={styles.rewardsAmount}>
                     {formatDecimals(
                       parseFloat(
-                        claimableRewards
-                          ? formatUnits(
-                              BigInt(claimableRewards?.amount || '0'),
-                              claimableRewards?.decimals || 18
-                            )
+                        claimWalletCard?.meta?.availableToClaim
+                          ? String(claimWalletCard.meta.availableToClaim)
                           : '0'
                       )
                     )}

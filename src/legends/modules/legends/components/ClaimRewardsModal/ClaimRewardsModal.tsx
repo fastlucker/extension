@@ -19,7 +19,7 @@ import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smo
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import { CardActionCalls, CardActionPredefined } from '../../types'
+import { CardActionCalls, CardActionPredefined, CardFromResponse } from '../../types'
 import CardActionButton from '../Card/CardAction/actions/CardActionButton'
 import rewardsCoverImg from './assets/rewards-cover.png'
 import styles from './ClaimRewardsModal.module.scss'
@@ -31,14 +31,19 @@ interface ClaimRewardsModalProps {
   isOpen: boolean
   handleClose: () => void
   action: Action | undefined
+  meta: CardFromResponse['meta'] | undefined
 }
 
-const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({ isOpen, handleClose, action }) => {
+const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
+  isOpen,
+  handleClose,
+  action,
+  meta
+}) => {
   const { character } = useCharacterContext()
   const { claimableRewards } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const { onComplete } = useCardActionContext()
-
   const formatXp = (xp: number) => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
@@ -113,14 +118,7 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({ isOpen, handleClo
               <div className={styles.sectionContent}>
                 <p>
                   {formatDecimals(
-                    parseFloat(
-                      claimableRewards
-                        ? formatUnits(
-                            BigInt(claimableRewards?.amount || '0'),
-                            claimableRewards?.decimals || 18
-                          )
-                        : '0'
-                    )
+                    parseFloat(meta?.availableToClaim ? meta?.availableToClaim : '0')
                   )}
                 </p>
                 <p className={styles.usdValue}>
