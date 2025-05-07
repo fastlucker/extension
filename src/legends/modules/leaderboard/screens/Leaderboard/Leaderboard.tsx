@@ -10,6 +10,7 @@ import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import Podium from './components/Podium'
 import Row from './components/Row'
 import styles from './Leaderboard.module.scss'
+import Ribbon from './Ribbon'
 import smokeAndLights from './Smoke-and-lights.png'
 
 const LeaderboardContainer: React.FC = () => {
@@ -119,7 +120,8 @@ const LeaderboardContainer: React.FC = () => {
             className={`${styles.tab} ${activeTab === 2 ? styles.active : ''}`}
             onClick={() => setActiveTab(2)}
           >
-            Season 1
+            <Ribbon className={styles.ribbon} />
+            Season 1<span className={styles.current}>current</span>
           </button>
         </div>
         {loading && <Spinner />}
