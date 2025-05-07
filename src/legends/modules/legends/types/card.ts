@@ -112,6 +112,7 @@ export interface CardFromResponse {
     }[]
     usedInvitationSlots?: number
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
+    availableToClaim?: BigInt
   }
   contentSteps?: string[]
   contentImageV2?: string
