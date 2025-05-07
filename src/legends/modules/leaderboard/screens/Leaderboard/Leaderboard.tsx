@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
@@ -14,8 +14,9 @@ import smokeAndLights from './Smoke-and-lights.png'
 
 const LeaderboardContainer: React.FC = () => {
   const {
-    leaderboardData,
-    userLeaderboardData,
+    fullLeaderboardData,
+    season0LeaderboardData,
+    season1LeaderboardData,
     isLeaderboardLoading: loading,
     error,
     updateLeaderboard
@@ -24,8 +25,23 @@ const LeaderboardContainer: React.FC = () => {
   const tableRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
   const currentUserRef = useRef<HTMLDivElement>(null)
+  const [activeTab, setActiveTab] = useState(0)
 
   const [stickyPosition, setStickyPosition] = useState<'top' | 'bottom' | null>(null)
+  const leaderboardSources = useMemo(
+    () => [fullLeaderboardData, season0LeaderboardData, season1LeaderboardData],
+    [fullLeaderboardData, season0LeaderboardData, season1LeaderboardData]
+  )
+
+  const leaderboardData = useMemo(
+    () => leaderboardSources[activeTab]?.entries || [],
+    [leaderboardSources, activeTab]
+  )
+
+  const userLeaderboardData = useMemo(
+    () => leaderboardSources[activeTab]?.currentUser,
+    [leaderboardSources, activeTab]
+  )
 
   useLayoutEffect(() => {
     const handleScroll = () => {
@@ -82,6 +98,29 @@ const LeaderboardContainer: React.FC = () => {
           <p className={styles.subtitle}>
             Complete quests, earn XP and climb the leaderboard to secure Ambire rewards.
           </p>
+        </div>
+        <div className={styles.tabs}>
+          <button
+            type="button"
+            className={`${styles.tab} ${!activeTab ? styles.active : ''}`}
+            onClick={() => setActiveTab(0)}
+          >
+            Total XP
+          </button>
+          <button
+            type="button"
+            className={`${styles.tab} ${activeTab === 1 ? styles.active : ''}`}
+            onClick={() => setActiveTab(1)}
+          >
+            Season 0
+          </button>
+          <button
+            type="button"
+            className={`${styles.tab} ${activeTab === 2 ? styles.active : ''}`}
+            onClick={() => setActiveTab(2)}
+          >
+            Season 1
+          </button>
         </div>
         {loading && <Spinner />}
         {error && <Alert type="error" title={error} />}
