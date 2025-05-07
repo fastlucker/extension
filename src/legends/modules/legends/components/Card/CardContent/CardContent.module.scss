@@ -52,6 +52,11 @@
   &.disabled .overlay {
     background-color: #191a1f80;
   }
+  &.disabled {
+    .contentAndAction {
+      opacity: 0.5;
+    }
+  }
 
   .overlay {
     box-sizing: border-box;
@@ -154,11 +159,11 @@
         }
 
         .rewardFrequencyWeekly {
-          background-color: $blue-800;
+          background-color: $blue-700;
         }
 
-        .rewardFrequencyOne-time {
-          background-color: $blue-700;
+        .rewardFrequencyOneTime {
+          background-color: $blue-800;
         }
 
         .streak {
