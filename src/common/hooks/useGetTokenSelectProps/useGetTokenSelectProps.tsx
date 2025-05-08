@@ -166,10 +166,10 @@ const useGetTokenSelectProps = ({
           appearance="primaryText"
           color={isPending && theme.warningText}
         >
-          {isPending ? pendingBalanceFormatted : balanceUSDFormatted}
+          {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}
         </Text>
         <Text fontSize={12} appearance="secondaryText" color={isPending && theme.warningText}>
-          {isPending ? pendingBalanceUSDFormatted : balanceFormatted}
+          {isPending ? pendingBalanceFormatted : balanceFormatted}
         </Text>
         {isPending && (
           <Tooltip id={tooltipIdPendingBalance}>
@@ -283,10 +283,9 @@ const useGetTokenSelectProps = ({
       chainId: currentToken.chainId,
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
-      isTokenInPortfolio: !!tokenInPortfolio,
       isPending,
-      balanceLatestFormatted,
       pendingBalanceFormatted,
+      balanceFormatted,
       symbol,
       label,
       icon: (

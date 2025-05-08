@@ -183,6 +183,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     )}`
   }, [quote, signAccountOpController?.estimation.status])
 
+  const hasSelectedToToken = !!toTokenValue?.symbol // empty values for `toTokenValue` come as strings
+
   return (
     <View>
       <View
@@ -272,7 +274,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             }
           ]}
         >
-          {'isTokenInPortfolio' in toTokenValue && toTokenValue.isTokenInPortfolio && (
+          {hasSelectedToToken && (
             <>
               <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
               <Text
@@ -287,7 +289,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 {`${
                   toTokenValue?.isPending
                     ? toTokenValue?.pendingBalanceFormatted
-                    : toTokenValue?.balanceLatestFormatted
+                    : toTokenValue?.balanceFormatted
                 } ${toTokenValue?.symbol}`}
               </Text>
             </>
