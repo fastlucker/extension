@@ -284,8 +284,8 @@ const useGetTokenSelectProps = ({
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
       isPending,
-      pendingBalanceFormatted,
-      balanceFormatted,
+      pendingBalanceFormatted: pendingBalanceFormatted || '0',
+      balanceFormatted: balanceFormatted || '0',
       symbol,
       label,
       icon: (
