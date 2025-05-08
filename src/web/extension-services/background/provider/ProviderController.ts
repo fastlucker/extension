@@ -506,7 +506,7 @@ export class ProviderController {
     } else {
       const txnIds = identifiedBy.identifier.split('-')
       receipts.push(
-        await Promise.all(txnIds.map((oneTxnId) => provider.getTransactionReceipt(oneTxnId)))
+        ...(await Promise.all(txnIds.map((oneTxnId) => provider.getTransactionReceipt(oneTxnId))))
       )
 
       if (!receipts.length || receipts.length < txnIds.length) {
