@@ -2,7 +2,6 @@
 import { nanoid } from 'nanoid'
 
 import { EthereumProvider } from '@web/extension-services/inpage/EthereumProvider'
-import { logInfoWithPrefix } from '@web/utils/logger'
 
 const ambireId = nanoid()
 
@@ -36,6 +35,7 @@ declare global {
 
 let forwardRpcRequestId = 0
 const foundDappRpcUrls: string[] = []
+let isDapp = false
 
 ;(function () {
   const originalFetch = window.fetch.bind(window)
@@ -130,6 +130,7 @@ const ambireProvider = new Proxy(provider, {
 })
 
 export { ambireProvider }
+
 window.ambire = ambireProvider
 
 const announceEip6963Provider = (p: EthereumProvider) => {
@@ -148,16 +149,25 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
-  logInfoWithPrefix('Ambire Inpage', 'eip6963:requestProvider')
-  // Send a chainId request to the provider in order to mark the website
-  // as a dapp. Only dapps emit this event and eth_chainId doesn't make
-  // rpc provider requests.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  ambireProvider.request({
-    method: 'eth_chainId',
-    params: []
-  })
   announceEip6963Provider(ambireProvider)
+
+  if (!isDapp) {
+    try {
+      // throw an Error to determine the source of the request
+      throw new Error()
+    } catch (error: any) {
+      const stack = error.stack // Parse the stack trace to get the caller info
+      if (stack) {
+        const callerPage = stack.split('\n')[2].trim()
+        if (callerPage.includes(window.location.hostname)) {
+          isDapp = true
+          // Send a request to the provider to notify the background session that this page is a dApp
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          ambireProvider.request({ method: 'eth_chainId', params: [] })
+        }
+      }
+    }
+  }
 })
 
 announceEip6963Provider(ambireProvider)
