@@ -94,6 +94,15 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     )
   }, [isAutoSelectRouteDisabled, signAccountOpController?.estimation.status])
 
+  const isReadyToDisplayAmounts =
+    (formStatus === SwapAndBridgeFormStatus.Empty ||
+      formStatus === SwapAndBridgeFormStatus.Invalid ||
+      formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
+      formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+      formStatus === SwapAndBridgeFormStatus.Proceeded ||
+      shouldShowAmountOnEstimationFailure) &&
+    updateQuoteStatus !== 'LOADING'
+
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
       networks.map((n) => {
@@ -236,13 +245,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
           <View style={[spacings.plSm, flexbox.flex1]}>
-            {(formStatus === SwapAndBridgeFormStatus.Empty ||
-              formStatus === SwapAndBridgeFormStatus.Invalid ||
-              formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
-              formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
-              formStatus === SwapAndBridgeFormStatus.Proceeded ||
-              shouldShowAmountOnEstimationFailure) &&
-            updateQuoteStatus !== 'LOADING' ? (
+            {isReadyToDisplayAmounts ? (
               <>
                 <Text
                   fontSize={20}
@@ -300,7 +303,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
               </Text>
             </View>
           )}
-          {!!quote?.selectedRoute && (
+          {!!quote?.selectedRoute && isReadyToDisplayAmounts && (
             <Text
               fontSize={12}
               appearance="primary"
