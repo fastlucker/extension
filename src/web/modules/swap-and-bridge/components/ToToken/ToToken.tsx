@@ -21,7 +21,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTokenSelect'
@@ -52,7 +51,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
   const handleSwitchFromAndToTokens = useCallback(
@@ -87,34 +85,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
     isToToken: true
   })
-
-  const toTokenInPortfolio = useMemo(() => {
-    const [address] = toTokenValue.value.split('.')
-
-    if (!address || !toChainId) return null
-
-    const bigintChainId = BigInt(toChainId)
-
-    const tokenInPortfolio = portfolio?.tokens.find(
-      (token) =>
-        token.address === address &&
-        token.chainId === bigintChainId &&
-        !token.flags.onGasTank &&
-        !token.flags.rewardsType
-    )
-
-    if (!tokenInPortfolio) return null
-
-    const amountFormatted = formatDecimals(
-      parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
-      'amount'
-    )
-
-    return {
-      ...tokenInPortfolio,
-      amountFormatted
-    }
-  }, [portfolio?.tokens, toChainId, toTokenValue.value])
 
   const shouldShowAmountOnEstimationFailure = useMemo(() => {
     return (
@@ -213,6 +183,14 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     )}`
   }, [quote, signAccountOpController?.estimation.status])
 
+  const hasSelectedToToken =
+    toTokenValue &&
+    typeof toTokenValue === 'object' &&
+    'symbol' in toTokenValue &&
+    'isPending' in toTokenValue &&
+    'pendingBalanceFormatted' in toTokenValue &&
+    'balanceFormatted' in toTokenValue
+
   return (
     <View>
       <View
@@ -302,7 +280,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             }
           ]}
         >
-          {toTokenInPortfolio && (
+          {hasSelectedToToken && (
             <>
               <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
               <Text
@@ -314,7 +292,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 appearance="tertiaryText"
                 ellipsizeMode="tail"
               >
-                {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
+                {`${
+                  toTokenValue.isPending
+                    ? toTokenValue.pendingBalanceFormatted
+                    : toTokenValue.balanceFormatted
+                } ${toTokenValue.symbol}`}
               </Text>
             </>
           )}
