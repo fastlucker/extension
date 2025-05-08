@@ -183,7 +183,13 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     )}`
   }, [quote, signAccountOpController?.estimation.status])
 
-  const hasSelectedToToken = !!toTokenValue?.symbol // empty values for `toTokenValue` come as strings
+  const hasSelectedToToken =
+    toTokenValue &&
+    typeof toTokenValue === 'object' &&
+    'symbol' in toTokenValue &&
+    'isPending' in toTokenValue &&
+    'pendingBalanceFormatted' in toTokenValue &&
+    'balanceFormatted' in toTokenValue
 
   return (
     <View>
@@ -287,10 +293,10 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 ellipsizeMode="tail"
               >
                 {`${
-                  toTokenValue?.isPending
-                    ? toTokenValue?.pendingBalanceFormatted
-                    : toTokenValue?.balanceFormatted
-                } ${toTokenValue?.symbol}`}
+                  toTokenValue.isPending
+                    ? toTokenValue.pendingBalanceFormatted
+                    : toTokenValue.balanceFormatted
+                } ${toTokenValue.symbol}`}
               </Text>
             </>
           )}
