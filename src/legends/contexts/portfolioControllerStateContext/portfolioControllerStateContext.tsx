@@ -44,6 +44,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const [claimableRewards, setClaimableRewards] = useState<any>(null)
   const [isLoadingClaimableRewards, setIsLoadingClaimableRewards] = useState(true)
   const [claimableRewardsError, setClaimableRewardsError] = useState<string | null>(null)
+  const [xWalletClaimableBalance, setXWalletClaimableBalance] = useState<string | null>(null)
 
   const updateAdditionalPortfolio = useCallback(async () => {
     if (!connectedAccount) return
@@ -55,13 +56,16 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
       const additionalPortfolioJson = await additionalPortfolioResponse.json()
 
+      const xWalletClaimableBalanceData =
+        additionalPortfolioJson?.data?.rewards?.xWalletClaimableBalance
       const claimableBalance = additionalPortfolioJson?.data?.rewards?.stkWalletClaimableBalance
-
+      console.log('additionalPortfolioJson', additionalPortfolioJson)
       if (claimableBalance === undefined) {
         throw new Error('Invalid response format')
       }
 
       setClaimableRewards(claimableBalance)
+      setXWalletClaimableBalance(xWalletClaimableBalanceData)
       setIsLoadingClaimableRewards(false)
     } catch (e) {
       console.error('Error fetching additional portfolio:', e)
@@ -153,14 +157,16 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           updateAccountPortfolio,
           claimableRewardsError,
           claimableRewards,
-          isLoadingClaimableRewards
+          isLoadingClaimableRewards,
+          xWalletClaimableBalance
         }),
         [
           accountPortfolio,
           updateAccountPortfolio,
           claimableRewards,
           claimableRewardsError,
-          isLoadingClaimableRewards
+          isLoadingClaimableRewards,
+          xWalletClaimableBalance
         ]
       )}
     >

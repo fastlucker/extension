@@ -21,6 +21,7 @@ import TreasureChestComponentModal from '@legends/modules/legends/components/Tre
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
 
+import MigrateRewardsModal from '../MigrateRewardsModal'
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
 import InviteAccount from './InviteAccount/InviteAccount'
@@ -121,6 +122,18 @@ const ActionModal: FC<ActionModalProps> = ({
   if (predefinedId === CARD_PREDEFINED_ID.claimRewards) {
     return (
       <ClaimRewards
+        isOpen={isOpen}
+        handleClose={closeActionModalWrapped}
+        action={action}
+        meta={meta}
+        card={card}
+      />
+    )
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.migrateToStk) {
+    return (
+      <MigrateRewardsModal
         isOpen={isOpen}
         handleClose={closeActionModalWrapped}
         action={action}

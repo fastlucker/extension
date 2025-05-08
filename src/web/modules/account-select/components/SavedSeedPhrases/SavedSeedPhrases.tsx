@@ -81,7 +81,7 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
             />
           )
         })}
-        {!seedAccounts.length && (
+        {!seedAccounts.length && item.id !== 'legacy-saved-seed' && (
           <Text
             fontSize={14}
             weight="medium"
