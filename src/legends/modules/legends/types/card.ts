@@ -15,6 +15,7 @@ export enum CardActionType {
 export type CardActionCalls = {
   type: CardActionType.calls
   calls: [string, string, string][]
+  chainId?: number
 }
 
 export type CardActionPredefined = {
@@ -51,7 +52,7 @@ export enum CardStatus {
   'completed'
 }
 
-export type Networks = '1' | '10' | '8453' | '534352' | '42161'
+export type Networks = '1' | '10' | '8453' | '534352' | '42161' | '56'
 export interface CardXp {
   type: CardXpType
   from: number
@@ -111,6 +112,7 @@ export interface CardFromResponse {
     }[]
     usedInvitationSlots?: number
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
+    availableToClaim?: BigInt
   }
   contentSteps?: string[]
   contentImageV2?: string

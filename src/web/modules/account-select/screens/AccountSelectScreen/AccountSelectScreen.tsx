@@ -24,6 +24,7 @@ import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWr
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -126,7 +127,7 @@ const AccountSelectScreen = () => {
         <View style={[spacings.ptSm, { width: '100%' }]}>
           <Button
             testID="button-add-account"
-            text={t('Add Account')}
+            text={t('Add account')}
             type="secondary"
             hasBottomSpacing={false}
             onPress={openBottomSheet as any}
@@ -140,9 +141,11 @@ const AccountSelectScreen = () => {
       <BottomSheet
         id="account-select-add-account"
         sheetRef={sheetRef}
+        adjustToContentHeight={!getUiType().isPopup}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeBottomSheet as any} />
       </BottomSheet>
     </TabLayoutContainer>
   ) : (

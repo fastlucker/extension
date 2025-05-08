@@ -294,6 +294,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     } as any,
     windowManager: {
       ...windowManager,
+      remove: async (winId: number) => {
+        await windowManager.remove(winId, pm)
+      },
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       },
@@ -910,9 +913,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               pm,
               port,
               mainCtrl,
-              ledgerCtrl,
-              trezorCtrl,
-              latticeCtrl,
               walletStateCtrl,
               autoLockCtrl,
               extensionUpdateCtrl
@@ -949,6 +949,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
+
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup

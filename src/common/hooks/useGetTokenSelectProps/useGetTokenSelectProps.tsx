@@ -11,7 +11,7 @@ import {
   getIsTokenEligibleForSwapAndBridge
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
-import CartIcon from '@common/assets/svg/CartIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -166,10 +166,10 @@ const useGetTokenSelectProps = ({
           appearance="primaryText"
           color={isPending && theme.warningText}
         >
-          {isPending ? pendingBalanceFormatted : balanceUSDFormatted}
+          {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}
         </Text>
         <Text fontSize={12} appearance="secondaryText" color={isPending && theme.warningText}>
-          {isPending ? pendingBalanceUSDFormatted : balanceFormatted}
+          {isPending ? pendingBalanceFormatted : balanceFormatted}
         </Text>
         {isPending && (
           <Tooltip id={tooltipIdPendingBalance}>
@@ -202,7 +202,7 @@ const useGetTokenSelectProps = ({
                   label={t('{{symbol}} Pending transaction signature', { symbol })}
                   backgroundColor={colors.lightBrown}
                   textColor={theme.warningText}
-                  Icon={CartIcon}
+                  Icon={BatchIcon}
                 />
               )}
               {!!pendingToBeConfirmed && !!pendingToBeConfirmedFormatted && (
@@ -283,6 +283,10 @@ const useGetTokenSelectProps = ({
       chainId: currentToken.chainId,
       disabled: !isTokenNetworkSupported,
       extraSearchProps: { symbol, name, address: currentToken.address },
+      isPending,
+      pendingBalanceFormatted: pendingBalanceFormatted || '0',
+      balanceFormatted: balanceFormatted || '0',
+      symbol,
       label,
       icon: (
         <TokenIcon

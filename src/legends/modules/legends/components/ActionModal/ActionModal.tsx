@@ -1,15 +1,27 @@
-import React, { createContext, FC, useCallback, useContext, useMemo, useState } from 'react'
+import React, {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
+import { createPortal } from 'react-dom'
 
 import Modal from '@legends/components/Modal'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
 import { CardActionComponentProps } from '@legends/modules/legends/components/Card/CardAction/CardAction'
 import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
+import ClaimRewards from '@legends/modules/legends/components/ClaimRewardsModal/ClaimRewardsModal'
 import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
 
+import MigrateRewardsModal from '../MigrateRewardsModal'
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
 import InviteAccount from './InviteAccount/InviteAccount'
@@ -42,7 +54,14 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImageV2' | 'contentSteps' | 'contentVideoV2' | 'title' | 'action'
+    | 'meta'
+    | 'xp'
+    | 'card'
+    | 'contentImageV2'
+    | 'contentSteps'
+    | 'contentVideoV2'
+    | 'title'
+    | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
@@ -56,10 +75,23 @@ const ActionModal: FC<ActionModalProps> = ({
   contentSteps,
   contentVideoV2,
   meta,
+  card,
   action,
   predefinedId
 }) => {
   const [activeStep, setActiveStep] = useState<null | number>(null)
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
 
   const closeActionModalWrapped = useCallback(() => {
     closeActionModal()
@@ -75,6 +107,41 @@ const ActionModal: FC<ActionModalProps> = ({
     }),
     [activeStep, closeActionModalWrapped, onLegendCompleteWrapped]
   )
+
+  if (isMobile) {
+    return createPortal(
+      <MobileDisclaimerModal
+        shouldClose
+        modalOpened={isOpen}
+        closeModal={closeActionModalWrapped}
+      />,
+      document.getElementById('modal-root') as HTMLElement
+    )
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.claimRewards) {
+    return (
+      <ClaimRewards
+        isOpen={isOpen}
+        handleClose={closeActionModalWrapped}
+        action={action}
+        meta={meta}
+        card={card}
+      />
+    )
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.migrateToStk) {
+    return (
+      <MigrateRewardsModal
+        isOpen={isOpen}
+        handleClose={closeActionModalWrapped}
+        action={action}
+        meta={meta}
+        card={card}
+      />
+    )
+  }
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
     return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModalWrapped} />

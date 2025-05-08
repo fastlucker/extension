@@ -2,6 +2,7 @@ import { formatUnits, getAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
+import { useLocation } from 'react-router-dom'
 
 import { getUsdAmount } from '@ambire-common/controllers/signAccountOp/helper'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
@@ -54,7 +55,8 @@ const useSwapAndBridgeForm = () => {
     useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { searchParams, setSearchParams, navigate } = useNavigation()
+  const currentRoute = useLocation()
+  const { setSearchParams, navigate } = useNavigation()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
@@ -101,43 +103,6 @@ const useSwapAndBridgeForm = () => {
   )
 
   useEffect(() => {
-    if (
-      searchParams.get('address') &&
-      searchParams.get('chainId') &&
-      !!portfolio?.isReadyToVisualize &&
-      (sessionIds || []).includes(sessionId)
-    ) {
-      const tokenToSelectOnInit = portfolio.tokens.find(
-        (t) =>
-          t.address === searchParams.get('address') &&
-          t.chainId.toString() === searchParams.get('chainId') &&
-          getIsTokenEligibleForSwapAndBridge(t)
-      )
-
-      if (tokenToSelectOnInit) {
-        dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-          params: { fromSelectedToken: tokenToSelectOnInit }
-        })
-        // Reset search params once updated in the state
-        setSearchParams((prev) => {
-          prev.delete('address')
-          prev.delete('chainId')
-          return prev
-        })
-      }
-    }
-  }, [
-    dispatch,
-    setSearchParams,
-    portfolio?.isReadyToVisualize,
-    portfolio.tokens,
-    searchParams,
-    sessionIds,
-    sessionId
-  ])
-
-  useEffect(() => {
     const hasSwapAndBridgeAction = visibleActionsQueue.some(
       (action) => action.type === 'swapAndBridge'
     )
@@ -179,15 +144,40 @@ const useSwapAndBridgeForm = () => {
     // Init each session only once after the cleanup
     if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    if (!portfolio.isReadyToVisualize) return
+
+    const preselectedTokenInParams = currentRoute.state as
+      | {
+          address: string
+          chainId: string
+        }
+      | undefined
+
+    const tokenToSelectOnInit = portfolio.tokens.find(
+      (t) =>
+        t.address === preselectedTokenInParams?.address &&
+        t.chainId.toString() === preselectedTokenInParams.chainId &&
+        getIsTokenEligibleForSwapAndBridge(t)
+    )
+
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM',
+      params: {
+        sessionId,
+        preselectedFromToken: tokenToSelectOnInit
+      }
+    })
     sessionIdsRequestedToBeInit.current.push(sessionId)
     setSearchParams((prev) => {
       prev.set('sessionId', sessionId)
       return prev
     })
   }, [
+    currentRoute.state,
     dispatch,
     navigate,
+    portfolio.isReadyToVisualize,
+    portfolio.tokens,
     sessionId,
     sessionIds,
     setSearchParams,
@@ -311,12 +301,12 @@ const useSwapAndBridgeForm = () => {
         quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
       )
       const minInUsd = getUsdAmount(
-        quote.selectedRoute.toToken.priceUSD,
+        Number(quote.selectedRoute.toToken.priceUSD),
         quote.selectedRoute.toToken.decimals,
         minAmountOutInWei
       )
-      const allowedSlippage = inputValueInUsd <= 400 ? 1.15 : 0.65
-      const possibleSlippage = quote.selectedRoute.outputValueInUsd / Number(minInUsd)
+      const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
+      const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
       if (possibleSlippage > allowedSlippage) {
         return {
           type: 'slippageImpact',

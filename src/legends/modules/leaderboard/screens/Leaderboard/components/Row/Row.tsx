@@ -7,9 +7,10 @@ import useAccountContext from '@legends/hooks/useAccountContext'
 import styles from '@legends/modules/leaderboard/screens/Leaderboard/Leaderboard.module.scss'
 import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
-type Props = LeaderboardEntry & {
+type Props = LeaderboardEntry['currentUser'] & {
   stickyPosition: string | null
   currentUserRef: React.RefObject<HTMLDivElement>
+  activeTab: number
 }
 
 const calculateRowStyle = (isConnectedAccountRow: boolean, stickyPosition: string | null) => {
@@ -51,15 +52,32 @@ const Row: FC<Props> = ({
   weight,
   level,
   stickyPosition,
-  currentUserRef
+  currentUserRef,
+  activeTab
 }) => {
   const { connectedAccount } = useAccountContext()
   const isConnectedAccountRow = account === connectedAccount
-
   const formatXp = (xp: number) => {
     return xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
 
+  const [maxAddressLength, setMaxAddressLength] = React.useState(23)
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768
+      setMaxAddressLength(isMobile ? 8 : 23)
+    }
+
+    // Set initial value
+    handleResize()
+
+    // Add event listener
+    window.addEventListener('resize', handleResize)
+
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const formattedXp = formatXp(xp)
   return (
     <div
@@ -80,7 +98,7 @@ const Row: FC<Props> = ({
               skeletonClassName={styles.addressSkeleton}
               className={styles.address}
               address={account}
-              maxAddressLength={23}
+              maxAddressLength={maxAddressLength}
             />
             )
           </>
@@ -89,12 +107,14 @@ const Row: FC<Props> = ({
             skeletonClassName={styles.addressSkeleton}
             className={styles.address}
             address={account}
-            maxAddressLength={23}
+            maxAddressLength={maxAddressLength}
           />
         )}
       </div>
       <h5 className={styles.cell}>{level}</h5>
-      <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight || 0)}</h5>
+      {activeTab === 1 && (
+        <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight || 0)}</h5>
+      )}
       <h5 className={styles.cell}>{formattedXp}</h5>
     </div>
   )
