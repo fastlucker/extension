@@ -508,7 +508,10 @@ type DappsControllerRemoveDappAction = {
 
 type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
-  params: { sessionId: string }
+  params: {
+    sessionId: string
+    preselectedFromToken?: Pick<TokenResult, 'address' | 'chainId'>
+  }
 }
 type SwapAndBridgeControllerUserProceededAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED'
