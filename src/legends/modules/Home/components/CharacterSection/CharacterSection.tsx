@@ -21,7 +21,6 @@ import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import styles from './CharacterSection.module.scss'
 import rewardsCoverImg from './rewards-cover-image.png'
 
-const IS_STAGING = RELAYER_URL.includes('staging')
 const CharacterSection = () => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -107,10 +106,7 @@ const CharacterSection = () => {
 
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
 
-  const rewardsDisabledState = !IS_STAGING
-    ? Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
-      (userLeaderboardData?.level ?? 0) <= 2
-    : false
+  const rewardsDisabledState = Number(claimWalletCard?.meta?.availableToClaim) === 0
 
   return (
     <>
@@ -158,8 +154,9 @@ const CharacterSection = () => {
                 <p>Error loading rewards</p>
               ) : rewardsDisabledState ? (
                 <p className={styles.rewardsTitle}>
-                  You need to reach Level 3 and keep a minimum balance of <br /> $500 on the
-                  supported networks to start accruing rewards.
+                  {Number(claimWalletCard?.meta?.availableToClaim) === 0
+                    ? "You haven't accumulated $WALLET rewards yet."
+                    : 'You need to reach Level 3 and keep a minimum balance of $500 on the supported networks to start accruing rewards.'}
                 </p>
               ) : (
                 <>
