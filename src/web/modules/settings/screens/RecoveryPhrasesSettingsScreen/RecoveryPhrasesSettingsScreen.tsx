@@ -60,7 +60,13 @@ const RecoveryPhraseSettingsScreen = () => {
           backgroundColor: theme.secondaryBackground
         }}
       >
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            !!associatedAccounts.length && spacings.mbMd
+          ]}
+        >
           <Text weight="medium" numberOfLines={1} style={flexbox.flex1}>
             {item.label}
           </Text>
@@ -99,7 +105,7 @@ const RecoveryPhraseSettingsScreen = () => {
             />
           )
         })}
-        {!associatedAccounts.length && (
+        {!associatedAccounts.length && item.id !== 'legacy-saved-seed' && (
           <Text
             fontSize={14}
             weight="medium"
