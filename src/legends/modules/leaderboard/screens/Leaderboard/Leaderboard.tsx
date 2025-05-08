@@ -136,31 +136,33 @@ const LeaderboardContainer: React.FC = () => {
                   <h5 className={styles.playerCell}>player</h5>
                 </div>
                 <h5 className={styles.cell}>Level</h5>
-                <div className={styles.cell}>
-                  <h5 className={styles.weightText}>Weight</h5>
-                  <InfoIcon
-                    width={10}
-                    height={10}
-                    color="currentColor"
-                    className={styles.infoIcon}
-                    data-tooltip-id="weight-info"
-                  />
-                  <Tooltip
-                    style={{
-                      backgroundColor: '#101114',
-                      color: '#F4F4F7',
-                      fontFamily: 'FunnelDisplay',
-                      fontSize: 11,
-                      lineHeight: '16px',
-                      fontWeight: 300,
-                      maxWidth: 244,
-                      boxShadow: '0px 0px 12.1px 0px #191B20'
-                    }}
-                    place="bottom"
-                    id="weight-info"
-                    content="Projected weight based on last week's balance snapshot. End results might vary."
-                  />
-                </div>
+                {activeTab === 1 && (
+                  <div className={styles.cell}>
+                    <h5 className={styles.weightText}>Weight</h5>
+                    <InfoIcon
+                      width={10}
+                      height={10}
+                      color="currentColor"
+                      className={styles.infoIcon}
+                      data-tooltip-id="weight-info"
+                    />
+                    <Tooltip
+                      style={{
+                        backgroundColor: '#101114',
+                        color: '#F4F4F7',
+                        fontFamily: 'FunnelDisplay',
+                        fontSize: 11,
+                        lineHeight: '16px',
+                        fontWeight: 300,
+                        maxWidth: 244,
+                        boxShadow: '0px 0px 12.1px 0px #191B20'
+                      }}
+                      place="bottom"
+                      id="weight-info"
+                      content="Projected weight based on last week's balance snapshot. End results might vary."
+                    />
+                  </div>
+                )}
                 <h5 className={styles.cell}>XP</h5>
               </div>
               {leaderboardData.map((item) => (
@@ -169,6 +171,7 @@ const LeaderboardContainer: React.FC = () => {
                   {...item}
                   stickyPosition={stickyPosition}
                   currentUserRef={currentUserRef}
+                  activeTab={activeTab}
                 />
               ))}
               {userLeaderboardData &&
@@ -180,6 +183,7 @@ const LeaderboardContainer: React.FC = () => {
                     {...userLeaderboardData}
                     stickyPosition={stickyPosition}
                     currentUserRef={currentUserRef}
+                    activeTab={activeTab}
                   />
                 )}
             </div>

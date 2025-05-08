@@ -77,7 +77,7 @@ const CardContent: FC<Props> = ({
       ) : null}
       {disabled && (
         <div className={styles.overlay}>
-          <LockIcon className={styles.overlayIcon} />
+          <LockIcon className={`${styles.overlayIcon} ${styles.disabledIcon}`} />
         </div>
       )}
       <div className={styles.contentAndAction}>

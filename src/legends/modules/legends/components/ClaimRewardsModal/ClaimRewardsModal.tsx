@@ -90,6 +90,7 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
     }
   }, [switchNetwork, action, sendCalls, chainId, getCallsStatus, onComplete, handleClose, addToast])
 
+  if (!isOpen) return null
   if (!character)
     return (
       <Alert
@@ -98,8 +99,6 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
         message="Please try again later or contact support if the issue persists."
       />
     )
-
-  if (!isOpen) return null
 
   return createPortal(
     <div className={styles.backdrop}>

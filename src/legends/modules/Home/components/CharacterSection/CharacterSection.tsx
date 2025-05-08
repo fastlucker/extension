@@ -124,7 +124,9 @@ const CharacterSection = () => {
         />
         <div
           ref={cardRef}
-          className={styles.rewardsBadgeWrapper}
+          className={`${styles.rewardsBadgeWrapper} ${
+            !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim ? styles.active : ''
+          }`}
           onMouseMove={handleMouseMove}
           onMouseLeave={resetRotation}
           onClick={(e) =>
@@ -163,13 +165,11 @@ const CharacterSection = () => {
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
-                    {formatDecimals(
-                      parseFloat(
-                        claimWalletCard?.meta?.availableToClaim
-                          ? String(claimWalletCard.meta.availableToClaim)
-                          : '0'
-                      )
-                    )}
+                    {claimWalletCard?.meta?.availableToClaim
+                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim)).toLocaleString(
+                          'en-US'
+                        )
+                      : '0'}
                   </p>
                 </>
               )}
