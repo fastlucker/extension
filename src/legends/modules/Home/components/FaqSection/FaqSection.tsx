@@ -23,7 +23,8 @@ const FaqSection = () => {
     },
     {
       question: 'Can I use my existing account?',
-      answer: 'You can use your existing Ambire smart account or create a new one.'
+      answer:
+        'You can use your existing Ambire account or create a new one. Ambire legacy Web accounts (V1) are not supported.'
     },
     {
       question: 'Is Ambire Rewards free to participate?',
