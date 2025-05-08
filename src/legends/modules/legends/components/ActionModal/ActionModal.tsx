@@ -16,6 +16,7 @@ import { CardActionComponentProps } from '@legends/modules/legends/components/Ca
 import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
+import ClaimRewards from '@legends/modules/legends/components/ClaimRewardsModal/ClaimRewardsModal'
 import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
@@ -52,7 +53,14 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImageV2' | 'contentSteps' | 'contentVideoV2' | 'title' | 'action'
+    | 'meta'
+    | 'xp'
+    | 'card'
+    | 'contentImageV2'
+    | 'contentSteps'
+    | 'contentVideoV2'
+    | 'title'
+    | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
@@ -66,6 +74,7 @@ const ActionModal: FC<ActionModalProps> = ({
   contentSteps,
   contentVideoV2,
   meta,
+  card,
   action,
   predefinedId
 }) => {
@@ -106,6 +115,18 @@ const ActionModal: FC<ActionModalProps> = ({
         closeModal={closeActionModalWrapped}
       />,
       document.getElementById('modal-root') as HTMLElement
+    )
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.claimRewards) {
+    return (
+      <ClaimRewards
+        isOpen={isOpen}
+        handleClose={closeActionModalWrapped}
+        action={action}
+        meta={meta}
+        card={card}
+      />
     )
   }
 
