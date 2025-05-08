@@ -8,6 +8,7 @@ export type ButtonProps = {
   disabled?: boolean
   isLoading?: boolean
   loadingText?: string
+  className?: string
 }
 
 const CardActionButton = ({
