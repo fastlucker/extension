@@ -74,11 +74,6 @@ const useGetTokenSelectProps = ({
   supportedChainIds?: Network['chainId'][]
   isLoading?: boolean
   isToToken?: boolean
-  isTokenInPortfolio?: boolean
-  symbol?: string
-  isPending?: boolean
-  balanceLatestFormatted?: string
-  pendingBalanceFormatted?: string
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()

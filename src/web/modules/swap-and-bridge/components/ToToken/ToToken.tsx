@@ -21,7 +21,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTokenSelect'
@@ -52,7 +51,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
   const handleSwitchFromAndToTokens = useCallback(
@@ -87,10 +85,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
     isToToken: true
   })
-
-  const toTokenOption = useMemo(() => {
-    return (toTokenOptions as SelectValue[]).find((opt) => opt.value === toTokenValue.value)
-  }, [toTokenOptions, toTokenValue.value])
 
   const shouldShowAmountOnEstimationFailure = useMemo(() => {
     return (
@@ -278,7 +272,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             }
           ]}
         >
-          {!!toTokenOption?.isTokenInPortfolio && (
+          {'isTokenInPortfolio' in toTokenValue && toTokenValue.isTokenInPortfolio && (
             <>
               <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
               <Text
@@ -291,10 +285,10 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 ellipsizeMode="tail"
               >
                 {`${
-                  toTokenOption?.isPending
-                    ? toTokenOption?.pendingBalanceFormatted
-                    : toTokenOption?.balanceLatestFormatted
-                } ${toTokenOption?.symbol}`}
+                  toTokenValue?.isPending
+                    ? toTokenValue?.pendingBalanceFormatted
+                    : toTokenValue?.balanceLatestFormatted
+                } ${toTokenValue?.symbol}`}
               </Text>
             </>
           )}
