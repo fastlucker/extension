@@ -82,6 +82,17 @@
       line-height: 100%;
     }
 
+    .disabledIcon {
+      path:first-child {
+        fill: $red-400;
+        stroke: $red-400;
+      }
+  
+      path:nth-child(2) {
+        fill: $neutral-700;
+      }
+    }
+
     .overlayText {
       display: block;
       font-size: 0.875rem;

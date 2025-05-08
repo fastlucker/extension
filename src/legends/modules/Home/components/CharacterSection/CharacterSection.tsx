@@ -8,12 +8,14 @@ import LockIcon from '@legends/common/assets/svg/LockIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
 import Stacked from '@legends/components/Stacked'
+import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import ClaimRewardsModal from '@legends/modules/legends/components/ClaimRewardsModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
+import { Networks } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
 import styles from './CharacterSection.module.scss'
@@ -122,7 +124,9 @@ const CharacterSection = () => {
         />
         <div
           ref={cardRef}
-          className={styles.rewardsBadgeWrapper}
+          className={`${styles.rewardsBadgeWrapper} ${
+            !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim ? styles.active : ''
+          }`}
           onMouseMove={handleMouseMove}
           onMouseLeave={resetRotation}
           onClick={(e) =>
@@ -161,13 +165,11 @@ const CharacterSection = () => {
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
-                    {formatDecimals(
-                      parseFloat(
-                        claimWalletCard?.meta?.availableToClaim
-                          ? String(claimWalletCard.meta.availableToClaim)
-                          : '0'
-                      )
-                    )}
+                    {claimWalletCard?.meta?.availableToClaim
+                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim)).toLocaleString(
+                          'en-US'
+                        )
+                      : '0'}
                   </p>
                 </>
               )}
@@ -214,7 +216,11 @@ const CharacterSection = () => {
 
             <div className={styles.logoAndBalanceWrapper}>
               <div className={styles.logoWrapper}>
-                <Stacked chains={['1', '8453', '42161', '534352', '10']} />
+                <Stacked
+                  chains={LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID.map(
+                    (n) => n.toString() as Networks
+                  )}
+                />
               </div>
               <div className={styles.characterItemWrapper}>
                 <div className={styles.characterItem}>

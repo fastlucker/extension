@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 
 import { AdditionalPortfolioNetworkResult } from '@ambire-common/libs/portfolio/interfaces'
 import { RELAYER_URL } from '@env'
+import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
 export type AccountPortfolio = {
@@ -116,7 +117,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       const portfolioRes = (await window.ambire.request({
         method: 'get_portfolioBalance',
         // TODO: impl a dynamic way of getting the chainIds
-        params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }]
+        params: [
+          { chainIds: LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID.map((n) => `0x${n.toString(16)}`) }
+        ]
       })) as AccountPortfolio
 
       if (portfolioRes.isReady) {
