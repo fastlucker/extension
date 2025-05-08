@@ -9,22 +9,26 @@ interface Props extends SvgProps {
 const BinanceSmartChainLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => (
   <Svg width={width} height={height} viewBox="0 0 28 28" fill="none" {...rest}>
     <Rect
-      x={1.25}
-      y={1.25}
-      width={25.5}
-      height={25.5}
-      rx={12.75}
+      x="1.25"
+      y="1.25"
+      width="26"
+      height="26"
+      rx="12.5"
       stroke="#6A6F86"
-      strokeOpacity={0.3}
-      strokeWidth={1.5}
+      strokeOpacity="0.3"
+      strokeWidth="1.5"
     />
-    <Path
-      d="M14 0c7.734 0 14 6.266 14 14s-6.266 14-14 14S0 21.734 0 14 6.266 0 14 0zm0 0"
+    <Rect
       transform="matrix(.9067 0 0 .9067 1.29 1.28)"
       stroke="none"
       fillRule="evenodd"
       fill="#f0b90b"
       fillOpacity={1}
+      width={26}
+      height={26}
+      rx="12.5"
+      x="1.5"
+      y="1.5"
     />
     <Path
       d="M7.695 14l.008 3.703 3.149 1.852v2.164l-4.989-2.922v-5.879zm0-3.703v2.16l-1.832-1.086V9.215l1.832-1.086 1.84 1.086zm4.47-1.082l1.831-1.086 1.84 1.086-1.84 1.082zm0 0"

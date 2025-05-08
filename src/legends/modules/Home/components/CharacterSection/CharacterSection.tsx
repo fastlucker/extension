@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
 import { RELAYER_URL } from '@env'
