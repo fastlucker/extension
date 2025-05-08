@@ -6,9 +6,8 @@ export type SelectValue = {
   label: string | ReactNode
   icon?: string | ReactNode
   disabled?: boolean
-  isTokenInPortfolio?: boolean
   isPending?: boolean
-  balanceLatestFormatted?: string
+  balanceFormatted?: string
   pendingBalanceFormatted?: string
   symbol?: string
   [key: string]: any
