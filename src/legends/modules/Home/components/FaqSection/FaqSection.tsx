@@ -10,12 +10,12 @@ const FaqSection = () => {
     {
       question: 'What is Ambire Rewards?',
       answer:
-        'Ambire Rewards is an incentivized onboarding campaign designed to help you discover the power of Smart Accounts. Put your Ambire Wallet browser extension in action to earn XP (experience points) and level up in a series of quests in the Ambire extension (e.g. transactions, swaps, Gas Tank top-ups and more).'
+        'Ambire Rewards is an incentivized onboarding campaign designed to help you discover the power of Ambire Wallet. Put your Ambire Wallet browser extension in action to earn XP (experience points) and level up in a series of quests in the Ambire extension (e.g. transactions, swaps, Gas Tank top-ups and more).'
     },
     {
       question: 'Why should I participate?',
       answer:
-        'Join Ambire Rewards to discover the potential of smart accounts and earn rewards. Collecting XP and leveling up helps you develop your character, and secure greater rewards distribution of $WALLET tokens in the future.'
+        'Join Ambire Rewards to discover the power of Ambire Wallet and earn rewards. Collecting XP and leveling up helps you develop your character, and secure greater rewards distribution of $WALLET tokens in the future.'
     },
     {
       question: 'Can I connect with a wallet different from Ambire?',
