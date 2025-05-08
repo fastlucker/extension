@@ -191,6 +191,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   }, [quote, signAccountOpController?.estimation.status])
 
   const formattedToAmount = useMemo(() => {
+    if (toAmount === '0') return '0'
+
     return `${formatDecimals(Number(toAmount), 'precise')}`
   }, [toAmount])
 
@@ -261,7 +263,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 >
                   {formattedToAmount}
                 </Text>
-                <Tooltip id="to-amount" content={toAmount} />
+                {formattedToAmount !== '0' && <Tooltip id="to-amount" content={toAmount} />}
               </>
             ) : (
               <SkeletonLoader
