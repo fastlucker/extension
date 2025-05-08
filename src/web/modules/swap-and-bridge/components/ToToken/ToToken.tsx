@@ -178,7 +178,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     [dispatch]
   )
 
-  const formattedToAmount = useMemo(() => {
+  const toAmount = useMemo(() => {
     if (
       !quote ||
       !quote.selectedRoute ||
@@ -187,11 +187,12 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     )
       return '0'
 
-    return `${formatDecimals(
-      Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
-      'precise'
-    )}`
+    return formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)
   }, [quote, signAccountOpController?.estimation.status])
+
+  const formattedToAmount = useMemo(() => {
+    return `${formatDecimals(Number(toAmount), 'precise')}`
+  }, [toAmount])
 
   const hasSelectedToToken =
     toTokenValue &&
@@ -260,7 +261,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 >
                   {formattedToAmount}
                 </Text>
-                <Tooltip id="to-amount" content={formattedToAmount} />
+                <Tooltip id="to-amount" content={toAmount} />
               </>
             ) : (
               <SkeletonLoader
