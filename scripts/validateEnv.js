@@ -50,9 +50,19 @@ const validateEnvVariables = (environment) => {
       .split('\n')
       .filter((line) => line.trim() && !line.trim().startsWith('#'))
       .reduce((acc, line) => {
-        const [key, value] = line.split('=')
-        if (key && value) {
-          acc[key.trim()] = value.trim()
+        // Use regex to properly handle quoted values
+        const match = line.match(/^([^=]+)=(.*)$/)
+        if (match) {
+          const key = match[1].trim()
+          let value = match[2].trim()
+          // Remove surrounding quotes if they exist
+          if (
+            (value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))
+          ) {
+            value = value.slice(1, -1)
+          }
+          acc[key] = value
         }
         return acc
       }, {})
