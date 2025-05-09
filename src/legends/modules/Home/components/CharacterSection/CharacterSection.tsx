@@ -1,9 +1,8 @@
 import React, { useRef, useState } from 'react'
 
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
-import { RELAYER_URL } from '@env'
+import HourGlassIcon from '@legends/common/assets/svg/HourGlassIcon'
 import LockIcon from '@legends/common/assets/svg/LockIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
@@ -108,6 +107,9 @@ const CharacterSection = () => {
 
   const rewardsDisabledState = Number(claimWalletCard?.meta?.availableToClaim) === 0
 
+  const isNotAvailableForRewards =
+    Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
+    (userLeaderboardData?.level ?? 0) <= 2
   return (
     <>
       <div className={styles.rewardsWrapper}>
@@ -143,9 +145,23 @@ const CharacterSection = () => {
                 }`}
                 alt="rewards-cover"
               />
-              {(rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) && (
-                <LockIcon className={styles.lockIcon} width={25} height={35} color="currentColor" />
-              )}
+              {(rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
+                (Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+                !isNotAvailableForRewards ? (
+                  <HourGlassIcon
+                    className={styles.lockIcon}
+                    width={29}
+                    height={37}
+                    color="currentColor"
+                  />
+                ) : (
+                  <LockIcon
+                    className={styles.lockIcon}
+                    width={29}
+                    height={37}
+                    color="currentColor"
+                  />
+                ))}
             </div>
             <div className={styles.rewardsInfo}>
               {isLoadingClaimableRewards || isLoading ? (
@@ -154,18 +170,25 @@ const CharacterSection = () => {
                 <p>Error loading rewards</p>
               ) : rewardsDisabledState ? (
                 <p className={styles.rewardsTitle}>
-                  {Number(claimWalletCard?.meta?.availableToClaim) === 0
-                    ? "You haven't accumulated $WALLET rewards yet."
-                    : 'You need to reach Level 3 and keep a minimum balance of $500 on the supported networks to start accruing rewards.'}
+                  {Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+                  !isNotAvailableForRewards ? (
+                    "You haven't accumulated $WALLET rewards yet."
+                  ) : (
+                    <>
+                      You need to reach Level 3 and keep a minimum balance of
+                      <br />
+                      $500 on the supported networks to start accruing rewards.
+                    </>
+                  )}
                 </p>
               ) : (
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
                     {claimWalletCard?.meta?.availableToClaim
-                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim)).toLocaleString(
-                          'en-US'
-                        )
+                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
+                          .toLocaleString('en-US', { useGrouping: true })
+                          .replace(/,/g, ' ')
                       : '0'}
                   </p>
                 </>
@@ -244,7 +267,7 @@ const CharacterSection = () => {
                       }}
                       place="bottom"
                       id="wallet-info"
-                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optimism, Arbitrum and Scroll."
+                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optimism, Arbitrum, Scroll and BNB."
                     />
                   </div>
                 </div>
