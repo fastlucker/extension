@@ -41,7 +41,7 @@ import { SMART_ACC_VIEW_ONLY_ADDRESS } from '../../constants/constants'
 // Note: The tests are skipped temporarily while we finished the refactoring of the onboarding flow.
 // TODO: Restore the tests after the refactoring is done.
 
-describe.skip('auth', () => {
+describe('auth', () => {
   let browser
   let page
   let extensionURL
@@ -141,7 +141,7 @@ describe.skip('auth', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('should import view-only accounts', async () => {
+  it.only('should import view-only accounts', async () => {
     const smartAccount = SMART_ACC_VIEW_ONLY_ADDRESS
     const basicAccount = BASIC_ACC_VIEW_ONLY_ADDRESS
 

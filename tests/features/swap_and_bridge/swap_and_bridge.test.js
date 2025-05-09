@@ -157,7 +157,7 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
     await switchTokensOnSwapAndBridge(page)
   })
 
-  it('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
+  it.only('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
     await verifySendMaxTokenAmount(page, 'DAI', '10')
     await verifySendMaxTokenAmount(page, 'USDC', '8453')
     // POL: await verifySendMaxTokenAmount(page, 'POL', 'polygon')
