@@ -48,7 +48,7 @@ const StakeWallet = () => {
         addToast('Failed to get $WALLET token balance', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
-  }, [connectedAccount, addToast, switchNetwork])
+  }, [connectedAccount, addToast])
 
   const stakeWallet = useCallback(async () => {
     try {
@@ -110,7 +110,7 @@ const StakeWallet = () => {
         })
       return
     }
-    await switchNetwork()
+    await switchNetwork(ETHEREUM_CHAIN_ID)
     await stakeWallet()
   }, [switchNetwork, stakeWallet, walletBalance])
 
