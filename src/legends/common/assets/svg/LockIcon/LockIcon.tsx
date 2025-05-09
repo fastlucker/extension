@@ -1,21 +1,85 @@
 import React, { FC } from 'react'
-import Svg, { Path } from 'react-native-svg'
+import Svg, { Defs, G, Path } from 'react-native-svg'
 
 import { LegendsSvgProps } from '@legends/types/svg'
 
-const LockIcon: FC<LegendsSvgProps> = ({ width = 45, height = 64, ...rest }) => {
+const LockIcon: FC<LegendsSvgProps> = ({ width = 55, height = 68, ...rest }) => {
   return (
-    <Svg width={width} height={height} viewBox="0 0 45 64" fill="none" {...rest}>
-      <Path
-        d="M41.9051 31.5298C43.1027 32.8732 43.8081 34.5118 43.9969 36.3101L44 55.3883C43.6467 59.5211 40.2663 62.7659 36.1177 63.0002L8.88604 62.9971C4.80282 62.7976 1.35268 59.5161 1.00374 55.4467L1 36.3679C1.27978 32.8633 3.82579 29.8757 7.22546 28.9989L7.23169 14.6823C9.03247 -4.09202 37.2088 -3.32151 37.8312 15.6144L37.8368 28.9685C37.8618 29.0418 38.8762 29.3537 39.055 29.4314C40.133 29.8974 41.1306 30.6611 41.9051 31.5298ZM32.4077 28.7597L32.4102 14.9315C31.2749 3.44656 13.8148 3.39623 12.5904 14.8694L12.5929 28.7597H32.4077Z"
-        fill="#00BB92"
-        stroke="#006750"
-        strokeWidth="2"
-      />
-      <Path
-        d="M21.1916 37.303C26.1465 35.821 29.039 42.5039 24.6947 45.1143L24.6841 52.4677C24.4685 55.3478 20.5766 55.3143 20.318 52.5299L20.3211 45.146C17.1339 43.3192 17.6286 38.3686 21.1916 37.303Z"
-        fill="white"
-      />
+    <Svg width={width} height={height} viewBox="0 0 55 68" fill="none" {...rest}>
+      <G filter="url(#filter0_d_3555_2361)">
+        <Path
+          d="M45.0205 29.5764C46.1018 30.7868 46.7387 32.2631 46.9092 33.8834H42.447C41.342 33.9354 38.7856 33.9354 36.4472 33.8834L29.3048 33.9354C25.2416 33.9354 23.4358 33.9354 18.5535 33.8834L8.08594 33.9354C8.33856 30.7778 10.6374 28.086 13.7071 27.296L13.7127 14.3969C15.3387 -2.51875 40.78 -1.82453 41.342 15.2367L41.3471 27.2686C41.3696 27.3347 42.2856 27.6157 42.447 27.6857C43.4204 28.1056 44.3211 28.7937 45.0205 29.5764ZM36.4472 27.6857V14.6214C35.4221 4.27347 19.6569 4.22812 18.5513 14.5654V27.6857H36.4472Z"
+          fill="#E13A7B"
+        />
+        <G filter="url(#filter1_d_3555_2361)">
+          <Path
+            d="M45.836 29.6025C46.9677 30.8118 47.6342 32.2867 47.8126 33.9055L47.8155 51.0788C47.4817 54.799 44.2875 57.7199 40.3673 57.9307L14.6353 57.9279C10.777 57.7484 7.51685 54.7945 7.18713 51.1314L7.18359 33.9575C7.44796 30.8028 9.85377 28.1135 13.0662 27.3243L24.6648 27.2969C24.6648 27.2969 26.5546 27.2969 29.3894 27.2969L40.3673 27.3243C40.3909 27.3903 42.3979 27.3243 42.3979 27.3243C42.3979 27.3243 44.1 27.7474 45.836 29.6025Z"
+            fill="#E13A7B"
+          />
+        </G>
+        <Path
+          d="M26.3191 34.778C30.7931 33.4427 33.4047 39.464 29.4821 41.816L29.4726 48.4414C29.2779 51.0363 25.7638 51.0061 25.5303 48.4973L25.5331 41.8445C22.6553 40.1985 23.102 35.7381 26.3191 34.778Z"
+          fill="#191A1F"
+        />
+      </G>
+      <Defs>
+        <filter
+          id="filter0_d_3555_2361"
+          x="0"
+          y="0"
+          width="55"
+          height="68"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="4" />
+          <feGaussianBlur stdDeviation="2" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3555_2361" />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_3555_2361"
+            result="shape"
+          />
+        </filter>
+        <filter
+          id="filter1_d_3555_2361"
+          x="3.18359"
+          y="19.2969"
+          width="48.6328"
+          height="38.6339"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="-4" />
+          <feGaussianBlur stdDeviation="2" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3555_2361" />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_3555_2361"
+            result="shape"
+          />
+        </filter>
+      </Defs>
     </Svg>
   )
 }
