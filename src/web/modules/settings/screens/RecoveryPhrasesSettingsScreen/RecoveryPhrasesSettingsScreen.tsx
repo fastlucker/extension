@@ -114,7 +114,7 @@ const RecoveryPhraseSettingsScreen = () => {
             appearance="secondaryText"
             style={[spacings.mvM, text.center]}
           >
-            {item.id !== 'legacy-saved-seed' &&
+            {item.id === 'legacy-saved-seed' &&
             statuses.associateAccountKeysWithLegacySavedSeedMigration !== 'INITIAL'
               ? t('Linking accounts to this recovery phrase. This may take a moment...')
               : t('No accounts added from this seed.')}
