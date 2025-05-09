@@ -107,16 +107,12 @@ const StakeWallet = () => {
         })
         .catch((e) => {
           console.error(e)
-          addToast(
-            'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-            { type: 'error' }
-          )
         })
       return
     }
     await switchNetwork()
     await stakeWallet()
-  }, [switchNetwork, stakeWallet, walletBalance, addToast])
+  }, [switchNetwork, stakeWallet, walletBalance])
 
   return (
     <CardActionWrapper
