@@ -267,7 +267,7 @@ const CharacterSection = () => {
                       }}
                       place="bottom"
                       id="wallet-info"
-                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optimism, Arbitrum and Scroll."
+                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optimism, Arbitrum, Scroll and BNB."
                     />
                   </div>
                 </div>
