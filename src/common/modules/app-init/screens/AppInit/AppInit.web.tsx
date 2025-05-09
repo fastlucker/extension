@@ -86,27 +86,27 @@ const AppInit = () => {
                                                             <AddressBookControllerStateProvider>
                                                               <SwapAndBridgeControllerStateProvider>
                                                                 <TransferControllerStateProvider>
-                                                                <ControllersStateLoadedProvider>
-                                                                  <LoaderProvider>
-                                                                    <StorageProvider>
-                                                                      <KeyboardProvider>
-                                                                        <NetInfoProvider>
-                                                                          <AuthProvider>
-                                                                            <OnboardingNavigationProvider>
-                                                                              <BiometricsProvider>
-                                                                                <PrivateModeProvider>
-                                                                                  <AppRouter />
-                                                                                </PrivateModeProvider>
-                                                                                <PortalHost name="global" />
-                                                                              </BiometricsProvider>
-                                                                            </OnboardingNavigationProvider>
-                                                                          </AuthProvider>
-                                                                        </NetInfoProvider>
-                                                                      </KeyboardProvider>
-                                                                    </StorageProvider>
-                                                                  </LoaderProvider>
-                                                                </ControllersStateLoadedProvider>
-                                                              </TransferControllerStateProvider>
+                                                                  <ControllersStateLoadedProvider>
+                                                                    <LoaderProvider>
+                                                                      <StorageProvider>
+                                                                        <KeyboardProvider>
+                                                                          <NetInfoProvider>
+                                                                            <AuthProvider>
+                                                                              <OnboardingNavigationProvider>
+                                                                                <BiometricsProvider>
+                                                                                  <PrivateModeProvider>
+                                                                                    <AppRouter />
+                                                                                  </PrivateModeProvider>
+                                                                                  <PortalHost name="global" />
+                                                                                </BiometricsProvider>
+                                                                              </OnboardingNavigationProvider>
+                                                                            </AuthProvider>
+                                                                          </NetInfoProvider>
+                                                                        </KeyboardProvider>
+                                                                      </StorageProvider>
+                                                                    </LoaderProvider>
+                                                                  </ControllersStateLoadedProvider>
+                                                                </TransferControllerStateProvider>
                                                               </SwapAndBridgeControllerStateProvider>
                                                             </AddressBookControllerStateProvider>
                                                           </DomainsControllerStateProvider>

@@ -148,10 +148,10 @@ const MainRoutes = () => {
         </Route>
       </Route>
 
-        <Route element={<KeystoreUnlockedRoute />}>
-          <Route element={<AuthenticatedRoute />}>
-            <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
-            <Route path={WEB_ROUTES.topUpGasTank} element={<TransferScreen isTopUpScreen />} />
+      <Route element={<KeystoreUnlockedRoute />}>
+        <Route element={<AuthenticatedRoute />}>
+          <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+          <Route path={WEB_ROUTES.topUpGasTank} element={<TransferScreen isTopUpScreen />} />
           <Route
             path={WEB_ROUTES.signAccountOp}
             element={
