@@ -82,7 +82,7 @@ const TransferControllerStateProvider = ({
   )
 
   useEffect(() => {
-    if (!memoizedState.selectedToken?.address || !memoizedState) return
+    if (!memoizedState.isInitialized || !memoizedState.selectedToken?.address) return
 
     // If a token is already selected, we should retrieve its latest value from tokens.
     // This is important because the token amount is likely to change,
@@ -102,38 +102,47 @@ const TransferControllerStateProvider = ({
         params: { formValues: { selectedToken } }
       })
     }
-  }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.chainId, tokens, memoizedState, dispatch])
+  }, [
+    selectedTokenFromUrl?.addr,
+    selectedTokenFromUrl?.chainId,
+    tokens,
+    memoizedState?.isInitialized,
+    memoizedState?.selectedToken?.address,
+    dispatch
+  ])
 
   useEffect(() => {
-    if (!memoizedState) return
+    return
+    if (!memoizedState?.isInitialized) return
 
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
       params: { formValues: { isTopUp } }
     })
-  }, [isTopUp, memoizedState, dispatch])
+  }, [isTopUp, memoizedState?.isInitialized, dispatch])
 
   // If the user sends the max amount of a token it will disappear from the list of tokens
   // and we need to select another token
   useEffect(() => {
     if (
-      !state.selectedToken?.address ||
+      !memoizedState.isInitialized ||
+      !memoizedState.selectedToken?.address ||
       !memoizedState ||
       !portfolio?.latest ||
       !portfolio?.pending
     )
       return
     const isSelectedTokenNetworkLoading =
-      portfolio.pending[state.selectedToken.chainId.toString()]?.isLoading ||
-      portfolio.latest[state.selectedToken.chainId.toString()]?.isLoading
+      portfolio.pending[memoizedState.selectedToken.chainId.toString()]?.isLoading ||
+      portfolio.latest[memoizedState.selectedToken.chainId.toString()]?.isLoading
 
     if (isSelectedTokenNetworkLoading) return
 
     const isSelectedTokenInTokens = tokens.find(
       (token) =>
-        token.address === state.selectedToken?.address &&
-        token.chainId === state.selectedToken?.chainId &&
-        token.flags.rewardsType === state.selectedToken?.flags.rewardsType
+        token.address === memoizedState.selectedToken?.address &&
+        token.chainId === memoizedState.selectedToken?.chainId &&
+        token.flags.rewardsType === memoizedState.selectedToken?.flags.rewardsType
     )
 
     if (isSelectedTokenInTokens) return
@@ -145,11 +154,11 @@ const TransferControllerStateProvider = ({
   }, [
     portfolio?.latest,
     portfolio?.pending,
-    state.selectedToken?.address,
-    state.selectedToken?.flags.rewardsType,
-    state.selectedToken?.chainId,
+    memoizedState?.isInitialized,
+    memoizedState.selectedToken?.address,
+    memoizedState.selectedToken?.flags.rewardsType,
+    memoizedState.selectedToken?.chainId,
     tokens,
-    memoizedState,
     dispatch
   ])
 

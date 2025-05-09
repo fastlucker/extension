@@ -17,11 +17,12 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import SwapAndBridgeEstimation from '@web/modules/swap-and-bridge/components/Estimation'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import BatchAdded from '../../components/BatchModal/BatchAdded'
 import Buttons from '../../components/Buttons'
 import TrackProgress from '../../components/Estimation/TrackProgress'
@@ -67,7 +68,8 @@ const SwapAndBridgeScreen = () => {
     shouldEnableRoutesSelection,
     updateQuoteStatus,
     signAccountOpController,
-    isAutoSelectRouteDisabled
+    isAutoSelectRouteDisabled,
+    hasProceeded
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
@@ -143,6 +145,39 @@ const SwapAndBridgeScreen = () => {
       navigate(ROUTES.dashboard)
     }
   }, [dispatch, navigate, sessionId])
+
+  /**
+   * Single click broadcast
+   */
+  const handleBroadcastAccountOp = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
+      params: {
+        isSwapAndBridge: true
+      }
+    })
+  }, [dispatch])
+
+  const handleUpdateStatus = useCallback(
+    (status: SigningStatus) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        params: {
+          status
+        }
+      })
+    },
+    [dispatch]
+  )
+  const updateController = useCallback(
+    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params
+      })
+    },
+    [dispatch]
+  )
 
   const buttons = useMemo(() => {
     return (
@@ -223,9 +258,15 @@ const SwapAndBridgeScreen = () => {
         />
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
-      <SwapAndBridgeEstimation
-        closeEstimationModal={closeEstimationModalWrapped}
+      <Estimation
+        updateType="Swap&Bridge"
         estimationModalRef={estimationModalRef}
+        closeEstimationModal={closeEstimationModalWrapped}
+        updateController={updateController}
+        handleUpdateStatus={handleUpdateStatus}
+        handleBroadcastAccountOp={handleBroadcastAccountOp}
+        hasProceeded={hasProceeded}
+        signAccountOpController={signAccountOpController}
       />
       <PriceImpactWarningModal
         sheetRef={priceImpactModalRef}

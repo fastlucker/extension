@@ -348,6 +348,7 @@ type MainControllerSignAccountOpUpdateAction = {
   type:
     | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+    | 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
@@ -363,7 +364,7 @@ type MainControllerSignAccountOpUpdateAction = {
 type SignAccountOpUpdateAction = {
   type: 'SIGN_ACCOUNT_OP_UPDATE'
   params: {
-    updateType: 'Main' | 'Swap&Bridge'
+    updateType: 'Main' | 'Swap&Bridge' | 'Transfer&TopUp'
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: FullEstimation
@@ -379,6 +380,7 @@ type MainControllerSignAccountOpUpdateStatus = {
   type:
     | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
     status: SigningStatus
   }
@@ -576,6 +578,10 @@ type TransferControllerUpdateForm = {
 }
 type TransferControllerResetForm = {
   type: 'TRANSFER_CONTROLLER_RESET_FORM'
+}
+type TransferControllerUserProceededAction = {
+  type: 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED'
+  params: { proceeded: boolean }
 }
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
@@ -804,3 +810,4 @@ export type Action =
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
   | TransferControllerUpdateForm
   | TransferControllerResetForm
+  | TransferControllerUserProceededAction

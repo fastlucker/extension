@@ -36,6 +36,8 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 import { getUiType } from '@web/utils/uiType'
+import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 
 const { isPopup } = getUiType()
 
@@ -50,7 +52,9 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     isRecipientHumanizerKnownTokenOrSmartContract,
     isSWWarningVisible,
     isRecipientAddressUnknown,
-    isFormValid
+    isFormValid,
+    signAccountOpController,
+    hasProceeded
   } = state
 
   const { navigate } = useNavigation()
@@ -68,6 +72,22 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const actionsState = useActionsControllerState()
   const { hasGasTank } = useHasGasTank({ account })
   const recipientMenuClosedAutomatically = useRef(false)
+
+  const {
+    ref: estimationModalRef,
+    open: openEstimationModal,
+    close: closeEstimationModal
+  } = useModalize()
+
+  const openEstimationModalAndDispatch = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED',
+      params: {
+        proceeded: true
+      }
+    })
+    openEstimationModal()
+  }, [openEstimationModal, dispatch])
 
   const hasFocusedActionWindow = useMemo(
     () => actionsState.actionWindow.windowProps?.focused,
@@ -95,6 +115,39 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       params: { formValues: { isTopUp: !!isTopUpScreen } }
     })
   }, [dispatch, isTopUpScreen])
+
+  /**
+   * Single click broadcast
+   */
+  const handleBroadcastAccountOp = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
+      params: {
+        isSwapAndBridge: true
+      }
+    })
+  }, [dispatch])
+
+  const handleUpdateStatus = useCallback(
+    (status: SigningStatus) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        params: {
+          status
+        }
+      })
+    },
+    [dispatch]
+  )
+  const updateController = useCallback(
+    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params
+      })
+    },
+    [dispatch]
+  )
 
   // Requests filtered by current account and the selected token's network
   const transactionUserRequests = useMemo(() => {
@@ -234,6 +287,13 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           openBottomSheet()
         }
 
+        // Proceed in OneClick txn
+        if (actionExecutionType === 'open-action-window') {
+          openEstimationModalAndDispatch()
+          return
+        }
+
+        // Queue
         dispatch({
           type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
           params: {
@@ -244,6 +304,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           }
         })
 
+        // TODO: Show Added to Batch
         resetTransferForm()
         return
       }
@@ -503,6 +564,16 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         onPrimaryButtonPress={closeGasTankInfoBottomSheet}
         portfolio={portfolio}
         account={account}
+      />
+      <Estimation
+        updateType="Transfer&TopUp"
+        estimationModalRef={estimationModalRef}
+        closeEstimationModal={closeEstimationModal}
+        updateController={updateController}
+        handleUpdateStatus={handleUpdateStatus}
+        handleBroadcastAccountOp={() => {}}
+        hasProceeded={hasProceeded}
+        signAccountOpController={signAccountOpController}
       />
     </Wrapper>
   )

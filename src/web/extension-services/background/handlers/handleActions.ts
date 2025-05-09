@@ -265,8 +265,15 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
     case 'SIGN_ACCOUNT_OP_UPDATE': {
-      if (params.updateType === 'Main') return mainCtrl?.signAccountOp?.update(params)
-      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+      if (params.updateType === 'Main') {
+        return mainCtrl?.signAccountOp?.update(params)
+      }
+      if (params.updateType === 'Swap&Bridge') {
+        return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+      }
+
+      // 'Transfer&TopUp'
+      return mainCtrl?.transfer?.signAccountOpController?.update(params)
     }
 
     case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
@@ -341,6 +348,12 @@ export const handleActions = async (
       return mainCtrl.transfer.update(params.formValues)
     case 'TRANSFER_CONTROLLER_RESET_FORM':
       return mainCtrl.transfer.resetForm()
+    case 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl?.transfer.setUserProceeded(params.proceeded)
+    case 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl?.transfer?.signAccountOpController?.update(params)
+    case 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl?.transfer?.signAccountOpController?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
