@@ -173,9 +173,9 @@ const CharacterSection = () => {
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
                     {claimWalletCard?.meta?.availableToClaim
-                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim)).toLocaleString(
-                          'en-US'
-                        )
+                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
+                          .toLocaleString('en-US', { useGrouping: true })
+                          .replace(/,/g, ' ')
                       : '0'}
                   </p>
                 </>
