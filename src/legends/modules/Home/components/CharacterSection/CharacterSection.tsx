@@ -1,9 +1,8 @@
 import React, { useRef, useState } from 'react'
 
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
-import { RELAYER_URL } from '@env'
+import HourGlassIcon from '@legends/common/assets/svg/HourGlassIcon'
 import LockIcon from '@legends/common/assets/svg/LockIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
@@ -146,9 +145,23 @@ const CharacterSection = () => {
                 }`}
                 alt="rewards-cover"
               />
-              {(rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) && (
-                <LockIcon className={styles.lockIcon} width={25} height={35} color="currentColor" />
-              )}
+              {(rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
+                (Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+                !isNotAvailableForRewards ? (
+                  <HourGlassIcon
+                    className={styles.lockIcon}
+                    width={29}
+                    height={37}
+                    color="currentColor"
+                  />
+                ) : (
+                  <LockIcon
+                    className={styles.lockIcon}
+                    width={29}
+                    height={37}
+                    color="currentColor"
+                  />
+                ))}
             </div>
             <div className={styles.rewardsInfo}>
               {isLoadingClaimableRewards || isLoading ? (
