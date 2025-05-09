@@ -242,33 +242,33 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
 
     await chrome.windows.update(id, newWindowProps)
 
-    return {
-      id,
-      ...newWindowProps
-    }
+    return { id, ...newWindowProps }
   }
 
   throw new Error('windowProps is undefined')
 }
 
 const closeCurrentWindow = async () => {
-  if (isSafari()) {
+  let windowObj: Window | undefined
+
+  try {
+    windowObj = window
+  } catch (error) {
+    // silent fail
+  }
+
+  if (isSafari() || !windowObj) {
     try {
-      const win: any = await chrome.windows.getCurrent()
-      await chrome.windows.remove(win.id)
+      const win = await chrome.windows.getCurrent()
+      await chrome.windows.remove(win.id!)
     } catch (error) {
       // silent fail
     }
   } else {
-    window.close()
+    windowObj.close()
   }
 }
 
-export default {
-  open,
-  focus,
-  remove,
-  event
-}
+export default { open, focus, remove, event }
 
 export { closeCurrentWindow }
