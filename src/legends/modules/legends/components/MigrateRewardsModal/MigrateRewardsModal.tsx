@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { BrowserProvider, Contract, formatUnits, Interface } from 'ethers'
+import { BrowserProvider, Contract, formatUnits, Interface, JsonRpcProvider } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -71,27 +71,18 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   useEffect(() => {
     if (!connectedAccount) return
-    const provider = new BrowserProvider(window.ambire)
-    const walletContract = new Contract(X_WALLET_TOKEN, walletIface, provider)
-    // @TODO use the pending $WALLET balance in the future
-    switchNetwork(ETHEREUM_CHAIN_ID)
-      .then(() =>
-        walletContract
-          .balanceOf(connectedAccount)
-          .then(setWalletBalance)
-          .catch((e) => {
-            console.error(e)
-            addToast('Failed to get $WALLET token balance', { type: 'error' })
-          })
-      )
+    const ethereumProvider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
+    const walletContract = new Contract(X_WALLET_TOKEN, walletIface, ethereumProvider)
+    walletContract
+      .balanceOf(connectedAccount)
+      .then(setWalletBalance)
       .catch((e) => {
         console.error(e)
-        addToast('Failed to switch network to Ethereum', { type: 'error' })
+        addToast('Failed to get $WALLET token balance', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
   }, [connectedAccount, addToast, switchNetwork])
 
-  console.log('walletBalance', walletBalance)
   // Close Modal on ESC
   useEscModal(isOpen, closeModal)
 
