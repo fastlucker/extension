@@ -275,7 +275,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   mainCtrl = new MainController({
-    storage,
+    storageAPI: storage,
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
