@@ -45,17 +45,11 @@ const X_WALLET_TOKEN = '0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935'
 const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   isOpen,
   handleClose,
-  action,
-  meta,
-  card
+  action
 }) => {
-  const { character } = useCharacterContext()
-  const { claimableRewards, xWalletClaimableBalance } = usePortfolioControllerState()
+  const { xWalletClaimableBalance } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const { onComplete } = useCardActionContext()
-  const formatXp = (xp: number) => {
-    return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-  }
 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
