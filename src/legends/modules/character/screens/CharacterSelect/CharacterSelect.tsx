@@ -16,7 +16,7 @@ import useMintCharacter from './hooks/useMintCharacter'
 const CharacterSelect = () => {
   const navigate = useNavigate()
   const [characterId, setCharacterId] = useState(1)
-  const { connectedAccount, nonV2Account } = useAccountContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const [errorMessage, setErrorMessage] = useState('')
 
   const { character, isLoading } = useCharacterContext()
@@ -50,7 +50,10 @@ const CharacterSelect = () => {
   useEffect(() => {
     document.title = 'Ambire Rewards'
   }, [])
-  if (!!nonV2Account || (!connectedAccount && !nonV2Account)) return <Navigate to="/" />
+
+  if (!!v1Account || !connectedAccount) {
+    return <Navigate to="/" />
+  }
 
   const isButtonDisabled = isMinting || isLoading || isMinted
 

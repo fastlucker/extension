@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
@@ -14,20 +15,19 @@ import { SelectValue } from '@common/components/Select/types'
 import getStyles from '@common/components/SendToken/styles'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
 
-import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
@@ -38,20 +38,20 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
-    isSwitchFromAndToTokensEnabled,
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
+    updateQuoteStatus,
     toTokenList,
     quote,
     formStatus,
     toChainId,
     updateToTokenListStatus,
+    switchTokensStatus,
     supportedChainIds,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
   const handleSwitchFromAndToTokens = useCallback(
@@ -87,40 +87,21 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     isToToken: true
   })
 
-  const toTokenInPortfolio = useMemo(() => {
-    const [address] = toTokenValue.value.split('.')
-
-    if (!address || !toChainId) return null
-
-    const bigintChainId = BigInt(toChainId)
-
-    const tokenInPortfolio = portfolio?.tokens.find(
-      (token) =>
-        token.address === address &&
-        token.chainId === bigintChainId &&
-        !token.flags.onGasTank &&
-        !token.flags.rewardsType
-    )
-
-    if (!tokenInPortfolio) return null
-
-    const amountFormatted = formatDecimals(
-      parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
-      'amount'
-    )
-
-    return {
-      ...tokenInPortfolio,
-      amountFormatted
-    }
-  }, [portfolio?.tokens, toChainId, toTokenValue.value])
-
   const shouldShowAmountOnEstimationFailure = useMemo(() => {
     return (
       isAutoSelectRouteDisabled &&
       signAccountOpController?.estimation.status === EstimationStatus.Error
     )
   }, [isAutoSelectRouteDisabled, signAccountOpController?.estimation.status])
+
+  const isReadyToDisplayAmounts =
+    (formStatus === SwapAndBridgeFormStatus.Empty ||
+      formStatus === SwapAndBridgeFormStatus.Invalid ||
+      formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
+      formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
+      formStatus === SwapAndBridgeFormStatus.Proceeded ||
+      shouldShowAmountOnEstimationFailure) &&
+    updateQuoteStatus !== 'LOADING'
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
@@ -197,7 +178,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     [dispatch]
   )
 
-  const formattedToAmount = useMemo(() => {
+  const toAmount = useMemo(() => {
     if (
       !quote ||
       !quote.selectedRoute ||
@@ -206,11 +187,22 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     )
       return '0'
 
-    return `${formatDecimals(
-      Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
-      'amount'
-    )}`
+    return formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)
   }, [quote, signAccountOpController?.estimation.status])
+
+  const formattedToAmount = useMemo(() => {
+    if (toAmount === '0') return '0'
+
+    return `${formatDecimals(Number(toAmount), 'precise')}`
+  }, [toAmount])
+
+  const hasSelectedToToken =
+    toTokenValue &&
+    typeof toTokenValue === 'object' &&
+    'symbol' in toTokenValue &&
+    'isPending' in toTokenValue &&
+    'pendingBalanceFormatted' in toTokenValue &&
+    'balanceFormatted' in toTokenValue
 
   return (
     <View>
@@ -224,7 +216,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       >
         <SwitchTokensButton
           onPress={handleSwitchFromAndToTokens}
-          disabled={!isSwitchFromAndToTokensEnabled}
+          disabled={
+            switchTokensStatus === 'LOADING' ||
+            updateQuoteStatus === 'LOADING' ||
+            updateToTokenListStatus === 'LOADING'
+          }
         />
         <Text appearance="secondaryText" fontSize={16} weight="medium">
           {t('Receive')}
@@ -235,14 +231,16 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           options={toNetworksOptions}
           size="sm"
           value={getToNetworkSelectValue}
+          mode="bottomSheet"
+          bottomSheetTitle={t('Receive token network')}
           selectStyle={{
             backgroundColor: '#54597A14',
             borderWidth: 0
           }}
         />
       </View>
-      <View style={[styles.container, spacings.ph0]}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm]}>
+      <View style={[styles.container, spacings.prXl]}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <ToTokenSelect
             toTokenOptions={toTokenOptions}
             toTokenValue={toTokenValue}
@@ -251,30 +249,24 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
-          <View style={[flexbox.flex1]}>
-            {formStatus === SwapAndBridgeFormStatus.Empty ||
-            formStatus === SwapAndBridgeFormStatus.Invalid ||
-            formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
-            formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
-            formStatus === SwapAndBridgeFormStatus.Proceeded ||
-            shouldShowAmountOnEstimationFailure ? (
-              <Text
-                fontSize={20}
-                weight="medium"
-                numberOfLines={1}
-                appearance={
-                  formattedToAmount && formattedToAmount !== '0' ? 'primaryText' : 'secondaryText'
-                }
-                style={{ ...spacings.mr, textAlign: 'right' }}
-              >
-                {formattedToAmount}
-                {!!formattedToAmount && formattedToAmount !== '0' && !!quote?.selectedRoute && (
-                  <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
-                    quote.selectedRoute.outputValueInUsd,
-                    'value'
-                  )})`}</Text>
-                )}
-              </Text>
+          <View style={[spacings.plSm, flexbox.flex1]}>
+            {isReadyToDisplayAmounts ? (
+              <>
+                <Text
+                  fontSize={20}
+                  weight="medium"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  appearance={
+                    formattedToAmount && formattedToAmount !== '0' ? 'primaryText' : 'secondaryText'
+                  }
+                  dataSet={{ tooltipId: 'to-amount' }}
+                  style={{ textAlign: 'right' }}
+                >
+                  {formattedToAmount}
+                </Text>
+                {formattedToAmount !== '0' && <Tooltip id="to-amount" content={toAmount} />}
+              </>
             ) : (
               <SkeletonLoader
                 appearance="tertiaryBackground"
@@ -288,16 +280,16 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
         <View
           style={[
             flexbox.directionRow,
-            spacings.ptSm,
-            spacings.pl,
             flexbox.alignCenter,
+            flexbox.justifySpaceBetween,
+            spacings.ptSm,
             {
               height: 32 // Prevents layout shifts
             }
           ]}
         >
-          {toTokenInPortfolio && (
-            <>
+          {hasSelectedToToken && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
               <Text
                 testID="max-available-amount"
@@ -308,9 +300,24 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 appearance="tertiaryText"
                 ellipsizeMode="tail"
               >
-                {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
+                {`${
+                  toTokenValue.isPending
+                    ? toTokenValue.pendingBalanceFormatted
+                    : toTokenValue.balanceFormatted
+                } ${toTokenValue.symbol}`}
               </Text>
-            </>
+            </View>
+          )}
+          {!!quote?.selectedRoute && isReadyToDisplayAmounts && (
+            <Text
+              fontSize={12}
+              appearance="primary"
+              weight="medium"
+              testID="switch-currency-sab"
+              style={{ marginLeft: 'auto' }}
+            >
+              {formatDecimals(quote.selectedRoute.outputValueInUsd || 0, 'price')}
+            </Text>
           )}
         </View>
       </View>

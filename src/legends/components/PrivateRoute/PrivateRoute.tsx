@@ -8,23 +8,23 @@ import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 const PrivateRoute = () => {
-  const { connectedAccount, nonV2Account, allowNonV2Connection, isLoading } = useAccountContext()
+  const { connectedAccount, v1Account, isLoading } = useAccountContext()
   const { character, error: characterError, isLoading: isCharacterLoading } = useCharacterContext()
 
   const { pathname } = useLocation()
 
-  const isConnectedAccountV2 = !!connectedAccount && (!nonV2Account || allowNonV2Connection)
+  const isConnectedAccountV2 = !!connectedAccount && !v1Account
 
   if (isConnectedAccountV2 && (isLoading || (!character && isCharacterLoading)))
     return <Spinner isCentered />
 
   if (characterError) return <ErrorPage title="Character loading error" error={characterError} />
 
-  if (pathname === LEGENDS_ROUTES.characterSelect && !!nonV2Account) {
+  if (pathname === LEGENDS_ROUTES.characterSelect && !!v1Account) {
     return <Navigate to={LEGENDS_ROUTES.home} />
   }
   // Don't allow loading the Outlet component if the character is not loaded or is in the process of loading.
-  if (!character && !isCharacterLoading && !nonV2Account)
+  if (!character && !isCharacterLoading && !v1Account && connectedAccount)
     return <Navigate to={LEGENDS_ROUTES.characterSelect} />
 
   return <Outlet />

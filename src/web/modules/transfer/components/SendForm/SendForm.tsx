@@ -7,7 +7,6 @@ import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPric
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getRpcProvider } from '@ambire-common/services/provider'
-import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import SendToken from '@common/components/SendToken'
@@ -24,14 +23,11 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
-import { getUiType } from '@web/utils/uiType'
 
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
-
-const { isPopup } = getUiType()
 
 const SendForm = ({
   addressInputState,
@@ -61,7 +57,6 @@ const SendForm = ({
   const { account, portfolio } = useSelectedAccountControllerState()
   const {
     maxAmount,
-    maxAmountInFiat,
     amountFieldMode,
     amountInFiat,
     selectedToken,
@@ -127,7 +122,7 @@ const SendForm = ({
       dispatch({
         type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
         params: {
-          formValues: { amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat }
+          formValues: { amount: maxAmount, amountFieldMode: 'token' }
         }
       })
 
@@ -137,52 +132,16 @@ const SendForm = ({
     const gasDeductedAmountBigInt = getTokenAmount(selectedToken) - estimation.totalGasWei
     const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
 
-    // Let the user see for himself that the amount is less than the gas fee
-    if (gasDeductedAmountBigInt < 0n) {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: {
-          formValues: { amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat }
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: {
+          amount: gasDeductedAmount,
+          amountFieldMode: 'token'
         }
-      })
-      return
-    }
-
-    if (amountFieldMode === 'token') {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: {
-          formValues: { amount: gasDeductedAmount }
-        }
-      })
-      return
-    }
-
-    if (amountFieldMode === 'fiat') {
-      const tokenPrice = selectedToken.priceIn[0].price
-      const { tokenPriceBigInt, tokenPriceDecimals } = convertTokenPriceToBigInt(tokenPrice)
-
-      const gasDeductedAmountInFiat = formatUnits(
-        gasDeductedAmountBigInt * tokenPriceBigInt,
-        tokenPriceDecimals + selectedToken.decimals
-      )
-
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: {
-          formValues: { amount: String(gasDeductedAmountInFiat) }
-        }
-      })
-    }
-  }, [
-    amountFieldMode,
-    estimation,
-    isSmartAccount,
-    maxAmount,
-    maxAmountInFiat,
-    selectedToken,
-    dispatch
-  ])
+      }
+    })
+  }, [estimation, isSmartAccount, maxAmount, selectedToken, dispatch])
 
   const switchAmountFieldMode = useCallback(() => {
     dispatch({
@@ -395,7 +354,6 @@ const SendForm = ({
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
             recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
-            menuPosition={isPopup ? 'top' : undefined}
           />
         )}
       </View>

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -13,7 +12,6 @@ import { closeCurrentWindow } from '@web/extension-services/background/webapi/wi
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -21,7 +19,6 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
-  const { inviteStatus } = useInviteControllerState()
   const { navigate } = useNavigation()
   const swapAndBridgeState = useSwapAndBridgeControllerState()
   const { state: transferState } = useTransferControllerState()
@@ -40,10 +37,6 @@ const SortHat = () => {
   const loadView = useCallback(async () => {
     if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
       return navigate(ROUTES.keyStoreUnlock)
-    }
-
-    if (inviteStatus !== INVITE_STATUS.VERIFIED) {
-      return navigate(ROUTES.inviteVerify)
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
@@ -104,7 +97,7 @@ const SortHat = () => {
       const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
         (id) => id === 'popup' || id === 'action-window'
       )
-      console.log({ transferState })
+
       if (hasSwapAndBridgePersistentSession) {
         navigate(ROUTES.swapAndBridge)
       } else if (transferState?.hasPersistedState) {
@@ -119,7 +112,6 @@ const SortHat = () => {
     accounts,
     keystoreState.isReadyToStoreKeys,
     keystoreState.isUnlocked,
-    inviteStatus,
     authStatus,
     isActionWindow,
     actionsState.currentAction,

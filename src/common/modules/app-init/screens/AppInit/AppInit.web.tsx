@@ -42,6 +42,7 @@ import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControl
 import { ProvidersControllerStateProvider } from '@web/contexts/providersControllerStateContext'
 import { SelectedAccountControllerStateProvider } from '@web/contexts/selectedAccountControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
+import { StorageControllerStateProvider } from '@web/contexts/storageControllerStateContext'
 import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
@@ -62,28 +63,29 @@ const AppInit = () => {
               <ErrorBoundary FallbackComponent={ErrorComponent}>
                 <BackgroundServiceProvider>
                   <MainControllerStateProvider>
-                    <NetworksControllerStateProvider>
-                      <AccountsControllerStateProvider>
-                        <SelectedAccountControllerStateProvider>
-                          <ProvidersControllerStateProvider>
-                            <AutoLockControllerStateProvider>
-                              <ExtensionUpdateControllerStateProvider>
-                                <FeatureFlagsControllerStateProvider>
-                                  <InviteControllerStateProvider>
-                                    <WalletStateControllerProvider>
-                                      <AccountPickerControllerStateProvider>
-                                        <KeystoreControllerStateProvider>
-                                          <SignMessageControllerStateProvider>
-                                            <ActivityControllerStateProvider>
-                                              <ActionsControllerStateProvider>
-                                                <PortfolioControllerStateProvider>
-                                                  <EmailVaultControllerStateProvider>
-                                                    <PhishingControllerStateProvider>
-                                                      <DappsControllerStateProvider>
-                                                        <DomainsControllerStateProvider>
-                                                          <AddressBookControllerStateProvider>
-                                                            <SwapAndBridgeControllerStateProvider>
-                                                              <TransferControllerStateProvider>
+                    <StorageControllerStateProvider>
+                      <NetworksControllerStateProvider>
+                        <AccountsControllerStateProvider>
+                          <SelectedAccountControllerStateProvider>
+                            <ProvidersControllerStateProvider>
+                              <AutoLockControllerStateProvider>
+                                <ExtensionUpdateControllerStateProvider>
+                                  <FeatureFlagsControllerStateProvider>
+                                    <InviteControllerStateProvider>
+                                      <WalletStateControllerProvider>
+                                        <AccountPickerControllerStateProvider>
+                                          <KeystoreControllerStateProvider>
+                                            <SignMessageControllerStateProvider>
+                                              <ActivityControllerStateProvider>
+                                                <ActionsControllerStateProvider>
+                                                  <PortfolioControllerStateProvider>
+                                                    <EmailVaultControllerStateProvider>
+                                                      <PhishingControllerStateProvider>
+                                                        <DappsControllerStateProvider>
+                                                          <DomainsControllerStateProvider>
+                                                            <AddressBookControllerStateProvider>
+                                                              <SwapAndBridgeControllerStateProvider>
+                                                                <TransferControllerStateProvider>
                                                                 <ControllersStateLoadedProvider>
                                                                   <LoaderProvider>
                                                                     <StorageProvider>
@@ -105,27 +107,28 @@ const AppInit = () => {
                                                                   </LoaderProvider>
                                                                 </ControllersStateLoadedProvider>
                                                               </TransferControllerStateProvider>
-                                                            </SwapAndBridgeControllerStateProvider>
-                                                          </AddressBookControllerStateProvider>
-                                                        </DomainsControllerStateProvider>
-                                                      </DappsControllerStateProvider>
-                                                    </PhishingControllerStateProvider>
-                                                  </EmailVaultControllerStateProvider>
-                                                </PortfolioControllerStateProvider>
-                                              </ActionsControllerStateProvider>
-                                            </ActivityControllerStateProvider>
-                                          </SignMessageControllerStateProvider>
-                                        </KeystoreControllerStateProvider>
-                                      </AccountPickerControllerStateProvider>
-                                    </WalletStateControllerProvider>
-                                  </InviteControllerStateProvider>
-                                </FeatureFlagsControllerStateProvider>
-                              </ExtensionUpdateControllerStateProvider>
-                            </AutoLockControllerStateProvider>
-                          </ProvidersControllerStateProvider>
-                        </SelectedAccountControllerStateProvider>
-                      </AccountsControllerStateProvider>
-                    </NetworksControllerStateProvider>
+                                                              </SwapAndBridgeControllerStateProvider>
+                                                            </AddressBookControllerStateProvider>
+                                                          </DomainsControllerStateProvider>
+                                                        </DappsControllerStateProvider>
+                                                      </PhishingControllerStateProvider>
+                                                    </EmailVaultControllerStateProvider>
+                                                  </PortfolioControllerStateProvider>
+                                                </ActionsControllerStateProvider>
+                                              </ActivityControllerStateProvider>
+                                            </SignMessageControllerStateProvider>
+                                          </KeystoreControllerStateProvider>
+                                        </AccountPickerControllerStateProvider>
+                                      </WalletStateControllerProvider>
+                                    </InviteControllerStateProvider>
+                                  </FeatureFlagsControllerStateProvider>
+                                </ExtensionUpdateControllerStateProvider>
+                              </AutoLockControllerStateProvider>
+                            </ProvidersControllerStateProvider>
+                          </SelectedAccountControllerStateProvider>
+                        </AccountsControllerStateProvider>
+                      </NetworksControllerStateProvider>
+                    </StorageControllerStateProvider>
                   </MainControllerStateProvider>
                 </BackgroundServiceProvider>
               </ErrorBoundary>

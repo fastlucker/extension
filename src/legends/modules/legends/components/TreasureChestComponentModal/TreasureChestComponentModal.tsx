@@ -8,12 +8,14 @@ import ZapIcon from '@legends/common/assets/svg/ZapIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
@@ -37,10 +39,10 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   handleClose
 }) => {
   const { addToast } = useToast()
-  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
 
-  const nonConnectedAcc = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
 
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
@@ -66,13 +68,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const { legends, getLegends } = useLegendsContext()
 
-  const closeModal = async () => {
-    handleClose()
-    if (chestState === 'opened') {
-      await onLegendComplete()
-    }
-  }
-
   const treasureLegend: ChestCard | undefined = useMemo(
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest)) as
@@ -86,6 +81,13 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const [chestState, setChestState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
   >(isActive ? 'locked' : 'opened')
+
+  const closeModal = async () => {
+    handleClose()
+    if (chestState === 'opened') {
+      await onLegendComplete()
+    }
+  }
 
   useEffect(() => {
     // In the case we quickly update legends route and switch accounts,
@@ -129,7 +131,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     setChestState('unlocking')
 
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner()
@@ -304,7 +306,9 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             }
             onClick={onButtonClick}
           >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
+            {nonConnectedAcc
+              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+              : buttonLabel}
           </button>
         </div>
       </div>

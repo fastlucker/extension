@@ -109,8 +109,8 @@ const OneClickEstimation = ({
               slowRequest={false}
               // TODO<oneClickSwap>
               isViewOnly={isViewOnly}
-              isSponsored={false}
-              sponsor={undefined}
+              isSponsored={signAccountOpController ? signAccountOpController.isSponsored : false}
+              sponsor={signAccountOpController ? signAccountOpController.sponsor : undefined}
             />
             {signingErrors.length > 0 && (
               <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>

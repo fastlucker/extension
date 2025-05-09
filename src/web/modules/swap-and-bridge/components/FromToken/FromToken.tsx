@@ -32,9 +32,9 @@ const FromToken: FC<Props> = ({
 
   const {
     fromSelectedToken,
+    toSelectedToken,
     fromAmount,
     fromAmountInFiat,
-    maxFromAmountInFiat,
     portfolioTokenList,
     fromAmountFieldMode,
     maxFromAmount,
@@ -49,20 +49,33 @@ const FromToken: FC<Props> = ({
 
       setIsAutoSelectRouteDisabled(false)
 
+      // Switch the tokens if the selected token is the same as the "to" token
+      if (
+        tokenToSelect &&
+        toSelectedToken &&
+        tokenToSelect.address === toSelectedToken.address &&
+        tokenToSelect.chainId === BigInt(toSelectedToken.chainId || 0)
+      ) {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+        })
+        return
+      }
+
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { fromSelectedToken: tokenToSelect }
       })
     },
-    [portfolioTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
+    [portfolioTokenList, setIsAutoSelectRouteDisabled, toSelectedToken, dispatch, networks]
   )
 
   const handleSetMaxFromAmount = useCallback(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-      params: { fromAmount: fromAmountFieldMode === 'token' ? maxFromAmount : maxFromAmountInFiat }
+      params: { fromAmount: maxFromAmount, fromAmountFieldMode: 'token' }
     })
-  }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
+  }, [maxFromAmount, dispatch])
 
   const handleSwitchFromAmountFieldMode = useCallback(() => {
     dispatch({

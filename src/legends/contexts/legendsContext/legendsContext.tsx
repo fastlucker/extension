@@ -26,7 +26,7 @@ type LegendsContextType = {
 const legendsContext = createContext<LegendsContextType>({} as LegendsContextType)
 
 const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { connectedAccount, nonV2Account, allowNonV2Connection } = useAccountContext()
+  const { connectedAccount, nonV2Account } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
   const { getActivity } = useActivityContext()

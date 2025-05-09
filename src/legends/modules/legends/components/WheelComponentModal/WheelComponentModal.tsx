@@ -41,13 +41,15 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
   >('locked')
-  const { connectedAccount, allowNonV2Connection, nonV2Account } = useAccountContext()
+
+  const { connectedAccount, v1Account } = useAccountContext()
+
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus } = useErc5792()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
   const chainRef = React.useRef<HTMLImageElement>(null)
-  const nonConnectedAcc = Boolean(!connectedAccount || (!allowNonV2Connection && nonV2Account))
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
 
   const stopSpinnerTeaseAnimation = useCallback(() => {
     if (!spinnerRef.current) return
@@ -71,7 +73,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   const unlockWheel = useCallback(async () => {
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new ethers.BrowserProvider(window.ambire)
       const signer = await provider.getSigner()
@@ -230,7 +232,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             }`}
             onClick={onButtonClick}
           >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
+            {nonConnectedAcc
+              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+              : buttonLabel}
           </button>
         </div>
       </div>
