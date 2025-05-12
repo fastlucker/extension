@@ -18,9 +18,10 @@ import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { Networks } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
-import styles from './CharacterSection.module.scss'
+import walletCoin from './assets/wallet-coin.png'
+import styles from './Home.module.scss'
 
-const CharacterSection = () => {
+const Home = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const { character } = useCharacterContext()
@@ -101,15 +102,12 @@ const CharacterSection = () => {
       />
     )
 
-  const xpForNextLevel = Math.ceil(((character.level + 1) * 4.5) ** 2)
-
-  const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
-
   const rewardsDisabledState = Number(claimWalletCard?.meta?.availableToClaim) === 0
 
   const isNotAvailableForRewards =
     Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
     (userLeaderboardData?.level ?? 0) <= 2
+
   return (
     <>
       <div className={styles.rewardsWrapper}>
@@ -198,128 +196,44 @@ const CharacterSection = () => {
         </div>
       </div>
 
-      <section className={`${styles.wrapper} ${styles[`wrapper${character.characterType}`]}`}>
-        <div className={styles.characterInfo}>
-          <AccountInfo
-            removeAvatarAndLevel
-            wrapperClassName={styles.accountInfo}
-            addressClassName={styles.accountInfoAddress}
-            displayTooltip
-          />
-          <div className={styles.characterLevelInfoWrapper}>
-            <div className={styles.characterItemWrapper}>
-              <div className={styles.levelWrapper}>
-                <div className={`${styles.levelInfo} ${styles.levelInfoTop}`}>
-                  <span className={styles.startXp}>Lvl. {character.level}</span>
-                  <span className={styles.endXp}>Lvl. {character.level + 1}</span>
-                </div>
-                <div className={styles.levelProgress}>
-                  <div className={styles.levelProgressBarWrapper}>
-                    <span className={styles.level}>{formatXp(startXpForCurrentLevel)}</span>
-                    <span className={styles.level}>{formatXp(xpForNextLevel)}</span>
-                  </div>
-                  <div
-                    className={styles.levelProgressBar}
-                    style={{
-                      width: `${(
-                        ((character.xp - startXpForCurrentLevel) /
-                          (xpForNextLevel - startXpForCurrentLevel)) *
-                        100
-                      ).toFixed(2)}%`
-                    }}
-                  />
-                </div>
+      <section className={`${styles.wrapper}`}>
+        <div className={styles.walletInfo}>
+          <h1 className={styles.title}>
+            <span className={styles.dollarSign}>$</span>WALLET
+          </h1>
 
-                <div className={styles.xp}>{formatXp(character.xp)} XP</div>
-              </div>
-            </div>
-
+          <div className={styles.walletLevelInfoWrapper}>
             <div className={styles.logoAndBalanceWrapper}>
-              <div className={styles.logoWrapper}>
-                <Stacked
-                  chains={LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID.map(
-                    (n) => n.toString() as Networks
-                  )}
-                />
-              </div>
-              <div className={styles.characterItemWrapper}>
-                <div className={styles.characterItem}>
-                  <span className={styles.item}>{isReady ? amountFormatted : 'Loading...'}</span>
-                  <div className={styles.characterInfoWrapper}>
-                    Wallet Balance
-                    <InfoIcon
-                      width={12}
-                      height={12}
-                      color="currentColor"
-                      className={styles.infoIcon}
-                      data-tooltip-id="wallet-info"
-                    />
-                    <Tooltip
-                      style={{
-                        backgroundColor: '#101114',
-                        color: '#F4F4F7',
-                        fontFamily: 'FunnelDisplay',
-                        fontSize: 11,
-                        lineHeight: '16px',
-                        fontWeight: 300,
-                        maxWidth: 244,
-                        boxShadow: '0px 0px 12.1px 0px #191B20'
-                      }}
-                      place="bottom"
-                      id="wallet-info"
-                      content="The balance consists of discovered tokens on the following networks: Ethereum, Base, Optimism, Arbitrum, Scroll and BNB."
-                    />
-                  </div>
+              <div className={styles.walletItemWrapper}>
+                <div className={styles.walletItem}>
+                  <div className={styles.walletInfoWrapper}>Circulating supply</div>
+                  <span className={styles.item}>688,248,948</span>
                 </div>
               </div>
             </div>
-
-            <div className={styles.characterItemWrapper}>
-              <div className={styles.characterItem}>
-                <span className={styles.item}>
-                  {userLeaderboardData?.rank ? userLeaderboardData?.rank : 'Loading...'}
-                </span>
-                <div className={styles.characterInfoWrapper}>
-                  Leaderboard
-                  <InfoIcon
-                    width={12}
-                    height={12}
-                    color="currentColor"
-                    className={styles.infoIcon}
-                    data-tooltip-id="leaderboard-info"
-                  />
-                  <Tooltip
-                    style={{
-                      backgroundColor: '#101114',
-                      color: '#F4F4F7',
-                      fontFamily: 'FunnelDisplay',
-                      fontSize: 11,
-                      lineHeight: '16px',
-                      fontWeight: 300,
-                      maxWidth: 244,
-                      boxShadow: '0px 0px 12.1px 0px #191B20'
-                    }}
-                    place="bottom"
-                    id="leaderboard-info"
-                    content="This is how you rank against everyone else participating in Ambire Rewards based on your collected XP."
-                  />
-                </div>
+            <div className={styles.walletItemWrapper}>
+              <div className={styles.walletItem}>
+                Staked $WALLET
+                <span className={styles.item}>45%</span>
+                <div className={styles.walletInfoWrapper} />
+              </div>
+            </div>
+            <div className={styles.walletItemWrapper}>
+              <div className={styles.walletItem}>
+                <div className={styles.walletInfoWrapper}>Current Price</div>
+                <span className={styles.item}>$0.013</span>
               </div>
             </div>
           </div>
         </div>
         <div
-          className={styles.characterBlurEffect}
-          style={{ backgroundImage: `url(${character.image})` }}
+          className={styles.walletBlurEffect}
+          style={{ backgroundImage: `url(${walletCoin})` }}
         />
 
-        <div className={styles.character}>
-          <div className={styles.characterRelativeWrapper}>
-            <img
-              className={styles.characterImage}
-              src={character.image}
-              alt={character.characterName}
-            />
+        <div className={styles.wallet}>
+          <div className={styles.walletRelativeWrapper}>
+            <img className={styles.walletImage} src={walletCoin} alt="wallet-coin" />
           </div>
         </div>
       </section>
@@ -327,4 +241,4 @@ const CharacterSection = () => {
   )
 }
 
-export default CharacterSection
+export default Home

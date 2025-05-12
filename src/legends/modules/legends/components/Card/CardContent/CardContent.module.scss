@@ -285,3 +285,18 @@
 .disabled {
   cursor: not-allowed;
 }
+
+
+.wrapperLarge {
+  width: 17.8125rem;
+  height: 13.4375rem;
+  .contentAndAction {
+    .content {
+
+      .image {
+        width: 9.6875rem;
+        height: 100%;
+      }
+    }
+  }
+}
