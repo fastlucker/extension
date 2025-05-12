@@ -45,6 +45,7 @@ const WEB_ROUTES = {
   settingsAbout: 'settings/about',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
+  basicToSmartSettingsScreen: 'settings/accounts/basic-to-smart',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',
