@@ -84,13 +84,13 @@ const DevicePasswordChangeSettingsScreen = () => {
   const { getExtraEntropy } = useExtraEntropy()
 
   const handleChangeKeystorePassword = handleSubmit(
-    async ({ password, newPassword: newPasswordFieldValue }) =>
+    ({ password, newPassword: newPasswordFieldValue }) =>
       dispatch({
         type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD',
         params: {
           secret: password,
           newSecret: newPasswordFieldValue,
-          extraEntropy: await getExtraEntropy()
+          extraEntropy: getExtraEntropy()
         }
       })
   )

@@ -41,7 +41,7 @@ const useKeyStoreSetup = () => {
   const { getExtraEntropy } = useExtraEntropy()
 
   const handleKeystoreSetup = async () => {
-    const extraEntropy = await getExtraEntropy()
+    const extraEntropy = getExtraEntropy()
     await handleSubmit(({ password: passwordFieldValue }) => {
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_SECRET',

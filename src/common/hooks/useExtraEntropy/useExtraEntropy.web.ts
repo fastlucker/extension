@@ -17,9 +17,9 @@ const useExtraEntropy = () => {
     }
   }, [])
 
-  const getExtraEntropy = useCallback(async () => {
+  const getExtraEntropy = useCallback(() => {
     const mouseEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : null
-    const uuid = await generateUuid()
+    const uuid = generateUuid()
     const extraEntropy = `${mouseEntropy || uuid}-${performance.now()}`
 
     return extraEntropy
