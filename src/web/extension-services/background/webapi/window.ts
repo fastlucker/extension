@@ -248,6 +248,29 @@ const closeCurrentWindow = async () => {
   }
 }
 
-export default { open, focus, remove, event }
+const closePopupWithUrl = async (url: string) => {
+  const tabs = await chrome.tabs.query({
+    url
+  })
+
+  if (!tabs || tabs.length === 0) {
+    return
+  }
+
+  const matchingWindowId = tabs[0].windowId
+
+  const windows = await chrome.windows.getAll()
+  const matchingWindow = windows.find((w) => w.id === matchingWindowId)
+
+  if (!matchingWindow || matchingWindow.type !== 'popup') {
+    return
+  }
+
+  if (matchingWindow && matchingWindow.id) {
+    await chrome.windows.remove(matchingWindow.id)
+  }
+}
+
+export default { open, focus, closePopupWithUrl, remove, event }
 
 export { closeCurrentWindow }
