@@ -9,19 +9,16 @@ import CloseIcon from '@legends/components/CloseIcon'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
-import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
-import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import { CardActionCalls, CardActionPredefined, CardFromResponse, CardStatus } from '../../types'
+import { CardActionCalls, CardActionPredefined, CardFromResponse } from '../../types'
 import CardActionButton from '../Card/CardAction/actions/CardActionButton'
-import rewardsCoverImg from './assets/rewards-cover.png'
 import styles from './MigrateRewardsModal.module.scss'
 
 type Action = CardActionPredefined & {
@@ -49,7 +46,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 }) => {
   const { xWalletClaimableBalance } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
-  const { onComplete } = useCardActionContext()
+  const { onLegendComplete } = useLegendsContext()
 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
@@ -92,21 +89,15 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
         return { to, value, data }
       })
 
-      const sendCallsIdentifier = await sendCalls(
-        chainId,
-        await signer.getAddress(),
-        formattedCalls,
-        false
-      )
-      const receipt = await getCallsStatus(sendCallsIdentifier)
-      onComplete(receipt.transactionHash)
+      await sendCalls(chainId, await signer.getAddress(), formattedCalls, false)
+      onLegendComplete()
       handleClose()
     } catch (e: any) {
       const message = humanizeError(e, ERROR_MESSAGES.transactionProcessingFailed)
       console.error(e)
       addToast(message, { type: 'error' })
     }
-  }, [switchNetwork, action, sendCalls, chainId, getCallsStatus, onComplete, handleClose, addToast])
+  }, [switchNetwork, action, onLegendComplete, sendCalls, chainId, handleClose, addToast])
 
   if (!isOpen) return null
 
