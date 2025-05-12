@@ -42,6 +42,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     toSelectedToken,
     updateQuoteStatus,
     toTokenList,
+    toTokenSearchResults,
+    toTokenSearchTerm,
     quote,
     formStatus,
     toChainId,
@@ -79,7 +81,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     value: toTokenValue,
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: toTokenList,
+    tokens: toTokenSearchTerm ? toTokenSearchResults : toTokenList,
     token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
     networks,
     supportedChainIds,
