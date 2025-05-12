@@ -15,6 +15,7 @@ type Props = Pick<
   data: SectionedSelectProps['sections']
   stickySectionHeadersEnabled?: boolean
   headerHeight?: number
+  onSearch?: (searchTerm: string) => void
 }
 
 const useSelectInternal = ({
@@ -27,7 +28,8 @@ const useSelectInternal = ({
   headerHeight = 0,
   attemptToFetchMoreOptions,
   mode = 'select',
-  menuPosition
+  menuPosition,
+  onSearch
 }: Props) => {
   const useSelectReturnValue = useSelect({ menuPosition })
   const { search, isMenuOpen, setIsMenuOpen, setSearch } = useSelectReturnValue
@@ -50,6 +52,9 @@ const useSelectInternal = ({
     if (!search) return data
 
     const normalizedSearchTerm = search.toLowerCase()
+
+    const hasNewSearchTerm = onSearch && search && search !== prevSearch
+    if (hasNewSearchTerm) onSearch(search)
 
     const filterOptions = (options: SelectProps['options']) => {
       const { exactMatches, partialMatches } = options.reduce(
