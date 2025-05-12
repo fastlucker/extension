@@ -595,6 +595,10 @@ type TransferControllerUserProceededAction = {
   type: 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED'
   params: { proceeded: boolean }
 }
+type TransferControllerShouldSkipTransactionQueuedModal = {
+  type: 'TRANSFER_CONTROLLER_SHOULD_SKIP_TRANSACTION_QUEUED_MODAL'
+  params: { shouldSkip: boolean }
+}
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
   params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
@@ -824,3 +828,4 @@ export type Action =
   | TransferControllerUpdateForm
   | TransferControllerResetForm
   | TransferControllerUserProceededAction
+  | TransferControllerShouldSkipTransactionQueuedModal

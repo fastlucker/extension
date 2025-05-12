@@ -351,7 +351,10 @@ export const handleActions = async (
     case 'TRANSFER_CONTROLLER_RESET_FORM':
       return mainCtrl.transfer.resetForm()
     case 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED':
-      return mainCtrl?.transfer.setUserProceeded(params.proceeded)
+      return mainCtrl.transfer.setUserProceeded(params.proceeded)
+    case 'TRANSFER_CONTROLLER_SHOULD_SKIP_TRANSACTION_QUEUED_MODAL':
+      mainCtrl.transfer.shouldSkipTransactionQueuedModal = params.shouldSkip
+      return
     case 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
       return mainCtrl?.transfer?.signAccountOpController?.update(params)
     case 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':

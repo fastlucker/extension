@@ -22,9 +22,9 @@ import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndB
 import { getUiType } from '@web/utils/uiType'
 
 import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
+import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
+import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import BatchAdded from '../../components/BatchModal/BatchAdded'
-import Buttons from '../../components/Buttons'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -68,7 +68,9 @@ const SwapAndBridgeScreen = () => {
     updateQuoteStatus,
     signAccountOpController,
     isAutoSelectRouteDisabled,
-    hasProceeded
+    hasProceeded,
+    fromSelectedToken,
+    swapSignErrors
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
@@ -183,6 +185,8 @@ const SwapAndBridgeScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
+          token={fromSelectedToken}
+          signAccountOpErrors={swapSignErrors}
           isNotReadyToProceed={isNotReadyToProceed}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
@@ -216,6 +220,8 @@ const SwapAndBridgeScreen = () => {
   if (displayedView === 'batch') {
     return (
       <BatchAdded
+        title={t('Swap & Bridge')}
+        secondaryButtonText={t('Add more swaps?')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
         onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
       />
