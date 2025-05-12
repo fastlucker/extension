@@ -60,14 +60,10 @@ const formatScreenWidth = (w: number) => {
   }
 }
 
-const getScreenProperties = async (
-  customSize?: CustomSize
-): Promise<{
-  width: number
-  height: number
-  left: number
-  top: number
-}> => {
+const calculateWindowSizeAndPosition = async (
+  customSize?: CustomSize,
+  windowId?: number
+): Promise<{ width: number; height: number; left: number; top: number }> => {
   let screenWidth = 0
   let screenHeight = 0
 
@@ -83,68 +79,62 @@ const getScreenProperties = async (
     screenHeight = formatScreenHeight(window.screen.height)
   }
 
-  return new Promise((resolve) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
-      const ratio = 0.88 // 88% of the screen/tab size
+  const queryParams = windowId ? { active: true, windowId } : { active: true, currentWindow: true }
+  const [activeTab] = await chrome.tabs.query(queryParams)
 
-      let desiredWidth = formatScreenWidth(screenWidth * ratio)
-      let desiredHeight = formatScreenHeight(screenHeight * ratio)
+  const ratio = 0.88 // 88% of the screen/tab size
 
-      if (customSize) {
-        desiredWidth = customSize.width
-        desiredHeight = Math.min(customSize.height, screenHeight * ratio)
-      }
+  let desiredWidth = formatScreenWidth(screenWidth * ratio)
+  let desiredHeight = formatScreenHeight(screenHeight * ratio)
 
-      let leftPosition = (screenWidth - desiredWidth) / 2
-      let topPosition = (screenHeight - desiredHeight) / 2
+  if (customSize) {
+    desiredWidth = customSize.width
+    desiredHeight = Math.min(customSize.height, screenHeight * ratio)
+  }
 
-      const activeTab = activeTabs[0]
-      if (!chrome.runtime.lastError && activeTab) {
-        chrome.windows.getCurrent(
-          { populate: true, windowTypes: ['normal', 'panel', 'app'] },
-          async (currentWindow: any) => {
-            let leftOffset = 0
-            let topOffset = 0
-            if (currentWindow) {
-              leftOffset = currentWindow.left
-              topOffset = currentWindow.top
-            }
+  let leftPosition = (screenWidth - desiredWidth) / 2
+  let topPosition = (screenHeight - desiredHeight) / 2
 
-            if (activeTab.width && activeTab.height) {
-              desiredWidth = formatScreenWidth(activeTab.width * ratio)
-              if (customSize) desiredWidth = customSize.width
-              leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
-              // Pass customSize height to the helper as the height may be lower than the minimum height
-              desiredHeight = formatScreenHeight(
-                customSize?.height
-                  ? Math.min(customSize.height, activeTab.height * ratio)
-                  : activeTab.height * ratio
-              )
-              topPosition =
-                (activeTab.height - desiredHeight) / 2 +
-                topOffset +
-                currentWindow.height -
-                activeTab.height
-            }
+  if (!chrome.runtime.lastError && activeTab) {
+    const baseWindow = windowId
+      ? await chrome.windows.get(windowId)
+      : await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
 
-            resolve({
-              width: desiredWidth,
-              height: desiredHeight,
-              left: leftPosition <= SPACING ? Math.round(SPACING) : Math.round(leftPosition),
-              top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition)
-            })
-          }
-        )
-      } else {
-        resolve({
-          width: desiredWidth,
-          height: desiredHeight,
-          left: leftPosition <= SPACING ? Math.round(SPACING) : Math.round(leftPosition),
-          top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition)
-        })
-      }
-    })
-  })
+    let leftOffset = 0
+    let topOffset = 0
+    if (baseWindow) {
+      leftOffset = baseWindow.left!
+      topOffset = baseWindow.top!
+    }
+
+    if (activeTab.width && activeTab.height) {
+      desiredWidth = formatScreenWidth(activeTab.width * ratio)
+      if (customSize) desiredWidth = customSize.width
+      leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
+      // Pass customSize height to the helper as the height may be lower than the minimum height
+      desiredHeight = formatScreenHeight(
+        customSize?.height
+          ? Math.min(customSize.height, activeTab.height * ratio)
+          : activeTab.height * ratio
+      )
+      topPosition =
+        (activeTab.height - desiredHeight) / 2 + topOffset + baseWindow.height! - activeTab.height
+    }
+
+    return {
+      width: desiredWidth,
+      height: desiredHeight,
+      left: leftPosition <= SPACING ? Math.round(SPACING) : Math.round(leftPosition),
+      top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition)
+    }
+  }
+
+  return {
+    width: desiredWidth,
+    height: desiredHeight,
+    left: leftPosition <= SPACING ? Math.round(SPACING) : Math.round(leftPosition),
+    top: topPosition <= SPACING ? Math.round(SPACING) : Math.round(topPosition)
+  }
 }
 
 // creates a browser new window that is 15% smaller
@@ -153,36 +143,31 @@ const createFullScreenWindow = async (
   url: string,
   customSize?: CustomSize
 ): Promise<WindowProps> => {
-  const { width, height, left, top } = await getScreenProperties(customSize)
+  const window = await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
+  const { width, height, left, top } = await calculateWindowSizeAndPosition(customSize, window.id)
 
-  return new Promise((resolve) => {
-    chrome.windows.create(
-      {
-        focused: true,
-        url,
-        type: 'popup',
+  const win = await chrome.windows.create({
+    focused: true,
+    url,
+    type: 'popup',
+    width,
+    height,
+    left,
+    top,
+    state: 'normal'
+  })
+
+  return win && win.id
+    ? {
+        id: win.id,
         width,
         height,
         left,
         top,
-        state: 'normal'
-      },
-      (win) => {
-        resolve(
-          win?.id
-            ? {
-                id: win.id,
-                width,
-                height,
-                left,
-                top,
-                focused: true
-              }
-            : null
-        )
+        focused: true,
+        createdFromWindowId: window.id
       }
-    )
-  })
+    : null
 }
 
 const create = async (url: string, customSize?: CustomSize): Promise<WindowProps> => {
@@ -226,23 +211,17 @@ const open = async (
 
 const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
   if (windowProps) {
-    const { id, width, height } = windowProps
-    const { left, top } = await getScreenProperties({
-      width: windowProps.width,
-      height: windowProps.height
-    })
+    const { id, width, height, createdFromWindowId } = windowProps
+    const { left, top } = await calculateWindowSizeAndPosition(
+      { width: windowProps.width, height: windowProps.height },
+      createdFromWindowId
+    )
 
-    const newWindowProps = {
-      width,
-      height,
-      left,
-      top,
-      focused: true
-    }
+    const newWindowProps = { width, height, left, top, focused: true }
 
     await chrome.windows.update(id, newWindowProps)
 
-    return { id, ...newWindowProps }
+    return { id, createdFromWindowId, ...newWindowProps }
   }
 
   throw new Error('windowProps is undefined')
