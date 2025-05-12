@@ -41,11 +41,11 @@ const NetworkIcon = ({
   benzinNetwork,
   ...rest
 }: Props) => {
-  const { networks } = useNetworksControllerState()
+  const { allNetworks } = useNetworksControllerState()
 
   const network = useMemo(() => {
-    return benzinNetwork ?? networks.find((n) => n.chainId.toString() === id)
-  }, [benzinNetwork, networks, id])
+    return benzinNetwork ?? allNetworks.find((n) => n.chainId.toString() === id)
+  }, [benzinNetwork, allNetworks, id])
 
   const networkName = useMemo(() => {
     return network?.name || `Chain with id ${id}`
