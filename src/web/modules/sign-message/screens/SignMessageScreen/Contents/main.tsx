@@ -102,7 +102,7 @@ const Main = ({
             <Alert
               type="error"
               title="This app has been flagged to not support Smart Account signatures."
-              text="If you encounter issues, please use a Basic Account and contact the app to resolve this."
+              text="If you encounter issues, please use an EOA account and contact the app to resolve this."
             />
           )}
         </View>
