@@ -236,7 +236,7 @@ const NetworkDetails = ({
               style={{ maxHeight: 32 }}
               disabled={statuses.updateNetwork !== 'INITIAL'}
               text={!networkData?.disabled ? t('Disable') : t('Enable')}
-              testID="remove-network-btn" // @TODO
+              testID="disable-network-btn" // @TODO
               type={!networkData?.disabled ? 'danger' : 'primary'}
               onPress={() => {
                 if (!chainId || !allowRemoveNetwork) return
@@ -259,7 +259,7 @@ const NetworkDetails = ({
       </View>
       <Dialog
         dialogRef={dialogRef}
-        id="remove-network"
+        id="disable-network"
         title={t(`Disable ${name}`)}
         text={t(
           `Are you sure you want to disable ${name}? Any assets associated with this network will no longer be visible in your wallet.`
@@ -271,7 +271,7 @@ const NetworkDetails = ({
           <DialogButton
             style={spacings.ml}
             text={t('Disable')}
-            testID="remove-network-confirm-btn"
+            testID="disable-network-confirm-btn"
             type="danger"
             onPress={updateNetworkDisabled}
           />
