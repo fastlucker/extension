@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
-import { AddNetworkRequestParams, NetworkFeature } from '@ambire-common/interfaces/network'
+import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
@@ -44,9 +44,10 @@ const AddChainScreen = () => {
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
-  const { statuses, networkToAddOrUpdate, allNetworks } = useNetworksControllerState()
+  const { statuses, networkToAddOrUpdate, disabledNetworks } = useNetworksControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
+  const [existingNetwork, setExistingNetwork] = useState<Network | null | undefined>(undefined)
   const actionButtonPressedRef = useRef(false)
 
   const dappAction = useMemo(() => {
@@ -63,15 +64,21 @@ const AddChainScreen = () => {
 
   const requestData = useMemo(() => userRequest?.action?.params?.[0], [userRequest])
 
-  const existingNetwork = useMemo(() => {
-    if (!requestData.chainId) return undefined
-
-    return allNetworks.find((n) => n.chainId === BigInt(requestData?.chainId))
-  }, [allNetworks, requestData?.chainId])
-
   const requestKind = useMemo(() => userRequest?.action?.kind, [userRequest?.action?.kind])
 
   const requestSession = useMemo(() => userRequest?.session, [userRequest?.session])
+
+  // existingNetwork must be set in a useEffect and can't be a useMemo. That is because we must
+  // set its value only once and never change it. Otherwise the screen rerenders when a network is
+  // added/enabled with the wrong state.
+  useEffect(() => {
+    if (existingNetwork || existingNetwork === null || !requestData.chainId) return
+
+    const matchingNetwork =
+      disabledNetworks.find((network) => network.chainId === BigInt(requestData.chainId)) || null
+
+    setExistingNetwork(matchingNetwork)
+  }, [disabledNetworks, existingNetwork, requestData.chainId])
 
   useEffect(() => {
     setAreParamsValid(validateRequestParams(requestKind, requestData))
