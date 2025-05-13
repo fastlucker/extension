@@ -48,7 +48,7 @@ const StakeWallet = () => {
         addToast('Failed to get $WALLET token balance', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
-  }, [connectedAccount, addToast, switchNetwork])
+  }, [connectedAccount, addToast])
 
   const stakeWallet = useCallback(async () => {
     try {
@@ -107,16 +107,12 @@ const StakeWallet = () => {
         })
         .catch((e) => {
           console.error(e)
-          addToast(
-            'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-            { type: 'error' }
-          )
         })
       return
     }
-    await switchNetwork()
+    await switchNetwork(ETHEREUM_CHAIN_ID)
     await stakeWallet()
-  }, [switchNetwork, stakeWallet, walletBalance, addToast])
+  }, [switchNetwork, stakeWallet, walletBalance])
 
   return (
     <CardActionWrapper
