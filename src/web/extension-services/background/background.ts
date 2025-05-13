@@ -828,9 +828,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
             stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            const controller = (mainCtrl as any)[ctrlName]
+
+            // In case the controller was destroyed and an error was emitted
+            if (!controller) return
+
             pm.send('> ui-error', {
               method: ctrlName,
-              params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
+              params: { errors: controller.emittedErrors, controller: ctrlName }
             })
           }, 'background')
         }
