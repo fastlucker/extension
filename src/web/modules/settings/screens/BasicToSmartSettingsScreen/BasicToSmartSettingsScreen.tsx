@@ -1,10 +1,8 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { Network } from '@ambire-common/interfaces/network'
-import { getContractImplementation, has7702 } from '@ambire-common/libs/7702/7702'
-import { getAuthorizationHash } from '@ambire-common/libs/signMessage/signMessage'
+import { has7702 } from '@ambire-common/libs/7702/7702'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Badge from '@common/components/Badge'
@@ -19,22 +17,21 @@ import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import Authorization7702 from '@web/modules/sign-message/screens/SignMessageScreen/Contents/authorization7702'
 
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const BasicToSmartSettingsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { accountStates, accounts } = useAccountsControllerState()
-  const { account: selectedAccount } = useSelectedAccountControllerState()
+
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
   const { search } = useRoute()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const [hasRefreshedState, setHasRefreshedState] = useState(false)
 
   useEffect(() => {
     setCurrentSettingsPage('basic-to-smart')
@@ -47,7 +44,7 @@ const BasicToSmartSettingsScreen = () => {
     [accounts, accountAddr]
   )
 
-  const activate = (chainId: bigint) => {
+  const delegate = (chainId: bigint) => {
     const selectedNet = networks.find((net) => net.chainId === chainId)
     if (!selectedNet || !account) return
 
@@ -56,10 +53,6 @@ const BasicToSmartSettingsScreen = () => {
       : undefined
     if (!accountState) return
 
-    // the same address accross all chains except Pectra where
-    // we have a diff address for testing purposese
-    const contractAddr = getContractImplementation(chainId)
-
     dispatch({
       type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
       params: {
@@ -67,14 +60,18 @@ const BasicToSmartSettingsScreen = () => {
         meta: {
           isSignAction: true,
           chainId: selectedNet.chainId,
-          accountAddr: account.addr
+          accountAddr: account.addr,
+          setDelegation: !accountState.isSmarterEoa
         },
         action: {
-          kind: 'authorization-7702',
-          chainId,
-          nonce: accountState.nonce,
-          contractAddr,
-          message: getAuthorizationHash(chainId, contractAddr, accountState.nonce)
+          kind: 'calls',
+          calls: [
+            {
+              to: ZERO_ADDRESS,
+              data: '0x',
+              value: BigInt(0)
+            }
+          ]
         }
       }
     })
@@ -92,35 +89,9 @@ const BasicToSmartSettingsScreen = () => {
     return accountState.isSmarterEoa
   }
 
-  const isActivateDisabled = useCallback(
-    (net: Network) => {
-      if (!has7702(net)) return true
-      if (!account) return true
-
-      const accountState = accountStates[account.addr]
-        ? accountStates[account.addr][net.chainId.toString()]
-        : undefined
-      if (!accountState) return true
-
-      return accountState.isSmarterEoa
-    },
-    [account, accountStates]
-  )
-
   const availableNetworks = useMemo(() => {
-    return networks.filter((net) => !isActivateDisabled(net) || has7702(net))
-  }, [networks, isActivateDisabled])
-
-  if (!hasRefreshedState && selectedAccount && account && selectedAccount.addr !== account.addr) {
-    setHasRefreshedState(true)
-    dispatch({
-      type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE',
-      params: {
-        addr: account.addr,
-        chainIds: availableNetworks.map((n) => n.chainId)
-      }
-    })
-  }
+    return networks.filter((net) => has7702(net))
+  }, [networks])
 
   return (
     <>
@@ -188,18 +159,26 @@ const BasicToSmartSettingsScreen = () => {
                     {getIsSmarterEOA(net.chainId) ? (
                       <Badge type="success" text={t('activated')} />
                     ) : (
-                      <Badge type="default" text={t('deactivated')} />
+                      <Badge type="default" text={t('inactive')} />
                     )}
                   </View>
                 </View>
                 <View style={[flexbox.flex1, flexbox.alignEnd]}>
                   <View style={[flexbox.directionRow]}>
                     <Button
-                      size="small"
-                      disabled={isActivateDisabled(net)}
-                      style={[spacings.mb0]}
-                      onPress={() => activate(net.chainId)}
-                      text="Activate"
+                      type={
+                        !accountStates[account.addr][net.chainId.toString()]?.isSmarterEoa
+                          ? 'primary'
+                          : 'danger'
+                      }
+                      size="tiny"
+                      style={[spacings.mb0, { minWidth: '95px' }]}
+                      onPress={() => delegate(net.chainId)}
+                      text={
+                        !accountStates[account.addr][net.chainId.toString()]?.isSmarterEoa
+                          ? t('Activate')
+                          : t('Deactivate')
+                      }
                     />
                   </View>
                 </View>
