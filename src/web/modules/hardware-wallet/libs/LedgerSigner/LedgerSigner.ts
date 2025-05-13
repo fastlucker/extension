@@ -9,8 +9,7 @@ import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import LedgerController, {
-  LedgerDeviceModels,
-  ledgerService
+  LedgerDeviceModels
 } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSignerInterface {
@@ -89,17 +88,19 @@ class LedgerSigner implements KeystoreSignerInterface {
         ![LedgerDeviceModels.nanoS, LedgerDeviceModels.blue, 'unknown'].includes(
           this.key.meta.deviceModel as LedgerDeviceModels
         )
+      // TODO: Temporarily
       // Look for resolutions for external plugins and ERC20 for "clearer" signing.
       // Without this step, Ledger may just show a generic "Contract call" screen.
-      const resolution = await ledgerService.resolveTransaction(
-        stripHexPrefix(unsignedSerializedTxn),
-        this.controller!.walletSDK!.loadConfig,
-        {
-          externalPlugins: true, // enable support for DeFi dapps via plugins
-          erc20: true, // enable ERC20 parsing so token info is shown
-          nft: shouldResolveNFTs // enable NFT parsing so names/images are shown
-        }
-      )
+      // const resolution = await ledgerService.resolveTransaction(
+      //   stripHexPrefix(unsignedSerializedTxn),
+      //   this.controller!.walletSDK!.loadConfig,
+      //   {
+      //     externalPlugins: true, // enable support for DeFi dapps via plugins
+      //     erc20: true, // enable ERC20 parsing so token info is shown
+      //     nft: shouldResolveNFTs // enable NFT parsing so names/images are shown
+      //   }
+      // )
+      const resolution = null
 
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
 

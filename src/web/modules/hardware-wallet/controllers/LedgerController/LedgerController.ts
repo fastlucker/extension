@@ -5,11 +5,23 @@ import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import { DeviceModelId as LedgerDeviceModels, ledgerUSBVendorId } from '@ledgerhq/devices'
-import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
-import TransportWebHID from '@ledgerhq/hw-transport-webhid'
+import {
+  ConsoleLogger,
+  DeviceManagementKitBuilder,
+  DeviceStatus
+} from '@ledgerhq/device-management-kit'
+// @ts-ignore
+import { EthereumSigner } from '@ledgerhq/device-signer-kit-ethereum'
+// @ts-ignore
+import { WebHIDTransport, webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
-export { LedgerDeviceModels }
+// TODO: Temporarily
+export enum LedgerDeviceModels {
+  nanoS = 'nano-s',
+  nanoX = 'nano-x',
+  nanoSP = 'nano-s-plus',
+  blue = 'blue'
+}
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 
@@ -20,20 +32,35 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  transport: TransportWebHID | null
+  // TODO: Missing type
+  transport: any
 
-  walletSDK: null | Eth
+  // TODO: Missing type
+  walletSDK: any
 
   type = 'ledger'
 
-  deviceModel: LedgerDeviceModels | 'unknown' = 'unknown'
+  // TODO: missing type
+  deviceModel: string | 'unknown' = 'unknown'
 
   deviceId = ''
 
-  static vendorId = ledgerUSBVendorId
+  // TODO: missing type
+  discoverySubscription: any
+
+  // TODO: missing type
+  stateSubscription: any
+
+  // TODO: missing type
+  currentSessionId: any
+
+  // TODO: walletSDK maybe?
+  dmk: any
+
+  // TODO: missing type
+  static vendorId = ''
 
   constructor() {
-    // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
     this.transport = null
     this.walletSDK = null
@@ -60,7 +87,9 @@ class LedgerController implements ExternalSignerController {
    * Checks if WebUSB transport is supported by the browser. Does not work in the
    * service worker (background) in manifest v3, because it needs a `window` ref.
    */
-  static isSupported = TransportWebHID.isSupported
+  // TODO: Temporarily
+  // static isSupported = WebHIDTransport.isSupported
+  static isSupported = true
 
   /**
    * Checks if at least one Ledger device is connected.
@@ -146,6 +175,36 @@ class LedgerController implements ExternalSignerController {
     return Promise.race([operation(), timeout])
   }
 
+  #monitorDeviceState(sessionId: string) {
+    return this.dmk.getDeviceSessionState({ sessionId }).subscribe({
+      next: (state) => {
+        console.log(`Device status: ${state.deviceStatus}`)
+
+        // Check for specific status conditions
+        if (state.deviceStatus === DeviceStatus.LOCKED) {
+          console.log('Device is locked - please enter your PIN')
+        }
+
+        // Show battery level if available
+        if (state.batteryStatus) {
+          console.log(`Battery level: ${state.batteryStatus.level}%`)
+        }
+
+        // Show app information if available
+        if (state.currentApp) {
+          console.log(`Current app: ${state.currentApp.name}`)
+          console.log(`App version: ${state.currentApp.version}`)
+        }
+
+        // Basic device model info
+        console.log(`Device model: ${state.deviceModelId}`)
+      },
+      error: (error) => {
+        console.error('State monitoring error:', error)
+      }
+    })
+  }
+
   /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
@@ -156,19 +215,65 @@ class LedgerController implements ExternalSignerController {
     if (!isConnected)
       throw new ExternalSignerError("Ledger is not connected. Please make sure it's plugged in.")
 
-    if (this.walletSDK) return
+    // TODO: Temporarily
+    // if (this.walletSDK) return
 
     try {
-      // @ts-ignore types mismatch, not sure why
-      this.transport = await TransportWebHID.create()
-      if (!this.transport) throw new ExternalSignerError('Transport failed to get initialized')
-      navigator.hid.addEventListener('disconnect', this.cleanUpListener)
+      this.dmk = new DeviceManagementKitBuilder()
+        .addLogger(new ConsoleLogger())
+        .addTransport(webHidTransportFactory) // Transport is required!
+        .build()
 
-      this.walletSDK = new Eth(this.transport)
+      // Clear any previous discovery
+      if (this.discoverySubscription) {
+        this.discoverySubscription.unsubscribe()
+      }
+
+      console.log('Starting device discovery...')
+
+      // Start discovering - this will scan for any connected devices
+      this.discoverySubscription = this.dmk.startDiscovering({}).subscribe({
+        next: async (device) => {
+          console.log(`Found device: ${device.id}, model: ${device.deviceModel.model}`)
+
+          // Connect to the first device we find
+          try {
+            // Pass the full device object, not just the ID
+            this.currentSessionId = await this.dmk.connect({ device })
+            console.log(`Connected! Session ID: ${this.currentSessionId}`)
+
+            // Stop discovering once we connect
+            this.discoverySubscription.unsubscribe()
+
+            // Get device information
+            const connectedDevice = this.dmk.getConnectedDevice({
+              sessionId: this.currentSessionId
+            })
+            console.log(`Device name: ${connectedDevice.name}`)
+            console.log(`Device model: ${connectedDevice.modelId}`)
+
+            // Start monitoring device state
+            this.stateSubscription = this.#monitorDeviceState(this.currentSessionId)
+          } catch (error) {
+            console.error('Connection failed:', error)
+          }
+        },
+        error: (error) => {
+          console.error('Discovery error:', error)
+        }
+      })
+
+      debugger
+
+      // this.transport = await WebHIDTransport.create()
+      // if (!this.transport) throw new ExternalSignerError('Transport failed to get initialized')
+      // navigator.hid.addEventListener('disconnect', this.cleanUpListener)
+
+      // this.walletSDK = new EthereumSigner(this.transport)
 
       // Transport is glitchy and its types mismatch, so overprotect by optional chaining
-      this.deviceModel = this.transport.deviceModel?.id || 'unknown'
-      this.deviceId = this.transport.device?.productId?.toString() || ''
+      // this.deviceModel = this.transport.deviceModel?.id || 'unknown'
+      // this.deviceId = this.transport.device?.productId?.toString() || ''
     } catch (e: any) {
       throw new ExternalSignerError(normalizeLedgerMessage(e?.message))
     }
@@ -210,7 +315,7 @@ class LedgerController implements ExternalSignerController {
       await this.#initSDKSessionIfNeeded()
 
       if (!this.walletSDK) {
-        throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
+        throw new ExternalSignerError(normalizeLedgerMessage())
       }
 
       const keys: string[] = []
@@ -229,7 +334,8 @@ class LedgerController implements ExternalSignerController {
             )
           )
 
-          if (key) keys.push(key.address)
+          // @ts-ignore - we know the response has an address property
+          if (key && key.address) keys.push(key.address)
         } catch (e: any) {
           latestGetAddressError = e
         }
@@ -277,13 +383,13 @@ class LedgerController implements ExternalSignerController {
       // hashes - that works across all Ledger devices.
       const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
         'EIP712Domain',
-        domain,
+        domain as any,
         types,
         true
       ).toString('hex')
       const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
         primaryType,
-        message,
+        message as any,
         types,
         true
       ).toString('hex')
@@ -304,11 +410,31 @@ class LedgerController implements ExternalSignerController {
   }
 
   cleanUp = async () => {
-    if (!this.walletSDK) return
+    // if (!this.walletSDK) return
 
     this.walletSDK = null
     this.unlockedPath = ''
     this.unlockedPathKeyAddr = ''
+
+    // Unsubscribe from all observables
+    if (this.discoverySubscription) {
+      this.discoverySubscription.unsubscribe()
+    }
+
+    if (this.stateSubscription) {
+      this.stateSubscription.unsubscribe()
+    }
+
+    // Disconnect from device if connected
+    if (this.currentSessionId) {
+      try {
+        await this.dmk.disconnect({ sessionId: this.currentSessionId })
+        console.log('Device disconnected successfully')
+        this.currentSessionId = null
+      } catch (error) {
+        console.error('Disconnection error:', error)
+      }
+    }
 
     navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
 
@@ -334,5 +460,4 @@ class LedgerController implements ExternalSignerController {
   }
 }
 
-export { Eth, ledgerService }
 export default LedgerController
