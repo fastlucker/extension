@@ -80,7 +80,10 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
         formattedCalls,
         false
       )
-      await getCallsStatus(sendCallsIdentifier)
+      const receipt = await getCallsStatus(sendCallsIdentifier)
+      if (receipt.transactionHash) {
+        addToast('Transaction completed successfully', { type: 'success' })
+      }
       onLegendComplete()
       handleClose()
     } catch (e: any) {

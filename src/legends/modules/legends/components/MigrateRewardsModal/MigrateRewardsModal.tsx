@@ -89,7 +89,17 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
         return { to, value, data }
       })
 
-      await sendCalls(chainId, await signer.getAddress(), formattedCalls, false)
+      const sendCallsIdentifier = await sendCalls(
+        chainId,
+        await signer.getAddress(),
+        formattedCalls,
+        false
+      )
+      const receipt = await getCallsStatus(sendCallsIdentifier)
+
+      if (receipt.transactionHash) {
+        addToast('Transaction completed successfully', { type: 'success' })
+      }
       onLegendComplete()
       handleClose()
     } catch (e: any) {
@@ -97,7 +107,16 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
       console.error(e)
       addToast(message, { type: 'error' })
     }
-  }, [switchNetwork, action, onLegendComplete, sendCalls, chainId, handleClose, addToast])
+  }, [
+    switchNetwork,
+    action,
+    getCallsStatus,
+    onLegendComplete,
+    sendCalls,
+    chainId,
+    handleClose,
+    addToast
+  ])
 
   if (!isOpen) return null
 
