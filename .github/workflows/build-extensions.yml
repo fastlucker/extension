@@ -1,8 +1,11 @@
 name: Build production browser extensions ⚡
 
 on:
-  workflow_dispatch: # Manual trigger only
-  push: # TODO: Temporarily, to trigger the workflow manually while not in v2
+  workflow_dispatch: # Manual trigger
+  release:
+    types: [published] # Triggers on new releases
+    branches:
+      - v2 # Only trigger on releases from main branch
 
 jobs:
   build:
