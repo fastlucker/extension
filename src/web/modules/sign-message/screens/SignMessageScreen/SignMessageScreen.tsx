@@ -259,11 +259,6 @@ const SignMessageScreen = () => {
           handleClose={() => setIsChooseSignerShown(false)}
           account={account}
         />
-        {isViewOnly && (
-          <View style={styles.noKeysToSignAlert}>
-            <NoKeysToSignAlert style={{ width: 640 }} isTransaction={false} />
-          </View>
-        )}
         {isAuthorization && !makeItSmartConfirmed ? (
           <Authorization7702
             onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
@@ -279,6 +274,11 @@ const SignMessageScreen = () => {
             setHasReachedBottom={setHasReachedBottom}
             shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
           />
+        )}
+        {isViewOnly && (
+          <View style={styles.noKeysToSignAlert}>
+            <NoKeysToSignAlert style={{ width: '100%' }} isTransaction={false} />
+          </View>
         )}
       </TabLayoutContainer>
     </SmallNotificationWindowWrapper>

@@ -48,9 +48,11 @@ const NetworkBadge: FC<Props> = ({
         ...flexbox.alignCenter,
         ...spacings.pl,
         ...spacings.prTy,
-        ...spacings.pvMi,
-        borderRadius: BORDER_RADIUS_PRIMARY,
+        paddingVertical: 2,
+        borderRadius: 50,
         backgroundColor: theme.secondaryBackground,
+        borderWidth: 1,
+        borderColor: theme.tertiaryBackground,
         ...style
       }}
     >

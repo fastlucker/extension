@@ -11,10 +11,8 @@ import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
@@ -33,11 +31,10 @@ import getStyles from './styles'
 
 const AddChainScreen = () => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
-  const { maxWidthSize } = useWindowSize()
   const { statuses, networkToAddOrUpdate } = useNetworksControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
@@ -161,42 +158,43 @@ const AddChainScreen = () => {
           }
         />
       }
+      backgroundColor={theme.quinaryBackground}
     >
       <TabLayoutWrapperMainContent
         style={spacings.mbLg}
         withScroll={false}
-        contentContainerStyle={[spacings.pvXl, { flexGrow: 1 }]}
+        contentContainerStyle={[spacings.pvMd, { flexGrow: 1 }]}
       >
-        <Text weight="medium" fontSize={20}>
+        <Text weight="medium" fontSize={20} style={spacings.mbMd}>
           {t('Add new network')}
         </Text>
 
         <View style={styles.dappInfoContainer}>
-          <View style={spacings.mbSm}>
-            <ManifestImage
-              uri={requestSession?.icon}
-              size={50}
-              fallback={() => <ManifestFallbackIcon />}
-            />
-          </View>
+          <ManifestImage
+            uri={requestSession?.icon}
+            size={50}
+            fallback={() => <ManifestFallbackIcon />}
+          />
+
           <View style={styles.dappInfoContent}>
-            <View style={[flexbox.flex1, spacings.phLg]}>
-              <Trans values={{ name: requestSession?.name || 'The App' }}>
-                <Text style={text.center}>
-                  <Text fontSize={20} appearance="secondaryText">
-                    {t('Allow ')}
-                  </Text>
-                  <Text fontSize={20} weight="semiBold">
-                    {'{{name}} '}
-                  </Text>
-                  <Text fontSize={20} appearance="secondaryText">
-                    {t('to add a network')}
-                  </Text>
+            <Trans values={{ name: requestSession?.name || 'The App' }}>
+              <Text>
+                <Text fontSize={20} appearance="secondaryText" weight="medium">
+                  {t('Allow ')}
                 </Text>
-              </Trans>
-            </View>
+                <Text fontSize={20} weight="semiBold">
+                  {'{{name}} '}
+                </Text>
+                <Text fontSize={20} appearance="secondaryText" weight="medium">
+                  {t('to add a network')}
+                </Text>
+              </Text>
+            </Trans>
           </View>
         </View>
+        <Text fontSize={16} weight="semiBold" appearance="secondaryText" style={spacings.mbMd}>
+          {t('Ambire Wallet does not verify custom networks.')}
+        </Text>
         {!!areParamsValid && !!networkDetails && (
           <View style={[flexbox.directionRow, flexbox.flex1]}>
             <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
@@ -210,34 +208,12 @@ const AddChainScreen = () => {
                 nativeAssetName={networkDetails.nativeAssetName}
                 explorerUrl={networkDetails.explorerUrl}
                 predefined={false}
+                style={{ backgroundColor: theme.primaryBackground }}
+                type="vertical"
               />
             </ScrollableWrapper>
-            <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
+            <View style={styles.separator} />
             <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
-              <View style={spacings.mb}>
-                <Text fontSize={16} weight="semiBold" appearance="secondaryText">
-                  {t('Ambire Wallet does not verify custom networks.')}
-                </Text>
-                {/* TODO: Temporarily hidden since v4.50.0, because the URL is not public yet (article is WIP) */}
-                {/* <Text>
-                  <Text fontSize={14} appearance="secondaryText">
-                    {t('Learn about ')}
-                  </Text>
-                  <Text
-                    underline
-                    fontSize={14}
-                    color={theme.primaryLight}
-                    onPress={() =>
-                      openInTab('https://help.ambire.com/hc/en-us/articles/13079237341596', false)
-                    }
-                  >
-                    {t('scams and networks security risks')}
-                  </Text>
-                  <Text fontSize={14} appearance="secondaryText">
-                    {t('.')}
-                  </Text>
-                </Text> */}
-              </View>
               {!!networkDetails && (
                 <NetworkAvailableFeatures
                   features={features}
