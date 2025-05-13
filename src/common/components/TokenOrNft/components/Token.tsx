@@ -5,10 +5,12 @@ import { Linking, Pressable } from 'react-native'
 
 import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { Network } from '@ambire-common/interfaces/network'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import HumanizerAddress from '@common/components/HumanizerAddress'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -51,6 +53,22 @@ const InnerToken: FC<Props> = ({
     return isUnlimitedByPermit2 || isMaxUint256
   }, [amount])
 
+  const { formattedAmount, fullAmount } = useMemo(() => {
+    if (tokenInfo?.decimals === undefined || amount === undefined) {
+      return {
+        formattedAmount: 0,
+        fullAmount: 0
+      }
+    }
+
+    const numericAmount = parseFloat(formatUnits(amount, tokenInfo.decimals))
+
+    return {
+      formattedAmount: formatDecimals(numericAmount, 'amount'),
+      fullAmount: numericAmount
+    }
+  }, [amount, tokenInfo?.decimals])
+
   return (
     <>
       {BigInt(amount) > BigInt(0) ? (
@@ -66,7 +84,17 @@ const InnerToken: FC<Props> = ({
             </Text>
           ) : (
             <>
-              {formatUnits(amount, tokenInfo?.decimals || 0)}{' '}
+              <Text
+                weight="medium"
+                appearance="primaryText"
+                dataSet={{
+                  tooltipId: `${address}-${fullAmount}-balance`
+                }}
+                style={spacings.mrMi}
+              >
+                {formattedAmount}
+              </Text>
+              <Tooltip content={String(fullAmount)} id={`${address}-${fullAmount}-balance`} />
               {!tokenInfo?.decimals && (
                 <Text
                   fontSize={textSize}
