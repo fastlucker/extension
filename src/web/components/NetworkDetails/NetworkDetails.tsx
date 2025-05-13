@@ -120,6 +120,7 @@ const NetworkDetails = ({
                 <NetworkIcon
                   key={name.toLowerCase() as any}
                   id={chainId.toString()}
+                  name={name}
                   uris={iconUrls.length ? iconUrls : undefined}
                   size={32}
                 />

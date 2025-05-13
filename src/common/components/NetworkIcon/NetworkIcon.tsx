@@ -24,6 +24,7 @@ type Props = {
   withTooltip?: boolean
   [key: string]: any
   benzinNetwork?: Network
+  name?: string
 }
 
 const icons: { [key: string]: any } = {
@@ -39,6 +40,7 @@ const NetworkIcon = ({
   withTooltip = true,
   style = {},
   benzinNetwork,
+  name,
   ...rest
 }: Props) => {
   const { allNetworks } = useNetworksControllerState()
@@ -48,8 +50,8 @@ const NetworkIcon = ({
   }, [benzinNetwork, allNetworks, id])
 
   const networkName = useMemo(() => {
-    return network?.name || `Chain with id ${id}`
-  }, [id, network])
+    return network?.name || name || `Chain with id ${id}`
+  }, [id, name, network?.name])
 
   const iconUrls = useMemo(
     () => [
