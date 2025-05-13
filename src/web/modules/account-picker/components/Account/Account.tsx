@@ -26,7 +26,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import {
   AccountPickerIntroStepsContext,
-  BasicAccountIntroId,
   SmartAccountIntroId
 } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
@@ -200,14 +199,6 @@ const Account = ({
             </View>
             {displayTypePill && (
               <>
-                {type === 'basic' && (
-                  <BadgeWithPreset
-                    withRightSpacing
-                    preset="basic-account"
-                    {...(shouldAddIntroStepsIds && { nativeID: BasicAccountIntroId })}
-                  />
-                )}
-
                 {type === 'smart' && (
                   <BadgeWithPreset
                     withRightSpacing
