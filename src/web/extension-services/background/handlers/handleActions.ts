@@ -4,7 +4,8 @@ import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/deriva
 import { MainController } from '@ambire-common/controllers/main/main'
 import {
   SIGN_ACCOUNT_OP_MAIN,
-  SIGN_ACCOUNT_OP_SWAP
+  SIGN_ACCOUNT_OP_SWAP,
+  SIGN_ACCOUNT_OP_TRANSFER, SignAccountOpType
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -255,9 +256,16 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
       return mainCtrl?.signAccountOp?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-      const signAccountOpType = params?.isSwapAndBridge
-        ? SIGN_ACCOUNT_OP_SWAP
-        : SIGN_ACCOUNT_OP_MAIN
+      let signAccountOpType: SignAccountOpType
+
+      if (params.updateType === 'Main') {
+        signAccountOpType = SIGN_ACCOUNT_OP_MAIN
+      } else if (params.updateType === 'Swap&Bridge') {
+        signAccountOpType = SIGN_ACCOUNT_OP_SWAP
+      } else {
+        signAccountOpType = SIGN_ACCOUNT_OP_TRANSFER
+      }
+
       return await mainCtrl.handleSignAndBroadcastAccountOp(signAccountOpType)
     }
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':

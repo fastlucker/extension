@@ -38,6 +38,9 @@ import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimat
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
 import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
+import TrackProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
+import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
+import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
 
 const { isPopup, isTab } = getUiType()
 
@@ -123,7 +126,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
       params: {
-        isSwapAndBridge: true
+        updateType: 'Transfer&TopUp'
       }
     })
   }, [dispatch])
@@ -344,6 +347,43 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
 
+  const onPrimaryButtonPress = useCallback(() => {
+    navigate(WEB_ROUTES.dashboard)
+    // TODO - implement action window closing
+    // if (isActionWindow) {
+    //   dispatch({
+    //     type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+    //   })
+    // } else {
+    //   navigate(WEB_ROUTES.dashboard)
+    // }
+  }, [dispatch, navigate])
+
+  if (displayedView === 'track') {
+    return (
+      <TrackProgress
+        title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
+        onPrimaryButtonPress={onPrimaryButtonPress}
+        secondaryButtonText={isTopUp ? t('Top up again?') : t('Sending more?')}
+        handleClose={() => {
+          setHasBroadcasted(false)
+        }}
+      >
+        {signAccountOpController?.status?.type === SigningStatus.InProgress && (
+          <InProgress title={t('Confirming your trade')}>Arriving soon!</InProgress>
+        )}
+        {signAccountOpController?.status?.type === SigningStatus.Done && (
+          <Completed
+            title={t('Nice transfer!')}
+            titleSecondary={t('You can now see your transaction on the Dashboard.')}
+            explorerLink=""
+            openExplorerText="View Transfer"
+          />
+        )}
+      </TrackProgress>
+    )
+  }
+
   if (displayedView === 'batch') {
     return (
       <BatchAdded
@@ -495,7 +535,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         closeEstimationModal={closeEstimationModal}
         updateController={updateController}
         handleUpdateStatus={handleUpdateStatus}
-        handleBroadcastAccountOp={() => {}}
+        handleBroadcastAccountOp={handleBroadcastAccountOp}
         hasProceeded={hasProceeded}
         signAccountOpController={signAccountOpController}
       />

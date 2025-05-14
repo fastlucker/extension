@@ -154,7 +154,7 @@ const SwapAndBridgeScreen = () => {
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
       params: {
-        isSwapAndBridge: true
+        updateType: 'Swap&Bridge'
       }
     })
   }, [dispatch])
