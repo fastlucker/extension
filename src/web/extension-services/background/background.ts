@@ -759,7 +759,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
     }
 
-    if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
+    if (mainCtrl.statuses.signAndBroadcastAccountOp === 'SUCCESS') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
       initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
