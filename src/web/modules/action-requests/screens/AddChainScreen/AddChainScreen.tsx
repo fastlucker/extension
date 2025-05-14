@@ -192,7 +192,7 @@ const AddChainScreen = () => {
             </Trans>
           </View>
         </View>
-        <Text fontSize={16} weight="semiBold" appearance="secondaryText" style={spacings.mbMd}>
+        <Text fontSize={16} weight="medium" appearance="secondaryText" style={spacings.mbMd}>
           {t('Ambire Wallet does not verify custom networks.')}
         </Text>
         {!!areParamsValid && !!networkDetails && (

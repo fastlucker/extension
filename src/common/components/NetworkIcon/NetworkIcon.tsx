@@ -17,6 +17,7 @@ export type NetworkIconIdType = string | 'gasTank' | 'rewards'
 
 type Props = {
   id: NetworkIconIdType
+  name?: string
   uris?: string[]
   size?: number
   scale?: number
@@ -33,6 +34,7 @@ const icons: { [key: string]: any } = {
 
 const NetworkIcon = ({
   id,
+  name,
   uris,
   size = 32,
   scale,
@@ -48,8 +50,8 @@ const NetworkIcon = ({
   }, [benzinNetwork, networks, id])
 
   const networkName = useMemo(() => {
-    return network?.name || `Chain with id ${id}`
-  }, [id, network])
+    return network?.name || name || `Chain with id ${id}`
+  }, [id, name, network])
 
   const iconUrls = useMemo(
     () => [
