@@ -217,13 +217,15 @@ class LedgerController implements ExternalSignerController {
     // Store reference to walletSDK to avoid this context issues
     const walletSDK = this.walletSDK
     let signerEth = this.signerEth
+    let discoverySubscription: any = null
+    let addressSubscription: any = null
 
     return new Promise((resolve, reject) => {
-      const discoverySubscription = walletSDK.listenToAvailableDevices({}).subscribe({
+      discoverySubscription = walletSDK.listenToAvailableDevices({}).subscribe({
         next: async (device) => {
           if (!device || !device.length) return
 
-          discoverySubscription.unsubscribe()
+          discoverySubscription?.unsubscribe()
 
           const sessionId = await walletSDK.connect({ device: device[0] })
 
@@ -245,7 +247,7 @@ class LedgerController implements ExternalSignerController {
             returnChainCode: false
           })
 
-          observable.subscribe({
+          addressSubscription = observable.subscribe({
             next: (response) => {
               if (response.status !== 'completed') return
 
@@ -253,14 +255,17 @@ class LedgerController implements ExternalSignerController {
               this.unlockedPathKeyAddr = response?.output?.address
               this.signerEth = signerEth // Assign back to this.signerEth after successful initialization
 
+              addressSubscription?.unsubscribe()
               return resolve('JUST_UNLOCKED')
             },
             error: (error) => {
+              addressSubscription?.unsubscribe()
               reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
             }
           })
         },
         error: (error) => {
+          discoverySubscription?.unsubscribe()
           reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
         }
       })
@@ -293,17 +298,21 @@ class LedgerController implements ExternalSignerController {
               returnChainCode: false
             })
 
-            observable.subscribe({
+            let addressSubscription: any = null
+            addressSubscription = observable.subscribe({
               next: (response: any) => {
                 if (response.status !== 'completed') return
 
                 if (response?.output?.address) {
+                  addressSubscription?.unsubscribe()
                   resolve(response.output.address)
                 } else {
+                  addressSubscription?.unsubscribe()
                   reject(new ExternalSignerError('Failed to get address from Ledger device'))
                 }
               },
               error: (error) => {
+                addressSubscription?.unsubscribe()
                 reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
               }
             })
@@ -384,49 +393,34 @@ class LedgerController implements ExternalSignerController {
   }
 
   cleanUp = async () => {
-    // if (!this.walletSDK) return
-
-    this.walletSDK = null
-    this.unlockedPath = ''
-    this.unlockedPathKeyAddr = ''
-
     // Unsubscribe from all observables
     if (this.discoverySubscription) {
       this.discoverySubscription.unsubscribe()
+      this.discoverySubscription = null
     }
 
-    if (this.stateSubscription) {
-      this.stateSubscription.unsubscribe()
-    }
-
-    // Disconnect from device if connected
-    if (this.currentSessionId) {
-      try {
-        await this.walletSDK.disconnect({ sessionId: this.currentSessionId })
-        console.log('Device disconnected successfully')
-        this.currentSessionId = null
-      } catch (error) {
-        console.error('Disconnection error:', error)
-      }
-    }
+    this.walletSDK = null
+    this.signerEth = null
+    this.unlockedPath = ''
+    this.unlockedPathKeyAddr = ''
 
     navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
 
-    try {
-      // Might hang! If user interacts with Ambire, then interacts with another
-      // wallet app (installed on the computer or a web app) and then comes back
-      // to Ambire, closing the current transport hangs indefinitely.
-      await Promise.race([
-        // Might fail if the transport was already closed, which is fine.
-        this.transport?.close(),
-        new Promise((_, reject) => {
-          const message = normalizeLedgerMessage('No response received from the Ledger device.')
-          setTimeout(() => reject(message), 3000)
-        })
-      ])
-    } finally {
-      this.transport = null
-    }
+    // try {
+    //   // Might hang! If user interacts with Ambire, then interacts with another
+    //   // wallet app (installed on the computer or a web app) and then comes back
+    //   // to Ambire, closing the current transport hangs indefinitely.
+    //   await Promise.race([
+    //     // Might fail if the transport was already closed, which is fine.
+    //     this.transport?.close(),
+    //     new Promise((_, reject) => {
+    //       const message = normalizeLedgerMessage('No response received from the Ledger device.')
+    //       setTimeout(() => reject(message), 3000)
+    //     })
+    //   ])
+    // } finally {
+    //   this.transport = null
+    // }
   }
 
   async cleanUpListener({ device }: { device: HIDDevice }) {
