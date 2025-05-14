@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import CloseIcon from '@common/assets/svg/CloseIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
@@ -17,11 +16,11 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import NetworkForm from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm'
 
 import getStyles from './styles'
@@ -36,7 +35,6 @@ type Props = {
   nativeAssetSymbol: string
   nativeAssetName: string
   allowRemoveNetwork?: boolean
-  predefined?: boolean
   style?: ViewStyle
   type?: 'vertical' | 'horizontal'
 }
@@ -51,14 +49,13 @@ const NetworkDetails = ({
   nativeAssetSymbol,
   nativeAssetName,
   allowRemoveNetwork,
-  predefined,
   style,
   type = 'horizontal'
 }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { addToast } = useToast()
+  const { statuses, allNetworks } = useNetworksControllerState()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
 
   const { pathname } = useRoute()
@@ -69,31 +66,46 @@ const NetworkDetails = ({
     [chainId, name, rpcUrls]
   )
 
+  const networkData = useMemo(
+    () => allNetworks.find((network) => network.chainId.toString() === chainId.toString()),
+    [allNetworks, chainId]
+  )
+
   const shouldDisplayEditButton = useMemo(
     () => pathname?.includes(ROUTES.networksSettings) && !isEmpty,
     [pathname, isEmpty]
   )
 
-  const shouldDisplayRemoveButton = useMemo(
+  const shouldDisplayDisableButton = useMemo(
     () =>
-      pathname?.includes(ROUTES.networksSettings) && !isEmpty && !predefined && allowRemoveNetwork,
-    [pathname, isEmpty, allowRemoveNetwork, predefined]
+      pathname?.includes(ROUTES.networksSettings) &&
+      !isEmpty &&
+      allowRemoveNetwork &&
+      String(chainId) !== '1',
+    [pathname, isEmpty, allowRemoveNetwork, chainId]
   )
-  const promptRemoveCustomNetwork = useCallback(() => {
-    openDialog()
-  }, [openDialog])
 
-  const removeCustomNetwork = useCallback(() => {
-    if (chainId) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_REMOVE_NETWORK',
-        params: { chainId: chainId as bigint }
-      })
-      closeDialog()
+  const updateNetworkDisabled = useCallback(() => {
+    if (statuses.updateNetwork !== 'INITIAL') return
+    dispatch({
+      type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+      params: {
+        chainId: BigInt(chainId),
+        network: {
+          disabled: !networkData?.disabled
+        }
+      }
+    })
+    closeDialog()
+  }, [chainId, closeDialog, dispatch, networkData?.disabled, statuses.updateNetwork])
+
+  const toggleNetworkDisabled = useCallback(() => {
+    if (networkData?.disabled) {
+      updateNetworkDisabled()
     } else {
-      addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
+      openDialog()
     }
-  }, [dispatch, closeDialog, addToast, chainId])
+  }, [networkData?.disabled, openDialog, updateNetworkDisabled])
 
   const renderInfoItem = useCallback(
     (title: string, value: string, withBottomSpacing = true) => {
@@ -126,7 +138,7 @@ const NetworkDetails = ({
                 <NetworkIcon
                   key={name.toLowerCase() as any}
                   id={chainId.toString()}
-                  name={value}
+                  name={name}
                   uris={iconUrls.length ? iconUrls : undefined}
                   size={32}
                 />
@@ -237,7 +249,7 @@ const NetworkDetails = ({
           </Text>
           {!!shouldDisplayEditButton && (
             <Button
-              style={[{ maxHeight: 32 }, !!shouldDisplayRemoveButton && spacings.mrTy]}
+              style={[{ maxHeight: 32 }, !!shouldDisplayDisableButton && spacings.mrTy]}
               text={t('Edit')}
               type="secondary"
               onPress={openBottomSheet as any}
@@ -248,23 +260,22 @@ const NetworkDetails = ({
               </View>
             </Button>
           )}
-          {!!shouldDisplayRemoveButton && (
+          {!!shouldDisplayDisableButton && (
             <Button
               style={{ maxHeight: 32 }}
-              text={t('Remove')}
-              testID="remove-network-btn"
-              type="danger"
+              disabled={statuses.updateNetwork !== 'INITIAL'}
+              text={!networkData?.disabled ? t('Disable') : t('Enable')}
+              testID="disable-network-btn" // @TODO
+              type={!networkData?.disabled ? 'danger' : 'primary'}
               onPress={() => {
                 if (!chainId || !allowRemoveNetwork) return
-                promptRemoveCustomNetwork()
+
+                toggleNetworkDisabled()
               }}
               hasBottomSpacing={false}
-            >
-              <View style={spacings.plTy}>
-                <CloseIcon width={12} height={12} color={theme.errorDecorative} />
-              </View>
-            </Button>
+            />
           )}
+          {}
         </View>
         <View style={flexbox.flex1}>
           {renderInfoItem(t('Network Name'), name)}
@@ -277,10 +288,10 @@ const NetworkDetails = ({
       </View>
       <Dialog
         dialogRef={dialogRef}
-        id="remove-network"
-        title={t(`Remove ${name}`)}
+        id="disable-network"
+        title={t(`Disable ${name}`)}
         text={t(
-          `Are you sure you want to remove ${name} from networks? Upon removal, any tokens associated with this network will no longer be visible in your wallet.`
+          `Are you sure you want to disable ${name}? Any assets associated with this network will no longer be visible in your wallet.`
         )}
         closeDialog={closeDialog}
       >
@@ -288,10 +299,10 @@ const NetworkDetails = ({
           <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
           <DialogButton
             style={spacings.ml}
-            text={t('Remove')}
-            testID="remove-network-confirm-btn"
+            text={t('Disable')}
+            testID="disable-network-confirm-btn"
             type="danger"
-            onPress={removeCustomNetwork}
+            onPress={updateNetworkDisabled}
           />
         </DialogFooter>
       </Dialog>
