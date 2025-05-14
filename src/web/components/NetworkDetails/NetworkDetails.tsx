@@ -114,13 +114,13 @@ const NetworkDetails = ({
           style={[
             type === 'horizontal' && flexbox.directionRow,
             type === 'horizontal' && flexbox.alignCenter,
-            !!withBottomSpacing && spacings.mbMd
+            !!withBottomSpacing && (type === 'vertical' ? spacings.mbSm : spacings.mbMd)
           ]}
         >
           <Text
-            fontSize={type === 'horizontal' ? 14 : 16}
+            fontSize={14}
             appearance="tertiaryText"
-            style={[type === 'horizontal' ? spacings.mr : { marginBottom: 2 }]}
+            style={[type === 'horizontal' ? spacings.mr : {}]}
             numberOfLines={1}
           >
             {title}
@@ -140,7 +140,7 @@ const NetworkDetails = ({
                   id={chainId.toString()}
                   name={name}
                   uris={iconUrls.length ? iconUrls : undefined}
-                  size={32}
+                  size={type === 'vertical' ? 26 : 32}
                 />
               </View>
             )}
@@ -197,7 +197,12 @@ const NetworkDetails = ({
 
   const renderRpcUrlsItem = useCallback(() => {
     return (
-      <View style={[type === 'horizontal' && flexbox.directionRow, spacings.mb]}>
+      <View
+        style={[
+          type === 'horizontal' && flexbox.directionRow,
+          type === 'vertical' ? spacings.mbSm : spacings.mbMd
+        ]}
+      >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
           <Text
             fontSize={type === 'horizontal' ? 14 : 16}
@@ -238,7 +243,13 @@ const NetworkDetails = ({
   return (
     <>
       <View style={[styles.container, shouldDisplayEditButton && spacings.ptSm, style]}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            type === 'vertical' ? spacings.mbSm : spacings.mbMd
+          ]}
+        >
           <Text
             fontSize={18}
             weight="medium"
