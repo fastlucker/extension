@@ -29,7 +29,13 @@ async function initBrowser(namespace: string): Promise<{
       '--disable-setuid-sandbox',
       '--font-render-hinting=none',
       '--ignore-certificate-errors',
-      '--window-size=1920,1080'
+      '--window-size=1920,1080',
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--disable-software-rasterizer',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gl-drawing-for-tests',
+      '--use-gl=swiftshader'
     ]
   })
 
