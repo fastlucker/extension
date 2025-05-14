@@ -168,7 +168,7 @@ class LedgerSigner implements KeystoreSignerInterface {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const rsvRes = await LedgerController.withDisconnectProtection(() =>
         this.#withNormalizedError(() =>
-          this.controller!.walletSDK!.signPersonalMessage(path, stripHexPrefix(hex))
+          this.controller!.signPersonalMessage(path, stripHexPrefix(hex))
         )
       )
 

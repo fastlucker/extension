@@ -240,7 +240,7 @@ class LedgerController implements ExternalSignerController {
             .build()
 
           // Attempt to get an address to check if the device is responsive
-          const hdPath = getHdPathFromTemplate(path, 0)
+          const hdPath = getHdPathFromTemplate(path as any, 0)
           const hdPathWithoutRoot = hdPath.slice(2)
           const { observable, cancel } = signerEth.getAddress(hdPathWithoutRoot, {
             checkOnDevice: false, // prioritize having less steps for the user
@@ -340,6 +340,43 @@ class LedgerController implements ExternalSignerController {
     })
   }
 
+  async signPersonalMessage(path: string, message: string) {
+    await this.#initSDKSessionIfNeeded()
+
+    if (!this.walletSDK || !this.signerEth) {
+      throw new ExternalSignerError(normalizeLedgerMessage())
+    }
+
+    // Store reference to signerEth to avoid this context issues
+    const signerEth = this.signerEth
+
+    const hdPath = getHdPathFromTemplate(path as any, 0)
+    const hdPathWithoutRoot = hdPath.slice(2)
+
+    return new Promise<{ v: number; s: string; r: string }>((resolve, reject) => {
+      const { observable } = signerEth.signMessage(hdPathWithoutRoot, message)
+
+      let subscription: any = null
+      subscription = observable.subscribe({
+        next: (response: any) => {
+          if (response.status !== 'completed') return
+
+          if (response?.output) {
+            subscription?.unsubscribe()
+            resolve(response.output)
+          } else {
+            subscription?.unsubscribe()
+            reject(new ExternalSignerError('Failed to sign message with Ledger device'))
+          }
+        },
+        error: (error: any) => {
+          subscription?.unsubscribe()
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
+      })
+    })
+  }
+
   /**
    * Attempts to sign an EIP-712 message using the Ledger device. If the device
    * does not support direct (clear) EIP-712 signing, it falls back to signing
@@ -392,6 +429,7 @@ class LedgerController implements ExternalSignerController {
     return res
   }
 
+  // FIXME: This is not ideal.
   cleanUp = async () => {
     // Unsubscribe from all observables
     if (this.discoverySubscription) {
