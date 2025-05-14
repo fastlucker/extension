@@ -5,23 +5,16 @@ import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { ContextModuleBuilder } from '@ledgerhq/context-module'
 import {
-  ConsoleLogger,
+  DeviceManagementKit,
   DeviceManagementKitBuilder,
-  DeviceStatus
+  DeviceModelId as LedgerDeviceModels
 } from '@ledgerhq/device-management-kit'
-// @ts-ignore
-import { EthereumSigner } from '@ledgerhq/device-signer-kit-ethereum'
-// @ts-ignore
-import { WebHIDTransport, webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
+import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
+import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
-// TODO: Temporarily
-export enum LedgerDeviceModels {
-  nanoS = 'nano-s',
-  nanoX = 'nano-x',
-  nanoSP = 'nano-s-plus',
-  blue = 'blue'
-}
+export { LedgerDeviceModels }
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 
@@ -36,12 +29,11 @@ class LedgerController implements ExternalSignerController {
   transport: any
 
   // TODO: Missing type
-  walletSDK: any
+  walletSDK: DeviceManagementKit | null
 
   type = 'ledger'
 
-  // TODO: missing type
-  deviceModel: string | 'unknown' = 'unknown'
+  deviceModel: LedgerDeviceModels | 'unknown' = 'unknown'
 
   deviceId = ''
 
@@ -53,9 +45,6 @@ class LedgerController implements ExternalSignerController {
 
   // TODO: missing type
   currentSessionId: any
-
-  // TODO: walletSDK maybe?
-  dmk: any
 
   // TODO: missing type
   static vendorId = ''
@@ -89,7 +78,7 @@ class LedgerController implements ExternalSignerController {
    */
   // TODO: Temporarily
   // static isSupported = WebHIDTransport.isSupported
-  static isSupported = true
+  static isSupported = () => true
 
   /**
    * Checks if at least one Ledger device is connected.
@@ -175,105 +164,23 @@ class LedgerController implements ExternalSignerController {
     return Promise.race([operation(), timeout])
   }
 
-  #monitorDeviceState(sessionId: string) {
-    return this.dmk.getDeviceSessionState({ sessionId }).subscribe({
-      next: (state) => {
-        console.log(`Device status: ${state.deviceStatus}`)
-
-        // Check for specific status conditions
-        if (state.deviceStatus === DeviceStatus.LOCKED) {
-          console.log('Device is locked - please enter your PIN')
-        }
-
-        // Show battery level if available
-        if (state.batteryStatus) {
-          console.log(`Battery level: ${state.batteryStatus.level}%`)
-        }
-
-        // Show app information if available
-        if (state.currentApp) {
-          console.log(`Current app: ${state.currentApp.name}`)
-          console.log(`App version: ${state.currentApp.version}`)
-        }
-
-        // Basic device model info
-        console.log(`Device model: ${state.deviceModelId}`)
-      },
-      error: (error) => {
-        console.error('State monitoring error:', error)
-      }
-    })
-  }
-
   /**
    * The Ledger device requires a new SDK instance (session) every time the
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.
    */
   async #initSDKSessionIfNeeded() {
-    const isConnected = await LedgerController.isConnected()
-    if (!isConnected)
-      throw new ExternalSignerError("Ledger is not connected. Please make sure it's plugged in.")
+    // const isConnected = await LedgerController.isConnected()
+    // if (!isConnected)
+    //   throw new ExternalSignerError("Ledger is not connected. Please make sure it's plugged in.")
 
-    // TODO: Temporarily
-    // if (this.walletSDK) return
+    if (this.walletSDK) return
 
     try {
-      this.dmk = new DeviceManagementKitBuilder()
-        .addLogger(new ConsoleLogger())
-        .addTransport(webHidTransportFactory) // Transport is required!
+      this.walletSDK = new DeviceManagementKitBuilder()
+        // .addLogger(new ConsoleLogger()) // for debugging only
+        .addTransport(webHidTransportFactory)
         .build()
-
-      // Clear any previous discovery
-      if (this.discoverySubscription) {
-        this.discoverySubscription.unsubscribe()
-      }
-
-      console.log('Starting device discovery...')
-
-      // Start discovering - this will scan for any connected devices
-      this.discoverySubscription = this.dmk.startDiscovering({}).subscribe({
-        next: async (device) => {
-          console.log(`Found device: ${device.id}, model: ${device.deviceModel.model}`)
-
-          // Connect to the first device we find
-          try {
-            // Pass the full device object, not just the ID
-            this.currentSessionId = await this.dmk.connect({ device })
-            console.log(`Connected! Session ID: ${this.currentSessionId}`)
-
-            // Stop discovering once we connect
-            this.discoverySubscription.unsubscribe()
-
-            // Get device information
-            const connectedDevice = this.dmk.getConnectedDevice({
-              sessionId: this.currentSessionId
-            })
-            console.log(`Device name: ${connectedDevice.name}`)
-            console.log(`Device model: ${connectedDevice.modelId}`)
-
-            // Start monitoring device state
-            this.stateSubscription = this.#monitorDeviceState(this.currentSessionId)
-          } catch (error) {
-            console.error('Connection failed:', error)
-          }
-        },
-        error: (error) => {
-          console.error('Discovery error:', error)
-        }
-      })
-
-      debugger
-
-      // this.transport = await WebHIDTransport.create()
-      // if (!this.transport) throw new ExternalSignerError('Transport failed to get initialized')
-      // navigator.hid.addEventListener('disconnect', this.cleanUpListener)
-
-      // this.walletSDK = new EthereumSigner(this.transport)
-
-      // Transport is glitchy and its types mismatch, so overprotect by optional chaining
-      // this.deviceModel = this.transport.deviceModel?.id || 'unknown'
-      // this.deviceId = this.transport.device?.productId?.toString() || ''
     } catch (e: any) {
       throw new ExternalSignerError(normalizeLedgerMessage(e?.message))
     }
@@ -296,18 +203,81 @@ class LedgerController implements ExternalSignerController {
       throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
     }
 
-    try {
-      const response = await this.walletSDK.getAddress(
-        path,
-        false // prioritize having less steps for the user
-      )
-      this.unlockedPath = path
-      this.unlockedPathKeyAddr = response.address
+    // Store reference to walletSDK to avoid this context issues
+    const walletSDK = this.walletSDK
 
-      return 'JUST_UNLOCKED'
-    } catch (error: any) {
-      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-    }
+    this.walletSDK.listenToAvailableDevices({}).subscribe({
+      next: async (device) => {
+        if (!device || !device.length) return
+        if (!walletSDK) return
+
+        const currentSessionId = await walletSDK.connect({ device: device[0] })
+        console.log(`Connected! Session ID: ${currentSessionId}`)
+
+        // Stop discovering once we connect
+        // discoverySubscription.current?.unsubscribe()
+
+        // Get device information
+        const connectedDevice = walletSDK.getConnectedDevice({
+          sessionId: currentSessionId
+        })
+        this.deviceModel = connectedDevice.modelId
+        this.deviceId = connectedDevice.id
+        console.log(`Device name: ${connectedDevice.name}`)
+        console.log(`Device model: ${connectedDevice.modelId}`)
+
+        // Start monitoring device state
+        // this.stateSubscription = this.#monitorDeviceState(this.currentSessionId)
+
+        const contextModule = new ContextModuleBuilder({
+          originToken: 'ambire'
+        }).build()
+
+        const signerEth = new SignerEthBuilder({
+          dmk: walletSDK,
+          sessionId: currentSessionId
+        })
+          .withContextModule(contextModule)
+          .build()
+
+        // Dummy call to get the address
+        const hdPath = getHdPathFromTemplate(path, 0).slice(2) // Remove leading "m/"
+        const { observable, cancel } = signerEth.getAddress(hdPath, {
+          checkOnDevice: false,
+          returnChainCode: false
+        })
+
+        observable.subscribe({
+          next: (response) => {
+            debugger
+            console.log('response', 'success', response)
+            this.unlockedPath = path
+            this.unlockedPathKeyAddr = response.address
+            return 'JUST_UNLOCKED'
+          },
+          error: (error) => {
+            throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
+          }
+        })
+      },
+      error: (error) => {
+        console.error('background error', error)
+      }
+    })
+
+    // TODO: Wire-up this
+    // try {
+    //   const response = await this.walletSDK.getAddress(
+    //     path,
+    //     false // prioritize having less steps for the user
+    //   )
+    //   this.unlockedPath = path
+    //   this.unlockedPathKeyAddr = response.address
+
+    //   return 'JUST_UNLOCKED'
+    // } catch (error: any) {
+    //   throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
+    // }
   }
 
   async retrieveAddresses(paths: string[]) {
@@ -428,7 +398,7 @@ class LedgerController implements ExternalSignerController {
     // Disconnect from device if connected
     if (this.currentSessionId) {
       try {
-        await this.dmk.disconnect({ sessionId: this.currentSessionId })
+        await this.walletSDK.disconnect({ sessionId: this.currentSessionId })
         console.log('Device disconnected successfully')
         this.currentSessionId = null
       } catch (error) {

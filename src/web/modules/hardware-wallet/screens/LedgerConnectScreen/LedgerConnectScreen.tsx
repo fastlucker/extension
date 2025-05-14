@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
+import { Subscription } from 'rxjs'
 
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
 import DriveIcon from '@common/assets/svg/DriveIcon'
@@ -16,6 +17,10 @@ import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { ContextModuleBuilder } from '@ledgerhq/context-module'
+import { ConsoleLogger, DeviceManagementKitBuilder } from '@ledgerhq/device-management-kit'
+import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
+import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -27,6 +32,11 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 
 export const CARD_WIDTH = 400
+
+const dmk = new DeviceManagementKitBuilder()
+  // .addLogger(new ConsoleLogger())
+  .addTransport(webHidTransportFactory)
+  .build()
 
 const LedgerConnectScreen = () => {
   const mainCtrlState = useMainControllerState()
@@ -40,29 +50,51 @@ const LedgerConnectScreen = () => {
   const { initParams, type } = useAccountPickerControllerState()
   const [authorizeButtonPressed, setAuthorizeButtonPressed] = useState(false)
   const route = useRoute()
+  const discoverySubscription = useRef<Subscription | null>(null)
 
   const onPressNext = async () => {
-    setIsGrantingPermission(true)
-    setAuthorizeButtonPressed(true)
-    try {
-      await requestLedgerDeviceAccess()
+    // TODO: Move ALL this to useLedger maybe?
+    if (discoverySubscription.current) discoverySubscription.current.unsubscribe()
 
-      const params = new URLSearchParams(route?.search)
-      const actionId = params.get('actionId')
-      if (actionId) {
-        dispatch({ type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID', params: { actionId } })
-        closeCurrentWindow()
-      } else {
+    console.log('Starting device discovery...')
+    // Start discovering - this will scan for any connected devices
+    discoverySubscription.current = dmk.startDiscovering({}).subscribe({
+      next: async (device) => {
+        // Connect to the first device we find
+        console.log(`Found device: ${device.id}, model: ${device.deviceModel.model}`)
+
+        // Stop discovering once we connect
+        discoverySubscription.current?.unsubscribe()
+
         dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER' })
+      },
+      error: (error) => {
+        console.error('Discovery error:', error)
       }
-    } catch (error: any) {
-      addToast(error.message, { type: 'error' })
-    } finally {
-      // Clear the flag to allow the user to try again. For all other cases,
-      // the state gets reset automatically, because the on connect success
-      // the flow redirects the user to another route (and this component unmounts).
-      setIsGrantingPermission(false)
-    }
+    })
+
+    // TODO: Wire-up this
+    // setIsGrantingPermission(true)
+    // setAuthorizeButtonPressed(true)
+    // try {
+    //   await requestLedgerDeviceAccess()
+
+    //   const params = new URLSearchParams(route?.search)
+    //   const actionId = params.get('actionId')
+    //   if (actionId) {
+    //     dispatch({ type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID', params: { actionId } })
+    //     closeCurrentWindow()
+    //   } else {
+    //     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER' })
+    //   }
+    // } catch (error: any) {
+    //   addToast(error.message, { type: 'error' })
+    // } finally {
+    //   // Clear the flag to allow the user to try again. For all other cases,
+    //   // the state gets reset automatically, because the on connect success
+    //   // the flow redirects the user to another route (and this component unmounts).
+    //   setIsGrantingPermission(false)
+    // }
   }
 
   useEffect(() => {

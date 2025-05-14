@@ -85,6 +85,7 @@ class LedgerSigner implements KeystoreSignerInterface {
       // otherwise, the Ledger SDK fails with "EthAppNftNotSupported" error.
       const shouldResolveNFTs =
         !!this.key.meta.deviceModel &&
+        // TODO: Is missing models mean new libs won't work with legacy devices?
         ![LedgerDeviceModels.nanoS, LedgerDeviceModels.blue, 'unknown'].includes(
           this.key.meta.deviceModel as LedgerDeviceModels
         )
