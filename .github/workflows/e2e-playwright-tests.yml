@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: ./e2e-playwright-tests
-        run: npm run install:browsers
+        run: npx playwright install --with-deps
 
       - name: Run Playwright tests
         env:
