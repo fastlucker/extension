@@ -102,6 +102,7 @@ const TransactionSummary = ({
               isHistory={isHistory}
               testID={`recipient-address-${index}`}
               hasPadding={enableExpand}
+              hideLinks
             />
           ) : (
             <FallbackVisualization

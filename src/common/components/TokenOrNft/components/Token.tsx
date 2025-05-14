@@ -1,7 +1,7 @@
 import { formatUnits, MaxUint256, ZeroAddress } from 'ethers'
 import React, { FC, memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, Pressable } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
 import { getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { Network } from '@ambire-common/interfaces/network'
@@ -23,6 +23,7 @@ interface Props {
   address: string
   sizeMultiplierSize?: number
   marginRight: number
+  hideLinks?: boolean
 }
 
 const InnerToken: FC<Props> = ({
@@ -32,7 +33,8 @@ const InnerToken: FC<Props> = ({
   tokenInfo,
   network,
   sizeMultiplierSize = 1,
-  marginRight
+  marginRight,
+  hideLinks = false
 }) => {
   const { t } = useTranslation()
   const openExplorer = useCallback(async () => {
@@ -81,22 +83,41 @@ const InnerToken: FC<Props> = ({
           )}
         </Text>
       ) : null}
-      <Pressable
-        style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
-        onPress={openExplorer}
-      >
-        <TokenIcon
-          width={24 * sizeMultiplierSize}
-          height={24 * sizeMultiplierSize}
-          chainId={network?.chainId}
-          address={address}
-          withNetworkIcon={false}
-        />
-        <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
-          {tokenInfo?.symbol || <HumanizerAddress fontSize={textSize} address={address} />}
-        </Text>
-        {network && <OpenIcon width={14} height={14} />}
-      </Pressable>
+      {hideLinks ? (
+        <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
+          <TokenIcon
+            width={24 * sizeMultiplierSize}
+            height={24 * sizeMultiplierSize}
+            chainId={network?.chainId}
+            address={address}
+            withNetworkIcon={false}
+          />
+          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
+            {tokenInfo?.symbol || (
+              <HumanizerAddress fontSize={textSize} address={address} hideLinks={hideLinks} />
+            )}
+          </Text>
+        </View>
+      ) : (
+        <Pressable
+          style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
+          onPress={openExplorer}
+        >
+          <TokenIcon
+            width={24 * sizeMultiplierSize}
+            height={24 * sizeMultiplierSize}
+            chainId={network?.chainId}
+            address={address}
+            withNetworkIcon={false}
+          />
+          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
+            {tokenInfo?.symbol || (
+              <HumanizerAddress fontSize={textSize} address={address} hideLinks={hideLinks} />
+            )}
+          </Text>
+          {network && <OpenIcon width={14} height={14} />}
+        </Pressable>
+      )}
     </>
   )
 }
