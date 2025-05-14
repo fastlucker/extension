@@ -36,8 +36,12 @@ jobs:
         working-directory: ./e2e-playwright-tests
         run: npx playwright install --with-deps
 
-      - name: Configure the display server
-        run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
+      - name: Start virtual display (Xvfb)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+        shell: bash
 
       - name: Run Playwright tests
         env:
