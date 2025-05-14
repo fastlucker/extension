@@ -281,7 +281,7 @@ const WatchTokenRequestScreen = () => {
         <View style={[styles.container]}>
           <View style={styles.content}>
             <View style={styles.contentHeader}>
-              <Text weight="medium" fontSize={20} style={spacings.mbLg}>
+              <Text weight="medium" fontSize={20} style={spacings.mbLg} numberOfLines={1}>
                 {t('Add suggested token')}
               </Text>
               <View style={spacings.mb}>
@@ -336,7 +336,7 @@ const WatchTokenRequestScreen = () => {
                     {t('Amount')}
                   </Text>
                 </View>
-                <Text weight="medium" fontSize={14} appearance="tertiaryText">
+                <Text weight="medium" fontSize={14} appearance="tertiaryText" numberOfLines={1}>
                   {tokenDetails?.balance || '0.00'} {tokenData?.symbol}
                 </Text>
               </View>
