@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -35,6 +35,8 @@ type Props = {
   nativeAssetSymbol: string
   nativeAssetName: string
   allowRemoveNetwork?: boolean
+  style?: ViewStyle
+  type?: 'vertical' | 'horizontal'
 }
 
 const NetworkDetails = ({
@@ -46,7 +48,9 @@ const NetworkDetails = ({
   explorerUrl,
   nativeAssetSymbol,
   nativeAssetName,
-  allowRemoveNetwork
+  allowRemoveNetwork,
+  style,
+  type = 'horizontal'
 }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -107,13 +111,27 @@ const NetworkDetails = ({
     (title: string, value: string, withBottomSpacing = true) => {
       return (
         <View
-          style={[flexbox.directionRow, flexbox.alignCenter, !!withBottomSpacing && spacings.mb]}
+          style={[
+            type === 'horizontal' && flexbox.directionRow,
+            type === 'horizontal' && flexbox.alignCenter,
+            !!withBottomSpacing && (type === 'vertical' ? spacings.mbSm : spacings.mbMd)
+          ]}
         >
-          <Text fontSize={14} appearance="tertiaryText" style={[spacings.mr]} numberOfLines={1}>
+          <Text
+            fontSize={14}
+            appearance="tertiaryText"
+            style={[type === 'horizontal' ? spacings.mr : {}]}
+            numberOfLines={1}
+          >
             {title}
           </Text>
           <View
-            style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1, flexbox.justifyEnd]}
+            style={[
+              flexbox.directionRow,
+              flexbox.alignCenter,
+              flexbox.flex1,
+              type === 'horizontal' && flexbox.justifyEnd
+            ]}
           >
             {title === 'Network Name' && value !== '-' && (
               <View style={spacings.mrMi}>
@@ -122,7 +140,7 @@ const NetworkDetails = ({
                   id={chainId.toString()}
                   name={name}
                   uris={iconUrls.length ? iconUrls : undefined}
-                  size={32}
+                  size={type === 'vertical' ? 26 : 32}
                 />
               </View>
             )}
@@ -138,17 +156,65 @@ const NetworkDetails = ({
         </View>
       )
     },
-    [name, iconUrls, chainId]
+    [name, iconUrls, chainId, type]
   )
 
-  const renderRpcUrlsItem = useCallback(() => {
-    const sortedRpcUrls = [selectedRpcUrl, ...rpcUrls.filter((u) => u !== selectedRpcUrl)]
-    return (
-      <View style={[flexbox.directionRow, spacings.mb]}>
-        <Text fontSize={14} appearance="tertiaryText" style={[spacings.mr]} numberOfLines={1}>
-          {t(`RPC URL${sortedRpcUrls.length ? '(s)' : ''}`)}
+  const sortedRpcUrls = useMemo(
+    () => [selectedRpcUrl, ...rpcUrls.filter((u) => u !== selectedRpcUrl)],
+    [rpcUrls, selectedRpcUrl]
+  )
+
+  const showMoreRpcUrlsButton = useMemo(() => {
+    return sortedRpcUrls.length > 1 ? (
+      <Pressable
+        style={[
+          spacings.ptMi,
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          type === 'horizontal' && spacings.mbMi
+        ]}
+        onPress={() => setShowAllRpcUrls((p) => !p)}
+      >
+        <Text style={spacings.mrMi} fontSize={12} color={theme.featureDecorative} underline>
+          {!showAllRpcUrls &&
+            t('show {{number}} more', {
+              number: sortedRpcUrls.length - 1
+            })}
+          {!!showAllRpcUrls &&
+            t('hide {{number}} urls', {
+              number: sortedRpcUrls.length - 1
+            })}
         </Text>
-        <View style={[flexbox.flex1, flexbox.alignEnd]}>
+        {!!showAllRpcUrls && (
+          <UpArrowIcon width={12} height={6} color={theme.featureDecorative} strokeWidth="1.7" />
+        )}
+        {!showAllRpcUrls && (
+          <DownArrowIcon width={12} height={6} color={theme.featureDecorative} strokeWidth="1.7" />
+        )}
+      </Pressable>
+    ) : null
+  }, [showAllRpcUrls, sortedRpcUrls.length, t, theme, type])
+
+  const renderRpcUrlsItem = useCallback(() => {
+    return (
+      <View
+        style={[
+          type === 'horizontal' && flexbox.directionRow,
+          type === 'vertical' ? spacings.mbSm : spacings.mbMd
+        ]}
+      >
+        <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
+          <Text
+            fontSize={type === 'horizontal' ? 14 : 16}
+            appearance="tertiaryText"
+            style={[spacings.mr]}
+            numberOfLines={1}
+          >
+            {t(`RPC URL${sortedRpcUrls.length ? '(s)' : ''}`)}
+          </Text>
+          {type === 'vertical' && showMoreRpcUrlsButton}
+        </View>
+        <View style={[flexbox.flex1, type === 'horizontal' && flexbox.alignEnd]}>
           {!showAllRpcUrls ? (
             <Text fontSize={14} appearance="primaryText" numberOfLines={1} selectable>
               {sortedRpcUrls[0]}
@@ -168,48 +234,22 @@ const NetworkDetails = ({
               </Text>
             ))
           )}
-          {sortedRpcUrls.length > 1 && (
-            <Pressable
-              style={[spacings.ptMi, flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
-              onPress={() => setShowAllRpcUrls((p) => !p)}
-            >
-              <Text style={spacings.mrMi} fontSize={12} color={theme.featureDecorative} underline>
-                {!showAllRpcUrls &&
-                  t('show {{number}} more', {
-                    number: sortedRpcUrls.length - 1
-                  })}
-                {!!showAllRpcUrls &&
-                  t('hide {{number}} urls', {
-                    number: sortedRpcUrls.length - 1
-                  })}
-              </Text>
-              {!!showAllRpcUrls && (
-                <UpArrowIcon
-                  width={12}
-                  height={6}
-                  color={theme.featureDecorative}
-                  strokeWidth="1.7"
-                />
-              )}
-              {!showAllRpcUrls && (
-                <DownArrowIcon
-                  width={12}
-                  height={6}
-                  color={theme.featureDecorative}
-                  strokeWidth="1.7"
-                />
-              )}
-            </Pressable>
-          )}
+          {type === 'horizontal' && showMoreRpcUrlsButton}
         </View>
       </View>
     )
-  }, [rpcUrls, selectedRpcUrl, showAllRpcUrls, theme, t])
+  }, [showAllRpcUrls, t, type, sortedRpcUrls, showMoreRpcUrlsButton])
 
   return (
     <>
-      <View style={[styles.container, shouldDisplayEditButton && spacings.ptSm]}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
+      <View style={[styles.container, shouldDisplayEditButton && spacings.ptSm, style]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            type === 'vertical' ? spacings.mbSm : spacings.mbMd
+          ]}
+        >
           <Text
             fontSize={18}
             weight="medium"
