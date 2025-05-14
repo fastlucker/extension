@@ -117,7 +117,7 @@ const Account = ({
     }
 
     if (item.value === 'toSmarter') {
-      navigate(`${ROUTES.basicToSmartSettingsScreen}?accountAddr=${account.addr}`)
+      navigate(`${ROUTES.eoaDelegationScreen}?accountAddr=${account.addr}`)
     }
   }
 

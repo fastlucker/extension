@@ -21,11 +21,13 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 import Authorization7702 from '@web/modules/sign-message/screens/SignMessageScreen/Contents/authorization7702'
 
 import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
-const BasicToSmartSettingsScreen = () => {
+const DelegationsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { accountStates, accounts } = useAccountsControllerState()
+  const { account: selectedAccount } = useSelectedAccountControllerState()
 
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
@@ -43,6 +45,19 @@ const BasicToSmartSettingsScreen = () => {
     () => accounts.find((acc) => acc.addr === accountAddr),
     [accounts, accountAddr]
   )
+
+  // if the account is not the selected one, select it so it could do txns
+  useEffect(() => {
+    if (!selectedAccount || !account) return
+    if (selectedAccount.addr === account.addr) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+      params: {
+        accountAddr: account.addr
+      }
+    })
+  }, [selectedAccount, account, dispatch])
 
   const delegate = (chainId: bigint) => {
     const selectedNet = networks.find((net) => net.chainId === chainId)
@@ -201,4 +216,4 @@ const BasicToSmartSettingsScreen = () => {
   )
 }
 
-export default React.memo(BasicToSmartSettingsScreen)
+export default React.memo(DelegationsScreen)
