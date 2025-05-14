@@ -9,10 +9,11 @@ import { ContextModuleBuilder } from '@ledgerhq/context-module'
 import {
   DeviceManagementKit,
   DeviceManagementKitBuilder,
-  DeviceModelId as LedgerDeviceModels
+  DeviceModelId as LedgerDeviceModels,
+  LEDGER_VENDOR_ID
 } from '@ledgerhq/device-management-kit'
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
-import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
+import { WebHidTransport, webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
 export { LedgerDeviceModels }
 
@@ -46,8 +47,7 @@ class LedgerController implements ExternalSignerController {
   // TODO: missing type
   currentSessionId: any
 
-  // TODO: missing type
-  static vendorId = ''
+  static vendorId = LEDGER_VENDOR_ID
 
   constructor() {
     this.isWebHID = true
@@ -98,14 +98,22 @@ class LedgerController implements ExternalSignerController {
     // reselect it again. The service worker than can access the device.
     if (await LedgerController.isConnected()) return
 
-    const filters = [{ vendorId: LedgerController.vendorId }]
-    const devices = await navigator.hid.requestDevice({ filters })
+    const dmk = new DeviceManagementKitBuilder()
+      // .addLogger(new ConsoleLogger()) // for debugging only
+      .addTransport(webHidTransportFactory)
+      .build()
 
-    if (devices.length === 0)
-      throw new ExternalSignerError('Ledger device connection request was canceled.')
-
-    const device = devices[0]
-    await device.open()
+    return new Promise((resolve, reject) => {
+      // Start discovering - this will scan for any connected devices
+      const discoverySubscription = dmk.startDiscovering({}).subscribe({
+        next: async (device) => {
+          discoverySubscription.unsubscribe()
+          dmk.close()
+          resolve(device)
+        },
+        error: (error) => reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+      })
+    })
   }
 
   /**
@@ -249,7 +257,6 @@ class LedgerController implements ExternalSignerController {
 
         observable.subscribe({
           next: (response) => {
-            debugger
             console.log('response', 'success', response)
             this.unlockedPath = path
             this.unlockedPathKeyAddr = response.address
