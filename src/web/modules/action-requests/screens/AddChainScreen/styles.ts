@@ -12,20 +12,22 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    dappInfoContainer: { ...flexbox.alignCenter, width: '100%', ...spacings.mbLg },
+    dappInfoContainer: {
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...spacings.mbMd
+    },
     dappInfoContent: {
       ...flexbox.directionRow,
-      ...flexbox.justifyCenter,
-      width: '100%',
       ...flexbox.alignCenter,
-      position: 'relative',
-      ...spacings.mb
+      ...spacings.phMd,
+      ...flexbox.flex1
     },
     separator: {
       width: 1,
       maxWidth: 1,
       flex: 1,
-      backgroundColor: theme.secondaryBorder
+      marginHorizontal: 10
     }
   })
 
