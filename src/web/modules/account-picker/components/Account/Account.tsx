@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -23,6 +22,7 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import {
   AccountPickerIntroStepsContext,
@@ -98,7 +98,7 @@ const Account = ({
   }, [shouldAddIntroStepsIds, setShowIntroSteps])
 
   const handleCopyAddress = useCallback(() => {
-    Clipboard.setStringAsync(account.addr)
+    setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }, [account.addr, addToast, t])
 
