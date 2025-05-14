@@ -17,6 +17,7 @@ const config: PlaywrightTestConfig = {
     ['html', { open: 'never' }]
   ],
   timeout: 480 * 1000,
+  workers: 1,
   reportSlowTests: null,
   snapshotPathTemplate: 'data/screenshots/{projectName}/{testFilePath}/{arg}/text',
   use: {

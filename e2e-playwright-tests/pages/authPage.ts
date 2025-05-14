@@ -1,32 +1,52 @@
-// FILE: e2e-playwright-tests/pages/authPage.ts
-
-import 'dotenv/config'
-
 import { locators } from '@common/locators'
-import { Page } from '@playwright/test'
 
+import { bootstrap } from '../common-helpers/bootstrap'
 import { DEF_KEYSTORE_PASS } from '../config/constants'
 import { BasePage } from './basePage'
 
 export class AuthPage extends BasePage {
-  constructor(protected page: Page) {
-    super(page)
+  async init() {
+    const { page } = await bootstrap('auth')
+    this.page = page // Initialize the POM page property with the Playwright page instance
   }
 
-  async setExtensionPassword(page): Promise<void> {
-    await this.typeTextInInputField(page, locators.enterPasswordField, DEF_KEYSTORE_PASS)
-    await this.typeTextInInputField(page, locators.repeatPasswordField, DEF_KEYSTORE_PASS)
-    await this.clickOnElement(page, locators.confirmButton)
+  async setExtensionPassword(): Promise<void> {
+    await this.typeTextInInputField(locators.enterPasswordField, DEF_KEYSTORE_PASS)
+    await this.typeTextInInputField(locators.repeatPasswordField, DEF_KEYSTORE_PASS)
+    await this.clickOnElement(locators.confirmButton)
   }
 
-  async importViewOnlyAccount(page, account): Promise<void> {
-    await page.locator(locators.watchAnAddress).click()
-    await page.locator(locators.viewOnlyInputAddressField).pressSequentially(account)
-    await page.locator(locators.importViewOnlyButton).click()
-    await this.setExtensionPassword(page)
-    await page.locator(locators.confirmationMessageForViewOnly).isVisible()
-    await page.locator(locators.completeButton).click()
-    await page.locator(locators.confirmationMessageAmbireWallet).isVisible()
-    await page.locator(locators.openDashboardButton).click()
+  async importViewOnlyAccount(account): Promise<void> {
+    await this.page.locator(locators.watchAnAddress).click()
+    await this.page.locator(locators.viewOnlyInputAddressField).pressSequentially(account)
+    await this.page.locator(locators.importViewOnlyButton).click()
+    await this.setExtensionPassword()
+    await this.page.locator(locators.confirmationMessageForViewOnly).isVisible()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
+  }
+
+  async verifyRecoveryPhraseScreen(): Promise<void> {
+    await this.page.locator(locators.recoveryPhraseHeader).isVisible()
+    await this.page.locator(locators.copyRecoveryPhraseButton).click()
+    await this.page.getByText('Recovery phrase copied to').isVisible()
+    await this.page.locator(locators.savedPhraseButton).click()
+  }
+
+  async createNewAccount(): Promise<void> {
+    await this.page.locator(locators.createNewAccountButton).click()
+    for (let index = 0; index < 3; index++) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.page.locator(`div[data-testid="checkbox"] >> nth = ${index}`).click()
+    }
+    await this.page.locator(locators.createRecoveryPhraseButton).click()
+    await this.verifyRecoveryPhraseScreen()
+    await this.setExtensionPassword()
+    await this.page.locator(locators.confirmationMessageForViewOnly).isVisible()
+    await this.page.locator(locators.addMoreAccountsButton).isVisible()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
   }
 }

@@ -2,18 +2,20 @@
 
 import { Page } from '@playwright/test'
 
-export class BasePage {
-  constructor(protected page: Page) {}
+export abstract class BasePage {
+  page: Page
 
-  async navigateToHome(page) {
-    await page.goto('/')
+  abstract init(param?): Promise<void> // ⛔ Must be implemented in subclasses
+
+  async navigateToHome() {
+    await this.page.goto('/')
   }
 
-  async clickOnElement(page, element: string): Promise<void> {
-    await page.locator(element).click()
+  async clickOnElement(element: string): Promise<void> {
+    await this.page.locator(element).click()
   }
 
-  async typeTextInInputField(page, locator: string, text: string): Promise<void> {
-    await page.locator(locator).pressSequentially(text)
+  async typeTextInInputField(locator: string, text: string): Promise<void> {
+    await this.page.locator(locator).pressSequentially(text)
   }
 }

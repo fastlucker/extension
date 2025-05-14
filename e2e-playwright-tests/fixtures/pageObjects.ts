@@ -10,9 +10,9 @@ type PageObjects = {
 
 export const test = testBase.extend<PageObjects>({
   authPage: async ({ page }, use) => {
-    await use(new AuthPage(page))
+    await use(new AuthPage())
   },
   swapAndBridgePage: async ({ page }, use) => {
-    await use(new SwapAndBridgePage(page))
+    await use(new SwapAndBridgePage())
   }
 })

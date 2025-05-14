@@ -9,5 +9,11 @@ export const locators = {
   completeButton: 'div[data-testid="button-save-and-continue"]',
   confirmationMessageAmbireWallet: 'div:has-text("Ambire Wallet is ready to use") >> nth=0',
   openDashboardButton: 'div[data-testid="onboarding-completed-open-dashboard-btn"]',
-  dashboadHabmurgerButton: 'div[data-testid="dashboard-hamburger-btn"]'
+  dashboadHabmurgerButton: 'div[data-testid="dashboard-hamburger-btn"]',
+  createNewAccountButton: 'div[data-testid="create-new-account-btn"]',
+  createRecoveryPhraseButton: 'div[data-testid="review-seed-phrase-btn"]',
+  copyRecoveryPhraseButton: 'div[data-testid="copy-recovery-phrase"]',
+  recoveryPhraseHeader: 'div:has-text("Back up recovery phrase") >> nth=0',
+  savedPhraseButton: 'div[data-testid="create-seed-phrase-write-continue-btn"]',
+  addMoreAccountsButton: 'div[data-testid="add-more-accounts-btn"]'
 }
