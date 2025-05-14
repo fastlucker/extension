@@ -13,7 +13,8 @@ import {
   LEDGER_VENDOR_ID
 } from '@ledgerhq/device-management-kit'
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
-import { WebHidTransport, webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
+import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
+import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
 export { LedgerDeviceModels }
 
@@ -28,6 +29,8 @@ class LedgerController implements ExternalSignerController {
 
   // TODO: Missing type
   transport: any
+
+  signerEth: DefaultSignerEth | null = null
 
   // TODO: Missing type
   walletSDK: DeviceManagementKit | null
@@ -213,106 +216,100 @@ class LedgerController implements ExternalSignerController {
 
     // Store reference to walletSDK to avoid this context issues
     const walletSDK = this.walletSDK
+    let signerEth = this.signerEth
 
-    this.walletSDK.listenToAvailableDevices({}).subscribe({
-      next: async (device) => {
-        if (!device || !device.length) return
-        if (!walletSDK) return
+    return new Promise((resolve, reject) => {
+      const discoverySubscription = walletSDK.listenToAvailableDevices({}).subscribe({
+        next: async (device) => {
+          if (!device || !device.length) return
 
-        const currentSessionId = await walletSDK.connect({ device: device[0] })
-        console.log(`Connected! Session ID: ${currentSessionId}`)
+          discoverySubscription.unsubscribe()
 
-        // Stop discovering once we connect
-        // discoverySubscription.current?.unsubscribe()
+          const sessionId = await walletSDK.connect({ device: device[0] })
 
-        // Get device information
-        const connectedDevice = walletSDK.getConnectedDevice({
-          sessionId: currentSessionId
-        })
-        this.deviceModel = connectedDevice.modelId
-        this.deviceId = connectedDevice.id
-        console.log(`Device name: ${connectedDevice.name}`)
-        console.log(`Device model: ${connectedDevice.modelId}`)
+          // Get device information
+          const connectedDevice = walletSDK.getConnectedDevice({ sessionId })
+          this.deviceModel = connectedDevice.modelId
+          this.deviceId = connectedDevice.id
 
-        // Start monitoring device state
-        // this.stateSubscription = this.#monitorDeviceState(this.currentSessionId)
+          const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
+          signerEth = new SignerEthBuilder({ dmk: walletSDK, sessionId })
+            .withContextModule(contextModule)
+            .build()
 
-        const contextModule = new ContextModuleBuilder({
-          originToken: 'ambire'
-        }).build()
+          // Attempt to get an address to check if the device is responsive
+          const hdPath = getHdPathFromTemplate(path, 0)
+          const hdPathWithoutRoot = hdPath.slice(2)
+          const { observable, cancel } = signerEth.getAddress(hdPathWithoutRoot, {
+            checkOnDevice: false, // prioritize having less steps for the user
+            returnChainCode: false
+          })
 
-        const signerEth = new SignerEthBuilder({
-          dmk: walletSDK,
-          sessionId: currentSessionId
-        })
-          .withContextModule(contextModule)
-          .build()
+          observable.subscribe({
+            next: (response) => {
+              if (response.status !== 'completed') return
 
-        // Dummy call to get the address
-        const hdPath = getHdPathFromTemplate(path, 0).slice(2) // Remove leading "m/"
-        const { observable, cancel } = signerEth.getAddress(hdPath, {
-          checkOnDevice: false,
-          returnChainCode: false
-        })
+              this.unlockedPath = path
+              this.unlockedPathKeyAddr = response?.output?.address
+              this.signerEth = signerEth // Assign back to this.signerEth after successful initialization
 
-        observable.subscribe({
-          next: (response) => {
-            console.log('response', 'success', response)
-            this.unlockedPath = path
-            this.unlockedPathKeyAddr = response.address
-            return 'JUST_UNLOCKED'
-          },
-          error: (error) => {
-            throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-          }
-        })
-      },
-      error: (error) => {
-        console.error('background error', error)
-      }
+              return resolve('JUST_UNLOCKED')
+            },
+            error: (error) => {
+              reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+            }
+          })
+        },
+        error: (error) => {
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
+      })
     })
-
-    // TODO: Wire-up this
-    // try {
-    //   const response = await this.walletSDK.getAddress(
-    //     path,
-    //     false // prioritize having less steps for the user
-    //   )
-    //   this.unlockedPath = path
-    //   this.unlockedPathKeyAddr = response.address
-
-    //   return 'JUST_UNLOCKED'
-    // } catch (error: any) {
-    //   throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-    // }
   }
 
   async retrieveAddresses(paths: string[]) {
     return LedgerController.withDisconnectProtection(async () => {
       await this.#initSDKSessionIfNeeded()
 
-      if (!this.walletSDK) {
+      if (!this.walletSDK || !this.signerEth) {
         throw new ExternalSignerError(normalizeLedgerMessage())
       }
 
       const keys: string[] = []
       let latestGetAddressError: ExternalSignerError | undefined
+
       for (let i = 0; i < paths.length; i++) {
         try {
           // Purposely await in loop to avoid sending multiple requests at once.
           // Send them 1 by 1, the Ledger device can't handle them in parallel,
           // it throws a "device busy" error.
-          // eslint-disable-next-line no-await-in-loop
-          const key = await LedgerController.withTimeoutProtection(() =>
-            this.walletSDK!.getAddress(
-              paths[i],
-              false, // no need to show on display
-              false // no need for the chain code
-            )
-          )
+          const hdPath = getHdPathFromTemplate(paths[i] as any, 0)
+          const hdPathWithoutRoot = hdPath.slice(2)
 
-          // @ts-ignore - we know the response has an address property
-          if (key && key.address) keys.push(key.address)
+          // eslint-disable-next-line no-await-in-loop
+          const key = await new Promise<string>((resolve, reject) => {
+            const { observable } = this.signerEth!.getAddress(hdPathWithoutRoot, {
+              checkOnDevice: false, // no need to show on display
+              returnChainCode: false
+            })
+
+            observable.subscribe({
+              next: (response: any) => {
+                if (response.status !== 'completed') return
+
+                if (response?.output?.address) {
+                  resolve(response.output.address)
+                } else {
+                  reject(new ExternalSignerError('Failed to get address from Ledger device'))
+                }
+              },
+              error: (error) => {
+                reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+              }
+            })
+          })
+
+          keys.push(key)
         } catch (e: any) {
           latestGetAddressError = e
         }
