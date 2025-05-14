@@ -41,7 +41,6 @@ jobs:
 
       - name: Run Playwright tests
         env:
-          DISPLAY: ':99.0'
           IS_TESTING: 'true'
           E2E_DEBUG: ${{ vars.E2E_DEBUG }}
           # Its value is based on the above Display server configuration
