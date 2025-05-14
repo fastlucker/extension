@@ -6,6 +6,8 @@ import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import AmountIcon from '@common/assets/svg/AmountIcon'
+import DollarIcon from '@common/assets/svg/DollarIcon'
+import ValueIcon from '@common/assets/svg/ValueIcon'
 import Alert from '@common/components/Alert/Alert'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import NetworkBadge from '@common/components/NetworkBadge'
@@ -34,8 +36,6 @@ import {
   selectNetwork
 } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/utils'
 
-import Token from './components/Token'
-import TokenHeader from './components/TokenHeader'
 import getStyles from './styles'
 
 export type TokenData = {
@@ -230,13 +230,11 @@ const WatchTokenRequestScreen = () => {
     })
   }, [dispatch, dappAction, tokenData, tokenNetwork])
 
-  const tokenDetails = useMemo(
-    () =>
-      temporaryToken &&
-      temporaryToken?.flags &&
-      getAndFormatTokenDetails(temporaryToken as TokenResult, networks),
-    [temporaryToken, networks]
-  )
+  const tokenDetails = useMemo(() => {
+    const token = portfolioToken || temporaryToken
+
+    return token && token?.flags && getAndFormatTokenDetails(token as TokenResult, networks)
+  }, [temporaryToken, portfolioToken, networks])
 
   if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
     return <Alert type="error" title={t('This network RPC is failing')} />
@@ -275,7 +273,7 @@ const WatchTokenRequestScreen = () => {
         tokenTypeEligibility !== undefined &&
         !temporaryToken &&
         !isLoadingTemporaryToken) ||
-      (!tokenNetwork?.chainId && !isLoading) ? (
+      (!tokenNetwork && !isLoading) ? (
         <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
           <Alert type="error" title={t('This token type is not supported.')} />
         </View>
@@ -329,7 +327,7 @@ const WatchTokenRequestScreen = () => {
               <Text fontSize={14} weight="medium" style={spacings.mbTy}>
                 {t('Token info')}
               </Text>
-              <View style={styles.tokenInfoContainer}>
+              <View style={[styles.tokenInfoContainer, spacings.mbTy]}>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr]}>
                   <View style={styles.tokenInfoIconWrapper}>
                     <AmountIcon />
@@ -342,6 +340,52 @@ const WatchTokenRequestScreen = () => {
                   {tokenDetails?.balance || '0.00'} {tokenData?.symbol}
                 </Text>
               </View>
+              <View style={[styles.tokenInfoContainer, spacings.mbTy]}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr]}>
+                  <View style={styles.tokenInfoIconWrapper}>
+                    <DollarIcon />
+                  </View>
+                  <Text fontSize={14} appearance="tertiaryText">
+                    {t('Price')}
+                  </Text>
+                </View>
+                <Text weight="medium" fontSize={14} appearance="tertiaryText">
+                  {isLoading ? (
+                    <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+                      <Spinner style={{ width: 18, height: 18 }} />
+                    </View>
+                  ) : (
+                    tokenDetails?.priceUSDFormatted
+                  )}
+                </Text>
+              </View>
+              <View style={[styles.tokenInfoContainer]}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr]}>
+                  <View style={styles.tokenInfoIconWrapper}>
+                    <ValueIcon />
+                  </View>
+                  <Text fontSize={14} appearance="tertiaryText">
+                    {t('Value')}
+                  </Text>
+                </View>
+                <Text weight="medium" fontSize={14} appearance="tertiaryText">
+                  {tokenDetails?.balanceUSDFormatted || '-'}
+                </Text>
+              </View>
+
+              {!!showAlreadyInPortfolioMessage && (
+                <View style={spacings.ptMd}>
+                  <Alert
+                    size="sm"
+                    type="info2"
+                    title={
+                      isTokenCustom
+                        ? t('This token is already added as a custom token.')
+                        : t('This token is already in your portfolio.')
+                    }
+                  />
+                </View>
+              )}
             </View>
           </View>
         </View>
