@@ -77,7 +77,7 @@ async function initBrowser(namespace: string): Promise<{
 }
 
 //----------------------------------------------------------------------------------------------
-export async function bootstrap(namespace: string){
+export async function bootstrap(namespace: string) {
   const { page, extensionURL, serviceWorker } = await initBrowser(namespace)
   await page.goto(`${extensionURL}${constants.urls.getStarted}`)
   // Bypass the invite verification step

@@ -23,6 +23,9 @@ jobs:
       - name: Setup Environment
         uses: ./.github/composite-actions/setup
 
+      - name: Set up Docker
+        run: sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose -y
+
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
