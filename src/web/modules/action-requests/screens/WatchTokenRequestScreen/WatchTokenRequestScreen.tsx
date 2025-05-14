@@ -4,19 +4,21 @@ import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
+import { TokenResult } from '@ambire-common/libs/portfolio'
+import AmountIcon from '@common/assets/svg/AmountIcon'
 import Alert from '@common/components/Alert/Alert'
+import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
-import {
-  TabLayoutContainer,
-  TabLayoutWrapperMainContent
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -34,6 +36,7 @@ import {
 
 import Token from './components/Token'
 import TokenHeader from './components/TokenHeader'
+import getStyles from './styles'
 
 export type TokenData = {
   address: string
@@ -45,7 +48,8 @@ export type TokenData = {
 
 const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
+
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const { temporaryTokens, validTokens, customTokens } = usePortfolioControllerState()
@@ -226,6 +230,14 @@ const WatchTokenRequestScreen = () => {
     })
   }, [dispatch, dappAction, tokenData, tokenNetwork])
 
+  const tokenDetails = useMemo(
+    () =>
+      temporaryToken &&
+      temporaryToken?.flags &&
+      getAndFormatTokenDetails(temporaryToken as TokenResult, networks),
+    [temporaryToken, networks]
+  )
+
   if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
     return <Alert type="error" title={t('This network RPC is failing')} />
   }
@@ -240,7 +252,14 @@ const WatchTokenRequestScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={<HeaderAccountAndNetworkInfo />}
+      backgroundColor={theme.quinaryBackground}
+      header={
+        <Header
+          mode="custom-inner-content"
+          withAmbireLogo
+          backgroundColor={theme.quinaryBackground as string}
+        />
+      }
       footer={
         <ActionFooter
           onReject={handleCancel}
@@ -252,59 +271,81 @@ const WatchTokenRequestScreen = () => {
         />
       }
     >
-      <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        {(!tokenTypeEligibility &&
-          tokenTypeEligibility !== undefined &&
-          !temporaryToken &&
-          !isLoadingTemporaryToken) ||
-        (!tokenNetwork?.chainId && !isLoading) ? (
+      {(!tokenTypeEligibility &&
+        tokenTypeEligibility !== undefined &&
+        !temporaryToken &&
+        !isLoadingTemporaryToken) ||
+      (!tokenNetwork?.chainId && !isLoading) ? (
+        <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
           <Alert type="error" title={t('This token type is not supported.')} />
-        ) : (
-          <>
-            {showAlreadyInPortfolioMessage ? (
+        </View>
+      ) : (
+        <View style={[styles.container]}>
+          <View style={styles.content}>
+            <View style={styles.contentHeader}>
               <Text weight="medium" fontSize={20} style={spacings.mbLg}>
-                {isTokenCustom
-                  ? t('This token is already added as a custom token.')
-                  : t('This token is already in your portfolio.')}
+                {t('Add suggested token')}
               </Text>
-            ) : (
-              <>
-                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-                  <Text weight="medium" fontSize={20} style={spacings.mrTy}>
-                    {t('Add suggested token on')}
-                  </Text>
-                  <NetworkBadge chainId={tokenNetwork?.chainId} />
+              <View style={spacings.mb}>
+                <TokenIcon
+                  withContainer
+                  chainId={tokenNetwork?.chainId}
+                  containerHeight={56}
+                  containerWidth={56}
+                  address={tokenData?.address}
+                  width={50}
+                  height={50}
+                />
+              </View>
+              <Text weight="semiBold" fontSize={20} numberOfLines={1}>
+                {tokenData?.symbol}
+              </Text>
+              <NetworkBadge
+                withOnPrefix
+                chainId={tokenNetwork?.chainId}
+                fontSize={14}
+                iconSize={20}
+                style={{
+                  backgroundColor: theme.quaternaryBackground,
+                  ...spacings.mb,
+                  ...spacings.pr
+                }}
+                withIcon={false}
+              />
+              {temporaryToken?.priceIn?.length ? (
+                <View style={[flexbox.alignEnd, { flex: 0.5 }]}>
+                  {tokenData && (
+                    <CoingeckoConfirmedBadge
+                      text={t('Confirmed')}
+                      address={tokenData.address}
+                      network={tokenNetwork}
+                    />
+                  )}
                 </View>
-                <Text
-                  weight="regular"
-                  fontSize={16}
-                  color={theme.secondaryText}
-                  style={spacings.mbXl}
-                >
-                  {t('Would you like to add this token?')}
-                </Text>
-              </>
-            )}
+              ) : null}
+            </View>
 
-            <View
-              style={{
-                width: '100%',
-                borderBottomWidth: 1,
-                borderColor: theme.secondaryBorder,
-                ...spacings.mb
-              }}
-            />
-            <TokenHeader priceIn={temporaryToken?.priceIn || portfolioToken?.priceIn} />
-            <Token
-              tokenData={tokenData}
-              tokenNetwork={tokenNetwork}
-              temporaryToken={portfolioToken || temporaryToken}
-              isLoading={isLoading}
-              showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
-            />
-          </>
-        )}
-      </TabLayoutWrapperMainContent>
+            <View style={styles.contentBody}>
+              <Text fontSize={14} weight="medium" style={spacings.mbTy}>
+                {t('Token info')}
+              </Text>
+              <View style={styles.tokenInfoContainer}>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr]}>
+                  <View style={styles.tokenInfoIconWrapper}>
+                    <AmountIcon />
+                  </View>
+                  <Text fontSize={14} appearance="tertiaryText">
+                    {t('Amount')}
+                  </Text>
+                </View>
+                <Text weight="medium" fontSize={14} appearance="tertiaryText">
+                  {tokenDetails?.balance || '0.00'} {tokenData?.symbol}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </TabLayoutContainer>
   )
 }
