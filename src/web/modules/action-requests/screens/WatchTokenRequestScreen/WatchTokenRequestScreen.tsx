@@ -290,9 +290,14 @@ const WatchTokenRequestScreen = () => {
                   chainId={tokenNetwork?.chainId}
                   containerHeight={56}
                   containerWidth={56}
+                  networkSize={20}
                   address={tokenData?.address}
                   width={50}
                   height={50}
+                  networkWrapperStyle={{
+                    left: -8,
+                    top: -4
+                  }}
                 />
               </View>
               <Text weight="semiBold" fontSize={20} numberOfLines={1}>
