@@ -121,6 +121,13 @@ const AccountPersonalizeScreen = () => {
     accountsState.statuses.addAccounts
   ])
 
+  // prevents showing accounts to personalize from prev sessions
+  useEffect(() => {
+    if (newlyAddedAccounts.length && accountPickerState.isInitialized) {
+      dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
+    }
+  }, [newlyAddedAccounts.length, accountPickerState.isInitialized, dispatch])
+
   useEffect(() => {
     setValue('accounts', accountsToPersonalize)
   }, [accountsToPersonalize, setValue])
@@ -137,12 +144,6 @@ const AccountPersonalizeScreen = () => {
     },
     [dispatch, getValues]
   )
-
-  useEffect(() => {
-    if (newlyAddedAccounts.length && accountPickerState.isInitialized) {
-      dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
-    }
-  }, [newlyAddedAccounts.length, accountPickerState.isInitialized, dispatch])
 
   const handleGetStarted = useCallback(async () => {
     await handleSubmit(handleSave)()
