@@ -92,7 +92,7 @@ const InnerToken: FC<Props> = ({
             address={address}
             withNetworkIcon={false}
           />
-          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
+          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mlMi}>
             {tokenInfo?.symbol || (
               <HumanizerAddress fontSize={textSize} address={address} hideLinks={hideLinks} />
             )}
@@ -110,7 +110,7 @@ const InnerToken: FC<Props> = ({
             address={address}
             withNetworkIcon={false}
           />
-          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
+          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mlMi}>
             {tokenInfo?.symbol || (
               <HumanizerAddress fontSize={textSize} address={address} hideLinks={hideLinks} />
             )}
