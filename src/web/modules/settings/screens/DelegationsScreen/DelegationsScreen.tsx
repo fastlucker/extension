@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -23,23 +23,18 @@ import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import Spinner from '@common/components/Spinner'
 import useDelegationControllerState from '@web/hooks/useDelegationControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
-import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const DelegationsScreen = () => {
-  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { accounts } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
-  const { delegations, delegationNetworks } = useDelegationControllerState()
+  const { delegations, delegationNetworks, is7702 } = useDelegationControllerState()
+  const [hasSelectedAccount, setHasSelectedAccount] = useState<boolean>(false)
 
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
   const { search } = useRoute()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-
-  useEffect(() => {
-    setCurrentSettingsPage('basic-to-smart')
-  }, [setCurrentSettingsPage])
 
   const params = new URLSearchParams(search)
   const accountAddr = params.get('accountAddr')
@@ -52,6 +47,8 @@ const DelegationsScreen = () => {
   useEffect(() => {
     if (!selectedAccount || !account) return
     if (selectedAccount.addr === account.addr) return
+    if (hasSelectedAccount) return
+    setHasSelectedAccount(true)
 
     dispatch({
       type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
@@ -59,7 +56,7 @@ const DelegationsScreen = () => {
         accountAddr: account.addr
       }
     })
-  }, [selectedAccount, account, dispatch])
+  }, [selectedAccount, account, hasSelectedAccount, dispatch])
 
   const delegate = (chainId: bigint) => {
     const selectedNet = networks.find((net) => net.chainId === chainId)
@@ -111,7 +108,7 @@ const DelegationsScreen = () => {
         />
       </View>
       <Authorization7702>
-        {account && delegationNetworks?.length ? (
+        {account && is7702 && delegationNetworks?.length ? (
           <>
             <Text fontSize={16} style={[spacings.mb, spacings.mt]}>
               {t(
@@ -188,7 +185,7 @@ const DelegationsScreen = () => {
             <Alert type="info" size="md">
               <Text fontSize={16} appearance="infoText">
                 {t(
-                  'No accounts available. Turning Basic Accounts into Smart is only available for hot wallets (wallets whose key is directly imported into the extension) as none of the hardware wallets support this functionality, yet. To proceed, please import a Basic Account through private key import'
+                  'Turning EOAs into Smart is only available for hot wallets (a wallet whose key is directly imported into the extension)'
                 )}
               </Text>
             </Alert>
