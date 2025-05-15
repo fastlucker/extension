@@ -13,9 +13,10 @@ import Text from '@common/components/Text'
 interface Props {
   setDelegation?: boolean
   delegatedContract?: Hex | null
+  isBorderless?: boolean
 }
 
-const DelegationHumanization: FC<Props> = ({ setDelegation, delegatedContract }) => {
+const DelegationHumanization: FC<Props> = ({ setDelegation, delegatedContract, isBorderless }) => {
   const { t } = useTranslation()
 
   const delegatorName = useMemo(() => {
@@ -23,29 +24,40 @@ const DelegationHumanization: FC<Props> = ({ setDelegation, delegatedContract })
     return getDelegatorName(delegatedContract)
   }, [delegatedContract])
 
+  const fontSize = isBorderless ? 14 : 16
+
   return (
     <View>
       <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
         <ExpandableCard
           enableToggleExpand={false}
           hasArrow={false}
-          style={{ width: '100%' }}
+          // @ts-ignore
+          style={[{ width: '100%' }, isBorderless ? { borderWidth: 0, paddingLeft: 8 } : {}]}
           content={
             <Text>
               {setDelegation ? (
                 <>
-                  <Text weight="semiBold">{t('Enable')} </Text>
-                  <Text>{t('the Ambire EIP-7702 Delegation for this account')}</Text>
+                  <Text fontSize={fontSize} weight="semiBold">
+                    {t('Enable')}{' '}
+                  </Text>
+                  <Text fontSize={fontSize}>
+                    {t('the Ambire EIP-7702 Delegation for this account')}
+                  </Text>
                 </>
               ) : (
                 <>
-                  <Text weight="semiBold">{t('Revoke')} </Text>
-                  <Text>
+                  <Text fontSize={fontSize} weight="semiBold">
+                    {t('Revoke')}{' '}
+                  </Text>
+                  <Text fontSize={fontSize}>
                     {t('the')} {delegatorName ? `${delegatorName} ` : ''}
                     {t('EIP-7702 Delegation for this account')}
                   </Text>
                   {!delegatorName && delegatedContract !== ZERO_ADDRESS && (
-                    <Text weight="semiBold">: {delegatedContract}</Text>
+                    <Text fontSize={fontSize} weight="semiBold">
+                      : {delegatedContract}
+                    </Text>
                   )}
                 </>
               )}
