@@ -11,6 +11,27 @@ const USER_DATA_DIR = '' // you can set a temp dir if needed
 
 let currentContext: BrowserContext | null = null
 
+const playwrightArgs = [
+  `--disable-extensions-except=${EXTENSION_PATH}`,
+  `--load-extension=${EXTENSION_PATH}`,
+  '--disable-features=DialMediaRouteProvider',
+  '--clipboard-write=granted',
+  '--clipboard-read=prompt',
+  '--detectOpenHandles',
+  '--start-maximized',
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--font-render-hinting=none',
+  '--ignore-certificate-errors',
+  '--window-size=1920,1080',
+  '--disable-gpu',
+  '--disable-dev-shm-usage',
+  '--disable-software-rasterizer',
+  '--disable-accelerated-2d-canvas',
+  '--disable-gl-drawing-for-tests',
+  '--use-gl=swiftshader'
+]
+
 async function initBrowser(namespace: string): Promise<{
   page: Page
   extensionURL: string
@@ -30,26 +51,11 @@ async function initBrowser(namespace: string): Promise<{
   // 1. Launch persistent context with extension
   const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
     headless: false,
-    args: [
-      `--disable-extensions-except=${EXTENSION_PATH}`,
-      `--load-extension=${EXTENSION_PATH}`,
-      '--disable-features=DialMediaRouteProvider',
-      '--clipboard-write=granted',
-      '--clipboard-read=prompt',
-      '--detectOpenHandles',
-      '--start-maximized',
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--font-render-hinting=none',
-      '--ignore-certificate-errors',
-      '--window-size=1920,1080',
-      '--disable-gpu',
-      '--disable-dev-shm-usage',
-      '--disable-software-rasterizer',
-      '--disable-accelerated-2d-canvas',
-      '--disable-gl-drawing-for-tests',
-      '--use-gl=swiftshader'
-    ]
+    slowMo: 10,
+    ignoreHTTPSErrors: true,
+    args: playwrightArgs, // make sure puppeteerArgs is defined/imported
+    env: process.env.DISPLAY ? { DISPLAY: process.env.DISPLAY } : undefined,
+    viewport: null // explicitly set if not using default
   })
 
   currentContext = context
