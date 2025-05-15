@@ -6,6 +6,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import { Hex } from '@ambire-common/interfaces/hex'
 import { getDelegatorName } from '@ambire-common/libs/7702/7702'
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Text from '@common/components/Text'
 
@@ -43,7 +44,9 @@ const DelegationHumanization: FC<Props> = ({ setDelegation, delegatedContract })
                     {t('the')} {delegatorName ? `${delegatorName} ` : ''}
                     {t('EIP-7702 Delegation for this account')}
                   </Text>
-                  {!delegatorName && <Text weight="semiBold">: {delegatedContract}</Text>}
+                  {!delegatorName && delegatedContract !== ZERO_ADDRESS && (
+                    <Text weight="semiBold">: {delegatedContract}</Text>
+                  )}
                 </>
               )}
             </Text>

@@ -102,7 +102,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
             userOpHash={userOpHash}
             stepsState={stepsState}
             summary={summary}
-            setDelegation={state?.stepsState?.setDelegation}
+            delegation={state?.stepsState?.delegation}
           />
           {!isRenderedInternally && (
             <Buttons
