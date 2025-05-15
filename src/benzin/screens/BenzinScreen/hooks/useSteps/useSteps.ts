@@ -730,7 +730,7 @@ const useSteps = ({
     originatedFrom: txnReceipt.originatedFrom,
     userOp,
     delegation:
-      extensionAccOp && extensionAccOp.meta && 'setDelegation' in extensionAccOp.meta
+      extensionAccOp && extensionAccOp.meta && extensionAccOp.meta.setDelegation !== undefined
         ? extensionAccOp.meta.delegation
         : undefined
   }
