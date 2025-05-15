@@ -45,7 +45,7 @@ const SignMessageScreen = () => {
   const [makeItSmartConfirmed, setMakeItSmartConfirmed] = useState(false)
   const [doNotAskMeAgain, setDoNotAskMeAgain] = useState(false)
   const actionState = useActionsControllerState()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
 
   const signMessageAction = useMemo(() => {
     if (actionState.currentAction?.type !== 'signMessage') return undefined
@@ -238,7 +238,7 @@ const SignMessageScreen = () => {
     <SmallNotificationWindowWrapper>
       <TabLayoutContainer
         width="full"
-        header={<HeaderAccountAndNetworkInfo />}
+        header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
         footer={
           <ActionFooter
             onReject={handleReject}
@@ -249,6 +249,7 @@ const SignMessageScreen = () => {
             rejectButtonText={rejectButtonText}
           />
         }
+        backgroundColor={theme.quinaryBackground}
       >
         <SigningKeySelect
           isVisible={isChooseSignerShown}
@@ -258,16 +259,6 @@ const SignMessageScreen = () => {
           handleClose={() => setIsChooseSignerShown(false)}
           account={account}
         />
-        {isViewOnly && (
-          <View style={styles.noKeysToSignAlert}>
-            <NoKeysToSignAlert
-              style={{
-                width: 640
-              }}
-              isTransaction={false}
-            />
-          </View>
-        )}
         {isAuthorization && !makeItSmartConfirmed ? (
           <Authorization7702
             onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
@@ -283,6 +274,11 @@ const SignMessageScreen = () => {
             setHasReachedBottom={setHasReachedBottom}
             shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
           />
+        )}
+        {isViewOnly && (
+          <View style={styles.noKeysToSignAlert}>
+            <NoKeysToSignAlert style={{ width: '100%' }} isTransaction={false} />
+          </View>
         )}
       </TabLayoutContainer>
     </SmallNotificationWindowWrapper>
