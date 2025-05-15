@@ -10,6 +10,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
+import DelegationHumanization from '@web/components/DelegationHumanization'
 import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
@@ -19,9 +20,17 @@ interface Props {
   userOpHash: string | null
   stepsState: StepsData
   summary: any
+  setDelegation?: boolean
 }
 
-const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }) => {
+const Steps: FC<Props> = ({
+  activeStep,
+  txnId,
+  userOpHash,
+  stepsState,
+  summary,
+  setDelegation
+}) => {
   const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
 
   const stepRows: any = [
@@ -131,7 +140,8 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }
           finalizedStatus={finalizedStatus}
           testID="txn-progress-step"
         >
-          {!!summary && summary}
+          {setDelegation === undefined && !!summary && summary}
+          {setDelegation !== undefined && <DelegationHumanization setDelegation={setDelegation} />}
           {
             // if there's an userOpHash & txnId but no callData decoded,
             // it means handleOps has not been called directly and we cannot decode

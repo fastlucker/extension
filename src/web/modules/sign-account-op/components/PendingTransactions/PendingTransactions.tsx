@@ -1,5 +1,5 @@
 import { keccak256, toUtf8Bytes } from 'ethers'
-import React, { FC, useEffect, useMemo } from 'react'
+import React, { FC, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -17,9 +17,7 @@ import SectionHeading from '@web/modules/sign-account-op/components/SectionHeadi
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import { Hex } from '@ambire-common/interfaces/hex'
-import { getDelegatorName } from '@ambire-common/libs/7702/7702'
-import ExpandableCard from '@common/components/ExpandableCard'
-import Text from '@common/components/Text'
+import DelegationHumanization from '@web/components/DelegationHumanization'
 import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
 import getStyles from './styles'
 
@@ -55,11 +53,6 @@ const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContr
     oldAccountOpRelevantInfoHash.current = newAccountOpRelevantInfoHash
   }, [accountOp])
 
-  const delegatorName = useMemo(() => {
-    if (!delegatedContract) return ''
-    return getDelegatorName(delegatedContract)
-  }, [delegatedContract])
-
   return (
     <View style={spacings.mbLg}>
       <View
@@ -74,34 +67,10 @@ const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContr
         <NetworkBadge chainId={network?.chainId} withOnPrefix />
       </View>
       {setDelegation !== undefined ? (
-        <View>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-            <ExpandableCard
-              enableToggleExpand={false}
-              hasArrow={false}
-              style={{ width: '100%' }}
-              content={
-                <Text>
-                  {setDelegation ? (
-                    <>
-                      <Text weight="semiBold">Enable </Text>
-                      <Text>the Ambire EIP-7702 Delegation for this account</Text>
-                    </>
-                  ) : (
-                    <>
-                      <Text weight="semiBold">Revoke </Text>
-                      <Text>
-                        the {delegatorName ? `${delegatorName} ` : ''}EIP-7702 Delegation for this
-                        account
-                      </Text>
-                      {!delegatorName && <Text weight="semiBold">: {delegatedContract}</Text>}
-                    </>
-                  )}
-                </Text>
-              }
-            />
-          </View>
-        </View>
+        <DelegationHumanization
+          setDelegation={setDelegation}
+          delegatedContract={delegatedContract}
+        />
       ) : (
         <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
           {network && callsToVisualize.length ? (
