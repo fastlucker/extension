@@ -1,5 +1,5 @@
 import { keccak256, toUtf8Bytes } from 'ethers'
-import React, { FC, useEffect } from 'react'
+import React, { FC, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -16,6 +16,8 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import { Hex } from '@ambire-common/interfaces/hex'
+import { getContractImplementation } from '@ambire-common/libs/7702/7702'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Text from '@common/components/Text'
 import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
@@ -24,9 +26,10 @@ import getStyles from './styles'
 interface Props {
   network?: Network
   setDelegation?: boolean
+  delegatedContract?: Hex | null
 }
 
-const PendingTransactions: FC<Props> = ({ network, setDelegation }) => {
+const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContract }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const { accountOp } = useSignAccountOpControllerState() || {}
@@ -51,6 +54,14 @@ const PendingTransactions: FC<Props> = ({ network, setDelegation }) => {
 
     oldAccountOpRelevantInfoHash.current = newAccountOpRelevantInfoHash
   }, [accountOp])
+
+  const isDelegatedContractAmbire = useMemo(() => {
+    return (
+      network &&
+      delegatedContract &&
+      getContractImplementation(network.chainId).toLowerCase() === delegatedContract.toLowerCase()
+    )
+  }, [network, delegatedContract])
 
   return (
     <View style={spacings.mbLg}>
@@ -82,7 +93,13 @@ const PendingTransactions: FC<Props> = ({ network, setDelegation }) => {
                   ) : (
                     <>
                       <Text weight="semiBold">Revoke </Text>
-                      <Text>the Ambire EIP-7702 Delegation for this account</Text>
+                      <Text>
+                        the {isDelegatedContractAmbire ? 'Ambire ' : ''}EIP-7702 Delegation for this
+                        account
+                      </Text>
+                      {!isDelegatedContractAmbire && (
+                        <Text weight="semiBold">: {delegatedContract}</Text>
+                      )}
                     </>
                   )}
                 </Text>

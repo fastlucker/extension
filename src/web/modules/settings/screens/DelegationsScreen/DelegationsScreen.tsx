@@ -27,7 +27,7 @@ import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const DelegationsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
-  const { accountStates, accounts } = useAccountsControllerState()
+  const { accounts } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
   const { delegations, delegationNetworks } = useDelegationControllerState()
 
@@ -73,7 +73,7 @@ const DelegationsScreen = () => {
           isSignAction: true,
           chainId: selectedNet.chainId,
           accountAddr: selectedAccount.addr,
-          setDelegation: !delegations[selectedNet.chainId.toString()]
+          setDelegation: !delegations[selectedNet.chainId.toString()].has
         },
         action: {
           kind: 'calls',
@@ -160,7 +160,7 @@ const DelegationsScreen = () => {
                 </View>
                 <View style={[flexbox.flex1, flexbox.alignCenter]}>
                   <View style={[flexbox.directionRow]}>
-                    {delegations[net.chainId.toString()] ? (
+                    {delegations[net.chainId.toString()].has ? (
                       <Badge type="success" text={t('activated')} />
                     ) : (
                       <Badge type="default" text={t('inactive')} />
@@ -170,18 +170,12 @@ const DelegationsScreen = () => {
                 <View style={[flexbox.flex1, flexbox.alignEnd]}>
                   <View style={[flexbox.directionRow]}>
                     <Button
-                      type={
-                        !accountStates[account.addr][net.chainId.toString()]?.isSmarterEoa
-                          ? 'primary'
-                          : 'danger'
-                      }
+                      type={!delegations[net.chainId.toString()].has ? 'primary' : 'danger'}
                       size="tiny"
                       style={[spacings.mb0, { minWidth: '95px' }]}
                       onPress={() => delegate(net.chainId)}
                       text={
-                        !accountStates[account.addr][net.chainId.toString()]?.isSmarterEoa
-                          ? t('Activate')
-                          : t('Deactivate')
+                        !delegations[net.chainId.toString()].has ? t('Activate') : t('Deactivate')
                       }
                     />
                   </View>
