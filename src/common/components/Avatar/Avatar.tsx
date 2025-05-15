@@ -88,7 +88,7 @@ const Avatar: FC<Props> = ({
             borderRadius={borderRadius}
           />
         )}
-        {displayTypeBadge && isSmart && (
+        {displayTypeBadge && (
           <TypeBadge isSmart={isSmart} type={badgeType} showTooltip={showTooltip} />
         )}
       </View>
