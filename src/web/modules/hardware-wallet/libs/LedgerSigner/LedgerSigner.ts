@@ -8,9 +8,7 @@ import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, {
-  LedgerDeviceModels
-} from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, { LedgerDeviceModels } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSignerInterface {
   key: ExternalKey

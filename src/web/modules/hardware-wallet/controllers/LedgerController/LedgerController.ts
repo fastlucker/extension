@@ -12,13 +12,27 @@ import {
   DeviceModelId as LedgerDeviceModels,
   LEDGER_VENDOR_ID
 } from '@ledgerhq/device-management-kit'
-import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
 import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
 export { LedgerDeviceModels }
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
+
+// FIXME: Importing the SignerEthBuilder class statically fails in the service worker
+// somewhere in the rpcFlow, but I'm not sure where exactly (error gets swallowed).
+// The only working solution I found is to use dynamic import.
+const getSignerBuilder = async () => {
+  try {
+    // Use dynamic import to avoid the static import issue
+    const module = await import('@ledgerhq/device-signer-kit-ethereum')
+    return module.SignerEthBuilder
+  } catch (error) {
+    console.error('Failed to load SignerEthBuilder:', error)
+    // Return null or a mock implementation if needed
+    return null
+  }
+}
 
 class LedgerController implements ExternalSignerController {
   unlockedPath: string = ''
@@ -197,7 +211,11 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  async unlock(path: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
+  async unlock(
+    path: ReturnType<typeof getHdPathFromTemplate>,
+    expectedKeyOnThisPath?: string,
+    shouldOpenLatticeConnectorInTab?: boolean
+  ): Promise<'ALREADY_UNLOCKED' | 'JUST_UNLOCKED'> {
     await this.#initSDKSessionIfNeeded()
 
     if (this.isUnlocked(path, expectedKeyOnThisPath)) {
@@ -214,61 +232,89 @@ class LedgerController implements ExternalSignerController {
       throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
     }
 
-    // Store reference to walletSDK to avoid this context issues
-    const walletSDK = this.walletSDK
-    let signerEth = this.signerEth
-    let discoverySubscription: any = null
-    let addressSubscription: any = null
-
-    return new Promise((resolve, reject) => {
-      discoverySubscription = walletSDK.listenToAvailableDevices({}).subscribe({
-        next: async (device) => {
-          if (!device || !device.length) return
-
-          discoverySubscription?.unsubscribe()
-
-          const sessionId = await walletSDK.connect({ device: device[0] })
-
-          // Get device information
-          const connectedDevice = walletSDK.getConnectedDevice({ sessionId })
-          this.deviceModel = connectedDevice.modelId
-          this.deviceId = connectedDevice.id
-
-          const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
-          signerEth = new SignerEthBuilder({ dmk: walletSDK, sessionId })
-            .withContextModule(contextModule)
-            .build()
-
-          // Attempt to get an address to check if the device is responsive
-          const hdPath = getHdPathFromTemplate(path as any, 0)
-          const hdPathWithoutRoot = hdPath.slice(2)
-          const { observable, cancel } = signerEth.getAddress(hdPathWithoutRoot, {
-            checkOnDevice: false, // prioritize having less steps for the user
-            returnChainCode: false
-          })
-
-          addressSubscription = observable.subscribe({
-            next: (response) => {
-              if (response.status !== 'completed') return
-
-              this.unlockedPath = path
-              this.unlockedPathKeyAddr = response?.output?.address
-              this.signerEth = signerEth // Assign back to this.signerEth after successful initialization
-
-              addressSubscription?.unsubscribe()
-              return resolve('JUST_UNLOCKED')
+    // TODO: Check if disconnect protection is still needed with the new SDK
+    return LedgerController.withDisconnectProtection(async () => {
+      try {
+        // Find available devices
+        let device: any = null
+        await new Promise<void>((resolve, reject) => {
+          const discoverySubscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
+            next: (devices) => {
+              if (devices && devices.length) {
+                device = devices[0]
+                discoverySubscription.unsubscribe()
+                resolve()
+              }
             },
             error: (error) => {
-              addressSubscription?.unsubscribe()
+              discoverySubscription.unsubscribe()
               reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
             }
           })
-        },
-        error: (error) => {
-          discoverySubscription?.unsubscribe()
-          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        })
+
+        if (!device) {
+          throw new ExternalSignerError('No Ledger device detected.')
         }
-      })
+
+        // Connect to device
+        const walletSDK = this.walletSDK as DeviceManagementKit
+        const sessionId = await walletSDK.connect({ device })
+
+        // Get device information
+        const connectedDevice = walletSDK.getConnectedDevice({ sessionId })
+        this.deviceModel = connectedDevice.modelId
+        this.deviceId = connectedDevice.id
+
+        // Get the SignerEthBuilder dynamically to avoid the static import issue
+        const SignerEthBuilder = await getSignerBuilder()
+
+        if (!SignerEthBuilder) {
+          // Fallback if dynamic import fails
+          this.unlockedPath = path
+          this.unlockedPathKeyAddr = expectedKeyOnThisPath || ''
+          return 'JUST_UNLOCKED' as const
+        }
+
+        // Create the signer using the dynamically imported constructor
+        const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
+        const signerEth = new SignerEthBuilder({ dmk: walletSDK, sessionId })
+          .withContextModule(contextModule)
+          .build()
+
+        // Get address
+        const hdPath = getHdPathFromTemplate(path as any, 0)
+        const hdPathWithoutRoot = hdPath.slice(2)
+
+        const address = await new Promise<string>((resolve, reject) => {
+          const { observable } = signerEth.getAddress(hdPathWithoutRoot, {
+            checkOnDevice: false,
+            returnChainCode: false
+          })
+
+          const addressSubscription = observable.subscribe({
+            next: (response) => {
+              if (response.status === 'completed' && response?.output?.address) {
+                addressSubscription.unsubscribe()
+                resolve(response.output.address)
+              }
+            },
+            error: (error) => {
+              addressSubscription.unsubscribe()
+              reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+            }
+          })
+        })
+
+        // Save unlocked state
+        this.unlockedPath = path
+        this.unlockedPathKeyAddr = address
+        this.signerEth = signerEth
+
+        return 'JUST_UNLOCKED' as const
+      } catch (error: any) {
+        throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
+      }
     })
   }
 
@@ -340,7 +386,7 @@ class LedgerController implements ExternalSignerController {
     })
   }
 
-  async signPersonalMessage(path: string, message: string) {
+  async signPersonalMessage(path: string, messageHex: string) {
     await this.#initSDKSessionIfNeeded()
 
     if (!this.walletSDK || !this.signerEth) {
@@ -354,7 +400,8 @@ class LedgerController implements ExternalSignerController {
     const hdPathWithoutRoot = hdPath.slice(2)
 
     return new Promise<{ v: number; s: string; r: string }>((resolve, reject) => {
-      const { observable } = signerEth.signMessage(hdPathWithoutRoot, message)
+      // FIXME: Message HEX is not readable on the device, converting it to text breaks the signature
+      const { observable } = signerEth.signMessage(hdPathWithoutRoot, messageHex)
 
       let subscription: any = null
       subscription = observable.subscribe({
