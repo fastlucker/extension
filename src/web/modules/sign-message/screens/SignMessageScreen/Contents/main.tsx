@@ -69,7 +69,7 @@ const Main = ({
   )
 
   return (
-    <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
+    <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvMd}>
       <View
         style={[
           flexbox.directionRow,
@@ -111,7 +111,11 @@ const Main = ({
             enableToggleExpand={!!visualizeHumanized}
             isInitiallyExpanded={!visualizeHumanized}
             hasArrow={!!visualizeHumanized}
-            style={{ ...spacings.mbTy, maxHeight: '100%' }}
+            style={{
+              ...spacings.mbTy,
+              maxHeight: '100%',
+              backgroundColor: theme.primaryBackground
+            }}
             content={
               visualizeHumanized &&
               // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
