@@ -590,6 +590,7 @@ type TransferControllerUpdateForm = {
 }
 type TransferControllerResetForm = {
   type: 'TRANSFER_CONTROLLER_RESET_FORM'
+  params?: { destroySignAccountOp?: boolean }
 }
 type TransferControllerUserProceededAction = {
   type: 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED'

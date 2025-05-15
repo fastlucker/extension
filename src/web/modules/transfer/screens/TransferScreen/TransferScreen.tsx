@@ -41,6 +41,9 @@ import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchMo
 import TrackProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
 import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
 import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
+import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
 
 const { isPopup, isTab } = getUiType()
 
@@ -73,11 +76,45 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     close: closeGasTankInfoBottomSheet
   } = useModalize()
   const actionsState = useActionsControllerState()
+  const { accountsOps } = useActivityControllerState()
   const { hasGasTank } = useHasGasTank({ account })
   const recipientMenuClosedAutomatically = useRef(false)
 
   const [hasBroadcasted, setHasBroadcasted] = useState(false)
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
+
+  const submittedAccountOp = useMemo(() => {
+    if (!accountsOps.transfer || !signAccountOpController || !signAccountOpController?.accountOp)
+      return
+
+    return accountsOps.transfer.result.items.find(
+      (accOp) => accOp.signature === signAccountOpController.accountOp.signature
+    )
+  }, [accountsOps.transfer, signAccountOpController?.accountOp.signature])
+
+  useEffect(() => {
+    // Optimization: Don't apply filtration if we are not on Activity tab
+    if (!signAccountOpController?.accountOp) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
+      params: {
+        sessionId: 'transfer',
+        filters: {
+          account: signAccountOpController.accountOp.accountAddr,
+          chainId: signAccountOpController?.accountOp.chainId
+        },
+        pagination: {
+          itemsPerPage: 10,
+          fromPage: 0
+        }
+      }
+    })
+  }, [
+    dispatch,
+    signAccountOpController?.accountOp.accountAddr,
+    signAccountOpController?.accountOp.chainId
+  ])
 
   const displayedView: 'transfer' | 'batch' | 'track' = useMemo(() => {
     if (showAddedToBatch) return 'batch'
@@ -341,13 +378,22 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   }, [navigate, dispatch])
 
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
   const onBatchAddedSecondaryButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
 
   const onPrimaryButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
     navigate(WEB_ROUTES.dashboard)
     // TODO - implement action window closing
     // if (isActionWindow) {
@@ -366,19 +412,36 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         onPrimaryButtonPress={onPrimaryButtonPress}
         secondaryButtonText={isTopUp ? t('Top up again?') : t('Sending more?')}
         handleClose={() => {
+          dispatch({
+            type: 'TRANSFER_CONTROLLER_RESET_FORM'
+          })
           setHasBroadcasted(false)
         }}
       >
-        {signAccountOpController?.status?.type === SigningStatus.InProgress && (
-          <InProgress title={t('Confirming your trade')}>Arriving soon!</InProgress>
+        {submittedAccountOp?.status === AccountOpStatus.BroadcastedButNotConfirmed && (
+          <InProgress title={isTopUp ? t('Confirming your top up') : t('Confirming your transfer')}>
+            {t('Almost there!')}
+          </InProgress>
         )}
-        {signAccountOpController?.status?.type === SigningStatus.Done && (
+        {(submittedAccountOp?.status === AccountOpStatus.Success ||
+          submittedAccountOp?.status === AccountOpStatus.UnknownButPastNonce) && (
           <Completed
-            title={t('Nice transfer!')}
-            titleSecondary={t('You can now see your transaction on the Dashboard.')}
+            title={isTopUp ? t('Top up ready!') : t('Transfer done!')}
+            titleSecondary={
+              isTopUp
+                ? t('You can now use your gas tank')
+                : t('{{symbol}} delivered - like magic.', {
+                    symbol: state.selectedToken?.symbol || 'Token'
+                  })
+            }
             explorerLink=""
             openExplorerText="View Transfer"
           />
+        )}
+        {(submittedAccountOp?.status === AccountOpStatus.Failure ||
+          submittedAccountOp?.status === AccountOpStatus.Rejected ||
+          submittedAccountOp?.status === AccountOpStatus.BroadcastButStuck) && (
+          <Failed title={t('Something went wrong!')} errorMessage="TODO error message" />
         )}
       </TrackProgress>
     )
