@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { has7702 } from '@ambire-common/libs/7702/7702'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Badge from '@common/components/Badge'
@@ -21,6 +20,8 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 import Authorization7702 from '@web/modules/sign-message/screens/SignMessageScreen/Contents/authorization7702'
 
 import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
+import Spinner from '@common/components/Spinner'
+import useDelegationControllerState from '@web/hooks/useDelegationControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
@@ -28,6 +29,7 @@ const DelegationsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { accountStates, accounts } = useAccountsControllerState()
   const { account: selectedAccount } = useSelectedAccountControllerState()
+  const { delegations, delegationNetworks } = useDelegationControllerState()
 
   const { networks } = useNetworksControllerState()
   const { theme } = useTheme()
@@ -61,12 +63,7 @@ const DelegationsScreen = () => {
 
   const delegate = (chainId: bigint) => {
     const selectedNet = networks.find((net) => net.chainId === chainId)
-    if (!selectedNet || !account) return
-
-    const accountState = accountStates[account.addr]
-      ? accountStates[account.addr][selectedNet.chainId.toString()]
-      : undefined
-    if (!accountState) return
+    if (!selectedNet || !delegations || !selectedAccount) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
@@ -75,8 +72,8 @@ const DelegationsScreen = () => {
         meta: {
           isSignAction: true,
           chainId: selectedNet.chainId,
-          accountAddr: account.addr,
-          setDelegation: !accountState.isSmarterEoa
+          accountAddr: selectedAccount.addr,
+          setDelegation: delegations[selectedNet.chainId.toString()]
         },
         action: {
           kind: 'calls',
@@ -92,21 +89,13 @@ const DelegationsScreen = () => {
     })
   }
 
-  const getIsSmarterEOA = (chainId: bigint): boolean => {
-    const selectedNet = networks.find((net) => net.chainId === chainId)
-    if (!selectedNet || !account) return false
-
-    const accountState = accountStates[account.addr]
-      ? accountStates[account.addr][selectedNet.chainId.toString()]
-      : undefined
-    if (!accountState) return false
-
-    return accountState.isSmarterEoa
+  if (!delegations) {
+    return (
+      <View style={[spacings.pv, spacings.ph, flexbox.center, flexbox.flex1]}>
+        <Spinner />
+      </View>
+    )
   }
-
-  const availableNetworks = useMemo(() => {
-    return networks.filter((net) => has7702(net))
-  }, [networks])
 
   return (
     <>
@@ -122,7 +111,7 @@ const DelegationsScreen = () => {
         />
       </View>
       <Authorization7702>
-        {account && availableNetworks?.length ? (
+        {account && delegationNetworks?.length ? (
           <>
             <Text fontSize={16} style={[spacings.mb, spacings.mt]}>
               {t(
@@ -149,7 +138,7 @@ const DelegationsScreen = () => {
                 <Text>Action</Text>
               </View>
             </View>
-            {availableNetworks.map((net) => (
+            {delegationNetworks.map((net) => (
               <View
                 key={net.chainId.toString()}
                 style={[
@@ -171,7 +160,7 @@ const DelegationsScreen = () => {
                 </View>
                 <View style={[flexbox.flex1, flexbox.alignCenter]}>
                   <View style={[flexbox.directionRow]}>
-                    {getIsSmarterEOA(net.chainId) ? (
+                    {delegations[net.chainId.toString()] ? (
                       <Badge type="success" text={t('activated')} />
                     ) : (
                       <Badge type="default" text={t('inactive')} />
