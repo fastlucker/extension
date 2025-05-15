@@ -69,7 +69,7 @@ const Step = ({
     </BrowserRouter>
   )
 }
-// TODO: Check if we need these steps at all
+// Note: We're not using it anymore, but it should be better to keep it for future use.
 const STEPS = [
   {
     element: `#${SmartAccountIntroId}`,
