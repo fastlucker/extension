@@ -1,21 +1,14 @@
 import React, { useRef, useState } from 'react'
 
-import InfoIcon from '@common/assets/svg/InfoIcon'
-import Tooltip from '@common/components/Tooltip'
 import rewardsCoverImg from '@legends/common/assets/images/rewards-cover-image.png'
 import HourGlassIcon from '@legends/common/assets/svg/HourGlassIcon'
 import LockIcon from '@legends/common/assets/svg/LockIcon'
-import AccountInfo from '@legends/components/AccountInfo'
-import Alert from '@legends/components/Alert'
-import Stacked from '@legends/components/Stacked'
-import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
-import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useAccountContext from '@legends/hooks/useAccountContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import ClaimRewardsModal from '@legends/modules/legends/components/ClaimRewardsModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
-import { Networks } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 
 import walletCoin from './assets/wallet-coin.png'
@@ -23,19 +16,21 @@ import styles from './Home.module.scss'
 
 const Home = () => {
   const [isOpen, setIsOpen] = useState(false)
-
-  const { character } = useCharacterContext()
+  const { connectedAccount } = useAccountContext()
   const { legends, isLoading } = useLegendsContext()
   const claimWalletCard = legends?.find((card) =>
     isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
   )
-  const { accountPortfolio, claimableRewardsError, isLoadingClaimableRewards } =
-    usePortfolioControllerState()
+  const {
+    accountPortfolio,
+    claimableRewards,
+    walletTokenInfo,
+    claimableRewardsError,
+    isLoadingClaimableRewards
+  } = usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
-  const { isReady, amountFormatted } = accountPortfolio || {}
-  const formatXp = (xp: number) => {
-    return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-  }
+  const { amountFormatted } = accountPortfolio || {}
+
   const cardRef = useRef<HTMLDivElement>(null)
 
   const closeClaimModal = () => {
@@ -92,22 +87,12 @@ const Home = () => {
     card.style.setProperty('--perspective', '0px')
   }
 
-  if (!character)
-    return (
-      <Alert
-        className={styles.error}
-        type="error"
-        title="Failed to load character"
-        message="Please try again later or contact support if the issue persists."
-      />
-    )
-
   const rewardsDisabledState = Number(claimWalletCard?.meta?.availableToClaim) === 0
 
   const isNotAvailableForRewards =
     Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
     (userLeaderboardData?.level ?? 0) <= 2
-
+  const stakedWallet = (walletTokenInfo?.stkWalletTotalSupply / walletTokenInfo?.totalSupply) * 100
   return (
     <>
       <div className={styles.rewardsWrapper}>
@@ -118,82 +103,84 @@ const Home = () => {
           meta={claimWalletCard?.meta}
           card={claimWalletCard?.card}
         />
-        <div
-          ref={cardRef}
-          className={`${styles.rewardsBadgeWrapper} ${
-            !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim ? styles.active : ''
-          }`}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={resetRotation}
-          onClick={(e) =>
-            !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim && openClaimModal()
-          }
-          onKeyDown={(e) => e.key === 'Enter' && openClaimModal()}
-          role="button"
-          tabIndex={0}
-          aria-label="Open rewards claim modal"
-        >
-          <div className={styles.rewardsBadge}>
-            <div className={styles.rewardsCoverImgWrapper}>
-              <img
-                src={rewardsCoverImg}
-                className={`${styles.rewardsCoverImg} ${
-                  (rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
-                  styles.rewardsCoverImgDisabled
-                }`}
-                alt="rewards-cover"
-              />
-              {(rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
-                (Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
-                !isNotAvailableForRewards ? (
-                  <HourGlassIcon
-                    className={styles.lockIcon}
-                    width={29}
-                    height={37}
-                    color="currentColor"
-                  />
-                ) : (
-                  <LockIcon
-                    className={styles.lockIcon}
-                    width={29}
-                    height={37}
-                    color="currentColor"
-                  />
-                ))}
-            </div>
-            <div className={styles.rewardsInfo}>
-              {isLoadingClaimableRewards || isLoading ? (
-                <p>Loading rewards...</p>
-              ) : claimableRewardsError ? (
-                <p>Error loading rewards</p>
-              ) : rewardsDisabledState ? (
-                <p className={styles.rewardsTitle}>
-                  {Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+        {connectedAccount ? (
+          <div
+            ref={cardRef}
+            className={`${styles.rewardsBadgeWrapper} ${
+              !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim ? styles.active : ''
+            }`}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={resetRotation}
+            onClick={(e) =>
+              !rewardsDisabledState && claimWalletCard?.meta?.availableToClaim && openClaimModal()
+            }
+            onKeyDown={(e) => e.key === 'Enter' && openClaimModal()}
+            role="button"
+            tabIndex={0}
+            aria-label="Open rewards claim modal"
+          >
+            <div className={styles.rewardsBadge}>
+              <div className={styles.rewardsCoverImgWrapper}>
+                <img
+                  src={rewardsCoverImg}
+                  className={`${styles.rewardsCoverImg} ${
+                    (rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
+                    styles.rewardsCoverImgDisabled
+                  }`}
+                  alt="rewards-cover"
+                />
+                {(rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
+                  (Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
                   !isNotAvailableForRewards ? (
-                    "You haven't accumulated $WALLET rewards yet."
+                    <HourGlassIcon
+                      className={styles.lockIcon}
+                      width={29}
+                      height={37}
+                      color="currentColor"
+                    />
                   ) : (
-                    <>
-                      You need to reach Level 3 and keep a minimum balance of
-                      <br />
-                      $500 on the supported networks to start accruing rewards.
-                    </>
-                  )}
-                </p>
-              ) : (
-                <>
-                  <p className={styles.rewardsTitle}>$WALLET Rewards</p>
-                  <p className={styles.rewardsAmount}>
-                    {claimWalletCard?.meta?.availableToClaim
-                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
-                          .toLocaleString('en-US', { useGrouping: true })
-                          .replace(/,/g, ' ')
-                      : '0'}
+                    <LockIcon
+                      className={styles.lockIcon}
+                      width={29}
+                      height={37}
+                      color="currentColor"
+                    />
+                  ))}
+              </div>
+              <div className={styles.rewardsInfo}>
+                {isLoadingClaimableRewards || isLoading ? (
+                  <p>Loading rewards...</p>
+                ) : claimableRewardsError ? (
+                  <p>Error loading rewards</p>
+                ) : rewardsDisabledState ? (
+                  <p className={styles.rewardsTitle}>
+                    {Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+                    !isNotAvailableForRewards ? (
+                      "You haven't accumulated $WALLET rewards yet."
+                    ) : (
+                      <>
+                        You need to reach Level 3 and keep a minimum balance of
+                        <br />
+                        $500 on the supported networks to start accruing rewards.
+                      </>
+                    )}
                   </p>
-                </>
-              )}
+                ) : (
+                  <>
+                    <p className={styles.rewardsTitle}>$WALLET Rewards</p>
+                    <p className={styles.rewardsAmount}>
+                      {claimWalletCard?.meta?.availableToClaim
+                        ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
+                            .toLocaleString('en-US', { useGrouping: true })
+                            .replace(/,/g, ' ')
+                        : '0'}
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
       </div>
 
       <section className={`${styles.wrapper}`}>
@@ -207,21 +194,31 @@ const Home = () => {
               <div className={styles.walletItemWrapper}>
                 <div className={styles.walletItem}>
                   <div className={styles.walletInfoWrapper}>Circulating supply</div>
-                  <span className={styles.item}>688,248,948</span>
+                  <span className={styles.item}>
+                    {walletTokenInfo?.circulatingSupply
+                      ? Math.floor(Number(walletTokenInfo.circulatingSupply)).toLocaleString(
+                          'en-US'
+                        )
+                      : '0'}
+                  </span>
                 </div>
               </div>
             </div>
             <div className={styles.walletItemWrapper}>
               <div className={styles.walletItem}>
                 Staked $WALLET
-                <span className={styles.item}>45%</span>
+                <span className={styles.item}>{stakedWallet.toFixed(2)}%</span>
                 <div className={styles.walletInfoWrapper} />
               </div>
             </div>
             <div className={styles.walletItemWrapper}>
               <div className={styles.walletItem}>
-                <div className={styles.walletInfoWrapper}>Current Price</div>
-                <span className={styles.item}>$0.013</span>
+                <div className={styles.walletInfoWrapper}>Current price</div>
+                <span className={styles.item}>
+                  {claimableRewards?.priceIn[0].price !== undefined
+                    ? Number(claimableRewards.priceIn[0].price).toFixed(3)
+                    : ''}
+                </span>
               </div>
             </div>
           </div>

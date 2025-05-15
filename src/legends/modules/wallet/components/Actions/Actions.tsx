@@ -5,7 +5,6 @@ import 'swiper/css/effect-coverflow'
 import 'swiper/css/free-mode'
 
 import React, { useRef } from 'react'
-import { Link } from 'react-router-dom'
 import { FreeMode, Mousewheel, Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
@@ -15,9 +14,10 @@ import Alert from '@legends/components/Alert'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import SectionHeading from '@legends/modules/Home/components/SectionHeading'
 import Card from '@legends/modules/legends/components/Card'
-import { CardStatus, CardType } from '@legends/modules/legends/types'
 
 import styles from './Actions.module.scss'
+
+const cardsOrder = ['claim-rewards', 'migrate-stk', 'staking', 'buyWalletToken', 'vote']
 
 const Actions = () => {
   const { legends, isLoading, error } = useLegendsContext()
@@ -26,16 +26,15 @@ const Actions = () => {
   const sortedLegends = React.useMemo(() => {
     if (!legends) return []
 
-    const filtered = legends.filter((card) => card.group === 'supporter')
+    const filtered = legends.filter(
+      (card) => card.group === 'supporter' && cardsOrder.includes(card.id)
+    )
 
     return [...filtered].sort((a, b) => {
-      if (a.card.type === CardType.daily && b.card.type !== CardType.daily) return -1
-      if (a.card.type !== CardType.daily && b.card.type === CardType.daily) return 1
-
-      if (a.card.status === CardStatus.active && b.card.status !== CardStatus.active) return -1
-      if (a.card.status !== CardStatus.active && b.card.status === CardStatus.active) return 1
-
-      return 0
+      // Sort by cardsOrder index
+      const aIndex = cardsOrder.indexOf(a.id)
+      const bIndex = cardsOrder.indexOf(b.id)
+      return aIndex - bIndex
     })
   }, [legends])
 
