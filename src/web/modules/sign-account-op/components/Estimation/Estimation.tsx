@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SpeedCalc } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Warning } from '@ambire-common/interfaces/signAccountOp'
@@ -21,7 +22,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
@@ -292,7 +292,7 @@ const Estimation = ({
       {
         title: {
           icon: <AssetIcon color={theme.secondaryText} width={16} height={16} />,
-          text: t('With native assets of my basic accounts')
+          text: t('With native assets of my EOA accounts')
         },
         data: payOptionsPaidByEOA,
         key: 'eoa-tokens'

@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, View } from 'react-native'
@@ -18,6 +17,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { setStringAsync } from '@common/utils/clipboard'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import SmallNotificationWindowWrapper from '@web/components/SmallNotificationWindowWrapper'
 import {
@@ -161,7 +161,7 @@ const SignAccountOpScreen = () => {
 
     if (!errorCode) return
 
-    await Clipboard.setStringAsync(errorCode)
+    await setStringAsync(errorCode)
     addToast(t('Error code copied to clipboard'))
   }, [addToast, signAccountOpState?.errors, t])
 
@@ -233,7 +233,7 @@ const SignAccountOpScreen = () => {
         width="full"
         backgroundColor="#F7F8FC"
         withHorizontalPadding={false}
-        style={spacings.phLg}
+        style={spacings.phMd}
         header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
         renderDirectChildren={() => (
           <View style={styles.footer}>
