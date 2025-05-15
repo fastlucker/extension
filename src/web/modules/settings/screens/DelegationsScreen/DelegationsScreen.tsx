@@ -73,7 +73,7 @@ const DelegationsScreen = () => {
           isSignAction: true,
           chainId: selectedNet.chainId,
           accountAddr: selectedAccount.addr,
-          setDelegation: delegations[selectedNet.chainId.toString()]
+          setDelegation: !delegations[selectedNet.chainId.toString()]
         },
         action: {
           kind: 'calls',
