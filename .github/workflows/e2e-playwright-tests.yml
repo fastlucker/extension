@@ -15,7 +15,7 @@ jobs:
       - name: Checkout full Git history
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # ❗ Required to avoid GitCommitInfo timeout
+          fetch-depth: 0  # Fixes GitCommitInfo timeout
 
       - name: Add SSH key to checkout a private repo
         uses: webfactory/ssh-agent@v0.5.4
@@ -50,11 +50,10 @@ jobs:
       - name: Run Playwright tests
         working-directory: ./e2e-playwright-tests
         env:
-          DISPLAY: ':99.0'
           IS_TESTING: 'true'
-          SHOULD_RUN_TREZOR_TESTS: 'true'
-          PLAYWRIGHT_SKIP_GIT_METADATA: '1' # ✅ Optional fix to skip fetch
           E2E_DEBUG: ${{ vars.E2E_DEBUG }}
+          # Its value is based on the above Display server configuration
+          DISPLAY: ':99.0'
           RELAYER_URL: ${{ vars.RELAYER_URL }}
           VELCRO_URL: ${{ vars.VELCRO_URL }}
           SOCKET_API_KEY: ${{ vars.SOCKET_API_KEY }}
@@ -65,10 +64,6 @@ jobs:
           SEED: ${{ secrets.SEED }}
           BA_PRIVATE_KEY: ${{ secrets.BA_PRIVATE_KEY }}
           BA_PASSPHRASE: ${{ secrets.BA_PASSPHRASE }}
-          SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
-          SA_SECRETS: ${{ secrets.SA_SECRETS }}
-          SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
-          DEFAULT_INVITATION_CODE_DEV: ${{ vars.DEFAULT_INVITATION_CODE_DEV }}
           BA_ACCOUNTS: ${{ vars.BA_ACCOUNTS }}
           BA_KEYSTORE_UID: ${{ vars.BA_KEYSTORE_UID }}
           BA_KEYS: ${{ vars.BA_KEYS }}
@@ -81,15 +76,20 @@ jobs:
           BA_SELECTED_ACCOUNT: ${{ vars.BA_SELECTED_ACCOUNT }}
           BA_TERMSTATE: ${{ vars.BA_TERMSTATE }}
           SA_ACCOUNTS: ${{ vars.SA_ACCOUNTS }}
+          SA_IS_ONBOARDED: ${{ vars.SA_IS_ONBOARDED }}
           SA_KEYSTORE_UID: ${{ vars.SA_KEYSTORE_UID }}
           SA_KEYS: ${{ vars.SA_KEYS }}
+          SA_SECRETS: ${{ secrets.SA_SECRETS }}
           SA_SEEDS: ${{ vars.SA_SEEDS }}
-          SA_NETWORK_WITH_ASSETS: ${{ vars.SA_NETWORK_WITH_ASSETS }}
-          SA_NETWORK_WITH_POSITIONS: ${{ vars.SA_NETWORK_WITH_POSITIONS }}
           SA_ONBOARDING_STATE: ${{ vars.SA_ONBOARDING_STATE }}
           SA_PREVIOUSHINTS: ${{ vars.SA_PREVIOUSHINTS }}
           SA_SELECTED_ACCOUNT: ${{ vars.SA_SELECTED_ACCOUNT }}
           SA_TERMSTATE: ${{ vars.SA_TERMSTATE }}
+          SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
+          DEFAULT_INVITATION_CODE_DEV: ${{ vars.DEFAULT_INVITATION_CODE_DEV }}
+          SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
+          SHOULD_RUN_TREZOR_TESTS: 'true'
+          PLAYWRIGHT_SKIP_GIT_METADATA: '1'  # Optional fix to avoid Git fetch timeout
         run: npm run test
 
       - name: Upload HTML report
