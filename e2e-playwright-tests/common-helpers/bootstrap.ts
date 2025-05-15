@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { chromium, Page } from '@playwright/test'
+import { BrowserContext, chromium, Page } from '@playwright/test'
 
 import { DEF_KEYSTORE_PASS } from '../config/constants'
 import { constants } from '../constants/constants'
@@ -9,11 +9,24 @@ import { typeKeystorePassAndUnlock } from './typeKeystorePassAndUnlock'
 const EXTENSION_PATH = path.resolve(__dirname, '../../build/webkit-dev')
 const USER_DATA_DIR = '' // you can set a temp dir if needed
 
+let currentContext: BrowserContext | null = null
+
 async function initBrowser(namespace: string): Promise<{
   page: Page
   extensionURL: string
   serviceWorker: any
+  context: BrowserContext
 }> {
+  // ✅ Close any previously opened context before creating a new one
+  if (currentContext) {
+    try {
+      await currentContext.close()
+    } catch (err) {
+      console.warn('Failed to close previous context:', err)
+    }
+    currentContext = null
+  }
+
   // 1. Launch persistent context with extension
   const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
     headless: false,
@@ -38,6 +51,8 @@ async function initBrowser(namespace: string): Promise<{
       '--use-gl=swiftshader'
     ]
   })
+
+  currentContext = context
 
   if (!context) {
     throw new Error('Failed to create persistent browser context')
@@ -73,7 +88,7 @@ async function initBrowser(namespace: string): Promise<{
     console.warn('Console logging for service worker not available:', err)
   }
 
-  return { page, extensionURL, serviceWorker }
+  return { page, extensionURL, serviceWorker, context }
 }
 
 //----------------------------------------------------------------------------------------------
