@@ -134,7 +134,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete, subType])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, subType, accounts.length])
 
   const loadHistory = () => {
     try {
