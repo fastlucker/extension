@@ -86,6 +86,7 @@ const SubmittedTransactionSummaryInner = ({
           isHistory
           enableExpand={defaultType === 'full-info'}
           size={size}
+          hideLinks
         />
       ))}
       <Footer
