@@ -16,14 +16,17 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import ExpandableCard from '@common/components/ExpandableCard'
+import Text from '@common/components/Text'
 import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
 import getStyles from './styles'
 
 interface Props {
   network?: Network
+  setDelegation?: boolean
 }
 
-const PendingTransactions: FC<Props> = ({ network }) => {
+const PendingTransactions: FC<Props> = ({ network, setDelegation }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const { accountOp } = useSignAccountOpControllerState() || {}
@@ -62,23 +65,50 @@ const PendingTransactions: FC<Props> = ({ network }) => {
         <SectionHeading withMb={false}>{t('Overview')}</SectionHeading>
         <NetworkBadge chainId={network?.chainId} withOnPrefix />
       </View>
-      <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
-        {network && callsToVisualize.length ? (
-          callsToVisualize.map((call, i) => {
-            return (
-              <TransactionSummary
-                key={call.id}
-                style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
-                call={call}
-                chainId={network.chainId}
-                index={i}
-              />
-            )
-          })
-        ) : (
-          <PendingTransactionsSkeleton />
-        )}
-      </ScrollableWrapper>
+      {setDelegation !== undefined ? (
+        <View>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
+            <ExpandableCard
+              enableToggleExpand={false}
+              hasArrow={false}
+              style={{ width: '100%' }}
+              content={
+                <Text>
+                  {setDelegation ? (
+                    <>
+                      <Text weight="semiBold">Enable </Text>
+                      <Text>the Ambire EIP-7702 Delegation for this account</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text weight="semiBold">Revoke </Text>
+                      <Text>the Ambire EIP-7702 Delegation for this account</Text>
+                    </>
+                  )}
+                </Text>
+              }
+            />
+          </View>
+        </View>
+      ) : (
+        <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
+          {network && callsToVisualize.length ? (
+            callsToVisualize.map((call, i) => {
+              return (
+                <TransactionSummary
+                  key={call.id}
+                  style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
+                  call={call}
+                  chainId={network.chainId}
+                  index={i}
+                />
+              )
+            })
+          ) : (
+            <PendingTransactionsSkeleton />
+          )}
+        </ScrollableWrapper>
+      )}
     </View>
   )
 }

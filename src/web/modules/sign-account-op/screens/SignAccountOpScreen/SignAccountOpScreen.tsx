@@ -291,7 +291,10 @@ const SignAccountOpScreen = () => {
           />
         ) : null}
         <TabLayoutWrapperMainContent>
-          <PendingTransactions network={network} />
+          <PendingTransactions
+            network={network}
+            setDelegation={signAccountOpState?.accountOp.meta?.setDelegation}
+          />
           {/* Display errors only if the user is not in view-only mode */}
           {signAccountOpState?.errors?.length && !isViewOnly ? (
             <AlertVertical
