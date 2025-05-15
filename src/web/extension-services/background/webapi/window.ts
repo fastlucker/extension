@@ -249,26 +249,17 @@ const closeCurrentWindow = async () => {
 }
 
 const closePopupWithUrl = async (url: string) => {
-  const tabs = await chrome.tabs.query({
-    url
-  })
+  const windows = await chrome.windows.getAll({ populate: true, windowTypes: ['popup'] })
 
-  if (!tabs || tabs.length === 0) {
-    return
+  const matchingWindowId = windows.find((w) => {
+    return w.tabs?.some((t) => t.url?.includes(url))
+  })?.id
+
+  if (!matchingWindowId) {
+    throw new Error(`No matching window found for URL: ${url}`)
   }
 
-  const matchingWindowId = tabs[0].windowId
-
-  const windows = await chrome.windows.getAll()
-  const matchingWindow = windows.find((w) => w.id === matchingWindowId)
-
-  if (!matchingWindow || matchingWindow.type !== 'popup') {
-    return
-  }
-
-  if (matchingWindow && matchingWindow.id) {
-    await chrome.windows.remove(matchingWindow.id)
-  }
+  await chrome.windows.remove(matchingWindowId)
 }
 
 export default { open, focus, closePopupWithUrl, remove, event }
