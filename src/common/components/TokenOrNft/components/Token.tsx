@@ -110,7 +110,7 @@ const InnerToken: FC<Props> = ({
             address={address}
             withNetworkIcon={false}
           />
-          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mlMi}>
+          <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mhMi}>
             {tokenInfo?.symbol || (
               <HumanizerAddress fontSize={textSize} address={address} hideLinks={hideLinks} />
             )}
