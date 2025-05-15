@@ -244,6 +244,7 @@ const SeedPhraseImportScreen = () => {
                     rules={{ required: enablePassphrase }}
                     render={({ field: { onChange, onBlur, value } }) => (
                       <InputPassword
+                        testID="input-passphrase"
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}

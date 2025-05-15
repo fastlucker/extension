@@ -149,7 +149,7 @@ const Editable: FC<Props> = ({
                 style={[flexbox.directionRow, flexbox.alignCenter, { opacity: hovered ? 0.8 : 1 }]}
               >
                 <CheckIcon width={iconSize} height={iconSize} style={spacings.mrMi} />
-                <Text fontSize={12} weight="medium" color={theme.successText}>
+                <Text testID="text-save" fontSize={12} weight="medium" color={theme.successText}>
                   {t('Save')}
                 </Text>
               </View>

@@ -38,3 +38,6 @@ export const SEED_24_WORDS = loadedEnvVariables.SEED_24_WORDS
 export const SHOULD_RUN_TREZOR_TESTS =
   loadedEnvVariables.SHOULD_RUN_TREZOR_TESTS === 'true' || false
 export const DEF_KEYSTORE_PASS = loadedEnvVariables.KEYSTORE_PASS
+export const BA_PRIVATE_KEY = loadedEnvVariables.BA_PRIVATE_KEY
+export const BA_PASSPHRASE = loadedEnvVariables.BA_PASSPHRASE
+export const SA_PASSPHRASE = loadedEnvVariables.SA_PASSPHRASE

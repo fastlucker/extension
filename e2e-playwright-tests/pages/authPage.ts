@@ -1,7 +1,7 @@
 import { locators } from '@common/locators'
 
 import { bootstrap } from '../common-helpers/bootstrap'
-import { DEF_KEYSTORE_PASS } from '../config/constants'
+import { BA_PRIVATE_KEY, DEF_KEYSTORE_PASS } from '../config/constants'
 import { BasePage } from './basePage'
 
 export class AuthPage extends BasePage {
@@ -48,5 +48,41 @@ export class AuthPage extends BasePage {
     await this.page.locator(locators.completeButton).click()
     await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
     await this.page.locator(locators.openDashboardButton).click()
+  }
+
+  async importExistingAccount(): Promise<void> {
+    await this.page.locator(locators.importExistingAccountButton).click()
+    await this.page.locator(locators.importFromPrivateKeyButton).click()
+    await this.typeTextInInputField(locators.inputPrivateKey, BA_PRIVATE_KEY)
+    await this.page.locator(locators.warningCheckbox).click()
+    await this.page.locator(locators.importConfirmButton).click()
+    await this.setExtensionPassword()
+    await this.page.locator(locators.confirmationMessageForViewOnly).isVisible()
+    await this.page.locator(locators.addMoreAccountsButton).isVisible()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
+  }
+
+  async importExistingAccountByRecoveryPhrase(passphrase: string): Promise<void> {
+    await this.page.locator(locators.importExistingAccountButton).click()
+    await this.page.locator(locators.importFromRecoveryPhraseButton).click()
+    await this.typeTextInInputField(locators.inputSeetField, passphrase)
+    await this.page.locator(locators.recoveryPhraseAdvancedModeToggle).isVisible()
+    await this.page.locator(locators.recoveryPhraseAdvancedModeToggle).click()
+    await this.typeTextInInputField(locators.inputPassphrase, passphrase)
+    await this.page.locator(locators.importConfirmButton).click()
+    await this.setExtensionPassword()
+    await this.personalizeAccountName()
+    await this.page.locator(locators.addMoreAccountsButton).isVisible()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
+  }
+
+  async personalizeAccountName(): Promise<void> {
+    await this.page.locator(locators.editAccountButton).click()
+    await this.typeTextInInputField(locators.editAccountNameField, 'Name 1')
+    await this.page.locator(locators.saveMessageText).isVisible()
   }
 }

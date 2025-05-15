@@ -16,6 +16,7 @@ export abstract class BasePage {
   }
 
   async typeTextInInputField(locator: string, text: string): Promise<void> {
+    await this.page.locator(locator).clear()
     await this.page.locator(locator).pressSequentially(text)
   }
 }
