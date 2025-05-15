@@ -64,7 +64,7 @@ const AccountPersonalizeScreen = () => {
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT' })
   }, [dispatch, accountPickerState.isInitialized])
 
-  // hold the loading state for 1.1 seconds before displaying the accountsToPersonalize
+  // hold the loading state for 1.1 seconds before displaying the accountsToPersonalize for better UX
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
