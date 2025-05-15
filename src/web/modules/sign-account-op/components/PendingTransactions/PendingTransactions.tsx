@@ -17,7 +17,7 @@ import SectionHeading from '@web/modules/sign-account-op/components/SectionHeadi
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import { Hex } from '@ambire-common/interfaces/hex'
-import { getContractImplementation } from '@ambire-common/libs/7702/7702'
+import { getDelegatorName } from '@ambire-common/libs/7702/7702'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Text from '@common/components/Text'
 import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
@@ -55,13 +55,10 @@ const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContr
     oldAccountOpRelevantInfoHash.current = newAccountOpRelevantInfoHash
   }, [accountOp])
 
-  const isDelegatedContractAmbire = useMemo(() => {
-    return (
-      network &&
-      delegatedContract &&
-      getContractImplementation(network.chainId).toLowerCase() === delegatedContract.toLowerCase()
-    )
-  }, [network, delegatedContract])
+  const delegatorName = useMemo(() => {
+    if (!delegatedContract) return ''
+    return getDelegatorName(delegatedContract)
+  }, [delegatedContract])
 
   return (
     <View style={spacings.mbLg}>
@@ -94,12 +91,10 @@ const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContr
                     <>
                       <Text weight="semiBold">Revoke </Text>
                       <Text>
-                        the {isDelegatedContractAmbire ? 'Ambire ' : ''}EIP-7702 Delegation for this
+                        the {delegatorName ? `${delegatorName} ` : ''}EIP-7702 Delegation for this
                         account
                       </Text>
-                      {!isDelegatedContractAmbire && (
-                        <Text weight="semiBold">: {delegatedContract}</Text>
-                      )}
+                      {!delegatorName && <Text weight="semiBold">: {delegatedContract}</Text>}
                     </>
                   )}
                 </Text>
