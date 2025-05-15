@@ -75,7 +75,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
                     new RouteNode(
                       WEB_ROUTES.onboardingCompleted,
                       [new RouteNode('/')],
-                      isSetupComplete || !accounts.length
+                      isSetupComplete || !accounts?.length
                     ),
                     new RouteNode('/')
                   ],
@@ -95,7 +95,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
                 new RouteNode(
                   WEB_ROUTES.onboardingCompleted,
                   [new RouteNode('/')],
-                  isSetupComplete || !accounts.length
+                  isSetupComplete || !accounts?.length
                 ),
                 new RouteNode('/'),
                 new RouteNode(WEB_ROUTES.accountPicker, [new RouteNode('/')], false, false)
@@ -134,7 +134,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete, subType, accounts.length])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, subType, accounts?.length])
 
   const loadHistory = () => {
     try {
