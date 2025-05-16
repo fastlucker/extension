@@ -143,7 +143,9 @@ class LedgerSigner implements KeystoreSignerInterface {
         )
       )
 
-      const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
+      const strippedR = stripHexPrefix(rsvRes?.r)
+      const strippedS = stripHexPrefix(rsvRes?.s)
+      const signature = addHexPrefix(`${strippedR}${strippedS}${rsvRes.v.toString(16)}`)
       return signature
     } catch (e: any) {
       throw new ExternalSignerError(

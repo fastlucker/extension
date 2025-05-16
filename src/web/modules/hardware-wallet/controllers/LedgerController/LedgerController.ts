@@ -13,6 +13,7 @@ import {
   DeviceModelId as LedgerDeviceModels,
   LEDGER_VENDOR_ID
 } from '@ledgerhq/device-management-kit'
+import { SignTypedDataDAReturnType } from '@ledgerhq/device-signer-kit-ethereum/lib/types/api/app-binder/SignTypedDataDeviceActionTypes'
 import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
@@ -214,8 +215,7 @@ class LedgerController implements ExternalSignerController {
 
   async unlock(
     path: ReturnType<typeof getHdPathFromTemplate>,
-    expectedKeyOnThisPath?: string,
-    shouldOpenLatticeConnectorInTab?: boolean
+    expectedKeyOnThisPath?: string
   ): Promise<'ALREADY_UNLOCKED' | 'JUST_UNLOCKED'> {
     await this.#initSDKSessionIfNeeded()
 
@@ -388,8 +388,6 @@ class LedgerController implements ExternalSignerController {
   }
 
   async signPersonalMessage(path: string, messageHex: string) {
-    await this.#initSDKSessionIfNeeded()
-
     if (!this.walletSDK || !this.signerEth) {
       throw new ExternalSignerError(normalizeLedgerMessage())
     }
@@ -436,44 +434,76 @@ class LedgerController implements ExternalSignerController {
     path: string
     signTypedData: TypedMessage
   }) => {
-    let res: { v: number; s: string; r: string }
+    if (!this.walletSDK || !this.signerEth) {
+      throw new ExternalSignerError(normalizeLedgerMessage())
+    }
+
     try {
-      res = await this.walletSDK!.signEIP712Message(path, {
-        domain,
-        types,
-        message,
-        primaryType
+      const hdPathWithoutRoot = path.slice(2)
+
+      return await new Promise<SignTypedDataDAReturnType>((resolve, reject) => {
+        try {
+          // Cast domain to the expected type for Ledger's signTypedData
+          const ledgerDomain = { ...domain } as any
+
+          const { observable } = this.signerEth!.signTypedData(hdPathWithoutRoot, {
+            domain: ledgerDomain,
+            types,
+            message,
+            primaryType
+          })
+
+          let subscription: any = null
+          subscription = observable.subscribe({
+            next: (response: any) => {
+              if (response.status !== 'completed') return
+
+              if (response?.output) {
+                subscription?.unsubscribe()
+                resolve(response.output)
+              } else {
+                subscription?.unsubscribe()
+                reject(new ExternalSignerError('Failed to sign typed data with Ledger device'))
+              }
+            },
+            error: (error: any) => {
+              subscription?.unsubscribe()
+              reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+            }
+          })
+        } catch (error: any) {
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
       })
-    } catch {
+    } catch (error: any) {
+      // TODO: Figure out if this is still needed and figure out in general if
+      // Ledger Nano S and Ledger Blue are supported by the Ledger SDK.
+
       // NOT all Ledger devices support clear signing EIP-721 message (via
       // `signEIP712Message`), example: Ledger Nano S. The alternative is signing
       // hashes - that works across all Ledger devices.
-      const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
-        'EIP712Domain',
-        domain as any,
-        types,
-        true
-      ).toString('hex')
-      const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
-        primaryType,
-        message as any,
-        types,
-        true
-      ).toString('hex')
+      // const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
+      //   'EIP712Domain',
+      //   domain as any,
+      //   types,
+      //   true
+      // ).toString('hex')
+      // const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
+      //   primaryType,
+      //   message as any,
+      //   types,
+      //   true
+      // ).toString('hex')
+      // res = await this.walletSDK!.signEIP712HashedMessage(
+      //   path,
+      //   domainSeparatorHex,
+      //   hashStructMessageHex
+      // )
 
-      res = await this.walletSDK!.signEIP712HashedMessage(
-        path,
-        domainSeparatorHex,
-        hashStructMessageHex
-      )
-    }
-
-    if (!res)
       throw new ExternalSignerError(
         'Your Ledger device returned an empty signature, which is unexpected. Please try signing again.'
       )
-
-    return res
+    }
   }
 
   // FIXME: This is not ideal.
