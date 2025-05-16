@@ -57,15 +57,6 @@ class LedgerController implements ExternalSignerController {
 
   deviceId = ''
 
-  // TODO: missing type
-  discoverySubscription: any
-
-  // TODO: missing type
-  stateSubscription: any
-
-  // TODO: missing type
-  currentSessionId: any
-
   static vendorId = LEDGER_VENDOR_ID
 
   constructor() {
@@ -321,8 +312,6 @@ class LedgerController implements ExternalSignerController {
 
   async retrieveAddresses(paths: string[]) {
     return LedgerController.withDisconnectProtection(async () => {
-      await this.#initSDKSessionIfNeeded()
-
       if (!this.walletSDK || !this.signerEth) {
         throw new ExternalSignerError(normalizeLedgerMessage())
       }
@@ -394,6 +383,7 @@ class LedgerController implements ExternalSignerController {
 
     // Store reference to signerEth to avoid this context issues
     const signerEth = this.signerEth
+
     const hdPath = getHdPathFromTemplate(path as any, 0)
     const hdPathWithoutRoot = hdPath.slice(2)
     const messageBytes = hexStringToUint8Array(messageHex)
@@ -428,8 +418,8 @@ class LedgerController implements ExternalSignerController {
     }
 
     // Store reference to avoid this context issues
-    const hdPathWithoutRoot = derivationPath.slice(2)
     const signerEth = this.signerEth
+    const hdPathWithoutRoot = derivationPath.slice(2)
 
     return new Promise<any>((resolve, reject) => {
       try {
@@ -475,15 +465,17 @@ class LedgerController implements ExternalSignerController {
       throw new ExternalSignerError(normalizeLedgerMessage())
     }
 
-    try {
-      const hdPathWithoutRoot = path.slice(2)
+    // Store reference to avoid this context issues
+    const signerEth = this.signerEth
+    const hdPathWithoutRoot = path.slice(2)
 
+    try {
       return await new Promise<SignTypedDataDAReturnType>((resolve, reject) => {
         try {
           // Cast domain to the expected type for Ledger's signTypedData
           const ledgerDomain = { ...domain } as any
 
-          const { observable } = this.signerEth!.signTypedData(hdPathWithoutRoot, {
+          const { observable } = signerEth.signTypedData(hdPathWithoutRoot, {
             domain: ledgerDomain,
             types,
             message,
@@ -547,10 +539,10 @@ class LedgerController implements ExternalSignerController {
   // FIXME: This is not ideal.
   cleanUp = async () => {
     // Unsubscribe from all observables
-    if (this.discoverySubscription) {
-      this.discoverySubscription.unsubscribe()
-      this.discoverySubscription = null
-    }
+
+    if (!this.walletSDK) return
+
+    this.walletSDK.close()
 
     this.walletSDK = null
     this.signerEth = null
