@@ -77,14 +77,14 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       const walletTokenInfoData =
         additionalPortfolioJson?.data?.gasTank?.availableGasTankAssets.find(
           (asset: any) => asset.symbol === 'wallet'
-        )
 
+        )
+      setWalletTokenPrice(walletTokenInfoData.price)
       if (claimableBalance === undefined) {
         throw new Error('Invalid response format')
       }
 
       setClaimableRewards(claimableBalance)
-      setWalletTokenPrice(walletTokenInfoData.price)
       setXWalletClaimableBalance(xWalletClaimableBalanceData)
       setIsLoadingClaimableRewards(false)
     } catch (e) {

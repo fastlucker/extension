@@ -14,6 +14,7 @@ import Alert from '@legends/components/Alert'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import SectionHeading from '@legends/modules/Home/components/SectionHeading'
 import Card from '@legends/modules/legends/components/Card'
+import { CardStatus } from '@legends/modules/legends/types'
 
 import styles from './Actions.module.scss'
 
@@ -29,9 +30,24 @@ const Actions = () => {
     const filtered = legends.filter(
       (card) => card.group === 'supporter' && cardsOrder.includes(card.id)
     )
-
     return [...filtered].sort((a, b) => {
-      // Sort by cardsOrder index
+      // First sort completed cards to the end
+      if (a.card.status === CardStatus.completed && b.card.status !== CardStatus.completed) {
+      return 1
+      }
+      if (a.card.status !== CardStatus.completed && b.card.status === CardStatus.completed) {
+      return -1
+      }
+      
+      // Then sort disabled cards after other active cards but before completed ones
+      if (a.card.status === CardStatus.disabled && b.card.status !== CardStatus.disabled && b.card.status !== CardStatus.completed) {
+      return 1
+      }
+      if (a.card.status !== CardStatus.disabled && a.card.status !== CardStatus.completed && b.card.status === CardStatus.disabled) {
+      return -1
+      }
+      
+      // Finally sort by cardsOrder index
       const aIndex = cardsOrder.indexOf(a.id)
       const bIndex = cardsOrder.indexOf(b.id)
       return aIndex - bIndex

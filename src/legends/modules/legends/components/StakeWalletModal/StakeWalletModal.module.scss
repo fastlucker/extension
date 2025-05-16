@@ -127,9 +127,13 @@
   line-height: 1.5rem;
 }
 
-.stakeValueUsd {
+.stakeValueUsd, .stakeInputValueUsd {
   font-size: 0.875rem;
   color: $secondaryText;
+}
+
+.stakeInputValueUsd {
+  text-align: right;
 }
 
 .value {
@@ -191,7 +195,6 @@
   outline: none;
   text-align: right;
   border-radius: 6.25rem;
-
 }
 
 .stakeButton {

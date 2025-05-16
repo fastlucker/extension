@@ -43,7 +43,7 @@ const StakeWalletModal: React.FC<StakeWalletModalProps> = ({ isOpen, handleClose
   const switchNetwork = useSwitchNetwork()
   const { addToast } = useToast()
   const disabledButton = Boolean(!connectedAccount || v1Account)
-
+  console.log('walletTokenPrice', walletTokenPrice)
   useEffect(() => {
     if (!connectedAccount) return
     setIsLoading(true)
@@ -192,7 +192,7 @@ const StakeWalletModal: React.FC<StakeWalletModalProps> = ({ isOpen, handleClose
             </div>
             <div className={styles.stakedTotalRow}>
               <div className={styles.label}>Staked Total</div>
-              <div className={styles.value}>{walletTokenInfo?.stkWalletTotalSupply}</div>
+              {Number(walletTokenInfo?.stkWalletTotalSupply || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </div>
             <div className={styles.stakeInputRow}>
               <div className={styles.stakeInputRowWrapper}>
@@ -214,6 +214,7 @@ const StakeWalletModal: React.FC<StakeWalletModalProps> = ({ isOpen, handleClose
                     type="button"
                     className={styles.stakeInputMaxButton}
                     onClick={() => setStakeAmount(walletBalance?.toString() || '0')}
+                    disabled={!walletBalance || walletBalance === 0n}
                   >
                     MAX
                   </button>
@@ -221,35 +222,26 @@ const StakeWalletModal: React.FC<StakeWalletModalProps> = ({ isOpen, handleClose
               </div>
               <Input
                 value={
-                  getAndFormatTokenDetails(
-                    {
-                      amount: stakeAmount,
-                      decimals: 18,
-                      priceIn: [{ baseCurrency: 'usd', price: walletTokenPrice }],
-                      flags: { rewardsType: 'wallet-rewards' }
-                    },
-                    [{ chainId: 1 }]
-                  ).balanceFormatted
+                 stakeAmount
                 }
+                disabled={!walletBalance || walletBalance === 0n}
                 onChange={(e) => setStakeAmount(e.target.value)}
                 className={styles.stakeInput}
                 placeholder="0.00"
-                disabled={isLoading || disabledButton || isInProgress}
+                // disabled={isLoading || disabledButton || isInProgress}
               />
-            </div>
-            <div className={styles.stakeValueUsd}>
-              {isLoading
-                ? '...'
-                : stakeAmount !== null &&
+            <div className={styles.stakeInputValueUsd}>
+              {stakeAmount !== null &&
                   getAndFormatTokenDetails(
                     {
-                      amount: stakeAmount,
+                      amount: stakeAmount || 0n,
                       decimals: 18,
                       priceIn: [{ baseCurrency: 'usd', price: walletTokenPrice }],
                       flags: { rewardsType: 'wallet-rewards' }
                     },
                     [{ chainId: 1 }]
                   ).balanceUSDFormatted}
+            </div>
             </div>
           </div>
           <button

@@ -211,6 +211,7 @@ const Home = () => {
                 <div className={styles.walletInfoWrapper} />
               </div>
             </div>
+            {claimableRewards?.priceIn[0].price && (
             <div className={styles.walletItemWrapper}>
               <div className={styles.walletItem}>
                 <div className={styles.walletInfoWrapper}>Current price</div>
@@ -221,6 +222,7 @@ const Home = () => {
                 </span>
               </div>
             </div>
+            )}
           </div>
         </div>
         <div
