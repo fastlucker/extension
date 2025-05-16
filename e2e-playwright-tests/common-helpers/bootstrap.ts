@@ -6,7 +6,7 @@ import { DEF_KEYSTORE_PASS } from '../config/constants'
 import { constants } from '../constants/constants'
 import { typeKeystorePassAndUnlock } from './typeKeystorePassAndUnlock'
 
-const EXTENSION_PATH = path.resolve(__dirname, '../../build/webkit-dev')
+const EXTENSION_PATH = path.resolve(__dirname, '../../build/webkit-prod')
 const USER_DATA_DIR = '' // you can set a temp dir if needed
 
 let currentContext: BrowserContext | null = null
