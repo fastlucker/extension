@@ -1,4 +1,4 @@
-import { BA_PASSPHRASE } from 'config/constants'
+import { BA_PASSPHRASE, SA_PASSPHRASE } from 'config/constants'
 
 import { constants } from '../../constants/constants'
 import { test } from '../../fixtures/pageObjects' // your extended test with authPage
@@ -28,5 +28,11 @@ test.describe('auth', () => {
     authPage
   }) => {
     await authPage.importExistingAccountByRecoveryPhrase(BA_PASSPHRASE)
+  })
+
+  test('import one Smart Account from a 12 words seed phrase and personalize them', async ({
+    authPage
+  }) => {
+    await authPage.importExistingAccountByRecoveryPhrase(SA_PASSPHRASE)
   })
 })
