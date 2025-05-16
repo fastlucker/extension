@@ -500,6 +500,7 @@ class LedgerController implements ExternalSignerController {
       //   hashStructMessageHex
       // )
 
+      // TODO: Based on the above support, this message might need to change.
       throw new ExternalSignerError(
         'Your Ledger device returned an empty signature, which is unexpected. Please try signing again.'
       )
