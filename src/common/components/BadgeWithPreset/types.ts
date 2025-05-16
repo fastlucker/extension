@@ -1,4 +1,4 @@
-import { BadgeType, Props as BadgeProps } from '../Badge/types'
+import { Props as BadgeProps, BadgeType } from '../Badge/types'
 
 type BadgePreset = {
   text: string
@@ -6,7 +6,7 @@ type BadgePreset = {
   tooltipText: string
 }
 
-type Preset = 'smart-account' | 'view-only' | 'ambire-v1' | 'linked'
+type Preset = 'smart-account' | 'view-only' | 'ambire-v1' | 'linked' | 'metamask'
 
 type Props = {
   preset: Preset
