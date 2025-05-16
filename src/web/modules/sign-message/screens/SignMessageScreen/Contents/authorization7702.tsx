@@ -70,7 +70,7 @@ const Authorization7702 = ({
       <View style={[flexbox.directionRow, flexbox.center]}>
         <Text weight="light" fontSize={14} style={[{ maxWidth: 650, textAlign: 'center' }]}>
           {t(
-            "You can do more with your Basic Account (EOA)! Thanks to the recent upgrade to Ethereum's protocol, your account gains "
+            "You can do more with your EOA! Thanks to the recent upgrade to Ethereum's protocol, your account gains "
           )}
           <Text weight="medium" fontSize={14}>
             {t('additional smart features:')}
