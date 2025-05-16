@@ -37,7 +37,6 @@ jobs:
         run: yarn install
 
       - name: Build webkit extension
-        working-directory: ./ambire-app
         env:
           RELAYER_URL: ${{ vars.RELAYER_URL }}
           VELCRO_URL: ${{ vars.VELCRO_URL }}
