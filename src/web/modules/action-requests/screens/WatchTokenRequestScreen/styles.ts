@@ -10,7 +10,8 @@ interface Styles {
   content: ViewStyle
   contentHeader: ViewStyle
   contentBody: ViewStyle
-  securityChecksContainer: ViewStyle
+  tokenInfoContainer: ViewStyle
+  tokenInfoIconWrapper: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -29,22 +30,35 @@ const getStyles = (theme: ThemeProps) =>
       shadowOffset: { width: 0, height: SPACING_SM },
       shadowOpacity: 0.3,
       shadowRadius: SPACING_SM,
-      elevation: SPACING_SM
+      elevation: SPACING_SM,
+      backgroundColor: theme.tertiaryBackground
     },
     contentHeader: {
       ...flexbox.flex1,
-      ...flexbox.alignStart
+      ...flexbox.alignCenter,
+      ...spacings.pvMd,
+      ...spacings.phMd
     },
     contentBody: {
-      backgroundColor: theme.primaryBackground
+      backgroundColor: theme.primaryBackground,
+      ...spacings.pvMd,
+      ...spacings.phMd
     },
-    securityChecksContainer: {
-      backgroundColor: theme.secondaryBackground,
-      ...common.borderRadiusPrimary,
-      ...spacings.phSm,
-      ...spacings.pvTy,
-      borderWidth: 1,
-      borderColor: theme.secondaryBackground
+    tokenInfoContainer: {
+      backgroundColor: theme.quaternaryBackground,
+      height: 36,
+      ...spacings.phTy,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      borderRadius: BORDER_RADIUS_PRIMARY,
+      ...flexbox.justifySpaceBetween
+    },
+    tokenInfoIconWrapper: {
+      width: 32,
+      height: 32,
+      ...flexbox.alignCenter,
+      ...flexbox.justifyCenter,
+      ...spacings.mrMi
     }
   })
 
