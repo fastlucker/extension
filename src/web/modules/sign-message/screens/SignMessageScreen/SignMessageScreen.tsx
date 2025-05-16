@@ -111,7 +111,9 @@ const SignMessageScreen = () => {
   )
 
   useEffect(() => {
-    if (!userRequest || !signMessageAction) return
+    const isAlreadyInit = signMessageState.messageToSign?.fromActionId === signMessageAction?.id
+
+    if (!userRequest || !signMessageAction || isAlreadyInit) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
@@ -129,7 +131,7 @@ const SignMessageScreen = () => {
         }
       }
     })
-  }, [dispatch, userRequest, signMessageAction])
+  }, [dispatch, userRequest, signMessageAction, signMessageState.messageToSign?.fromActionId])
 
   useEffect(() => {
     return () => {

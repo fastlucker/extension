@@ -18,7 +18,11 @@ export const handleCleanUpOnPortDisconnect = async ({
     const sessionId = url.searchParams.get('sessionId')!
 
     if (url.pathname.includes('swap-and-bridge')) {
-      mainCtrl.swapAndBridge.unloadScreen(sessionId)
+      if (port.name === 'action-window') {
+        mainCtrl.onOneClickSwapClose()
+      } else {
+        mainCtrl.swapAndBridge.unloadScreen(sessionId)
+      }
     }
 
     if (url.pathname.includes('dashboard') || url.pathname.includes('transactions')) {
