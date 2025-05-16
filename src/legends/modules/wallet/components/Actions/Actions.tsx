@@ -89,7 +89,7 @@ const Actions = () => {
       >
         {sortedLegends.map((card) => (
           <SwiperSlide className={`${styles.slide}`} key={card.title + card.card.type}>
-            <Card cardData={card} size="large" />
+            <Card cardData={card} />
           </SwiperSlide>
         ))}
       </Swiper>

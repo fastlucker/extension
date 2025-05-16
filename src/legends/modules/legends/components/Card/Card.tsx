@@ -15,10 +15,9 @@ import OnCompleteModal from './OnCompleteModal'
 
 type Props = {
   cardData: CardFromResponse
-  size?: 'small' | 'large'
 }
 
-const Card: FC<Props> = ({ cardData, size }) => {
+const Card: FC<Props> = ({ cardData }) => {
   const { card, action } = cardData
   const disabled = card.status === CardStatus.disabled
   const predefinedId = action.type === CardActionType.predefined ? action.predefinedId : ''
@@ -103,7 +102,6 @@ const Card: FC<Props> = ({ cardData, size }) => {
         disabled={disabled}
         nonConnectedAcc={nonConnectedAcc}
         treasureChestStreak={treasureChestStreak}
-        size={size}
       />
       {/* Modals */}
       <OnCompleteModal

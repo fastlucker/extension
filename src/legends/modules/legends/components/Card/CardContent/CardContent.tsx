@@ -18,7 +18,6 @@ type Props = Pick<
   disabled: boolean
   treasureChestStreak: number | undefined
   nonConnectedAcc: boolean
-  size?: 'small' | 'large'
 }
 
 const CARD_FREQUENCY: { [key in CardType]: string } = {
@@ -37,8 +36,7 @@ const CardContent: FC<Props> = ({
   openActionModal,
   disabled,
   treasureChestStreak,
-  nonConnectedAcc,
-  size
+  nonConnectedAcc
 }) => {
   const isCompleted = card.status === CardStatus.completed
 
@@ -51,9 +49,7 @@ const CardContent: FC<Props> = ({
 
   return (
     <div
-      className={`${styles.wrapper} ${size === 'large' && styles.wrapperLarge} ${
-        (disabled || isCompleted) && styles.disabled
-      }`}
+      className={`${styles.wrapper} ${(disabled || isCompleted) && styles.disabled}`}
       role="button"
       onClick={() => {
         if ((!disabled && !isCompleted) || (!disabled && nonConnectedAcc)) {
@@ -98,50 +94,49 @@ const CardContent: FC<Props> = ({
             }}
           />
         </div>
-        {size !== 'large' && (
-          <div className={styles.actionAndRewards}>
-            <div className={styles.rewardFrequencyWrapper}>
-              {isTreasureChestCard && treasureChestStreak && !nonConnectedAcc ? (
-                <div className={styles.streak}>
-                  <ZapIcon width={14} height={19} />
-                  <p className={styles.streakNumber}>{treasureChestStreak}</p>
-                  <p className={styles.streakLabel}>
-                    {treasureChestStreak === 1 ? 'Day' : 'Days'} Streak
-                  </p>
-                </div>
-              ) : (
-                <span
-                  className={`${styles.rewardFrequency} ${
-                    styles[`rewardFrequency${FIXED_CARD_FREQUENCY[card.type]}`]
-                  }`}
-                >
-                  {CARD_FREQUENCY[card.type]}
-                </span>
-              )}
-            </div>
-            <div>
-              <div className={styles.rewardTitle}>
-                {Array.isArray(xp) && xp.length > 1 ? (
-                  <>
-                    Up to <br />
-                    <span className={styles.xp}>{Math.max(...xp.map((x) => x.to))}</span>
-                  </>
-                ) : xp[0].from !== xp[0].to ? (
-                  <>
-                    Up to <br />
-                    <span className={styles.xp}>{xp[0].to}</span>
-                  </>
-                ) : (
-                  <>
-                    Earn <br />
-                    <span className={styles.xp}>{xp[0].to}</span>
-                  </>
-                )}
-                <span className={styles.xpText}>XP</span>
+
+        <div className={styles.actionAndRewards}>
+          <div className={styles.rewardFrequencyWrapper}>
+            {isTreasureChestCard && treasureChestStreak && !nonConnectedAcc ? (
+              <div className={styles.streak}>
+                <ZapIcon width={14} height={19} />
+                <p className={styles.streakNumber}>{treasureChestStreak}</p>
+                <p className={styles.streakLabel}>
+                  {treasureChestStreak === 1 ? 'Day' : 'Days'} Streak
+                </p>
               </div>
+            ) : (
+              <span
+                className={`${styles.rewardFrequency} ${
+                  styles[`rewardFrequency${FIXED_CARD_FREQUENCY[card.type]}`]
+                }`}
+              >
+                {CARD_FREQUENCY[card.type]}
+              </span>
+            )}
+          </div>
+          <div>
+            <div className={styles.rewardTitle}>
+              {Array.isArray(xp) && xp.length > 1 ? (
+                <>
+                  Up to <br />
+                  <span className={styles.xp}>{Math.max(...xp.map((x) => x.to))}</span>
+                </>
+              ) : xp[0].from !== xp[0].to ? (
+                <>
+                  Up to <br />
+                  <span className={styles.xp}>{xp[0].to}</span>
+                </>
+              ) : (
+                <>
+                  Earn <br />
+                  <span className={styles.xp}>{xp[0].to}</span>
+                </>
+              )}
+              <span className={styles.xpText}>XP</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

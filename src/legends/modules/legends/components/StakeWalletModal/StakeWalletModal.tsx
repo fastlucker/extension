@@ -168,6 +168,20 @@ const StakeWalletModal: React.FC<StakeWalletModalProps> = ({ isOpen, handleClose
                           flags: { rewardsType: 'wallet-rewards' }
                         },
                         [{ chainId: 1 }]
+                      ).balanceFormatted}
+                </div>
+                <div className={styles.stakeValueUsd}>
+                  {isLoading
+                    ? '...'
+                    : walletBalance !== null &&
+                      getAndFormatTokenDetails(
+                        {
+                          amount: walletBalance,
+                          decimals: 18,
+                          priceIn: [{ baseCurrency: 'usd', price: walletTokenPrice }],
+                          flags: { rewardsType: 'wallet-rewards' }
+                        },
+                        [{ chainId: 1 }]
                       ).balanceUSDFormatted}
                 </div>
               </div>
@@ -193,7 +207,7 @@ const StakeWalletModal: React.FC<StakeWalletModalProps> = ({ isOpen, handleClose
                         flags: { rewardsType: 'wallet-rewards' }
                       },
                       [{ chainId: 1 }]
-                    ).balance
+                    ).balanceFormatted
                   }{' '}
                   $WALLET{' '}
                   <button
@@ -222,6 +236,20 @@ const StakeWalletModal: React.FC<StakeWalletModalProps> = ({ isOpen, handleClose
                 placeholder="0.00"
                 disabled={isLoading || disabledButton || isInProgress}
               />
+            </div>
+            <div className={styles.stakeValueUsd}>
+              {isLoading
+                ? '...'
+                : stakeAmount !== null &&
+                  getAndFormatTokenDetails(
+                    {
+                      amount: stakeAmount,
+                      decimals: 18,
+                      priceIn: [{ baseCurrency: 'usd', price: walletTokenPrice }],
+                      flags: { rewardsType: 'wallet-rewards' }
+                    },
+                    [{ chainId: 1 }]
+                  ).balanceUSDFormatted}
             </div>
           </div>
           <button
