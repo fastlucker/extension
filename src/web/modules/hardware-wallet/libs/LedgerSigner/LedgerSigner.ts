@@ -80,30 +80,6 @@ class LedgerSigner implements KeystoreSignerInterface {
         strippedTxn.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
       )
 
-      // Sending NFTs is NOT available for Ledger Nano S users via Ledger Live
-      // (and probably to Ledger Blue users, both devices are considered legacy).
-      // As a magic workaround, disabling "clearer" signing makes it work,
-      // otherwise, the Ledger SDK fails with "EthAppNftNotSupported" error.
-      // const shouldResolveNFTs =
-      //   !!this.key.meta.deviceModel &&
-      //   // TODO: Is missing models mean new libs won't work with legacy devices?
-      //   ![LedgerDeviceModels.nanoS, LedgerDeviceModels.blue, 'unknown'].includes(
-      //     this.key.meta.deviceModel as LedgerDeviceModels
-      //   )
-      // TODO: Temporarily
-      // Look for resolutions for external plugins and ERC20 for "clearer" signing.
-      // Without this step, Ledger may just show a generic "Contract call" screen.
-      // const resolution = await ledgerService.resolveTransaction(
-      //   stripHexPrefix(unsignedSerializedTxn),
-      //   this.controller!.walletSDK!.loadConfig,
-      //   {
-      //     externalPlugins: true, // enable support for DeFi dapps via plugins
-      //     erc20: true, // enable ERC20 parsing so token info is shown
-      //     nft: shouldResolveNFTs // enable NFT parsing so names/images are shown
-      //   }
-      // )
-      // const resolution = null
-
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const res = await LedgerController.withDisconnectProtection(() =>
         this.#withNormalizedError(() => this.controller!.signTransaction(path, transactionBytes))
