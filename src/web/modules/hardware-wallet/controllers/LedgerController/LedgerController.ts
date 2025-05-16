@@ -422,6 +422,43 @@ class LedgerController implements ExternalSignerController {
     })
   }
 
+  async signTransaction(derivationPath: string, transaction: Uint8Array) {
+    if (!this.walletSDK || !this.signerEth) {
+      throw new ExternalSignerError(normalizeLedgerMessage())
+    }
+
+    // Store reference to avoid this context issues
+    const hdPathWithoutRoot = derivationPath.slice(2)
+    const signerEth = this.signerEth
+
+    return new Promise<any>((resolve, reject) => {
+      try {
+        const { observable } = signerEth.signTransaction(hdPathWithoutRoot, transaction)
+
+        let subscription: any = null
+        subscription = observable.subscribe({
+          next: (response: any) => {
+            if (response.status !== 'completed') return
+
+            if (response?.output) {
+              subscription?.unsubscribe()
+              resolve(response.output)
+            } else {
+              subscription?.unsubscribe()
+              reject(new ExternalSignerError('Failed to sign transaction with Ledger device'))
+            }
+          },
+          error: (error: any) => {
+            subscription?.unsubscribe()
+            reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+          }
+        })
+      } catch (error: any) {
+        reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+      }
+    })
+  }
+
   /**
    * Attempts to sign an EIP-712 message using the Ledger device. If the device
    * does not support direct (clear) EIP-712 signing, it falls back to signing
