@@ -8,7 +8,6 @@ import {
 import spacings from '@common/styles/spacings'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
-import { EIP_7702_METAMASK } from '@ambire-common/consts/deploy'
 import useDelegationControllerState from '@web/hooks/useDelegationControllerState'
 import BadgeWithPreset from '../BadgeWithPreset'
 
@@ -38,10 +37,7 @@ const AccountBadges: FC<Props> = ({ accountData }) => {
     let delegationFound = false
     Object.keys(delegations).forEach((netKey) => {
       if (delegationFound) return
-      if (!delegations[netKey].delegatedContract) return
-
-      delegationFound =
-        delegations[netKey].delegatedContract.toLowerCase() === EIP_7702_METAMASK.toLowerCase()
+      delegationFound = !!delegations[netKey].isMetamask
     })
     return delegationFound
   }, [accountData, accountDelegations])

@@ -20,6 +20,8 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 import Authorization7702 from '@web/modules/sign-message/screens/SignMessageScreen/Contents/authorization7702'
 
 import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
+import MetamaskIcon from '@common/assets/svg/Metamask/MetamaskIcon'
 import Spinner from '@common/components/Spinner'
 import useDelegationControllerState from '@web/hooks/useDelegationControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -129,7 +131,7 @@ const DelegationsScreen = () => {
                 <Text>Network</Text>
               </View>
               <View style={[flexbox.flex1, flexbox.alignCenter]}>
-                <Text>Status</Text>
+                <Text>Delegation</Text>
               </View>
               <View style={[flexbox.flex1, flexbox.alignEnd]}>
                 <Text>Action</Text>
@@ -158,7 +160,17 @@ const DelegationsScreen = () => {
                 <View style={[flexbox.flex1, flexbox.alignCenter]}>
                   <View style={[flexbox.directionRow]}>
                     {delegations[net.chainId.toString()].has ? (
-                      <Badge type="success" text={t('activated')} />
+                      <>
+                        {delegations[net.chainId.toString()].isAmbire && (
+                          <AmbireLogo width={20} height={20} />
+                        )}
+                        {delegations[net.chainId.toString()].isMetamask && (
+                          <MetamaskIcon width={20} height={20} />
+                        )}
+                        {delegations[net.chainId.toString()].isUnknown && (
+                          <Badge type="success" text={t('unknown')} />
+                        )}
+                      </>
                     ) : (
                       <Badge type="default" text={t('inactive')} />
                     )}
