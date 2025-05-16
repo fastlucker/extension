@@ -14,7 +14,7 @@ jobs:
     env:
       IS_TESTING: 'true'
       E2E_DEBUG: ${{ vars.E2E_DEBUG }}
-      DISPLAY: ':99.0'
+      # DISPLAY: ':99.0'
       RELAYER_URL: ${{ vars.RELAYER_URL }}
       VELCRO_URL: ${{ vars.VELCRO_URL }}
       SOCKET_API_KEY: ${{ vars.SOCKET_API_KEY }}
@@ -90,11 +90,12 @@ jobs:
         working-directory: ./e2e-playwright-tests
         run: npx playwright install --with-deps
 
-      - name: Start virtual display (Xvfb)
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
-        shell: bash
+      # Test if CI pipeline can work in headless mode
+      # - name: Start virtual display (Xvfb)
+      #   run: |
+      #     sudo apt-get install -y xvfb
+      #     Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+      #   shell: bash
 
       - name: Run Playwright tests
         working-directory: ./e2e-playwright-tests
