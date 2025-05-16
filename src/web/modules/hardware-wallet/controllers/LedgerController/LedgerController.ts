@@ -5,6 +5,7 @@ import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import hexStringToUint8Array from '@ambire-common/utils/hexStringToUint8Array'
 import { ContextModuleBuilder } from '@ledgerhq/context-module'
 import {
   DeviceManagementKit,
@@ -395,13 +396,12 @@ class LedgerController implements ExternalSignerController {
 
     // Store reference to signerEth to avoid this context issues
     const signerEth = this.signerEth
-
     const hdPath = getHdPathFromTemplate(path as any, 0)
     const hdPathWithoutRoot = hdPath.slice(2)
+    const messageBytes = hexStringToUint8Array(messageHex)
 
     return new Promise<{ v: number; s: string; r: string }>((resolve, reject) => {
-      // FIXME: Message HEX is not readable on the device, converting it to text breaks the signature
-      const { observable } = signerEth.signMessage(hdPathWithoutRoot, messageHex)
+      const { observable } = signerEth.signMessage(hdPathWithoutRoot, messageBytes)
 
       let subscription: any = null
       subscription = observable.subscribe({
