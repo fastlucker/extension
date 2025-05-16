@@ -1,19 +1,17 @@
-import path from 'path'
-
 import { BrowserContext, chromium, Page } from '@playwright/test'
 
 import { DEF_KEYSTORE_PASS } from '../config/constants'
 import { constants } from '../constants/constants'
 import { typeKeystorePassAndUnlock } from './typeKeystorePassAndUnlock'
 
-const EXTENSION_PATH = path.resolve(__dirname, '../../build/webkit-prod')
+const buildPath = `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod'}`
 const USER_DATA_DIR = '' // you can set a temp dir if needed
 
 let currentContext: BrowserContext | null = null
 
 const playwrightArgs = [
-  `--disable-extensions-except=${EXTENSION_PATH}`,
-  `--load-extension=${EXTENSION_PATH}`,
+  `--disable-extensions-except=${__dirname}/../../${buildPath}/`,
+  `--load-extension=${__dirname}/../${buildPath}/`,
   '--disable-features=DialMediaRouteProvider',
   '--clipboard-write=granted',
   '--clipboard-read=prompt',
