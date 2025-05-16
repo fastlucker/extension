@@ -33,7 +33,13 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install root dependencies
+        run: yarn install
+
+      - name: Build webkit extension
+        run: yarn build:web:webkit
+
+      - name: Install e2e test dependencies
         working-directory: ./e2e-playwright-tests
         run: npm ci
 

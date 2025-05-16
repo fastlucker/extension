@@ -50,7 +50,7 @@ async function initBrowser(namespace: string): Promise<{
 
   // 1. Launch persistent context with extension
   const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
-    headless: false,
+    channel: 'chromium',
     slowMo: 10,
     ignoreHTTPSErrors: true,
     args: playwrightArgs, // make sure puppeteerArgs is defined/imported
