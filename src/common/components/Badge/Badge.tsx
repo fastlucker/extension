@@ -61,7 +61,8 @@ const Badge = ({
   style,
   nativeID,
   children,
-  size = 'sm'
+  size = 'sm',
+  specialType
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
@@ -100,7 +101,7 @@ const Badge = ({
         </Text>
       )}
       {children}
-      {!!tooltipText && type !== 'new' && text !== 'Metamask' && (
+      {!!tooltipText && type !== 'new' && !specialType && (
         <>
           <InformationIcon
             data-tooltip-id={tooltipId}
@@ -111,7 +112,7 @@ const Badge = ({
           <Tooltip id={tooltipId} content={tooltipText} />
         </>
       )}
-      {!!tooltipText && type !== 'new' && text === 'Metamask' && (
+      {!!tooltipText && type !== 'new' && specialType && specialType === 'metamask' && (
         <>
           {text === 'Metamask' && (
             <MetamaskIcon

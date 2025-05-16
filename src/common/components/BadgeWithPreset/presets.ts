@@ -28,7 +28,8 @@ const BADGE_PRESETS: { [preset in Preset]: BadgePreset } = {
   metamask: {
     text: 'Metamask',
     type: 'warning',
-    tooltipText: 'This account has a Metamask EIP-7702 delegation'
+    tooltipText: 'This account has a Metamask EIP-7702 delegation',
+    specialType: 'metamask'
   }
 }
 
