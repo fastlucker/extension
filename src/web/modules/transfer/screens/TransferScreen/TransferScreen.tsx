@@ -137,14 +137,19 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     return 'transfer'
   }, [hasBroadcasted, showAddedToBatch])
 
-  // TODO - we may need to check for existing transferCtrl.signAccOp?
   useEffect(() => {
-    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
+    const broadcastStatus = mainCtrlStatuses.signAndBroadcastAccountOp
 
-    if (broadcastStatus === 'SUCCESS') {
+    // We also check the TransferController's signAccountOp status,
+    // otherwise, the hasBroadcasted flag could be set to true
+    // if another accountOp from the MainController was broadcasted.
+    if (
+      broadcastStatus === 'SUCCESS' &&
+      signAccountOpController?.status?.type === SigningStatus.Done
+    ) {
       setHasBroadcasted(true)
     }
-  }, [mainCtrlStatuses.broadcastSignedAccountOp])
+  }, [mainCtrlStatuses.signAndBroadcastAccountOp, signAccountOpController?.status])
 
   const {
     ref: estimationModalRef,
