@@ -24,6 +24,8 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import { getUiType } from '@web/utils/uiType'
 
+import AccountDelegationsBottomSheet from '../../components/Accounts/AccountDelegationsBottomSheet/AccountDelegationsBottomSheet'
+
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -45,12 +47,21 @@ const AccountsSettingsScreen = () => {
     close: closeRemoveAccount
   } = useModalize()
 
+  const {
+    ref: sheetRefAccountDelegation,
+    open: openAccountDelegation,
+    close: closeAccountDelegation
+  } = useModalize()
+
   useEffect(() => {
     setCurrentSettingsPage('accounts')
   }, [setCurrentSettingsPage])
 
   const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
   const [accountToRemove, setAccountToRemove] = useState<AccountInterface | null>(null)
+  const [manageDelegationsAccount, setManageDelegationsAccount] = useState<AccountInterface | null>(
+    null
+  )
 
   useEffect(() => {
     if (exportImportAccount) openExportImportKey()
@@ -59,6 +70,10 @@ const AccountsSettingsScreen = () => {
   useEffect(() => {
     if (accountToRemove) openRemoveAccount()
   }, [openRemoveAccount, accountToRemove])
+
+  useEffect(() => {
+    if (manageDelegationsAccount) openAccountDelegation()
+  }, [openAccountDelegation, manageDelegationsAccount])
 
   const shortenAccountAddr = useCallback(() => {
     if (maxElementWidthSize(800)) return undefined
@@ -88,6 +103,7 @@ const AccountsSettingsScreen = () => {
           options={{
             withOptionsButton: true,
             setAccountToImportOrExport: setExportImportAccount,
+            setManageDelegationsAccount,
             setAccountToRemove
           }}
           isSelectable={false}
@@ -128,6 +144,14 @@ const AccountsSettingsScreen = () => {
         onPress={openBottomSheet as any}
         text="+ Add account"
         hasBottomSpacing={false}
+      />
+      <AccountDelegationsBottomSheet
+        sheetRef={sheetRefAccountDelegation}
+        closeBottomSheet={() => {
+          setManageDelegationsAccount(null)
+          closeAccountDelegation()
+        }}
+        account={manageDelegationsAccount}
       />
       <AccountKeysBottomSheet
         sheetRef={sheetRefExportImportKey}

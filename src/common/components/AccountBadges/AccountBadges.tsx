@@ -8,7 +8,6 @@ import {
 import spacings from '@common/styles/spacings'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
-import useDelegationControllerState from '@web/hooks/useDelegationControllerState'
 import BadgeWithPreset from '../BadgeWithPreset'
 
 interface Props {
@@ -17,7 +16,6 @@ interface Props {
 
 const AccountBadges: FC<Props> = ({ accountData }) => {
   const keystoreCtrl = useKeystoreControllerState()
-  const { accountDelegations } = useDelegationControllerState()
 
   const isSmartAccount = useMemo(
     () => getIsSmartAccount(accountData),
@@ -29,19 +27,6 @@ const AccountBadges: FC<Props> = ({ accountData }) => {
     return getIsAmbireV1LinkedAccount(accountData?.creation?.factoryAddr)
   }, [accountData?.creation?.factoryAddr])
 
-  const hasMetamaskDelegation = useMemo(() => {
-    if (accountData.creation) return false
-    const delegations = accountDelegations[accountData.addr]
-    if (!delegations) return false
-
-    let delegationFound = false
-    Object.keys(delegations).forEach((netKey) => {
-      if (delegationFound) return
-      delegationFound = !!delegations[netKey].isMetamask
-    })
-    return delegationFound
-  }, [accountData, accountDelegations])
-
   return (
     <>
       {keystoreCtrl.keys.every((k) => !accountData?.associatedKeys.includes(k.addr)) && (
@@ -50,7 +35,6 @@ const AccountBadges: FC<Props> = ({ accountData }) => {
       {isSmartAccount && isAmbireV1LinkedAccount && (
         <BadgeWithPreset preset="ambire-v1" style={spacings.mlTy} />
       )}
-      {hasMetamaskDelegation && <BadgeWithPreset preset="metamask" style={spacings.mlTy} />}
     </>
   )
 }

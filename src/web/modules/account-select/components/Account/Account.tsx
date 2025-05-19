@@ -12,7 +12,6 @@ import Dropdown from '@common/components/Dropdown'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -21,13 +20,12 @@ import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import { ROUTES } from '@common/modules/router/constants/common'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import getStyles from './styles'
-import { SUBMENU_OPTIONS, SUBMENU_OPTION_7702 } from './submenuOptions'
+import { SUBMENU_OPTION_7702, SUBMENU_OPTIONS } from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -54,6 +52,7 @@ const Account = ({
   options?: {
     withOptionsButton: boolean
     setAccountToImportOrExport?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
+    setManageDelegationsAccount?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
     setAccountToRemove?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
   }
   containerStyle?: ViewStyle
@@ -67,7 +66,6 @@ const Account = ({
   const { dispatch } = useBackgroundService()
   const { ens, isLoading } = useReverseLookup({ address: addr })
   const { keys } = useKeystoreControllerState()
-  const { navigate } = useNavigation()
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -117,7 +115,7 @@ const Account = ({
     }
 
     if (item.value === 'toSmarter') {
-      navigate(`${ROUTES.eoaDelegationScreen}?accountAddr=${account.addr}`)
+      !!options.setManageDelegationsAccount && options.setManageDelegationsAccount(account)
     }
   }
 
