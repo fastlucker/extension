@@ -81,7 +81,7 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
 
   const delegate = (chainId: bigint) => {
     const network = networks.find((n) => n.chainId === chainId)
-    if (!network || !account || !accountState) return
+    if (!network || !account || !accountState || !accountState[chainId.toString()]) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
@@ -92,7 +92,7 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
             isSignAction: true,
             chainId: network.chainId,
             accountAddr: account.addr,
-            setDelegation: !accountState.delegatedContract
+            setDelegation: !accountState[chainId.toString()].delegatedContract
           },
           action: {
             kind: 'calls',
