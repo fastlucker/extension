@@ -82,7 +82,42 @@ export class AuthPage extends BasePage {
 
   async personalizeAccountName(): Promise<void> {
     await this.page.locator(locators.editAccountButton).click()
+    // TODO: Parametrization
     await this.typeTextInInputField(locators.editAccountNameField, 'Name 1')
     await this.page.locator(locators.saveMessageText).isVisible()
+  }
+
+  async importCoupleOfViewOnlyAccount(account1: string, account2: string): Promise<void> {
+    await this.page.locator(locators.watchAnAddress).click()
+    await this.page.locator(locators.viewOnlyInputAddressField).pressSequentially(account1)
+    await this.page.locator(locators.addMoreAdressesButton).click()
+    await this.page.locator(locators.viewOnlySecondInputAddressField).pressSequentially(account2)
+    await this.page.locator(locators.importViewOnlyButton).click()
+    await this.setExtensionPassword()
+    await this.page.locator(locators.confirmationMessageForViewOnly).isVisible()
+    await this.personalizeAccountName()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
+  }
+
+  async createNewHotWalletAndPersonalizeName(): Promise<void> {
+    await this.page.locator(locators.createNewAccountButton).click()
+    for (let index = 0; index < 3; index++) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.page.locator(`div[data-testid="checkbox"] >> nth = ${index}`).click()
+    }
+    await this.page.locator(locators.createRecoveryPhraseButton).click()
+    await this.verifyRecoveryPhraseScreen()
+    await this.setExtensionPassword()
+    await this.page.locator(locators.addMoreAccountsButton).click()
+    await this.page.locator(locators.smartAccountPicker).click()
+    await this.page.locator(locators.importAccountButton).click()
+    await this.page.locator(locators.confirmationMessageForViewOnly).isVisible()
+    await this.personalizeAccountName()
+    await this.page.locator(locators.addMoreAccountsButton).isVisible()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
   }
 }

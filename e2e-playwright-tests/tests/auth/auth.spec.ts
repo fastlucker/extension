@@ -35,4 +35,19 @@ test.describe('auth', () => {
   }) => {
     await authPage.importExistingAccountByRecoveryPhrase(SA_PASSPHRASE)
   })
+
+  test('import a couple of view-only accounts (at once) and personalize some of them', async ({
+    authPage
+  }) => {
+    await authPage.importCoupleOfViewOnlyAccount(
+      constants.addresses.basicAccount,
+      constants.addresses.smartAccount
+    )
+  })
+
+  test('create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async ({
+    authPage
+  }) => {
+    await authPage.createNewHotWalletAndPersonalizeName()
+  })
 })

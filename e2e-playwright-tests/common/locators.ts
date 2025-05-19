@@ -27,5 +27,11 @@ export const locators = {
   inputPassphrase: 'input[data-testid="input-passphrase"]',
   editAccountButton: 'div[data-testid="edit-btn-for-edit-name-field-0"]',
   editAccountNameField: 'input[data-testid="edit-name-field-0"]',
-  saveMessageText: 'div[data-testid="text-save"]'
+  saveMessageText: 'div[data-testid="text-save"]',
+  addMoreAdressesButton: 'div[data-testid="add-one-more-address"]',
+  viewOnlySecondInputAddressField: 'input[data-testid="view-only-address-field-1"]',
+  addAccount: 'div[data-testid="button-add-account"]',
+  smartAccountPicker: 'div[data-testid^="add-account-"] >> nth=5',
+  smartAccountPickerForHDPath: 'div[data-testid^="add-account-"] >> nth=5',
+  importAccountButton: 'div[data-testid="button-import-account"]'
 }
