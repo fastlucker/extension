@@ -113,7 +113,9 @@ const CharacterSection = () => {
     (userLeaderboardData?.level ?? 0) <= 2
   return (
     <>
-      <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
+      <div className={styles.overachieverWrapper}>
+        <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
+      </div>
       <div className={styles.rewardsWrapper}>
         <ClaimRewardsModal
           isOpen={isOpen}
