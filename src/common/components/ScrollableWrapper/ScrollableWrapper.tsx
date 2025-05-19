@@ -70,8 +70,7 @@ const ScrollableWrapper = ({
     !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
     ...(Array.isArray(contentContainerStyle) ? contentContainerStyle : [contentContainerStyle]),
     spacings.phLg,
-    // @ts-ignore missing type for overflowY
-    ...[isWeb ? { overflowY: 'auto' } : {}]
+    isWeb ? ({ overflowY: 'auto' } as any) : null // missing type for overflowY
   ]
 
   if (type === WRAPPER_TYPES.FLAT_LIST) {
