@@ -1,3 +1,0 @@
-import AccountDelegationsBottomSheet from './AccountDelegationsBottomSheet'
-
-export default AccountDelegationsBottomSheet

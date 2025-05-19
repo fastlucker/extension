@@ -20,11 +20,10 @@ import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
+import AccountSmartSettingsBottomSheet from '@web/modules/settings/components/Accounts/AccountSmartSettingsBottomSheet'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import { getUiType } from '@web/utils/uiType'
-
-import AccountDelegationsBottomSheet from '../../components/Accounts/AccountDelegationsBottomSheet/AccountDelegationsBottomSheet'
 
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
@@ -48,9 +47,9 @@ const AccountsSettingsScreen = () => {
   } = useModalize()
 
   const {
-    ref: sheetRefAccountDelegation,
-    open: openAccountDelegation,
-    close: closeAccountDelegation
+    ref: sheetRefAccountSmartSettings,
+    open: openAccountSmartSettings,
+    close: closeAccountSmartSettings
   } = useModalize()
 
   useEffect(() => {
@@ -59,9 +58,7 @@ const AccountsSettingsScreen = () => {
 
   const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
   const [accountToRemove, setAccountToRemove] = useState<AccountInterface | null>(null)
-  const [manageDelegationsAccount, setManageDelegationsAccount] = useState<AccountInterface | null>(
-    null
-  )
+  const [smartSettingsAccount, setSmartSettingsAccount] = useState<AccountInterface | null>(null)
 
   useEffect(() => {
     if (exportImportAccount) openExportImportKey()
@@ -72,8 +69,8 @@ const AccountsSettingsScreen = () => {
   }, [openRemoveAccount, accountToRemove])
 
   useEffect(() => {
-    if (manageDelegationsAccount) openAccountDelegation()
-  }, [openAccountDelegation, manageDelegationsAccount])
+    if (smartSettingsAccount) openAccountSmartSettings()
+  }, [openAccountSmartSettings, smartSettingsAccount])
 
   const shortenAccountAddr = useCallback(() => {
     if (maxElementWidthSize(800)) return undefined
@@ -103,7 +100,7 @@ const AccountsSettingsScreen = () => {
           options={{
             withOptionsButton: true,
             setAccountToImportOrExport: setExportImportAccount,
-            setManageDelegationsAccount,
+            setSmartSettingsAccount,
             setAccountToRemove
           }}
           isSelectable={false}
@@ -145,13 +142,13 @@ const AccountsSettingsScreen = () => {
         text="+ Add account"
         hasBottomSpacing={false}
       />
-      <AccountDelegationsBottomSheet
-        sheetRef={sheetRefAccountDelegation}
+      <AccountSmartSettingsBottomSheet
+        sheetRef={sheetRefAccountSmartSettings}
         closeBottomSheet={() => {
-          setManageDelegationsAccount(null)
-          closeAccountDelegation()
+          setSmartSettingsAccount(null)
+          closeAccountSmartSettings()
         }}
-        account={manageDelegationsAccount}
+        account={smartSettingsAccount}
       />
       <AccountKeysBottomSheet
         sheetRef={sheetRefExportImportKey}

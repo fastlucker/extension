@@ -34,7 +34,7 @@ interface Props {
   account: Account | null
 }
 
-const AccountDelegationsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, account }) => {
+const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, account }) => {
   const { accountStates } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
   const { networks } = useNetworksControllerState()
@@ -223,4 +223,4 @@ const AccountDelegationsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, 
   )
 }
 
-export default React.memo(AccountDelegationsBottomSheet)
+export default React.memo(AccountSmartSettingsBottomSheet)

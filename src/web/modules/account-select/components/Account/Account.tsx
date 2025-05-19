@@ -52,7 +52,7 @@ const Account = ({
   options?: {
     withOptionsButton: boolean
     setAccountToImportOrExport?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
-    setManageDelegationsAccount?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
+    setSmartSettingsAccount?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
     setAccountToRemove?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
   }
   containerStyle?: ViewStyle
@@ -115,7 +115,7 @@ const Account = ({
     }
 
     if (item.value === 'toSmarter') {
-      !!options.setManageDelegationsAccount && options.setManageDelegationsAccount(account)
+      !!options.setSmartSettingsAccount && options.setSmartSettingsAccount(account)
     }
   }
 
