@@ -16,14 +16,18 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import { Hex } from '@ambire-common/interfaces/hex'
+import DelegationHumanization from '@web/components/DelegationHumanization'
 import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
 import getStyles from './styles'
 
 interface Props {
   network?: Network
+  setDelegation?: boolean
+  delegatedContract?: Hex | null
 }
 
-const PendingTransactions: FC<Props> = ({ network }) => {
+const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContract }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const { accountOp } = useSignAccountOpControllerState() || {}
@@ -62,23 +66,30 @@ const PendingTransactions: FC<Props> = ({ network }) => {
         <SectionHeading withMb={false}>{t('Overview')}</SectionHeading>
         <NetworkBadge chainId={network?.chainId} withOnPrefix />
       </View>
-      <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
-        {network && callsToVisualize.length ? (
-          callsToVisualize.map((call, i) => {
-            return (
-              <TransactionSummary
-                key={call.id}
-                style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
-                call={call}
-                chainId={network.chainId}
-                index={i}
-              />
-            )
-          })
-        ) : (
-          <PendingTransactionsSkeleton />
-        )}
-      </ScrollableWrapper>
+      {setDelegation !== undefined ? (
+        <DelegationHumanization
+          setDelegation={setDelegation}
+          delegatedContract={delegatedContract}
+        />
+      ) : (
+        <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
+          {network && callsToVisualize.length ? (
+            callsToVisualize.map((call, i) => {
+              return (
+                <TransactionSummary
+                  key={call.id}
+                  style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
+                  call={call}
+                  chainId={network.chainId}
+                  index={i}
+                />
+              )
+            })
+          ) : (
+            <PendingTransactionsSkeleton />
+          )}
+        </ScrollableWrapper>
+      )}
     </View>
   )
 }

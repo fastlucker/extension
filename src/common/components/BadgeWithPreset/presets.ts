@@ -24,6 +24,12 @@ const BADGE_PRESETS: { [preset in Preset]: BadgePreset } = {
     type: 'info',
     tooltipText:
       'Smart Accounts were initially created with a given signer key, but another signer key is authorized for that account on one or more of the supported networks.'
+  },
+  metamask: {
+    text: 'Metamask',
+    type: 'warning',
+    tooltipText: 'This account has a Metamask EIP-7702 delegation',
+    specialType: 'metamask'
   }
 }
 
