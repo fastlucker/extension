@@ -28,6 +28,12 @@
   margin-bottom: 1.5rem;
 }
 
+.overachieverBanner {
+  margin-bottom: 1.875rem;
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+  }
+}
 .rewardsWrapper {
   position: relative;
   z-index: 3;

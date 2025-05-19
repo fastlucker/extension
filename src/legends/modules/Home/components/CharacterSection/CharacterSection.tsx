@@ -6,6 +6,7 @@ import HourGlassIcon from '@legends/common/assets/svg/HourGlassIcon'
 import LockIcon from '@legends/common/assets/svg/LockIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
+import OverachieverBanner from '@legends/components/OverachieverBanner'
 import Stacked from '@legends/components/Stacked'
 import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
@@ -112,6 +113,7 @@ const CharacterSection = () => {
     (userLeaderboardData?.level ?? 0) <= 2
   return (
     <>
+      <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       <div className={styles.rewardsWrapper}>
         <ClaimRewardsModal
           isOpen={isOpen}
