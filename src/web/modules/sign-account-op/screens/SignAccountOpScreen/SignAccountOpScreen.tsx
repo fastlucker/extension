@@ -348,7 +348,7 @@ const SignAccountOpScreen = () => {
             <SignAccountOpHardwareWalletSigningModal
               signingKeyType={signingKeyType}
               feePayerKeyType={feePayerKeyType}
-              broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
+              signAndBroadcastAccountOpStatus={mainState.statuses.signAndBroadcastAccountOp}
               signAccountOpStatusType={signAccountOpState.status?.type}
               shouldSignAuth={signAccountOpState.shouldSignAuth}
               signedTransactionsCount={signAccountOpState.signedTransactionsCount}
