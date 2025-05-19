@@ -249,7 +249,11 @@ const SignMessageScreen = () => {
             rejectButtonText={rejectButtonText}
           />
         }
-        backgroundColor={theme.quinaryBackground}
+        backgroundColor={
+          isAuthorization && !makeItSmartConfirmed
+            ? theme.primaryBackground
+            : theme.quinaryBackground
+        }
       >
         <SigningKeySelect
           isVisible={isChooseSignerShown}

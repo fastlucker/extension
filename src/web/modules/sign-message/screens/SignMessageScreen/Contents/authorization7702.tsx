@@ -9,7 +9,6 @@ import PreviewOutcome from '@common/assets/svg/PreviewOutcome'
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
@@ -53,13 +52,13 @@ const Authorization7702 = ({
     <TabLayoutWrapperMainContent contentContainerStyle={spacings.pvMd} showsVerticalScrollIndicator>
       {!!displayFullInformation && (
         <>
-          <View style={[flexbox.directionRow, flexbox.center]}>
-            <Text weight="medium" fontSize={16}>
+          <View style={[flexbox.directionRow]}>
+            <Text weight="medium" fontSize={20}>
               {t('Make your account smarter')}
             </Text>
           </View>
-          <View style={[flexbox.directionRow, flexbox.center]}>
-            <BasicToSmart style={[spacings.mt, spacings.mb]} />
+          <View style={[flexbox.directionRow, flexbox.center, spacings.pvMd]}>
+            <BasicToSmart />
           </View>
         </>
       )}
@@ -78,13 +77,15 @@ const Authorization7702 = ({
         {options.map((option, index) => (
           <Card
             style={[
-              options.length === index + 1 ? spacings.mr0 : spacings.mrLg,
+              options.length === index + 1
+                ? spacings.mr0
+                : displayFullInformation
+                ? spacings.mrMd
+                : spacings.mrLg,
               flexbox.flex1,
               flexbox.center,
-              spacings.plXl,
-              spacings.prXl,
-              spacings.ptSm,
-              spacings.pbSm,
+              spacings.phXl,
+              spacings.pvSm,
               { minHeight: 'auto' },
               // @ts-ignore
               { textAlign: 'center' },
@@ -126,13 +127,18 @@ const Authorization7702 = ({
             value={!!doNotAskMeAgain}
             style={spacings.mb0}
             onValueChange={onDoNotAskMeAgainChange}
-          >
-            <Text fontSize={14}>{t('Do not ask me again')}</Text>
-          </Checkbox>
+            label={t('Do not ask me again')}
+            labelProps={{ fontSize: 14 }}
+          />
+
           {!!doNotAskMeAgain && (
-            <Alert type="info" style={spacings.ml} size="sm">
-              <Text fontSize={14}>{t('You can always change this from account settings')}</Text>
-            </Alert>
+            <Alert
+              type="info"
+              style={spacings.ml}
+              size="sm"
+              title={t('You can always change this from account settings')}
+              titleWeight="regular"
+            />
           )}
         </View>
       )}

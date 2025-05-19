@@ -45,7 +45,6 @@ const WEB_ROUTES = {
   settingsAbout: 'settings/about',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
-  eoaDelegationScreen: 'settings/accounts/delegations',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',

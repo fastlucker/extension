@@ -321,13 +321,6 @@ const routesConfig: RouteConfig = {
     }),
     name: Platform.select({ default: i18n.t('Accounts Settings') })
   },
-  [ROUTES.eoaDelegationScreen]: {
-    route: ROUTES.eoaDelegationScreen,
-    title: Platform.select({
-      default: i18n.t('Basic to Smart Settings')
-    }),
-    name: Platform.select({ default: i18n.t('Basic to Smart Settings') })
-  },
   [ROUTES.networksSettings]: {
     route: ROUTES.networksSettings,
     title: Platform.select({ default: i18n.t('Networks') }),

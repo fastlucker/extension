@@ -40,7 +40,6 @@ import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsR
 import AboutSettingsScreen from '@web/modules/settings/screens/AboutSettingsScreen'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
-import DelegationsScreen from '@web/modules/settings/screens/DelegationsScreen/DelegationsScreen'
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
@@ -116,7 +115,6 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.generalSettings} element={<GeneralSettingsScreen />} />
               <Route path={WEB_ROUTES.securityAndPrivacy} element={<SecurityAndPrivacyScreen />} />
               <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
-              <Route path={WEB_ROUTES.eoaDelegationScreen} element={<DelegationsScreen />} />
               <Route
                 path={WEB_ROUTES.recoveryPhrasesSettings}
                 element={<RecoveryPhrasesSettingsScreen />}
