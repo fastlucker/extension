@@ -8,7 +8,6 @@ import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { stringify } from '@ambire-common/libs/richJson/richJson'
 import NetworkBadge from '@common/components/NetworkBadge'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
@@ -16,7 +15,6 @@ import SectionHeading from '@web/modules/sign-account-op/components/SectionHeadi
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
-import getStyles from './styles'
 
 interface Props {
   network?: Network
@@ -24,7 +22,6 @@ interface Props {
 
 const PendingTransactions: FC<Props> = ({ network }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
   const { accountOp } = useSignAccountOpControllerState() || {}
   const oldAccountOpRelevantInfoHash = React.useRef<string>('')
   const [callsToVisualize, setCallsToVisualize] = React.useState<IrCall[]>([])
