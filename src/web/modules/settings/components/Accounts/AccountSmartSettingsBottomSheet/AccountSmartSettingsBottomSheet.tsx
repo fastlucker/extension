@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { Modalize } from 'react-native-modalize'
@@ -41,6 +41,7 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const [checkedAccountState, setCheckedAccountState] = useState<boolean>(false)
 
   const accountState = useMemo(() => {
     if (!account) return null
@@ -49,6 +50,25 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
   }, [account, accountStates])
 
   const delegationNetworks = useMemo(() => networks.filter((n) => has7702(n)), [networks])
+
+  useEffect(() => {
+    if (checkedAccountState || !account || !accountState || delegationNetworks.length === 0) return
+    setCheckedAccountState(true)
+
+    const missingAccountStateNetworks: bigint[] = []
+    delegationNetworks.forEach((net) => {
+      if (!accountState[net.chainId.toString()]) missingAccountStateNetworks.push(net.chainId)
+    })
+    if (missingAccountStateNetworks.length === 0) return
+
+    dispatch({
+      type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE',
+      params: {
+        addr: account.addr,
+        chainIds: missingAccountStateNetworks
+      }
+    })
+  }, [checkedAccountState, accountState, delegationNetworks, account, dispatch])
 
   const is7702 = useMemo(() => {
     if (!account) return false
@@ -163,39 +183,51 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
                       </View>
                     </View>
                     <View style={[flexbox.flex1, flexbox.alignCenter]}>
-                      <View style={[flexbox.directionRow]}>
-                        {accountState[net.chainId.toString()].delegatedContractName ? (
-                          <>
-                            {accountState[net.chainId.toString()].delegatedContractName ===
-                              'AMBIRE' && <AmbireLogo width={20} height={20} />}
-                            {accountState[net.chainId.toString()].delegatedContractName ===
-                              'METAMASK' && <MetamaskIcon width={20} height={20} />}
-                            {accountState[net.chainId.toString()].delegatedContractName ===
-                              'UNKNOWN' && <Badge type="success" text={t('unknown')} />}
-                          </>
-                        ) : (
-                          <Badge type="default" text={t('disabled')} />
-                        )}
-                      </View>
+                      {accountState[net.chainId.toString()] ? (
+                        <View style={[flexbox.directionRow]}>
+                          {accountState[net.chainId.toString()].delegatedContractName ? (
+                            <>
+                              {accountState[net.chainId.toString()].delegatedContractName ===
+                                'AMBIRE' && <AmbireLogo width={20} height={20} />}
+                              {accountState[net.chainId.toString()].delegatedContractName ===
+                                'METAMASK' && <MetamaskIcon width={20} height={20} />}
+                              {accountState[net.chainId.toString()].delegatedContractName ===
+                                'UNKNOWN' && <Badge type="success" text={t('unknown')} />}
+                            </>
+                          ) : (
+                            <Badge type="default" text={t('disabled')} />
+                          )}
+                        </View>
+                      ) : (
+                        <View style={[flexbox.alignCenter, flexbox.justifyCenter, flexbox.flex1]}>
+                          <Spinner />
+                        </View>
+                      )}
                     </View>
                     <View style={[flexbox.flex1, flexbox.alignEnd]}>
-                      <View style={[flexbox.directionRow]}>
-                        <Button
-                          type={
-                            !accountState[net.chainId.toString()].delegatedContract
-                              ? 'secondary'
-                              : 'danger'
-                          }
-                          size="tiny"
-                          style={[spacings.mb0, { minWidth: 78, height: 32 }]}
-                          onPress={() => delegate(net.chainId)}
-                          text={
-                            !accountState[net.chainId.toString()].delegatedContract
-                              ? t('Enable')
-                              : t('Revoke')
-                          }
-                        />
-                      </View>
+                      {accountState[net.chainId.toString()] ? (
+                        <View style={[flexbox.directionRow]}>
+                          <Button
+                            type={
+                              !accountState[net.chainId.toString()].delegatedContract
+                                ? 'secondary'
+                                : 'danger'
+                            }
+                            size="tiny"
+                            style={[spacings.mb0, { minWidth: 78, height: 32 }]}
+                            onPress={() => delegate(net.chainId)}
+                            text={
+                              !accountState[net.chainId.toString()].delegatedContract
+                                ? t('Enable')
+                                : t('Revoke')
+                            }
+                          />
+                        </View>
+                      ) : (
+                        <View style={[flexbox.alignCenter, flexbox.justifyCenter, flexbox.flex1]}>
+                          <Spinner />
+                        </View>
+                      )}
                     </View>
                   </View>
                 ))}
