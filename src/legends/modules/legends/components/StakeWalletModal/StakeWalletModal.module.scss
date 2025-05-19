@@ -130,6 +130,7 @@
 .stakeValueUsd, .stakeInputValueUsd {
   font-size: 0.875rem;
   color: $secondaryText;
+  margin-top: 0.25rem;
 }
 
 .stakeInputValueUsd {
@@ -182,6 +183,16 @@
   color: $mainText;
 }
 
+.stakeInputErrorWrapper {
+  display: flex;
+  justify-content: space-between;
+
+  .error {
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    color: $red-400;
+  }
+}
 
 .stakeInput {
   display: flex;

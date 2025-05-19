@@ -27,16 +27,22 @@ const stkWalletIface = new Interface(['function enter(uint256 amount) external']
 const convertToBigInt = (value: string): bigint => {
   try {
     const clean = value.replace(/,/g, '')
-    const num = Number(clean)
-    return isNaN(num) ? 0n : BigInt(Math.floor(num * 1e18))
+    if (Number.isNaN(Number(clean))) return 0n
+
+    const parts = clean.split('.')
+    const whole = parts[0] || '0'
+    const fraction = parts[1] || ''
+
+    let result = BigInt(whole) * BigInt(10 ** 18)
+    if (fraction) {
+      const paddedFraction = fraction.padEnd(18, '0').slice(0, 18)
+      result += BigInt(paddedFraction.padEnd(18, '0'))
+    }
+
+    return result
   } catch {
     return 0n
   }
-}
-
-const formatBalance = (value: bigint): string => {
-  const num = Number(value) / 1e18
-  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> = ({
@@ -47,6 +53,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   const [walletBalance, setWalletBalance] = useState<bigint | null>(0n)
   const [loading, setLoading] = useState(true)
   const [inProgress, setInProgress] = useState(false)
+  const [inputError, setInputError] = useState('')
 
   const { connectedAccount, v1Account } = useAccountContext()
   const { walletTokenInfo, walletTokenPrice } = usePortfolioControllerState()
@@ -76,12 +83,17 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    if (/^\d*(\.\d{0,18})?$/.test(value) || value === '') setStakeAmount(value)
-  }
 
-  const handleMaxClick = () => {
-    if (!walletBalance) return
-    setStakeAmount(parseFloat(formatUnits(walletBalance, 18)).toFixed(2))
+    if (/^\d*(\.\d{0,18})?$/.test(value) || value === '') setStakeAmount(value)
+
+    const numericValue = parseFloat(value)
+    const numericBalance = walletBalance ? Number(formatUnits(walletBalance, 18)) : 0
+
+    if (numericValue > numericBalance) {
+      setInputError('Amount exceeds wallet balance')
+    } else {
+      setInputError('')
+    }
   }
 
   const formattedUSD = (value: string | bigint) =>
@@ -95,9 +107,39 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       [{ chainId: 1 }]
     ).balanceUSDFormatted
 
+  const formattedBalance = (value: bigint): string => {
+    return getAndFormatTokenDetails(
+      {
+        amount: typeof value === 'string' ? convertToBigInt(value) : value,
+        decimals: 18,
+        priceIn: [{ baseCurrency: 'usd', price: walletTokenPrice || 0 }],
+        flags: { rewardsType: 'wallet-rewards' }
+      },
+      [{ chainId: 1 }]
+    ).balanceFormatted
+  }
+
+  const handleMaxClick = () => {
+    if (!walletBalance) return
+    setInputError('')
+    setStakeAmount(formattedBalance(walletBalance))
+  }
+
   const stakeWallet = useCallback(async () => {
+    if (!connectedAccount) throw new HumanReadableError('No connected account.')
+
+    if (!walletBalance) {
+      await window.ambire
+        .request({
+          method: 'open-wallet-route',
+          params: { route: 'swap-and-bridge' }
+        })
+        .catch((e) => {
+          console.error(e)
+        })
+      return
+    }
     try {
-      if (!connectedAccount) throw new HumanReadableError('No connected account.')
       if (isEmpty) throw new HumanReadableError('Insufficient $WALLET balance')
       if (!stakeAmount || Number(stakeAmount) <= 0)
         throw new HumanReadableError('Enter a valid amount')
@@ -134,7 +176,8 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     chainId,
     getCallsStatus,
     handleClose,
-    addToast
+    addToast,
+    walletBalance
   ])
 
   const handleStakeClick = async () => {
@@ -164,7 +207,11 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
               <div>
                 <div className={styles.label}>Your $WALLET</div>
                 <div className={styles.value}>
-                  {loading ? '...' : walletBalance !== null ? formatBalance(walletBalance) : null}
+                  {loading
+                    ? '...'
+                    : walletBalance !== null
+                    ? formattedBalance(walletBalance)
+                    : null}
                 </div>
                 <div className={styles.stakeValueUsd}>
                   {loading ? '...' : walletBalance ? formattedUSD(walletBalance) : null}
@@ -185,7 +232,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
               <div className={styles.stakeInputRowWrapper}>
                 <div className={styles.stakeInputLabel}>Stake</div>
                 <span className={styles.stakeInputMax}>
-                  {walletBalance ? formatBalance(walletBalance) : ''} $WALLET{' '}
+                  {walletBalance ? formattedBalance(walletBalance) : ''} $WALLET{' '}
                   <button
                     type="button"
                     className={styles.stakeInputMaxButton}
@@ -196,15 +243,19 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                   </button>
                 </span>
               </div>
-              <Input
+              <Input.Field
                 value={stakeAmount}
                 disabled={isEmpty}
                 onChange={handleInputChange}
                 className={styles.stakeInput}
                 placeholder="0.00"
               />
-              <div className={styles.stakeInputValueUsd}>
-                {stakeAmount && formattedUSD(stakeAmount)}
+              <div className={styles.stakeInputErrorWrapper}>
+                <Input.ValidationAndInfo validation={{ message: inputError, isError: true }} />
+
+                <div className={styles.stakeInputValueUsd}>
+                  {stakeAmount && formattedUSD(stakeAmount)}
+                </div>
               </div>
             </div>
           </div>
@@ -212,7 +263,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
             type="button"
             className={styles.stakeButton}
             onClick={handleStakeClick}
-            disabled={!isConnected || loading || inProgress || isEmpty || !stakeAmount}
+            disabled={!isConnected || loading || inProgress}
           >
             {inProgress
               ? 'Signing...'
@@ -220,6 +271,8 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
               ? 'Switch to a new account to unlock Rewards quests.'
               : loading
               ? 'Loading...'
+              : isEmpty
+              ? 'Buy $WALLET'
               : 'Stake'}
           </button>
         </div>

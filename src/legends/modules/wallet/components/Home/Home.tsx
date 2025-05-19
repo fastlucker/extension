@@ -10,7 +10,11 @@ const Home = () => {
   const { claimableRewards, walletTokenInfo, isLoadingWalletTokenInfo } =
     usePortfolioControllerState()
   const stakedWallet =
-    walletTokenInfo && (walletTokenInfo?.stkWalletTotalSupply / walletTokenInfo?.totalSupply) * 100
+    walletTokenInfo &&
+    walletTokenInfo.stkWalletTotalSupply != null &&
+    walletTokenInfo.totalSupply != null
+      ? (walletTokenInfo.stkWalletTotalSupply / walletTokenInfo.totalSupply) * 100
+      : null
 
   return (
     <>
