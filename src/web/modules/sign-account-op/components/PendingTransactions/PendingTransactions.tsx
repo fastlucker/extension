@@ -8,7 +8,6 @@ import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { stringify } from '@ambire-common/libs/richJson/richJson'
 import NetworkBadge from '@common/components/NetworkBadge'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -62,23 +61,21 @@ const PendingTransactions: FC<Props> = ({ network }) => {
         <SectionHeading withMb={false}>{t('Overview')}</SectionHeading>
         <NetworkBadge chainId={network?.chainId} withOnPrefix />
       </View>
-      <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
-        {network && callsToVisualize.length ? (
-          callsToVisualize.map((call, i) => {
-            return (
-              <TransactionSummary
-                key={call.id}
-                style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
-                call={call}
-                chainId={network.chainId}
-                index={i}
-              />
-            )
-          })
-        ) : (
-          <PendingTransactionsSkeleton />
-        )}
-      </ScrollableWrapper>
+      {network && callsToVisualize.length ? (
+        callsToVisualize.map((call, i) => {
+          return (
+            <TransactionSummary
+              key={call.id}
+              style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
+              call={call}
+              chainId={network.chainId}
+              index={i}
+            />
+          )
+        })
+      ) : (
+        <PendingTransactionsSkeleton />
+      )}
     </View>
   )
 }

@@ -6,7 +6,9 @@ import {
   ScrollViewProps,
   SectionList,
   SectionListProps,
-  View
+  StyleProp,
+  View,
+  ViewStyle
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -63,10 +65,13 @@ const ScrollableWrapper = ({
     ...(Array.isArray(style) ? style : [style])
   ]
 
-  const scrollableWrapperContentContainerStyles = [
+  const scrollableWrapperContentContainerStyles: StyleProp<ViewStyle> = [
     styles.contentContainerStyle,
     !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-    ...(Array.isArray(contentContainerStyle) ? contentContainerStyle : [contentContainerStyle])
+    ...(Array.isArray(contentContainerStyle) ? contentContainerStyle : [contentContainerStyle]),
+    spacings.phLg,
+    // @ts-ignore missing type for overflowY
+    ...[isWeb ? { overflowY: 'auto' } : {}]
   ]
 
   if (type === WRAPPER_TYPES.FLAT_LIST) {

@@ -233,7 +233,6 @@ const SignAccountOpScreen = () => {
         width="full"
         backgroundColor="#F7F8FC"
         withHorizontalPadding={false}
-        style={spacings.phMd}
         header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
         renderDirectChildren={() => (
           <View style={styles.footer}>
