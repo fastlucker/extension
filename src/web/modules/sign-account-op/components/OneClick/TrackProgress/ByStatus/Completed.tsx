@@ -14,7 +14,7 @@ type CompletedProps = {
   title: string
   titleSecondary: string
   openExplorerText: string
-  explorerLink: string
+  explorerLink?: string
 }
 
 const Completed: FC<CompletedProps> = ({
@@ -56,23 +56,25 @@ const Completed: FC<CompletedProps> = ({
       <Text weight="medium" appearance="secondaryText" style={spacings.mb2Xl}>
         {titleSecondary}
       </Text>
-      <Pressable
-        onPress={handleOpenExplorer}
-        style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
-      >
-        <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
-        <Text
-          weight="medium"
-          style={{
-            textDecorationLine: 'underline',
-            textDecorationColor: theme.primary,
-            textDecorationStyle: 'solid'
-          }}
-          appearance="primary"
+      {!!explorerLink && (
+        <Pressable
+          onPress={handleOpenExplorer}
+          style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
         >
-          {openExplorerText}
-        </Text>
-      </Pressable>
+          <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
+          <Text
+            weight="medium"
+            style={{
+              textDecorationLine: 'underline',
+              textDecorationColor: theme.primary,
+              textDecorationStyle: 'solid'
+            }}
+            appearance="primary"
+          >
+            {openExplorerText}
+          </Text>
+        </Pressable>
+      )}
     </>
   )
 }
