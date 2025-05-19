@@ -6,7 +6,7 @@ type BadgePreset = {
   tooltipText: string
 }
 
-type Preset = 'smart-account' | 'basic-account' | 'view-only' | 'ambire-v1' | 'linked'
+type Preset = 'smart-account' | 'view-only' | 'ambire-v1' | 'linked'
 
 type Props = {
   preset: Preset
