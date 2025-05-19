@@ -169,7 +169,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         <SignAccountOpHardwareWalletSigningModal
           signingKeyType={signingKeyType}
           feePayerKeyType={feePayerKeyType}
-          broadcastSignedAccountOpStatus={mainCtrlStatuses.broadcastSignedAccountOp}
+          signAndBroadcastAccountOpStatus={mainCtrlStatuses.signAndBroadcastAccountOp}
           signAccountOpStatusType={signAccountOpController.status?.type}
           shouldSignAuth={signAccountOpController.shouldSignAuth}
           signedTransactionsCount={signAccountOpController.signedTransactionsCount}
