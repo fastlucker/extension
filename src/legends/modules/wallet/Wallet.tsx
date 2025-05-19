@@ -6,7 +6,7 @@ import Home from '@legends/modules/wallet/components/Home'
 
 const Wallet = () => {
   return (
-    <Page containerSize="lg">
+    <Page containerSize="full">
       <Home />
       <Actions />
     </Page>

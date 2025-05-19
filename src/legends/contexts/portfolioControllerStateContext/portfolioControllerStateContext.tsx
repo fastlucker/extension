@@ -36,12 +36,16 @@ const PortfolioControllerStateContext = createContext<{
     totalSupply: number
     stkWalletTotalSupply: number
   } | null
+  walletTokenPrice: number | null
+  isLoadingWalletTokenInfo: boolean
 }>({
   updateAccountPortfolio: () => {},
   claimableRewardsError: null,
   claimableRewards: null,
-  isLoadingClaimableRewards: false,
-  walletTokenInfo: null
+  isLoadingClaimableRewards: true,
+  walletTokenInfo: null,
+  walletTokenPrice: null,
+  isLoadingWalletTokenInfo: true
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -52,6 +56,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const [isLoadingClaimableRewards, setIsLoadingClaimableRewards] = useState(true)
   const [claimableRewardsError, setClaimableRewardsError] = useState<string | null>(null)
   const [xWalletClaimableBalance, setXWalletClaimableBalance] = useState<string | null>(null)
+
+  const [isLoadingWalletTokenInfo, setIsLoadingWalletTokenInfo] = useState(true)
   const [walletTokenInfo, setWalletTokenInfo] = useState<{
     maxSupply: number
     circulatingSupply: number
@@ -62,7 +68,10 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const [walletTokenPrice, setWalletTokenPrice] = useState<number | null>(null)
 
   const updateAdditionalPortfolio = useCallback(async () => {
-    if (!connectedAccount) return
+    if (!connectedAccount) {
+      setIsLoadingClaimableRewards(false)
+      return
+    }
     try {
       setIsLoadingClaimableRewards(true)
       const additionalPortfolioResponse = await fetch(
@@ -156,16 +165,19 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     await getPortfolioTillReady()
   }, [isLoading, connectedAccount, nonV2Account, setAccountPortfolio])
 
+
   const fetchWalletTokenInfo = useCallback(async () => {
     try {
+      setIsLoadingWalletTokenInfo(true)
       const response = await fetch(`${RELAYER_URL}/wallet-token/info`)
       if (!response.ok) throw new Error('Failed to fetch wallet token info')
       const data = await response.json()
-      console.log('data', data)
       setWalletTokenInfo(data)
+      setIsLoadingWalletTokenInfo(false)
     } catch (error) {
       console.error('Error fetching wallet token info:', error)
       setWalletTokenInfo(null)
+      setIsLoadingWalletTokenInfo(false)
     }
   }, [])
 
@@ -193,6 +205,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           claimableRewardsError,
           claimableRewards,
           isLoadingClaimableRewards,
+          isLoadingWalletTokenInfo,
           xWalletClaimableBalance,
           walletTokenInfo,
           walletTokenPrice
@@ -203,6 +216,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           claimableRewards,
           claimableRewardsError,
           isLoadingClaimableRewards,
+          isLoadingWalletTokenInfo,
           xWalletClaimableBalance,
           walletTokenInfo,
           walletTokenPrice
