@@ -361,7 +361,7 @@ const Estimation = ({
   if (isSponsored) {
     return (
       <View>
-        {sponsor && (
+        {sponsor ? (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {sponsor.icon && (
               <ManifestImage
@@ -373,6 +373,17 @@ const Estimation = ({
             <View style={spacings.ml}>
               <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
                 {sponsor.name}
+              </Text>
+              <Text fontSize={16} appearance="secondaryText">
+                {t('is 🪄 sponsoring 🪄 this transaction')}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <View style={spacings.ml}>
+              <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
+                {t("The dapp you're connected to")}
               </Text>
               <Text fontSize={16} appearance="secondaryText">
                 {t('is 🪄 sponsoring 🪄 this transaction')}
