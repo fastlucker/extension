@@ -225,7 +225,7 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
                         </View>
                       ) : (
                         <View style={[flexbox.alignCenter, flexbox.justifyCenter, flexbox.flex1]}>
-                          <Spinner style={{ width: '15px', height: '15px' }} />
+                          -
                         </View>
                       )}
                     </View>
