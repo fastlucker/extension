@@ -7,16 +7,14 @@ import walletCoin from './assets/wallet-coin.png'
 import styles from './Home.module.scss'
 
 const Home = () => {
-  const {
-    claimableRewards,
-    walletTokenInfo,
-    isLoadingWalletTokenInfo
-  } = usePortfolioControllerState()
-  const stakedWallet = walletTokenInfo && (walletTokenInfo?.stkWalletTotalSupply / walletTokenInfo?.totalSupply) * 100
+  const { claimableRewards, walletTokenInfo, isLoadingWalletTokenInfo } =
+    usePortfolioControllerState()
+  const stakedWallet =
+    walletTokenInfo && (walletTokenInfo?.stkWalletTotalSupply / walletTokenInfo?.totalSupply) * 100
 
   return (
     <>
-    <RewardsBadge />
+      <RewardsBadge />
       <section className={`${styles.wrapper}`}>
         <div className={styles.walletInfo}>
           <h1 className={styles.title}>
@@ -42,22 +40,26 @@ const Home = () => {
               <div className={styles.walletItem}>
                 Staked $WALLET
                 <span className={styles.item}>
-                  {isLoadingWalletTokenInfo ? 'Loading...' : stakedWallet === null ? 0 : `${stakedWallet.toFixed(2)}%`}
+                  {isLoadingWalletTokenInfo
+                    ? 'Loading...'
+                    : stakedWallet === null
+                    ? 0
+                    : `${stakedWallet.toFixed(2)}%`}
                 </span>
                 <div className={styles.walletInfoWrapper} />
               </div>
             </div>
             {claimableRewards?.priceIn[0].price && (
-            <div className={styles.walletItemWrapper}>
-              <div className={styles.walletItem}>
-                <div className={styles.walletInfoWrapper}>Current price</div>
-                <span className={styles.item}>
-                  {claimableRewards?.priceIn[0].price !== undefined
-                    ? Number(claimableRewards.priceIn[0].price).toFixed(3)
-                    : ''}
-                </span>
+              <div className={styles.walletItemWrapper}>
+                <div className={styles.walletItem}>
+                  <div className={styles.walletInfoWrapper}>Current price</div>
+                  <span className={styles.item}>
+                    {claimableRewards?.priceIn[0].price !== undefined
+                      ? Number(claimableRewards.priceIn[0].price).toFixed(3)
+                      : ''}
+                  </span>
+                </div>
               </div>
-            </div>
             )}
           </div>
         </div>

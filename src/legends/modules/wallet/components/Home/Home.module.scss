@@ -1,11 +1,9 @@
 @import '@legends/styles/base.scss';
 
 
-
 .error {
   margin-bottom: 1.5rem;
 }
-
 
 .wrapper {
   @include container;
@@ -111,7 +109,6 @@
           font-size: 0.875rem;
           font-weight: 300;
           line-height: 1.5rem;
-          color: $mainText;
           align-self: end;
           color: $secondaryText;
         }
@@ -229,49 +226,30 @@
   }
 }
 
+.wrapper {
+  @include on-mobile {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
 
-@keyframes lagWs {
-  0% {
-    --dna-pointer-x: 90%;
-    --dna-pointer-y: 10%;
-  }
-  25% {
-    --dna-pointer-x: 10%;
-    --dna-pointer-y: 10%;
-  }
-  50% {
-    --dna-pointer-x: 10%;
-    --dna-pointer-y: 90%;
-  }
-  75% {
-    --dna-pointer-x: 90%;
-    --dna-pointer-y: 90%;
-  }
-  100% {
-    --dna-pointer-x: 90%;
-    --dna-pointer-y: 10%;
-  }
-}
+    .walletInfo {
+      .title {
+        margin-bottom: 2rem;
+      }
+      .walletLevelInfoWrapper {
+        flex-wrap: wrap;
+      }
+    }
 
-@keyframes _3wNqp {
-  0% {
-    --dna-angle-x: 10deg;
-    --dna-angle-y: 10deg;
-  }
-  25% {
-    --dna-angle-x: 10deg;
-    --dna-angle-y: -10deg;
-  }
-  50% {
-    --dna-angle-x: -10deg;
-    --dna-angle-y: -10deg;
-  }
-  75% {
-    --dna-angle-x: -10deg;
-    --dna-angle-y: 10deg;
-  }
-  100% {
-    --dna-angle-x: 10deg;
-    --dna-angle-y: 10deg;
+    .wallet {
+      .walletRelativeWrapper {
+        .walletImage {
+          bottom: -4rem;
+          right: 0;
+          width: 5rem;
+          height: 6rem;
+        }
+      }
+    }
   }
 }

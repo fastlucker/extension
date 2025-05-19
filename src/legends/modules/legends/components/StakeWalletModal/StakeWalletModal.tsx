@@ -39,7 +39,10 @@ const formatBalance = (value: bigint): string => {
   return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> = ({ isOpen, handleClose }) => {
+const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> = ({
+  isOpen,
+  handleClose
+}) => {
   const [stakeAmount, setStakeAmount] = useState('')
   const [walletBalance, setWalletBalance] = useState<bigint | null>(0n)
   const [loading, setLoading] = useState(true)
@@ -60,7 +63,11 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       return
     }
     setLoading(true)
-    new Contract(WALLET_TOKEN, walletIface, new JsonRpcProvider('https://invictus.ambire.com/ethereum'))
+    new Contract(
+      WALLET_TOKEN,
+      walletIface,
+      new JsonRpcProvider('https://invictus.ambire.com/ethereum')
+    )
       .balanceOf(connectedAccount)
       .then(setWalletBalance)
       .catch(() => addToast('Failed to get $WALLET token balance', { type: 'error' }))
@@ -92,7 +99,8 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     try {
       if (!connectedAccount) throw new HumanReadableError('No connected account.')
       if (isEmpty) throw new HumanReadableError('Insufficient $WALLET balance')
-      if (!stakeAmount || Number(stakeAmount) <= 0) throw new HumanReadableError('Enter a valid amount')
+      if (!stakeAmount || Number(stakeAmount) <= 0)
+        throw new HumanReadableError('Enter a valid amount')
 
       setInProgress(true)
       const signer = await new BrowserProvider(window.ambire).getSigner(connectedAccount)
@@ -102,7 +110,10 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         chainId,
         await signer.getAddress(),
         [
-          { to: WALLET_TOKEN, data: walletIface.encodeFunctionData('approve', [STK_WALLET, amount]) },
+          {
+            to: WALLET_TOKEN,
+            data: walletIface.encodeFunctionData('approve', [STK_WALLET, amount])
+          },
           { to: STK_WALLET, data: stkWalletIface.encodeFunctionData('enter', [amount]) }
         ],
         false
@@ -115,11 +126,23 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     } finally {
       setInProgress(false)
     }
-  }, [connectedAccount, isEmpty, stakeAmount, sendCalls, chainId, getCallsStatus, handleClose, addToast])
+  }, [
+    connectedAccount,
+    isEmpty,
+    stakeAmount,
+    sendCalls,
+    chainId,
+    getCallsStatus,
+    handleClose,
+    addToast
+  ])
 
   const handleStakeClick = async () => {
     if (isEmpty) {
-      await window.ambire.request({ method: 'open-wallet-route', params: { route: 'swap-and-bridge' } })
+      await window.ambire.request({
+        method: 'open-wallet-route',
+        params: { route: 'swap-and-bridge' }
+      })
     } else {
       await switchNetwork(ETHEREUM_CHAIN_ID)
       await stakeWallet()
@@ -131,15 +154,21 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   return createPortal(
     <div className={styles.backdrop}>
       <div className={styles.wrapper}>
-        <button className={styles.closeButton} onClick={handleClose}><CloseIcon /></button>
+        <button type="button" className={styles.closeButton} onClick={handleClose}>
+          <CloseIcon />
+        </button>
         <div className={styles.contentWrapper}>
           <h2 className={styles.title}>Stake $WALLET</h2>
           <div className={styles.infoWrapper}>
             <div className={styles.infoRow}>
               <div>
                 <div className={styles.label}>Your $WALLET</div>
-                <div className={styles.value}>{loading ? '...' : walletBalance !== null ? formatBalance(walletBalance) : null}</div>
-                <div className={styles.stakeValueUsd}>{loading ? '...' : walletBalance ? formattedUSD(walletBalance) : null}</div>
+                <div className={styles.value}>
+                  {loading ? '...' : walletBalance !== null ? formatBalance(walletBalance) : null}
+                </div>
+                <div className={styles.stakeValueUsd}>
+                  {loading ? '...' : walletBalance ? formattedUSD(walletBalance) : null}
+                </div>
               </div>
               <div>
                 <div className={styles.label}>APR</div>
@@ -148,14 +177,23 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
             </div>
             <div className={styles.stakedTotalRow}>
               <div className={styles.label}>Staked Total</div>
-              {Number(walletTokenInfo?.stkWalletTotalSupply || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {Number(walletTokenInfo?.stkWalletTotalSupply || 0).toLocaleString(undefined, {
+                maximumFractionDigits: 0
+              })}
             </div>
             <div className={styles.stakeInputRow}>
               <div className={styles.stakeInputRowWrapper}>
                 <div className={styles.stakeInputLabel}>Stake</div>
                 <span className={styles.stakeInputMax}>
-                  {walletBalance ? formatBalance(walletBalance) : ''} $WALLET {' '}
-                  <button className={styles.stakeInputMaxButton} onClick={handleMaxClick} disabled={isEmpty}>MAX</button>
+                  {walletBalance ? formatBalance(walletBalance) : ''} $WALLET{' '}
+                  <button
+                    type="button"
+                    className={styles.stakeInputMaxButton}
+                    onClick={handleMaxClick}
+                    disabled={isEmpty}
+                  >
+                    MAX
+                  </button>
                 </span>
               </div>
               <Input
@@ -165,10 +203,13 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                 className={styles.stakeInput}
                 placeholder="0.00"
               />
-              <div className={styles.stakeInputValueUsd}>{stakeAmount && formattedUSD(stakeAmount)}</div>
+              <div className={styles.stakeInputValueUsd}>
+                {stakeAmount && formattedUSD(stakeAmount)}
+              </div>
             </div>
           </div>
           <button
+            type="button"
             className={styles.stakeButton}
             onClick={handleStakeClick}
             disabled={!isConnected || loading || inProgress || isEmpty || !stakeAmount}
