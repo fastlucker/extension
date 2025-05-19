@@ -13,6 +13,7 @@ import {
   DeviceModelId as LedgerDeviceModels,
   LEDGER_VENDOR_ID
 } from '@ledgerhq/device-management-kit'
+import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
 import { SignTypedDataDAReturnType } from '@ledgerhq/device-signer-kit-ethereum/lib/types/api/app-binder/SignTypedDataDeviceActionTypes'
 import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
@@ -20,21 +21,6 @@ import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 export { LedgerDeviceModels }
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
-
-// FIXME: Importing the SignerEthBuilder class statically fails in the service worker
-// somewhere in the rpcFlow, but I'm not sure where exactly (error gets swallowed).
-// The only working solution I found is to use dynamic import.
-const getSignerBuilder = async () => {
-  try {
-    // Use dynamic import to avoid the static import issue
-    const module = await import('@ledgerhq/device-signer-kit-ethereum')
-    return module.SignerEthBuilder
-  } catch (error) {
-    console.error('Failed to load SignerEthBuilder:', error)
-    // Return null or a mock implementation if needed
-    return null
-  }
-}
 
 class LedgerController implements ExternalSignerController {
   unlockedPath: string = ''
@@ -230,16 +216,16 @@ class LedgerController implements ExternalSignerController {
         // Find available devices
         let device: any = null
         await new Promise<void>((resolve, reject) => {
-          const discoverySubscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
+          const subscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
             next: (devices) => {
               if (devices && devices.length) {
                 device = devices[0]
-                discoverySubscription.unsubscribe()
+                subscription.unsubscribe()
                 resolve()
               }
             },
             error: (error) => {
-              discoverySubscription.unsubscribe()
+              subscription.unsubscribe()
               reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
             }
           })
@@ -257,16 +243,6 @@ class LedgerController implements ExternalSignerController {
         const connectedDevice = walletSDK.getConnectedDevice({ sessionId })
         this.deviceModel = connectedDevice.modelId
         this.deviceId = connectedDevice.id
-
-        // Get the SignerEthBuilder dynamically to avoid the static import issue
-        const SignerEthBuilder = await getSignerBuilder()
-
-        if (!SignerEthBuilder) {
-          // Fallback if dynamic import fails
-          this.unlockedPath = path
-          this.unlockedPathKeyAddr = expectedKeyOnThisPath || ''
-          return 'JUST_UNLOCKED' as const
-        }
 
         // Create the signer using the dynamically imported constructor
         const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
