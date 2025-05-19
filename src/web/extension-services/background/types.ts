@@ -5,7 +5,6 @@ import { ActivityController } from '@ambire-common/controllers/activity/activity
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { DefiPositionsController } from '@ambire-common/controllers/defiPositions/defiPositions'
-import { DelegationController } from '@ambire-common/controllers/delegation/delegation'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
 import { EmailVaultController } from '@ambire-common/controllers/emailVault/emailVault'
 import { FeatureFlagsController } from '@ambire-common/controllers/featureFlags/featureFlags'
@@ -48,8 +47,7 @@ export const controllersNestedInMainMapping = {
   invite: InviteController,
   swapAndBridge: SwapAndBridgeController,
   featureFlags: FeatureFlagsController,
-  defiPositions: DefiPositionsController,
-  delegation: DelegationController
+  defiPositions: DefiPositionsController
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller

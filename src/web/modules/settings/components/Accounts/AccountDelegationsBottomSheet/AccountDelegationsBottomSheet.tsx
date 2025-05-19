@@ -66,23 +66,26 @@ const AccountDelegationsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, 
     dispatch({
       type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
       params: {
-        id: new Date().getTime(),
-        meta: {
-          isSignAction: true,
-          chainId: network.chainId,
-          accountAddr: account.addr,
-          setDelegation: !accountState.delegatedContract
+        userRequest: {
+          id: new Date().getTime(),
+          meta: {
+            isSignAction: true,
+            chainId: network.chainId,
+            accountAddr: account.addr,
+            setDelegation: !accountState.delegatedContract
+          },
+          action: {
+            kind: 'calls',
+            calls: [
+              {
+                to: ZERO_ADDRESS,
+                data: '0x',
+                value: BigInt(0)
+              }
+            ]
+          }
         },
-        action: {
-          kind: 'calls',
-          calls: [
-            {
-              to: ZERO_ADDRESS,
-              data: '0x',
-              value: BigInt(0)
-            }
-          ]
-        }
+        allowAccountSwitch: true
       }
     })
   }
