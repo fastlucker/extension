@@ -18,7 +18,7 @@ import { CardStatus } from '@legends/modules/legends/types'
 
 import styles from './Actions.module.scss'
 
-const cardsOrder = ['claim-rewards', 'migrate-stk', 'staking', 'buyWalletToken', 'vote']
+const cardsOrder = ['claim-rewards', 'migrate-stk', 'staking', 'buyWalletToken', 'vote', 'liquidity']
 
 const Actions = () => {
   const { legends, isLoading, error } = useLegendsContext()
