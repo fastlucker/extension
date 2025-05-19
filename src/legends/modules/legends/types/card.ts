@@ -68,7 +68,8 @@ export enum CardGroup {
   GasTank = 'gas-tank',
   Transactions = 'transactions',
   Seasonal = 'seasonal',
-  MiniGame = 'mini-game'
+  MiniGame = 'mini-game',
+  Partners = 'partners'
 }
 
 export enum CardGroupNameMapping {
