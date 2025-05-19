@@ -137,11 +137,6 @@ type MainControllerAddNetwork = {
   params: AddNetworkRequestParams
 }
 
-type MainControllerRemoveNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: { chainId: ChainId }
-}
-
 type AccountsControllerUpdateAccountPreferences = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES'
   params: { addr: string; preferences: AccountPreferences }[]
@@ -719,7 +714,6 @@ export type Action =
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
-  | MainControllerRemoveNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
   | MainControllerAccountPickerSetPageAction

@@ -9,7 +9,6 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -25,7 +24,7 @@ const SortHat = () => {
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-  const { accounts } = useAccountsControllerState()
+
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -87,11 +86,6 @@ const SortHat = () => {
 
       if (actionType === 'switchAccount') return navigate(WEB_ROUTES.switchAccount)
     } else if (!isActionWindow) {
-      if (accounts.some((a) => a.newlyAdded)) {
-        navigate(ROUTES.accountPersonalize)
-        return
-      }
-
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
       const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
@@ -109,7 +103,6 @@ const SortHat = () => {
       }
     }
   }, [
-    accounts,
     keystoreState.isReadyToStoreKeys,
     keystoreState.isUnlocked,
     authStatus,

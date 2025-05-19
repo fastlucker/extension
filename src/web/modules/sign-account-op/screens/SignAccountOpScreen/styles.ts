@@ -17,8 +17,8 @@ const getStyles = (theme: ThemeProps) =>
       overflow: 'hidden'
     },
     footer: {
-      ...spacings.pvLg,
-      ...spacings.phLg,
+      ...spacings.pvMd,
+      ...spacings.phMd,
       backgroundColor: theme.primaryBackground,
       shadowColor: '#B8BDE080',
       shadowOffset: { width: 0, height: -4 },
