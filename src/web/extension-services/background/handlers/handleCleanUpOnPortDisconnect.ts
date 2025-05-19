@@ -38,6 +38,10 @@ export const handleCleanUpOnPortDisconnect = async ({
     mainCtrl.signMessage.reset()
   }
 
+  if (url.pathname.includes('transfer')) {
+    mainCtrl.activity.resetAccountsOpsFilters('transfer')
+  }
+
   if (mainCtrl.accountPicker.isInitialized) {
     const shouldResetAccountPicker = ONBOARDING_WEB_ROUTES.some(
       (r) => url.pathname.includes(r) && port.name === 'tab'

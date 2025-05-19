@@ -96,10 +96,12 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     // Optimization: Don't apply filtration if we are not on Activity tab
     if (!signAccountOpController?.accountOp) return
 
+    const sessionId = 'transfer'
+
     dispatch({
       type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
       params: {
-        sessionId: 'transfer',
+        sessionId,
         filters: {
           account: signAccountOpController.accountOp.accountAddr,
           chainId: signAccountOpController?.accountOp.chainId
@@ -110,6 +112,17 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         }
       }
     })
+
+    const killSession = () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS',
+        params: { sessionId }
+      })
+    }
+
+    return () => {
+      killSession()
+    }
   }, [
     dispatch,
     signAccountOpController?.accountOp.accountAddr,
