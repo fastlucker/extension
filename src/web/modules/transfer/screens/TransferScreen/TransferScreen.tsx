@@ -45,7 +45,7 @@ import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgre
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
 
-const { isPopup, isTab } = getUiType()
+const { isPopup, isTab, isActionWindow } = getUiType()
 
 const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { dispatch } = useBackgroundService()
@@ -409,18 +409,20 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   }, [setShowAddedToBatch])
 
   const onPrimaryButtonPress = useCallback(() => {
+    if (isActionWindow) {
+      dispatch({
+        type: 'CLOSE_SIGNING_ACTION_WINDOW',
+        params: {
+          type: 'transfer'
+        }
+      })
+    } else {
+      navigate(WEB_ROUTES.dashboard)
+    }
+
     dispatch({
       type: 'TRANSFER_CONTROLLER_RESET_FORM'
     })
-    navigate(WEB_ROUTES.dashboard)
-    // TODO - implement action window closing
-    // if (isActionWindow) {
-    //   dispatch({
-    //     type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
-    //   })
-    // } else {
-    //   navigate(WEB_ROUTES.dashboard)
-    // }
   }, [dispatch, navigate])
 
   if (displayedView === 'track') {

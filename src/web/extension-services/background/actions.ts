@@ -579,6 +579,18 @@ type SwapAndBridgeControllerOpenSigningActionWindow = {
 type SwapAndBridgeControllerCloseSigningActionWindow = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
 }
+type OpenSigningActionWindow = {
+  type: 'OPEN_SIGNING_ACTION_WINDOW'
+  params: {
+    type: 'swapAndBridge' | 'transfer'
+  }
+}
+type CloseSigningActionWindow = {
+  type: 'CLOSE_SIGNING_ACTION_WINDOW'
+  params: {
+    type: 'swapAndBridge' | 'transfer'
+  }
+}
 type TransferControllerUpdateForm = {
   type: 'TRANSFER_CONTROLLER_UPDATE_FORM'
   params: { formValues: TransferUpdate }
@@ -820,6 +832,8 @@ export type Action =
   | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
+  | OpenSigningActionWindow
+  | CloseSigningActionWindow
   | TransferControllerUpdateForm
   | TransferControllerResetForm
   | TransferControllerUserProceededAction

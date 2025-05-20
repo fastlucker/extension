@@ -156,6 +156,7 @@ const OneClickEstimation = ({
           shouldSignAuth={signAccountOpController.shouldSignAuth}
           signedTransactionsCount={signAccountOpController.signedTransactionsCount}
           accountOp={signAccountOpController.accountOp}
+          actionType={updateType === 'Swap&Bridge' ? 'swapAndBridge' : 'transfer'}
         />
       )}
 

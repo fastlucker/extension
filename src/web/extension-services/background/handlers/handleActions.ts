@@ -5,7 +5,8 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import {
   SIGN_ACCOUNT_OP_MAIN,
   SIGN_ACCOUNT_OP_SWAP,
-  SIGN_ACCOUNT_OP_TRANSFER, SignAccountOpType
+  SIGN_ACCOUNT_OP_TRANSFER,
+  SignAccountOpType
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -330,13 +331,16 @@ export const handleActions = async (
       return mainCtrl?.swapAndBridge.setIsAutoSelectRouteDisabled(params.isDisabled)
     case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
       return mainCtrl?.swapAndBridge.destroySignAccountOp()
-    case 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW':
+    case 'OPEN_SIGNING_ACTION_WINDOW': {
       if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+
+      const idSuffix =
+        params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
       return mainCtrl.actions.addOrUpdateAction(
         {
-          id: `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`,
-          type: 'swapAndBridge',
+          id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
+          type: params.type,
           userRequest: {
             meta: {
               accountAddr: mainCtrl.selectedAccount.account.addr
@@ -346,11 +350,15 @@ export const handleActions = async (
         'last',
         'open-action-window'
       )
-    case 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW':
+    }
+    case 'CLOSE_SIGNING_ACTION_WINDOW': {
       if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
-      return mainCtrl.actions.removeAction(
-        `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`
-      )
+
+      const idSuffix =
+        params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
+
+      return mainCtrl.actions.removeAction(`${mainCtrl.selectedAccount.account.addr}-${idSuffix}`)
+    }
     case 'TRANSFER_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transfer.update(params.formValues)
     case 'TRANSFER_CONTROLLER_RESET_FORM':
