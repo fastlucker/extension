@@ -29,9 +29,6 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  // TODO: Missing type
-  transport: any
-
   signerEth: DefaultSignerEth | null = null
 
   // TODO: Missing type
@@ -47,7 +44,6 @@ class LedgerController implements ExternalSignerController {
 
   constructor() {
     this.isWebHID = true
-    this.transport = null
     this.walletSDK = null
 
     // When the `cleanUpListener` method gets passed to the navigator.hid listeners
@@ -69,12 +65,11 @@ class LedgerController implements ExternalSignerController {
   }
 
   /**
-   * Checks if WebUSB transport is supported by the browser. Does not work in the
-   * service worker (background) in manifest v3, because it needs a `window` ref.
+   * Checks if WebHID transport is supported by the browser.
+   * Note: This API is not available in service workers in manifest v3.
    */
-  // TODO: Temporarily
-  // static isSupported = WebHIDTransport.isSupported
-  static isSupported = () => true
+  static isSupported = () =>
+    typeof navigator !== 'undefined' && navigator !== null && 'hid' in navigator
 
   /**
    * Checks if at least one Ledger device is connected.
@@ -526,22 +521,6 @@ class LedgerController implements ExternalSignerController {
     this.unlockedPathKeyAddr = ''
 
     navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
-
-    // try {
-    //   // Might hang! If user interacts with Ambire, then interacts with another
-    //   // wallet app (installed on the computer or a web app) and then comes back
-    //   // to Ambire, closing the current transport hangs indefinitely.
-    //   await Promise.race([
-    //     // Might fail if the transport was already closed, which is fine.
-    //     this.transport?.close(),
-    //     new Promise((_, reject) => {
-    //       const message = normalizeLedgerMessage('No response received from the Ledger device.')
-    //       setTimeout(() => reject(message), 3000)
-    //     })
-    //   ])
-    // } finally {
-    //   this.transport = null
-    // }
   }
 
   async cleanUpListener({ device }: { device: HIDDevice }) {
