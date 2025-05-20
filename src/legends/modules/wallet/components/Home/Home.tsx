@@ -1,5 +1,6 @@
 import React from 'react'
 
+import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -18,6 +19,9 @@ const Home = () => {
 
   return (
     <>
+      <div className={styles.overachieverWrapper}>
+        <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
+      </div>
       <RewardsBadge />
       <section className={`${styles.wrapper}`}>
         <div className={styles.walletInfo}>

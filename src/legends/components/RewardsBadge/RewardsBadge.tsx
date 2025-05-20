@@ -16,22 +16,16 @@ import styles from './RewardsBadge.module.scss'
 const RewardsBadge: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
-    const { connectedAccount } = useAccountContext()
-  
+  const { connectedAccount } = useAccountContext()
+
   const { legends, isLoading } = useLegendsContext()
   const claimWalletCard = legends?.find((card) =>
     isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
   )
-    const { userLeaderboardData } = useLeaderboardContext()
-  
-const {
-    accountPortfolio,
-    claimableRewards,
-    walletTokenInfo,
-    claimableRewardsError,
-    isLoadingClaimableRewards,
-    isLoadingWalletTokenInfo
-} = usePortfolioControllerState()
+  const { userLeaderboardData } = useLeaderboardContext()
+
+  const { accountPortfolio, claimableRewardsError, isLoadingClaimableRewards } =
+    usePortfolioControllerState()
   const openClaimModal = () => setIsOpen(true)
   const closeClaimModal = () => setIsOpen(false)
 
@@ -126,7 +120,8 @@ const {
               <p>Error loading rewards</p>
             ) : rewardsDisabledState ? (
               <p className={styles.rewardsTitle}>
-                {Number(claimWalletCard?.meta?.availableToClaim) === 0 && !isNotAvailableForRewards ? (
+                {Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+                !isNotAvailableForRewards ? (
                   "You haven't accumulated $WALLET rewards yet."
                 ) : (
                   <>

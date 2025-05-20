@@ -5,6 +5,20 @@
   margin-bottom: 1.5rem;
 }
 
+.overachieverWrapper {
+  @include  container;
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+  }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+  }
+}
+.overachieverBanner {
+  margin-bottom: 1.875rem;
+}
+
 .wrapper {
   @include container;
   display: flex;
