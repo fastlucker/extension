@@ -1,5 +1,3 @@
-import * as sigUtil from 'eth-sig-util'
-
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
@@ -110,8 +108,8 @@ class LedgerController implements ExternalSignerController {
   /**
    * This function is designed to handle the scenario where Ledger device loses
    * connectivity during an operation. Without this method, if the Ledger device
-   * disconnects, the Ledger SDK hangs indefinitely because the promise
-   * associated with the operation never resolves or rejects.
+   * disconnects, the observable returned by the Ledger SDK throws an error,
+   * but with an awkward delay.
    */
   static withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
     let listenerCbRef: (...args: Array<any>) => any = () => {}
@@ -169,9 +167,9 @@ class LedgerController implements ExternalSignerController {
    * is an existing SDK instance and creates a new one if needed.
    */
   async #initSDKSessionIfNeeded() {
-    // const isConnected = await LedgerController.isConnected()
-    // if (!isConnected)
-    //   throw new ExternalSignerError("Ledger is not connected. Please make sure it's plugged in.")
+    const isConnected = await LedgerController.isConnected()
+    if (!isConnected)
+      throw new ExternalSignerError("Ledger is not connected. Please make sure it's plugged in.")
 
     if (this.walletSDK) return
 
