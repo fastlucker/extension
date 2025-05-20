@@ -180,6 +180,16 @@ const AddChainScreen = () => {
     })
   }, [dappAction, t, dispatch])
 
+  const handleCloseOnAlreadyAdded = useCallback(() => {
+    if (!dappAction) return
+
+    actionButtonPressedRef.current = true
+    dispatch({
+      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+      params: { data: null, id: dappAction.id }
+    })
+  }, [dappAction, dispatch])
+
   const handlePrimaryButtonPress = useCallback(() => {
     if (!networkDetails) return
     actionButtonPressedRef.current = true
@@ -231,7 +241,7 @@ const AddChainScreen = () => {
               style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
               size="large"
               hasBottomSpacing={false}
-              onPress={handleDenyButtonPress}
+              onPress={handleCloseOnAlreadyAdded}
               text={t('Close')}
               type="primary"
               disabled={statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'}
