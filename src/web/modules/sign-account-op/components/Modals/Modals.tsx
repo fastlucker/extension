@@ -11,8 +11,11 @@ import text from '@common/styles/utils/text'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const { isTab } = getUiType()
 
 type Props = Pick<
   ReturnType<typeof useSign>,
@@ -56,7 +59,7 @@ const Modals: FC<Props> = ({
         closeBottomSheet={!slowPaymasterRequest ? dismissWarning : undefined}
         sheetRef={warningModalRef}
         style={styles.warningsModal}
-        type="bottom-sheet"
+        type={isTab ? 'modal' : 'bottom-sheet'}
         withBackdropBlur={false}
         shouldBeClosableOnDrag={false}
         autoOpen={autoOpen === 'warnings'}
