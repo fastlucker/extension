@@ -43,7 +43,7 @@ const Main = ({
   const signMessageState = useSignMessageControllerState()
   const signStatus = signMessageState.statuses.sign
   const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { maxWidthSize, minHeightSize } = useWindowSize()
   const { networks } = useNetworksControllerState()
   const network = useMemo(
     () =>
@@ -113,7 +113,9 @@ const Main = ({
             hasArrow={!!visualizeHumanized}
             style={{
               ...spacings.mbTy,
-              maxHeight: '100%',
+              // Setting maxHeight on larger screens introduced internal content scroll
+              // (which aligns the content better - with internal scrollbar).
+              ...(minHeightSize(660) ? {} : { maxHeight: '100%' }),
               backgroundColor: theme.primaryBackground
             }}
             content={
