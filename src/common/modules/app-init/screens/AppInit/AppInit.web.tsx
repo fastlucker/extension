@@ -6,7 +6,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
-import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { LoaderProvider } from '@common/contexts/loaderContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
@@ -42,6 +41,7 @@ import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControl
 import { ProvidersControllerStateProvider } from '@web/contexts/providersControllerStateContext'
 import { SelectedAccountControllerStateProvider } from '@web/contexts/selectedAccountControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
+import { StorageControllerStateProvider } from '@web/contexts/storageControllerStateContext'
 import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
 
@@ -61,68 +61,68 @@ const AppInit = () => {
               <ErrorBoundary FallbackComponent={ErrorComponent}>
                 <BackgroundServiceProvider>
                   <MainControllerStateProvider>
-                    <NetworksControllerStateProvider>
-                      <AccountsControllerStateProvider>
-                        <SelectedAccountControllerStateProvider>
-                          <ProvidersControllerStateProvider>
-                            <AutoLockControllerStateProvider>
-                              <ExtensionUpdateControllerStateProvider>
-                                <FeatureFlagsControllerStateProvider>
-                                  <InviteControllerStateProvider>
-                                    <WalletStateControllerProvider>
-                                      <AccountPickerControllerStateProvider>
-                                        <KeystoreControllerStateProvider>
-                                          <SignMessageControllerStateProvider>
-                                            <ActivityControllerStateProvider>
-                                              <ActionsControllerStateProvider>
-                                                <PortfolioControllerStateProvider>
-                                                  <EmailVaultControllerStateProvider>
-                                                    <PhishingControllerStateProvider>
-                                                      <DappsControllerStateProvider>
-                                                        <DomainsControllerStateProvider>
-                                                          <AddressBookControllerStateProvider>
-                                                            <SwapAndBridgeControllerStateProvider>
-                                                              <ControllersStateLoadedProvider>
-                                                                <LoaderProvider>
-                                                                  <StorageProvider>
-                                                                    <KeyboardProvider>
-                                                                      <NetInfoProvider>
-                                                                        <AuthProvider>
-                                                                          <OnboardingNavigationProvider>
-                                                                            <BiometricsProvider>
+                    <StorageControllerStateProvider>
+                      <NetworksControllerStateProvider>
+                        <AccountsControllerStateProvider>
+                          <SelectedAccountControllerStateProvider>
+                            <ProvidersControllerStateProvider>
+                              <AutoLockControllerStateProvider>
+                                <ExtensionUpdateControllerStateProvider>
+                                  <FeatureFlagsControllerStateProvider>
+                                    <InviteControllerStateProvider>
+                                      <WalletStateControllerProvider>
+                                        <AccountPickerControllerStateProvider>
+                                          <KeystoreControllerStateProvider>
+                                            <SignMessageControllerStateProvider>
+                                              <ActivityControllerStateProvider>
+                                                <ActionsControllerStateProvider>
+                                                  <PortfolioControllerStateProvider>
+                                                    <EmailVaultControllerStateProvider>
+                                                      <PhishingControllerStateProvider>
+                                                        <DappsControllerStateProvider>
+                                                          <DomainsControllerStateProvider>
+                                                            <AddressBookControllerStateProvider>
+                                                              <SwapAndBridgeControllerStateProvider>
+                                                                <ControllersStateLoadedProvider>
+                                                                  <LoaderProvider>
+                                                                    <StorageProvider>
+                                                                      <KeyboardProvider>
+                                                                        <NetInfoProvider>
+                                                                          <AuthProvider>
+                                                                            <OnboardingNavigationProvider>
                                                                               <PrivateModeProvider>
                                                                                 <AppRouter />
                                                                               </PrivateModeProvider>
                                                                               <PortalHost name="global" />
-                                                                            </BiometricsProvider>
-                                                                          </OnboardingNavigationProvider>
-                                                                        </AuthProvider>
-                                                                      </NetInfoProvider>
-                                                                    </KeyboardProvider>
-                                                                  </StorageProvider>
-                                                                </LoaderProvider>
-                                                              </ControllersStateLoadedProvider>
-                                                            </SwapAndBridgeControllerStateProvider>
-                                                          </AddressBookControllerStateProvider>
-                                                        </DomainsControllerStateProvider>
-                                                      </DappsControllerStateProvider>
-                                                    </PhishingControllerStateProvider>
-                                                  </EmailVaultControllerStateProvider>
-                                                </PortfolioControllerStateProvider>
-                                              </ActionsControllerStateProvider>
-                                            </ActivityControllerStateProvider>
-                                          </SignMessageControllerStateProvider>
-                                        </KeystoreControllerStateProvider>
-                                      </AccountPickerControllerStateProvider>
-                                    </WalletStateControllerProvider>
-                                  </InviteControllerStateProvider>
-                                </FeatureFlagsControllerStateProvider>
-                              </ExtensionUpdateControllerStateProvider>
-                            </AutoLockControllerStateProvider>
-                          </ProvidersControllerStateProvider>
-                        </SelectedAccountControllerStateProvider>
-                      </AccountsControllerStateProvider>
-                    </NetworksControllerStateProvider>
+                                                                            </OnboardingNavigationProvider>
+                                                                          </AuthProvider>
+                                                                        </NetInfoProvider>
+                                                                      </KeyboardProvider>
+                                                                    </StorageProvider>
+                                                                  </LoaderProvider>
+                                                                </ControllersStateLoadedProvider>
+                                                              </SwapAndBridgeControllerStateProvider>
+                                                            </AddressBookControllerStateProvider>
+                                                          </DomainsControllerStateProvider>
+                                                        </DappsControllerStateProvider>
+                                                      </PhishingControllerStateProvider>
+                                                    </EmailVaultControllerStateProvider>
+                                                  </PortfolioControllerStateProvider>
+                                                </ActionsControllerStateProvider>
+                                              </ActivityControllerStateProvider>
+                                            </SignMessageControllerStateProvider>
+                                          </KeystoreControllerStateProvider>
+                                        </AccountPickerControllerStateProvider>
+                                      </WalletStateControllerProvider>
+                                    </InviteControllerStateProvider>
+                                  </FeatureFlagsControllerStateProvider>
+                                </ExtensionUpdateControllerStateProvider>
+                              </AutoLockControllerStateProvider>
+                            </ProvidersControllerStateProvider>
+                          </SelectedAccountControllerStateProvider>
+                        </AccountsControllerStateProvider>
+                      </NetworksControllerStateProvider>
+                    </StorageControllerStateProvider>
                   </MainControllerStateProvider>
                 </BackgroundServiceProvider>
               </ErrorBoundary>

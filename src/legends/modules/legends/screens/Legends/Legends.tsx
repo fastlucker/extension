@@ -1,5 +1,6 @@
 import React from 'react'
 
+import OverachieverBanner from '@legends/components/OverachieverBanner'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
@@ -10,12 +11,12 @@ import styles from './Legends.module.scss'
 
 const GROUP_SORT = [
   CardGroup.MiniGame,
-  CardGroup.Show,
-  CardGroup.Supporter,
-  CardGroup.GasTank,
-  CardGroup.SwapAndBridge,
+  CardGroup.Seasonal,
   CardGroup.Transactions,
-  CardGroup.Seasonal
+  CardGroup.SwapAndBridge,
+  CardGroup.GasTank,
+  CardGroup.Supporter,
+  CardGroup.Show
 ]
 
 const Legends = () => {
@@ -38,6 +39,7 @@ const Legends = () => {
 
   return (
     <Page containerSize="lg">
+      <OverachieverBanner />
       {!isLoading ? (
         <div>
           {Object.entries(processedLegends).map(([groupName, cards]) => (

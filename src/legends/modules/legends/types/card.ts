@@ -52,7 +52,7 @@ export enum CardStatus {
   'completed'
 }
 
-export type Networks = '1' | '10' | '8453' | '534352' | '42161'
+export type Networks = '1' | '10' | '8453' | '534352' | '42161' | '56'
 export interface CardXp {
   type: CardXpType
   from: number
@@ -68,7 +68,8 @@ export enum CardGroup {
   GasTank = 'gas-tank',
   Transactions = 'transactions',
   Seasonal = 'seasonal',
-  MiniGame = 'mini-game'
+  MiniGame = 'mini-game',
+  Partners = 'partners'
 }
 
 export enum CardGroupNameMapping {
@@ -78,7 +79,8 @@ export enum CardGroupNameMapping {
   'gas-tank' = 'Gas Tank',
   'transactions' = 'Transactions',
   'seasonal' = 'Seasonal',
-  'mini-game' = 'Mini Game'
+  'mini-game' = 'Daily Quests',
+  'partners' = 'Partners'
 }
 
 export interface CardFromResponse {
@@ -112,6 +114,7 @@ export interface CardFromResponse {
     }[]
     usedInvitationSlots?: number
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
+    availableToClaim?: BigInt
   }
   contentSteps?: string[]
   contentImageV2?: string

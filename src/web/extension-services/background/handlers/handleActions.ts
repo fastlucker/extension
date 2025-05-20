@@ -104,9 +104,6 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
     }
-    case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
-      return await mainCtrl.removeNetwork(params.chainId)
-    }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
     }
@@ -206,7 +203,12 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
       return await mainCtrl.buildMintVestingUserRequest(params.token)
     case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-      return await mainCtrl.addUserRequest(params)
+      return await mainCtrl.addUserRequest(
+        params.userRequest,
+        params.actionPosition,
+        params.actionExecutionType,
+        params.allowAccountSwitch
+      )
     case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
       return mainCtrl.removeUserRequest(params.id)
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
@@ -275,7 +277,9 @@ export const handleActions = async (
     }
 
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
-      return await mainCtrl.swapAndBridge.initForm(params.sessionId)
+      return await mainCtrl.swapAndBridge.initForm(params.sessionId, {
+        preselectedFromToken: params.preselectedFromToken
+      })
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
       return mainCtrl.swapAndBridge.unloadScreen(params.sessionId, params.forceUnload)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
@@ -409,6 +413,8 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED':
       return await mainCtrl.keystore.addTempSeed(params)
+    case 'KEYSTORE_CONTROLLER_UPDATE_SEED':
+      return await mainCtrl.keystore.updateSeed(params)
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
@@ -427,14 +433,14 @@ export const handleActions = async (
         undefined,
         params.extraEntropy
       )
-    case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
+    case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
       return await mainCtrl.keystore.sendTempSeedToUi()
-    case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
-      return await mainCtrl.keystore.deleteSavedSeed()
+    case 'KEYSTORE_CONTROLLER_DELETE_SEED':
+      return await mainCtrl.keystore.deleteSeed(params.id)
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
       return await mainCtrl.emailVault.getEmailVaultInfo(params.email)

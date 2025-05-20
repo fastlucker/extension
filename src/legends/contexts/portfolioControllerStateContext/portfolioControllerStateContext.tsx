@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { AdditionalPortfolioNetworkResult } from '@ambire-common/libs/portfolio/interfaces'
 import { RELAYER_URL } from '@env'
+import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
 export type AccountPortfolio = {
@@ -10,18 +10,42 @@ export type AccountPortfolio = {
   isReady?: boolean
   error?: string
 }
+export type ClaimableRewards = {
+  address: string
+  symbol: string
+  amount: string
+  decimals: number
+  networkId: string
+  chainId: number
+  priceIn: Array<{
+    baseCurrency: string
+    price: number
+  }>
+}
 
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio?: AccountPortfolio
   updateAccountPortfolio: () => void
   claimableRewardsError: string | null
-  claimableRewards: AdditionalPortfolioNetworkResult | null
+  claimableRewards: ClaimableRewards | null
   isLoadingClaimableRewards: boolean
+  walletTokenInfo: {
+    teamAddresses: string[]
+    maxSupply: number
+    circulatingSupply: number
+    totalSupply: number
+    stkWalletTotalSupply: number
+  } | null
+  walletTokenPrice: number | null
+  isLoadingWalletTokenInfo: boolean
 }>({
   updateAccountPortfolio: () => {},
   claimableRewardsError: null,
   claimableRewards: null,
-  isLoadingClaimableRewards: false
+  isLoadingClaimableRewards: true,
+  walletTokenInfo: null,
+  walletTokenPrice: null,
+  isLoadingWalletTokenInfo: true
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -31,9 +55,23 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const [claimableRewards, setClaimableRewards] = useState<any>(null)
   const [isLoadingClaimableRewards, setIsLoadingClaimableRewards] = useState(true)
   const [claimableRewardsError, setClaimableRewardsError] = useState<string | null>(null)
+  const [xWalletClaimableBalance, setXWalletClaimableBalance] = useState<string | null>(null)
+
+  const [isLoadingWalletTokenInfo, setIsLoadingWalletTokenInfo] = useState(true)
+  const [walletTokenInfo, setWalletTokenInfo] = useState<{
+    maxSupply: number
+    circulatingSupply: number
+    totalSupply: number
+    price: number
+    stkWalletTotalSupply: number
+  } | null>(null)
+  const [walletTokenPrice, setWalletTokenPrice] = useState<number | null>(null)
 
   const updateAdditionalPortfolio = useCallback(async () => {
-    if (!connectedAccount) return
+    if (!connectedAccount) {
+      setIsLoadingClaimableRewards(false)
+      return
+    }
     try {
       setIsLoadingClaimableRewards(true)
       const additionalPortfolioResponse = await fetch(
@@ -42,13 +80,21 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
       const additionalPortfolioJson = await additionalPortfolioResponse.json()
 
-      const claimableBalance = additionalPortfolioJson?.data?.rewards?.xWalletClaimableBalance
+      const xWalletClaimableBalanceData =
+        additionalPortfolioJson?.data?.rewards?.xWalletClaimableBalance
+      const claimableBalance = additionalPortfolioJson?.data?.rewards?.stkWalletClaimableBalance
+      const walletTokenInfoData =
+        additionalPortfolioJson?.data?.gasTank?.availableGasTankAssets.find(
+          (asset: any) => asset.symbol === 'wallet'
 
+        )
+      setWalletTokenPrice(walletTokenInfoData.price)
       if (claimableBalance === undefined) {
         throw new Error('Invalid response format')
       }
 
       setClaimableRewards(claimableBalance)
+      setXWalletClaimableBalance(xWalletClaimableBalanceData)
       setIsLoadingClaimableRewards(false)
     } catch (e) {
       console.error('Error fetching additional portfolio:', e)
@@ -104,7 +150,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       const portfolioRes = (await window.ambire.request({
         method: 'get_portfolioBalance',
         // TODO: impl a dynamic way of getting the chainIds
-        params: [{ chainIds: ['0x1', '0x2105', '0xa', '0xa4b1', '0x82750'] }]
+        params: [
+          { chainIds: LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID.map((n) => `0x${n.toString(16)}`) }
+        ]
       })) as AccountPortfolio
 
       if (portfolioRes.isReady) {
@@ -117,10 +165,28 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     await getPortfolioTillReady()
   }, [isLoading, connectedAccount, nonV2Account, setAccountPortfolio])
 
+
+  const fetchWalletTokenInfo = useCallback(async () => {
+    try {
+      setIsLoadingWalletTokenInfo(true)
+      const response = await fetch(`${RELAYER_URL}/wallet-token/info`)
+      if (!response.ok) throw new Error('Failed to fetch wallet token info')
+      const data = await response.json()
+      setWalletTokenInfo(data)
+      setIsLoadingWalletTokenInfo(false)
+    } catch (error) {
+      console.error('Error fetching wallet token info:', error)
+      setWalletTokenInfo(null)
+      setIsLoadingWalletTokenInfo(false)
+    }
+  }, [])
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     updateAdditionalPortfolio()
-  }, [updateAdditionalPortfolio])
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    fetchWalletTokenInfo()
+  }, [updateAdditionalPortfolio, fetchWalletTokenInfo])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -138,14 +204,22 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           updateAccountPortfolio,
           claimableRewardsError,
           claimableRewards,
-          isLoadingClaimableRewards
+          isLoadingClaimableRewards,
+          isLoadingWalletTokenInfo,
+          xWalletClaimableBalance,
+          walletTokenInfo,
+          walletTokenPrice
         }),
         [
           accountPortfolio,
           updateAccountPortfolio,
           claimableRewards,
           claimableRewardsError,
-          isLoadingClaimableRewards
+          isLoadingClaimableRewards,
+          isLoadingWalletTokenInfo,
+          xWalletClaimableBalance,
+          walletTokenInfo,
+          walletTokenPrice
         ]
       )}
     >

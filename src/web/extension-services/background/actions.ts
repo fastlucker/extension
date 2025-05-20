@@ -2,7 +2,8 @@ import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
   Action as ActionFromActionsQueue,
-  ActionExecutionType
+  ActionExecutionType,
+  ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -136,11 +137,6 @@ type MainControllerAddNetwork = {
   params: AddNetworkRequestParams
 }
 
-type MainControllerRemoveNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: { chainId: ChainId }
-}
-
 type AccountsControllerUpdateAccountPreferences = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES'
   params: { addr: string; preferences: AccountPreferences }[]
@@ -185,7 +181,12 @@ type MainControllerUpdateNetworkAction = {
 
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
-  params: UserRequest
+  params: {
+    userRequest: UserRequest
+    actionPosition?: ActionPosition
+    actionExecutionType?: ActionExecutionType
+    allowAccountSwitch?: boolean
+  }
 }
 type MainControllerBuildTransferUserRequest = {
   type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST'
@@ -405,6 +406,14 @@ type KeystoreControllerAddTempSeedAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED'
   params: Omit<KeystoreSeed, 'id' | 'label'>
 }
+type KeystoreControllerUpdateSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_UPDATE_SEED'
+  params: {
+    id: KeystoreSeed['id']
+    label?: KeystoreSeed['label']
+    hdPathTemplate?: KeystoreSeed['hdPathTemplate']
+  }
+}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
@@ -420,12 +429,13 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string; extraEntropy: string }
 }
-type KeystoreControllerSendPrivateKeyOverChannel = {
-  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
+type KeystoreControllerSendPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string }
 }
-type KeystoreControllerDeleteSavedSeed = {
-  type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
+type KeystoreControllerDeleteSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
+  params: { id: string }
 }
 type KeystoreControllerSendSeedToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI'
@@ -499,7 +509,10 @@ type DappsControllerRemoveDappAction = {
 
 type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
-  params: { sessionId: string }
+  params: {
+    sessionId: string
+    preselectedFromToken?: Pick<TokenResult, 'address' | 'chainId'>
+  }
 }
 type SwapAndBridgeControllerUserProceededAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED'
@@ -688,7 +701,6 @@ export type Action =
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
-  | MainControllerRemoveNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
   | MainControllerAccountPickerSetPageAction
@@ -731,11 +743,12 @@ export type Action =
   | PortfolioControllerUpdateConfettiToShown
   | KeystoreControllerAddSecretAction
   | KeystoreControllerAddTempSeedAction
+  | KeystoreControllerUpdateSeedAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction
-  | KeystoreControllerSendPrivateKeyOverChannel
+  | KeystoreControllerSendPrivateKeyToUiAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
   | EmailVaultControllerCancelConfirmationAction
@@ -782,7 +795,7 @@ export type Action =
   | KeystoreControllerSendSeedToUiAction
   | KeystoreControllerSendTempSeedToUiAction
   | MainControllerActivityHideBanner
-  | KeystoreControllerDeleteSavedSeed
+  | KeystoreControllerDeleteSeedAction
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction

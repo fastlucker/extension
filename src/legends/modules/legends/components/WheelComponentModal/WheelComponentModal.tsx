@@ -73,7 +73,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   const unlockWheel = useCallback(async () => {
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new ethers.BrowserProvider(window.ambire)
       const signer = await provider.getSigner()
@@ -102,8 +102,8 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
       )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
-          if (attempts >= 10) {
-            console.error('Failed to fetch transaction status after 10 attempts')
+          if (attempts >= 15) {
+            console.error('Failed to fetch transaction status after 15 attempts')
             addToast(
               "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
               { type: 'error' }
@@ -118,7 +118,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
           )
 
           if (!found) {
-            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
+            setTimeout(() => checkStatusWithTimeout(attempts + 1), 2000)
           }
         }
 
@@ -232,7 +232,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             }`}
             onClick={onButtonClick}
           >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
+            {nonConnectedAcc
+              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+              : buttonLabel}
           </button>
         </div>
       </div>

@@ -275,11 +275,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   mainCtrl = new MainController({
-    storage,
+    storageAPI: storage,
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    swapApiKey: USE_SWAP_KEY ? LI_FI_API_KEY : undefined,
+    // Temporarily use NO API key in production, until we have a middleware to handle the API key
+    swapApiKey: isProd ? undefined : LI_FI_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -294,6 +295,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     } as any,
     windowManager: {
       ...windowManager,
+      remove: async (winId: number) => {
+        await windowManager.remove(winId, pm)
+      },
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       },
@@ -755,7 +759,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
     }
 
-    if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
+    if (mainCtrl.statuses.signAndBroadcastAccountOp === 'SUCCESS') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
       initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
@@ -824,9 +828,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
             stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            const controller = (mainCtrl as any)[ctrlName]
+
+            // In case the controller was destroyed and an error was emitted
+            if (!controller) return
+
             pm.send('> ui-error', {
               method: ctrlName,
-              params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
+              params: { errors: controller.emittedErrors, controller: ctrlName }
             })
           }, 'background')
         }

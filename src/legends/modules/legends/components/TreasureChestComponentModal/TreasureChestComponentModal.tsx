@@ -8,6 +8,7 @@ import ZapIcon from '@legends/common/assets/svg/ZapIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
@@ -130,7 +131,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     setChestState('unlocking')
 
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner()
@@ -158,8 +159,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
-          if (attempts >= 10) {
-            console.error('Failed to fetch transaction status after 10 attempts')
+          if (attempts >= 15) {
+            console.error('Failed to fetch transaction status after 15 attempts')
             addToast(
               "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
               { type: 'error' }
@@ -174,7 +175,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           )
 
           if (!found) {
-            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
+            setTimeout(() => checkStatusWithTimeout(attempts + 1), 2000)
           }
         }
 
@@ -305,7 +306,9 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             }
             onClick={onButtonClick}
           >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
+            {nonConnectedAcc
+              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+              : buttonLabel}
           </button>
         </div>
       </div>

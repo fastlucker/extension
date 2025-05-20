@@ -1,5 +1,3 @@
-import { Settings } from 'react-native'
-
 import { buildSelector } from '../../common-helpers/buildSelector'
 
 export const TEST_IDS = {
@@ -125,6 +123,8 @@ export const TEST_IDS = {
   signButtonSwap: 'swap-button-sign',
   addMoreSwaps: 'add-more-swaps',
   flipUSDIcon: 'flip-icon'
+  disableNetworkButton: 'disable-network-btn',
+  disableNetworkConfirmButton: 'disable-network-confirm-btn'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
