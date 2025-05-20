@@ -41,7 +41,7 @@ import {
   USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
-import { browser } from '@web/constants/browserapi'
+import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -275,6 +275,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   mainCtrl = new MainController({
+    platform,
     storageAPI: storage,
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
