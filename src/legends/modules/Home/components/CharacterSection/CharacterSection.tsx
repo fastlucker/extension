@@ -4,6 +4,7 @@ import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
+import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
 import Stacked from '@legends/components/Stacked'
 import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
@@ -15,11 +16,9 @@ import { Networks } from '@legends/modules/legends/types'
 import styles from './CharacterSection.module.scss'
 
 const CharacterSection = () => {
-
   const { character } = useCharacterContext()
 
-  const { accountPortfolio } =
-    usePortfolioControllerState()
+  const { accountPortfolio } = usePortfolioControllerState()
   const { userLeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
   const formatXp = (xp: number) => {
@@ -40,11 +39,12 @@ const CharacterSection = () => {
 
   const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
 
-
   return (
     <>
+      <div className={styles.overachieverWrapper}>
+        <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
+      </div>
       <RewardsBadge />
-
       <section className={`${styles.wrapper} ${styles[`wrapper${character.characterType}`]}`}>
         <div className={styles.characterInfo}>
           <AccountInfo

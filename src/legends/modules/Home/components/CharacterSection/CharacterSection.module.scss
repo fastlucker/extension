@@ -4,6 +4,27 @@
   margin-bottom: 1.5rem;
 }
 
+.overachieverWrapper {
+  @include  container;
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+  }
+}
+.overachieverBanner {
+  margin-bottom: 1.875rem;
+  
+}
+.rewardsWrapper {
+  position: relative;
+  z-index: 3;
+  @include container;
+  user-select: none;
+
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+  }
+}
+
 .wrapper {
   @include container;
   display: flex;

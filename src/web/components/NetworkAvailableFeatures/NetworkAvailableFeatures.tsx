@@ -127,7 +127,7 @@ const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRe
       action: txn
     }
 
-    dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: userRequest })
+    dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: { userRequest } })
   }, [addToast, dispatch, account, selectedNetwork])
 
   const shouldRenderRetryButton = useMemo(
