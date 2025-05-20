@@ -10,6 +10,7 @@ import { getFeatures } from '@ambire-common/libs/networks/networks'
 import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
+import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
@@ -223,20 +224,35 @@ const AddChainScreen = () => {
       width="full"
       header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
       footer={
-        <ActionFooter
-          onReject={handleDenyButtonPress}
-          onResolve={handlePrimaryButtonPress}
-          resolveButtonText={resolveButtonText}
-          resolveDisabled={
-            !areParamsValid ||
-            statuses.addNetwork === 'LOADING' ||
-            statuses.updateNetwork === 'LOADING' ||
-            (features &&
-              (features.some((f) => f.level === 'loading') ||
-                !!features.filter((f) => f.id === 'flagged')[0])) ||
-            actionButtonPressedRef.current
-          }
-        />
+        networkAlreadyAdded ? (
+          <View style={flexbox.flex1}>
+            <Button
+              testID="added-network-close-button"
+              style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
+              size="large"
+              hasBottomSpacing={false}
+              onPress={handleDenyButtonPress}
+              text={t('Close')}
+              type="primary"
+              disabled={statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'}
+            />
+          </View>
+        ) : (
+          <ActionFooter
+            onReject={handleDenyButtonPress}
+            onResolve={handlePrimaryButtonPress}
+            resolveButtonText={resolveButtonText}
+            resolveDisabled={
+              !areParamsValid ||
+              statuses.addNetwork === 'LOADING' ||
+              statuses.updateNetwork === 'LOADING' ||
+              (features &&
+                (features.some((f) => f.level === 'loading') ||
+                  !!features.filter((f) => f.id === 'flagged')[0])) ||
+              actionButtonPressedRef.current
+            }
+          />
+        )
       }
       backgroundColor={theme.quinaryBackground}
     >
