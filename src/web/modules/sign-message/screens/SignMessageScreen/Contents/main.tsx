@@ -69,7 +69,7 @@ const Main = ({
   )
 
   return (
-    <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvMd}>
+    <TabLayoutWrapperMainContent style={spacings.mbLg}>
       <View
         style={[
           flexbox.directionRow,
