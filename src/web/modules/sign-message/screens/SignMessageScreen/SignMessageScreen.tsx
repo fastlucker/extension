@@ -253,7 +253,6 @@ const SignMessageScreen = () => {
           />
         }
         backgroundColor={theme.quinaryBackground}
-        withHorizontalPadding={false}
       >
         <SigningKeySelect
           isVisible={isChooseSignerShown}
