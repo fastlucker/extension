@@ -50,4 +50,8 @@ test.describe('auth', () => {
   }) => {
     await authPage.createNewHotWalletAndPersonalizeName()
   })
+
+  test('import account from different HD paths', async ({ authPage }) => {
+    await authPage.createAccountAndImportFromDifferentHDPath()
+  })
 })

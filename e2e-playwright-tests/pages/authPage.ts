@@ -120,4 +120,34 @@ export class AuthPage extends BasePage {
     await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
     await this.page.locator(locators.openDashboardButton).click()
   }
+
+  async selectHDPath(path: string): Promise<void> {
+    await this.page.locator(locators.changeHDPathButton).click()
+    await this.page.locator(path).click()
+    await this.page.locator(locators.hdPathConfirmButton).click()
+  }
+
+  async createAccountAndImportFromDifferentHDPath(): Promise<void> {
+    await this.page.locator(locators.createNewAccountButton).click()
+    for (let index = 0; index < 3; index++) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.page.locator(`div[data-testid="checkbox"] >> nth = ${index}`).click()
+    }
+    await this.page.locator(locators.createRecoveryPhraseButton).click()
+    await this.verifyRecoveryPhraseScreen()
+    await this.setExtensionPassword()
+    await this.page.locator(locators.addMoreAccountsButton).click()
+    await this.selectHDPath(locators.hdPathLegerLive)
+    await this.page.locator(locators.smartAccountPicker).click()
+    await this.page.locator(locators.importAccountButton).click()
+    await this.page.locator(locators.confirmationMessageForViewOnly).isVisible()
+    await this.page.locator(locators.addMoreAccountsButton).click()
+    await this.selectHDPath(locators.hdPathLegerLive)
+    await this.page.locator(locators.smartAccountPickerForHDPath).click()
+    await this.page.locator(locators.importAccountButton).click()
+    await this.page.locator(locators.addMoreAccountsButton).isVisible()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
+  }
 }

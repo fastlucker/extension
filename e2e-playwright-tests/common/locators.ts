@@ -33,5 +33,9 @@ export const locators = {
   addAccount: 'div[data-testid="button-add-account"]',
   smartAccountPicker: 'div[data-testid^="add-account-"] >> nth=5',
   smartAccountPickerForHDPath: 'div[data-testid^="add-account-"] >> nth=5',
-  importAccountButton: 'div[data-testid="button-import-account"]'
+  importAccountButton: 'div[data-testid="button-import-account"]',
+  changeHDPathButton: 'div[data-testid="change-hd-path-btn"]',
+  hdPathLegerLive: 'div[data-testid="hd-path-option-ledger-live"]',
+  hdPathLegerLegacy: 'div[data-testid="hd-path-option-ledger-legacy"]',
+  hdPathConfirmButton: 'div[data-testid="hd-path-confirm-btn"]'
 }
