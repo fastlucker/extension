@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # Manual trigger
   push:
     branches:
-      - config/arm64-build # Run on every commit to this feature branch
+      - config/arm64-build # Temporarily run on every commit to this feature branch
   release:
     types: [published] # Triggers on new releases
     branches:
