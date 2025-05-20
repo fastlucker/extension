@@ -224,10 +224,14 @@
       }
     }
   }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+  }
 }
 
 .wrapper {
-  @include on-mobile {
+  @include breakpoint-down-from(tablet) {
     margin-left: 0;
     margin-right: 0;
     width: 100%;

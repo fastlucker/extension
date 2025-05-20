@@ -9,6 +9,10 @@
   @include breakpoint-down-from(medium-desktop) {
     margin-left: 3rem;
   }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+  }
 }
 .overachieverBanner {
   margin-bottom: 1.875rem;
@@ -22,6 +26,10 @@
 
   @include breakpoint-down-from(medium-desktop) {
     margin-left: 3rem;
+  }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
   }
 }
 
@@ -301,6 +309,10 @@
         height: 30rem;
       }
     }
+  }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
   }
 }
 

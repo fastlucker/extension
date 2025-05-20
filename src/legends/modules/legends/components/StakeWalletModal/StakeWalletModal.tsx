@@ -163,6 +163,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       await getCallsStatus(txId)
       addToast('Stake successful!', { type: 'success' })
       handleClose()
+      setStakeAmount('')
     } catch (e: any) {
       addToast(humanizeError(e, ERROR_MESSAGES.transactionSigningFailed), { type: 'error' })
     } finally {

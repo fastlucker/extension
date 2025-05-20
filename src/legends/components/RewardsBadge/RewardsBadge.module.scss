@@ -33,6 +33,10 @@
   @include breakpoint-down-from(medium-desktop) {
     margin-left: 3rem;
   }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+  }
 }
 
 .rewardsBadgeWrapper {

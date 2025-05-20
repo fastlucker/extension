@@ -18,7 +18,14 @@ import { CardStatus } from '@legends/modules/legends/types'
 
 import styles from './Actions.module.scss'
 
-const cardsOrder = ['claim-rewards', 'migrate-stk', 'staking', 'buyWalletToken', 'vote', 'liquidity']
+const cardsOrder = [
+  'claim-rewards',
+  'migrate-stk',
+  'staking',
+  'buyWalletToken',
+  'vote',
+  'liquidity'
+]
 
 const Actions = () => {
   const { legends, isLoading, error } = useLegendsContext()
@@ -33,20 +40,28 @@ const Actions = () => {
     return [...filtered].sort((a, b) => {
       // First sort completed cards to the end
       if (a.card.status === CardStatus.completed && b.card.status !== CardStatus.completed) {
-      return 1
+        return 1
       }
       if (a.card.status !== CardStatus.completed && b.card.status === CardStatus.completed) {
-      return -1
+        return -1
       }
-      
+
       // Then sort disabled cards after other active cards but before completed ones
-      if (a.card.status === CardStatus.disabled && b.card.status !== CardStatus.disabled && b.card.status !== CardStatus.completed) {
-      return 1
+      if (
+        a.card.status === CardStatus.disabled &&
+        b.card.status !== CardStatus.disabled &&
+        b.card.status !== CardStatus.completed
+      ) {
+        return 1
       }
-      if (a.card.status !== CardStatus.disabled && a.card.status !== CardStatus.completed && b.card.status === CardStatus.disabled) {
-      return -1
+      if (
+        a.card.status !== CardStatus.disabled &&
+        a.card.status !== CardStatus.completed &&
+        b.card.status === CardStatus.disabled
+      ) {
+        return -1
       }
-      
+
       // Finally sort by cardsOrder index
       const aIndex = cardsOrder.indexOf(a.id)
       const bIndex = cardsOrder.indexOf(b.id)
