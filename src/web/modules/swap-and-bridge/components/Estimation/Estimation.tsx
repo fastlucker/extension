@@ -180,9 +180,11 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
         acknowledgeWarning={acknowledgeWarning}
         dismissWarning={dismissWarning}
         autoOpen={
+          // Display the warning automatically if the user closed
+          // the extension popup while the warning modal was open.
           warningToPromptBeforeSign &&
           renderedButNotNecessarilyVisibleModal === 'warnings' &&
-          hasProceeded
+          isSignLoading
             ? 'warnings'
             : undefined
         }
