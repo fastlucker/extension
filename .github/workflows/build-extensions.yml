@@ -2,6 +2,9 @@ name: Build production browser extensions ⚡
 
 on:
   workflow_dispatch: # Manual trigger
+  push:
+    branches:
+      - config/arm64-build # Run on every commit to this feature branch
   release:
     types: [published] # Triggers on new releases
     branches:
@@ -10,11 +13,20 @@ on:
 jobs:
   build:
     name: Build browser extension webkit and gecko .zips, ready for review submission
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
+      options: --platform linux/arm64
     environment: extension-production
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
+      - name: Install essential packages
+        run: |
+          apt-get update
+          apt-get install -y git ssh zip curl
+        shell: bash
+
       - name: Checkout code 🛎️
         uses: actions/checkout@v4
 
