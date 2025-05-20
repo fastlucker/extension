@@ -263,7 +263,11 @@ const SignAccountOpScreen = () => {
             <Footer
               onReject={handleRejectAccountOp}
               onAddToCart={handleAddToCart}
-              isAddToCartDisplayed={!!signAccountOpState && !!network}
+              isAddToCartDisplayed={
+                !!signAccountOpState &&
+                !!network &&
+                signAccountOpState.accountOp.meta?.setDelegation === undefined
+              }
               isSignLoading={isSignLoading}
               isSignDisabled={isSignDisabled}
               // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
@@ -291,7 +295,11 @@ const SignAccountOpScreen = () => {
           />
         ) : null}
         <TabLayoutWrapperMainContent>
-          <PendingTransactions network={network} />
+          <PendingTransactions
+            network={network}
+            setDelegation={signAccountOpState?.accountOp.meta?.setDelegation}
+            delegatedContract={signAccountOpState?.delegatedContract}
+          />
           {/* Display errors only if the user is not in view-only mode */}
           {signAccountOpState?.errors?.length && !isViewOnly ? (
             <AlertVertical
