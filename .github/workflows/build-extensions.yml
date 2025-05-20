@@ -71,7 +71,7 @@ jobs:
             -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
             --entrypoint /bin/sh \
             node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
-            -c "apk add --no-cache git openssh zip python3 make g++ && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions"
+            -c "apk add --no-cache git openssh zip python3 make g++ linux-headers && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions"
 
           # Create source code zip outside of Docker
           zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
