@@ -39,6 +39,7 @@ import {
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
+import { EIP7702Auth } from '@ambire-common/consts/7702'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
@@ -79,6 +80,7 @@ export interface StepsData {
   from: string | null
   originatedFrom: string | null
   userOp: UserOperation | null
+  delegation?: EIP7702Auth
 }
 
 // if the transaction hash is found, we make the top url the real txn id
@@ -726,7 +728,11 @@ const useSteps = ({
     txnId: foundTxnId,
     from: from || null,
     originatedFrom: txnReceipt.originatedFrom,
-    userOp
+    userOp,
+    delegation:
+      extensionAccOp && extensionAccOp.meta && extensionAccOp.meta.setDelegation !== undefined
+        ? extensionAccOp.meta.delegation
+        : undefined
   }
 }
 
