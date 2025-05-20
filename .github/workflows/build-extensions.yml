@@ -69,7 +69,7 @@ jobs:
             -e NFT_CDN_URL="${{ vars.NFT_CDN_URL }}" \
             -e LEGENDS_NFT_ADDRESS="${{ vars.LEGENDS_NFT_ADDRESS }}" \
             -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
-            --entrypoint /bin/bash \
+            --entrypoint /bin/sh \
             node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
             -c "apk add --no-cache git openssh zip && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions"
 
