@@ -18,6 +18,9 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -35,6 +38,11 @@ jobs:
 
       - name: Git submodules update
         run: git submodule update
+        shell: bash
+
+      - name: Get Node version
+        id: node-version
+        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Build in ARM64 Docker container
@@ -61,8 +69,9 @@ jobs:
             -e NFT_CDN_URL="${{ vars.NFT_CDN_URL }}" \
             -e LEGENDS_NFT_ADDRESS="${{ vars.LEGENDS_NFT_ADDRESS }}" \
             -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
-            node:$(cat .nvmrc) \
-            /bin/bash -c "PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions"
+            --entrypoint /bin/bash \
+            node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
+            -c "apk add --no-cache git openssh zip && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions"
 
           # Create source code zip outside of Docker
           zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
