@@ -77,7 +77,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     getWalletBalance()
-  }, [connectedAccount, getWalletBalance, addToast, switchNetwork])
+  }, [getWalletBalance])
 
   // Close Modal on ESC
   useEscModal(isOpen, closeModal)
