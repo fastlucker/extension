@@ -125,6 +125,12 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     setStakeAmount(formattedBalance(walletBalance))
   }
 
+  const handleCloseClick = () => {
+    setStakeAmount('')
+    setInputError('')
+    handleClose()
+  }
+
   const stakeWallet = useCallback(async () => {
     if (!connectedAccount) throw new HumanReadableError('No connected account.')
 
@@ -198,7 +204,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   return createPortal(
     <div className={styles.backdrop}>
       <div className={styles.wrapper}>
-        <button type="button" className={styles.closeButton} onClick={handleClose}>
+        <button type="button" className={styles.closeButton} onClick={handleCloseClick}>
           <CloseIcon />
         </button>
         <div className={styles.contentWrapper}>
@@ -264,7 +270,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
             type="button"
             className={styles.stakeButton}
             onClick={handleStakeClick}
-            disabled={!isConnected || loading || inProgress}
+            disabled={!isConnected || loading || inProgress || !stakeAmount}
           >
             {inProgress
               ? 'Signing...'
