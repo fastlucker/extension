@@ -323,6 +323,7 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
+    this.mainCtrl.dapps.updateDapp(origin, { chainId })
     await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
