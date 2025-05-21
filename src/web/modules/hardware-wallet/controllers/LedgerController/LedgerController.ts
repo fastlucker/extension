@@ -412,6 +412,17 @@ class LedgerController implements ExternalSignerController {
     const signingPromise = new Promise<LedgerSignature>((resolve, reject) => {
       const subscription = observable.subscribe({
         next: (response: any) => {
+          const missingRequiredUserInteraction =
+            response.status === 'pending' &&
+            [UserInteractionRequired.UnlockDevice, UserInteractionRequired.ConfirmOpenApp].includes(
+              response.intermediateValue.requiredUserInteraction
+            )
+          if (missingRequiredUserInteraction) {
+            subscription?.unsubscribe()
+            const message = response.intermediateValue.requiredUserInteraction
+            reject(new ExternalSignerError(normalizeLedgerMessage(message)))
+          }
+
           if (response.status === 'error') {
             subscription?.unsubscribe()
             // @ts-ignore Ledger types not being resolved correctly in the SDK
@@ -440,13 +451,8 @@ class LedgerController implements ExternalSignerController {
     return LedgerController.withDisconnectProtection(() => signingPromise)
   }
 
-  // FIXME: This is not ideal.
   cleanUp = async () => {
-    // Unsubscribe from all observables
-
-    if (!this.walletSDK) return
-
-    this.walletSDK.close()
+    if (this.walletSDK) this.walletSDK.close()
 
     this.walletSDK = null
     this.signerEth = null
