@@ -14,7 +14,7 @@ import {
   LEDGER_VENDOR_ID,
   UserInteractionRequired
 } from '@ledgerhq/device-management-kit'
-import { Signature, SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
+import { Signature, SignerEthBuilder, TypedDataDomain } from '@ledgerhq/device-signer-kit-ethereum'
 import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
@@ -357,35 +357,25 @@ class LedgerController implements ExternalSignerController {
     })
   }
 
-  async signPersonalMessage(path: string, messageHex: string) {
-    if (!this.walletSDK || !this.signerEth) {
-      throw new ExternalSignerError(normalizeLedgerMessage())
-    }
+  async signPersonalMessage(derivationPath: string, messageHex: string) {
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
-    // Store reference to signerEth to avoid this context issues
-    const signerEth = this.signerEth
-
-    const hdPath = getHdPathFromTemplate(path as any, 0)
-    const hdPathWithoutRoot = hdPath.slice(2)
+    const hdPathWithoutRoot = derivationPath.slice(2)
     const messageBytes = hexStringToUint8Array(messageHex)
 
     return this.#handleSigningSubscription(
-      signerEth.signMessage(hdPathWithoutRoot, messageBytes).observable,
+      this.signerEth.signMessage(hdPathWithoutRoot, messageBytes).observable,
       'Failed to sign message with Ledger device'
     )
   }
 
   async signTransaction(derivationPath: string, transaction: Uint8Array) {
-    if (!this.walletSDK || !this.signerEth) {
-      throw new ExternalSignerError(normalizeLedgerMessage())
-    }
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
-    // Store reference to avoid this context issues
-    const signerEth = this.signerEth
     const hdPathWithoutRoot = derivationPath.slice(2)
 
     return this.#handleSigningSubscription(
-      signerEth.signTransaction(hdPathWithoutRoot, transaction).observable,
+      this.signerEth.signTransaction(hdPathWithoutRoot, transaction).observable,
       'Failed to sign transaction with Ledger device'
     )
   }
@@ -402,18 +392,14 @@ class LedgerController implements ExternalSignerController {
     path: string
     signTypedData: TypedMessage
   }) => {
-    if (!this.walletSDK || !this.signerEth) {
-      throw new ExternalSignerError(normalizeLedgerMessage())
-    }
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
-    // Store reference to avoid this context issues
-    const signerEth = this.signerEth
     const hdPathWithoutRoot = path.slice(2)
-    // Cast domain to the expected type for Ledger's signTypedData
-    const ledgerDomain = { ...domain } as any
+    // TODO: Slight mismatch between TypedMessage type and Ledger's TypedDataDomain
+    const ledgerDomain = { ...domain } as TypedDataDomain
 
     return this.#handleSigningSubscription(
-      signerEth.signTypedData(hdPathWithoutRoot, {
+      this.signerEth.signTypedData(hdPathWithoutRoot, {
         domain: ledgerDomain,
         types,
         message,
