@@ -11,7 +11,8 @@ import {
   DeviceManagementKit,
   DeviceManagementKitBuilder,
   DeviceModelId as LedgerDeviceModels,
-  LEDGER_VENDOR_ID
+  LEDGER_VENDOR_ID,
+  UserInteractionRequired
 } from '@ledgerhq/device-management-kit'
 import { Signature, SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum'
 import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
@@ -204,7 +205,6 @@ class LedgerController implements ExternalSignerController {
       throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
     }
 
-    // TODO: Check if disconnect protection is still needed with the new SDK
     return LedgerController.withDisconnectProtection(async () => {
       try {
         // Find available devices
@@ -256,14 +256,24 @@ class LedgerController implements ExternalSignerController {
 
           const addressSubscription = observable.subscribe({
             next: (response) => {
-              if (response.status === 'completed' && response?.output?.address) {
+              const missingRequiredUserInteraction =
+                response.status === 'pending' &&
+                response.intermediateValue.requiredUserInteraction !== UserInteractionRequired.None
+              if (missingRequiredUserInteraction) {
                 addressSubscription?.unsubscribe()
-                resolve(response.output.address)
+                reject(new Error(response.intermediateValue.requiredUserInteraction))
               }
+
+              if (response.status === 'pending') return
+
+              addressSubscription?.unsubscribe()
+              return response.status === 'completed'
+                ? resolve(response.output.address)
+                : reject(new Error('Connection to Ledger device was lost.'))
             },
             error: (error) => {
               addressSubscription?.unsubscribe()
-              reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+              reject(new Error(error?.message))
             }
           })
         })
@@ -275,6 +285,7 @@ class LedgerController implements ExternalSignerController {
 
         return 'JUST_UNLOCKED' as const
       } catch (error: any) {
+        await this.cleanUp()
         throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
       }
     })
