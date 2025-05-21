@@ -83,7 +83,7 @@ const Toast = ({
 
   const onPress = async () => {
     if (url) {
-      await openInTab(url, false)
+      await openInTab({ url, shouldCloseCurrentWindow: false })
     } else if (onClick) {
       onClick()
     }

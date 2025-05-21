@@ -47,7 +47,7 @@ const LedgerConnectModal = ({
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [isGrantingPermission, setIsGrantingPermission] = useState(false)
-  const { currentAction } = useActionsControllerState()
+  const { currentAction, actionWindow } = useActionsControllerState()
 
   useEffect(() => {
     if (isVisible) open()
@@ -72,8 +72,12 @@ const LedgerConnectModal = ({
   }
 
   const handleOnLedgerReauthorize = useCallback(
-    () => openInternalPageInTab(`${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`),
-    [currentAction?.id]
+    () =>
+      openInternalPageInTab({
+        route: `${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`,
+        windowId: actionWindow.windowProps?.createdFromWindowId
+      }),
+    [currentAction?.id, actionWindow.windowProps?.createdFromWindowId]
   )
 
   const isLoading =

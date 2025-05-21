@@ -116,7 +116,11 @@ const handleProviderRequests = async (
       throw new Error('This page is restricted from directly opening Ambire extension pages')
     }
 
-    await openInternalPageInTab(params.route, {}, false)
+    await openInternalPageInTab({
+      route: params.route,
+      shouldCloseCurrentWindow: false,
+      windowId: mainCtrl.actions.actionWindow.windowProps?.createdFromWindowId
+    })
     return null
   }
 

@@ -1,9 +1,11 @@
+import { formatUnits } from 'ethers'
 import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import { getIsBridgeRoute } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -20,6 +22,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import formatTime from '@common/utils/formatTime'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -27,9 +30,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import formatTime from '@common/utils/formatTime'
-import { formatUnits } from 'ethers'
 import RouteStepsToken from '../RouteStepsToken'
 import BackgroundShapes from './BackgroundShapes'
 
@@ -73,7 +73,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
     try {
       if (!isSwap) {
         const link = `${LIFI_EXPLORER_URL}/tx/${lastCompletedRoute.userTxHash}`
-        await openInTab(link, false)
+        await openInTab({ url: link, shouldCloseCurrentWindow: false })
         return
       }
       const toChainId = lastCompletedRoute.route?.toChainId
@@ -88,7 +88,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
         txnId: lastCompletedRoute.userTxHash,
         identifiedBy
       })}`
-      await openInTab(link, false)
+      await openInTab({ url: link, shouldCloseCurrentWindow: false })
     } catch {
       addToast('Error opening explorer', { type: 'error' })
     }

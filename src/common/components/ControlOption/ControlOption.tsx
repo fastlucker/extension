@@ -42,7 +42,10 @@ const ControlOption: FC<Props> = ({
   const ParentElement = onPress ? AnimatedPressable : View
 
   const openReadMoreLink = () => {
-    openInTab(readMoreLink, false).catch(() => addToast(t('Failed to open link')))
+    openInTab({
+      url: readMoreLink!,
+      shouldCloseCurrentWindow: false
+    }).catch(() => addToast(t('Failed to open link')))
   }
 
   return (

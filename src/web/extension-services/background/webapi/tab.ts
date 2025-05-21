@@ -3,25 +3,25 @@
 import { browser, isSafari } from '@web/constants/browserapi'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 
-const createTab = async (url: string): Promise<number | undefined> => {
+const createTab = async (url: string, windowId?: number): Promise<number | undefined> => {
   const extensionId = browser?.runtime?.id
   if (url.startsWith('http') && !url.includes(extensionId)) {
     const tab = await browser.tabs.create({ active: true, url })
     return tab
   }
   try {
-    const window = await browser.windows.getCurrent() // search existing Ambire tabs only for the current window
-    const queryParams = window ? { windowId: window.id } : {}
-    const allTabs = ((await browser.tabs.query(queryParams)) || []).filter(
-      (t) => !t.url.includes('action-window.html')
-    )
+    const baseWindow = windowId
+      ? await chrome.windows.get(windowId, { populate: true })
+      : await browser.windows.getCurrent({
+          populate: true,
+          windowTypes: ['normal', 'panel', 'app']
+        })
+    console.log('baseWindow', baseWindow)
+    const allTabs = (baseWindow.tabs || []).filter((t) => !t.url.includes('action-window.html'))
     const base = browser.runtime.getURL('/')
     const fullUrl = new URL(url, base)
     const route = fullUrl.hash.replace(/^#/, '')
-
-    const existingTab = allTabs.find((tab) => {
-      return tab.url?.includes(extensionId)
-    })
+    const existingTab = allTabs.find((tab) => tab.url?.includes(extensionId))
 
     if (existingTab && existingTab.id) {
       const existingUrl = new URL(existingTab.url)
@@ -54,9 +54,20 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
   }
 }
 
-export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
-  const tab = await createTab(url)
-  if (needClose) {
+export const openInTab = async ({
+  url,
+  windowId,
+  shouldCloseCurrentWindow
+}: {
+  url: string
+  windowId?: number
+  shouldCloseCurrentWindow?: boolean
+}): Promise<Tabs.Tab> => {
+  if (!url) return
+
+  const closeWindow = shouldCloseCurrentWindow !== false
+  const tab = await createTab(url, windowId)
+  if (closeWindow) {
     if (!isSafari()) await closeCurrentWindow()
   }
 
@@ -65,11 +76,18 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
 
 const routeableSearchParams = ['flow', 'goBack']
 
-const openInternalPageInTab = async (
-  route?: string,
+const openInternalPageInTab = async ({
+  route,
   searchParams = {},
-  needClose?: boolean = true
-) => {
+  windowId,
+  shouldCloseCurrentWindow
+}: {
+  route: string
+  searchParams?: any
+  windowId?: number
+  shouldCloseCurrentWindow?: boolean
+}) => {
+  const closeWindow = shouldCloseCurrentWindow !== false
   const searchToParams = searchParams
     ? `${Object.keys(searchParams)
         .map((key) =>
@@ -79,10 +97,13 @@ const openInternalPageInTab = async (
         .join('&')}`
     : ''
 
-  await openInTab(
-    `./tab.html${route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''}`,
-    needClose
-  )
+  await openInTab({
+    url: `./tab.html${
+      route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''
+    }`,
+    windowId,
+    shouldCloseCurrentWindow: closeWindow
+  })
 }
 
 export { createTab, getCurrentTab, openInternalPageInTab }

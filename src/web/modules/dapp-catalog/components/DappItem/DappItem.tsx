@@ -52,7 +52,7 @@ const DappItem = (dapp: Dapp) => {
       >
         <AnimatedPressable
           style={[styles.container, animStyle]}
-          onPress={() => openInTab(url, false)}
+          onPress={() => openInTab({ url, shouldCloseCurrentWindow: false })}
           {...bindAnim}
         >
           <View style={[flexbox.directionRow, spacings.mbSm]}>
