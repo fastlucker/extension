@@ -16,7 +16,6 @@ const createTab = async (url: string, windowId?: number): Promise<number | undef
           populate: true,
           windowTypes: ['normal', 'panel', 'app']
         })
-    console.log('baseWindow', baseWindow)
     const allTabs = (baseWindow.tabs || []).filter((t) => !t.url.includes('action-window.html'))
     const base = browser.runtime.getURL('/')
     const fullUrl = new URL(url, base)
