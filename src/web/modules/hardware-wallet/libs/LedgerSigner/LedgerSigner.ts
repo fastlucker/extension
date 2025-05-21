@@ -8,12 +8,13 @@ import {
   KeystoreSignerInterface,
   TxnRequest
 } from '@ambire-common/interfaces/keystore'
-import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, {
+  LedgerSignature
+} from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSignerInterface {
   key: ExternalKey & { isExternallyStored: boolean }
@@ -62,7 +63,7 @@ class LedgerSigner implements KeystoreSignerInterface {
     }
   }
 
-  #normalizeSignature(rsvRes: Signature): string {
+  #normalizeSignature(rsvRes: LedgerSignature): string {
     const strippedR = stripHexPrefix(rsvRes.r)
     const strippedS = stripHexPrefix(rsvRes.s)
     return addHexPrefix(`${strippedR}${strippedS}${rsvRes.v.toString(16)}`)

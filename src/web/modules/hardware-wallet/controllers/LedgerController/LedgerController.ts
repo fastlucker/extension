@@ -15,11 +15,15 @@ import {
   LEDGER_VENDOR_ID,
   UserInteractionRequired
 } from '@ledgerhq/device-management-kit'
-import { Signature, SignerEthBuilder, TypedDataDomain } from '@ledgerhq/device-signer-kit-ethereum'
+import {
+  Signature as LedgerSignature,
+  SignerEthBuilder,
+  TypedDataDomain
+} from '@ledgerhq/device-signer-kit-ethereum'
 import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
-export { LedgerDeviceModels, type Signature }
+export { LedgerDeviceModels, type LedgerSignature }
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 
@@ -404,8 +408,8 @@ class LedgerController implements ExternalSignerController {
   #handleSigningSubscription(
     observable: Observable<any>, // TODO: better type
     errorMessage: string
-  ): Promise<Signature> {
-    const signingPromise = new Promise<Signature>((resolve, reject) => {
+  ): Promise<LedgerSignature> {
+    const signingPromise = new Promise<LedgerSignature>((resolve, reject) => {
       const subscription = observable.subscribe({
         next: (response: any) => {
           if (response.status === 'error') {
@@ -414,7 +418,7 @@ class LedgerController implements ExternalSignerController {
             const deviceMessage = response.error?.message || 'no response from device'
             // @ts-ignore Ledger types not being resolved correctly in the SDK
             const deviceErrorCode = response.error?.errorCode
-            let message = `Device message: <${deviceMessage}>`
+            let message = `<${deviceMessage}>`
             message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
             return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
           }
