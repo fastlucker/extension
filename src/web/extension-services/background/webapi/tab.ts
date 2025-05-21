@@ -11,7 +11,7 @@ const createTab = async (url: string, windowId?: number): Promise<number | undef
   }
   try {
     const baseWindow = windowId
-      ? await chrome.windows.get(windowId, { populate: true })
+      ? await browser.windows.get(windowId, { populate: true })
       : await browser.windows.getCurrent({
           populate: true,
           windowTypes: ['normal', 'panel', 'app']
