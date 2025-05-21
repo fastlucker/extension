@@ -262,7 +262,7 @@ class LedgerController implements ExternalSignerController {
               addressSubscription?.unsubscribe()
               return response.status === 'completed'
                 ? resolve(response.output.address)
-                : reject(new Error('Connection to Ledger device was lost.'))
+                : reject(new Error(response.error?.message || 'Connection to Ledger device lost.'))
             },
             error: (error) => {
               addressSubscription?.unsubscribe()
@@ -318,7 +318,11 @@ class LedgerController implements ExternalSignerController {
                   resolve(response.output.address)
                 } else {
                   addressSubscription?.unsubscribe()
-                  reject(new ExternalSignerError('Failed to get address from Ledger device'))
+                  reject(
+                    new ExternalSignerError(
+                      response.error?.message || 'Failed to get address from Ledger device'
+                    )
+                  )
                 }
               },
               error: (error) => {
