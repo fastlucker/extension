@@ -212,15 +212,27 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       }
 
       if (nextRoute) {
-        navigate(nextRoute.name, {
-          state: { ...routeParams, internal: true }
-        })
+        if (nextRoute.name === '/') {
+          dispatch({ type: 'OPEN_EXTENSION_POPUP' })
+        } else {
+          navigate(nextRoute.name, {
+            state: { ...routeParams, internal: true }
+          })
+        }
         if (!history.includes(currentRoute)) {
           setHistory((prevHistory) => [...prevHistory, currentRoute])
         }
       }
     },
-    [onboardingRoutesTree, findNextEnabledRoute, navigate, deepSearchRouteNode, path, history]
+    [
+      onboardingRoutesTree,
+      findNextEnabledRoute,
+      navigate,
+      deepSearchRouteNode,
+      path,
+      history,
+      dispatch
+    ]
   )
 
   const goToPrevRoute = useCallback(() => {

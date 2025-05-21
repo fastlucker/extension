@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, ScrollView, View } from 'react-native'
 
@@ -23,6 +23,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { engine } from '@web/constants/browserapi'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
@@ -56,7 +57,6 @@ const AccountPersonalizeScreen = () => {
   })
 
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
-  const personalizeReady = useRef(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -159,16 +159,8 @@ const AccountPersonalizeScreen = () => {
   const handleGetStarted = useCallback(async () => {
     await handleSubmit(handleSave)()
     dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
-    personalizeReady.current = true
-  }, [dispatch, handleSave, handleSubmit])
-
-  useEffect(() => {
-    if (!personalizeReady.current) return
-
-    if (accounts.length) {
-      goToNextRoute()
-    }
-  }, [goToNextRoute, accounts])
+    goToNextRoute()
+  }, [dispatch, handleSave, handleSubmit, goToNextRoute])
 
   const handleContactSupport = useCallback(async () => {
     try {
@@ -254,13 +246,31 @@ const AccountPersonalizeScreen = () => {
                   />
                 ))}
               </ScrollView>
-              <Button
-                testID="button-save-and-continue"
-                size="large"
-                onPress={handleGetStarted}
-                hasBottomSpacing={false}
-                text={isSetupComplete ? t('Open dashboard') : t('Complete')}
-              />
+              {engine === 'webkit' && (
+                <Button
+                  testID="button-save-and-continue"
+                  size="large"
+                  onPress={handleGetStarted}
+                  hasBottomSpacing={false}
+                  text={isSetupComplete ? t('Open dashboard') : t('Complete')}
+                  disabled={!accounts.length}
+                />
+              )}
+              {engine === 'gecko' &&
+                (isSetupComplete ? (
+                  <Text appearance="secondaryText" weight="medium" style={[text.center]}>
+                    {t('You can access your accounts from the dashboard via the extension icon.')}
+                  </Text>
+                ) : (
+                  <Button
+                    testID="button-save-and-continue"
+                    size="large"
+                    onPress={handleGetStarted}
+                    hasBottomSpacing={false}
+                    text={t('Complete')}
+                    disabled={!accounts.length}
+                  />
+                ))}
               {['seed', 'hw'].includes(accountPickerState.subType as any) && (
                 <View style={spacings.ptLg}>
                   <Button
