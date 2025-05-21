@@ -13,15 +13,15 @@ import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, { LedgerDeviceModels } from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSignerInterface {
-  key: ExternalKey
+  key: ExternalKey & { isExternallyStored: boolean }
 
   controller: LedgerController | null = null
 
   constructor(_key: ExternalKey) {
-    this.key = _key
+    this.key = { ..._key, isExternallyStored: true }
   }
 
   // TODO: the ExternalSignerController type is missing some properties from
@@ -70,6 +70,12 @@ class LedgerSigner implements KeystoreSignerInterface {
     }
   }
 
+  #normalizeSignature(rsvRes: Signature): string {
+    const strippedR = stripHexPrefix(rsvRes.r)
+    const strippedS = stripHexPrefix(rsvRes.s)
+    return addHexPrefix(`${strippedR}${strippedS}${rsvRes.v.toString(16)}`)
+  }
+
   signRawTransaction: KeystoreSignerInterface['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
@@ -113,17 +119,14 @@ class LedgerSigner implements KeystoreSignerInterface {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const rsvRes = await LedgerController.withDisconnectProtection(() =>
         this.#withNormalizedError(() =>
-          this.controller!.signEIP712MessageWithHashFallback({
+          this.controller!.signTypedData({
             path,
             signTypedData
           })
         )
       )
 
-      const strippedR = stripHexPrefix(rsvRes?.r)
-      const strippedS = stripHexPrefix(rsvRes?.s)
-      const signature = addHexPrefix(`${strippedR}${strippedS}${rsvRes.v.toString(16)}`)
-      return signature
+      return this.#normalizeSignature(rsvRes)
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
@@ -149,10 +152,7 @@ class LedgerSigner implements KeystoreSignerInterface {
         )
       )
 
-      const strippedR = stripHexPrefix(rsvRes?.r)
-      const strippedS = stripHexPrefix(rsvRes?.s)
-      const signature = addHexPrefix(`${strippedR}${strippedS}${rsvRes?.v.toString(16)}`)
-      return signature
+      return this.#normalizeSignature(rsvRes)
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
