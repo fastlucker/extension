@@ -62,14 +62,6 @@ class LedgerSigner implements KeystoreSignerInterface {
     }
   }
 
-  async #withNormalizedError<T>(operation: () => Promise<T>): Promise<T> {
-    try {
-      return await operation()
-    } catch (error: any) {
-      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-    }
-  }
-
   #normalizeSignature(rsvRes: Signature): string {
     const strippedR = stripHexPrefix(rsvRes.r)
     const strippedS = stripHexPrefix(rsvRes.s)
@@ -92,9 +84,7 @@ class LedgerSigner implements KeystoreSignerInterface {
       )
 
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const res = await LedgerController.withDisconnectProtection(() =>
-        this.#withNormalizedError(() => this.controller!.signTransaction(path, transactionBytes))
-      )
+      const res = await this.controller!.signTransaction(path, transactionBytes)
 
       const signature = Signature.from({
         r: res.r,
@@ -117,14 +107,10 @@ class LedgerSigner implements KeystoreSignerInterface {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await LedgerController.withDisconnectProtection(() =>
-        this.#withNormalizedError(() =>
-          this.controller!.signTypedData({
-            path,
-            signTypedData
-          })
-        )
-      )
+      const rsvRes = await this.controller!.signTypedData({
+        path,
+        signTypedData
+      })
 
       return this.#normalizeSignature(rsvRes)
     } catch (e: any) {
@@ -146,11 +132,7 @@ class LedgerSigner implements KeystoreSignerInterface {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await LedgerController.withDisconnectProtection(() =>
-        this.#withNormalizedError(() =>
-          this.controller!.signPersonalMessage(path, stripHexPrefix(hex))
-        )
-      )
+      const rsvRes = await this.controller!.signPersonalMessage(path, stripHexPrefix(hex))
 
       return this.#normalizeSignature(rsvRes)
     } catch (e: any) {

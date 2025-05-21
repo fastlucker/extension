@@ -97,7 +97,7 @@ class LedgerController implements ExternalSignerController {
       // Start discovering - this will scan for any connected devices
       const discoverySubscription = dmk.startDiscovering({}).subscribe({
         next: async (device) => {
-          discoverySubscription.unsubscribe()
+          discoverySubscription?.unsubscribe()
           dmk.close()
           resolve(device)
         },
@@ -214,12 +214,12 @@ class LedgerController implements ExternalSignerController {
             next: (devices) => {
               if (devices && devices.length) {
                 device = devices[0]
-                subscription.unsubscribe()
+                subscription?.unsubscribe()
                 resolve()
               }
             },
             error: (error) => {
-              subscription.unsubscribe()
+              subscription?.unsubscribe()
               reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
             }
           })
@@ -257,12 +257,12 @@ class LedgerController implements ExternalSignerController {
           const addressSubscription = observable.subscribe({
             next: (response) => {
               if (response.status === 'completed' && response?.output?.address) {
-                addressSubscription.unsubscribe()
+                addressSubscription?.unsubscribe()
                 resolve(response.output.address)
               }
             },
             error: (error) => {
-              addressSubscription.unsubscribe()
+              addressSubscription?.unsubscribe()
               reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
             }
           })
@@ -373,14 +373,10 @@ class LedgerController implements ExternalSignerController {
     const signerEth = this.signerEth
     const hdPathWithoutRoot = derivationPath.slice(2)
 
-    try {
-      return await this.#handleSigningSubscription(
-        signerEth.signTransaction(hdPathWithoutRoot, transaction).observable,
-        'Failed to sign transaction with Ledger device'
-      )
-    } catch (error: any) {
-      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-    }
+    return this.#handleSigningSubscription(
+      signerEth.signTransaction(hdPathWithoutRoot, transaction).observable,
+      'Failed to sign transaction with Ledger device'
+    )
   }
 
   /**
@@ -402,23 +398,18 @@ class LedgerController implements ExternalSignerController {
     // Store reference to avoid this context issues
     const signerEth = this.signerEth
     const hdPathWithoutRoot = path.slice(2)
+    // Cast domain to the expected type for Ledger's signTypedData
+    const ledgerDomain = { ...domain } as any
 
-    try {
-      // Cast domain to the expected type for Ledger's signTypedData
-      const ledgerDomain = { ...domain } as any
-
-      return await this.#handleSigningSubscription(
-        signerEth.signTypedData(hdPathWithoutRoot, {
-          domain: ledgerDomain,
-          types,
-          message,
-          primaryType
-        }).observable,
-        'Failed to sign typed data with Ledger device'
-      )
-    } catch (error: any) {
-      throw new ExternalSignerError(error?.message)
-    }
+    return this.#handleSigningSubscription(
+      signerEth.signTypedData(hdPathWithoutRoot, {
+        domain: ledgerDomain,
+        types,
+        message,
+        primaryType
+      }).observable,
+      'Failed to sign typed data with Ledger device'
+    )
   }
 
   /**
@@ -428,7 +419,7 @@ class LedgerController implements ExternalSignerController {
     observable: Observable<any>, // TODO: better type
     errorMessage: string
   ): Promise<Signature> {
-    return new Promise((resolve, reject) => {
+    const signingPromise = new Promise<Signature>((resolve, reject) => {
       const subscription = observable.subscribe({
         next: (response: any) => {
           if (response.status === 'error') {
@@ -439,20 +430,24 @@ class LedgerController implements ExternalSignerController {
             const deviceErrorCode = response.error?.errorCode
             let message = `Device message: <${deviceMessage}>`
             message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
-            return reject(message)
+            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
           }
 
           if (response.status !== 'completed') return
 
           subscription?.unsubscribe()
-          return response?.output ? resolve(response.output) : reject(errorMessage)
+          return response?.output
+            ? resolve(response.output)
+            : reject(new ExternalSignerError(normalizeLedgerMessage(errorMessage)))
         },
         error: (error: any) => {
           subscription?.unsubscribe()
-          reject(error?.message)
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
         }
       })
     })
+
+    return LedgerController.withDisconnectProtection(() => signingPromise)
   }
 
   // FIXME: This is not ideal.
