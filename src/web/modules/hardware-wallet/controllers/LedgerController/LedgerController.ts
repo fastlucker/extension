@@ -362,15 +362,23 @@ class LedgerController implements ExternalSignerController {
       let subscription: any = null
       subscription = observable.subscribe({
         next: (response) => {
+          if (response.status === 'error') {
+            subscription?.unsubscribe()
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceMessage = response.error?.message || 'no response from device'
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceErrorCode = response.error?.errorCode
+            let message = `Device message: <${deviceMessage}>`
+            message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
+            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
+          }
+
           if (response.status !== 'completed') return
 
-          if (response?.output) {
-            subscription?.unsubscribe()
-            resolve(response.output)
-          } else {
-            subscription?.unsubscribe()
-            reject(new ExternalSignerError('Failed to sign message with Ledger device'))
-          }
+          subscription?.unsubscribe()
+          response?.output
+            ? resolve(response.output)
+            : reject(new ExternalSignerError('Failed to sign message with Ledger device'))
         },
         error: (error: any) => {
           subscription?.unsubscribe()
