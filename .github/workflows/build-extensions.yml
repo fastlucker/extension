@@ -45,9 +45,39 @@ jobs:
         run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Build in ARM64 Docker container
+      - name: Create Dockerfile
         run: |
-          # Create .env file
+          cat > Dockerfile << 'EOF'
+          FROM node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine
+
+          # Install build dependencies
+          RUN apk add --no-cache git openssh zip python3 make g++ linux-headers eudev-dev
+
+          # Set working directory
+          WORKDIR /app
+
+          # Copy package files
+          COPY package.json yarn.lock ./
+
+          # Install dependencies
+          ENV PUPPETEER_SKIP_DOWNLOAD=true
+          RUN yarn install --frozen-lockfile
+
+          # Copy the rest of the application
+          COPY . .
+
+          # Build extensions
+          RUN yarn build:extensions
+          EOF
+        shell: bash
+
+      - name: Build Docker image
+        run: |
+          docker buildx build --platform linux/arm64 -t ambire-extensions-builder .
+        shell: bash
+
+      - name: Create .env file
+        run: |
           echo "RELAYER_URL=\"${{ vars.RELAYER_URL }}\"" >> .env
           echo "VELCRO_URL=\"${{ vars.VELCRO_URL }}\"" >> .env
           echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
@@ -56,8 +86,10 @@ jobs:
           echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
           echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
           echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
+        shell: bash
 
-          # Run build in docker container with ARM64 architecture
+      - name: Run build in container
+        run: |
           docker run --platform linux/arm64 --rm \
             -v $(pwd):/app \
             -w /app \
@@ -69,12 +101,13 @@ jobs:
             -e NFT_CDN_URL="${{ vars.NFT_CDN_URL }}" \
             -e LEGENDS_NFT_ADDRESS="${{ vars.LEGENDS_NFT_ADDRESS }}" \
             -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
-            --entrypoint /bin/sh \
-            node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
-            -c "apk add --no-cache git openssh zip python3 make g++ linux-headers eudev-dev && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions"
+            ambire-extensions-builder
+        shell: bash
 
-          # Create source code zip outside of Docker
+      - name: Create source code zip
+        run: |
           zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
+        shell: bash
 
       - name: Upload source code 📦
         uses: actions/upload-artifact@v4
