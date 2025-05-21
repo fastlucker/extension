@@ -11,6 +11,7 @@ import {
   DeviceManagementKit,
   DeviceManagementKitBuilder,
   DeviceModelId as LedgerDeviceModels,
+  DiscoveredDevice,
   LEDGER_VENDOR_ID,
   UserInteractionRequired
 } from '@ledgerhq/device-management-kit'
@@ -31,7 +32,6 @@ class LedgerController implements ExternalSignerController {
 
   signerEth: DefaultSignerEth | null = null
 
-  // TODO: Missing type
   walletSDK: DeviceManagementKit | null
 
   type = 'ledger'
@@ -185,69 +185,58 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
+  #findDevice = () =>
+    new Promise<DiscoveredDevice>((resolve, reject) => {
+      const subscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
+        next: (devices) => {
+          if (devices && devices.length) {
+            subscription?.unsubscribe()
+            // TODO: Multiple devices found?
+            resolve(devices[0])
+          }
+        },
+        error: (error) => {
+          subscription?.unsubscribe()
+          reject(new Error(error?.message))
+        }
+      })
+    })
+
   async unlock(
     path: ReturnType<typeof getHdPathFromTemplate>,
     expectedKeyOnThisPath?: string
   ): Promise<'ALREADY_UNLOCKED' | 'JUST_UNLOCKED'> {
     await this.#initSDKSessionIfNeeded()
 
-    if (this.isUnlocked(path, expectedKeyOnThisPath)) {
-      return 'ALREADY_UNLOCKED'
-    }
+    if (this.isUnlocked(path, expectedKeyOnThisPath)) return 'ALREADY_UNLOCKED'
 
-    if (!this.isWebHID) {
+    if (!this.isWebHID)
       throw new ExternalSignerError(
         'Ledger only supports USB connection between Ambire and your device. Please connect your device via USB.'
       )
-    }
 
-    if (!this.walletSDK) {
-      throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
-    }
+    if (!this.walletSDK) throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
 
     return LedgerController.withDisconnectProtection(async () => {
       try {
-        // Find available devices
-        let device: any = null
-        await new Promise<void>((resolve, reject) => {
-          const subscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
-            next: (devices) => {
-              if (devices && devices.length) {
-                device = devices[0]
-                subscription?.unsubscribe()
-                resolve()
-              }
-            },
-            error: (error) => {
-              subscription?.unsubscribe()
-              reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-            }
-          })
-        })
+        const device = await this.#findDevice()
 
-        if (!device) {
-          throw new ExternalSignerError('No Ledger device detected.')
-        }
-
-        // Connect to device
-        const walletSDK = this.walletSDK as DeviceManagementKit
-        const sessionId = await walletSDK.connect({ device })
+        if (!device) throw new Error('No Ledger device detected.')
+        if (!this.walletSDK) throw new Error('Connection to Ledger device lost.')
 
         // Get device information
-        const connectedDevice = walletSDK.getConnectedDevice({ sessionId })
+        const sessionId = await this.walletSDK.connect({ device })
+        const connectedDevice = this.walletSDK.getConnectedDevice({ sessionId })
         this.deviceModel = connectedDevice.modelId
         this.deviceId = connectedDevice.id
 
         // Create the signer using the dynamically imported constructor
         const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
-        const signerEth = new SignerEthBuilder({ dmk: walletSDK, sessionId })
+        const signerEth = new SignerEthBuilder({ dmk: this.walletSDK, sessionId })
           .withContextModule(contextModule)
           .build()
 
-        // Get address
-        const hdPath = getHdPathFromTemplate(path as any, 0)
-        const hdPathWithoutRoot = hdPath.slice(2)
-
+        const hdPathWithoutRoot = path.slice(2)
         const address = await new Promise<string>((resolve, reject) => {
           const { observable } = signerEth.getAddress(hdPathWithoutRoot, {
             checkOnDevice: false,
