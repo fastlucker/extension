@@ -10,6 +10,7 @@ import {
 } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import hexStringToUint8Array from '@ambire-common/utils/hexStringToUint8Array'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import LedgerController, {
@@ -80,9 +81,7 @@ class LedgerSigner implements KeystoreSignerInterface {
       const unsignedTxn: TransactionLike = { ...txnRequest, type }
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
       const strippedTxn = stripHexPrefix(unsignedSerializedTxn)
-      const transactionBytes = new Uint8Array(
-        strippedTxn.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || []
-      )
+      const transactionBytes = hexStringToUint8Array(strippedTxn)
 
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const res = await this.controller!.signTransaction(path, transactionBytes)
@@ -90,7 +89,7 @@ class LedgerSigner implements KeystoreSignerInterface {
       const signature = Signature.from({
         r: res.r,
         s: res.s,
-        v: Signature.getNormalizedV(addHexPrefix(res.v))
+        v: Signature.getNormalizedV(addHexPrefix(`${res.v}`))
       })
       const signedSerializedTxn = Transaction.from({
         ...unsignedTxn,
