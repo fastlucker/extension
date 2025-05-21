@@ -439,19 +439,17 @@ class LedgerController implements ExternalSignerController {
             const deviceErrorCode = response.error?.errorCode
             let message = `Device message: <${deviceMessage}>`
             message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
-            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
+            return reject(message)
           }
 
           if (response.status !== 'completed') return
 
           subscription?.unsubscribe()
-          return response?.output
-            ? resolve(response.output)
-            : reject(new ExternalSignerError(errorMessage))
+          return response?.output ? resolve(response.output) : reject(errorMessage)
         },
         error: (error: any) => {
           subscription?.unsubscribe()
-          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+          reject(error?.message)
         }
       })
     })
