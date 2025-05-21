@@ -334,8 +334,7 @@ export const handleActions = async (
     case 'OPEN_SIGNING_ACTION_WINDOW': {
       if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
 
-      const idSuffix =
-        params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
+      const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
       return mainCtrl.actions.addOrUpdateAction(
         {
@@ -354,8 +353,7 @@ export const handleActions = async (
     case 'CLOSE_SIGNING_ACTION_WINDOW': {
       if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
 
-      const idSuffix =
-        params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
+      const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
       return mainCtrl.actions.removeAction(`${mainCtrl.selectedAccount.account.addr}-${idSuffix}`)
     }
