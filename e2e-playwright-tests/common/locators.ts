@@ -37,5 +37,6 @@ export const locators = {
   changeHDPathButton: 'div[data-testid="change-hd-path-btn"]',
   hdPathLegerLive: 'div[data-testid="hd-path-option-ledger-live"]',
   hdPathLegerLegacy: 'div[data-testid="hd-path-option-ledger-legacy"]',
-  hdPathConfirmButton: 'div[data-testid="hd-path-confirm-btn"]'
+  hdPathConfirmButton: 'div[data-testid="hd-path-confirm-btn"]',
+  fullAmountDashboard: 'div[data-testid="full-balance"]'
 }

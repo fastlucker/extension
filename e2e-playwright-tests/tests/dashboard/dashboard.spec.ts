@@ -1,0 +1,12 @@
+import { saParams } from '../../config/constants'
+import { test } from '../../fixtures/pageObjects'
+
+test.describe('dashboard', () => {
+  test.beforeEach(async ({ dashboardPage }) => {
+    await dashboardPage.init(saParams)
+  })
+
+  test('should have balance on the dashboard', async ({ dashboardPage }) => {
+    await dashboardPage.checkBalanceInAccount()
+  })
+})
