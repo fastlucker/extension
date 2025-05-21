@@ -1,3 +1,5 @@
+import { Observable } from 'rxjs'
+
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
@@ -356,36 +358,10 @@ class LedgerController implements ExternalSignerController {
     const hdPathWithoutRoot = hdPath.slice(2)
     const messageBytes = hexStringToUint8Array(messageHex)
 
-    return new Promise<Signature>((resolve, reject) => {
-      const { observable } = signerEth.signMessage(hdPathWithoutRoot, messageBytes)
-
-      let subscription: any = null
-      subscription = observable.subscribe({
-        next: (response) => {
-          if (response.status === 'error') {
-            subscription?.unsubscribe()
-            // @ts-ignore Ledger types not being resolved correctly in the SDK
-            const deviceMessage = response.error?.message || 'no response from device'
-            // @ts-ignore Ledger types not being resolved correctly in the SDK
-            const deviceErrorCode = response.error?.errorCode
-            let message = `Device message: <${deviceMessage}>`
-            message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
-            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
-          }
-
-          if (response.status !== 'completed') return
-
-          subscription?.unsubscribe()
-          response?.output
-            ? resolve(response.output)
-            : reject(new ExternalSignerError('Failed to sign message with Ledger device'))
-        },
-        error: (error: any) => {
-          subscription?.unsubscribe()
-          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-        }
-      })
-    })
+    return this.#handleSigningSubscription(
+      signerEth.signMessage(hdPathWithoutRoot, messageBytes).observable,
+      'Failed to sign message with Ledger device'
+    )
   }
 
   async signTransaction(derivationPath: string, transaction: Uint8Array) {
@@ -397,32 +373,14 @@ class LedgerController implements ExternalSignerController {
     const signerEth = this.signerEth
     const hdPathWithoutRoot = derivationPath.slice(2)
 
-    return new Promise<any>((resolve, reject) => {
-      try {
-        const { observable } = signerEth.signTransaction(hdPathWithoutRoot, transaction)
-
-        let subscription: any = null
-        subscription = observable.subscribe({
-          next: (response: any) => {
-            if (response.status !== 'completed') return
-
-            if (response?.output) {
-              subscription?.unsubscribe()
-              resolve(response.output)
-            } else {
-              subscription?.unsubscribe()
-              reject(new ExternalSignerError('Failed to sign transaction with Ledger device'))
-            }
-          },
-          error: (error: any) => {
-            subscription?.unsubscribe()
-            reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-          }
-        })
-      } catch (error: any) {
-        reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-      }
-    })
+    try {
+      return await this.#handleSigningSubscription(
+        signerEth.signTransaction(hdPathWithoutRoot, transaction).observable,
+        'Failed to sign transaction with Ledger device'
+      )
+    } catch (error: any) {
+      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
+    }
   }
 
   /**
@@ -446,43 +404,57 @@ class LedgerController implements ExternalSignerController {
     const hdPathWithoutRoot = path.slice(2)
 
     try {
-      return await new Promise<Signature>((resolve, reject) => {
-        try {
-          // Cast domain to the expected type for Ledger's signTypedData
-          const ledgerDomain = { ...domain } as any
+      // Cast domain to the expected type for Ledger's signTypedData
+      const ledgerDomain = { ...domain } as any
 
-          const { observable } = signerEth.signTypedData(hdPathWithoutRoot, {
-            domain: ledgerDomain,
-            types,
-            message,
-            primaryType
-          })
-
-          let subscription: any = null
-          subscription = observable.subscribe({
-            next: (response) => {
-              if (response.status !== 'completed') return
-
-              if (response?.output) {
-                subscription?.unsubscribe()
-                resolve(response.output)
-              } else {
-                subscription?.unsubscribe()
-                reject(new ExternalSignerError('Failed to sign typed data with Ledger device'))
-              }
-            },
-            error: (error: any) => {
-              subscription?.unsubscribe()
-              reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-            }
-          })
-        } catch (error: any) {
-          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-        }
-      })
+      return await this.#handleSigningSubscription(
+        signerEth.signTypedData(hdPathWithoutRoot, {
+          domain: ledgerDomain,
+          types,
+          message,
+          primaryType
+        }).observable,
+        'Failed to sign typed data with Ledger device'
+      )
     } catch (error: any) {
       throw new ExternalSignerError(error?.message)
     }
+  }
+
+  /**
+   * Handles the common subscription logic for signing operations.
+   */
+  #handleSigningSubscription(
+    observable: Observable<any>, // TODO: better type
+    errorMessage: string
+  ): Promise<Signature> {
+    return new Promise((resolve, reject) => {
+      const subscription = observable.subscribe({
+        next: (response: any) => {
+          if (response.status === 'error') {
+            subscription?.unsubscribe()
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceMessage = response.error?.message || 'no response from device'
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceErrorCode = response.error?.errorCode
+            let message = `Device message: <${deviceMessage}>`
+            message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
+            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
+          }
+
+          if (response.status !== 'completed') return
+
+          subscription?.unsubscribe()
+          return response?.output
+            ? resolve(response.output)
+            : reject(new ExternalSignerError(errorMessage))
+        },
+        error: (error: any) => {
+          subscription?.unsubscribe()
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
+      })
+    })
   }
 
   // FIXME: This is not ideal.
