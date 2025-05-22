@@ -54,6 +54,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   const [loading, setLoading] = useState(true)
   const [inProgress, setInProgress] = useState(false)
   const [inputError, setInputError] = useState('')
+  const [activeTab, setActiveTab] = useState<'stake' | 'unstake'>('stake')
 
   const { connectedAccount, v1Account } = useAccountContext()
   const { walletTokenInfo, walletTokenPrice } = usePortfolioControllerState()
@@ -209,6 +210,23 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         </button>
         <div className={styles.contentWrapper}>
           <h2 className={styles.title}>Stake $WALLET</h2>
+          <div className={styles.tabs}>
+            <button
+              type="button"
+              className={`${styles.tab} ${activeTab === 'stake' ? styles.activeTab : ''}`}
+              onClick={() => setActiveTab('stake')}
+            >
+              Stake
+            </button>
+            <button
+              type="button"
+              className={`${styles.tab} ${activeTab === 'unstake' ? styles.activeTab : ''}`}
+              onClick={() => setActiveTab('unstake')}
+              disabled
+            >
+              Unstake
+            </button>
+          </div>
           <div className={styles.infoWrapper}>
             <div className={styles.infoRow}>
               <div>
