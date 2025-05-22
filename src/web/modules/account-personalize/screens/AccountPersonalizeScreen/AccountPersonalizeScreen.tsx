@@ -57,7 +57,9 @@ const AccountPersonalizeScreen = () => {
     }
   })
 
+  // Remains in loading state until `accountsToPersonalize` are loaded
   const [isLoading, setIsLoading] = useState(true)
+  // Enters into completed state after the `Complete` button is pressed
   const [completed, setCompleted] = useState(false)
 
   useEffect(() => {

@@ -77,19 +77,18 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     [path]
   )
 
+  // session storage is needed here to prevent state reset on account-personalize page reload
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>(() => {
     const currentRoute = path?.substring(1)
-    if (currentRoute === WEB_ROUTES.accountPersonalize) {
-      return getAccountsToPersonalizeFromSession()
-    }
+    if (currentRoute === WEB_ROUTES.accountPersonalize) return getAccountsToPersonalizeFromSession()
+
     return []
   })
 
   useEffect(() => {
     const currentRoute = path?.substring(1)
-    if (currentRoute === WEB_ROUTES.accountPersonalize) {
+    if (currentRoute === WEB_ROUTES.accountPersonalize)
       sessionStorage.setItem('accountsToPersonalize', stringify(accountsToPersonalize))
-    }
   }, [accountsToPersonalize, path])
 
   useEffect(() => {
