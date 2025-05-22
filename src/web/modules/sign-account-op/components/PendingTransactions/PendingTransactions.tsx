@@ -3,23 +3,20 @@ import React, { FC, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { Hex } from '@ambire-common/interfaces/hex'
 import { Network } from '@ambire-common/interfaces/network'
 import { humanizeAccountOp } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { stringify } from '@ambire-common/libs/richJson/richJson'
 import NetworkBadge from '@common/components/NetworkBadge'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import DelegationHumanization from '@web/components/DelegationHumanization'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
-import { Hex } from '@ambire-common/interfaces/hex'
-import DelegationHumanization from '@web/components/DelegationHumanization'
 import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
-import getStyles from './styles'
 
 interface Props {
   network?: Network
@@ -29,7 +26,6 @@ interface Props {
 
 const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContract }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
   const { accountOp } = useSignAccountOpControllerState() || {}
   const oldAccountOpRelevantInfoHash = React.useRef<string>('')
   const [callsToVisualize, setCallsToVisualize] = React.useState<IrCall[]>([])
@@ -71,24 +67,18 @@ const PendingTransactions: FC<Props> = ({ network, setDelegation, delegatedContr
           setDelegation={setDelegation}
           delegatedContract={delegatedContract}
         />
+      ) : network && callsToVisualize.length ? (
+        callsToVisualize.map((call, i) => (
+          <TransactionSummary
+            key={call.id}
+            style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
+            call={call}
+            chainId={network.chainId}
+            index={i}
+          />
+        ))
       ) : (
-        <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
-          {network && callsToVisualize.length ? (
-            callsToVisualize.map((call, i) => {
-              return (
-                <TransactionSummary
-                  key={call.id}
-                  style={i !== callsToVisualize.length - 1 ? spacings.mbTy : {}}
-                  call={call}
-                  chainId={network.chainId}
-                  index={i}
-                />
-              )
-            })
-          ) : (
-            <PendingTransactionsSkeleton />
-          )}
-        </ScrollableWrapper>
+        <PendingTransactionsSkeleton />
       )}
     </View>
   )
