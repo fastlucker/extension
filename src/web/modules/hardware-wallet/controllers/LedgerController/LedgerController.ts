@@ -334,11 +334,9 @@ class LedgerController implements ExternalSignerController {
           // Purposely await in loop to avoid sending multiple requests at once.
           // Send them 1 by 1, the Ledger device can't handle them in parallel,
           // it throws a "device busy" error.
-          const hdPath = getHdPathFromTemplate(paths[i] as any, 0)
-
           // eslint-disable-next-line no-await-in-loop
           const key = await this.#handleLedgerSubscription(
-            this.signerEth!.getAddress(getHdPathWithoutRoot(hdPath), {
+            this.signerEth!.getAddress(getHdPathWithoutRoot(paths[i]), {
               checkOnDevice: false,
               returnChainCode: false
             }).observable,
