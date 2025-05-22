@@ -185,6 +185,22 @@ class LedgerController implements ExternalSignerController {
         // .addLogger(new ConsoleLogger()) // for debugging only
         .addTransport(webHidTransportFactory)
         .build()
+
+      const device = await this.#findDevice()
+      if (!device) throw new Error('No Ledger device detected.')
+      if (!this.walletSDK) throw new Error('Connection to Ledger device lost.')
+
+      // Get device information
+      const sessionId = await this.walletSDK.connect({ device })
+      const connectedDevice = this.walletSDK.getConnectedDevice({ sessionId })
+      this.deviceModel = connectedDevice.modelId
+      this.deviceId = connectedDevice.id
+
+      // Create the signer using the dynamically imported constructor
+      const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
+      this.signerEth = new SignerEthBuilder({ dmk: this.walletSDK, sessionId })
+        .withContextModule(contextModule)
+        .build()
     } catch (e: any) {
       throw new ExternalSignerError(normalizeLedgerMessage(e?.message))
     }
@@ -207,6 +223,66 @@ class LedgerController implements ExternalSignerController {
       })
     })
 
+  /**
+   * Helper method to handle common Ledger observable subscription patterns
+   */
+  #handleLedgerSubscription<T>(
+    observable: Observable<any>,
+    options: {
+      onCompleted: (output: any) => T
+      errorMessage: string
+    }
+  ): Promise<T> {
+    const { onCompleted, errorMessage } = options
+
+    return new Promise<T>((resolve, reject) => {
+      const subscription = observable.subscribe({
+        next: (response: any) => {
+          // TODO: If we communicate this to the user in the UI better, we can
+          // wait for the user to do all required interactions instead of rejecting.
+          const missingRequiredUserInteraction =
+            response.status === 'pending' &&
+            [UserInteractionRequired.UnlockDevice, UserInteractionRequired.ConfirmOpenApp].includes(
+              response.intermediateValue.requiredUserInteraction
+            )
+
+          if (missingRequiredUserInteraction) {
+            subscription?.unsubscribe()
+            reject(
+              new ExternalSignerError(
+                normalizeLedgerMessage(response.intermediateValue.requiredUserInteraction)
+              )
+            )
+          }
+
+          if (response.status === 'error') {
+            subscription?.unsubscribe()
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceMessage = response.error?.message || 'no response from device'
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceErrorCode = response.error?.errorCode
+            let message = `<${deviceMessage}>`
+            message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
+            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
+          }
+
+          if (response.status !== 'completed') return
+
+          subscription?.unsubscribe()
+          if (response?.output) {
+            resolve(onCompleted(response.output))
+          } else {
+            reject(new ExternalSignerError(normalizeLedgerMessage(errorMessage)))
+          }
+        },
+        error: (error: any) => {
+          subscription?.unsubscribe()
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
+      })
+    })
+  }
+
   async unlock(
     path: ReturnType<typeof getHdPathFromTemplate>,
     expectedKeyOnThisPath?: string
@@ -220,72 +296,32 @@ class LedgerController implements ExternalSignerController {
         'Ledger only supports USB connection between Ambire and your device. Please connect your device via USB.'
       )
 
-    if (!this.walletSDK) throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
+    if (!this.walletSDK || !this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
 
     return this.withDisconnectProtection(async () => {
-      try {
-        const device = await this.#findDevice()
+      const hdPathWithoutRoot = path.slice(2)
+      const address = await this.#handleLedgerSubscription(
+        this.signerEth!.getAddress(hdPathWithoutRoot, {
+          checkOnDevice: false,
+          returnChainCode: false
+        }).observable,
+        {
+          onCompleted: (output) => output.address,
+          errorMessage: 'Failed to get address from Ledger device'
+        }
+      )
 
-        if (!device) throw new Error('No Ledger device detected.')
-        if (!this.walletSDK) throw new Error('Connection to Ledger device lost.')
+      // Save unlocked state
+      this.unlockedPath = path
+      this.unlockedPathKeyAddr = address
 
-        // Get device information
-        const sessionId = await this.walletSDK.connect({ device })
-        const connectedDevice = this.walletSDK.getConnectedDevice({ sessionId })
-        this.deviceModel = connectedDevice.modelId
-        this.deviceId = connectedDevice.id
-
-        // Create the signer using the dynamically imported constructor
-        const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
-        const signerEth = new SignerEthBuilder({ dmk: this.walletSDK, sessionId })
-          .withContextModule(contextModule)
-          .build()
-
-        const hdPathWithoutRoot = path.slice(2)
-        const address = await new Promise<string>((resolve, reject) => {
-          const { observable } = signerEth.getAddress(hdPathWithoutRoot, {
-            checkOnDevice: false,
-            returnChainCode: false
-          })
-
-          const addressSubscription = observable.subscribe({
-            next: (response) => {
-              const missingRequiredUserInteraction =
-                response.status === 'pending' &&
-                response.intermediateValue.requiredUserInteraction !== UserInteractionRequired.None
-              if (missingRequiredUserInteraction) {
-                addressSubscription?.unsubscribe()
-                reject(new Error(response.intermediateValue.requiredUserInteraction))
-              }
-
-              if (response.status === 'pending') return
-
-              addressSubscription?.unsubscribe()
-              return response.status === 'completed'
-                ? resolve(response.output.address)
-                : reject(new Error(response.error?.message || 'Connection to Ledger device lost.'))
-            },
-            error: (error) => {
-              addressSubscription?.unsubscribe()
-              reject(new Error(error?.message))
-            }
-          })
-        })
-
-        // Save unlocked state
-        this.unlockedPath = path
-        this.unlockedPathKeyAddr = address
-        this.signerEth = signerEth
-
-        return 'JUST_UNLOCKED' as const
-      } catch (error: any) {
-        await this.cleanUp()
-        throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-      }
+      return 'JUST_UNLOCKED' as const
     })
   }
 
-  async retrieveAddresses(paths: string[]) {
+  retrieveAddresses = async (paths: string[]) => {
+    await this.#initSDKSessionIfNeeded() // could happen if user retries
+
     return this.withDisconnectProtection(async () => {
       if (!this.walletSDK || !this.signerEth) {
         throw new ExternalSignerError(normalizeLedgerMessage())
@@ -303,35 +339,16 @@ class LedgerController implements ExternalSignerController {
           const hdPathWithoutRoot = hdPath.slice(2)
 
           // eslint-disable-next-line no-await-in-loop
-          const key = await new Promise<string>((resolve, reject) => {
-            const { observable } = this.signerEth!.getAddress(hdPathWithoutRoot, {
-              checkOnDevice: false, // no need to show on display
+          const key = await this.#handleLedgerSubscription(
+            this.signerEth!.getAddress(hdPathWithoutRoot, {
+              checkOnDevice: false,
               returnChainCode: false
-            })
-
-            let addressSubscription: any = null
-            addressSubscription = observable.subscribe({
-              next: (response: any) => {
-                if (response.status !== 'completed') return
-
-                if (response?.output?.address) {
-                  addressSubscription?.unsubscribe()
-                  resolve(response.output.address)
-                } else {
-                  addressSubscription?.unsubscribe()
-                  reject(
-                    new ExternalSignerError(
-                      response.error?.message || 'Failed to get address from Ledger device'
-                    )
-                  )
-                }
-              },
-              error: (error) => {
-                addressSubscription?.unsubscribe()
-                reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-              }
-            })
-          })
+            }).observable,
+            {
+              onCompleted: (output) => output.address,
+              errorMessage: 'Failed to get address from Ledger device'
+            }
+          )
 
           keys.push(key)
         } catch (e: any) {
@@ -348,7 +365,10 @@ class LedgerController implements ExternalSignerController {
       // Ambire and try importing accounts again.
       const notAllKeysGotRetrieved = keys.length !== paths.length
       if (notAllKeysGotRetrieved) {
-        throw new ExternalSignerError(normalizeLedgerMessage(latestGetAddressError?.message))
+        throw (
+          latestGetAddressError ||
+          new ExternalSignerError('Failed to get all address from Ledger device.')
+        )
       }
 
       return keys
@@ -361,9 +381,12 @@ class LedgerController implements ExternalSignerController {
     const hdPathWithoutRoot = derivationPath.slice(2)
     const messageBytes = hexStringToUint8Array(messageHex)
 
-    return this.#handleSigningSubscription(
+    return this.#handleLedgerSubscription<LedgerSignature>(
       this.signerEth.signMessage(hdPathWithoutRoot, messageBytes).observable,
-      'Failed to sign message with Ledger device'
+      {
+        onCompleted: (output) => output,
+        errorMessage: 'Failed to sign message with Ledger device'
+      }
     )
   }
 
@@ -372,9 +395,12 @@ class LedgerController implements ExternalSignerController {
 
     const hdPathWithoutRoot = derivationPath.slice(2)
 
-    return this.#handleSigningSubscription(
+    return this.#handleLedgerSubscription<LedgerSignature>(
       this.signerEth.signTransaction(hdPathWithoutRoot, transaction).observable,
-      'Failed to sign transaction with Ledger device'
+      {
+        onCompleted: (output) => output,
+        errorMessage: 'Failed to sign transaction with Ledger device'
+      }
     )
   }
 
@@ -396,64 +422,18 @@ class LedgerController implements ExternalSignerController {
     // TODO: Slight mismatch between TypedMessage type and Ledger's TypedDataDomain
     const ledgerDomain = { ...domain } as TypedDataDomain
 
-    return this.#handleSigningSubscription(
+    return this.#handleLedgerSubscription<LedgerSignature>(
       this.signerEth.signTypedData(hdPathWithoutRoot, {
         domain: ledgerDomain,
         types,
         message,
         primaryType
       }).observable,
-      'Failed to sign typed data with Ledger device'
+      {
+        onCompleted: (output) => output,
+        errorMessage: 'Failed to sign typed data with Ledger device'
+      }
     )
-  }
-
-  /**
-   * Handles the common subscription logic for signing operations.
-   */
-  #handleSigningSubscription(
-    observable: Observable<any>, // TODO: better type
-    errorMessage: string
-  ): Promise<LedgerSignature> {
-    const signingPromise = new Promise<LedgerSignature>((resolve, reject) => {
-      const subscription = observable.subscribe({
-        next: (response: any) => {
-          const missingRequiredUserInteraction =
-            response.status === 'pending' &&
-            [UserInteractionRequired.UnlockDevice, UserInteractionRequired.ConfirmOpenApp].includes(
-              response.intermediateValue.requiredUserInteraction
-            )
-          if (missingRequiredUserInteraction) {
-            subscription?.unsubscribe()
-            const message = response.intermediateValue.requiredUserInteraction
-            reject(new ExternalSignerError(normalizeLedgerMessage(message)))
-          }
-
-          if (response.status === 'error') {
-            subscription?.unsubscribe()
-            // @ts-ignore Ledger types not being resolved correctly in the SDK
-            const deviceMessage = response.error?.message || 'no response from device'
-            // @ts-ignore Ledger types not being resolved correctly in the SDK
-            const deviceErrorCode = response.error?.errorCode
-            let message = `<${deviceMessage}>`
-            message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
-            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
-          }
-
-          if (response.status !== 'completed') return
-
-          subscription?.unsubscribe()
-          return response?.output
-            ? resolve(response.output)
-            : reject(new ExternalSignerError(normalizeLedgerMessage(errorMessage)))
-        },
-        error: (error: any) => {
-          subscription?.unsubscribe()
-          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
-        }
-      })
-    })
-
-    return this.withDisconnectProtection(() => signingPromise)
   }
 
   cleanUp = async () => {
