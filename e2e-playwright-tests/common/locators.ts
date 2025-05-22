@@ -38,5 +38,8 @@ export const locators = {
   hdPathLegerLive: 'div[data-testid="hd-path-option-ledger-live"]',
   hdPathLegerLegacy: 'div[data-testid="hd-path-option-ledger-legacy"]',
   hdPathConfirmButton: 'div[data-testid="hd-path-confirm-btn"]',
-  fullAmountDashboard: 'div[data-testid="full-balance"]'
+  fullAmountDashboard: 'div[data-testid="full-balance"]',
+  showMoreButton: 'div[data-testid="show-more-btn"]',
+  importJSONBackupFileButton: 'div[data-testid="import-method-json-backup-file"]',
+  uploadJSONButton: 'span:has-text("upload")'
 }

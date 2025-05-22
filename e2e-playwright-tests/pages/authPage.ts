@@ -150,4 +150,23 @@ export class AuthPage extends BasePage {
     await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
     await this.page.locator(locators.openDashboardButton).click()
   }
+
+  async importAccountFromJSONFile(): Promise<void> {
+    const saAccounts = JSON.parse(process.env.SA_ACCOUNT_JSON || '{}')
+    const jsonBuffer = Buffer.from(JSON.stringify(saAccounts))
+    await this.page.locator(locators.importExistingAccountButton).click()
+    await this.page.locator(locators.showMoreButton).click()
+    await this.page.locator(locators.importJSONBackupFileButton).click()
+    const fileInput = this.page.locator('input[type="file"]')
+    await fileInput.setInputFiles({
+      name: 'sa.json',
+      mimeType: 'application/json',
+      buffer: jsonBuffer
+    })
+    await this.page.pause()
+    await this.setExtensionPassword()
+    await this.page.locator(locators.completeButton).click()
+    await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
+    await this.page.locator(locators.openDashboardButton).click()
+  }
 }

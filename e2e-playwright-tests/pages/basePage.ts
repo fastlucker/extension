@@ -1,5 +1,3 @@
-// FILE: e2e-playwright-tests/pages/basePage.ts
-
 import { Page } from '@playwright/test'
 
 export abstract class BasePage {

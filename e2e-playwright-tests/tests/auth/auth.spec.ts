@@ -54,4 +54,8 @@ test.describe('auth', () => {
   test('import account from different HD paths', async ({ authPage }) => {
     await authPage.createAccountAndImportFromDifferentHDPath()
   })
+
+  test('import account from JSON file', async ({ authPage }) => {
+    await authPage.importAccountFromJSONFile()
+  })
 })
