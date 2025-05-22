@@ -43,6 +43,7 @@ export const handleCleanUpOnPortDisconnect = async ({
   }
 
   if (url.pathname.includes('transfer')) {
+    mainCtrl.transfer.unloadScreen()
     mainCtrl.activity.resetAccountsOpsFilters('transfer')
   }
 

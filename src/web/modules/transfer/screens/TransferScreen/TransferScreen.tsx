@@ -151,6 +151,15 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     }
   }, [mainCtrlStatuses.signAndBroadcastAccountOp, signAccountOpController?.status])
 
+  // When navigating to another screen internally in the extension, we unload the TransferController
+  // to ensure that no estimation or SignAccountOp logic is still running.
+  // If the screen is closed entirely, the clean-up is handled by the port.onDisconnect callback in the background.
+  useEffect(() => {
+    return () => {
+      dispatch({ type: 'TRANSFER_CONTROLLER_UNLOAD_SCREEN' })
+    }
+  }, [dispatch])
+
   const {
     ref: estimationModalRef,
     open: openEstimationModal,
