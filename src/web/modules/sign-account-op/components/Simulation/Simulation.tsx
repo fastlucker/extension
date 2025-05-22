@@ -320,7 +320,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
       {simulationView === 'error' && (
         <Alert
           type="error"
-          title={`We were unable to simulate the transaction: ${simulationErrorMsg}`}
+          title="We were unable to simulate the transaction. Please proceed with caution"
         />
       )}
       {simulationView === 'no-changes' && (
