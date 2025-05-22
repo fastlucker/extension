@@ -89,7 +89,7 @@ class LedgerSigner implements KeystoreSignerInterface {
       const signature = Signature.from({
         r: res.r,
         s: res.s,
-        v: Signature.getNormalizedV(addHexPrefix(`${res.v}`))
+        v: Signature.getNormalizedV(res.v)
       })
       const signedSerializedTxn = Transaction.from({
         ...unsignedTxn,
