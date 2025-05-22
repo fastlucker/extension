@@ -117,12 +117,13 @@ class LedgerController implements ExternalSignerController {
    * disconnects, the observable returned by the Ledger SDK throws an error,
    * but with an awkward delay.
    */
-  static withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
+  withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
     let listenerCbRef: (...args: Array<any>) => any = () => {}
     const disconnectHandler =
       (reject: (reason?: any) => void) =>
-      ({ device }: { device: HIDDevice }) => {
+      async ({ device }: { device: HIDDevice }) => {
         if (LedgerController.vendorId === device.vendorId) {
+          await this.cleanUp() // the communication with the initiated walletSDK drops
           reject(new ExternalSignerError('Ledger device got disconnected.'))
         }
       }
@@ -221,7 +222,7 @@ class LedgerController implements ExternalSignerController {
 
     if (!this.walletSDK) throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
 
-    return LedgerController.withDisconnectProtection(async () => {
+    return this.withDisconnectProtection(async () => {
       try {
         const device = await this.#findDevice()
 
@@ -285,7 +286,7 @@ class LedgerController implements ExternalSignerController {
   }
 
   async retrieveAddresses(paths: string[]) {
-    return LedgerController.withDisconnectProtection(async () => {
+    return this.withDisconnectProtection(async () => {
       if (!this.walletSDK || !this.signerEth) {
         throw new ExternalSignerError(normalizeLedgerMessage())
       }
@@ -452,7 +453,7 @@ class LedgerController implements ExternalSignerController {
       })
     })
 
-    return LedgerController.withDisconnectProtection(() => signingPromise)
+    return this.withDisconnectProtection(() => signingPromise)
   }
 
   cleanUp = async () => {
