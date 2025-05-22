@@ -23,7 +23,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { engine } from '@web/constants/browserapi'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
@@ -32,6 +31,7 @@ import useWalletStateController from '@web/hooks/useWalletStateController'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import AccountsLoadingAnimation from '@web/modules/account-personalize/components/AccountsLoadingAnimation'
 import AccountsLoadingDotsAnimation from '@web/modules/account-personalize/components/AccountsLoadingDotsAnimation'
+import PinExtension from '@web/modules/auth/components/PinExtension'
 
 import getStyles from './styles'
 
@@ -58,6 +58,7 @@ const AccountPersonalizeScreen = () => {
 
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
     if (accountPickerState.isInitialized) return
@@ -105,9 +106,9 @@ const AccountPersonalizeScreen = () => {
     accountsState.statuses.addAccounts
   ])
 
-  // the hook sets the accountsToPersonalize
+  // the hook inits the list with accountsToPersonalize
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading || accountsToPersonalize.length) return
 
     let state: Account[] = []
     if (accountPickerState.isInitialized) {
@@ -127,6 +128,7 @@ const AccountPersonalizeScreen = () => {
     isLoading,
     accountPickerState.isInitialized,
     accountPickerState.addedAccountsFromCurrentSession,
+    accountsToPersonalize.length,
     newlyAddedAccounts,
     accountsState.statuses.addAccounts,
     goToNextRoute
@@ -156,11 +158,16 @@ const AccountPersonalizeScreen = () => {
     [dispatch, getValues]
   )
 
-  const handleGetStarted = useCallback(async () => {
+  const handleComplete = useCallback(async () => {
     await handleSubmit(handleSave)()
     dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
-    goToNextRoute()
-  }, [dispatch, handleSave, handleSubmit, goToNextRoute])
+    if (!isSetupComplete) {
+      goToNextRoute()
+    } else {
+      setCompleted(true)
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET' })
+    }
+  }, [isSetupComplete, dispatch, handleSave, handleSubmit, goToNextRoute])
 
   const handleContactSupport = useCallback(async () => {
     try {
@@ -171,93 +178,84 @@ const AccountPersonalizeScreen = () => {
   }, [addToast])
 
   return (
-    <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
-      header={<Header mode="custom-inner-content" withAmbireLogo />}
-    >
-      <TabLayoutWrapperMainContent>
-        <Panel
-          type="onboarding"
-          spacingsSize="small"
-          style={!accountPickerState.pageError && spacings.ptMd}
-          withBackButton={!!accountPickerState.pageError}
-          onBackButtonPress={() => {
-            goToPrevRoute()
-          }}
-          title={accountPickerState.pageError ? t('Accounts') : undefined}
-        >
-          {isLoading && !accountPickerState.pageError ? (
-            <View style={[flexbox.alignCenter]}>
-              <View style={spacings.mbLg}>
-                <AccountsLoadingAnimation />
-              </View>
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <View style={flexbox.flex1} />
-                <Text fontSize={20} weight="semiBold" style={[text.center, spacings.phMi]}>
-                  {t('Loading accounts')}
-                </Text>
-                <View style={[flexbox.flex1, flexbox.justifyEnd, { height: '75%' }]}>
-                  <AccountsLoadingDotsAnimation />
+    <>
+      {!!completed && <PinExtension />}
+      <TabLayoutContainer
+        backgroundColor={theme.secondaryBackground}
+        header={<Header mode="custom-inner-content" withAmbireLogo />}
+      >
+        <TabLayoutWrapperMainContent>
+          <Panel
+            type="onboarding"
+            spacingsSize="small"
+            style={!accountPickerState.pageError && spacings.ptMd}
+            withBackButton={!!accountPickerState.pageError}
+            onBackButtonPress={() => {
+              goToPrevRoute()
+            }}
+            title={accountPickerState.pageError ? t('Accounts') : undefined}
+          >
+            {isLoading && !accountPickerState.pageError ? (
+              <View style={[flexbox.alignCenter]}>
+                <View style={spacings.mbLg}>
+                  <AccountsLoadingAnimation />
                 </View>
-              </View>
-            </View>
-          ) : accountPickerState.pageError ? (
-            <View style={flexbox.alignCenter}>
-              <Alert
-                type="warning"
-                title={accountPickerState.pageError}
-                text={
-                  <Trans>
-                    <Alert.Text type="warning">
-                      Please go back and start the account-adding process again. If the problem
-                      persists, please{' '}
-                      <Pressable onPress={handleContactSupport}>
-                        <Alert.Text type="warning" style={text.underline}>
-                          contact our support team
-                        </Alert.Text>
-                      </Pressable>
-                      .
-                    </Alert.Text>
-                  </Trans>
-                }
-              />
-            </View>
-          ) : (
-            <>
-              <View style={[flexbox.alignCenter, spacings.mbXl]}>
-                <View style={styles.checkIconOuterWrapper}>
-                  <View style={styles.checkIconInnerWrapper}>
-                    <CheckIcon color={theme.successDecorative} width={28} height={28} />
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <View style={flexbox.flex1} />
+                  <Text fontSize={20} weight="semiBold" style={[text.center, spacings.phMi]}>
+                    {t('Loading accounts')}
+                  </Text>
+                  <View style={[flexbox.flex1, flexbox.justifyEnd, { height: '75%' }]}>
+                    <AccountsLoadingDotsAnimation />
                   </View>
                 </View>
-                <Text weight="semiBold" fontSize={20}>
-                  {t('Added successfully')}
-                </Text>
               </View>
-              <ScrollView style={spacings.mbLg}>
-                {accountsToPersonalize.map((acc, index) => (
-                  <AccountPersonalizeCard
-                    key={acc.addr}
-                    control={control}
-                    index={index}
-                    account={acc}
-                    hasBottomSpacing={index !== fields.length - 1}
-                    onSave={handleSave as any}
-                  />
-                ))}
-              </ScrollView>
-              {engine === 'webkit' && (
-                <Button
-                  testID="button-save-and-continue"
-                  size="large"
-                  onPress={handleGetStarted}
-                  hasBottomSpacing={false}
-                  text={isSetupComplete ? t('Open dashboard') : t('Complete')}
-                  disabled={!accounts.length}
+            ) : accountPickerState.pageError ? (
+              <View style={flexbox.alignCenter}>
+                <Alert
+                  type="warning"
+                  title={accountPickerState.pageError}
+                  text={
+                    <Trans>
+                      <Alert.Text type="warning">
+                        Please go back and start the account-adding process again. If the problem
+                        persists, please{' '}
+                        <Pressable onPress={handleContactSupport}>
+                          <Alert.Text type="warning" style={text.underline}>
+                            contact our support team
+                          </Alert.Text>
+                        </Pressable>
+                        .
+                      </Alert.Text>
+                    </Trans>
+                  }
                 />
-              )}
-              {engine === 'gecko' &&
-                (isSetupComplete ? (
+              </View>
+            ) : (
+              <>
+                <View style={[flexbox.alignCenter, spacings.mbXl]}>
+                  <View style={styles.checkIconOuterWrapper}>
+                    <View style={styles.checkIconInnerWrapper}>
+                      <CheckIcon color={theme.successDecorative} width={28} height={28} />
+                    </View>
+                  </View>
+                  <Text weight="semiBold" fontSize={20}>
+                    {t('Added successfully')}
+                  </Text>
+                </View>
+                <ScrollView style={spacings.mbLg}>
+                  {accountsToPersonalize.map((acc, index) => (
+                    <AccountPersonalizeCard
+                      key={acc.addr}
+                      control={control}
+                      index={index}
+                      account={acc}
+                      hasBottomSpacing={index !== fields.length - 1}
+                      onSave={handleSave as any}
+                    />
+                  ))}
+                </ScrollView>
+                {completed ? (
                   <Text appearance="secondaryText" weight="medium" style={[text.center]}>
                     {t('You can access your accounts from the dashboard via the extension icon.')}
                   </Text>
@@ -265,41 +263,49 @@ const AccountPersonalizeScreen = () => {
                   <Button
                     testID="button-save-and-continue"
                     size="large"
-                    onPress={handleGetStarted}
+                    onPress={handleComplete}
                     hasBottomSpacing={false}
                     text={t('Complete')}
                     disabled={!accounts.length}
                   />
-                ))}
-              {['seed', 'hw'].includes(accountPickerState.subType as any) && (
-                <View style={spacings.ptLg}>
-                  <Button
-                    testID="add-more-accounts-btn"
-                    type="ghost"
-                    text={t('Add more accounts from this {{source}}', {
-                      source:
-                        accountPickerState.subType === 'hw' ? 'hardware wallet' : 'recovery phrase'
-                    })}
-                    onPress={() => {
-                      handleSave()
-                      goToNextRoute(WEB_ROUTES.accountPicker)
-                    }}
-                    textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
-                    style={{ ...spacings.ph0, height: 22 }}
-                    hasBottomSpacing={false}
-                    childrenPosition="left"
-                  >
-                    <Text fontSize={24} weight="light" style={spacings.mrTy} color={theme.primary}>
-                      +
-                    </Text>
-                  </Button>
-                </View>
-              )}
-            </>
-          )}
-        </Panel>
-      </TabLayoutWrapperMainContent>
-    </TabLayoutContainer>
+                )}
+                {!completed && ['seed', 'hw'].includes(accountPickerState.subType as any) && (
+                  <View style={spacings.ptLg}>
+                    <Button
+                      testID="add-more-accounts-btn"
+                      type="ghost"
+                      text={t('Add more accounts from this {{source}}', {
+                        source:
+                          accountPickerState.subType === 'hw'
+                            ? 'hardware wallet'
+                            : 'recovery phrase'
+                      })}
+                      onPress={() => {
+                        handleSave()
+                        goToNextRoute(WEB_ROUTES.accountPicker)
+                      }}
+                      textStyle={{ fontSize: 14, color: theme.primary, letterSpacing: -0.1 }}
+                      style={{ ...spacings.ph0, height: 22 }}
+                      hasBottomSpacing={false}
+                      childrenPosition="left"
+                    >
+                      <Text
+                        fontSize={24}
+                        weight="light"
+                        style={spacings.mrTy}
+                        color={theme.primary}
+                      >
+                        +
+                      </Text>
+                    </Button>
+                  </View>
+                )}
+              </>
+            )}
+          </Panel>
+        </TabLayoutWrapperMainContent>
+      </TabLayoutContainer>
+    </>
   )
 }
 
