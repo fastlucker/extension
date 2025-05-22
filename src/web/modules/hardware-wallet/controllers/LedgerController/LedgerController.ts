@@ -4,7 +4,7 @@ import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
-import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { getHdPathFromTemplate, getHdPathWithoutRoot } from '@ambire-common/utils/hdPath'
 import hexStringToUint8Array from '@ambire-common/utils/hexStringToUint8Array'
 import { ContextModuleBuilder } from '@ledgerhq/context-module'
 import {
@@ -299,9 +299,8 @@ class LedgerController implements ExternalSignerController {
     if (!this.walletSDK || !this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
 
     return this.withDisconnectProtection(async () => {
-      const hdPathWithoutRoot = path.slice(2)
       const address = await this.#handleLedgerSubscription(
-        this.signerEth!.getAddress(hdPathWithoutRoot, {
+        this.signerEth!.getAddress(getHdPathWithoutRoot(path), {
           checkOnDevice: false,
           returnChainCode: false
         }).observable,
@@ -336,11 +335,10 @@ class LedgerController implements ExternalSignerController {
           // Send them 1 by 1, the Ledger device can't handle them in parallel,
           // it throws a "device busy" error.
           const hdPath = getHdPathFromTemplate(paths[i] as any, 0)
-          const hdPathWithoutRoot = hdPath.slice(2)
 
           // eslint-disable-next-line no-await-in-loop
           const key = await this.#handleLedgerSubscription(
-            this.signerEth!.getAddress(hdPathWithoutRoot, {
+            this.signerEth!.getAddress(getHdPathWithoutRoot(hdPath), {
               checkOnDevice: false,
               returnChainCode: false
             }).observable,
@@ -378,11 +376,10 @@ class LedgerController implements ExternalSignerController {
   async signPersonalMessage(derivationPath: string, messageHex: string) {
     if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
-    const hdPathWithoutRoot = derivationPath.slice(2)
     const messageBytes = hexStringToUint8Array(messageHex)
 
     return this.#handleLedgerSubscription<LedgerSignature>(
-      this.signerEth.signMessage(hdPathWithoutRoot, messageBytes).observable,
+      this.signerEth.signMessage(getHdPathWithoutRoot(derivationPath), messageBytes).observable,
       {
         onCompleted: (output) => output,
         errorMessage: 'Failed to sign message with Ledger device'
@@ -393,10 +390,8 @@ class LedgerController implements ExternalSignerController {
   async signTransaction(derivationPath: string, transaction: Uint8Array) {
     if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
-    const hdPathWithoutRoot = derivationPath.slice(2)
-
     return this.#handleLedgerSubscription<LedgerSignature>(
-      this.signerEth.signTransaction(hdPathWithoutRoot, transaction).observable,
+      this.signerEth.signTransaction(getHdPathWithoutRoot(derivationPath), transaction).observable,
       {
         onCompleted: (output) => output,
         errorMessage: 'Failed to sign transaction with Ledger device'
@@ -418,12 +413,11 @@ class LedgerController implements ExternalSignerController {
   }) => {
     if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
-    const hdPathWithoutRoot = path.slice(2)
     // TODO: Slight mismatch between TypedMessage type and Ledger's TypedDataDomain
     const ledgerDomain = { ...domain } as TypedDataDomain
 
     return this.#handleLedgerSubscription<LedgerSignature>(
-      this.signerEth.signTypedData(hdPathWithoutRoot, {
+      this.signerEth.signTypedData(getHdPathWithoutRoot(path), {
         domain: ledgerDomain,
         types,
         message,
