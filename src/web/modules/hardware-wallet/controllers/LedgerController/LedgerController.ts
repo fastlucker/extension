@@ -8,7 +8,6 @@ import { getHdPathFromTemplate, getHdPathWithoutRoot } from '@ambire-common/util
 import hexStringToUint8Array from '@ambire-common/utils/hexStringToUint8Array'
 import { ContextModuleBuilder } from '@ledgerhq/context-module'
 import {
-  DeviceManagementKit,
   DeviceManagementKitBuilder,
   DeviceModelId as LedgerDeviceModels,
   DiscoveredDevice,
@@ -20,7 +19,6 @@ import {
   SignerEthBuilder,
   TypedDataDomain
 } from '@ledgerhq/device-signer-kit-ethereum'
-import { DefaultSignerEth } from '@ledgerhq/device-signer-kit-ethereum/lib/types/internal/DefaultSignerEth'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
 export { LedgerDeviceModels, type LedgerSignature }
@@ -34,9 +32,9 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  signerEth: DefaultSignerEth | null = null
+  signerEth: ReturnType<SignerEthBuilder['build']> | null = null
 
-  walletSDK: DeviceManagementKit | null
+  walletSDK: ReturnType<DeviceManagementKitBuilder['build']> | null = null
 
   type = 'ledger'
 
