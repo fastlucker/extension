@@ -100,9 +100,15 @@ const SortHat = () => {
       if (hasSwapAndBridgePersistentSession) {
         navigate(ROUTES.swapAndBridge)
       } else if (transferState?.hasPersistedState) {
-        navigate(ROUTES.transfer, {
-          state: { backTo: WEB_ROUTES.dashboard }
-        })
+        if (transferState.isTopUp) {
+          navigate(ROUTES.topUpGasTank, {
+            state: { backTo: WEB_ROUTES.dashboard }
+          })
+        } else {
+          navigate(ROUTES.transfer, {
+            state: { backTo: WEB_ROUTES.dashboard }
+          })
+        }
       } else {
         navigate(ROUTES.dashboard)
       }
