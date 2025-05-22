@@ -64,10 +64,10 @@ class LedgerSigner implements KeystoreSignerInterface {
     }
   }
 
-  #normalizeSignature(rsvRes: LedgerSignature): string {
-    const strippedR = stripHexPrefix(rsvRes.r)
-    const strippedS = stripHexPrefix(rsvRes.s)
-    return addHexPrefix(`${strippedR}${strippedS}${rsvRes.v.toString(16)}`)
+  #normalizeSignature(rawSignature: LedgerSignature): string {
+    const strippedR = stripHexPrefix(rawSignature.r)
+    const strippedS = stripHexPrefix(rawSignature.s)
+    return addHexPrefix(`${strippedR}${strippedS}${rawSignature.v.toString(16)}`)
   }
 
   signRawTransaction: KeystoreSignerInterface['signRawTransaction'] = async (txnRequest) => {
@@ -107,12 +107,12 @@ class LedgerSigner implements KeystoreSignerInterface {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await this.controller!.signTypedData({
+      const signature = await this.controller!.signTypedData({
         path,
         signTypedData
       })
 
-      return this.#normalizeSignature(rsvRes)
+      return this.#normalizeSignature(signature)
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
@@ -132,9 +132,9 @@ class LedgerSigner implements KeystoreSignerInterface {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await this.controller!.signPersonalMessage(path, stripHexPrefix(hex))
+      const signature = await this.controller!.signPersonalMessage(path, stripHexPrefix(hex))
 
-      return this.#normalizeSignature(rsvRes)
+      return this.#normalizeSignature(signature)
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
