@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { browser, isSafari } from '@web/constants/browserapi'
+import { browser, engine, isSafari } from '@web/constants/browserapi'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 
 /**
@@ -14,7 +14,12 @@ import { closeCurrentWindow } from '@web/extension-services/background/webapi/wi
  * @returns {Promise<Tabs.Tab>} - The newly opened or focused browser tab.
  */
 const createTab = async (url: string, windowId?: number): Promise<number | undefined> => {
-  const extensionId = browser?.runtime?.id
+  let extensionId = browser?.runtime?.id
+
+  if (engine === 'gecko') {
+    extensionId = browser.runtime.getURL('/')
+  }
+
   if (url.startsWith('http') && !url.includes(extensionId)) {
     const tab = await browser.tabs.create({ active: true, url })
     return tab
