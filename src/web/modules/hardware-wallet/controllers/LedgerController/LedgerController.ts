@@ -47,8 +47,8 @@ class LedgerController implements ExternalSignerController {
   static vendorId = LEDGER_VENDOR_ID
 
   constructor() {
+    // TODO: Bluetooth support?
     this.isWebHID = true
-    this.walletSDK = null
 
     // When the `cleanUpListener` method gets passed to the navigator.hid listeners
     // the `this` context gets lost, so we need to bind it here. The `this` context
@@ -206,6 +206,9 @@ class LedgerController implements ExternalSignerController {
       this.signerEth = new SignerEthBuilder({ dmk: this.walletSDK, sessionId })
         .withContextModule(contextModule)
         .build()
+
+      // To clean up no matter if the device is in the middle of an operation or not
+      navigator.hid.addEventListener('disconnect', this.cleanUpListener)
     } catch (e: any) {
       throw new ExternalSignerError(normalizeLedgerMessage(e?.message))
     }
