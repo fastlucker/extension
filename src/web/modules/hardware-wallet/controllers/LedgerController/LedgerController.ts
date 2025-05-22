@@ -20,6 +20,7 @@ import {
   TypedDataDomain
 } from '@ledgerhq/device-signer-kit-ethereum'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
+import { isVivaldi } from '@web/constants/browserapi'
 
 export { LedgerDeviceModels, type LedgerSignature }
 
@@ -78,7 +79,15 @@ class LedgerController implements ExternalSignerController {
    */
   static isConnected = async () => {
     const devices = await navigator.hid.getDevices()
-    return devices.filter((device) => device.vendorId === LedgerController.vendorId).length > 0
+    const hasFoundLedgerDevice =
+      devices.filter((device) => device.vendorId === LedgerController.vendorId).length > 0
+    if (hasFoundLedgerDevice) return true
+
+    // TODO: Temporarily bypass the device detection for Vivaldi, because although
+    // the device is connected, the getDevices() method returns an empty array.
+    // Workarounds I tried - find the device via DMK didn't click. So to be able
+    // to use Ledger device with Vivaldi, we just assume it's connected.
+    return isVivaldi()
   }
 
   /**
