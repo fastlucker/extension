@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, ScrollView, View } from 'react-native'
 
@@ -39,7 +39,8 @@ export const CARD_WIDTH = 400
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
-  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
+  const { goToNextRoute, goToPrevRoute, setAccountsToPersonalize, accountsToPersonalize } =
+    useOnboardingNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
@@ -47,7 +48,7 @@ const AccountPersonalizeScreen = () => {
   const { accounts } = useAccountsControllerState()
   const { isSetupComplete } = useWalletStateController()
   const { addToast } = useToast()
-
+  const initPassed = useRef(false)
   const newlyAddedAccounts = useMemo(() => accounts.filter((a) => a.newlyAdded) || [], [accounts])
 
   const { handleSubmit, control, setValue, getValues } = useForm({
@@ -56,14 +57,47 @@ const AccountPersonalizeScreen = () => {
     }
   })
 
-  const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
+    if (!accountPickerState.initParams) return
     if (accountPickerState.isInitialized) return
+    if (initPassed.current && !completed) return
+
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT' })
-  }, [dispatch, accountPickerState.isInitialized])
+    if (!isLoading) setIsLoading(true)
+    if (completed) setCompleted(false)
+    if (accountsToPersonalize.length) setAccountsToPersonalize([])
+    initPassed.current = true
+  }, [
+    isLoading,
+    dispatch,
+    accountPickerState.isInitialized,
+    accountPickerState.initParams,
+    completed,
+    accountsToPersonalize,
+    setAccountsToPersonalize
+  ])
+
+  useEffect(() => {
+    if (
+      !accountPickerState.initParams &&
+      !accountPickerState.isInitialized &&
+      accountsToPersonalize.length &&
+      !newlyAddedAccounts.length &&
+      !completed
+    ) {
+      setCompleted(true)
+      initPassed.current = false
+    }
+  }, [
+    accountPickerState.initParams,
+    accountPickerState.isInitialized,
+    accountsToPersonalize.length,
+    completed,
+    newlyAddedAccounts.length
+  ])
 
   // hold the loading state for 1.1 seconds before displaying the accountsToPersonalize for better UX
   useEffect(() => {
@@ -131,6 +165,7 @@ const AccountPersonalizeScreen = () => {
     accountsToPersonalize.length,
     newlyAddedAccounts,
     accountsState.statuses.addAccounts,
+    setAccountsToPersonalize,
     goToNextRoute
   ])
 
@@ -164,7 +199,7 @@ const AccountPersonalizeScreen = () => {
     if (!isSetupComplete) {
       goToNextRoute()
     } else {
-      setCompleted(true)
+      initPassed.current = false
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET' })
     }
   }, [isSetupComplete, dispatch, handleSave, handleSubmit, goToNextRoute])
@@ -179,10 +214,10 @@ const AccountPersonalizeScreen = () => {
 
   return (
     <>
-      {!!completed && <PinExtension />}
+      {!!completed && !isLoading && <PinExtension />}
       <TabLayoutContainer
         backgroundColor={theme.secondaryBackground}
-        header={<Header mode="custom-inner-content" withAmbireLogo />}
+        header={<Header mode="custom-inner-content" withAmbireLogo={!completed} />}
       >
         <TabLayoutWrapperMainContent>
           <Panel
@@ -246,12 +281,13 @@ const AccountPersonalizeScreen = () => {
                 <ScrollView style={spacings.mbLg}>
                   {accountsToPersonalize.map((acc, index) => (
                     <AccountPersonalizeCard
-                      key={acc.addr}
+                      key={acc.addr + completed}
                       control={control}
                       index={index}
                       account={acc}
                       hasBottomSpacing={index !== fields.length - 1}
                       onSave={handleSave as any}
+                      disableEdit={!!completed}
                     />
                   ))}
                 </ScrollView>
