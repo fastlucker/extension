@@ -243,7 +243,7 @@ class LedgerController implements ExternalSignerController {
   ): Promise<T> {
     const { onCompleted, errorMessage } = options
 
-    return new Promise<T>((resolve, reject) => {
+    const subscriptionPromise = new Promise<T>((resolve, reject) => {
       let subscription: Subscription // so it is always defined inside the subscribe callback
       // eslint-disable-next-line prefer-const
       subscription = observable.subscribe({
@@ -291,6 +291,8 @@ class LedgerController implements ExternalSignerController {
         }
       })
     })
+
+    return this.withDisconnectProtection(() => subscriptionPromise)
   }
 
   async unlock(
@@ -308,77 +310,73 @@ class LedgerController implements ExternalSignerController {
 
     if (!this.walletSDK || !this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
 
-    return this.withDisconnectProtection(async () => {
-      const address = await this.#handleLedgerSubscription(
-        this.signerEth!.getAddress(getHdPathWithoutRoot(path), {
-          checkOnDevice: false,
-          returnChainCode: false
-        }).observable,
-        {
-          onCompleted: (output) => output.address,
-          errorMessage: 'Failed to get address from Ledger device'
-        }
-      )
+    const address = await this.#handleLedgerSubscription(
+      this.signerEth!.getAddress(getHdPathWithoutRoot(path), {
+        checkOnDevice: false,
+        returnChainCode: false
+      }).observable,
+      {
+        onCompleted: (output) => output.address,
+        errorMessage: 'Failed to get address from Ledger device'
+      }
+    )
 
-      // Save unlocked state
-      this.unlockedPath = path
-      this.unlockedPathKeyAddr = address
+    // Save unlocked state
+    this.unlockedPath = path
+    this.unlockedPathKeyAddr = address
 
-      return 'JUST_UNLOCKED' as const
-    })
+    return 'JUST_UNLOCKED' as const
   }
 
   retrieveAddresses = async (paths: string[]) => {
     await this.#initSDKSessionIfNeeded() // could happen if user retries
 
-    return this.withDisconnectProtection(async () => {
-      if (!this.walletSDK || !this.signerEth) {
-        throw new ExternalSignerError(normalizeLedgerMessage())
-      }
+    if (!this.walletSDK || !this.signerEth) {
+      throw new ExternalSignerError(normalizeLedgerMessage())
+    }
 
-      const keys: string[] = []
-      let latestGetAddressError: ExternalSignerError | undefined
+    const keys: string[] = []
+    let latestGetAddressError: ExternalSignerError | undefined
 
-      for (let i = 0; i < paths.length; i++) {
-        try {
-          // Purposely await in loop to avoid sending multiple requests at once.
-          // Send them 1 by 1, the Ledger device can't handle them in parallel,
-          // it throws a "device busy" error.
-          // eslint-disable-next-line no-await-in-loop
-          const key = await this.#handleLedgerSubscription(
-            this.signerEth!.getAddress(getHdPathWithoutRoot(paths[i]), {
-              checkOnDevice: false,
-              returnChainCode: false
-            }).observable,
-            {
-              onCompleted: (output) => output.address,
-              errorMessage: 'Failed to get address from Ledger device'
-            }
-          )
-
-          keys.push(key)
-        } catch (e: any) {
-          latestGetAddressError = e
-        }
-      }
-
-      // Corner-case: if user interacts with Ambire, then interacts with another
-      // wallet app (installed on the computer or a web app) and then comes back
-      // to Ambire, the Ledger device might not respond to all requests. Therefore
-      // we might receive only some of the keys, but not all of them.
-      // To reproduce: 1. Plug in and unlock Ledger, open Ambire, import accounts;
-      // 2. Now switch to Ledger Live and connect (My Ledger); 3. Switch back to
-      // Ambire and try importing accounts again.
-      const notAllKeysGotRetrieved = keys.length !== paths.length
-      if (notAllKeysGotRetrieved) {
-        throw (
-          latestGetAddressError ||
-          new ExternalSignerError('Failed to get all address from Ledger device.')
+    for (let i = 0; i < paths.length; i++) {
+      try {
+        // Purposely await in loop to avoid sending multiple requests at once.
+        // Send them 1 by 1, the Ledger device can't handle them in parallel,
+        // it throws a "device busy" error.
+        // eslint-disable-next-line no-await-in-loop
+        const key = await this.#handleLedgerSubscription(
+          this.signerEth!.getAddress(getHdPathWithoutRoot(paths[i]), {
+            checkOnDevice: false,
+            returnChainCode: false
+          }).observable,
+          {
+            onCompleted: (output) => output.address,
+            errorMessage: 'Failed to get address from Ledger device'
+          }
         )
-      }
 
-      return keys
-    })
+        keys.push(key)
+      } catch (e: any) {
+        latestGetAddressError = e
+      }
+    }
+
+    // Corner-case: if user interacts with Ambire, then interacts with another
+    // wallet app (installed on the computer or a web app) and then comes back
+    // to Ambire, the Ledger device might not respond to all requests. Therefore
+    // we might receive only some of the keys, but not all of them.
+    // To reproduce: 1. Plug in and unlock Ledger, open Ambire, import accounts;
+    // 2. Now switch to Ledger Live and connect (My Ledger); 3. Switch back to
+    // Ambire and try importing accounts again.
+    const notAllKeysGotRetrieved = keys.length !== paths.length
+    if (notAllKeysGotRetrieved) {
+      throw (
+        latestGetAddressError ||
+        new ExternalSignerError('Failed to get all address from Ledger device.')
+      )
+    }
+
+    return keys
   }
 
   async signPersonalMessage(derivationPath: string, messageHex: string) {
