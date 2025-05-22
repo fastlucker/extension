@@ -53,6 +53,18 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
   }
 }
 
+/**
+ * Opens a URL in a new browser tab, optionally in a specific window.
+ *
+ * @param {string} url - The full URL to open in a new tab. Required.
+ * @param {number} windowId - Optional ID of the browser window where the tab should be opened.
+ *                            Helps ensure the tab opens in the intended window (especially useful in multi-window
+ *                            scenarios e.g. opening a new tab from an action-window).
+ * @param {boolean} shouldCloseCurrentWindow - If true, closes the current window after opening the new tab.
+ *                                             Has no effect in Safari due to API limitations.
+ *
+ * @returns {Promise<Tabs.Tab>} - The newly opened or focused browser tab.
+ */
 export const openInTab = async ({
   url,
   windowId,
@@ -74,6 +86,20 @@ export const openInTab = async ({
 
 const routeableSearchParams = ['flow', 'goBack']
 
+/**
+ * Opens an internal route in a new tab, similar to react-router's `navigate` function.
+ *
+ * @param {string} route - The internal route to navigate to (e.g., WEB_ROUTES.someRouteName).
+ * @param {object} searchParams - Optional URL search parameters (e.g., { flow: 'onboarding' }).
+ *                                Only parameters listed in `routeableSearchParams` will be included.
+ * @param {number} windowId - Optional ID of the browser window where the tab should open.
+ *                            Recommended when the current context is an action window—
+ *                            use `createdFromWindowId` from actions controller to ensure
+ *                            the tab opens in the correct window (avoids opening in the action window itself).
+ * @param {boolean} shouldCloseCurrentWindow - If true, closes the current window after opening the new tab.
+ *
+ * @returns {void}
+ */
 const openInternalPageInTab = async ({
   route,
   searchParams = {},
