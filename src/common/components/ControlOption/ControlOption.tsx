@@ -43,8 +43,7 @@ const ControlOption: FC<Props> = ({
 
   const openReadMoreLink = () => {
     openInTab({
-      url: readMoreLink!,
-      shouldCloseCurrentWindow: false
+      url: readMoreLink!
     }).catch(() => addToast(t('Failed to open link')))
   }
 

@@ -136,7 +136,12 @@ const NavMenu = () => {
                 {isPopup && (
                   <>
                     <Pressable
-                      onPress={() => openInTab({ url: `tab.html#/${WEB_ROUTES.dashboard}` })}
+                      onPress={() =>
+                        openInTab({
+                          url: `tab.html#/${WEB_ROUTES.dashboard}`,
+                          shouldCloseCurrentWindow: true
+                        })
+                      }
                       {...bindMaximizeAnim}
                     >
                       <Animated.View style={maximizeAnimStyle}>

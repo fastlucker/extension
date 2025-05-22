@@ -24,6 +24,7 @@ const TabOnlyRoute = () => {
       openInternalPageInTab({
         route: `${path?.substring(1)}${search}`,
         searchParams: params,
+        shouldCloseCurrentWindow: true,
         windowId: state.actionWindow.windowProps?.createdFromWindowId
       })
     }

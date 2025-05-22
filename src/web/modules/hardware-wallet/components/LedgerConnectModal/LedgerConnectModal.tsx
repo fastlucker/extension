@@ -75,6 +75,7 @@ const LedgerConnectModal = ({
     () =>
       openInternalPageInTab({
         route: `${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`,
+        shouldCloseCurrentWindow: true,
         windowId: actionWindow.windowProps?.createdFromWindowId
       }),
     [currentAction?.id, actionWindow.windowProps?.createdFromWindowId]

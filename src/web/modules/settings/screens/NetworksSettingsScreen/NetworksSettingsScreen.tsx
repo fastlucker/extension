@@ -82,7 +82,7 @@ const NetworksSettingsScreen = () => {
   }, [])
 
   const navigateToChainlist = useCallback(async () => {
-    await openInTab({ url: 'https://chainlist.org/', shouldCloseCurrentWindow: false })
+    await openInTab({ url: 'https://chainlist.org/' })
   }, [])
 
   return (

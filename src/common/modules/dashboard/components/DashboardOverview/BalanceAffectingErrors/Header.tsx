@@ -13,11 +13,7 @@ const Header: FC = () => {
   const { t } = useTranslation()
 
   const openHelpCenter = useCallback(
-    () =>
-      openInTab({
-        url: 'https://help.ambire.com/hc/en-us/requests/new',
-        shouldCloseCurrentWindow: false
-      }),
+    () => openInTab({ url: 'https://help.ambire.com/hc/en-us/requests/new' }),
     []
   )
   return (

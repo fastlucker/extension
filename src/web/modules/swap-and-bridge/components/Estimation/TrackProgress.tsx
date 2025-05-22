@@ -73,7 +73,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
     try {
       if (!isSwap) {
         const link = `${LIFI_EXPLORER_URL}/tx/${lastCompletedRoute.userTxHash}`
-        await openInTab({ url: link, shouldCloseCurrentWindow: false })
+        await openInTab({ url: link })
         return
       }
       const toChainId = lastCompletedRoute.route?.toChainId
@@ -88,7 +88,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
         txnId: lastCompletedRoute.userTxHash,
         identifiedBy
       })}`
-      await openInTab({ url: link, shouldCloseCurrentWindow: false })
+      await openInTab({ url: link })
     } catch {
       addToast('Error opening explorer', { type: 'error' })
     }

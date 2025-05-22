@@ -72,7 +72,7 @@ const DeFiPositionHeader: FC<Props> = ({
 
   const openDAppUrl = useCallback(async () => {
     try {
-      await openInTab({ url: dappUrl!, shouldCloseCurrentWindow: false })
+      await openInTab({ url: dappUrl! })
     } catch (e) {
       console.error(e)
     }

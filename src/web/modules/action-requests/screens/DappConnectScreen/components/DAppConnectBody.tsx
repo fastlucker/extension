@@ -107,10 +107,7 @@ const DAppConnectBody: FC<{
                   style={{ lineHeight: 18 * responsiveSizeMultiplier }}
                   underline
                   onPress={() =>
-                    openInTab({
-                      url: 'https://help.ambire.com/hc/en-us/requests/new',
-                      shouldCloseCurrentWindow: false
-                    })
+                    openInTab({ url: 'https://help.ambire.com/hc/en-us/requests/new' })
                   }
                 >
                   let us know.

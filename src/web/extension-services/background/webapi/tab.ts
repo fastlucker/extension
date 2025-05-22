@@ -64,9 +64,8 @@ export const openInTab = async ({
 }): Promise<Tabs.Tab> => {
   if (!url) return
 
-  const closeWindow = shouldCloseCurrentWindow !== false
   const tab = await createTab(url, windowId)
-  if (closeWindow) {
+  if (shouldCloseCurrentWindow) {
     if (!isSafari()) await closeCurrentWindow()
   }
 
@@ -86,7 +85,6 @@ const openInternalPageInTab = async ({
   windowId?: number
   shouldCloseCurrentWindow?: boolean
 }) => {
-  const closeWindow = shouldCloseCurrentWindow !== false
   const searchToParams = searchParams
     ? `${Object.keys(searchParams)
         .map((key) =>
@@ -101,7 +99,7 @@ const openInternalPageInTab = async ({
       route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''
     }`,
     windowId,
-    shouldCloseCurrentWindow: closeWindow
+    shouldCloseCurrentWindow
   })
 }
 
