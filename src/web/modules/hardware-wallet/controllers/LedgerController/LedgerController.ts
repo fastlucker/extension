@@ -358,6 +358,7 @@ class LedgerController implements ExternalSignerController {
         keys.push(key)
       } catch (e: any) {
         latestGetAddressError = e
+        break
       }
     }
 
