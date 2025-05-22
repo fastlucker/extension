@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable, Subscription } from 'rxjs'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
@@ -100,13 +100,18 @@ class LedgerController implements ExternalSignerController {
 
     return new Promise((resolve, reject) => {
       // Start discovering - this will scan for any connected devices
-      const discoverySubscription = dmk.startDiscovering({}).subscribe({
+      let subscription: Subscription // so it is always defined inside the subscribe callback
+      // eslint-disable-next-line prefer-const
+      subscription = dmk.startDiscovering({}).subscribe({
         next: async (device) => {
-          discoverySubscription?.unsubscribe()
+          subscription.unsubscribe()
           dmk.close()
           resolve(device)
         },
-        error: (error) => reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        error: (error) => {
+          subscription.unsubscribe()
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
       })
     })
   }
@@ -208,16 +213,18 @@ class LedgerController implements ExternalSignerController {
 
   #findDevice = () =>
     new Promise<DiscoveredDevice>((resolve, reject) => {
-      const subscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
+      let subscription: Subscription // so it is always defined inside the subscribe callback
+      // eslint-disable-next-line prefer-const
+      subscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
         next: (devices) => {
           if (devices && devices.length) {
-            subscription?.unsubscribe()
+            subscription.unsubscribe()
             // TODO: Multiple devices found?
             resolve(devices[0])
           }
         },
         error: (error) => {
-          subscription?.unsubscribe()
+          subscription.unsubscribe()
           reject(new Error(error?.message))
         }
       })
@@ -236,7 +243,9 @@ class LedgerController implements ExternalSignerController {
     const { onCompleted, errorMessage } = options
 
     return new Promise<T>((resolve, reject) => {
-      const subscription = observable.subscribe({
+      let subscription: Subscription // so it is always defined inside the subscribe callback
+      // eslint-disable-next-line prefer-const
+      subscription = observable.subscribe({
         next: (response: any) => {
           // TODO: If we communicate this to the user in the UI better, we can
           // wait for the user to do all required interactions instead of rejecting.
@@ -247,7 +256,7 @@ class LedgerController implements ExternalSignerController {
             )
 
           if (missingRequiredUserInteraction) {
-            subscription?.unsubscribe()
+            subscription.unsubscribe()
             reject(
               new ExternalSignerError(
                 normalizeLedgerMessage(response.intermediateValue.requiredUserInteraction)
@@ -256,7 +265,7 @@ class LedgerController implements ExternalSignerController {
           }
 
           if (response.status === 'error') {
-            subscription?.unsubscribe()
+            subscription.unsubscribe()
             // @ts-ignore Ledger types not being resolved correctly in the SDK
             const deviceMessage = response.error?.message || 'no response from device'
             // @ts-ignore Ledger types not being resolved correctly in the SDK
@@ -268,7 +277,7 @@ class LedgerController implements ExternalSignerController {
 
           if (response.status !== 'completed') return
 
-          subscription?.unsubscribe()
+          subscription.unsubscribe()
           if (response?.output) {
             resolve(onCompleted(response.output))
           } else {
@@ -276,7 +285,7 @@ class LedgerController implements ExternalSignerController {
           }
         },
         error: (error: any) => {
-          subscription?.unsubscribe()
+          subscription.unsubscribe()
           reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
         }
       })
