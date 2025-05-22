@@ -3,6 +3,16 @@
 import { browser, isSafari } from '@web/constants/browserapi'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 
+/**
+ * Creates a new browser tab, optionally in a specific window.
+ *
+ * @param {string} url - The full URL to create the new tab with. Required.
+ * @param {number} windowId - Optional ID of the browser window where the tab should be created.
+ *                            It also helps to identify if there is an Ambire tab already opened in the desired window.
+ *                            If the windowId prop is omitted the tab will be created in the first found window that is not of a `popup` type
+ *
+ * @returns {Promise<Tabs.Tab>} - The newly opened or focused browser tab.
+ */
 const createTab = async (url: string, windowId?: number): Promise<number | undefined> => {
   const extensionId = browser?.runtime?.id
   if (url.startsWith('http') && !url.includes(extensionId)) {
