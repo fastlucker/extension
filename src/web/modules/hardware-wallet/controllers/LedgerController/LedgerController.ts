@@ -421,6 +421,7 @@ class LedgerController implements ExternalSignerController {
     if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
     // TODO: Slight mismatch between TypedMessage type and Ledger's TypedDataDomain
+    // for the empty values (string | null | undefined vs string | undefined)
     const ledgerDomain = { ...domain } as TypedDataDomain
 
     return this.#handleLedgerSubscription<LedgerSignature>(
