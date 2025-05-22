@@ -61,6 +61,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const getLegends = useCallback(async () => {
     setError(null)
+    setIsLoading(true)
     try {
       const rawCards = await fetch(
         `${RELAYER_URL}/legends/cards${!noConnectionAcc ? `?identity=${connectedAccount}` : ''}`
