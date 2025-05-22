@@ -95,7 +95,8 @@ const routeableSearchParams = ['flow', 'goBack']
  * @param {number} windowId - Optional ID of the browser window where the tab should open.
  *                            Recommended when the current context is an action window—
  *                            use `createdFromWindowId` from actions controller to ensure
- *                            the tab opens in the correct window (avoids opening in the action window itself).
+ *                            the tab opens in the correct window (avoids opening in the action window itself or searching
+ *                            for existing Ambire tabs in the wrong window).
  * @param {boolean} shouldCloseCurrentWindow - If true, closes the current window after opening the new tab.
  *
  * @returns {void}
