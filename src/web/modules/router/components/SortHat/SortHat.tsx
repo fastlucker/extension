@@ -74,7 +74,7 @@ const SortHat = () => {
       // TODO: This navigation occurs when signing with Trezor.
       // Currently, Gas Top-Ups are not supported by Trezor.
       // Once support is added, we need to introduce a new actionType specifically for Top-Up.
-      if (actionType === 'transferAndTopUp') return navigate(ROUTES.transfer)
+      if (actionType === 'transfer') return navigate(ROUTES.transfer)
 
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
