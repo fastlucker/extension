@@ -88,10 +88,6 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     })
   }, [getLegends])
 
-  useEffect(() => {
-    setIsLoading(true)
-  }, [connectedAccount])
-
   const onLegendComplete = useCallback(async () => {
     const [activityResult, legendsResult, characterResult, leaderboardResult] =
       await Promise.allSettled([getActivity(), getLegends(), getCharacter(), updateLeaderboard()])
