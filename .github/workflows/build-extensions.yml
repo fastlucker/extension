@@ -45,6 +45,18 @@ jobs:
         run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Create .env file
+        run: |
+          echo "RELAYER_URL=\"${{ vars.RELAYER_URL }}\"" >> .env
+          echo "VELCRO_URL=\"${{ vars.VELCRO_URL }}\"" >> .env
+          echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
+          echo "REACT_APP_PIMLICO_API_KEY=\"${{ vars.REACT_APP_PIMLICO_API_KEY }}\"" >> .env
+          echo "REACT_APP_JIFFYSCAN_API_KEY=\"${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}\"" >> .env
+          echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
+          echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
+          echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
+        shell: bash
+
       - name: Create Dockerfile
         run: |
           cat > Dockerfile << 'EOF'
@@ -74,18 +86,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker buildx build --platform linux/arm64 -t ambire-extensions-builder .
-        shell: bash
-
-      - name: Create .env file
-        run: |
-          echo "RELAYER_URL=\"${{ vars.RELAYER_URL }}\"" >> .env
-          echo "VELCRO_URL=\"${{ vars.VELCRO_URL }}\"" >> .env
-          echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
-          echo "REACT_APP_PIMLICO_API_KEY=\"${{ vars.REACT_APP_PIMLICO_API_KEY }}\"" >> .env
-          echo "REACT_APP_JIFFYSCAN_API_KEY=\"${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}\"" >> .env
-          echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
-          echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
-          echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
         shell: bash
 
       - name: Run build in container
