@@ -37,7 +37,7 @@ jobs:
       BA_SELECTED_ACCOUNT: ${{ vars.BA_SELECTED_ACCOUNT }}
       BA_TERMSTATE: ${{ vars.BA_TERMSTATE }}
       SA_ACCOUNTS: ${{ vars.SA_ACCOUNTS }}
-      SA_ACCOUNT_JSON: ${{ vars.SA_ACCOUNT_JSON }}
+      SA_ACCOUNT_JSON: ${{ secrets.SA_ACCOUNT_JSON }}
       SA_IS_ONBOARDED: ${{ vars.SA_IS_ONBOARDED }}
       SA_KEYSTORE_UID: ${{ vars.SA_KEYSTORE_UID }}
       SA_KEYS: ${{ vars.SA_KEYS }}

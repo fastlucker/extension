@@ -41,5 +41,6 @@ export const locators = {
   fullAmountDashboard: 'div[data-testid="full-balance"]',
   showMoreButton: 'div[data-testid="show-more-btn"]',
   importJSONBackupFileButton: 'div[data-testid="import-method-json-backup-file"]',
-  uploadJSONButton: 'span:has-text("upload")'
+  uploadJSONButton: 'span:has-text("upload")',
+  popUpMessageRecoveryPhrase: 'div[data-testid="success-1"]'
 }

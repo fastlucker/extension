@@ -28,9 +28,21 @@ export class AuthPage extends BasePage {
   }
 
   async verifyRecoveryPhraseScreen(): Promise<void> {
+    const locator = this.page.getByTestId('info-0').locator('div').nth(3);
+
+    if (
+      await this.page
+        .getByText('Page was restarted because')
+        .isVisible()
+        .catch(() => false)
+    ) {
+      await locator.waitFor({ state: 'visible' })
+      await locator.click()
+    }
     await this.page.locator(locators.recoveryPhraseHeader).isVisible()
     await this.page.locator(locators.copyRecoveryPhraseButton).click()
     await this.page.getByText('Recovery phrase copied to').isVisible()
+    await this.page.getByText('Recovery phrase copied to').waitFor({ state: 'detached' })
     await this.page.locator(locators.savedPhraseButton).click()
   }
 
@@ -163,7 +175,6 @@ export class AuthPage extends BasePage {
       mimeType: 'application/json',
       buffer: jsonBuffer
     })
-    await this.page.pause()
     await this.setExtensionPassword()
     await this.page.locator(locators.completeButton).click()
     await this.page.locator(locators.confirmationMessageAmbireWallet).isVisible()
