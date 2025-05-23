@@ -13,8 +13,6 @@ import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Modals from '@web/modules/sign-account-op/components/Modals/Modals'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
@@ -48,7 +46,6 @@ const OneClickEstimation = ({
 }: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
 
   const signingErrors = useMemo(() => {
     const signAccountOpErrors = signAccountOpController ? signAccountOpController.errors : []
@@ -173,6 +170,7 @@ const OneClickEstimation = ({
             ? 'warnings'
             : undefined
         }
+        actionType={updateType === 'Swap&Bridge' ? 'swapAndBridge' : 'transfer'}
       />
     </>
   )
