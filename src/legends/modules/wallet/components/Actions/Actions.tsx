@@ -4,7 +4,7 @@ import 'swiper/css/virtual'
 import 'swiper/css/effect-coverflow'
 import 'swiper/css/free-mode'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { FreeMode, Mousewheel, Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
@@ -31,16 +31,6 @@ const Actions = () => {
   const { legends, isLoading, error } = useLegendsContext()
   const sliderRef = useRef(null)
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (sliderRef.current?.swiper) {
-        sliderRef.current.swiper.update()
-      }
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
   const sortedLegends = React.useMemo(() => {
     if (!legends) return []
 
