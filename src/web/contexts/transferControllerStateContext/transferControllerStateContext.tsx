@@ -5,7 +5,6 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { sortPortfolioTokenList } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import Spinner from '@common/components/Spinner'
-import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -53,12 +52,9 @@ const TransferControllerStateProvider = ({
   const memoizedState = useDeepMemo(state, controller)
 
   const { networks } = useNetworksControllerState()
-  const { search } = useRoute()
-
   const { portfolio } = useSelectedAccountControllerState()
-  const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
 
-  const tokens = useMemo(
+  const rawTokens = useMemo(
     () =>
       sortPortfolioTokenList(
         portfolio?.tokens.filter((token) => {
@@ -81,65 +77,29 @@ const TransferControllerStateProvider = ({
     [portfolio?.tokens, networks, isTopUp]
   )
 
-  useEffect(() => {
-    if (!memoizedState.isInitialized || !memoizedState.selectedToken?.address) return
+  // This ensures that `tokens` won't trigger re-renders unless its deep content changes
+  const tokens = useDeepMemo(rawTokens, 'tokens')
 
-    // If a token is already selected, we should retrieve its latest value from tokens.
-    // This is important because the token amount is likely to change,
-    // especially when initiating a transfer or adding a new one to the queue.
-    // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
-    const selectedToken = tokens.find(
+  const updatedSelectedToken = useMemo(() => {
+    return tokens.find(
       (token) =>
         token.address === memoizedState.selectedToken?.address &&
         token.chainId === memoizedState.selectedToken?.chainId
     )
+  }, [tokens, memoizedState.selectedToken?.address, memoizedState.selectedToken?.chainId])
 
-    dispatch({
-      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-      params: { formValues: { selectedToken } }
-    })
-  }, [tokens, memoizedState?.isInitialized, memoizedState?.selectedToken?.address, dispatch])
-
-  // If the user sends the max amount of a token it will disappear from the list of tokens
-  // and we need to select another token
+  // If a token is already selected, we should retrieve its latest value from tokens.
+  // This is important because the token amount is likely to change,
+  // especially when initiating a transfer or adding a new one to the queue.
+  // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
   useEffect(() => {
-    if (
-      !memoizedState.isInitialized ||
-      !memoizedState.selectedToken?.address ||
-      !memoizedState ||
-      !portfolio?.latest ||
-      !portfolio?.pending
-    )
-      return
-    const isSelectedTokenNetworkLoading =
-      portfolio.pending[memoizedState.selectedToken.chainId.toString()]?.isLoading ||
-      portfolio.latest[memoizedState.selectedToken.chainId.toString()]?.isLoading
-
-    if (isSelectedTokenNetworkLoading) return
-
-    const isSelectedTokenInTokens = tokens.find(
-      (token) =>
-        token.address === memoizedState.selectedToken?.address &&
-        token.chainId === memoizedState.selectedToken?.chainId &&
-        token.flags.rewardsType === memoizedState.selectedToken?.flags.rewardsType
-    )
-
-    if (isSelectedTokenInTokens) return
+    if (!memoizedState.isInitialized || !updatedSelectedToken) return
 
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-      params: { formValues: { selectedToken: tokens[0] } }
+      params: { formValues: { selectedToken: updatedSelectedToken } }
     })
-  }, [
-    portfolio?.latest,
-    portfolio?.pending,
-    memoizedState?.isInitialized,
-    memoizedState.selectedToken?.address,
-    memoizedState.selectedToken?.flags.rewardsType,
-    memoizedState.selectedToken?.chainId,
-    tokens,
-    dispatch
-  ])
+  }, [memoizedState.isInitialized, updatedSelectedToken, dispatch])
 
   return (
     <TransferControllerStateContext.Provider
