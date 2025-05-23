@@ -86,11 +86,16 @@ const AccountPersonalizeScreen = () => {
       // this covers the case when the screen is opened via the browser navigation instead of the internal
       // navigation. After 1.1 sec the loading state will be set to false and the hook below will be triggered
       // that will navigate the user to the dashboard screen because there will be no accounts to personalize
-      if (!accountPickerState.isInitialized && accountsState.statuses.addAccounts === 'INITIAL') {
+      if (
+        !accountPickerState.initParams &&
+        !accountPickerState.isInitialized &&
+        accountsState.statuses.addAccounts === 'INITIAL'
+      ) {
         setIsLoading(false)
       }
     })()
   }, [
+    accountPickerState.initParams,
     accountPickerState.isInitialized,
     accountPickerState.readyToRemoveAccounts.length,
     accountPickerState.selectNextAccountStatus,
@@ -100,25 +105,31 @@ const AccountPersonalizeScreen = () => {
     accountsState.statuses.addAccounts
   ])
 
-  // navigate to "/" if there are no accounts to personalize
-  useEffect(() => {
-    if (!accountsToPersonalize.length && !isLoading) goToNextRoute()
-  }, [goToNextRoute, accountPickerState.isInitialized, accountsToPersonalize.length, isLoading])
-
   // the hook sets the accountsToPersonalize
   useEffect(() => {
+    if (isLoading) return
+
+    let state: Account[] = []
     if (accountPickerState.isInitialized) {
-      setAccountsToPersonalize(accountPickerState.addedAccountsFromCurrentSession)
+      state = accountPickerState.addedAccountsFromCurrentSession
     }
 
     if (!accountPickerState.isInitialized && newlyAddedAccounts.length) {
-      setAccountsToPersonalize(newlyAddedAccounts)
+      state = newlyAddedAccounts
+    }
+
+    if (state.length) {
+      setAccountsToPersonalize(state)
+    } else {
+      goToNextRoute()
     }
   }, [
+    isLoading,
     accountPickerState.isInitialized,
     accountPickerState.addedAccountsFromCurrentSession,
     newlyAddedAccounts,
-    accountsState.statuses.addAccounts
+    accountsState.statuses.addAccounts,
+    goToNextRoute
   ])
 
   // prevents showing accounts to personalize from prev sessions

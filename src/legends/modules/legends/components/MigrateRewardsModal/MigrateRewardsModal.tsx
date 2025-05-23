@@ -55,12 +55,12 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   const [walletBalance, setWalletBalance] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-
+  const [isSigning, setIsSigning] = useState(false)
   const closeModal = async () => {
     handleClose()
   }
 
-  useEffect(() => {
+  const getWalletBalance = useCallback(async () => {
     if (!connectedAccount) return
     const ethereumProvider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
     const walletContract = new Contract(X_WALLET_TOKEN, walletIface, ethereumProvider)
@@ -72,7 +72,12 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
         addToast('Failed to get $WALLET token balance', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
-  }, [connectedAccount, addToast, switchNetwork])
+  }, [connectedAccount, addToast])
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    getWalletBalance()
+  }, [getWalletBalance])
 
   // Close Modal on ESC
   useEscModal(isOpen, closeModal)
@@ -89,22 +94,28 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
         return { to, value, data }
       })
 
+      setIsSigning(true)
+
       const sendCallsIdentifier = await sendCalls(
         chainId,
         await signer.getAddress(),
         formattedCalls,
         false
       )
-      const receipt = await getCallsStatus(sendCallsIdentifier)
 
+      const receipt = await getCallsStatus(sendCallsIdentifier)
       if (receipt.transactionHash) {
         addToast('Transaction completed successfully', { type: 'success' })
+        setIsSigning(false)
+        getWalletBalance()
+        onLegendComplete()
+        handleClose()
       }
-      onLegendComplete()
-      handleClose()
     } catch (e: any) {
       const message = humanizeError(e, ERROR_MESSAGES.transactionProcessingFailed)
       console.error(e)
+      setIsSigning(false)
+
       addToast(message, { type: 'error' })
     }
   }, [
@@ -113,6 +124,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
     getCallsStatus,
     onLegendComplete,
     sendCalls,
+    getWalletBalance,
     chainId,
     handleClose,
     addToast
@@ -161,6 +173,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
             onButtonClick={onButtonClick}
             buttonText="Migrate xWALLET"
             className={styles.button}
+            disabled={disabledButton || isSigning || isLoading}
           />
         </div>
       </div>

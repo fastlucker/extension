@@ -126,7 +126,7 @@ const DashboardScreen = () => {
             setDashboardOverviewSize={setDashboardOverviewSize}
             onGasTankButtonPosition={handleGasTankButtonPosition}
           />
-          <DashboardPages onScroll={onScroll} />
+          <DashboardPages onScroll={onScroll} animatedOverviewHeight={animatedOverviewHeight} />
         </View>
         <DAppFooter />
       </View>

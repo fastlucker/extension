@@ -205,7 +205,12 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
       return await mainCtrl.buildMintVestingUserRequest(params.token)
     case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-      return await mainCtrl.addUserRequest(params)
+      return await mainCtrl.addUserRequest(
+        params.userRequest,
+        params.actionPosition,
+        params.actionExecutionType,
+        params.allowAccountSwitch
+      )
     case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
       return mainCtrl.removeUserRequest(params.id)
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':

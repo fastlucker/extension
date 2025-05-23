@@ -16,7 +16,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
-import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
+import Modals from '@web/modules/sign-account-op/components/Modals/Modals'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import { getUiType } from '@web/utils/uiType'
 import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
@@ -68,13 +68,18 @@ const OneClickEstimation = ({
     renderedButNotNecessarilyVisibleModal,
     handleChangeSigningKey,
     onSignButtonClick,
-    isSignDisabled
+    isSignDisabled,
+    warningToPromptBeforeSign,
+    warningModalRef,
+    dismissWarning,
+    acknowledgeWarning,
+    slowPaymasterRequest
   } = useSign({
     signAccountOpState: signAccountOpController,
     handleBroadcast: handleBroadcastAccountOp,
     handleUpdate: updateController,
     handleUpdateStatus,
-    isOneClickSwap: true
+    isOneClickSign: true
   })
 
   return (
@@ -137,7 +142,7 @@ const OneClickEstimation = ({
                 style={{ width: 98 }}
               />
               <Button
-                text={t('Sign')}
+                text={isSignLoading ? t('Signing...') : t('Sign')}
                 hasBottomSpacing={false}
                 disabled={isSignDisabled || signingErrors.length > 0}
                 onPress={onSignButtonClick}
@@ -147,26 +152,28 @@ const OneClickEstimation = ({
           </View>
         )}
       </BottomSheet>
-      {renderedButNotNecessarilyVisibleModal === 'hw-sign' && signAccountOpController && (
-        <SignAccountOpHardwareWalletSigningModal
-          signingKeyType={signingKeyType}
-          feePayerKeyType={feePayerKeyType}
-          signAndBroadcastAccountOpStatus={mainCtrlStatuses.signAndBroadcastAccountOp}
-          signAccountOpStatusType={signAccountOpController.status?.type}
-          shouldSignAuth={signAccountOpController.shouldSignAuth}
-          signedTransactionsCount={signAccountOpController.signedTransactionsCount}
-          accountOp={signAccountOpController.accountOp}
-          actionType={updateType === 'Swap&Bridge' ? 'swapAndBridge' : 'transfer'}
-        />
-      )}
-
-      {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
-        <LedgerConnectModal
-          isVisible={shouldDisplayLedgerConnectModal}
-          handleClose={handleDismissLedgerConnectModal}
-          displayOptionToAuthorize={false}
-        />
-      )}
+      <Modals
+        renderedButNotNecessarilyVisibleModal={renderedButNotNecessarilyVisibleModal}
+        signAccountOpState={signAccountOpController}
+        warningModalRef={warningModalRef}
+        feePayerKeyType={feePayerKeyType}
+        signingKeyType={signingKeyType}
+        slowPaymasterRequest={slowPaymasterRequest}
+        shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+        handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+        warningToPromptBeforeSign={warningToPromptBeforeSign}
+        acknowledgeWarning={acknowledgeWarning}
+        dismissWarning={dismissWarning}
+        autoOpen={
+          // Display the warning automatically if the user closed
+          // the extension popup while the warning modal was open.
+          warningToPromptBeforeSign &&
+          renderedButNotNecessarilyVisibleModal === 'warnings' &&
+          isSignLoading
+            ? 'warnings'
+            : undefined
+        }
+      />
     </>
   )
 }
