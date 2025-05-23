@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { STK_WALLET, WALLET_TOKEN } from '@ambire-common/consts/addresses'
+import Tooltip from '@common/components/Tooltip'
 import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import CloseIcon from '@legends/components/CloseIcon'
@@ -223,9 +224,25 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
               className={`${styles.tab} ${activeTab === 'unstake' ? styles.activeTab : ''}`}
               onClick={() => setActiveTab('unstake')}
               disabled
+              data-tooltip-id="unstake"
             >
               Unstake
             </button>
+            <Tooltip
+              style={{
+                backgroundColor: '#101114',
+                color: '#F4F4F7',
+                fontFamily: 'FunnelDisplay',
+                fontSize: 11,
+                lineHeight: '16px',
+                fontWeight: 300,
+                maxWidth: 244,
+                boxShadow: '0px 0px 12.1px 0px #191B20'
+              }}
+              place="bottom"
+              id="unstake"
+              content="Soon"
+            />
           </div>
           <div className={styles.infoWrapper}>
             <div className={styles.infoRow}>
