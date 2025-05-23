@@ -28,8 +28,7 @@ export class AuthPage extends BasePage {
   }
 
   async verifyRecoveryPhraseScreen(): Promise<void> {
-    const locator = this.page.getByTestId('info-0').locator('div').nth(3);
-
+    const locator = this.page.getByTestId('info-0').locator('div').nth(3)
     if (
       await this.page
         .getByText('Page was restarted because')

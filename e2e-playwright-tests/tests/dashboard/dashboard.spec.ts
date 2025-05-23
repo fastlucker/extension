@@ -9,4 +9,8 @@ test.describe('dashboard', () => {
   test('should have balance on the dashboard', async ({ dashboardPage }) => {
     await dashboardPage.checkBalanceInAccount()
   })
+
+  test('should test if expected tokens are visible on the dashboard', async ({ dashboardPage }) => {
+    await dashboardPage.checkIfTokensExist()
+  })
 })

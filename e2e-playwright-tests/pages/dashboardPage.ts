@@ -17,4 +17,13 @@ export class DashboardPage extends BasePage {
     const amountNumber = parseFloat(amountText.replace(/[^\d.]/g, ''))
     expect(amountNumber).toBeGreaterThan(0)
   }
+
+  async checkIfTokensExist(): Promise<void> {
+    const TOKEN_SYMBOLS = ['BTC', 'ETH', 'USDT']
+    await this.page.waitForFunction(() => window.location.href.includes('/dashboard'))
+    await this.page.waitForSelector(locators.fullAmountDashboard)
+    const innerTextOfTheWholePage = await this.page.innerText('body')
+    const foundToken = TOKEN_SYMBOLS.find((token) => innerTextOfTheWholePage.includes(token))
+    expect(foundToken).toBeTruthy()
+  }
 }
