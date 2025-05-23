@@ -94,32 +94,16 @@ const TransferControllerStateProvider = ({
         token.chainId === memoizedState.selectedToken?.chainId
     )
 
-    // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
-    // In that case we do not update the selected token
-    if (selectedToken) {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: { formValues: { selectedToken } }
-      })
-    }
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: { formValues: { selectedToken } }
+    })
   }, [
-    selectedTokenFromUrl?.addr,
-    selectedTokenFromUrl?.chainId,
     tokens,
     memoizedState?.isInitialized,
     memoizedState?.selectedToken?.address,
     dispatch
   ])
-
-  useEffect(() => {
-    return
-    if (!memoizedState?.isInitialized) return
-
-    dispatch({
-      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-      params: { formValues: { isTopUp } }
-    })
-  }, [isTopUp, memoizedState?.isInitialized, dispatch])
 
   // If the user sends the max amount of a token it will disappear from the list of tokens
   // and we need to select another token
