@@ -567,6 +567,11 @@ export const handleActions = async (
       break
     }
 
+    case 'SET_THEME_TYPE': {
+      walletStateCtrl.setThemeType(params.themeType)
+      break
+    }
+
     default:
       // eslint-disable-next-line no-console
       return console.error(

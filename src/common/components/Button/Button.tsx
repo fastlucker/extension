@@ -88,14 +88,20 @@ const Button = ({
       secondary: [
         {
           property: 'backgroundColor',
-          from: `${String(theme.infoBackground)}00`,
+          from:
+            String(theme.infoBackground).length <= 7
+              ? `${String(theme.infoBackground)}00`
+              : theme.infoBackground,
           to: theme.infoBackground
         }
       ],
       danger: [
         {
           property: 'backgroundColor',
-          from: `${String(theme.errorBackground)}00`,
+          from:
+            String(theme.errorBackground).length <= 7
+              ? `${String(theme.errorBackground)}00`
+              : theme.errorBackground,
           to: theme.errorBackground
         }
       ],

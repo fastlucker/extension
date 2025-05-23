@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { DEFAULT_THEME, ThemeType } from '@common/styles/themeConfig'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
@@ -11,6 +12,8 @@ export class WalletStateController extends EventEmitter {
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
   #isSetupComplete: boolean = false
+
+  themeType: ThemeType = DEFAULT_THEME
 
   get isPinned() {
     return this.#isPinned
@@ -48,6 +51,7 @@ export class WalletStateController extends EventEmitter {
     this.#initCheckIsPinned()
 
     this.#isSetupComplete = await storage.get('isSetupComplete', false)
+    this.themeType = await storage.get('themeType', DEFAULT_THEME)
 
     this.isReady = true
     this.emitUpdate()
@@ -60,6 +64,12 @@ export class WalletStateController extends EventEmitter {
     const userSettings = await browser.action.getUserSettings()
     if (userSettings.isOnToolbar) this.isPinned = true
     this.#isPinnedInterval = setTimeout(this.#initCheckIsPinned.bind(this), 500)
+  }
+
+  setThemeType(type: ThemeType) {
+    this.themeType = type
+
+    this.emitUpdate()
   }
 
   toJSON() {

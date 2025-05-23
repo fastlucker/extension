@@ -6,9 +6,12 @@ import colors from './colors'
 export enum THEME_TYPES {
   LIGHT = 'light',
   DARK = 'dark',
-  // When the theme type is set to auto by the user, the app will get the system theme
-  AUTO = 'auto'
+  SYSTEM = 'system'
 }
+
+export type ThemeType = THEME_TYPES.LIGHT | THEME_TYPES.DARK | THEME_TYPES.SYSTEM
+
+export const DEFAULT_THEME = THEME_TYPES.DARK
 
 export type ThemeProps = {
   [key in keyof typeof ThemeColors]: ColorValue
@@ -16,19 +19,19 @@ export type ThemeProps = {
 
 const ThemeColors = {
   primary: {
-    [THEME_TYPES.DARK]: '#6000FF',
+    [THEME_TYPES.DARK]: '#39F7EF',
     [THEME_TYPES.LIGHT]: '#6000FF'
   },
   primaryLight: {
-    [THEME_TYPES.DARK]: '#8B3DFF',
+    [THEME_TYPES.DARK]: '#6C38F7',
     [THEME_TYPES.LIGHT]: '#8B3DFF'
   },
   primaryText: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFFFFF',
     [THEME_TYPES.LIGHT]: '#141833'
   },
   secondaryText: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFFFFF99',
     [THEME_TYPES.LIGHT]: '#54597A'
   },
   tertiaryText: {
@@ -36,27 +39,27 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
   primaryBorder: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
   secondaryBorder: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFFFFF52',
     [THEME_TYPES.LIGHT]: '#CACDE6'
   },
   primaryBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#0D0D0F',
     [THEME_TYPES.LIGHT]: '#FFFFFF'
   },
   secondaryBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#F2F3FA'
   },
   tertiaryBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#202022',
     [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
   quaternaryBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFFFFF14',
     [THEME_TYPES.LIGHT]: '#767DAD14'
   },
   quaternaryBackgroundSolid: {
@@ -68,76 +71,76 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#F7F8FC'
   },
   backdrop: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#54597ACC',
     [THEME_TYPES.LIGHT]: '#54597ACC'
   },
   // Success
   successText: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70FF8E',
     [THEME_TYPES.LIGHT]: '#006D3F'
   },
   successDecorative: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70FF8D',
     [THEME_TYPES.LIGHT]: '#018649'
   },
   successBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70FF8D1F',
     [THEME_TYPES.LIGHT]: '#EBF5F0'
   },
   // Info
   infoText: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70B4FF',
     [THEME_TYPES.LIGHT]: '#35058E'
   },
   infoDecorative: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70B4FF',
     [THEME_TYPES.LIGHT]: '#8B3DFF'
   },
   infoBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70B4FF1F',
     [THEME_TYPES.LIGHT]: '#F6F0FF'
   },
   // Info 2
   info2Text: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70B4FF',
     [THEME_TYPES.LIGHT]: '#0750A1'
   },
   info2Decorative: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70B4FF',
     [THEME_TYPES.LIGHT]: '#0079FF'
   },
   info2Background: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#70B4FF1F',
     [THEME_TYPES.LIGHT]: '#0079FF14'
   },
   // Warning
   warningText: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFD970',
     [THEME_TYPES.LIGHT]: '#944901'
   },
   warningDecorative: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFD970',
     [THEME_TYPES.LIGHT]: '#CA7E04'
   },
   warningDecorative2: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFD970',
     [THEME_TYPES.LIGHT]: '#FBBA27'
   },
   warningBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFD9701F',
     [THEME_TYPES.LIGHT]: '#FBF5EB'
   },
   // Error
   errorText: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FF7089',
     [THEME_TYPES.LIGHT]: '#A10119'
   },
   errorDecorative: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FF7089',
     [THEME_TYPES.LIGHT]: '#EA0129'
   },
   errorBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FF70891F',
     [THEME_TYPES.LIGHT]: '#FEEBEE'
   },
   featureDecorative: {
@@ -162,9 +165,5 @@ export const iconColors = {
   success: '#006D3F',
   primary2: '#6000FF'
 }
-
-export const lightOnlyRoutesOnMobile = []
-
-export const lightOnlyRoutesOnWeb = []
 
 export default ThemeColors
