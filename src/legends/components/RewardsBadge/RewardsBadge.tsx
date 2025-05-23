@@ -29,11 +29,9 @@ const RewardsBadge: React.FC = () => {
   const openClaimModal = () => setIsOpen(true)
   const closeClaimModal = () => setIsOpen(false)
 
-  const rewardsDisabledState =
-    (claimWalletCard &&
-      claimWalletCard.meta &&
-      Number(claimWalletCard?.meta?.availableToClaim) === 0) ||
-    true
+  const isRewardsLoading =
+    isLoadingClaimableRewards || isLoading || !accountPortfolio || !accountPortfolio?.isReady
+
   const { amountFormatted } = accountPortfolio || {}
   const isNotAvailableForRewards =
     ((accountPortfolio || accountPortfolio?.isReady) &&
@@ -41,7 +39,18 @@ const RewardsBadge: React.FC = () => {
       Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500) ||
     (userLeaderboardData?.level ?? 0) <= 2
 
-  const isDataReady = !isLoading && !isLoadingClaimableRewards
+  const rewardsDisabledState =
+    (claimWalletCard && !claimWalletCard.meta?.availableToClaim) ||
+    (claimWalletCard &&
+      claimWalletCard.meta &&
+      Number(claimWalletCard?.meta?.availableToClaim) === 0)
+
+  const shouldShowIcon = rewardsDisabledState || isRewardsLoading || claimableRewardsError
+  const hasNoRewardsAvailable =
+    !claimWalletCard?.meta?.availableToClaim ||
+    Number(claimWalletCard?.meta?.availableToClaim) === 0
+  const isEligible = !isNotAvailableForRewards
+  const shouldShowHourglass = !isRewardsLoading && hasNoRewardsAvailable && isEligible
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const card = cardRef.current
@@ -108,53 +117,62 @@ const RewardsBadge: React.FC = () => {
             <img
               src={rewardsCoverImg}
               className={`${styles.rewardsCoverImg} ${
-                (rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
-                styles.rewardsCoverImgDisabled
+                shouldShowIcon && styles.rewardsCoverImgDisabled
               }`}
               alt="rewards-cover"
             />
-            {(rewardsDisabledState || isLoadingClaimableRewards || claimableRewardsError) &&
-              (Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
-              !isNotAvailableForRewards ? (
+            {shouldShowIcon &&
+              (shouldShowHourglass ? (
                 <HourGlassIcon className={styles.lockIcon} width={29} height={37} />
               ) : (
                 <LockIcon className={styles.lockIcon} width={29} height={37} />
               ))}
           </div>
           <div className={styles.rewardsInfo}>
-            {isLoadingClaimableRewards ||
-            isLoading ||
-            !accountPortfolio ||
-            !accountPortfolio?.isReady ? (
-              <p>Loading rewards...</p>
-            ) : claimableRewardsError ? (
-              <p>Error loading rewards</p>
-            ) : rewardsDisabledState ? (
-              <p className={styles.rewardsTitle}>
-                {((claimWalletCard.meta && Number(claimWalletCard?.meta?.availableToClaim) === 0) ||
-                  true) &&
-                !isNotAvailableForRewards ? (
-                  "You haven't accumulated $WALLET rewards yet."
-                ) : (
-                  <>
+            {(() => {
+              // Loading state
+              if (isRewardsLoading) {
+                return <p>Loading rewards...</p>
+              }
+
+              // Error state
+              if (claimableRewardsError) {
+                return <p>Error loading rewards</p>
+              }
+
+              // Disabled state
+              if (rewardsDisabledState) {
+                if (shouldShowHourglass) {
+                  return (
+                    <p className={styles.rewardsTitle}>
+                      You haven&apos;t accumulated $WALLET rewards yet.
+                    </p>
+                  )
+                }
+
+                return (
+                  <p className={styles.rewardsTitle}>
                     You need to reach Level 3 and keep a minimum balance of
                     <br />
                     $500 on the supported networks to start accruing rewards.
-                  </>
-                )}
-              </p>
-            ) : (
-              <>
-                <p className={styles.rewardsTitle}>$WALLET Rewards</p>
-                <p className={styles.rewardsAmount}>
-                  {claimWalletCard?.meta && claimWalletCard?.meta?.availableToClaim
-                    ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
-                        .toLocaleString('en-US', { useGrouping: true })
-                        .replace(/,/g, ' ')
-                    : '0'}
-                </p>
-              </>
-            )}
+                  </p>
+                )
+              }
+
+              // Active state with rewards
+              return (
+                <>
+                  <p className={styles.rewardsTitle}>$WALLET Rewards</p>
+                  <p className={styles.rewardsAmount}>
+                    {claimWalletCard?.meta?.availableToClaim
+                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
+                          .toLocaleString('en-US', { useGrouping: true })
+                          .replace(/,/g, ' ')
+                      : '0'}
+                  </p>
+                </>
+              )
+            })()}
           </div>
         </div>
       </div>
