@@ -41,6 +41,8 @@ const RewardsBadge: React.FC = () => {
       Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500) ||
     (userLeaderboardData?.level ?? 0) <= 2
 
+  const isDataReady = !isLoading && !isLoadingClaimableRewards
+
   const handleMouseMove = (e: React.MouseEvent) => {
     const card = cardRef.current
     if (!card) return
@@ -145,7 +147,7 @@ const RewardsBadge: React.FC = () => {
               <>
                 <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                 <p className={styles.rewardsAmount}>
-                  {claimWalletCard?.meta?.availableToClaim
+                  {claimWalletCard?.meta && claimWalletCard?.meta?.availableToClaim
                     ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
                         .toLocaleString('en-US', { useGrouping: true })
                         .replace(/,/g, ' ')
