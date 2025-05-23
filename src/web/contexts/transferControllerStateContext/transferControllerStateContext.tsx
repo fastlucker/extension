@@ -98,12 +98,7 @@ const TransferControllerStateProvider = ({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
       params: { formValues: { selectedToken } }
     })
-  }, [
-    tokens,
-    memoizedState?.isInitialized,
-    memoizedState?.selectedToken?.address,
-    dispatch
-  ])
+  }, [tokens, memoizedState?.isInitialized, memoizedState?.selectedToken?.address, dispatch])
 
   // If the user sends the max amount of a token it will disappear from the list of tokens
   // and we need to select another token

@@ -605,6 +605,9 @@ type TransferControllerResetForm = {
   type: 'TRANSFER_CONTROLLER_RESET_FORM'
   params?: { destroySignAccountOp?: boolean }
 }
+type TransferControllerDestroyLatestBroadcastedAccountOp = {
+  type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
+}
 type TransferControllerUnloadScreen = {
   type: 'TRANSFER_CONTROLLER_UNLOAD_SCREEN'
 }
@@ -845,6 +848,7 @@ export type Action =
   | CloseSigningActionWindow
   | TransferControllerUpdateForm
   | TransferControllerResetForm
+  | TransferControllerDestroyLatestBroadcastedAccountOp
   | TransferControllerUnloadScreen
   | TransferControllerUserProceededAction
   | TransferControllerShouldSkipTransactionQueuedModal

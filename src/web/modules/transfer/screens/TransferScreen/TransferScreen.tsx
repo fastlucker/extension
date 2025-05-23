@@ -61,6 +61,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     isRecipientAddressUnknown,
     isFormValid,
     signAccountOpController,
+    latestBroadcastedAccountOp,
     hasProceeded
   } = state
 
@@ -84,17 +85,16 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
 
   const submittedAccountOp = useMemo(() => {
-    if (!accountsOps.transfer || !signAccountOpController || !signAccountOpController?.accountOp)
-      return
+    if (!accountsOps.transfer || !latestBroadcastedAccountOp) return
 
     return accountsOps.transfer.result.items.find(
-      (accOp) => accOp.signature === signAccountOpController.accountOp.signature
+      (accOp) => accOp.signature === latestBroadcastedAccountOp.signature
     )
-  }, [accountsOps.transfer, signAccountOpController?.accountOp.signature])
+  }, [accountsOps.transfer, latestBroadcastedAccountOp?.signature])
 
   useEffect(() => {
     // Optimization: Don't apply filtration if we are not on Activity tab
-    if (!signAccountOpController?.accountOp) return
+    if (!latestBroadcastedAccountOp) return
 
     const sessionId = 'transfer'
 
@@ -103,8 +103,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       params: {
         sessionId,
         filters: {
-          account: signAccountOpController.accountOp.accountAddr,
-          chainId: signAccountOpController?.accountOp.chainId
+          account: latestBroadcastedAccountOp.accountAddr,
+          chainId: latestBroadcastedAccountOp.chainId
         },
         pagination: {
           itemsPerPage: 10,
@@ -123,11 +123,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     return () => {
       killSession()
     }
-  }, [
-    dispatch,
-    signAccountOpController?.accountOp.accountAddr,
-    signAccountOpController?.accountOp.chainId
-  ])
+  }, [dispatch, latestBroadcastedAccountOp?.accountAddr, latestBroadcastedAccountOp?.chainId])
 
   const displayedView: 'transfer' | 'batch' | 'track' = useMemo(() => {
     if (showAddedToBatch) return 'batch'
@@ -140,16 +136,16 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   useEffect(() => {
     const broadcastStatus = mainCtrlStatuses.signAndBroadcastAccountOp
 
-    // We also check the TransferController's signAccountOp status,
+    // We also check the TransferController's latestBroadcastedAccountOp status,
     // otherwise, the hasBroadcasted flag could be set to true
     // if another accountOp from the MainController was broadcasted.
     if (
       broadcastStatus === 'SUCCESS' &&
-      signAccountOpController?.status?.type === SigningStatus.Done
+      latestBroadcastedAccountOp?.status === AccountOpStatus.BroadcastedButNotConfirmed
     ) {
       setHasBroadcasted(true)
     }
-  }, [mainCtrlStatuses.signAndBroadcastAccountOp, signAccountOpController?.status])
+  }, [mainCtrlStatuses.signAndBroadcastAccountOp, latestBroadcastedAccountOp?.status])
 
   // When navigating to another screen internally in the extension, we unload the TransferController
   // to ensure that no estimation or SignAccountOp logic is still running.
@@ -406,13 +402,13 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     dispatch({
-      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+      type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
     })
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
   const onBatchAddedSecondaryButtonPress = useCallback(() => {
     dispatch({
-      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+      type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
     })
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
@@ -434,6 +430,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     })
   }, [dispatch, navigate])
 
+  console.log({ displayedView })
+
   if (displayedView === 'track') {
     return (
       <TrackProgress
@@ -442,7 +440,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         secondaryButtonText={isTopUp ? t('Top up again?') : t('Sending more?')}
         handleClose={() => {
           dispatch({
-            type: 'TRANSFER_CONTROLLER_RESET_FORM'
+            type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
           })
           setHasBroadcasted(false)
         }}

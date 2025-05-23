@@ -368,6 +368,8 @@ export const handleActions = async (
       return mainCtrl.transfer.resetForm(params?.destroySignAccountOp)
     case 'TRANSFER_CONTROLLER_UNLOAD_SCREEN':
       return mainCtrl.transfer.unloadScreen()
+    case 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
+      return mainCtrl.transfer.destroyLatestBroadcastedAccountOp()
     case 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED':
       return mainCtrl.transfer.setUserProceeded(params.proceeded)
     case 'TRANSFER_CONTROLLER_SHOULD_SKIP_TRANSACTION_QUEUED_MODAL':
