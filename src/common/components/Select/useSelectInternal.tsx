@@ -49,12 +49,12 @@ const useSelectInternal = ({
   const prevSearch = usePrevious(search)
 
   const filteredData = useMemo(() => {
-    if (!search) return data
-
     const normalizedSearchTerm = search.toLowerCase()
 
-    const hasNewSearchTerm = onSearch && search && search !== prevSearch
+    const hasNewSearchTerm = onSearch && search !== prevSearch
     if (hasNewSearchTerm) onSearch(search)
+
+    if (!search) return data
 
     const filterOptions = (options: SelectProps['options']) => {
       const { exactMatches, partialMatches } = options.reduce(
