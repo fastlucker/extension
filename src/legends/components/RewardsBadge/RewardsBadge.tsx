@@ -29,10 +29,16 @@ const RewardsBadge: React.FC = () => {
   const openClaimModal = () => setIsOpen(true)
   const closeClaimModal = () => setIsOpen(false)
 
-  const rewardsDisabledState = Number(claimWalletCard?.meta?.availableToClaim) === 0
+  const rewardsDisabledState =
+    (claimWalletCard &&
+      claimWalletCard.meta &&
+      Number(claimWalletCard?.meta?.availableToClaim) === 0) ||
+    true
   const { amountFormatted } = accountPortfolio || {}
   const isNotAvailableForRewards =
-    Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
+    ((accountPortfolio || accountPortfolio?.isReady) &&
+      amountFormatted &&
+      Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500) ||
     (userLeaderboardData?.level ?? 0) <= 2
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -114,13 +120,17 @@ const RewardsBadge: React.FC = () => {
               ))}
           </div>
           <div className={styles.rewardsInfo}>
-            {isLoadingClaimableRewards || isLoading ? (
+            {isLoadingClaimableRewards ||
+            isLoading ||
+            !accountPortfolio ||
+            !accountPortfolio?.isReady ? (
               <p>Loading rewards...</p>
             ) : claimableRewardsError ? (
               <p>Error loading rewards</p>
             ) : rewardsDisabledState ? (
               <p className={styles.rewardsTitle}>
-                {Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+                {((claimWalletCard.meta && Number(claimWalletCard?.meta?.availableToClaim) === 0) ||
+                  true) &&
                 !isNotAvailableForRewards ? (
                   "You haven't accumulated $WALLET rewards yet."
                 ) : (
