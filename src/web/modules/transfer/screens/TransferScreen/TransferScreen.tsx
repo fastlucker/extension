@@ -44,6 +44,7 @@ import Completed from '@web/modules/sign-account-op/components/OneClick/TrackPro
 import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 
 const { isPopup, isTab, isActionWindow } = getUiType()
 
@@ -91,6 +92,16 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       (accOp) => accOp.signature === latestBroadcastedAccountOp.signature
     )
   }, [accountsOps.transfer, latestBroadcastedAccountOp?.signature])
+
+  const explorerLink = useMemo(() => {
+    if (!submittedAccountOp) return
+
+    const { chainId, identifiedBy, txnId } = submittedAccountOp
+
+    if (!chainId || !identifiedBy || !txnId) return
+
+    return `https://benzin.ambire.com/${getBenzinUrlParams({ chainId, txnId, identifiedBy })}`
+  }, [submittedAccountOp])
 
   useEffect(() => {
     // Optimization: Don't apply filtration if we are not on Activity tab
@@ -461,7 +472,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
                     symbol: state.selectedToken?.symbol || 'Token'
                   })
             }
-            explorerLink=""
+            explorerLink={explorerLink}
             openExplorerText="View Transfer"
           />
         )}
