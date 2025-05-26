@@ -1,18 +1,17 @@
-// eslint-disable-next-line import/no-unresolved
-import wait from '@ambire-common/utils/wait'
+import { Page } from '@playwright/test'
 
 const RELAYER_HOST = 'relayer.ambire.com'
 const CENA_HOST = 'cena.ambire.com'
 const INVICTUS_HOST = 'invictus.ambire.com'
 const EXTERNAL_SERVICE_HOSTS = ['api.pimlico.io']
 
-function getBackgroundRequestsByType(requests) {
-  const nativeTokenPriceRequests = []
-  const batchedErc20TokenPriceRequests = []
-  const hintsRequests = []
-  const rpcRequests = []
-  const externalServiceRequests = []
-  const uncategorizedRequests = []
+function getBackgroundRequestsByType(requests: string[]) {
+  const nativeTokenPriceRequests: string[] = []
+  const batchedErc20TokenPriceRequests: string[] = []
+  const hintsRequests: string[] = []
+  const rpcRequests: string[] = []
+  const externalServiceRequests: string[] = []
+  const uncategorizedRequests: string[] = []
 
   requests.forEach((request) => {
     const url = new URL(request)
@@ -49,6 +48,7 @@ function getBackgroundRequestsByType(requests) {
       externalServiceRequests.push(request)
       return
     }
+
     uncategorizedRequests.push(request)
   })
 
@@ -62,24 +62,31 @@ function getBackgroundRequestsByType(requests) {
   }
 }
 
-async function monitorRequests(
-  client,
-  requestInducingFunction,
-  { maxTimeBetweenRequests = 2000, throttleRequestsByMs = 0, blockRequests = [] } = {}
-) {
-  const httpRequests = []
-  let lastRequestTime = null
+type MonitorRequestsOptions = {
+  maxTimeBetweenRequests?: number
+  throttleRequestsByMs?: number
+  blockRequests?: string[]
+}
 
-  // Disable cache
+export async function monitorRequests(
+  page: Page,
+  requestInducingFunction: () => Promise<void>,
+  options: MonitorRequestsOptions = {}
+): Promise<string[]> {
+  const { maxTimeBetweenRequests = 2000, throttleRequestsByMs = 0, blockRequests = [] } = options
+
+  const httpRequests: string[] = []
+  let lastRequestTime: number | null = null
+
+  const client = await page.context().newCDPSession(page)
+
   await client.send('Network.setCacheDisabled', { cacheDisabled: true })
-  // Enable Fetch domain for request interception
   await client.send('Fetch.enable', {
     patterns: [{ urlPattern: '*', requestStage: 'Request' }]
   })
 
-  const onRequestPaused = async ({ requestId, request }) => {
+  const onRequestPaused = async ({ requestId, request }: any) => {
     httpRequests.push(request.url)
-    // Synchronize updates to lastRequestTime to avoid race conditions
     lastRequestTime = Date.now()
 
     if (blockRequests.some((blockRequest) => request.url.includes(blockRequest))) {
@@ -88,32 +95,29 @@ async function monitorRequests(
     }
 
     if (throttleRequestsByMs) {
-      await wait(throttleRequestsByMs)
+      await new Promise((res) => setTimeout(res, throttleRequestsByMs))
     }
 
     await client.send('Fetch.continueRequest', { requestId })
   }
 
-  // Start listening to the request events
   client.on('Fetch.requestPaused', onRequestPaused)
 
   try {
-    // Trigger the function that induces requests
     await requestInducingFunction()
 
-    // Poll until no more requests are detected within the specified time frame
     while (
       !lastRequestTime ||
       Date.now() - lastRequestTime < maxTimeBetweenRequests + throttleRequestsByMs
     ) {
-      await wait(maxTimeBetweenRequests) // Polling interval
+      await new Promise((res) => setTimeout(res, maxTimeBetweenRequests))
     }
   } finally {
-    // Ensure cleanup happens in case of error
     client.off('Fetch.requestPaused', onRequestPaused)
+    await client.send('Fetch.disable')
   }
 
   return httpRequests
 }
 
-export { monitorRequests, getBackgroundRequestsByType }
+export { getBackgroundRequestsByType }
