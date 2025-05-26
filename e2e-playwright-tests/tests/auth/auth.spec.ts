@@ -3,7 +3,7 @@ import { BA_PASSPHRASE, SA_PASSPHRASE } from 'config/constants'
 import { constants } from '../../constants/constants'
 import { test } from '../../fixtures/pageObjects' // your extended test with authPage
 
-test.describe('auth', () => {
+test.describe.parallel('auth', () => {
   test.beforeEach(async ({ authPage }) => {
     await authPage.init()
   })

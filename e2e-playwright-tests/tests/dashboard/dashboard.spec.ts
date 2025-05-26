@@ -13,4 +13,8 @@ test.describe('dashboard', () => {
   test('should test if expected tokens are visible on the dashboard', async ({ dashboardPage }) => {
     await dashboardPage.checkIfTokensExist()
   })
+
+  test('should test if expected NFTs are visible on the dashboard', async ({ dashboardPage }) => {
+    await dashboardPage.checkCollectibleItem()
+  })
 })

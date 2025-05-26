@@ -42,5 +42,9 @@ export const locators = {
   showMoreButton: 'div[data-testid="show-more-btn"]',
   importJSONBackupFileButton: 'div[data-testid="import-method-json-backup-file"]',
   uploadJSONButton: 'span:has-text("upload")',
-  popUpMessageRecoveryPhrase: 'div[data-testid="success-1"]'
+  popUpMessageRecoveryPhrase: 'div[data-testid="success-1"]',
+  tabNft: 'div[data-testid="tab-nft"]',
+  collectionItem: 'div[data-testid="collection-item"]',
+  collectiblePicture: 'div[data-testid="collectible-picture"]',
+  collectibleRow: 'div[data-testid="collectible-row"]'
 }
