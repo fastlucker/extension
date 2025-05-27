@@ -25,7 +25,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@ambire-common/utils/domains'
 import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -63,6 +62,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     isFormValid,
     signAccountOpController,
     latestBroadcastedAccountOp,
+    latestBroadcastedToken,
     hasProceeded
   } = state
 
@@ -77,7 +77,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     open: openGasTankInfoBottomSheet,
     close: closeGasTankInfoBottomSheet
   } = useModalize()
-  const actionsState = useActionsControllerState()
   const { accountsOps } = useActivityControllerState()
   const { hasGasTank } = useHasGasTank({ account })
   const recipientMenuClosedAutomatically = useRef(false)
@@ -86,7 +85,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
 
   const submittedAccountOp = useMemo(() => {
-    if (!accountsOps.transfer || !latestBroadcastedAccountOp) return
+    if (!accountsOps.transfer || !latestBroadcastedAccountOp?.signature) return
 
     return accountsOps.transfer.result.items.find(
       (accOp) => accOp.signature === latestBroadcastedAccountOp.signature
@@ -104,8 +103,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   }, [submittedAccountOp])
 
   useEffect(() => {
-    // Optimization: Don't apply filtration if we are not on Activity tab
-    if (!latestBroadcastedAccountOp) return
+    // Optimization: Don't apply filtration if we don't have a recent broadcasted account op
+    if (!latestBroadcastedAccountOp?.accountAddr || !latestBroadcastedAccountOp?.chainId) return
 
     const sessionId = 'transfer'
 
@@ -265,10 +264,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     handleCacheResolvedDomain
   })
 
-  const isFormEmpty = useMemo(() => {
-    return (!state.amount && !state.recipientAddress) || !state.selectedToken
-  }, [state.amount, state.recipientAddress, state.selectedToken])
-
   const submitButtonText = useMemo(() => (isTopUp ? t('Top Up') : t('Send')), [isTopUp, t])
 
   const isTransferFormValid = useMemo(
@@ -293,6 +288,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const addTransaction = useCallback(
     (actionExecutionType: ActionExecutionType) => {
       if (isFormValid && state.selectedToken) {
+        // In the case of a Batch, we show an info modal explaining what Batching is.
+        // We provide an option to skip this modal next time.
         if (actionExecutionType === 'queue' && !state.shouldSkipTransactionQueuedModal) {
           openBottomSheet()
         }
@@ -313,7 +310,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
             actionExecutionType
           }
         })
-        // TODO - comment
+
+        // If the Batch modal is already skipped, we show the success batch page.
         if (state.shouldSkipTransactionQueuedModal) {
           setShowAddedToBatch(true)
         }
@@ -325,14 +323,11 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       state,
       addressState,
       isTopUp,
-      state.amount,
-      state.selectedToken,
-      isFormEmpty,
-      actionsState,
       isFormValid,
       dispatch,
       openBottomSheet,
-      resetTransferForm
+      resetTransferForm,
+      openEstimationModalAndDispatch
     ]
   )
 
@@ -394,15 +389,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         />
       </>
     )
-  }, [
-    state.selectedToken,
-    addTransaction,
-    isTopUp,
-    onBack,
-    submitButtonText,
-    isTransferFormValid,
-    t
-  ])
+  }, [state.selectedToken, addTransaction, onBack, submitButtonText, isTransferFormValid])
 
   const handleGoBackPress = useCallback(() => {
     dispatch({
@@ -416,13 +403,13 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
     })
     navigate(WEB_ROUTES.dashboard)
-  }, [navigate])
+  }, [dispatch, navigate])
   const onBatchAddedSecondaryButtonPress = useCallback(() => {
     dispatch({
       type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
     })
     setShowAddedToBatch(false)
-  }, [setShowAddedToBatch])
+  }, [dispatch, setShowAddedToBatch])
 
   const onPrimaryButtonPress = useCallback(() => {
     if (isActionWindow) {
@@ -440,8 +427,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       type: 'TRANSFER_CONTROLLER_RESET_FORM'
     })
   }, [dispatch, navigate])
-
-  console.log({ displayedView })
 
   if (displayedView === 'track') {
     return (
@@ -469,7 +454,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
               isTopUp
                 ? t('You can now use your gas tank')
                 : t('{{symbol}} delivered - like magic.', {
-                    symbol: state.latestBroadcastedToken?.symbol || 'Token'
+                    symbol: latestBroadcastedToken?.symbol || 'Token'
                   })
             }
             explorerLink={explorerLink}
