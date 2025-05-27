@@ -469,7 +469,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
               isTopUp
                 ? t('You can now use your gas tank')
                 : t('{{symbol}} delivered - like magic.', {
-                    symbol: state.selectedToken?.symbol || 'Token'
+                    symbol: state.latestBroadcastedToken?.symbol || 'Token'
                   })
             }
             explorerLink={explorerLink}
