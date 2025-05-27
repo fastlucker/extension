@@ -81,6 +81,7 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
             hasBottomSpacing={false}
             type="secondary"
             text={t('Add more swaps?')}
+            testID="add-more-swaps"
           />
           <Button
             onPress={onPrimaryButtonPress}
