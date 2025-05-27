@@ -461,10 +461,25 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
             openExplorerText="View Transfer"
           />
         )}
+        {/*
+            Note: It's very unlikely for Transfer or Top-Up to fail. That's why we show a predefined error message.
+            If it does fail, we need to retrieve the broadcast error from the main controller and display it here.
+          */}
         {(submittedAccountOp?.status === AccountOpStatus.Failure ||
           submittedAccountOp?.status === AccountOpStatus.Rejected ||
           submittedAccountOp?.status === AccountOpStatus.BroadcastButStuck) && (
-          <Failed title={t('Something went wrong!')} errorMessage="TODO error message" />
+          <Failed
+            title={t('Something went wrong!')}
+            errorMessage={
+              isTopUp
+                ? t(
+                    'Unable to top up the Gas tank. Please try again later or contact Ambire support.'
+                  )
+                : t(
+                    "We couldn't complete your transfer. Please try again later or contact Ambire support."
+                  )
+            }
+          />
         )}
       </TrackProgress>
     )

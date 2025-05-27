@@ -181,7 +181,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
       {lastCompletedRoute?.routeStatus === 'failed' && (
         <Failed
           title={t(isSwap ? 'Swap failed' : 'Bridge failed')}
-          errorMessage={lastCompletedRoute.error!}
+          errorMessage={`Error: ${lastCompletedRoute.error!}`}
         />
       )}
     </TrackProgressWrapper>

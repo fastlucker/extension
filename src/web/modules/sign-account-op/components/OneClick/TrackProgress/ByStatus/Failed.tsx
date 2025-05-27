@@ -12,7 +12,7 @@ type FailedProps = {
 const Failed: FC<FailedProps> = ({ title, errorMessage }) => {
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter, spacings.mbLg]}>
-      <AlertVertical title={title} text={`Error: ${errorMessage}`} />
+      <AlertVertical title={title} text={errorMessage} />
     </View>
   )
 }
