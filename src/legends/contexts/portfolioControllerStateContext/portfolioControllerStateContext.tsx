@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import { RELAYER_URL } from '@env'
 import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -35,6 +36,8 @@ const PortfolioControllerStateContext = createContext<{
     circulatingSupply: number
     totalSupply: number
     stkWalletTotalSupply: number
+    percentageStakedWallet: number
+    apy: number
   } | null
   walletTokenPrice: number | null
   isLoadingWalletTokenInfo: boolean
@@ -85,8 +88,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       const claimableBalance = additionalPortfolioJson?.data?.rewards?.stkWalletClaimableBalance
       const walletTokenInfoData =
         additionalPortfolioJson?.data?.gasTank?.availableGasTankAssets.find(
-          (asset: any) => asset.symbol === 'wallet'
+          (asset: any) => asset.address === WALLET_TOKEN
         )
+
       setWalletTokenPrice(walletTokenInfoData.price)
 
       setClaimableRewards(claimableBalance)
