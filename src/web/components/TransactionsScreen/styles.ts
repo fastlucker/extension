@@ -24,7 +24,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.ph,
       ...spacings.pb,
       ...spacings.ptMd,
-      ...spacings.mbMd,
+      ...spacings.mbTy,
       borderRadius: 12,
       backgroundColor: theme.primaryBackground,
       shadowColor: theme.primaryBorder,

@@ -28,11 +28,18 @@ import Option from './BaseAddressOption'
 interface Props extends TextProps {
   address: string
   explorerChainId?: bigint
+  hideLinks?: boolean
 }
 
 const { isActionWindow } = getUiType()
 
-const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest }) => {
+const BaseAddress: FC<Props> = ({
+  children,
+  address,
+  explorerChainId,
+  hideLinks = false,
+  ...rest
+}) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
@@ -109,7 +116,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest })
         noArrow
         place="bottom-end"
       >
-        {network?.explorerUrl && (
+        {network?.explorerUrl && !hideLinks && (
           <Option
             title={t('View in Explorer')}
             renderIcon={() => <OpenIcon color={theme.secondaryText} width={14} height={14} />}

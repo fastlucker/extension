@@ -12,6 +12,7 @@ import { EIP_1271_NOT_SUPPORTED_BY } from '@ambire-common/libs/signMessage/signM
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import SmallNotificationWindowWrapper from '@web/components/SmallNotificationWindowWrapper'
@@ -111,7 +112,9 @@ const SignMessageScreen = () => {
   )
 
   useEffect(() => {
-    if (!userRequest || !signMessageAction) return
+    const isAlreadyInit = signMessageState.messageToSign?.fromActionId === signMessageAction?.id
+
+    if (!userRequest || !signMessageAction || isAlreadyInit) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
@@ -129,7 +132,7 @@ const SignMessageScreen = () => {
         }
       }
     })
-  }, [dispatch, userRequest, signMessageAction])
+  }, [dispatch, userRequest, signMessageAction, signMessageState.messageToSign?.fromActionId])
 
   useEffect(() => {
     return () => {
@@ -249,7 +252,11 @@ const SignMessageScreen = () => {
             rejectButtonText={rejectButtonText}
           />
         }
-        backgroundColor={theme.quinaryBackground}
+        backgroundColor={
+          isAuthorization && !makeItSmartConfirmed
+            ? theme.primaryBackground
+            : theme.quinaryBackground
+        }
       >
         <SigningKeySelect
           isVisible={isChooseSignerShown}
