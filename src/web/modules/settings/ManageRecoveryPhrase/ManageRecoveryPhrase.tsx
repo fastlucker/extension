@@ -17,7 +17,6 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -194,7 +193,7 @@ const ManageRecoveryPhrase = ({
                 cursor: !seed || seed === DUMMY_SEED ? 'default' : 'pointer'
               }}
             >
-              <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
+              <CopyIcon style={spacings.mlTy} width={18} color={theme.iconPrimary} />
             </Button>
           </View>
           <Button
@@ -206,9 +205,9 @@ const ManageRecoveryPhrase = ({
             text={blurred ? t('Reveal phrase') : t('Hide phrase')}
           >
             {blurred ? (
-              <VisibilityIcon color={iconColors.primary} style={spacings.mlTy} width={18} />
+              <VisibilityIcon color={theme.iconPrimary} style={spacings.mlTy} width={18} />
             ) : (
-              <InvisibilityIcon color={iconColors.primary} style={spacings.mlTy} width={18} />
+              <InvisibilityIcon color={theme.iconPrimary} style={spacings.mlTy} width={18} />
             )}
           </Button>
         </View>

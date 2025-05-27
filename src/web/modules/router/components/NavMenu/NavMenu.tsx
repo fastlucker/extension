@@ -17,8 +17,7 @@ import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import HeaderBackButton from '@common/modules/header/components/HeaderBackButton'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -195,7 +194,7 @@ const NavMenu = () => {
                   <>
                     <Icon
                       style={spacings.mrSm}
-                      color={hovered ? iconColors.secondary : iconColors.primary}
+                      color={hovered ? theme.iconSecondary : theme.iconPrimary}
                     />
                     <Text
                       fontSize={14}

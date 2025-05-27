@@ -154,6 +154,22 @@ const ThemeColors = {
   featureBackground: {
     [THEME_TYPES.DARK]: '#ECF4FD',
     [THEME_TYPES.LIGHT]: '#ECF4FD'
+  },
+  iconPrimary: {
+    [THEME_TYPES.DARK]: '#9E9E9F',
+    [THEME_TYPES.LIGHT]: '#54597A'
+  },
+  iconSecondary: {
+    [THEME_TYPES.DARK]: '#9E9E9F',
+    [THEME_TYPES.LIGHT]: '#2D314D'
+  },
+  iconPrimary2: {
+    [THEME_TYPES.DARK]: '#6000FF',
+    [THEME_TYPES.LIGHT]: '#6000FF'
+  },
+  iconTertiary: {
+    [THEME_TYPES.DARK]: '#FFFFFF',
+    [THEME_TYPES.LIGHT]: '#141833'
   }
 }
 

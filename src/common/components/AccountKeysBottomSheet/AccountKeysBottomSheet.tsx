@@ -2,11 +2,10 @@ import React, { FC, useCallback } from 'react'
 import { Modalize } from 'react-native-modalize'
 
 import { Account } from '@ambire-common/interfaces/account'
+import AccountKeys from '@common/components/AccountKeysBottomSheet/AccountKeys'
 import BottomSheet from '@common/components/BottomSheet'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
-
-import AccountKeys from './AccountKeys'
 
 interface Props {
   sheetRef: React.RefObject<Modalize>
@@ -27,7 +26,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
     closeBottomSheet()
     openAddAccountBottomSheet && openAddAccountBottomSheet()
   }, [closeBottomSheet, openAddAccountBottomSheet])
-
+  const { theme } = useTheme()
   return (
     <BottomSheet
       id="account-keys-bottom-sheet"
@@ -44,7 +43,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           account={account}
           openAddAccountBottomSheet={handleOpenAccountBottomSheet}
           closeBottomSheet={closeBottomSheet}
-          keyIconColor={iconColors.black}
+          keyIconColor={theme.iconPrimary as string}
           showExportImport={showExportImport}
         />
       )}

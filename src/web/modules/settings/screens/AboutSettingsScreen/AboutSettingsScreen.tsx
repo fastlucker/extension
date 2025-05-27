@@ -13,7 +13,6 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -90,7 +89,7 @@ const AboutSettingsScreen = () => {
               <>
                 <Icon
                   style={spacings.mrSm}
-                  color={hovered ? iconColors.secondary : iconColors.primary}
+                  color={hovered ? theme.iconSecondary : theme.iconPrimary}
                 />
                 <Text
                   fontSize={14}
