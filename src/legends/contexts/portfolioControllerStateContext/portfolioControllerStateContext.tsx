@@ -86,12 +86,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       const walletTokenInfoData =
         additionalPortfolioJson?.data?.gasTank?.availableGasTankAssets.find(
           (asset: any) => asset.symbol === 'wallet'
-
         )
       setWalletTokenPrice(walletTokenInfoData.price)
-      if (claimableBalance === undefined) {
-        throw new Error('Invalid response format')
-      }
 
       setClaimableRewards(claimableBalance)
       setXWalletClaimableBalance(xWalletClaimableBalanceData)
@@ -164,7 +160,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
     await getPortfolioTillReady()
   }, [isLoading, connectedAccount, nonV2Account, setAccountPortfolio])
-
 
   const fetchWalletTokenInfo = useCallback(async () => {
     try {
