@@ -2,9 +2,6 @@ name: Build production browser extensions ⚡
 
 on:
   workflow_dispatch: # Manual trigger
-  push:
-    branches:
-      - config/arm64-build # Temporarily run on every commit to this feature branch
   release:
     types: [published] # Triggers on new releases
     branches:
@@ -13,17 +10,11 @@ on:
 jobs:
   build:
     name: Build browser extension webkit and gecko .zips, ready for review submission
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: extension-production
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Checkout code 🛎️
         uses: actions/checkout@v4
 
@@ -40,14 +31,17 @@ jobs:
         run: git submodule update
         shell: bash
 
-      - name: Get Node version
-        id: node-version
-        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+      - name: Install Node.js ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install Dependencies
+        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
         shell: bash
 
-      - name: Build in ARM64 Docker container
+      - name: Generate .env file for review
         run: |
-          # Create .env file
           echo "RELAYER_URL=\"${{ vars.RELAYER_URL }}\"" >> .env
           echo "VELCRO_URL=\"${{ vars.VELCRO_URL }}\"" >> .env
           echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
@@ -56,25 +50,24 @@ jobs:
           echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
           echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
           echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
+        shell: bash
 
-          # Run build in docker container with ARM64 architecture
-          docker run --platform linux/arm64 --rm \
-            -v $(pwd):/app \
-            -w /app \
-            -e RELAYER_URL="${{ vars.RELAYER_URL }}" \
-            -e VELCRO_URL="${{ vars.VELCRO_URL }}" \
-            -e BROWSER_EXTENSION_PUBLIC_KEY="${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}" \
-            -e REACT_APP_PIMLICO_API_KEY="${{ vars.REACT_APP_PIMLICO_API_KEY }}" \
-            -e REACT_APP_JIFFYSCAN_API_KEY="${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}" \
-            -e NFT_CDN_URL="${{ vars.NFT_CDN_URL }}" \
-            -e LEGENDS_NFT_ADDRESS="${{ vars.LEGENDS_NFT_ADDRESS }}" \
-            -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
-            --entrypoint /bin/sh \
-            node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
-            -c "apk add --no-cache git openssh zip python3 make g++ linux-headers eudev-dev && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions"
+      - name: Build extensions
+        env:
+          RELAYER_URL: ${{ vars.RELAYER_URL }}
+          VELCRO_URL: ${{ vars.VELCRO_URL }}
+          BROWSER_EXTENSION_PUBLIC_KEY: ${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}
+          REACT_APP_PIMLICO_API_KEY: ${{ vars.REACT_APP_PIMLICO_API_KEY }}
+          REACT_APP_JIFFYSCAN_API_KEY: ${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}
+          NFT_CDN_URL: ${{ vars.NFT_CDN_URL }}
+          LEGENDS_NFT_ADDRESS: ${{ vars.LEGENDS_NFT_ADDRESS }}
+          LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
+        run: yarn build:extensions
 
-          # Create source code zip outside of Docker
+      - name: Generate .zip with the full source code (including .env)
+        run: |
           zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
+        shell: bash
 
       - name: Upload source code 📦
         uses: actions/upload-artifact@v4
