@@ -88,7 +88,11 @@ const ErrorBoundary = ({ error }: Props) => {
         <Text style={{ ...spacings.mbTy, textAlign: 'center' }}>
           <Trans i18nKey="errorBoundaryHeading">
             Please share it with{' '}
-            <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
+            <TouchableOpacity
+              onPress={() =>
+                openInTab({ url: 'https://help.ambire.com/hc', shouldCloseCurrentWindow: true })
+              }
+            >
               <Text weight="medium" color={theme.primary}>
                 our support team
               </Text>
@@ -176,7 +180,11 @@ const ErrorBoundary = ({ error }: Props) => {
           >
             <Text fontSize={14} style={text.center}>
               {t('Try reloading the page. If the issue persists, restart your browser or ')}
-              <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
+              <TouchableOpacity
+                onPress={() =>
+                  openInTab({ url: 'https://help.ambire.com/hc', shouldCloseCurrentWindow: true })
+                }
+              >
                 <Text fontSize={14} weight="medium" color={theme.primary}>
                   {t('contact Support')}
                 </Text>

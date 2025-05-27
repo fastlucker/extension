@@ -409,8 +409,15 @@ module.exports = async function (env, argv) {
             ascii_only: true,
             comments: false
           }
+
+          // Disable mangling to ensure bit-for-bit deterministic builds across platforms (e.g. x64 vs arm64)
+          // This avoids differences in variable/function names (e.g. P vs x) that can cause review rejections
+          // The drawback is larger bundle size, so we only do it for Gecko
+          // TODO: Temporarily disabled for testing
+          if (isGecko) terserRealOptions.mangle = false
         }
 
+        // Disable parallel to avoid nondeterminism in some environments
         terserPlugin.options.parallel = false
       }
     }
