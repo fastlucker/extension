@@ -17,7 +17,7 @@ import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import HeaderBackButton from '@common/modules/header/components/HeaderBackButton'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -136,7 +136,12 @@ const NavMenu = () => {
                 {isPopup && (
                   <>
                     <Pressable
-                      onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}
+                      onPress={() =>
+                        openInTab({
+                          url: `tab.html#/${WEB_ROUTES.dashboard}`,
+                          shouldCloseCurrentWindow: true
+                        })
+                      }
                       {...bindMaximizeAnim}
                     >
                       <Animated.View style={maximizeAnimStyle}>
