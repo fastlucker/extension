@@ -414,7 +414,7 @@ module.exports = async function (env, argv) {
           // This avoids differences in variable/function names (e.g. P vs x) that can cause review rejections
           // The drawback is larger bundle size, so we only do it for Gecko
           // TODO: Temporarily disabled for testing
-          // if (isGecko) terserRealOptions.mangle = false
+          if (isGecko) terserRealOptions.mangle = false
         }
 
         // Disable parallel to avoid nondeterminism in some environments
