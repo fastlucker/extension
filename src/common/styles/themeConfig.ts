@@ -22,6 +22,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: '#39F7EF',
     [THEME_TYPES.LIGHT]: '#6000FF'
   },
+  primary20: {
+    [THEME_TYPES.DARK]: '#39F7EF20',
+    [THEME_TYPES.LIGHT]: '#6000FF20'
+  },
   primaryLight: {
     [THEME_TYPES.DARK]: '#6C38F7',
     [THEME_TYPES.LIGHT]: '#8B3DFF'

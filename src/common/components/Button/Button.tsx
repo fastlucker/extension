@@ -61,7 +61,7 @@ const ButtonInnerContainer = ({
   forceHoveredStyle?: boolean
   children?: React.ReactNode
 } & PressableProps) => {
-  const { themeType } = useTheme()
+  const { themeType, theme } = useTheme()
 
   const buttonInnerContainerColors = useMemo(
     () => ({
@@ -74,8 +74,8 @@ const ButtonInnerContainer = ({
           ? [
               {
                 property: 'backgroundColor' as any,
-                from: '#9D7AFF00',
-                to: '#9D7AFF1F'
+                from: `${theme.primary as string}00`,
+                to: theme.primary20
               }
             ]
           : [],
@@ -86,7 +86,7 @@ const ButtonInnerContainer = ({
       success: [],
       gray: []
     }),
-    [themeType]
+    [themeType, theme]
   )
 
   const [buttonInnerContainerBind, buttonInnerContainerAnimatedStyle] = useMultiHover({
@@ -103,7 +103,7 @@ const ButtonInnerContainer = ({
           spacings.phTy,
           spacings.pvMi,
           common.borderRadiusPrimary,
-          { maxHeight: 27 },
+          { height: 32 },
           buttonInnerContainerAnimatedStyle
         ]}
         {...buttonInnerContainerBind}
@@ -299,8 +299,8 @@ const Button = ({
       ghost: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primary : theme.primary,
-          to: themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary
+          from: theme.primary,
+          to: theme.primary
         }
       ],
       error: [
