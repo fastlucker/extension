@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { FC, useEffect } from 'react'
+import React, { FC, useEffect, useRef } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import BottomSheet from '@common/components/BottomSheet'
@@ -20,10 +20,14 @@ const BottomSheetContainer: FC<Props> = ({ id, isMenuOpen, toggleMenu, children 
   const { theme } = useTheme()
   const { ref: sheetRef, open: openSheet, close: closeSheet } = useModalize()
 
+  const wasClosedProgrammatically = useRef(false)
+
   useEffect(() => {
     if (isMenuOpen) {
       openSheet()
+      wasClosedProgrammatically.current = false
     } else {
+      wasClosedProgrammatically.current = true
       closeSheet()
     }
   }, [isMenuOpen, openSheet, closeSheet])
@@ -32,7 +36,15 @@ const BottomSheetContainer: FC<Props> = ({ id, isMenuOpen, toggleMenu, children 
     <BottomSheet
       id={id}
       sheetRef={sheetRef}
-      closeBottomSheet={toggleMenu}
+      closeBottomSheet={() => {
+        if (!wasClosedProgrammatically.current) {
+          toggleMenu() // only fire toggleMenu on gesture close
+        }
+        wasClosedProgrammatically.current = false // reset
+      }}
+      onClosed={() => {
+        wasClosedProgrammatically.current = false // make sure it resets on full close
+      }}
       containerInnerWrapperStyles={{
         flex: 1
       }}

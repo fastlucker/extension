@@ -220,7 +220,10 @@ const BottomSheet: React.FC<Props> = ({
             setIsBackdropVisible(true)
             !!onOpen && onOpen()
           }}
-          onClose={() => setIsOpen(false)}
+          onClose={() => {
+            setIsOpen(false)
+            closeBottomSheet()
+          }}
           onClosed={() => !!onClosed && onClosed()}
         >
           {!flatListProps && (

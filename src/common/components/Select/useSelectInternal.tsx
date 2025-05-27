@@ -104,7 +104,7 @@ const useSelectInternal = ({
     if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
 
     return noMatchesFound ? [] : sectionsWithFilteredData
-  }, [data, search, attemptToFetchMoreOptions, prevSearch])
+  }, [search, onSearch, prevSearch, data, attemptToFetchMoreOptions])
 
   const keyExtractor = useCallback((item: SelectValue) => item.key || item.value, [])
 
