@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { FlatListProps, View } from 'react-native'
+import { Animated, FlatListProps, View } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -26,6 +26,7 @@ interface Props {
   sessionId: string
   onScroll: FlatListProps<any>['onScroll']
   dashboardNetworkFilterName: string | null
+  animatedOverviewHeight: Animated.Value
 }
 
 const { isPopup } = getUiType()
@@ -36,7 +37,8 @@ const DeFiPositions: FC<Props> = ({
   initTab,
   sessionId,
   onScroll,
-  dashboardNetworkFilterName
+  dashboardNetworkFilterName,
+  animatedOverviewHeight
 }) => {
   const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { t } = useTranslation()
@@ -169,6 +171,7 @@ const DeFiPositions: FC<Props> = ({
       initialNumToRender={isPopup ? 10 : 20}
       windowSize={9} // Larger values can cause performance issues.
       onScroll={onScroll}
+      animatedOverviewHeight={animatedOverviewHeight}
     />
   )
 }
