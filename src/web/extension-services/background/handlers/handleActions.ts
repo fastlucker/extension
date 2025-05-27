@@ -365,7 +365,7 @@ export const handleActions = async (
     case 'TRANSFER_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transfer.update(params.formValues)
     case 'TRANSFER_CONTROLLER_RESET_FORM':
-      return mainCtrl.transfer.resetForm(params?.destroySignAccountOp)
+      return mainCtrl.transfer.resetForm()
     case 'TRANSFER_CONTROLLER_UNLOAD_SCREEN':
       return mainCtrl.transfer.unloadScreen()
     case 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
