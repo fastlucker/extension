@@ -491,7 +491,6 @@ credentials.json
 # Puppeteer tests recording
 /recorder
 /tests/reports
-run-tests.sh
 
 # Playwright tests
 e2e-playwright-tests/node_modules
@@ -500,3 +499,5 @@ e2e-playwright-tests/test-results
 e2e-playwright-tests/playwright-report
 e2e-playwright-tests/run-tests.sh
 e2e-playwright-tests/.vscode
+run-tests-logs
+run-tests.sh
