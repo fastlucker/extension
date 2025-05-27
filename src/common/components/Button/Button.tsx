@@ -271,7 +271,7 @@ const Button = ({
       primary: [
         {
           property: 'color',
-          from: '#fff',
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#fff',
           to: themeType === THEME_TYPES.DARK ? theme.primary : '#fff'
         }
       ],
