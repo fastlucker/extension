@@ -35,7 +35,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#54597A'
   },
   tertiaryText: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: '#FFFFFF52',
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
   linkText: {
@@ -43,7 +43,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#6000FF'
   },
   primaryBorder: {
-    [THEME_TYPES.DARK]: '#2A2A2C',
+    [THEME_TYPES.DARK]: '#FFFFFF1F',
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
   secondaryBorder: {
@@ -171,19 +171,6 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: '#FFFFFF',
     [THEME_TYPES.LIGHT]: '#141833'
   }
-}
-
-export const iconColors = {
-  warning: '#CA7E04',
-  primary: '#54597A',
-  secondary: colors.martinique,
-  danger: '#EA0129',
-  favorite: '#ffbc00',
-  dark: '#141833',
-  black: '#000',
-  white: '#fff',
-  success: '#006D3F',
-  primary2: '#6000FF'
 }
 
 export default ThemeColors

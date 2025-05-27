@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { Pressable, TouchableOpacity, View } from 'react-native'
 
 import { KeystoreSeed } from '@ambire-common/interfaces/keystore'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -13,6 +13,7 @@ import useToast from '@common/hooks/useToast'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { setStringAsync } from '@common/utils/clipboard'
@@ -28,7 +29,7 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 const CreateSeedPhraseWriteScreen = () => {
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const { hasTempSeed } = useKeystoreControllerState()
@@ -171,7 +172,7 @@ const CreateSeedPhraseWriteScreen = () => {
                   spacings.mb2Xl
                 ]}
               >
-                <TouchableOpacity
+                <Pressable
                   onPress={handleCopyToClipboard}
                   style={[
                     flexbox.directionRow,
@@ -183,12 +184,27 @@ const CreateSeedPhraseWriteScreen = () => {
                     { backgroundColor: theme.secondaryBackground }
                   ]}
                 >
-                  <Text fontSize={14} weight="medium" appearance="secondaryText">
-                    {t('Copy recovery phrase')}
-                  </Text>
+                  {({ hovered }: any) => (
+                    <>
+                      <Text
+                        fontSize={14}
+                        weight="medium"
+                        appearance={themeType === THEME_TYPES.DARK ? 'primary' : 'secondaryText'}
+                      >
+                        {t('Copy recovery phrase')}
+                      </Text>
 
-                  <CopyIcon style={{ marginLeft: 8 }} color={theme.secondaryText} />
-                </TouchableOpacity>
+                      <CopyIcon
+                        style={{ marginLeft: 8 }}
+                        color={
+                          hovered && themeType === THEME_TYPES.DARK
+                            ? theme.primary
+                            : theme.secondaryText
+                        }
+                      />
+                    </>
+                  )}
+                </Pressable>
               </View>
               <Button
                 testID="create-seed-phrase-write-continue-btn"
