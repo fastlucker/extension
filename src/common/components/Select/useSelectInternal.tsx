@@ -49,7 +49,7 @@ const useSelectInternal = ({
   const prevSearch = usePrevious(search)
 
   const filteredData = useMemo(() => {
-    const normalizedSearchTerm = search.toLowerCase()
+    const normalizedSearchTerm = search.trim().toLowerCase()
 
     const hasNewSearchTerm = onSearch && search !== prevSearch
     if (hasNewSearchTerm) onSearch(search)
