@@ -55,22 +55,22 @@ const AppInit = () => {
   return (
     <Router>
       <PortalProvider>
-        <ThemeProvider>
-          <SafeAreaProvider>
-            <ToastProvider>
-              <ErrorBoundary FallbackComponent={ErrorComponent}>
-                <BackgroundServiceProvider>
-                  <MainControllerStateProvider>
-                    <StorageControllerStateProvider>
-                      <NetworksControllerStateProvider>
-                        <AccountsControllerStateProvider>
-                          <SelectedAccountControllerStateProvider>
-                            <ProvidersControllerStateProvider>
-                              <AutoLockControllerStateProvider>
-                                <ExtensionUpdateControllerStateProvider>
-                                  <FeatureFlagsControllerStateProvider>
-                                    <InviteControllerStateProvider>
-                                      <WalletStateControllerProvider>
+        <SafeAreaProvider>
+          <ToastProvider>
+            <ErrorBoundary FallbackComponent={ErrorComponent}>
+              <BackgroundServiceProvider>
+                <MainControllerStateProvider>
+                  <StorageControllerStateProvider>
+                    <WalletStateControllerProvider>
+                      <ThemeProvider>
+                        <NetworksControllerStateProvider>
+                          <AccountsControllerStateProvider>
+                            <SelectedAccountControllerStateProvider>
+                              <ProvidersControllerStateProvider>
+                                <AutoLockControllerStateProvider>
+                                  <ExtensionUpdateControllerStateProvider>
+                                    <FeatureFlagsControllerStateProvider>
+                                      <InviteControllerStateProvider>
                                         <AccountPickerControllerStateProvider>
                                           <KeystoreControllerStateProvider>
                                             <SignMessageControllerStateProvider>
@@ -113,22 +113,22 @@ const AppInit = () => {
                                             </SignMessageControllerStateProvider>
                                           </KeystoreControllerStateProvider>
                                         </AccountPickerControllerStateProvider>
-                                      </WalletStateControllerProvider>
-                                    </InviteControllerStateProvider>
-                                  </FeatureFlagsControllerStateProvider>
-                                </ExtensionUpdateControllerStateProvider>
-                              </AutoLockControllerStateProvider>
-                            </ProvidersControllerStateProvider>
-                          </SelectedAccountControllerStateProvider>
-                        </AccountsControllerStateProvider>
-                      </NetworksControllerStateProvider>
-                    </StorageControllerStateProvider>
-                  </MainControllerStateProvider>
-                </BackgroundServiceProvider>
-              </ErrorBoundary>
-            </ToastProvider>
-          </SafeAreaProvider>
-        </ThemeProvider>
+                                      </InviteControllerStateProvider>
+                                    </FeatureFlagsControllerStateProvider>
+                                  </ExtensionUpdateControllerStateProvider>
+                                </AutoLockControllerStateProvider>
+                              </ProvidersControllerStateProvider>
+                            </SelectedAccountControllerStateProvider>
+                          </AccountsControllerStateProvider>
+                        </NetworksControllerStateProvider>
+                      </ThemeProvider>
+                    </WalletStateControllerProvider>
+                  </StorageControllerStateProvider>
+                </MainControllerStateProvider>
+              </BackgroundServiceProvider>
+            </ErrorBoundary>
+          </ToastProvider>
+        </SafeAreaProvider>
       </PortalProvider>
     </Router>
   )

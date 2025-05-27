@@ -38,6 +38,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
+  linkText: {
+    [THEME_TYPES.DARK]: '#9D7AFF',
+    [THEME_TYPES.LIGHT]: '#6000FF'
+  },
   primaryBorder: {
     [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#767DAD'
