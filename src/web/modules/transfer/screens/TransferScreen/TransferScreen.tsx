@@ -423,7 +423,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           dispatch({
             type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
           })
-          // setHasBroadcasted(false)
         }}
       >
         {submittedAccountOp?.status === AccountOpStatus.BroadcastedButNotConfirmed && (
