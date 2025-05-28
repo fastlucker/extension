@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import usePrevious from '@common/hooks/usePrevious'
 import useSelect from '@common/hooks/useSelect'
@@ -47,6 +47,7 @@ const useSelectInternal = ({
   )
 
   const prevSearch = usePrevious(search)
+  const prevIsMenuOpen = usePrevious(isMenuOpen)
 
   const filteredData = useMemo(() => {
     const normalizedSearchTerm = search.trim().toLowerCase()
@@ -123,6 +124,13 @@ const useSelectInternal = ({
     const { height } = event.nativeEvent.layout
     setListHeight(height)
   }, [])
+
+  // Clear search when menu closes
+  useEffect(() => {
+    if (prevIsMenuOpen && !isMenuOpen) {
+      setSearch('search', '')
+    }
+  }, [isMenuOpen, prevIsMenuOpen, setSearch])
 
   const { listRef, renderItem, handleScroll } = useSelectKeyboardControl({
     listHeight,
