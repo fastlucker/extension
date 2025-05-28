@@ -6,7 +6,6 @@ import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnecti
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
-import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountPickerScreen from '@web/modules/account-picker/screens/AccountPickerScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
@@ -151,22 +150,8 @@ const MainRoutes = () => {
 
       <Route element={<KeystoreUnlockedRoute />}>
         <Route element={<AuthenticatedRoute />}>
-          <Route
-            path={WEB_ROUTES.transfer}
-            element={
-              <TransferControllerStateProvider>
-                <TransferScreen />
-              </TransferControllerStateProvider>
-            }
-          />
-          <Route
-            path={WEB_ROUTES.topUpGasTank}
-            element={
-              <TransferControllerStateProvider isTopUp>
-                <TransferScreen />
-              </TransferControllerStateProvider>
-            }
-          />
+          <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+          <Route path={WEB_ROUTES.topUpGasTank} element={<TransferScreen isTopUpScreen />} />
           <Route
             path={WEB_ROUTES.signAccountOp}
             element={

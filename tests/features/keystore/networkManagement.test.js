@@ -1,19 +1,15 @@
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { saParams } from '../../config/constants'
 
-import { addNetworkManually, editNetwork, deletNetwork } from './functions'
+import { addNetworkManually, editNetwork, deletNetwork, addNetworkFromChainlist } from './functions'
 
 describe('networkManagement', () => {
   let browser
   let page
-  let extensionURL
   let recorder
 
   beforeEach(async () => {
-    ;({ browser, page, recorder, extensionURL } = await bootstrapWithStorage(
-      'networkManagement',
-      saParams
-    ))
+    ;({ browser, page, recorder } = await bootstrapWithStorage('networkManagement', saParams))
   })
 
   afterEach(async () => {
@@ -24,10 +20,12 @@ describe('networkManagement', () => {
   it('adding network manually', async () => {
     await addNetworkManually(page, 'FLR')
     await editNetwork(page, 'FLR')
-    await deletNetwork(page, 'FLR')
+    await disableNetwork(page, 'FLR')
   })
 
-  it.skip('adding network from Chainlist', async () => {
-    // TODO: Implement the test
+  it('adding network from Chainlist', async () => {
+    await addNetworkFromChainlist(page, 'FLOW')
+    await editNetwork(page, 'FLOW')
+    await deletNetwork(page, 'FLOW')
   })
 })

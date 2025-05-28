@@ -1,32 +1,30 @@
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { hasPersistedState } from '@ambire-common/controllers/transfer/transfer'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import Spinner from '@common/components/Spinner'
-import { APP_VERSION } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { storage } from '@web/extension-services/background/webapi/storage'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
-import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
+import useTransferControllerState from '@web/hooks/useTransferControllerState'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
   const swapAndBridgeState = useSwapAndBridgeControllerState()
+  const { state: transferState } = useTransferControllerState()
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-  const { accounts } = useAccountsControllerState()
+
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -73,6 +71,11 @@ const SortHat = () => {
 
       if (actionType === 'swapAndBridge') return navigate(ROUTES.swapAndBridge)
 
+      // TODO: This navigation occurs when signing with Trezor.
+      // Currently, Gas Top-Ups are not supported by Trezor.
+      // Once support is added, we need to introduce a new actionType specifically for Top-Up.
+      if (actionType === 'transfer') return navigate(ROUTES.transfer)
+
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
         const link =
@@ -88,28 +91,29 @@ const SortHat = () => {
 
       if (actionType === 'switchAccount') return navigate(WEB_ROUTES.switchAccount)
     } else if (!isActionWindow) {
-      if (accounts.some((a) => a.newlyAdded)) {
-        navigate(ROUTES.accountPersonalize)
-        return
-      }
-
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
       const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
         (id) => id === 'popup' || id === 'action-window'
       )
+
       if (hasSwapAndBridgePersistentSession) {
         navigate(ROUTES.swapAndBridge)
-      } else if (await hasPersistedState(storage, APP_VERSION)) {
-        navigate(ROUTES.transfer, {
-          state: { backTo: WEB_ROUTES.dashboard }
-        })
+      } else if (transferState?.hasPersistedState) {
+        if (transferState.isTopUp) {
+          navigate(ROUTES.topUpGasTank, {
+            state: { backTo: WEB_ROUTES.dashboard }
+          })
+        } else {
+          navigate(ROUTES.transfer, {
+            state: { backTo: WEB_ROUTES.dashboard }
+          })
+        }
       } else {
         navigate(ROUTES.dashboard)
       }
     }
   }, [
-    accounts,
     keystoreState.isReadyToStoreKeys,
     keystoreState.isUnlocked,
     authStatus,

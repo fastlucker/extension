@@ -18,7 +18,7 @@ const MoreDetails = ({
   const { t } = useTranslation()
   const handleOpenExplorer = async (route: SwapAndBridgeActiveRoute) => {
     const link = `${LIFI_EXPLORER_URL}/tx/${route.userTxHash}`
-    await openInTab(link, false)
+    await openInTab({ url: link })
   }
 
   return (

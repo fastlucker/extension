@@ -6,7 +6,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
-import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { LoaderProvider } from '@common/contexts/loaderContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
@@ -44,6 +43,7 @@ import { SelectedAccountControllerStateProvider } from '@web/contexts/selectedAc
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { StorageControllerStateProvider } from '@web/contexts/storageControllerStateContext'
 import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
+import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
 
 const Router = isExtension ? HashRouter : BrowserRouter
@@ -84,26 +84,26 @@ const AppInit = () => {
                                                           <DomainsControllerStateProvider>
                                                             <AddressBookControllerStateProvider>
                                                               <SwapAndBridgeControllerStateProvider>
-                                                                <ControllersStateLoadedProvider>
-                                                                  <LoaderProvider>
-                                                                    <StorageProvider>
-                                                                      <KeyboardProvider>
-                                                                        <NetInfoProvider>
-                                                                          <AuthProvider>
-                                                                            <OnboardingNavigationProvider>
-                                                                              <BiometricsProvider>
+                                                                <TransferControllerStateProvider>
+                                                                  <ControllersStateLoadedProvider>
+                                                                    <LoaderProvider>
+                                                                      <StorageProvider>
+                                                                        <KeyboardProvider>
+                                                                          <NetInfoProvider>
+                                                                            <AuthProvider>
+                                                                              <OnboardingNavigationProvider>
                                                                                 <PrivateModeProvider>
                                                                                   <AppRouter />
                                                                                 </PrivateModeProvider>
                                                                                 <PortalHost name="global" />
-                                                                              </BiometricsProvider>
-                                                                            </OnboardingNavigationProvider>
-                                                                          </AuthProvider>
-                                                                        </NetInfoProvider>
-                                                                      </KeyboardProvider>
-                                                                    </StorageProvider>
-                                                                  </LoaderProvider>
-                                                                </ControllersStateLoadedProvider>
+                                                                              </OnboardingNavigationProvider>
+                                                                            </AuthProvider>
+                                                                          </NetInfoProvider>
+                                                                        </KeyboardProvider>
+                                                                      </StorageProvider>
+                                                                    </LoaderProvider>
+                                                                  </ControllersStateLoadedProvider>
+                                                                </TransferControllerStateProvider>
                                                               </SwapAndBridgeControllerStateProvider>
                                                             </AddressBookControllerStateProvider>
                                                           </DomainsControllerStateProvider>

@@ -94,7 +94,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="transfer-button-confirm"]'
+      '[data-testid="proceed-btn"]'
     )
 
     const baFeeTokenSelector = `[data-testid="option-${baParams.envSelectedAccount.toLowerCase()}0x0000000000000000000000000000000000000000eth"]`

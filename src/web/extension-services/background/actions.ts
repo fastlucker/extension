@@ -2,7 +2,8 @@ import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
   Action as ActionFromActionsQueue,
-  ActionExecutionType
+  ActionExecutionType,
+  ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -32,6 +33,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 
+import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
@@ -136,11 +138,6 @@ type MainControllerAddNetwork = {
   params: AddNetworkRequestParams
 }
 
-type MainControllerRemoveNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: { chainId: ChainId }
-}
-
 type AccountsControllerUpdateAccountPreferences = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES'
   params: { addr: string; preferences: AccountPreferences }[]
@@ -185,7 +182,12 @@ type MainControllerUpdateNetworkAction = {
 
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
-  params: UserRequest
+  params: {
+    userRequest: UserRequest
+    actionPosition?: ActionPosition
+    actionExecutionType?: ActionExecutionType
+    allowAccountSwitch?: boolean
+  }
 }
 type MainControllerBuildTransferUserRequest = {
   type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST'
@@ -347,6 +349,7 @@ type MainControllerSignAccountOpUpdateAction = {
   type:
     | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+    | 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
@@ -362,7 +365,7 @@ type MainControllerSignAccountOpUpdateAction = {
 type SignAccountOpUpdateAction = {
   type: 'SIGN_ACCOUNT_OP_UPDATE'
   params: {
-    updateType: 'Main' | 'Swap&Bridge'
+    updateType: 'Main' | 'Swap&Bridge' | 'Transfer&TopUp'
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: FullEstimation
@@ -378,14 +381,15 @@ type MainControllerSignAccountOpUpdateStatus = {
   type:
     | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
     status: SigningStatus
   }
 }
 type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
-  params?: {
-    isSwapAndBridge?: boolean
+  params: {
+    updateType: 'Main' | 'Swap&Bridge' | 'Transfer&TopUp'
   }
 }
 
@@ -585,6 +589,39 @@ type SwapAndBridgeControllerOpenSigningActionWindow = {
 type SwapAndBridgeControllerCloseSigningActionWindow = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
 }
+type OpenSigningActionWindow = {
+  type: 'OPEN_SIGNING_ACTION_WINDOW'
+  params: {
+    type: 'swapAndBridge' | 'transfer'
+  }
+}
+type CloseSigningActionWindow = {
+  type: 'CLOSE_SIGNING_ACTION_WINDOW'
+  params: {
+    type: 'swapAndBridge' | 'transfer'
+  }
+}
+type TransferControllerUpdateForm = {
+  type: 'TRANSFER_CONTROLLER_UPDATE_FORM'
+  params: { formValues: TransferUpdate }
+}
+type TransferControllerResetForm = {
+  type: 'TRANSFER_CONTROLLER_RESET_FORM'
+}
+type TransferControllerDestroyLatestBroadcastedAccountOp = {
+  type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
+}
+type TransferControllerUnloadScreen = {
+  type: 'TRANSFER_CONTROLLER_UNLOAD_SCREEN'
+}
+type TransferControllerUserProceededAction = {
+  type: 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED'
+  params: { proceeded: boolean }
+}
+type TransferControllerShouldSkipTransactionQueuedModal = {
+  type: 'TRANSFER_CONTROLLER_SHOULD_SKIP_TRANSACTION_QUEUED_MODAL'
+  params: { shouldSkip: boolean }
+}
 type ActionsControllerRemoveFromActionsQueue = {
   type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
   params: { id: ActionFromActionsQueue['id']; shouldOpenNextAction: boolean }
@@ -704,7 +741,6 @@ export type Action =
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
-  | MainControllerRemoveNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
   | MainControllerAccountPickerSetPageAction
@@ -812,3 +848,11 @@ export type Action =
   | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
+  | OpenSigningActionWindow
+  | CloseSigningActionWindow
+  | TransferControllerUpdateForm
+  | TransferControllerResetForm
+  | TransferControllerDestroyLatestBroadcastedAccountOp
+  | TransferControllerUnloadScreen
+  | TransferControllerUserProceededAction
+  | TransferControllerShouldSkipTransactionQueuedModal

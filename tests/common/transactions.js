@@ -85,7 +85,7 @@ export async function prepareTransaction(
   }
 
   if (shouldSendButtonBeDisabled) {
-    const isDisabled = await isAriaDisabled(page, SELECTORS.transferButtonConfirm)
+    const isDisabled = await isAriaDisabled(page, SELECTORS.proceedBtn)
 
     expect(isDisabled).toBe(true)
   }
@@ -130,7 +130,7 @@ async function handleTransaction(
     page,
     extensionURL,
     browser,
-    SELECTORS.transferButtonConfirm
+    SELECTORS.proceedBtn
   )
 
   if (shouldQueueAndSignLater) {
