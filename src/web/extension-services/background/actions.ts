@@ -26,6 +26,7 @@ import {
   SwapAndBridgeRoute,
   SwapAndBridgeToToken
 } from '@ambire-common/interfaces/swapAndBridge'
+import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
@@ -33,7 +34,6 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 
-import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
@@ -538,7 +538,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
-    toSelectedToken?: SwapAndBridgeToToken | null
+    toSelectedTokenAddr?: SwapAndBridgeToToken['address'] | null
     routePriority?: 'output' | 'time'
   }
 }

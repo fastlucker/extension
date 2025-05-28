@@ -76,12 +76,27 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     [networks, dispatch]
   )
 
+  const tokensInToTokenSelect = useMemo(() => {
+    if (toTokenSearchTerm) return toTokenSearchResults
+
+    // Might not be in the `toTokenList`, but in the full list (in the private #toTokenList prop)
+    const doesSelectTokenExistInToTokenList =
+      toSelectedToken &&
+      toTokenList.some(
+        (tk) => tk.address === toSelectedToken.address && tk.chainId === toSelectedToken.chainId
+      )
+
+    return doesSelectTokenExistInToTokenList
+      ? toTokenList
+      : [toSelectedToken as SwapAndBridgeToToken, ...toTokenList]
+  }, [toTokenSearchTerm, toTokenSearchResults, toSelectedToken, toTokenList])
+
   const {
     options: toTokenOptions,
     value: toTokenValue,
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: toTokenSearchTerm ? toTokenSearchResults : toTokenList,
+    tokens: tokensInToTokenSelect,
     token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
     networks,
     supportedChainIds,
@@ -152,19 +167,15 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   }, [networks, toChainId, toNetworksOptions])
 
   const handleChangeToToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find(
-        (tk: SwapAndBridgeToToken) => getTokenId(tk, networks) === value
-      )
-
+    ({ address: toSelectedTokenAddr }: SelectValue) => {
       setIsAutoSelectRouteDisabled(false)
 
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { toSelectedToken: tokenToSelect }
+        params: { toSelectedTokenAddr }
       })
     },
-    [toTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
+    [setIsAutoSelectRouteDisabled, dispatch]
   )
 
   const handleAddToTokenByAddress = useCallback(
