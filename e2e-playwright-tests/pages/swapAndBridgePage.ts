@@ -63,6 +63,18 @@ export class SwapAndBridgePage extends BasePage {
     return Number(amount)
   }
 
+  async enterNumber(new_amount, is_valid = true) {
+    const message = 'Something went wrong! Please contact support'
+    // Enter the amount
+    await typeText(this.page, SELECTORS.fromAmountInputSab, new_amount.toString())
+    // Assert if the message should be displayed
+    if (is_valid) {
+      await expect(this.page.locator(`span:has-text("${message}")`)).not.toBeVisible()
+    } else {
+      await expect(this.page.locator(`span:has-text("${message}")`)).toBeVisible()
+    }
+  }
+
   async switchTokensOnSwapAndBridge(delay = 500) {
     await this.page.waitForTimeout(delay)
 
