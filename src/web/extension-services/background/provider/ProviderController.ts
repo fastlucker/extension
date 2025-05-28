@@ -648,6 +648,11 @@ export class ProviderController {
     return result
   }
 
+  walletRevokePermissions = ({ session: { origin } }: DappProviderRequest) => {
+    this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
+    return null
+  }
+
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
