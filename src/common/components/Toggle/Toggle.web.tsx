@@ -58,7 +58,7 @@ const Toggle: React.FC<Props> = ({
           borderRadius: '13px',
           transition: 'border 0.2s',
           background: isOn
-            ? (theme.successBackground as string)
+            ? `${theme.successDecorative as string}40`
             : themeType === THEME_TYPES.DARK
             ? (theme.quaternaryBackground as string)
             : (theme.quaternaryBackground as string),

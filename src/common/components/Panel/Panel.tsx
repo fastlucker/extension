@@ -84,7 +84,7 @@ const Panel: React.FC<Props> = ({
   const { maxWidthSize, minHeightSize } = useWindowSize()
 
   const renderProgress = () => (
-    <View style={[flexbox.directionRow]}>
+    <View style={[flexbox.directionRow, { position: 'absolute', top: 0, width: '100%' }]}>
       {[...Array(totalSteps)].map((_, index) => (
         <View
           key={`step-${index.toString()}`}
