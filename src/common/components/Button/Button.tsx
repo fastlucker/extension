@@ -19,6 +19,7 @@ type ButtonTypes =
   | 'danger'
   | 'outline'
   | 'ghost'
+  | 'ghost2'
   | 'error'
   | 'warning'
   | 'info'
@@ -79,6 +80,7 @@ const ButtonInnerContainer = ({
               }
             ]
           : [],
+      ghost2: [],
       error: [],
       warning: [],
       info: [],
@@ -193,6 +195,7 @@ const Button = ({
       ],
       outline: [OPACITY_ANIMATION],
       ghost: [OPACITY_ANIMATION],
+      ghost2: [],
       error: [OPACITY_ANIMATION],
       warning: [OPACITY_ANIMATION],
       info: [OPACITY_ANIMATION],
@@ -230,6 +233,7 @@ const Button = ({
     danger: styles.buttonContainerDanger,
     outline: styles.buttonContainerOutline,
     ghost: styles.buttonContainerGhost,
+    ghost2: {},
     error: {
       backgroundColor: theme.errorText,
       borderWidth: 0
@@ -301,6 +305,13 @@ const Button = ({
           property: 'color',
           from: theme.primary,
           to: theme.primary
+        }
+      ],
+      ghost2: [
+        {
+          property: 'color',
+          from: theme.iconPrimary,
+          to: theme.primaryBackgroundInverted
         }
       ],
       error: [

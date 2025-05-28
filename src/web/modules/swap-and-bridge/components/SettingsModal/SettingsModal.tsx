@@ -115,7 +115,11 @@ const SettingsModal: React.FC<Props> = ({ handleToggleSettingsMenu, settingModal
             <SettingsIcon
               width={SETTINGS_ICON_SIZE}
               height={SETTINGS_ICON_SIZE}
-              color={isHovered || settingModalVisible ? theme.iconTertiary : theme.iconSecondary}
+              color={
+                isHovered || settingModalVisible
+                  ? theme.primaryBackgroundInverted
+                  : theme.iconSecondary
+              }
             />
           </Animated.View>
         </Pressable>

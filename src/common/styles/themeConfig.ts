@@ -11,7 +11,7 @@ export enum THEME_TYPES {
 
 export type ThemeType = THEME_TYPES.LIGHT | THEME_TYPES.DARK | THEME_TYPES.SYSTEM
 
-export const DEFAULT_THEME = THEME_TYPES.DARK
+export const DEFAULT_THEME = THEME_TYPES.LIGHT
 
 export type ThemeProps = {
   [key in keyof typeof ThemeColors]: ColorValue
@@ -58,6 +58,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: '#0D0D0F',
     [THEME_TYPES.LIGHT]: '#FFFFFF'
   },
+  primaryBackgroundInverted: {
+    [THEME_TYPES.DARK]: '#FFFFFF',
+    [THEME_TYPES.LIGHT]: '#141833'
+  },
   secondaryBackground: {
     [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#F2F3FA'
@@ -67,8 +71,8 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
   quaternaryBackground: {
-    [THEME_TYPES.DARK]: '#FFFFFF14',
-    [THEME_TYPES.LIGHT]: '#767DAD14'
+    [THEME_TYPES.DARK]: '#FFFFFF22',
+    [THEME_TYPES.LIGHT]: '#767DAD22'
   },
   quaternaryBackgroundSolid: {
     [THEME_TYPES.DARK]: colors.greenHaze,
@@ -170,10 +174,6 @@ const ThemeColors = {
   iconPrimary2: {
     [THEME_TYPES.DARK]: '#6000FF',
     [THEME_TYPES.LIGHT]: '#6000FF'
-  },
-  iconTertiary: {
-    [THEME_TYPES.DARK]: '#FFFFFF',
-    [THEME_TYPES.LIGHT]: '#141833'
   }
 }
 

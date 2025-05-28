@@ -4,9 +4,9 @@
  */
 .toggle {
   align-items: center;
-  --width: 25px;
-  --height: calc(var(--width) / 2);
-  --border-radius: calc(var(--height));
+  --width: 28px;
+  --height: 12px;
+  --border-radius: 13px;
 
   display: flex;
   cursor: pointer;
@@ -22,25 +22,23 @@
   width: var(--width);
   height: var(--height);
   border-radius: var(--border-radius);
-  background: #f7f8ff;
   transition: border 0.2s;
-  border: 2px solid #2d314da6;
 }
-.toggle__fill::after {
+.toggle__inner {
   content: '';
   position: absolute;
   top: 2px;
   left: 2px;
   height: var(--height);
   width: var(--height);
-  background: #2d314da6;
   border-radius: var(--border-radius);
   transition: transform 0.2s;
 }
-.toggle__input:checked ~ .toggle__fill {
-  border-color: #6000ff;
+.toggle__input:checked + .toggle__fill {
+  background: #ddd;
+  border: 2px solid #6000ff;
 }
-.toggle__input:checked ~ .toggle__fill::after {
+.toggle__input:checked + .toggle__fill .toggle__inner {
   transform: translateX(var(--height));
   background: #6000ff;
 }

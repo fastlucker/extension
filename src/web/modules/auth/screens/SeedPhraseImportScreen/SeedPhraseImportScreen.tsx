@@ -142,7 +142,7 @@ const SeedPhraseImportScreen = () => {
             <View>
               <Button
                 testID="clear-seed-phrase-btn"
-                type="ghost"
+                type="ghost2"
                 size="small"
                 onPress={() => {
                   setValue('seed', '')

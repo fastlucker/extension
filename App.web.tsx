@@ -31,11 +31,7 @@ const App = () => {
   // the window is an extension window and if it is web (not android or ios)
   if (!isExtension && isWeb) return 'Extension build successful! You can now close this window.'
 
-  return (
-    <GestureHandlerRootView style={[flexboxStyles.flex1, { backgroundColor: colors.white }]}>
-      <AppInit />
-    </GestureHandlerRootView>
-  )
+  return <AppInit />
 }
 
 export default App

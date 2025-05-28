@@ -113,13 +113,18 @@ const SelectNetwork = () => {
       >
         {dashboardNetworkFilter ? (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <FilterIcon color={theme.iconTertiary} style={spacings.prTy} width={14} height={14} />
+            <FilterIcon
+              color={theme.primaryBackgroundInverted}
+              style={spacings.prTy}
+              width={14}
+              height={14}
+            />
             <Text fontSize={14}>{filterByNetworkName}</Text>
           </View>
         ) : (
           <Text fontSize={14}>{t('All Networks')}</Text>
         )}
-        <RightArrowIcon height={12} color={theme.iconTertiary} />
+        <RightArrowIcon height={12} color={theme.primaryBackgroundInverted} />
       </AnimatedPressable>
     </View>
   )

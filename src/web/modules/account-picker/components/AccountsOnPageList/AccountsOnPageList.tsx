@@ -20,6 +20,7 @@ import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -59,7 +60,7 @@ const AccountsOnPageList = ({
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
 
   const slots = useMemo(() => {
     return groupBy(
@@ -270,8 +271,14 @@ const AccountsOnPageList = ({
                 <View
                   style={[
                     styles.smartAccountWrapper,
-                    // @ts-ignore
-                    { background: 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)' }
+                    {
+                      borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1,
+                      // @ts-ignore
+                      background:
+                        themeType === THEME_TYPES.DARK
+                          ? 'linear-gradient(81deg, #AD8FFF33 0%, #39F7EF33 100%)'
+                          : 'linear-gradient(81deg, #F7F8FC 0%, #F1E8FF 100%)'
+                    }
                   ]}
                 >
                   <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>

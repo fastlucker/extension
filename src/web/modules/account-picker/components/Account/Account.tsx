@@ -20,6 +20,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { setStringAsync } from '@common/utils/clipboard'
@@ -65,7 +66,7 @@ const Account = ({
   const { isLoading: isDomainResolving, ens } = useReverseLookup({ address: account.addr })
   const domainName = ens
   const { t } = useTranslation()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const { setShowIntroSteps } = useContext(AccountPickerIntroStepsContext)
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
@@ -114,7 +115,10 @@ const Account = ({
         flexbox.alignCenter,
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
-        { borderWidth: 1, borderColor: theme.secondaryBackground },
+        {
+          borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1,
+          borderColor: theme.secondaryBackground
+        },
         ((hovered && !isDisabled) || importStatus === ImportStatus.ImportedWithTheSameKeys) && {
           borderColor: theme.secondaryBorder
         }

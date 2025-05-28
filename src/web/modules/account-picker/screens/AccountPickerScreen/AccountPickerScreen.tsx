@@ -140,7 +140,6 @@ const AccountPickerScreen = () => {
             <Button
               testID="button-import-account"
               hasBottomSpacing={false}
-              textStyle={{ fontSize: 14 }}
               onPress={onImportReady}
               size="large"
               disabled={isImportDisabled}
@@ -152,9 +151,7 @@ const AccountPickerScreen = () => {
                   : t('Import accounts')
               }
             >
-              <View style={spacings.pl}>
-                <RightArrowIcon color={colors.titan} />
-              </View>
+              <RightArrowIcon color={colors.titan} style={spacings.ml} />
             </Button>
           </AccountsOnPageList>
         </Panel>
