@@ -29,7 +29,7 @@ const Completed: FC<CompletedProps> = ({
   const handleOpenExplorer = useCallback(async () => {
     if (!explorerLink) return
     try {
-      await openInTab(explorerLink, false)
+      await openInTab({ url: explorerLink })
     } catch {
       addToast('Error opening explorer', { type: 'error' })
     }
