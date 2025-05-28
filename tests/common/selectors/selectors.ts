@@ -122,7 +122,7 @@ export const TEST_IDS = {
   dappConnectButton: 'dapp-connect-button',
   signButtonSwap: 'swap-button-sign',
   addMoreSwaps: 'add-more-swaps',
-  flipUSDIcon: 'flip-icon'
+  flipUSDIcon: 'flip-icon',
   disableNetworkButton: 'disable-network-btn',
   disableNetworkConfirmButton: 'disable-network-confirm-btn'
 }
