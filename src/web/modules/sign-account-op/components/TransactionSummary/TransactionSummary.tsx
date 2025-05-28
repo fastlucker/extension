@@ -58,7 +58,7 @@ const TransactionSummary = ({
     let foundSigHash: string | undefined
     Object.values(humanizerInfo.abis).some((abi) => {
       Object.values(abi).some((s) => {
-        if (s.selector === call.data.slice(0, 10)) {
+        if (call.data && s.selector === call.data.slice(0, 10)) {
           foundSigHash = s.signature
           return true
         }

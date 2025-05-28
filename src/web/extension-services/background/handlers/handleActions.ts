@@ -598,7 +598,7 @@ export const handleActions = async (
         } catch (e) {
           pm.send('> ui', {
             method: 'navigate',
-            params: { route: WEB_ROUTES.dashboard }
+            params: { route: '/' }
           })
         }
       }

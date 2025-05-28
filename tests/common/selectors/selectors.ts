@@ -117,6 +117,12 @@ export const TEST_IDS = {
   processButtonSab: 'proceed-btn',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
+  removeNetworkButton: 'remove-network-btn',
+  removeNetworkConfirmButton: 'remove-network-confirm-btn',
+  dappConnectButton: 'dapp-connect-button',
+  signButtonSwap: 'swap-button-sign',
+  addMoreSwaps: 'add-more-swaps',
+  flipUSDIcon: 'flip-icon'
   disableNetworkButton: 'disable-network-btn',
   disableNetworkConfirmButton: 'disable-network-confirm-btn'
 }
