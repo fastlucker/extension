@@ -238,7 +238,7 @@ const Account = ({
                       key={n.chainId.toString()}
                     >
                       <NetworkIcon
-                        style={{ backgroundColor: theme.primaryBackground }}
+                        style={{ backgroundColor: '#fff' }}
                         id={n.chainId.toString()}
                         size={18}
                       />

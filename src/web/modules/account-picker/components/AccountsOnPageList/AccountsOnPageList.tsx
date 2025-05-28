@@ -316,8 +316,14 @@ const AccountsOnPageList = ({
                             id="linked-accounts-warning"
                             border={`1px solid ${theme.warningDecorative as any}`}
                             style={{
-                              backgroundColor: theme.warningBackground as any,
-                              color: theme.warningText as any
+                              backgroundColor:
+                                themeType === THEME_TYPES.DARK
+                                  ? theme.warningDecorative
+                                  : (theme.warningBackground as any),
+                              color:
+                                themeType === THEME_TYPES.DARK
+                                  ? theme.primaryBackground
+                                  : (theme.warningText as any)
                             }}
                             content="Do not add linked accounts you are not aware of!"
                           />

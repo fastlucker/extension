@@ -165,7 +165,7 @@ const CreateSeedPhraseWriteScreen = () => {
                   flexbox.directionRow,
                   flexbox.justifyCenter,
                   flexbox.alignCenter,
-                  spacings.pvMi,
+                  spacings.ptTy,
                   common.borderRadiusPrimary,
                   spacings.mbXl
                 ]}
@@ -174,6 +174,7 @@ const CreateSeedPhraseWriteScreen = () => {
                   type="ghost"
                   text={t('Copy recovery phrase')}
                   hasBottomSpacing={false}
+                  size="small"
                   onPress={handleCopyToClipboard}
                 >
                   <CopyIcon style={spacings.mlTy} />

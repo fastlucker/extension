@@ -11,7 +11,7 @@ export enum THEME_TYPES {
 
 export type ThemeType = THEME_TYPES.LIGHT | THEME_TYPES.DARK | THEME_TYPES.SYSTEM
 
-export const DEFAULT_THEME = THEME_TYPES.LIGHT
+export const DEFAULT_THEME = THEME_TYPES.DARK
 
 export type ThemeProps = {
   [key in keyof typeof ThemeColors]: ColorValue
