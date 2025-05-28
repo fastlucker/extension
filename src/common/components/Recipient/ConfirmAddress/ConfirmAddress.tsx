@@ -9,6 +9,7 @@ import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
 type Props = {
   onAddToAddressBook: () => any
@@ -36,16 +37,18 @@ const ConfirmAddress = ({
   selectedTokenSymbol
 }: Props) => {
   const { t } = useTranslation()
-  const { transferCtrl } = useTransferControllerState()
+  const { state } = useTransferControllerState()
+  const { dispatch } = useBackgroundService()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
 
   const onSWWarningCheckboxClick = useCallback(() => {
-    transferCtrl.update({
-      isSWWarningAgreed: true
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: { formValues: { isSWWarningAgreed: true } }
     })
-  }, [transferCtrl])
+  }, [state, dispatch])
 
   return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&

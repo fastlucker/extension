@@ -9,23 +9,33 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
-import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
+import { TokenResult } from '@ambire-common/libs/portfolio'
+import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 
 type Props = {
-  isNotReadyToProceed: boolean
-  isBridge: boolean
+  token: TokenResult | null
   handleSubmitForm: (isOneClickMode: boolean) => void
+  proceedBtnText?: string
+  signAccountOpErrors: SignAccountOpError[]
+  isNotReadyToProceed: boolean
+  isBridge?: boolean
 }
 
 const { isActionWindow } = getUiType()
 
-const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
+const Buttons: FC<Props> = ({
+  token,
+  signAccountOpErrors,
+  proceedBtnText = 'Proceed',
+  handleSubmitForm,
+  isNotReadyToProceed,
+  isBridge
+}) => {
   const { t } = useTranslation()
-  const { fromSelectedToken, swapSignErrors } = useSwapAndBridgeControllerState()
   const { userRequests } = useMainControllerState()
   const { account } = useSelectedAccountControllerState()
-  const fromChainId = fromSelectedToken?.chainId
+  const fromChainId = token?.chainId
 
   const networkUserRequests = fromChainId
     ? userRequests?.filter(
@@ -43,12 +53,12 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
       )
     }
 
-    if (swapSignErrors.length > 0) {
-      return swapSignErrors[0].title
+    if (signAccountOpErrors.length > 0) {
+      return signAccountOpErrors[0].title
     }
 
     return ''
-  }, [isBridge, networkUserRequests.length, t, swapSignErrors])
+  }, [isBridge, networkUserRequests.length, t, signAccountOpErrors])
 
   const batchDisabledReason = useMemo(() => {
     if (isBridge) return t('Batching is not available for bridges.')
@@ -82,7 +92,7 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <Button
-          text={t('Proceed')}
+          text={proceedBtnText}
           disabled={isNotReadyToProceed || !!oneClickDisabledReason}
           style={{ minWidth: 160, ...spacings.mlLg }}
           hasBottomSpacing={false}
