@@ -56,7 +56,7 @@
       letter-spacing: 0;
       vertical-align: middle;
       text-shadow: -0.125rem .125rem 0 rgba($accent, 0.6);
-      margin-bottom: 1.5rem;
+      margin-bottom: 7.25rem;
       max-width: 31.75rem;
 
       .dollarSign {
@@ -103,10 +103,9 @@
     }
 
     .walletLevelInfoWrapper {
-      display: grid;
+      display: flex;
       gap: 1rem;
       align-items: flex-start;
-      grid-template-columns: 1fr 1fr;
 
       .walletItemWrapper {
         display: flex;
@@ -131,7 +130,7 @@
       }
 
       .item {
-        min-width: 9rem;
+        min-width: 7.25rem;
         padding: 0.25rem 0.5rem;
         
         border-radius: $secondaryBorderRadius;
@@ -242,6 +241,13 @@
 
   @include breakpoint-down-from(tablet) {
     margin-left: 0;
+
+       .walletInfo {
+        .walletLevelInfoWrapper {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+      }
   }
 }
 
