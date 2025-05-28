@@ -72,7 +72,6 @@ export const TEST_IDS = {
   continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
-  transferButtonConfirm: 'transfer-button-confirm',
   addAccountField: 'add-account-field',
   importExistingSeedBtn: 'import-existing-seed-btn',
   createSeedBtn: 'create-seed-btn',
