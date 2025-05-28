@@ -6,7 +6,7 @@ import useTheme from '@common/hooks/useTheme'
 const FlipIcon: FC<SvgProps> = ({ width, height, color, ...rest }) => {
   const { theme } = useTheme()
   return (
-    <Svg viewBox="0 0 11.419 11.414" width={width} height={height} {...rest}>
+    <Svg viewBox="0 0 11.419 11.414" width={width} height={height} testID="flip-icon" {...rest}>
       <G fill="none" stroke={color || theme.iconSecondary} strokeLinecap="round">
         <G>
           <Path d="m.707 8.217 2.49 2.49 2.49-2.49" />

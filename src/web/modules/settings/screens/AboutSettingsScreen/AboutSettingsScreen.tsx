@@ -36,7 +36,7 @@ const AboutSettingsScreen = () => {
   }
 
   const openNewsletter = async () => {
-    await openInTab('https://web3onfire.com/', false)
+    await openInTab({ url: 'https://web3onfire.com/' })
   }
 
   return (
@@ -83,7 +83,7 @@ const AboutSettingsScreen = () => {
               spacings.mr2Xl
             ]}
             key={url}
-            onPress={() => openInTab(url)}
+            onPress={() => openInTab({ url, shouldCloseCurrentWindow: true })}
           >
             {({ hovered }: any) => (
               <>
