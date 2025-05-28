@@ -27,7 +27,6 @@ import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
@@ -51,7 +50,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { state } = useTransferControllerState()
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const {
     isTopUp,
     validationFormMsgs,
@@ -81,7 +79,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { hasGasTank } = useHasGasTank({ account })
   const recipientMenuClosedAutomatically = useRef(false)
 
-  const [hasBroadcasted, setHasBroadcasted] = useState(false)
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
 
   const submittedAccountOp = useMemo(() => {
@@ -138,24 +135,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const displayedView: 'transfer' | 'batch' | 'track' = useMemo(() => {
     if (showAddedToBatch) return 'batch'
 
-    if (hasBroadcasted) return 'track'
+    if (latestBroadcastedAccountOp) return 'track'
 
     return 'transfer'
-  }, [hasBroadcasted, showAddedToBatch])
-
-  useEffect(() => {
-    const broadcastStatus = mainCtrlStatuses.signAndBroadcastAccountOp
-
-    // We also check the TransferController's latestBroadcastedAccountOp status,
-    // otherwise, the hasBroadcasted flag could be set to true
-    // if another accountOp from the MainController was broadcasted.
-    if (
-      broadcastStatus === 'SUCCESS' &&
-      latestBroadcastedAccountOp?.status === AccountOpStatus.BroadcastedButNotConfirmed
-    ) {
-      setHasBroadcasted(true)
-    }
-  }, [mainCtrlStatuses.signAndBroadcastAccountOp, latestBroadcastedAccountOp?.status])
+  }, [latestBroadcastedAccountOp, showAddedToBatch])
 
   // When navigating to another screen internally in the extension, we unload the TransferController
   // to ensure that no estimation or SignAccountOp logic is still running.
@@ -185,6 +168,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   useEffect(() => {
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      // `isTopUp` should be sent as a boolean.
+      // Sending it as undefined will not correctly reflect the state of the transfer controller.
       params: { formValues: { isTopUp: !!isTopUpScreen } }
     })
   }, [dispatch, isTopUpScreen])
@@ -438,7 +423,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           dispatch({
             type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
           })
-          setHasBroadcasted(false)
+          // setHasBroadcasted(false)
         }}
       >
         {submittedAccountOp?.status === AccountOpStatus.BroadcastedButNotConfirmed && (
