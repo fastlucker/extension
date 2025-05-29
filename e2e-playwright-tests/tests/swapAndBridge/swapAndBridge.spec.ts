@@ -41,4 +41,17 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.verifySendMaxTokenAmount('DAI', '10')
     await swapAndBridgePage.verifySendMaxTokenAmount('USDC', '8453')
   })
+
+  test('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.verifyDefaultReceiveToken('USDC', '8453', 'WALLET')
+    await swapAndBridgePage.verifyDefaultReceiveToken('WALLET', '8453', 'LINK')
+  })
+
+  test('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.verifyNonDefaultReceiveToken('ETH', '1', 'wCRES')
+  })
 })

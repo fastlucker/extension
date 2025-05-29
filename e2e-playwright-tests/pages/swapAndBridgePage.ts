@@ -4,6 +4,7 @@ import { bootstrapWithStorage } from '../common-helpers/bootstrap'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { SELECTORS } from '../common/selectors/selectors'
+import { constants } from '../constants/constants'
 import { BasePage } from './basePage'
 
 export class SwapAndBridgePage extends BasePage {
@@ -128,7 +129,6 @@ export class SwapAndBridgePage extends BasePage {
 
       // Enter the amount
       await typeText(this.page, SELECTORS.fromAmountInputSab, send_amount.toString())
-
       // TODO: Implement verifyRouteFound
       // await verifyRouteFound()
 
@@ -189,6 +189,57 @@ export class SwapAndBridgePage extends BasePage {
       )
     }
     expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison
+  }
+
+  async verifyDefaultReceiveToken(
+    sendToken: string,
+    receiveNetwork: string,
+    receiveToken: string
+  ): Promise<void> {
+    await this.openSwapAndBridge()
+    await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
+    await this.page.waitForTimeout(1000)
+    await this.page.locator(SELECTORS.receiveTokenSab).click()
+    await this.page.waitForTimeout(900)
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken)
+    const selector = `[data-testid*="${receiveToken.toLowerCase()}"]`
+    await expect(this.page.locator(selector)).toHaveText(new RegExp(receiveToken.toUpperCase()), {
+      timeout: 3000
+    })
+
+    const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
+    if (address) {
+      await expect(this.page.locator(selector)).toHaveText(new RegExp(address), {
+        timeout: 3000
+      })
+      await this.page.locator(selector).click()
+    } else {
+      console.warn(`[WARNING] Token address not found for ${receiveNetwork}.${receiveToken}`)
+    }
+
+    await this.page.waitForTimeout(1000)
+  }
+
+  async verifyNonDefaultReceiveToken(
+    sendToken: string,
+    receiveNetwork: string,
+    receiveToken: string
+  ) {
+    await this.openSwapAndBridge()
+    await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
+    await this.page.waitForTimeout(1000)
+
+    await this.page.locator(SELECTORS.receiveTokenSab).click()
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken)
+    await this.page.getByText('Not found. Try with token').isVisible()
+
+    const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
+    await this.page.locator(SELECTORS.searchInput).fill(address)
+
+    const selector = this.page.locator(`[data-tooltip-id*="${address}"]`).first()
+    await this.page.waitForTimeout(1000)
+    await expect(selector).toHaveText(new RegExp(receiveToken), { timeout: 3000 })
+    await expect(selector).toHaveText(new RegExp(address), { timeout: 3000 })
   }
 
   async navigateToHome() {
