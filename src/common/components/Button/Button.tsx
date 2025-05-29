@@ -192,7 +192,6 @@ const Button = ({
             themeType === THEME_TYPES.DARK
               ? `${String(theme.errorDecorative)}00`
               : `${String(theme.errorBackground)}00`,
-
           to: theme.errorBackground
         }
       ],
