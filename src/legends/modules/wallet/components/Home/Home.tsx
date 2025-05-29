@@ -30,7 +30,9 @@ const Home = () => {
                 <div className={styles.walletItem}>
                   <div className={styles.walletInfoWrapper}>Circulating supply</div>
                   <span className={styles.item}>
-                    {walletTokenInfo?.circulatingSupply
+                    {isLoadingWalletTokenInfo
+                      ? 'Loading...'
+                      : walletTokenInfo?.circulatingSupply
                       ? Math.floor(Number(walletTokenInfo.circulatingSupply)).toLocaleString(
                           'en-US'
                         )
@@ -65,16 +67,19 @@ const Home = () => {
                 <div className={styles.walletInfoWrapper} />
               </div>
             </div>
-            {walletTokenPrice && (
-              <div className={styles.walletItemWrapper}>
-                <div className={styles.walletItem}>
-                  <div className={styles.walletInfoWrapper}>Current price</div>
-                  <span className={styles.item}>
-                    {walletTokenPrice !== undefined ? Number(walletTokenPrice).toFixed(3) : ''}
-                  </span>
-                </div>
+
+            <div className={styles.walletItemWrapper}>
+              <div className={styles.walletItem}>
+                <div className={styles.walletInfoWrapper}>Current price</div>
+                <span className={styles.item}>
+                  {isLoadingWalletTokenInfo
+                    ? 'Loading...'
+                    : walletTokenInfo?.walletPrice !== undefined
+                    ? Number(walletTokenInfo?.walletPrice).toFixed(3)
+                    : ''}
+                </span>
               </div>
-            )}
+            </div>
           </div>
         </div>
         <div
