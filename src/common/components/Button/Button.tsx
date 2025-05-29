@@ -189,9 +189,10 @@ const Button = ({
         {
           property: 'backgroundColor',
           from:
-            String(theme.errorBackground).length <= 7
-              ? `${String(theme.errorBackground)}00`
-              : theme.errorBackground,
+            themeType === THEME_TYPES.DARK
+              ? `${String(theme.errorDecorative)}00`
+              : `${String(theme.errorBackground)}00`,
+
           to: theme.errorBackground
         }
       ],
