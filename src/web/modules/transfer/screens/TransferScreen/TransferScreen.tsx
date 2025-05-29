@@ -473,6 +473,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     return (
       <BatchAdded
         title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
+        primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
         onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}

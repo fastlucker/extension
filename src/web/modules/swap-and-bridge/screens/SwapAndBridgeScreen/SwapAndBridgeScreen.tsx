@@ -221,6 +221,7 @@ const SwapAndBridgeScreen = () => {
     return (
       <BatchAdded
         title={t('Swap & Bridge')}
+        primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
         onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
