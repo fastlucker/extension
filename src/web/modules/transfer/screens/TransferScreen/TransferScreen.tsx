@@ -5,8 +5,12 @@ import { useModalize } from 'react-native-modalize'
 
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import { getAddressFromAddressState } from '@ambire-common/utils/domains'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
@@ -22,27 +26,23 @@ import useToast from '@common/hooks/useToast'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { getAddressFromAddressState } from '@ambire-common/utils/domains'
 import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
+import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
+import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
+import TrackProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
+import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
+import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
+import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 import { getUiType } from '@web/utils/uiType'
-import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
-import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
-import TrackProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
-import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
-import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
-import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
-import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
-import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 
 const { isPopup, isTab, isActionWindow } = getUiType()
 
@@ -418,7 +418,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       <TrackProgress
         title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
         onPrimaryButtonPress={onPrimaryButtonPress}
-        secondaryButtonText={isTopUp ? t('Top up again?') : t('Sending more?')}
+        secondaryButtonText={t('Add more')}
         handleClose={() => {
           dispatch({
             type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
@@ -473,7 +473,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     return (
       <BatchAdded
         title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
-        secondaryButtonText={isTopUp ? t('Top up again?') : t('Sending more?')}
+        primaryButtonText={t('Open dashboard')}
+        secondaryButtonText={t('Add more')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
         onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
       />
