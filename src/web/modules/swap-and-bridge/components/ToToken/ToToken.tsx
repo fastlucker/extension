@@ -80,15 +80,15 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     if (toTokenSearchTerm) return toTokenSearchResults
 
     // Token might not be in the short list (if it's pulled from search for example)
-    const doesSelectTokenExistInToTokenList =
+    const isSelectTokenMissingInToTokenShortList =
       toSelectedToken &&
-      toTokenShortList.some(
+      !toTokenShortList.some(
         (tk) => tk.address === toSelectedToken.address && tk.chainId === toSelectedToken.chainId
       )
 
-    return doesSelectTokenExistInToTokenList
-      ? toTokenShortList
-      : [toSelectedToken as SwapAndBridgeToToken, ...toTokenShortList]
+    return isSelectTokenMissingInToTokenShortList
+      ? [toSelectedToken, ...toTokenShortList]
+      : toTokenShortList
   }, [toTokenSearchTerm, toTokenSearchResults, toSelectedToken, toTokenShortList])
 
   const {
