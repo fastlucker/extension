@@ -52,6 +52,8 @@ const OPACITY_ANIMATION = {
   to: 0.7
 }
 
+const buttonTypesWithInnerContainer = ['ghost']
+
 const ButtonInnerContainer = ({
   type,
   forceHoveredStyle,
@@ -409,6 +411,8 @@ const Button = ({
       }
       {...rest}
       onHoverIn={(e) => {
+        if (buttonTypesWithInnerContainer.includes(type)) return
+
         buttonContainerBind.onHoverIn(e)
         buttonTextBind.onHoverIn(e)
         childrenScaleBind.onHoverIn(e)
@@ -416,6 +420,8 @@ const Button = ({
         rest?.onHoverIn && rest.onHoverIn(e)
       }}
       onHoverOut={(e) => {
+        if (buttonTypesWithInnerContainer.includes(type)) return
+
         buttonContainerBind.onHoverOut(e)
         buttonTextBind.onHoverOut(e)
         childrenScaleBind.onHoverOut(e)
@@ -423,6 +429,8 @@ const Button = ({
         rest?.onHoverOut && rest.onHoverOut(e)
       }}
       onPressIn={(e) => {
+        if (buttonTypesWithInnerContainer.includes(type)) return
+
         buttonContainerBind.onPressIn(e)
         buttonTextBind.onPressIn(e)
         childrenScaleBind.onPressIn(e)
@@ -430,6 +438,8 @@ const Button = ({
         rest?.onPressIn && rest.onPressIn(e)
       }}
       onPressOut={(e) => {
+        if (buttonTypesWithInnerContainer.includes(type)) return
+
         buttonContainerBind.onPressOut(e)
         buttonTextBind.onPressOut(e)
         childrenScaleBind.onPressOut(e)
