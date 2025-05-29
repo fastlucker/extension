@@ -1,5 +1,3 @@
-import './styles.css'
-
 import React from 'react'
 
 import Text, { Props as TextProps } from '@common/components/Text'

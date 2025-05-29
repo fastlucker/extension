@@ -3,10 +3,10 @@ import { G, Path, Svg, SvgProps } from 'react-native-svg'
 
 import useTheme from '@common/hooks/useTheme'
 
-const BatchIcon: FC<SvgProps> = ({ width = 16, height = 16, style, color }) => {
+const BatchIcon: FC<SvgProps> = ({ width = 16, height = 16, style, color, ...rest }) => {
   const { theme } = useTheme()
   return (
-    <Svg viewBox="0 0 16.944 17.555" width={width} height={height} style={style}>
+    <Svg viewBox="0 0 16.944 17.555" width={width} height={height} style={style} {...rest}>
       <G
         fill="none"
         stroke={color || theme.iconPrimary2}

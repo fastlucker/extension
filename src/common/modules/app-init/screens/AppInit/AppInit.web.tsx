@@ -7,7 +7,6 @@ import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
-import { LoaderProvider } from '@common/contexts/loaderContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
 import { PrivateModeProvider } from '@common/contexts/privateModeContext'
 import { StorageProvider } from '@common/contexts/storageContext'
@@ -86,22 +85,20 @@ const AppInit = () => {
                                                               <AddressBookControllerStateProvider>
                                                                 <SwapAndBridgeControllerStateProvider>
                                                                   <ControllersStateLoadedProvider>
-                                                                    <LoaderProvider>
-                                                                      <StorageProvider>
-                                                                        <KeyboardProvider>
-                                                                          <NetInfoProvider>
-                                                                            <AuthProvider>
-                                                                              <OnboardingNavigationProvider>
-                                                                                <PrivateModeProvider>
-                                                                                  <AppRouter />
-                                                                                </PrivateModeProvider>
-                                                                                <PortalHost name="global" />
-                                                                              </OnboardingNavigationProvider>
-                                                                            </AuthProvider>
-                                                                          </NetInfoProvider>
-                                                                        </KeyboardProvider>
-                                                                      </StorageProvider>
-                                                                    </LoaderProvider>
+                                                                    <StorageProvider>
+                                                                      <KeyboardProvider>
+                                                                        <NetInfoProvider>
+                                                                          <AuthProvider>
+                                                                            <OnboardingNavigationProvider>
+                                                                              <PrivateModeProvider>
+                                                                                <AppRouter />
+                                                                              </PrivateModeProvider>
+                                                                              <PortalHost name="global" />
+                                                                            </OnboardingNavigationProvider>
+                                                                          </AuthProvider>
+                                                                        </NetInfoProvider>
+                                                                      </KeyboardProvider>
+                                                                    </StorageProvider>
                                                                   </ControllersStateLoadedProvider>
                                                                 </SwapAndBridgeControllerStateProvider>
                                                               </AddressBookControllerStateProvider>

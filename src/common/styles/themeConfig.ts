@@ -1,7 +1,5 @@
 import { ColorValue } from 'react-native'
 
-import colors from './colors'
-
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum THEME_TYPES {
   LIGHT = 'light',
@@ -75,11 +73,11 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#767DAD22'
   },
   quaternaryBackgroundSolid: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: 'red',
     [THEME_TYPES.LIGHT]: '#F4F5F8'
   },
   quinaryBackground: {
-    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.DARK]: 'red',
     [THEME_TYPES.LIGHT]: '#F7F8FC'
   },
   backdrop: {

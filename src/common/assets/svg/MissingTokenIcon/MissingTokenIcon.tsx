@@ -1,8 +1,6 @@
 import React from 'react'
 import Svg, { Circle, G, Path, Rect, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
-
 interface Props extends SvgProps {
   width?: number
   height?: number
@@ -22,7 +20,7 @@ const MissingTokenIcon: React.FC<Props> = ({
         height="34"
         rx="13"
         transform="rotate(-90 17 17)"
-        fill={colors.titan}
+        fill="#EBECFF"
         opacity=".05"
       />
     )}

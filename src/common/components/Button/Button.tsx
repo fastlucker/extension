@@ -384,7 +384,7 @@ const Button = ({
 
   const enhancedChildren = React.Children.toArray(children).map((child, index) => {
     if (index === 0 && React.isValidElement(child)) {
-      return React.cloneElement(child, { color: effectiveColor } as any)
+      return React.cloneElement(child, { color: accentColor || effectiveColor } as any)
     }
 
     return child

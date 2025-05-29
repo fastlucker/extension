@@ -1,5 +1,4 @@
 import { MainController } from '@ambire-common/controllers/main/main'
-import colors from '@common/styles/colors'
 import { browser } from '@web/constants/browserapi'
 import { setExtensionIcon } from '@web/extension-services/background/webapi/icon'
 
@@ -80,7 +79,7 @@ export class BadgesController {
       browser.action.setBadgeText({ text: '' })
     } else {
       browser.action.setBadgeText({ text: `${badgesCount}` })
-      browser.action.setBadgeBackgroundColor({ color: colors.turquoise })
+      browser.action.setBadgeBackgroundColor({ color: '#70FF8D' })
     }
   }
 
