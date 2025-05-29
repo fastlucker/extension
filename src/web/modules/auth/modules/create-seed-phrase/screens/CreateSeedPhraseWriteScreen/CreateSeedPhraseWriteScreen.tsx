@@ -182,6 +182,7 @@ const CreateSeedPhraseWriteScreen = () => {
                     spacings.phSm,
                     { backgroundColor: theme.secondaryBackground }
                   ]}
+                  testID="copy-recovery-phrase"
                 >
                   <Text fontSize={14} weight="medium" appearance="secondaryText">
                     {t('Copy recovery phrase')}

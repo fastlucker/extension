@@ -31,13 +31,14 @@ const PortfolioControllerStateContext = createContext<{
   claimableRewards: ClaimableRewards | null
   isLoadingClaimableRewards: boolean
   walletTokenInfo: {
-    teamAddresses: string[]
     maxSupply: number
     circulatingSupply: number
     totalSupply: number
     stkWalletTotalSupply: number
     percentageStakedWallet: number
     apy: number
+    stakedWallets: number
+    walletPrice: number
   } | null
   walletTokenPrice: number | null
   isLoadingWalletTokenInfo: boolean
@@ -67,6 +68,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     totalSupply: number
     price: number
     stkWalletTotalSupply: number
+    stakedWallets: number
+    walletPrice: number
   } | null>(null)
   const [walletTokenPrice, setWalletTokenPrice] = useState<number | null>(null)
 
