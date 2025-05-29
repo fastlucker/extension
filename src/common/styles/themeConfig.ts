@@ -69,15 +69,15 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
   quaternaryBackground: {
-    [THEME_TYPES.DARK]: '#FFFFFF22',
-    [THEME_TYPES.LIGHT]: '#767DAD22'
+    [THEME_TYPES.DARK]: '#FFFFFF20',
+    [THEME_TYPES.LIGHT]: '#767DAD20'
   },
   quaternaryBackgroundSolid: {
     [THEME_TYPES.DARK]: 'red',
     [THEME_TYPES.LIGHT]: '#F4F5F8'
   },
   quinaryBackground: {
-    [THEME_TYPES.DARK]: 'red',
+    [THEME_TYPES.DARK]: '#FFFFFF1F',
     [THEME_TYPES.LIGHT]: '#F7F8FC'
   },
   backdrop: {

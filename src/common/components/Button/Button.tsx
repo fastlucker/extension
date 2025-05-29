@@ -206,8 +206,12 @@ const Button = ({
       gray: [
         {
           property: 'backgroundColor',
-          from: theme.quaternaryBackground,
-          to: `${String(theme.primaryLight)}10`
+          from:
+            themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.quaternaryBackground,
+          to:
+            themeType === THEME_TYPES.DARK
+              ? theme.secondaryBackground
+              : `${String(theme.primaryLight)}10`
         },
         {
           property: 'borderWidth',
@@ -217,7 +221,7 @@ const Button = ({
         {
           property: 'borderColor',
           from: theme.quaternaryBackground,
-          to: theme.primaryLight
+          to: themeType === THEME_TYPES.DARK ? `${theme.linkText as string}80` : theme.primaryLight
         }
       ]
     }),
