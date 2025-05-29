@@ -41,7 +41,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
     updateQuoteStatus,
-    toTokenList,
+    toTokenShortList,
     toTokenSearchResults,
     toTokenSearchTerm,
     quote,
@@ -79,17 +79,17 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const tokensInToTokenSelect = useMemo(() => {
     if (toTokenSearchTerm) return toTokenSearchResults
 
-    // Might not be in the `toTokenList`, but in the full list (in the private #toTokenList prop)
+    // Token might not be in the short list (if it's pulled from search for example)
     const doesSelectTokenExistInToTokenList =
       toSelectedToken &&
-      toTokenList.some(
+      toTokenShortList.some(
         (tk) => tk.address === toSelectedToken.address && tk.chainId === toSelectedToken.chainId
       )
 
     return doesSelectTokenExistInToTokenList
-      ? toTokenList
-      : [toSelectedToken as SwapAndBridgeToToken, ...toTokenList]
-  }, [toTokenSearchTerm, toTokenSearchResults, toSelectedToken, toTokenList])
+      ? toTokenShortList
+      : [toSelectedToken as SwapAndBridgeToToken, ...toTokenShortList]
+  }, [toTokenSearchTerm, toTokenSearchResults, toSelectedToken, toTokenShortList])
 
   const {
     options: toTokenOptions,
@@ -100,7 +100,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
     networks,
     supportedChainIds,
-    isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
+    isLoading: !toTokenShortList.length && updateToTokenListStatus !== 'INITIAL',
     isToToken: true
   })
 
