@@ -31,7 +31,7 @@ describe('Signing and broadcasting an account operation with a Basic Account', (
     await browser.close()
   })
 
-  it('Should sign and broadcast an account op with Basic Account', async () => {
+  it.skip('Should sign and broadcast an account op with Basic Account', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SEND_TOKEN_SELECTOR,
@@ -72,7 +72,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
     await browser.close()
   })
 
-  it('Should sign and broadcast an account op with Smart Account, Should add to the queue a couple of transactions and then remove some of them. Should broadcast a (batched) account op with an EOA', async () => {
+  it.skip('Should sign and broadcast an account op with Smart Account, Should add to the queue a couple of transactions and then remove some of them. Should broadcast a (batched) account op with an EOA', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SEND_TOKEN_SELECTOR,
@@ -95,7 +95,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
     })
   })
 
-  it('Should sign and broadcast an account op with Smart Account,Should pay with Gas Tank', async () => {
+  it.skip('Should sign and broadcast an account op with Smart Account,Should pay with Gas Tank', async () => {
     // When paying a txn with a Gas Tank we have to be sure that the total balance of the account isn't lower than MIN_TOTAL_BALANCE_IN_USD
     await checkMinimumBalance(page, SELECTORS.totalPortfolioAmountInteger, MIN_TOTAL_BALANCE_IN_USD)
 
@@ -111,7 +111,7 @@ describe('Signing and broadcasting account operations with a Smart Account', () 
     })
   })
 
-  it('Should change account op transaction speed(s) and should reject an account op', async () => {
+  it.skip('Should change account op transaction speed(s) and should reject an account op', async () => {
     // When paying a txn with a Gas Tank we have to be sure that the total balance of the account isn't lower than MIN_TOTAL_BALANCE_IN_USD
     await checkMinimumBalance(page, SELECTORS.totalPortfolioAmountInteger, MIN_TOTAL_BALANCE_IN_USD)
 

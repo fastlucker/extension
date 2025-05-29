@@ -42,6 +42,19 @@ export const handleCleanUpOnPortDisconnect = async ({
     mainCtrl.signMessage.reset()
   }
 
+  if (url.pathname.includes('transfer') || url.pathname.includes('top-up-gas-tank')) {
+    // Always unload the screen when the action window is closed
+    const forceUnload = port.name === 'action-window'
+
+    if (forceUnload) {
+      mainCtrl.onOneClickTransferClose()
+    } else {
+      mainCtrl.transfer.unloadScreen()
+    }
+
+    mainCtrl.activity.resetAccountsOpsFilters('transfer')
+  }
+
   const isOnboardingRoute = ONBOARDING_WEB_ROUTES.some(
     (r) => url.pathname.includes(r) && port.name === 'tab'
   )

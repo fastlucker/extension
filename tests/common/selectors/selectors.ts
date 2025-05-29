@@ -72,7 +72,6 @@ export const TEST_IDS = {
   continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
-  transferButtonConfirm: 'transfer-button-confirm',
   addAccountField: 'add-account-field',
   importExistingSeedBtn: 'import-existing-seed-btn',
   createSeedBtn: 'create-seed-btn',
@@ -122,7 +121,7 @@ export const TEST_IDS = {
   dappConnectButton: 'dapp-connect-button',
   signButtonSwap: 'swap-button-sign',
   addMoreSwaps: 'add-more-swaps',
-  flipUSDIcon: 'flip-icon'
+  flipUSDIcon: 'flip-icon',
   disableNetworkButton: 'disable-network-btn',
   disableNetworkConfirmButton: 'disable-network-confirm-btn'
 }

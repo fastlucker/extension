@@ -109,7 +109,7 @@ const ActionModal: FC<ActionModalProps> = ({
     [activeStep, closeActionModalWrapped, onLegendCompleteWrapped]
   )
 
-  if (isMobile) {
+  if (isMobile && isOpen) {
     return createPortal(
       <MobileDisclaimerModal
         shouldClose
