@@ -72,7 +72,7 @@ const BatchAdded: FC<Props> = ({
             {t('Added to batch')}
           </Text>
           <Text weight="medium" appearance="secondaryText" style={text.center}>
-            {t('You can manage your batch in the dashboard.')}
+            {t('You can manage your batch on the dashboard.')}
           </Text>
         </View>
         <View
@@ -88,13 +88,14 @@ const BatchAdded: FC<Props> = ({
             hasBottomSpacing={false}
             type="secondary"
             text={secondaryButtonText}
+            textStyle={spacings.phTy}
             testID="add-more-swaps"
           />
           <Button
             onPress={onPrimaryButtonPress}
             hasBottomSpacing={false}
-            style={{ width: 160 }}
-            text={t('Close')}
+            textStyle={spacings.phTy}
+            text={t('Open dashboard')}
           />
         </View>
       </TabLayoutWrapperMainContent>
