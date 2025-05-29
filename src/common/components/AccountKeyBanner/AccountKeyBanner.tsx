@@ -35,7 +35,7 @@ const AccountKeyBanner = ({ type }: { type: Key['type'] }) => {
 
   return (
     <Wrapper text="Internal">
-      <SingleKeyIcon color={theme.iconPrimary} width={16} height={16} />
+      <SingleKeyIcon color={theme.secondaryText} width={14} height={14} />
     </Wrapper>
   )
 }

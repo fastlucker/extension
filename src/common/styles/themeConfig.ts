@@ -77,7 +77,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#F4F5F8'
   },
   quinaryBackground: {
-    [THEME_TYPES.DARK]: '#FFFFFF1F',
+    [THEME_TYPES.DARK]: '#0D0D0F',
     [THEME_TYPES.LIGHT]: '#F7F8FC'
   },
   backdrop: {

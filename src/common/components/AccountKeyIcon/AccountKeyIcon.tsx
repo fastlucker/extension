@@ -16,7 +16,7 @@ const AccountKeyIcon = ({ type, color }: { type: Key['type']; color?: string }) 
   if (type === 'ledger') return <LedgerLetterIcon color={color} width={20} height={20} />
   if (type === 'none') return <NoKeysIcon color={theme.secondaryText} width={20} height={20} />
 
-  return <SingleKeyIcon color={color !== '#fff' ? color : 'none'} width={20} height={20} />
+  return <SingleKeyIcon color={color} width={20} height={20} />
 }
 
 export default React.memo(AccountKeyIcon)
