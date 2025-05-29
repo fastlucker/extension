@@ -17,6 +17,7 @@ import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutW
 type Props = {
   title: string
   primaryButtonText: string
+  secondaryButtonTestID: string
   secondaryButtonText: string
   onPrimaryButtonPress: () => void
   onSecondaryButtonPress: () => void
@@ -25,6 +26,7 @@ type Props = {
 const BatchAdded: FC<Props> = ({
   title,
   primaryButtonText,
+  secondaryButtonTestID,
   secondaryButtonText,
   onPrimaryButtonPress,
   onSecondaryButtonPress
@@ -91,7 +93,7 @@ const BatchAdded: FC<Props> = ({
             type="secondary"
             text={secondaryButtonText}
             textStyle={spacings.phTy}
-            testID="add-more-swaps"
+            testID={secondaryButtonTestID}
           />
           <Button
             onPress={onPrimaryButtonPress}

@@ -223,6 +223,7 @@ const SwapAndBridgeScreen = () => {
         title={t('Swap & Bridge')}
         primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
+        secondaryButtonTestID="add-more-swaps"
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
         onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
       />
