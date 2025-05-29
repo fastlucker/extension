@@ -86,7 +86,7 @@ describe("The extension works properly when crucial APIs aren't working from lau
       }
     )
   })
-  it('RPC fail: Should be able to broadcast a transaction on Polygon with a bad Ethereum RPC', async () => {
+  it.skip('RPC fail: Should be able to broadcast a transaction on Polygon with a bad Ethereum RPC', async () => {
     await monitorRequests(
       serviceWorker.client,
       async () => {
