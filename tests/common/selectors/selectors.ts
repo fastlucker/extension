@@ -72,7 +72,6 @@ export const TEST_IDS = {
   continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
-  transferButtonConfirm: 'transfer-button-confirm',
   addAccountField: 'add-account-field',
   importExistingSeedBtn: 'import-existing-seed-btn',
   createSeedBtn: 'create-seed-btn',
@@ -117,6 +116,12 @@ export const TEST_IDS = {
   processButtonSab: 'proceed-btn',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
+  removeNetworkButton: 'remove-network-btn',
+  removeNetworkConfirmButton: 'remove-network-confirm-btn',
+  dappConnectButton: 'dapp-connect-button',
+  signButtonSwap: 'swap-button-sign',
+  addMoreSwaps: 'add-more-swaps',
+  flipUSDIcon: 'flip-icon',
   disableNetworkButton: 'disable-network-btn',
   disableNetworkConfirmButton: 'disable-network-confirm-btn'
 }

@@ -1,8 +1,11 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import {
+  SignAccountOpController,
+  SigningStatus
+} from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -10,65 +13,44 @@ import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Modals from '@web/modules/sign-account-op/components/Modals/Modals'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import { getUiType } from '@web/utils/uiType'
+import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 
 type Props = {
   closeEstimationModal: () => void
+  handleBroadcastAccountOp: () => void
+  handleUpdateStatus: (status: SigningStatus) => void
+  updateController: (params: { signingKeyAddr?: string; signingKeyType?: string }) => void
   estimationModalRef: React.RefObject<any>
+  errors?: SignAccountOpError[]
+  signAccountOpController: SignAccountOpController | null
+  hasProceeded: boolean
+  updateType: 'Swap&Bridge' | 'Transfer&TopUp'
 }
 
 const { isActionWindow, isTab } = getUiType()
 
-const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
+const OneClickEstimation = ({
+  closeEstimationModal,
+  handleBroadcastAccountOp,
+  handleUpdateStatus,
+  updateController,
+  estimationModalRef,
+  signAccountOpController,
+  hasProceeded,
+  errors,
+  updateType
+}: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
-  const { dispatch } = useBackgroundService()
-  const { signAccountOpController, hasProceeded, swapSignErrors } =
-    useSwapAndBridgeControllerState()
-
   const signingErrors = useMemo(() => {
     const signAccountOpErrors = signAccountOpController ? signAccountOpController.errors : []
-    return [...swapSignErrors, ...signAccountOpErrors]
-  }, [swapSignErrors, signAccountOpController])
-
-  /**
-   * Single click broadcast
-   */
-  const handleBroadcastAccountOp = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
-      params: {
-        isSwapAndBridge: true
-      }
-    })
-  }, [dispatch])
-
-  const handleUpdateStatus = useCallback(
-    (status: SigningStatus) => {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
-        params: {
-          status
-        }
-      })
-    },
-    [dispatch]
-  )
-  const updateController = useCallback(
-    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params
-      })
-    },
-    [dispatch]
-  )
+    return [...(errors || []), ...signAccountOpErrors]
+  }, [errors, signAccountOpController])
 
   const {
     isViewOnly,
@@ -121,7 +103,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
               account={signAccountOpController.account}
             />
             <Estimation
-              updateType="Swap&Bridge"
+              updateType={updateType}
               signAccountOpState={signAccountOpController}
               disabled={signAccountOpController.status?.type !== SigningStatus.ReadyToSign}
               hasEstimation={!!hasEstimation}
@@ -157,6 +139,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
                 style={{ width: 98 }}
               />
               <Button
+                testID="swap-button-sign"
                 text={isSignLoading ? t('Signing...') : t('Sign')}
                 hasBottomSpacing={false}
                 disabled={isSignDisabled || signingErrors.length > 0}
@@ -188,9 +171,10 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
             ? 'warnings'
             : undefined
         }
+        actionType={updateType === 'Swap&Bridge' ? 'swapAndBridge' : 'transfer'}
       />
     </>
   )
 }
 
-export default SwapAndBridgeEstimation
+export default OneClickEstimation

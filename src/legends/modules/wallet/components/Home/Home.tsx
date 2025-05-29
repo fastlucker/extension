@@ -8,14 +8,9 @@ import walletCoin from './assets/wallet-coin.png'
 import styles from './Home.module.scss'
 
 const Home = () => {
-  const { claimableRewards, walletTokenInfo, isLoadingWalletTokenInfo } =
+  const { walletTokenPrice, walletTokenInfo, isLoadingWalletTokenInfo } =
     usePortfolioControllerState()
-  const stakedWallet =
-    walletTokenInfo &&
-    walletTokenInfo.stkWalletTotalSupply != null &&
-    walletTokenInfo.totalSupply != null
-      ? (walletTokenInfo.stkWalletTotalSupply / walletTokenInfo.totalSupply) * 100
-      : null
+  const stakedWallet = walletTokenInfo && walletTokenInfo.percentageStakedWallet
 
   return (
     <>
@@ -57,14 +52,25 @@ const Home = () => {
                 <div className={styles.walletInfoWrapper} />
               </div>
             </div>
-            {claimableRewards?.priceIn[0].price && (
+            <div className={styles.walletItemWrapper}>
+              <div className={styles.walletItem}>
+                APY
+                <span className={styles.item}>
+                  {isLoadingWalletTokenInfo
+                    ? 'Loading...'
+                    : walletTokenInfo?.apy === null
+                    ? 0
+                    : `${walletTokenInfo?.apy.toFixed(2)}%`}
+                </span>
+                <div className={styles.walletInfoWrapper} />
+              </div>
+            </div>
+            {walletTokenPrice && (
               <div className={styles.walletItemWrapper}>
                 <div className={styles.walletItem}>
                   <div className={styles.walletInfoWrapper}>Current price</div>
                   <span className={styles.item}>
-                    {claimableRewards?.priceIn[0].price !== undefined
-                      ? Number(claimableRewards.priceIn[0].price).toFixed(3)
-                      : ''}
+                    {walletTokenPrice !== undefined ? Number(walletTokenPrice).toFixed(3) : ''}
                   </span>
                 </div>
               </div>

@@ -1017,4 +1017,7 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+// TODO: Found the root cause of this! Event handler of 'disconnect' event must be added on the initial
+// evaluation of worker script. More info: https://developer.chrome.com/docs/extensions/mv3/service_workers/events/
+// Would be tricky to replace this workaround with different logic, but it's doable.
 if ('hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})

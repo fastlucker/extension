@@ -15,11 +15,18 @@ import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 
 type Props = {
+  title: string
+  secondaryButtonText: string
   onPrimaryButtonPress: () => void
   onSecondaryButtonPress: () => void
 }
 
-const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress }) => {
+const BatchAdded: FC<Props> = ({
+  title,
+  secondaryButtonText,
+  onPrimaryButtonPress,
+  onSecondaryButtonPress
+}) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { maxWidthSize } = useWindowSize()
@@ -34,7 +41,7 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
           backgroundColor="primaryBackground"
           displayBackButtonIn="never"
           mode="title"
-          customTitle={t('Swap & Bridge')}
+          customTitle={title}
           withAmbireLogo
         />
       }
@@ -80,7 +87,8 @@ const BatchAdded: FC<Props> = ({ onPrimaryButtonPress, onSecondaryButtonPress })
             onPress={onSecondaryButtonPress}
             hasBottomSpacing={false}
             type="secondary"
-            text={t('Add more swaps?')}
+            text={secondaryButtonText}
+            testID="add-more-swaps"
           />
           <Button
             onPress={onPrimaryButtonPress}
