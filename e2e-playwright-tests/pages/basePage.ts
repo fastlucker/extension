@@ -17,4 +17,12 @@ export abstract class BasePage {
     await this.page.locator(locator).clear()
     await this.page.locator(locator).pressSequentially(text)
   }
+
+  async handleNewPage(locator: string) {
+    const context = this.page.context()
+    const pagePromise = context.waitForEvent('page')
+    await this.page.locator(locator).first().click()
+    const newPage = await pagePromise
+    return newPage
+  }
 }

@@ -46,5 +46,11 @@ export const locators = {
   tabNft: 'div[data-testid="tab-nft"]',
   collectionItem: 'div[data-testid="collection-item"]',
   collectiblePicture: 'div[data-testid="collectible-picture"]',
-  collectibleRow: 'div[data-testid="collectible-row"]'
+  collectibleRow: 'div[data-testid="collectible-row"]',
+  addToBatchButton: 'div[data-tooltip-id="batch-btn-tooltip"]',
+  closeBatchButton: 'div:has-text("Close") >> nth=10',
+  bannerButtonReject: 'div[data-testid="banner-button-reject"]',
+  bannerButtonOpen: 'div[data-testid="banner-button-open"]',
+  selectRouteButton: 'div:has-text("Select route")',
+  openDashboardFromBatchButton: 'div:has-text("Open dashboard") >> nth=10'
 }

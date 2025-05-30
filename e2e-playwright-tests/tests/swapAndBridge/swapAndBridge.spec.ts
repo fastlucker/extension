@@ -54,4 +54,20 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
   }) => {
     await swapAndBridgePage.verifyNonDefaultReceiveToken('ETH', '1', 'wCRES')
   })
+
+  test('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.openSwapAndBridge()
+    await swapAndBridgePage.prepareSwapAndBridge(0.8, 'USDC', '8453', 'WALLET')
+    await swapAndBridgePage.rejectTransaction()
+  })
+
+  test('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.openSwapAndBridge()
+    await swapAndBridgePage.prepareSwapAndBridge(0.8, 'USDC', '8453', 'WALLET')
+    await swapAndBridgePage.proceedTransaction()
+  })
 })

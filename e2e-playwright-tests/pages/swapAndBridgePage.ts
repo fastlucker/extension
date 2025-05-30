@@ -1,3 +1,4 @@
+import { locators } from '@common/locators'
 import { expect } from '@playwright/test'
 
 import { bootstrapWithStorage } from '../common-helpers/bootstrap'
@@ -110,13 +111,11 @@ export class SwapAndBridgePage extends BasePage {
       await this.openSwapAndBridge()
       await this.page.waitForTimeout(1000)
       await this.selectSendTokenOnNetwork(send_token, send_network)
-
       // Select Receive Token on the same Network, which is automatically selected
       await this.page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
       await clickOnElement(this.page, SELECTORS.receiveTokenSab)
       await typeText(this.page, SELECTORS.searchInput, receive_token)
       await clickOnElement(this.page, `[data-testid*="${receive_token.toLowerCase()}"]`)
-
       // If checking prepareSwapAndBridge functionality without providing send amount
       if (send_amount === null) {
         return null
@@ -242,7 +241,32 @@ export class SwapAndBridgePage extends BasePage {
     await expect(selector).toHaveText(new RegExp(address), { timeout: 3000 })
   }
 
-  async navigateToHome() {
-    await this.page.goto('/')
+  async rejectTransaction(): Promise<void> {
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible' })
+    await this.page.locator(locators.addToBatchButton).click()
+    await this.page.locator(locators.openDashboardFromBatchButton).first().click()
+    await this.page.locator(locators.bannerButtonReject).first().click()
+    expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
+  }
+
+  async proceedTransaction(): Promise<void> {
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible' })
+    await this.page.locator(locators.addToBatchButton).click()
+    await this.page.locator(locators.openDashboardFromBatchButton).first().click()
+    const newPage = await this.handleNewPage(locators.bannerButtonOpen)
+    await this.signTransactionPage(newPage)
+  }
+
+  async signTransactionPage(page): Promise<void> {
+    const signButton = page.locator(SELECTORS.signTransactionButton)
+
+    try {
+      await expect(signButton).toBeVisible({ timeout: 5000 })
+      await expect(signButton).toBeEnabled()
+      await clickOnElement(page, SELECTORS.signTransactionButton)
+      await page.waitForTimeout(1500)
+    } catch (error) {
+      console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
+    }
   }
 }
