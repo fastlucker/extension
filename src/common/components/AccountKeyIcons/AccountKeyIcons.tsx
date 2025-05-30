@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
@@ -34,7 +35,7 @@ const AccountKeyIcons = ({
   isExtended: boolean
 }) => {
   const { keys } = useKeystoreControllerState()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const associatedKeys = account?.associatedKeys || []
   const importedKeyTypes = Array.from(
     new Set(keys.filter(({ addr }) => associatedKeys.includes(addr)).map((key) => key.type))
@@ -53,7 +54,11 @@ const AccountKeyIcons = ({
               <AccountKeyIconOrBanner
                 type={type || 'internal'}
                 isExtended={isExtended}
-                color={theme.primaryBackground as string}
+                color={
+                  themeType === THEME_TYPES.DARK
+                    ? (theme.primaryBackgroundInverted as string)
+                    : (theme.primaryBackground as string)
+                }
               />
             </View>
           )
@@ -62,7 +67,11 @@ const AccountKeyIcons = ({
         <AccountKeyIconOrBanner
           type="none"
           isExtended={isExtended}
-          color={theme.primaryBackground as string}
+          color={
+            themeType === THEME_TYPES.DARK
+              ? (theme.primaryBackgroundInverted as string)
+              : (theme.primaryBackground as string)
+          }
         />
       )}
     </View>

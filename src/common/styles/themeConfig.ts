@@ -68,6 +68,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#F2F3FA'
   },
+  secondaryBackgroundInverted: {
+    [THEME_TYPES.DARK]: '#F2F3FA',
+    [THEME_TYPES.LIGHT]: '#2A2A2C'
+  },
   tertiaryBackground: {
     [THEME_TYPES.DARK]: '#202022',
     [THEME_TYPES.LIGHT]: '#E7E9FB'
@@ -137,7 +141,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#CA7E04'
   },
   warningDecorative2: {
-    [THEME_TYPES.DARK]: '#FFD970',
+    [THEME_TYPES.DARK]: '#FBBA27',
     [THEME_TYPES.LIGHT]: '#FBBA27'
   },
   warningBackground: {

@@ -20,6 +20,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { getGasTankTokenDetails } from '@common/utils/getGasTankTokenDetails'
@@ -54,7 +55,7 @@ const createAnimation = (): Animation => ({
 
 const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { isPopup } = getUiType()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
@@ -102,7 +103,16 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       {
         key: 'save',
         icon: (
-          <SavingsIcon width={32} height={32} color="white" fillColor={theme.successDecorative} />
+          <SavingsIcon
+            width={32}
+            height={32}
+            color={
+              themeType === THEME_TYPES.DARK
+                ? theme.primaryBackgroundInverted
+                : theme.primaryBackground
+            }
+            fillColor={theme.successDecorative}
+          />
         ),
         text: 'Save on network fees by prepaying with Gas Tank.'
       }
@@ -219,11 +229,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     <Text fontSize={12} appearance="primary">
                       {`${t('Total Cashback')} `}
                     </Text>
-                    <InfoIcon
-                      color={theme.iconPrimary2}
-                      width={12}
-                      data-tooltip-id="cashback-tooltip"
-                    />
+                    <InfoIcon color={theme.primary} width={12} data-tooltip-id="cashback-tooltip" />
                     <Tooltip
                       id="cashback-tooltip"
                       content={String(
@@ -255,7 +261,11 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                 style={[
                   styles.descriptionTextWrapper,
                   {
-                    borderColor: isHovered ? theme.primary : 'transparent'
+                    borderColor: isHovered
+                      ? themeType === THEME_TYPES.DARK
+                        ? theme.primaryLight80
+                        : theme.primary
+                      : 'transparent'
                   }
                 ]}
                 {...bindAnim}
@@ -275,7 +285,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
         <View style={styles.content}>
           <View style={[flexbox.directionRow, flexbox.center, common.fullWidth]}>
             <Text fontSize={20} weight="medium">
-              Gas Tank
+              {t('Gas Tank')}
             </Text>
           </View>
           <View style={[flexbox.directionRow, flexbox.center, common.fullWidth, spacings.mtLg]}>
@@ -344,7 +354,18 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               : navigate('account-select?triggerAddAccountBottomSheet=true')
           }
         >
-          {hasGasTank && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
+          {hasGasTank && (
+            <TopUpIcon
+              color={
+                themeType === THEME_TYPES.DARK
+                  ? theme.primaryBackgroundInverted
+                  : theme.primaryBackground
+              }
+              strokeWidth={1}
+              width={20}
+              height={20}
+            />
+          )}
         </Button>
       </View>
     </BottomSheet>
