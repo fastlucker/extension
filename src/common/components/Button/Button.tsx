@@ -301,8 +301,8 @@ const Button = ({
       danger: [
         {
           property: 'color',
-          from: theme.errorText,
-          to: theme.errorText
+          from: themeType === THEME_TYPES.DARK ? theme.errorText : theme.errorDecorative,
+          to: themeType === THEME_TYPES.DARK ? theme.errorText : theme.errorDecorative
         }
       ],
       outline: [
