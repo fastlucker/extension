@@ -81,7 +81,13 @@ const ButtonInnerContainer = ({
                 to: theme.primary20
               }
             ]
-          : [],
+          : [
+              {
+                property: 'backgroundColor' as any,
+                from: `${theme.primary as string}00`,
+                to: theme.primary20
+              }
+            ],
       ghost2: [],
       error: [],
       warning: [],

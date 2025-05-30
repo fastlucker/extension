@@ -101,21 +101,21 @@ const AmbireDevice: React.FC<any> = (props) => {
           height="83"
           rx="5"
           transform="translate(506 -15308)"
-          fill={theme.tertiaryBackground}
+          fill={theme.iconPrimary}
         />
         <Rect
           width="144"
           height="8"
           rx="4"
           transform="translate(499 -15222)"
-          fill={theme.tertiaryBackground}
+          fill={theme.iconPrimary}
         />
         <Rect
           width="120"
           height="72"
           rx="2"
           transform="translate(511 -15303)"
-          fill={theme.iconPrimary}
+          fill={theme.tertiaryBackground}
         />
         <G transform="translate(525.344 -15281.437)" opacity="0.7">
           <G id="_1967955583232" transform="translate(36.039 -0.01)">
