@@ -117,14 +117,12 @@ const AccountsOnPageList = ({
     ({
       accounts,
       isLastSlot = false,
-      byType = ['basic', 'smart'],
-      withQuaternaryBackground = false
+      byType = ['basic', 'smart']
     }: {
       accounts: AccountOnPage[]
       isLastSlot?: boolean
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
-      withQuaternaryBackground?: boolean
     }) => {
       const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
 
@@ -137,7 +135,6 @@ const AccountsOnPageList = ({
 
         return (
           <Account
-            withQuaternaryBackground={withQuaternaryBackground}
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
@@ -339,8 +336,7 @@ const AccountsOnPageList = ({
                           accounts: slots[key],
                           isLastSlot: i === Object.keys(slots).length - 1,
                           slotIndex: 1,
-                          byType: ['smart', 'linked'],
-                          withQuaternaryBackground: true
+                          byType: ['smart', 'linked']
                         })}
                       </View>
                     )

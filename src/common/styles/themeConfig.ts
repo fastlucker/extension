@@ -9,7 +9,7 @@ export enum THEME_TYPES {
 
 export type ThemeType = THEME_TYPES.LIGHT | THEME_TYPES.DARK | THEME_TYPES.SYSTEM
 
-export const DEFAULT_THEME = THEME_TYPES.LIGHT
+export const DEFAULT_THEME = THEME_TYPES.DARK
 
 export type ThemeProps = {
   [key in keyof typeof ThemeColors]: ColorValue
@@ -27,6 +27,10 @@ const ThemeColors = {
   primaryLight: {
     [THEME_TYPES.DARK]: '#6C38F7',
     [THEME_TYPES.LIGHT]: '#8B3DFF'
+  },
+  primaryLight80: {
+    [THEME_TYPES.DARK]: '#AD8FFF80',
+    [THEME_TYPES.LIGHT]: '#8B3DFF80'
   },
   primaryText: {
     [THEME_TYPES.DARK]: '#FFFFFF',
@@ -70,7 +74,7 @@ const ThemeColors = {
   },
   quaternaryBackground: {
     [THEME_TYPES.DARK]: '#FFFFFF20',
-    [THEME_TYPES.LIGHT]: '#767DAD20'
+    [THEME_TYPES.LIGHT]: '#767DAD16'
   },
   quaternaryBackgroundSolid: {
     [THEME_TYPES.DARK]: 'red',

@@ -44,7 +44,6 @@ const Account = ({
   isDisabled,
   importStatus,
   displayTypeBadge = true,
-  withQuaternaryBackground = false,
   displayTypePill = true,
   shouldBeDisplayedAsNew = false
 }: {
@@ -115,25 +114,19 @@ const Account = ({
         flexbox.alignCenter,
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
+        common.hidden,
         {
-          borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1,
-          borderColor: theme.secondaryBackground
+          borderWidth: 1,
+          borderColor: theme.quaternaryBackground
         },
-        ((hovered && !isDisabled) || importStatus === ImportStatus.ImportedWithTheSameKeys) && {
-          borderColor: theme.secondaryBorder
+        ((hovered && !isDisabled) || isSelected) && {
+          borderColor: themeType === THEME_TYPES.DARK ? theme.primaryLight80 : theme.primary20
         }
       ]}
       onPress={isDisabled ? undefined : toggleSelectedState}
       testID={`add-account-${account.addr}`}
     >
-      <View
-        style={[
-          styles.container,
-          withQuaternaryBackground
-            ? { backgroundColor: theme.quaternaryBackground }
-            : { backgroundColor: theme.secondaryBackground }
-        ]}
-      >
+      <View style={[styles.container, { backgroundColor: theme.quaternaryBackground }]}>
         <Toggle
           isOn={isSelected}
           onToggle={toggleSelectedState}
