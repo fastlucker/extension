@@ -329,8 +329,8 @@ const Button = ({
       error: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground,
+          to: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground
         }
       ],
       warning: [
