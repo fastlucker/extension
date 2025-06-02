@@ -648,7 +648,8 @@ export class ProviderController {
     return result
   }
 
-  walletRevokePermissions = ({ session: { origin } }: DappProviderRequest) => {
+  walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
+    await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
     this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
     return null
   }
