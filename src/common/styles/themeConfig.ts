@@ -81,7 +81,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#767DAD16'
   },
   quaternaryBackgroundSolid: {
-    [THEME_TYPES.DARK]: 'red',
+    [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#F4F5F8'
   },
   quinaryBackground: {
