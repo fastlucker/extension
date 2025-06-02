@@ -10,9 +10,9 @@ import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -48,6 +48,7 @@ const LedgerConnectModal = ({
   const { t } = useTranslation()
   const [isGrantingPermission, setIsGrantingPermission] = useState(false)
   const { currentAction, actionWindow } = useActionsControllerState()
+  const { theme } = useTheme()
 
   useEffect(() => {
     if (isVisible) open()
@@ -126,7 +127,7 @@ const LedgerConnectModal = ({
               weight="semiBold"
               fontSize={14}
               underline
-              color={colors.heliotrope}
+              color={theme.primaryLight}
               onPress={handleOnLedgerReauthorize}
             >
               try re-authorizing Ambire to connect
