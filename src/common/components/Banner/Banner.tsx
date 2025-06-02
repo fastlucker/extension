@@ -68,6 +68,11 @@ const BannerButton: FC<CommonButtonProps & { isReject?: boolean; testId?: string
       hasBottomSpacing={false}
       type={buttonType}
       submitOnEnter={false}
+      innerContainerStyle={(hovered: boolean) =>
+        isReject && hovered
+          ? { backgroundColor: theme.errorBackground }
+          : { backgroundColor: 'transparent' }
+      }
       {...rest}
     />
   )

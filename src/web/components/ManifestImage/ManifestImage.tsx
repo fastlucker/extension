@@ -95,7 +95,7 @@ const ManifestImage = ({
             {
               height: scaledSize,
               width: scaledSize,
-              backgroundColor: theme.secondaryBackground,
+              backgroundColor: theme.primaryBackground,
               opacity: isLoading ? 0 : 1
             },
             !!isRound && { borderRadius: roundBorderRadius },

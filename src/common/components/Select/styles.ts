@@ -2,7 +2,7 @@ import { ImageStyle, StyleSheet, ViewProps, ViewStyle } from 'react-native'
 
 import { BOTTOM_SHEET_Z_INDEX } from '@common/components/BottomSheet/styles'
 import spacings, { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
-import { ThemeProps } from '@common/styles/themeConfig'
+import { THEME_TYPES, ThemeProps, ThemeType } from '@common/styles/themeConfig'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -32,7 +32,7 @@ export const SELECT_SIZE_TO_HEIGHT = {
 }
 export const MAX_MENU_HEIGHT = 400
 
-const getStyles = (theme: ThemeProps) =>
+const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
     selectContainer: {
       width: '100%',
@@ -47,7 +47,8 @@ const getStyles = (theme: ThemeProps) =>
     select: {
       width: '100%',
       ...common.borderRadiusPrimary,
-      backgroundColor: theme.secondaryBackground,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.secondaryBackground,
       borderWidth: 1,
       ...common.hidden,
       borderColor: 'transparent',
