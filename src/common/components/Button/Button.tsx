@@ -329,36 +329,36 @@ const Button = ({
       error: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground,
-          to: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       warning: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       info: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       info2: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       success: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       gray: [
