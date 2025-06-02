@@ -59,17 +59,15 @@ const sortFeeOptions = (
   if (!aCanCoverFee && bCanCoverFee) return 1
   if (!signAccountOpState) sortBasedOnUSDValue(a, b)
 
-  // native options should be on top for 7702 EOAs as they are the cheapest
-  // use a is7702 hack to do this but long term it should be refactored
-  if ('is7702' in signAccountOpState.baseAccount && signAccountOpState.baseAccount.is7702) {
-    if (a.token.address === ZERO_ADDRESS && b.token.address !== ZERO_ADDRESS) return -1
-    if (a.token.address !== ZERO_ADDRESS && b.token.address === ZERO_ADDRESS) return 1
-  }
-
-  // gas tank after native
+  // gas tank first
   if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
   if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
 
+  // native second
+  if (a.token.address === ZERO_ADDRESS && b.token.address !== ZERO_ADDRESS) return -1
+  if (a.token.address !== ZERO_ADDRESS && b.token.address === ZERO_ADDRESS) return 1
+
+  // based on value after
   return sortBasedOnUSDValue(a, b)
 }
 

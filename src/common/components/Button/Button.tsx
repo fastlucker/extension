@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react'
-import { ColorValue, PressableProps, TextStyle, ViewStyle } from 'react-native'
+import { Animated, ColorValue, PressableProps, TextStyle, ViewStyle } from 'react-native'
 
-import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import textStyles from '@common/styles/utils/text'
-import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
+import { THEME_TYPES } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
+import { AnimatedPressable, useCustomHover, useMultiHover } from '@web/hooks/useHover'
+import { AnimatedText } from '@web/hooks/useHover/useHover'
 import { AnimationValues } from '@web/hooks/useHover/useMultiHover'
 import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 
@@ -17,6 +19,7 @@ type ButtonTypes =
   | 'danger'
   | 'outline'
   | 'ghost'
+  | 'ghost2'
   | 'error'
   | 'warning'
   | 'info'
@@ -38,6 +41,7 @@ export interface Props extends PressableProps {
   forceHoveredStyle?: boolean
   children?: React.ReactNode
   childrenPosition?: 'left' | 'right'
+  childrenContainerStyle?: ViewStyle
   testID?: string
   submitOnEnter?: boolean
 }
@@ -46,6 +50,97 @@ const OPACITY_ANIMATION = {
   property: 'opacity' as keyof ViewStyle,
   from: 1,
   to: 0.7
+}
+
+const buttonTypesWithInnerContainer = ['ghost']
+
+const ButtonInnerContainer = ({
+  type,
+  forceHoveredStyle,
+  children,
+  ...rest
+}: {
+  type: ButtonTypes
+  forceHoveredStyle?: boolean
+  children?: React.ReactNode
+} & PressableProps) => {
+  const { themeType, theme } = useTheme()
+
+  const buttonInnerContainerColors = useMemo(
+    () => ({
+      primary: [],
+      secondary: [],
+      danger: [],
+      outline: [],
+      ghost:
+        themeType === THEME_TYPES.DARK
+          ? [
+              {
+                property: 'backgroundColor' as any,
+                from: `${theme.primary as string}00`,
+                to: theme.primary20
+              }
+            ]
+          : [
+              {
+                property: 'backgroundColor' as any,
+                from: `${theme.primary as string}00`,
+                to: theme.primary20
+              }
+            ],
+      ghost2: [],
+      error: [],
+      warning: [],
+      info: [],
+      info2: [],
+      success: [],
+      gray: []
+    }),
+    [themeType, theme]
+  )
+
+  const [buttonInnerContainerBind, buttonInnerContainerAnimatedStyle] = useMultiHover({
+    values: buttonInnerContainerColors[type],
+    forceHoveredStyle
+  })
+
+  if (buttonInnerContainerColors[type]?.length) {
+    return (
+      <AnimatedPressable
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          spacings.phTy,
+          spacings.pvMi,
+          common.borderRadiusPrimary,
+          { height: 32 },
+          buttonInnerContainerAnimatedStyle
+        ]}
+        {...buttonInnerContainerBind}
+        {...rest}
+        onHoverIn={(e) => {
+          !!rest.onHoverIn && rest.onHoverIn(e)
+          buttonInnerContainerBind.onHoverIn(e)
+        }}
+        onHoverOut={(e) => {
+          !!rest.onHoverOut && rest.onHoverOut(e)
+          buttonInnerContainerBind.onHoverOut(e)
+        }}
+        onPressIn={(e) => {
+          !!rest.onPressIn && rest.onPressIn(e)
+          buttonInnerContainerBind.onPressIn(e)
+        }}
+        onPressOut={(e) => {
+          !!rest.onPressOut && rest.onPressOut(e)
+          buttonInnerContainerBind.onPressOut(e)
+        }}
+      >
+        {children}
+      </AnimatedPressable>
+    )
+  }
+
+  return children
 }
 
 const Button = ({
@@ -62,11 +157,12 @@ const Button = ({
   disabledStyle,
   forceHoveredStyle = false,
   childrenPosition = 'right',
+  childrenContainerStyle,
   testID,
   submitOnEnter: _submitOnEnter,
   ...rest
 }: Props) => {
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const submitOnEnter = _submitOnEnter ?? type === 'primary'
 
   useOnEnterKeyPress({
@@ -88,19 +184,26 @@ const Button = ({
       secondary: [
         {
           property: 'backgroundColor',
-          from: `${String(theme.infoBackground)}00`,
-          to: theme.infoBackground
+          from:
+            themeType === THEME_TYPES.DARK
+              ? `${String(theme.primary)}00`
+              : `${String(theme.infoBackground)}00`,
+          to: themeType === THEME_TYPES.DARK ? `${String(theme.primary)}20` : theme.infoBackground
         }
       ],
       danger: [
         {
           property: 'backgroundColor',
-          from: `${String(theme.errorBackground)}00`,
+          from:
+            themeType === THEME_TYPES.DARK
+              ? `${String(theme.errorDecorative)}00`
+              : `${String(theme.errorBackground)}00`,
           to: theme.errorBackground
         }
       ],
       outline: [OPACITY_ANIMATION],
       ghost: [OPACITY_ANIMATION],
+      ghost2: [],
       error: [OPACITY_ANIMATION],
       warning: [OPACITY_ANIMATION],
       info: [OPACITY_ANIMATION],
@@ -109,8 +212,12 @@ const Button = ({
       gray: [
         {
           property: 'backgroundColor',
-          from: theme.quaternaryBackground,
-          to: `${String(theme.primaryLight)}10`
+          from:
+            themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.quaternaryBackground,
+          to:
+            themeType === THEME_TYPES.DARK
+              ? theme.secondaryBackground
+              : `${String(theme.primaryLight)}10`
         },
         {
           property: 'borderWidth',
@@ -120,20 +227,14 @@ const Button = ({
         {
           property: 'borderColor',
           from: theme.quaternaryBackground,
-          to: theme.primaryLight
+          to: themeType === THEME_TYPES.DARK ? `${theme.linkText as string}80` : theme.primaryLight
         }
       ]
     }),
-    [
-      theme.primary,
-      theme.primaryLight,
-      theme.infoBackground,
-      theme.errorBackground,
-      theme.quaternaryBackground
-    ]
+    [themeType, theme]
   )
 
-  const [bind, animatedStyle] = useMultiHover({
+  const [buttonContainerBind, buttonContainerAnimatedStyle] = useMultiHover({
     values: buttonColors[type],
     forceHoveredStyle
   })
@@ -144,6 +245,7 @@ const Button = ({
     danger: styles.buttonContainerDanger,
     outline: styles.buttonContainerOutline,
     ghost: styles.buttonContainerGhost,
+    ghost2: {},
     error: {
       backgroundColor: theme.errorText,
       borderWidth: 0
@@ -177,19 +279,103 @@ const Button = ({
     tiny: styles.buttonContainerStylesSizeTiny
   }
 
-  const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
-    primary: styles.buttonTextPrimary,
-    secondary: styles.buttonTextSecondary,
-    danger: styles.buttonTextDanger,
-    outline: styles.buttonTextOutline,
-    ghost: styles.buttonTextGhost,
-    error: styles.buttonTextPrimary,
-    warning: styles.buttonTextPrimary,
-    info: styles.buttonTextPrimary,
-    info2: styles.buttonTextPrimary,
-    success: styles.buttonTextPrimary,
-    gray: styles.buttonTextGray
-  }
+  // @ts-ignore
+  const buttonTextColors: {
+    [key in ButtonTypes]: AnimationValues[]
+  } = useMemo(
+    () => ({
+      primary: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#fff',
+          to: themeType === THEME_TYPES.DARK ? theme.primary : '#fff'
+        }
+      ],
+      secondary: [
+        {
+          property: 'color',
+          from: theme.primary,
+          to: theme.primary
+        }
+      ],
+      danger: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.errorText : theme.errorDecorative,
+          to: themeType === THEME_TYPES.DARK ? theme.errorText : theme.errorDecorative
+        }
+      ],
+      outline: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.primary : theme.successDecorative,
+          to: themeType === THEME_TYPES.DARK ? theme.primary : theme.successDecorative
+        }
+      ],
+      ghost: [
+        {
+          property: 'color',
+          from: theme.primary,
+          to: theme.primary
+        }
+      ],
+      ghost2: [
+        {
+          property: 'color',
+          from: theme.iconPrimary,
+          to: theme.primaryBackgroundInverted
+        }
+      ],
+      error: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground,
+          to: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground
+        }
+      ],
+      warning: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
+          to: theme.primaryText
+        }
+      ],
+      info: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
+          to: theme.primaryText
+        }
+      ],
+      info2: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
+          to: theme.primaryText
+        }
+      ],
+      success: [
+        {
+          property: 'color',
+          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
+          to: theme.primaryText
+        }
+      ],
+      gray: [
+        {
+          property: 'color',
+          from: theme.primaryText,
+          to: theme.primaryText
+        }
+      ]
+    }),
+    [themeType, theme]
+  )
+
+  const [buttonTextBind, buttonTextAnimatedStyle, isHovered] = useMultiHover({
+    values: buttonTextColors[type],
+    forceHoveredStyle
+  })
 
   const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {
     large: styles.buttonTextStylesSizeLarge,
@@ -197,6 +383,25 @@ const Button = ({
     small: styles.buttonTextStylesSizeSmall,
     tiny: styles.buttonTextStylesSizeTiny
   }
+
+  const [childrenScaleBind, childrenScaleAnimationStyle] = useCustomHover({
+    property: 'scaleX',
+    values: { from: 1, to: 1.1 }
+  })
+
+  const fromColor = buttonTextColors[type][0]?.from
+  const toColor = buttonTextColors[type][0]?.to
+
+  const effectiveColor = isHovered ? toColor : fromColor
+
+  const enhancedChildren = React.Children.toArray(children).map((child, index) => {
+    if (index === 0 && React.isValidElement(child)) {
+      return React.cloneElement(child, { color: accentColor || effectiveColor } as any)
+    }
+
+    return child
+  })
+
   return (
     <AnimatedPressable
       testID={testID}
@@ -209,51 +414,121 @@ const Button = ({
           style,
           !!accentColor && { borderColor: accentColor },
           !hasBottomSpacing && spacings.mb0,
-          animatedStyle,
+          buttonContainerAnimatedStyle,
           disabled && disabledStyle ? disabledStyle : {},
           disabled && !disabledStyle ? styles.disabled : {}
         ] as ViewStyle
       }
       {...rest}
       onHoverIn={(e) => {
-        bind.onHoverIn(e)
+        if (buttonTypesWithInnerContainer.includes(type)) return
+
+        buttonContainerBind.onHoverIn(e)
+        buttonTextBind.onHoverIn(e)
+        childrenScaleBind.onHoverIn(e)
 
         rest?.onHoverIn && rest.onHoverIn(e)
       }}
       onHoverOut={(e) => {
-        bind.onHoverOut(e)
+        if (buttonTypesWithInnerContainer.includes(type)) return
+
+        buttonContainerBind.onHoverOut(e)
+        buttonTextBind.onHoverOut(e)
+        childrenScaleBind.onHoverOut(e)
 
         rest?.onHoverOut && rest.onHoverOut(e)
       }}
       onPressIn={(e) => {
-        bind.onPressIn(e)
+        if (buttonTypesWithInnerContainer.includes(type)) return
+
+        buttonContainerBind.onPressIn(e)
+        buttonTextBind.onPressIn(e)
+        childrenScaleBind.onPressIn(e)
 
         rest?.onPressIn && rest.onPressIn(e)
       }}
       onPressOut={(e) => {
-        bind.onPressOut(e)
+        if (buttonTypesWithInnerContainer.includes(type)) return
 
+        buttonContainerBind.onPressOut(e)
+        buttonTextBind.onPressOut(e)
+        childrenScaleBind.onPressOut(e)
         rest?.onPressOut && rest.onPressOut(e)
       }}
     >
-      {childrenPosition === 'left' && children}
-      {!!text && (
-        <Text
-          selectable={false}
-          underline={textUnderline}
-          weight="medium"
-          style={[
-            textStyles.center,
-            buttonTextStyles[type],
-            buttonTextStylesSizes[size],
-            !!accentColor && { color: accentColor },
-            textStyle
-          ]}
-        >
-          {text}
-        </Text>
-      )}
-      {childrenPosition === 'right' && children}
+      {/* @ts-ignore */}
+      <ButtonInnerContainer
+        type={type}
+        forceHoveredStyle={forceHoveredStyle}
+        {...rest}
+        onHoverIn={(e) => {
+          buttonContainerBind.onHoverIn(e)
+          buttonTextBind.onHoverIn(e)
+          childrenScaleBind.onHoverIn(e)
+
+          rest?.onHoverIn && rest.onHoverIn(e)
+        }}
+        onHoverOut={(e) => {
+          buttonContainerBind.onHoverOut(e)
+          buttonTextBind.onHoverOut(e)
+          childrenScaleBind.onHoverOut(e)
+
+          rest?.onHoverOut && rest.onHoverOut(e)
+        }}
+        onPressIn={(e) => {
+          buttonContainerBind.onPressIn(e)
+          buttonTextBind.onPressIn(e)
+          childrenScaleBind.onPressIn(e)
+
+          rest?.onPressIn && rest.onPressIn(e)
+        }}
+        onPressOut={(e) => {
+          buttonContainerBind.onPressOut(e)
+          buttonTextBind.onPressOut(e)
+          childrenScaleBind.onPressOut(e)
+          rest?.onPressOut && rest.onPressOut(e)
+        }}
+      >
+        {childrenPosition === 'left' && (
+          <Animated.View
+            style={[
+              childrenContainerStyle || {
+                transform: [{ scale: childrenScaleAnimationStyle.scaleX as number }]
+              }
+            ]}
+          >
+            {enhancedChildren}
+          </Animated.View>
+        )}
+
+        {!!text && (
+          <AnimatedText
+            selectable={false}
+            style={[
+              styles.buttonText,
+              !!textUnderline && styles.buttonTextUnderline,
+              buttonTextStylesSizes[size],
+              { ...buttonTextAnimatedStyle },
+              !!accentColor && { color: accentColor },
+              textStyle
+            ]}
+          >
+            {text}
+          </AnimatedText>
+        )}
+
+        {childrenPosition === 'right' && (
+          <Animated.View
+            style={[
+              childrenContainerStyle || {
+                transform: [{ scale: childrenScaleAnimationStyle.scaleX as number }]
+              }
+            ]}
+          >
+            {enhancedChildren}
+          </Animated.View>
+        )}
+      </ButtonInnerContainer>
     </AnimatedPressable>
   )
 }

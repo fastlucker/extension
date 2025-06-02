@@ -260,13 +260,15 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                 </div>
               </div>
               <div>
-                <div className={styles.label}>APR</div>
-                <div className={styles.value}>2.06%</div>
+                <div className={styles.label}>APY</div>
+                <div className={styles.value}>
+                  {walletTokenInfo?.apy ? `${walletTokenInfo?.apy.toFixed(2)}%` : 0}
+                </div>
               </div>
             </div>
             <div className={styles.stakedTotalRow}>
               <div className={styles.label}>Staked Total</div>
-              {Number(walletTokenInfo?.stkWalletTotalSupply || 0).toLocaleString(undefined, {
+              {Number(walletTokenInfo?.stakedWallets || 0).toLocaleString(undefined, {
                 maximumFractionDigits: 0
               })}
             </div>

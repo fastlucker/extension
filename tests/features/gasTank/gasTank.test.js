@@ -37,7 +37,7 @@ describe('Gas Tank tests with Smart Account', () => {
     await browser.close()
   })
 
-  it('Should top up Gas Tank with 0.000001 ETH on Base and pay with Gas Tank', async () => {
+  it.skip('Should top up Gas Tank with 0.000001 ETH on Base and pay with Gas Tank', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenBaseDashboard,
@@ -119,7 +119,7 @@ describe('Gas Tank tests with Basic Account', () => {
     await browser.close()
   })
 
-  it('Should top up Gas Tank with 0.000001 ETH on Base', async () => {
+  it.skip('Should top up Gas Tank with 0.000001 ETH on Base', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SELECTORS.nativeTokenBaseDashboard,

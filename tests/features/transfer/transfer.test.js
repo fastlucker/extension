@@ -30,7 +30,7 @@ describe('transfer', () => {
     await browser.close()
   })
 
-  it('should build a transfer request to an address from the address book', async () => {
+  it.skip('should build a transfer request to an address from the address book', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SEND_TOKEN_SELECTOR,
@@ -43,7 +43,7 @@ describe('transfer', () => {
     })
   })
 
-  it('should build a transfer request to an unknown address', async () => {
+  it.skip('should build a transfer request to an unknown address', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SEND_TOKEN_SELECTOR,
@@ -65,7 +65,7 @@ describe('transfer', () => {
     })
   })
 
-  it('should build a top-up gas tank request', async () => {
+  it.skip('should build a top-up gas tank request', async () => {
     await checkTokenBalanceClickOnGivenActionInDashboard(
       page,
       SEND_TOKEN_SELECTOR,

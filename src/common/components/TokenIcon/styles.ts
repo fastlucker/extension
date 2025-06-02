@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { ThemeProps } from '@common/styles/themeConfig'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { THEME_TYPES, ThemeProps, ThemeType } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -11,10 +11,11 @@ interface Style {
   loader: ViewStyle
 }
 
-const getStyles = (theme: ThemeProps) =>
+const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
     withContainerStyle: {
-      backgroundColor: theme.secondaryBackground,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.quaternaryBackground : theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter
@@ -29,7 +30,8 @@ const getStyles = (theme: ThemeProps) =>
       borderRadius: 12
     },
     networkIcon: {
-      backgroundColor: theme.primaryBackground
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.primaryBackgroundInverted : theme.primaryBackground
     },
     loader: { position: 'absolute', zIndex: 2 }
   })

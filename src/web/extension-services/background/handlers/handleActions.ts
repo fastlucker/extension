@@ -4,7 +4,9 @@ import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/deriva
 import { MainController } from '@ambire-common/controllers/main/main'
 import {
   SIGN_ACCOUNT_OP_MAIN,
-  SIGN_ACCOUNT_OP_SWAP
+  SIGN_ACCOUNT_OP_SWAP,
+  SIGN_ACCOUNT_OP_TRANSFER,
+  SignAccountOpType
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -257,9 +259,16 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
       return mainCtrl?.signAccountOp?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-      const signAccountOpType = params?.isSwapAndBridge
-        ? SIGN_ACCOUNT_OP_SWAP
-        : SIGN_ACCOUNT_OP_MAIN
+      let signAccountOpType: SignAccountOpType
+
+      if (params.updateType === 'Main') {
+        signAccountOpType = SIGN_ACCOUNT_OP_MAIN
+      } else if (params.updateType === 'Swap&Bridge') {
+        signAccountOpType = SIGN_ACCOUNT_OP_SWAP
+      } else {
+        signAccountOpType = SIGN_ACCOUNT_OP_TRANSFER
+      }
+
       return await mainCtrl.handleSignAndBroadcastAccountOp(signAccountOpType)
     }
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
@@ -267,8 +276,15 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
     case 'SIGN_ACCOUNT_OP_UPDATE': {
-      if (params.updateType === 'Main') return mainCtrl?.signAccountOp?.update(params)
-      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+      if (params.updateType === 'Main') {
+        return mainCtrl?.signAccountOp?.update(params)
+      }
+      if (params.updateType === 'Swap&Bridge') {
+        return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+      }
+
+      // 'Transfer&TopUp'
+      return mainCtrl?.transfer?.signAccountOpController?.update(params)
     }
 
     case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
@@ -320,13 +336,15 @@ export const handleActions = async (
       return mainCtrl?.swapAndBridge.setIsAutoSelectRouteDisabled(params.isDisabled)
     case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
       return mainCtrl?.swapAndBridge.destroySignAccountOp()
-    case 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW':
+    case 'OPEN_SIGNING_ACTION_WINDOW': {
       if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+
+      const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
       return mainCtrl.actions.addOrUpdateAction(
         {
-          id: `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`,
-          type: 'swapAndBridge',
+          id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
+          type: params.type,
           userRequest: {
             meta: {
               accountAddr: mainCtrl.selectedAccount.account.addr
@@ -336,11 +354,31 @@ export const handleActions = async (
         'last',
         'open-action-window'
       )
-    case 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW':
+    }
+    case 'CLOSE_SIGNING_ACTION_WINDOW': {
       if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
-      return mainCtrl.actions.removeAction(
-        `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`
-      )
+
+      const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
+
+      return mainCtrl.actions.removeAction(`${mainCtrl.selectedAccount.account.addr}-${idSuffix}`)
+    }
+    case 'TRANSFER_CONTROLLER_UPDATE_FORM':
+      return mainCtrl.transfer.update(params.formValues)
+    case 'TRANSFER_CONTROLLER_RESET_FORM':
+      return mainCtrl.transfer.resetForm()
+    case 'TRANSFER_CONTROLLER_UNLOAD_SCREEN':
+      return mainCtrl.transfer.unloadScreen()
+    case 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
+      return mainCtrl.transfer.destroyLatestBroadcastedAccountOp()
+    case 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl.transfer.setUserProceeded(params.proceeded)
+    case 'TRANSFER_CONTROLLER_SHOULD_SKIP_TRANSACTION_QUEUED_MODAL':
+      mainCtrl.transfer.shouldSkipTransactionQueuedModal = params.shouldSkip
+      return
+    case 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl?.transfer?.signAccountOpController?.update(params)
+    case 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl?.transfer?.signAccountOpController?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
@@ -564,6 +602,11 @@ export const handleActions = async (
           })
         }
       }
+      break
+    }
+
+    case 'SET_THEME_TYPE': {
+      walletStateCtrl.setThemeType(params.themeType)
       break
     }
 

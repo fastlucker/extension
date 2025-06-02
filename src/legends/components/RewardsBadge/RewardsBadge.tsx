@@ -40,6 +40,7 @@ const RewardsBadge: React.FC = () => {
     (userLeaderboardData?.level ?? 0) <= 2
 
   const rewardsDisabledState =
+    !claimWalletCard ||
     (claimWalletCard && !claimWalletCard.meta?.availableToClaim) ||
     (claimWalletCard &&
       claimWalletCard.meta &&
