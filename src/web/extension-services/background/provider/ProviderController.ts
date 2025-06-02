@@ -656,7 +656,6 @@ export class ProviderController {
         date
       })
 
-      // TODO: Figure out wtf is this
       const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
       result.push({
         id: nanoid(21),
@@ -684,8 +683,27 @@ export class ProviderController {
   walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
     if (this.mainCtrl.dapps.getDapp(origin) && this.isUnlocked) {
-      result.push({ parentCapability: 'eth_accounts' })
+      const date = Date.now()
+      const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
+      const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
+
+      result.push({
+        id: nanoid(21),
+        parentCapability: 'eth_accounts',
+        invoker: origin,
+        caveats: [{ type: 'restrictReturnedAccounts', value: accounts }],
+        date
+      })
+
+      result.push({
+        id: nanoid(21),
+        parentCapability: 'endowment:permitted-chains',
+        invoker: origin,
+        caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
+        date
+      })
     }
+
     return result
   }
 
