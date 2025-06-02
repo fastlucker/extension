@@ -175,6 +175,7 @@ const CreateSeedPhraseWriteScreen = () => {
                   text={t('Copy recovery phrase')}
                   hasBottomSpacing={false}
                   size="small"
+                  testID="copy-recovery-phrase"
                   onPress={handleCopyToClipboard}
                 >
                   <CopyIcon style={spacings.mlTy} />

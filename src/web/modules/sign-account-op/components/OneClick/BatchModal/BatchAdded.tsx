@@ -16,6 +16,8 @@ import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutW
 
 type Props = {
   title: string
+  primaryButtonText: string
+  secondaryButtonTestID: string
   secondaryButtonText: string
   onPrimaryButtonPress: () => void
   onSecondaryButtonPress: () => void
@@ -23,6 +25,8 @@ type Props = {
 
 const BatchAdded: FC<Props> = ({
   title,
+  primaryButtonText,
+  secondaryButtonTestID,
   secondaryButtonText,
   onPrimaryButtonPress,
   onSecondaryButtonPress
@@ -72,7 +76,7 @@ const BatchAdded: FC<Props> = ({
             {t('Added to batch')}
           </Text>
           <Text weight="medium" appearance="secondaryText" style={text.center}>
-            {t('You can manage your batch in the dashboard.')}
+            {t('You can manage your batch on the dashboard.')}
           </Text>
         </View>
         <View
@@ -88,13 +92,14 @@ const BatchAdded: FC<Props> = ({
             hasBottomSpacing={false}
             type="secondary"
             text={secondaryButtonText}
-            testID="add-more-swaps"
+            textStyle={spacings.phTy}
+            testID={secondaryButtonTestID}
           />
           <Button
             onPress={onPrimaryButtonPress}
             hasBottomSpacing={false}
-            style={{ width: 160 }}
-            text={t('Close')}
+            textStyle={spacings.phTy}
+            text={primaryButtonText}
           />
         </View>
       </TabLayoutWrapperMainContent>

@@ -59,7 +59,7 @@ const Toggle: React.FC<Props> = ({
             ? `${theme.successDecorative as string}40`
             : themeType === THEME_TYPES.DARK
             ? (theme.quaternaryBackground as string)
-            : (theme.quaternaryBackground as string),
+            : `${theme.secondaryText as string}3D`,
           ...toggleStyle
         }}
       >
@@ -77,7 +77,7 @@ const Toggle: React.FC<Props> = ({
               ? (theme.successDecorative as string)
               : themeType === THEME_TYPES.DARK
               ? (theme.secondaryBackground as string)
-              : '#f7f8ff',
+              : (theme.primaryBackground as string),
             border: `1px solid ${
               themeType === THEME_TYPES.DARK
                 ? (theme.primaryBorder as string)

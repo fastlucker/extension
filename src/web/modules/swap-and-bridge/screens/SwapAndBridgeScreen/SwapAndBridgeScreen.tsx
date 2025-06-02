@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
@@ -17,14 +18,13 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
+import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
+import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
 import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
-import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
-import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
-import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -221,7 +221,9 @@ const SwapAndBridgeScreen = () => {
     return (
       <BatchAdded
         title={t('Swap & Bridge')}
-        secondaryButtonText={t('Add more swaps?')}
+        primaryButtonText={t('Open dashboard')}
+        secondaryButtonText={t('Add more')}
+        secondaryButtonTestID="add-more-swaps"
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
         onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
       />
