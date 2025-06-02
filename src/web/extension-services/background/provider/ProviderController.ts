@@ -4,6 +4,7 @@ import 'reflect-metadata'
 import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
+import { nanoid } from 'nanoid'
 
 import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -640,11 +641,32 @@ export class ProviderController {
     result: requestRes
   })
 
-  walletRequestPermissions = ({ params: permissions }: DappProviderRequest) => {
+  walletRequestPermissions = ({ params: permissions, session }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
+    const date = Date.now()
+    const origin = session.origin
+
     if (permissions && 'eth_accounts' in permissions[0]) {
-      result.push({ parentCapability: 'eth_accounts' })
+      const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
+      result.push({
+        id: nanoid(21),
+        parentCapability: 'eth_accounts',
+        invoker: origin,
+        caveats: [{ type: 'restrictReturnedAccounts', value: accounts }],
+        date
+      })
+
+      // TODO: Figure out wtf is this
+      const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
+      result.push({
+        id: nanoid(21),
+        parentCapability: 'endowment:permitted-chains',
+        invoker: origin,
+        caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
+        date
+      })
     }
+
     return result
   }
 
