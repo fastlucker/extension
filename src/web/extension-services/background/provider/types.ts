@@ -30,11 +30,11 @@ export type RequestRes = {
 export type Web3WalletPermission = {
   // Specified by EIP-2255:
   parentCapability: string // The name of the method corresponding to the permission
-  date: number // timestamp of the permission request, optional in EIP-2255, but MetaMask always results it
-  invoker: string // the URI of the dapp being granted this permission, MetaMask always results it
+  date: number // timestamp of the permission request, optional in EIP-2255, but MetaMask always returns it
+  invoker: string // the URI of the dapp being granted this permission, MetaMask always returns it
   caveats: Caveat[] // an array of caveats that specify restrictions on the permission
   // MetaMask specific:
-  id: string // permission ID, random and unique, MetaMask always results it
+  id: string // permission ID, random and unique, MetaMask always returns it
 }
 
 // Props specified by EIP-2255
