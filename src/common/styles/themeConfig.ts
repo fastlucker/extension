@@ -102,7 +102,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#018649'
   },
   successBackground: {
-    [THEME_TYPES.DARK]: '#70FF8D1F',
+    [THEME_TYPES.DARK]: '#1d2a1f',
     [THEME_TYPES.LIGHT]: '#EBF5F0'
   },
   // Info
@@ -115,7 +115,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#8B3DFF'
   },
   infoBackground: {
-    [THEME_TYPES.DARK]: '#70B4FF1F',
+    [THEME_TYPES.DARK]: '#1b212b',
     [THEME_TYPES.LIGHT]: '#F6F0FF'
   },
   // Info 2
@@ -145,7 +145,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#FBBA27'
   },
   warningBackground: {
-    [THEME_TYPES.DARK]: '#FFD9701F',
+    [THEME_TYPES.DARK]: '#29251c',
     [THEME_TYPES.LIGHT]: '#FBF5EB'
   },
   // Error
@@ -158,7 +158,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#EA0129'
   },
   errorBackground: {
-    [THEME_TYPES.DARK]: '#FF70891F',
+    [THEME_TYPES.DARK]: '#281a1e',
     [THEME_TYPES.LIGHT]: '#FEEBEE'
   },
   featureDecorative: {

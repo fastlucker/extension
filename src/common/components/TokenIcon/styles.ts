@@ -26,7 +26,8 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       top: 0,
       zIndex: 3,
       borderWidth: 1,
-      borderColor: theme.secondaryBorder,
+      borderColor:
+        themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.secondaryBorder,
       borderRadius: 12
     },
     networkIcon: {
