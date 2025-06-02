@@ -20,7 +20,6 @@ enum CharacterLoadingMessage {
   Minted = 'Finalizing details...'
 }
 
-// @TODO move somewhere or use the one from the compiled contract
 const REWARDS_NFT_ABI = [
   'function mint(uint type, uint season) public returns()',
   'function nftTypes(address identity, uint season) public view returns(uint)'
