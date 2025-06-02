@@ -135,7 +135,7 @@ const DashboardOverview: FC<Props> = ({
               }),
               backgroundColor:
                 themeType === THEME_TYPES.DARK
-                  ? `${DASHBOARD_OVERVIEW_BACKGROUND}75`
+                  ? `${DASHBOARD_OVERVIEW_BACKGROUND}80`
                   : DASHBOARD_OVERVIEW_BACKGROUND,
               overflow: 'hidden'
             }

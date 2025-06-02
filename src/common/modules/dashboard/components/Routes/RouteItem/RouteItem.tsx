@@ -71,7 +71,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
               borderRadius: BORDER_RADIUS_PRIMARY,
               backgroundColor: hovered
                 ? themeType === THEME_TYPES.DARK
-                  ? '#121c1d'
+                  ? '#1b2b2c'
                   : '#141833CC'
                 : themeType === THEME_TYPES.DARK
                 ? theme.primaryBackground
