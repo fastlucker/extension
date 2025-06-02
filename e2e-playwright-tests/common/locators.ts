@@ -52,5 +52,9 @@ export const locators = {
   bannerButtonReject: 'div[data-testid="banner-button-reject"]',
   bannerButtonOpen: 'div[data-testid="banner-button-open"]',
   selectRouteButton: 'div:has-text("Select route")',
+  liFiRoute: 'div:has-text("LI.FI DEX Aggregator")',
+  proceedButton: 'div[data-testid="proceed-btn"]',
+  swapSignButton: 'div[data-testid="swap-button-sign"]',
+  addMoreSwapsButton: 'div[data-testid="add-more-swaps"]',
   openDashboardFromBatchButton: 'div:has-text("Open dashboard") >> nth=10'
 }

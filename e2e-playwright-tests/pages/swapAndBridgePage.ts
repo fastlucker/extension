@@ -246,7 +246,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.locator(locators.addToBatchButton).click()
     await this.page.locator(locators.openDashboardFromBatchButton).first().click()
     await this.page.locator(locators.bannerButtonReject).first().click()
-    expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
+    await expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
   }
 
   async proceedTransaction(): Promise<void> {
@@ -268,5 +268,67 @@ export class SwapAndBridgePage extends BasePage {
     } catch (error) {
       console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
     }
+  }
+
+  async switchUSDValueOnSwapAndBridge(
+    sendToken: string,
+    sendNetwork: string,
+    sendAmount: number,
+    delay = 1000
+  ): Promise<void> {
+    await this.page.waitForTimeout(delay)
+
+    await this.openSwapAndBridge()
+    await this.selectSendTokenOnNetwork(sendToken, sendNetwork)
+    await typeText(this.page, SELECTORS.fromAmountInputSab, sendAmount.toString())
+
+    const [usdOldAmount, currency] = await this.getUSDTextContent()
+    expect(currency).toBe('$')
+    const oldAmount = await this.getSendAmount()
+    await this.page.waitForTimeout(500)
+    await clickOnElement(this.page, SELECTORS.flipUSDIcon)
+
+    const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
+    const newAmount = this.roundAmount(await this.getSendAmount())
+
+    expect(oldAmount).toBeCloseTo(usdNewAmount, 2)
+    expect(usdOldAmount).toBeCloseTo(newAmount, 2)
+    expect(newCurrency).toBe(sendToken)
+
+    // Wait and flip back
+    await this.page.waitForTimeout(500)
+    await clickOnElement(this.page, SELECTORS.flipUSDIcon)
+
+    const [usdSecondAmount, secondCurrency] = await this.getUSDTextContent()
+    const secondAmount = await this.getSendAmount()
+
+    expect(newAmount).toBeCloseTo(usdSecondAmount)
+    expect(usdNewAmount).toBeCloseTo(secondAmount)
+    expect(secondCurrency).toBe('$')
+  }
+
+  async getUSDTextContent(): Promise<[number, string]> {
+    const selector = SELECTORS.switchCurrencySab
+    await this.page.waitForTimeout(500)
+
+    const element = await this.page.$(selector)
+    expect(element).not.toBeNull()
+
+    const content = await element!.evaluate((el) => el.textContent?.trim() || '')
+
+    let currency: string | null = null
+    let amount: string | null = null
+
+    if (/\$/.test(content)) {
+      const match = content.match(/^([^0-9\s]+)?([\d,.]+)/)
+      currency = match?.[1] || ''
+      amount = match?.[2] || ''
+    } else {
+      const match = content.match(/([\d,.]+)\s*([\w.]+)$/)
+      amount = match?.[1] || ''
+      currency = match?.[2] || ''
+    }
+
+    return [Number(amount.replace(/,/g, '')), currency]
   }
 }

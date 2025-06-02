@@ -70,4 +70,15 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.prepareSwapAndBridge(0.8, 'USDC', '8453', 'WALLET')
     await swapAndBridgePage.proceedTransaction()
   })
+
+  test('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.switchUSDValueOnSwapAndBridge('USDC.E', '10', 0.34)
+    await swapAndBridgePage.switchUSDValueOnSwapAndBridge('DAI', '10', 0.2)
+    await swapAndBridgePage.switchUSDValueOnSwapAndBridge('USDC', '8453', 0.012)
+    await swapAndBridgePage.switchUSDValueOnSwapAndBridge('xWALLET', '1', 1)
+    await swapAndBridgePage.switchUSDValueOnSwapAndBridge('DAI', '10', 0.51)
+    await swapAndBridgePage.switchUSDValueOnSwapAndBridge('xWALLET', '1', 0.9)
+  })
 })
