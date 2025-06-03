@@ -22,7 +22,7 @@ const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
 const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
 const isExtension =
   outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
-const isBenzin = outputPath.includes('benzin')
+const isAmbireExplorer = outputPath.includes('benzin')
 const isLegends = outputPath.includes('legends')
 
 // style.css output file for WEB_ENGINE: GECKO
@@ -429,7 +429,7 @@ module.exports = async function (env, argv) {
 
     return config
   }
-  if (isBenzin) {
+  if (isAmbireExplorer) {
     if (process.env.APP_ENV === 'development') {
       config.optimization = { minimize: false }
     } else {
