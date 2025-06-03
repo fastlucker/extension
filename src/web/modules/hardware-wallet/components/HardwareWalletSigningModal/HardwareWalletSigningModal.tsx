@@ -14,7 +14,7 @@ import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
@@ -36,7 +36,7 @@ const { isTab } = getUiType()
 const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => {
   const { t } = useTranslation()
   const { ref, open, close } = useModalize()
-
+  const { theme } = useTheme()
   useEffect(() => {
     if (isVisible) open()
     else close()
@@ -76,9 +76,9 @@ const HardwareWalletSigningModal = ({ keyType, isVisible, children }: Props) => 
       >
         <DriveIcon style={spacings.mrLg} />
         <View style={spacings.mrLg}>
-          <LeftPointerArrowIcon color={colors.greenHaze} />
+          <LeftPointerArrowIcon color={theme.successDecorative} />
           <LeftPointerArrowIcon
-            color={colors.greenHaze}
+            color={theme.successDecorative}
             style={[spacings.mtMi, { transform: [{ rotate: '180deg' }] }]}
           />
         </View>

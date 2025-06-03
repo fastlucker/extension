@@ -57,11 +57,10 @@ const Buttons: FC<Props> = ({
             ...(IS_MOBILE_UP_BENZIN_BREAKPOINT || isExtension ? spacings.mb0 : spacings.mbMd)
           }}
           onPress={handleCopyText}
+          text="Copy link"
+          childrenPosition="left"
         >
-          <CopyIcon color="#fff" />
-          <Text style={{ color: '#fff', ...spacings.mlSm }} fontSize={16} weight="medium">
-            Copy link
-          </Text>
+          <CopyIcon style={spacings.mrSm} />
         </Button>
       )}
     </View>

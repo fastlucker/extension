@@ -6,7 +6,6 @@ import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import colors from '@common/styles/colors'
 import { Portal } from '@gorhom/portal'
 
 import getStyles from './styles'
@@ -20,7 +19,7 @@ interface Props {
 
 const Dropdown: FC<Props> = ({ data, externalPosition, setExternalPosition, onSelect }) => {
   const DropdownButton: any = useRef()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const dropdownButtonRef = useRef(null)
   const { width: windowWidth } = useWindowSize()
   const modalRef: any = useRef(null)
@@ -80,7 +79,7 @@ const Dropdown: FC<Props> = ({ data, externalPosition, setExternalPosition, onSe
   const renderItem = ({ item }: any): ReactElement<any, any> => (
     <Pressable onPress={() => onItemPress(item)}>
       {({ hovered }: any) => (
-        <View style={[styles.item, hovered && { backgroundColor: colors.titanWhite }]}>
+        <View style={[styles.item, hovered && { backgroundColor: theme.secondaryBackground }]}>
           <Text fontSize={14} shouldScale={false} style={item.style}>
             {item.label}
           </Text>

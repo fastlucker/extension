@@ -123,12 +123,7 @@ const useSign = ({
 
   const handleDismissLedgerConnectModal = useCallback(() => {
     setShouldDisplayLedgerConnectModal(false)
-
-    // Resume if paused (might happen if user have acknowledged warnings, but
-    // opts in to sign with Ledger, but a Ledger is NOT connected yet).
-    if (signAccountOpState?.status?.type === SigningStatus.UpdatesPaused)
-      handleUpdateStatus(SigningStatus.ReadyToSign)
-  }, [signAccountOpState?.status?.type, handleUpdateStatus])
+  }, [])
 
   const warningToPromptBeforeSign = useMemo(
     () =>
@@ -161,7 +156,6 @@ const useSign = ({
 
       if (isLedgerKeyInvolvedInTheJustChosenKeys && !isLedgerConnected) {
         setShouldDisplayLedgerConnectModal(true)
-        handleUpdateStatus(SigningStatus.UpdatesPaused)
         return
       }
 

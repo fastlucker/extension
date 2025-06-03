@@ -19,7 +19,6 @@ import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import PendingBadge from '@common/modules/dashboard/components/Tokens/TokenItem/PendingBadge'
 import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -200,7 +199,7 @@ const useGetTokenSelectProps = ({
                   amount={pendingToBeSigned}
                   amountFormatted={pendingToBeSignedFormatted}
                   label={t('{{symbol}} Pending transaction signature', { symbol })}
-                  backgroundColor={colors.lightBrown}
+                  backgroundColor={theme.warningBackground}
                   textColor={theme.warningText}
                   Icon={BatchIcon}
                 />
@@ -210,8 +209,8 @@ const useGetTokenSelectProps = ({
                   amount={pendingToBeConfirmed}
                   amountFormatted={pendingToBeConfirmedFormatted}
                   label={t('Pending to be confirmed')}
-                  backgroundColor={colors.lightAzureBlue}
-                  textColor={colors.azureBlue}
+                  backgroundColor={theme.info2Background}
+                  textColor={theme.info2Text}
                   Icon={PendingToBeConfirmedIcon}
                 />
               )}

@@ -4,6 +4,7 @@ import { Image, ImageStyle, View, ViewStyle } from 'react-native'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import { SkeletonLoaderProps } from '@common/components/SkeletonLoader/types'
 import useTheme from '@common/hooks/useTheme'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import commonStyles from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
@@ -30,7 +31,7 @@ const ManifestImage = ({
   imageStyle = {},
   skeletonAppearance
 }: Props) => {
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
   const [currentUri, setCurrentUri] = useState({
@@ -94,7 +95,10 @@ const ManifestImage = ({
             {
               height: scaledSize,
               width: scaledSize,
-              backgroundColor: theme.primaryBackground,
+              backgroundColor:
+                themeType === THEME_TYPES.DARK
+                  ? theme.primaryBackgroundInverted
+                  : theme.primaryBackground,
               opacity: isLoading ? 0 : 1
             },
             !!isRound && { borderRadius: roundBorderRadius },
