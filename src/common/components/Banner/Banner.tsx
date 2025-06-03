@@ -92,7 +92,16 @@ const Banner = React.memo(
 
     return (
       <View
-        style={[styles.container, { backgroundColor: theme[`${type}Background`] }, style]}
+        style={[
+          styles.container,
+          {
+            backgroundColor:
+              themeType === THEME_TYPES.DARK
+                ? `${theme[`${type}Decorative`] as string}1F`
+                : theme[`${type}Background`]
+          },
+          style
+        ]}
         testID={`dashboard-${type}-banner`}
       >
         <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
@@ -105,7 +114,7 @@ const Banner = React.memo(
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: BORDER_RADIUS_PRIMARY,
-                backgroundColor: theme[`${type}Background`],
+                backgroundColor: `${theme[`${type}Decorative`] as string}1F`,
                 marginLeft: -SPACING_MI,
                 marginRight: SPACING_TY
               }
