@@ -193,7 +193,14 @@ const SwapAndBridgeScreen = () => {
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
+  }, [
+    handleBackButtonPress,
+    handleSubmitForm,
+    isBridge,
+    isNotReadyToProceed,
+    fromSelectedToken,
+    swapSignErrors
+  ])
 
   if (!sessionIds.includes(sessionId)) {
     // If the portfolio has loaded we can skip the spinner as initializing the screen
