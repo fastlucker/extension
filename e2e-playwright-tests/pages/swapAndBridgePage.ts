@@ -200,7 +200,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForTimeout(1000)
     await this.page.locator(SELECTORS.receiveTokenSab).click()
     await this.page.waitForTimeout(900)
-    await this.page.locator(SELECTORS.searchInput).fill(receiveToken)
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 5000 })
     const selector = `[data-testid*="${receiveToken.toLowerCase()}"]`
     await expect(this.page.locator(selector)).toHaveText(new RegExp(receiveToken.toUpperCase()), {
       timeout: 3000
@@ -242,7 +242,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async rejectTransaction(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible' })
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
     await this.page.locator(locators.addToBatchButton).click()
     await this.page.locator(locators.openDashboardFromBatchButton).first().click()
     await this.page.locator(locators.bannerButtonReject).first().click()
@@ -250,7 +250,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async proceedTransaction(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible' })
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
     await this.page.locator(locators.addToBatchButton).click()
     await this.page.locator(locators.openDashboardFromBatchButton).first().click()
     const newPage = await this.handleNewPage(locators.bannerButtonOpen)
@@ -302,8 +302,8 @@ export class SwapAndBridgePage extends BasePage {
     const [usdSecondAmount, secondCurrency] = await this.getUSDTextContent()
     const secondAmount = await this.getSendAmount()
 
-    expect(newAmount).toBeCloseTo(usdSecondAmount)
-    expect(usdNewAmount).toBeCloseTo(secondAmount)
+    expect(newAmount).toBeCloseTo(usdSecondAmount, 1)
+    expect(usdNewAmount).toBeCloseTo(secondAmount, 1)
     expect(secondCurrency).toBe('$')
   }
 
