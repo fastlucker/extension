@@ -181,7 +181,7 @@ const ViewOnlyScreen = () => {
                   style={[spacings.ptTy, animStyle]}
                   {...bindAnim}
                 >
-                  <Text fontSize={14} underline>
+                  <Text fontSize={14} underline appearance="secondaryText">
                     {t('+ Add another address')}
                   </Text>
                 </AnimatedPressable>

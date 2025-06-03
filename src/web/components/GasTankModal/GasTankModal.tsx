@@ -20,7 +20,6 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { getGasTankTokenDetails } from '@common/utils/getGasTankTokenDetails'
@@ -196,7 +195,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                       {`${t('Total Saved')} `}
                     </Text>
                     <InfoIcon
-                      color={iconColors.success}
+                      color={theme.successDecorative}
                       width={12}
                       data-tooltip-id="saved-tooltip"
                     />
@@ -221,7 +220,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                       {`${t('Total Cashback')} `}
                     </Text>
                     <InfoIcon
-                      color={iconColors.primary2}
+                      color={theme.iconPrimary2}
                       width={12}
                       data-tooltip-id="cashback-tooltip"
                     />

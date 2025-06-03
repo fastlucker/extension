@@ -7,7 +7,6 @@ import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
@@ -63,7 +62,7 @@ const Option = ({
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         <View style={styles.iconWrapper}>
-          <Icon color={isHovered ? theme.primary : iconColors.primary} {...iconProps} />
+          <Icon color={isHovered ? theme.iconPrimary2 : theme.iconPrimary} {...iconProps} />
         </View>
         <Text style={flexbox.flex1} fontSize={14} weight="medium" numberOfLines={1}>
           {text}
