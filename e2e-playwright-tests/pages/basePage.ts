@@ -20,10 +20,6 @@ export abstract class BasePage {
 
   async handleNewPage(locator: string) {
     const context = this.page.context()
-    // const pagePromise = context.waitForEvent('page')
-    // await this.page.locator(locator).first().click()
-    // const newPage = await pagePromise
-    // return newPage
     const [newPage] = await Promise.all([
       context.waitForEvent('page'),
       this.page.locator(locator).first().click()

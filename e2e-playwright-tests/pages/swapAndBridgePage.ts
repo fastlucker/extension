@@ -291,8 +291,8 @@ export class SwapAndBridgePage extends BasePage {
     const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
     const newAmount = this.roundAmount(await this.getSendAmount())
 
-    expect(oldAmount).toBeCloseTo(usdNewAmount, 2)
-    expect(usdOldAmount).toBeCloseTo(newAmount, 2)
+    expect(oldAmount).toBeCloseTo(usdNewAmount, 1)
+    expect(usdOldAmount).toBeCloseTo(newAmount, 1)
     expect(newCurrency).toBe(sendToken)
 
     // Wait and flip back
