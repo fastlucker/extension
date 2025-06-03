@@ -23,12 +23,8 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       ...spacings.phSm,
       ...spacings.pvSm,
       ...common.borderRadiusPrimary,
-      shadowOffset: {
-        width: 0,
-        height: -3
-      },
-      shadowColor: '#CACDE699',
-      shadowOpacity: themeType === THEME_TYPES.DARK ? 0 : 1,
+      shadowOffset: { width: 0, height: -3 },
+      shadowColor: themeType === THEME_TYPES.DARK ? '#00000099' : '#CACDE699',
       shadowRadius: 6
     }
   })
