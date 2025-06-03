@@ -175,7 +175,6 @@ const DevicePasswordChangeSettingsScreen = () => {
         <Button
           testID="change-device-pass-button"
           style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
-          textStyle={{ fontSize: 14 }}
           hasBottomSpacing={false}
           // !== 'INITIAL' to prevent calling same func while the prev execution of that func sends it's status to the FE
           disabled={state.statuses.changeKeystorePassword !== 'INITIAL' || !isValid}

@@ -151,7 +151,6 @@ const DevicePasswordRecoverySettingsScreen = () => {
         />
         <Button
           style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
-          textStyle={{ fontSize: 14 }}
           disabled={
             ev.currentState === EmailVaultState.Loading ||
             isSubmitting ||

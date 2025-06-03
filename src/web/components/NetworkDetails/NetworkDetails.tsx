@@ -18,6 +18,7 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -53,7 +54,7 @@ const NetworkDetails = ({
   type = 'horizontal'
 }: Props) => {
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme, styles, themeType } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { statuses, allNetworks } = useNetworksControllerState()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
@@ -326,7 +327,9 @@ const NetworkDetails = ({
           contentContainerStyle: { flex: 1 }
         }}
         containerInnerWrapperStyles={{ flex: 1 }}
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
         <NetworkForm

@@ -9,7 +9,7 @@ export enum THEME_TYPES {
 
 export type ThemeType = THEME_TYPES.LIGHT | THEME_TYPES.DARK | THEME_TYPES.SYSTEM
 
-export const DEFAULT_THEME = THEME_TYPES.LIGHT
+export const DEFAULT_THEME = THEME_TYPES.DARK
 
 export type ThemeProps = {
   [key in keyof typeof ThemeColors]: ColorValue
@@ -89,7 +89,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#F7F8FC'
   },
   backdrop: {
-    [THEME_TYPES.DARK]: '#54597ACC',
+    [THEME_TYPES.DARK]: '#0D0D0F95',
     [THEME_TYPES.LIGHT]: '#54597ACC'
   },
   // Success
@@ -162,11 +162,11 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#FEEBEE'
   },
   featureDecorative: {
-    [THEME_TYPES.DARK]: '#3851FF',
+    [THEME_TYPES.DARK]: '#70B4FF',
     [THEME_TYPES.LIGHT]: '#3851FF'
   },
   featureBackground: {
-    [THEME_TYPES.DARK]: '#ECF4FD',
+    [THEME_TYPES.DARK]: '#70B4FF1F',
     [THEME_TYPES.LIGHT]: '#ECF4FD'
   },
   iconPrimary: {
