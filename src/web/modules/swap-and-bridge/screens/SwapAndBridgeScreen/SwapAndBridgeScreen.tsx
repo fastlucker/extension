@@ -83,7 +83,10 @@ const SwapAndBridgeScreen = () => {
     if (!signAccountOpController || isAutoSelectRouteDisabled) return
     if (signAccountOpController.estimation.status === EstimationStatus.Error) {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE',
+        params: {
+          activeRouteId: signAccountOpController.accountOp.meta?.swapTxn?.activeRouteId
+        }
       })
     }
   })
