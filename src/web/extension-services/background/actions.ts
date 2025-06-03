@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
   ActionExecutionType,
+  Action as ActionFromActionsQueue,
   ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
@@ -26,14 +26,15 @@ import {
   SwapAndBridgeRoute,
   SwapAndBridgeToToken
 } from '@ambire-common/interfaces/swapAndBridge'
+import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { FullEstimation } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 
-import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
@@ -572,6 +573,7 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
 }
 type SwapAndBridgeControllerOnEstimationFailure = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
+  params: { activeRouteId?: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
@@ -716,6 +718,11 @@ type OpenExtensionPopupAction = {
   type: 'OPEN_EXTENSION_POPUP'
 }
 
+type SetThemeTypeAction = {
+  type: 'SET_THEME_TYPE'
+  params: { themeType: THEME_TYPES }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -851,3 +858,4 @@ export type Action =
   | TransferControllerUnloadScreen
   | TransferControllerUserProceededAction
   | TransferControllerShouldSkipTransactionQueuedModal
+  | SetThemeTypeAction

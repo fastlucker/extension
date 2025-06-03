@@ -1,7 +1,6 @@
 import { ImageStyle, StyleSheet, ViewProps, ViewStyle } from 'react-native'
 
 import { BOTTOM_SHEET_Z_INDEX } from '@common/components/BottomSheet/styles'
-import colors from '@common/styles/colors'
 import spacings, { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
@@ -108,11 +107,11 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       height: 50,
       borderRadius: 13,
-      backgroundColor: colors.howl,
+      backgroundColor: theme.secondaryBackground,
       borderWidth: 0,
       fontSize: 16,
       ...spacings.phTy,
-      color: colors.titan
+      color: theme.secondaryText
     },
     optionIcon: {
       width: 30,

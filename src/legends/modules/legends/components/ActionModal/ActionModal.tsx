@@ -25,8 +25,6 @@ import { CardFromResponse } from '@legends/modules/legends/types'
 import MigrateRewardsModal from '../MigrateRewardsModal'
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
-import InviteAccount from './InviteAccount/InviteAccount'
-import Referral from './Referral/Referral'
 
 type CardActionContextType = {
   onComplete: (txnId: string) => Promise<void>
@@ -172,10 +170,7 @@ const ActionModal: FC<ActionModalProps> = ({
           image={contentImageV2}
           imageAlt={title}
           video={contentVideoV2}
-        >
-          {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||
-            (predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />)}
-        </HowTo>
+        />
       )}
       {!!action && (
         <cardActionContext.Provider value={cardActionContextValue}>

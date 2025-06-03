@@ -12,6 +12,7 @@ import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
+import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -47,7 +48,7 @@ const KeyStoreResetScreen = () => {
   })
 
   const formEmail = watch('email')
-
+  const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const {
     ref: passwordSetModalRef,
@@ -196,13 +197,14 @@ const KeyStoreResetScreen = () => {
               style={[
                 styles.currentEmailContainer,
                 {
-                  marginBottom: SPACING_LG
+                  marginBottom: SPACING_LG,
+                  backgroundColor: theme.secondaryBackground
                 }
               ]}
             >
               <Text style={styles.currentEmailLabel} weight="regular" fontSize={14}>
                 {t('The recovery email for current extension is')}{' '}
-                <Text style={styles.currentEmailValue} fontSize={14} weight="medium">
+                <Text appearance="primary" fontSize={14} weight="medium">
                   {email}
                 </Text>
               </Text>

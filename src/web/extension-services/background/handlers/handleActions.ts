@@ -9,7 +9,6 @@ import {
   SignAccountOpType
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -310,7 +309,7 @@ export const handleActions = async (
       return await mainCtrl.buildSwapAndBridgeUserRequest()
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE': {
-      return await mainCtrl.swapAndBridge.onEstimationFailure()
+      return await mainCtrl.swapAndBridge.onEstimationFailure(params.activeRouteId)
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
@@ -602,6 +601,11 @@ export const handleActions = async (
           })
         }
       }
+      break
+    }
+
+    case 'SET_THEME_TYPE': {
+      walletStateCtrl.setThemeType(params.themeType)
       break
     }
 

@@ -49,11 +49,7 @@ const ActionFooter = ({
           onPress={onReject}
           testID={rejectButtonTestID}
           style={flexbox.alignSelfStart}
-        >
-          <View style={spacings.pl}>
-            <CloseIcon color={theme.errorDecorative} />
-          </View>
-        </Button>
+        />
       </View>
       <ActionsPagination />
       <View style={flexbox.flex1}>

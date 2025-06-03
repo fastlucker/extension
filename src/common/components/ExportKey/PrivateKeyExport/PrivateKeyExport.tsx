@@ -11,7 +11,6 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { setStringAsync } from '@common/utils/clipboard'
 
@@ -85,7 +84,7 @@ const PrivateKeyExport: FC<Props> = ({ privateKey, blurred, setBlurred, openConf
                 cursor: !privateKey ? 'default' : 'pointer'
               }}
             >
-              <CopyIcon style={spacings.mlTy} width={18} color={iconColors.primary} />
+              <CopyIcon style={spacings.mlTy} width={18} color={theme.iconPrimary} />
             </Button>
           </View>
 
@@ -98,9 +97,9 @@ const PrivateKeyExport: FC<Props> = ({ privateKey, blurred, setBlurred, openConf
             text={blurred ? t('Reveal key') : t('Hide key')}
           >
             {blurred ? (
-              <VisibilityIcon color={iconColors.primary} style={spacings.mlTy} width={18} />
+              <VisibilityIcon color={theme.iconPrimary} style={spacings.mlTy} width={18} />
             ) : (
-              <InvisibilityIcon color={iconColors.primary} style={spacings.mlTy} width={18} />
+              <InvisibilityIcon color={theme.iconPrimary} style={spacings.mlTy} width={18} />
             )}
           </Button>
         </View>
