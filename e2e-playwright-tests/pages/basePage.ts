@@ -26,4 +26,8 @@ export abstract class BasePage {
     ])
     return newPage
   }
+
+  async pause() {
+    await this.page.pause()
+  }
 }

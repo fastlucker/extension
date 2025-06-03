@@ -19,7 +19,7 @@ const config: PlaywrightTestConfig = {
   timeout: 480 * 1000,
   reportSlowTests: null,
   snapshotPathTemplate: 'data/screenshots/{projectName}/{testFilePath}/{arg}/text',
-  retries: 1,
+  retries: process.env.CI ? 1 : 0,
   use: {
     viewport: { width: 1920, height: 1080 },
     baseURL: process.env.APP_URL || '',

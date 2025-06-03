@@ -199,7 +199,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
     await this.page.waitForTimeout(1000)
     await this.page.locator(SELECTORS.receiveTokenSab).click()
-    await this.page.waitForTimeout(900)
+    await this.page.waitForTimeout(1000)
     await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 5000 })
     const selector = `[data-testid*="${receiveToken.toLowerCase()}"]`
     await expect(this.page.locator(selector)).toHaveText(new RegExp(receiveToken.toUpperCase()), {
@@ -226,10 +226,9 @@ export class SwapAndBridgePage extends BasePage {
   ) {
     await this.openSwapAndBridge()
     await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
-    await this.page.waitForTimeout(1000)
-
+    await this.page.waitForTimeout(1500)
     await this.page.locator(SELECTORS.receiveTokenSab).click()
-    await this.page.locator(SELECTORS.searchInput).fill(receiveToken)
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 3000 })
     await this.page.getByText('Not found. Try with token').isVisible()
 
     const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
@@ -330,5 +329,29 @@ export class SwapAndBridgePage extends BasePage {
     }
 
     return [Number(amount.replace(/,/g, '')), currency]
+  }
+
+  async verifyAutoRefreshRoute(): Promise<void> {
+    const routeSelector = this.page.locator('text=Select route')
+    await routeSelector.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null)
+    await routeSelector.waitFor({ state: 'hidden', timeout: 65000 })
+    const didReappear = await routeSelector
+      .waitFor({ state: 'visible', timeout: 65000 })
+      .then(() => true)
+      .catch(() => false)
+    expect(didReappear).toBe(true)
+  }
+
+  async assertSelectedAggregator(): Promise<void> {
+    await expect(this.page.getByText('LI.FI DEX Aggregator').last()).toBeVisible()
+    await expect(this.page.getByText('Selected').last()).toBeVisible()
+  }
+
+  async clickOnSecondRoute(): Promise<void> {
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    await this.page.locator(locators.selectRouteButton).last().click()
+    await this.page.locator(locators.liFiRoute).last().click()
+    await this.page.locator(locators.selectRouteButton).last().click()
+    await this.assertSelectedAggregator()
   }
 }

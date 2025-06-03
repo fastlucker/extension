@@ -81,4 +81,18 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.switchUSDValueOnSwapAndBridge('DAI', '10', 0.51)
     await swapAndBridgePage.switchUSDValueOnSwapAndBridge('xWALLET', '1', 0.9)
   })
+
+  test('should auto-refresh active route after 60s during Swap & Bridge with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.prepareSwapAndBridge(0.009, 'USDC', '8453', 'WALLET')
+    await swapAndBridgePage.verifyAutoRefreshRoute()
+  })
+
+  test('should select a different route when Swap & Bridge with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.prepareSwapAndBridge(0.009, 'USDC', '8453', 'WALLET')
+    await swapAndBridgePage.clickOnSecondRoute()
+  })
 })
