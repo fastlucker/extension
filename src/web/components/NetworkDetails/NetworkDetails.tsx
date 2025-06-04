@@ -176,7 +176,12 @@ const NetworkDetails = ({
         ]}
         onPress={() => setShowAllRpcUrls((p) => !p)}
       >
-        <Text style={spacings.mrMi} fontSize={12} color={theme.featureDecorative} underline>
+        <Text
+          style={spacings.mrMi}
+          fontSize={12}
+          color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.featureDecorative}
+          underline
+        >
           {!showAllRpcUrls &&
             t('show {{number}} more', {
               number: sortedRpcUrls.length - 1
@@ -187,14 +192,24 @@ const NetworkDetails = ({
             })}
         </Text>
         {!!showAllRpcUrls && (
-          <UpArrowIcon width={12} height={6} color={theme.featureDecorative} strokeWidth="1.7" />
+          <UpArrowIcon
+            width={12}
+            height={6}
+            color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.featureDecorative}
+            strokeWidth="1.7"
+          />
         )}
         {!showAllRpcUrls && (
-          <DownArrowIcon width={12} height={6} color={theme.featureDecorative} strokeWidth="1.7" />
+          <DownArrowIcon
+            width={12}
+            height={6}
+            color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.featureDecorative}
+            strokeWidth="1.7"
+          />
         )}
       </Pressable>
     ) : null
-  }, [showAllRpcUrls, sortedRpcUrls.length, t, theme, type])
+  }, [showAllRpcUrls, sortedRpcUrls.length, t, theme, type, themeType])
 
   const renderRpcUrlsItem = useCallback(() => {
     return (

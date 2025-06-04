@@ -16,6 +16,7 @@ import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
@@ -42,7 +43,7 @@ import getStyles from './styles'
  */
 const AddChainScreen = () => {
   const { t } = useTranslation()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
@@ -72,7 +73,10 @@ const AddChainScreen = () => {
   const requestSession = useMemo(() => userRequest?.session, [userRequest?.session])
 
   const networkAlreadyAdded = useMemo(
-    () => networks.find((network) => network.chainId === BigInt(requestData.chainId)) || null,
+    () =>
+      networks.find(
+        (network) => requestData?.chainId && network.chainId === BigInt(requestData.chainId)
+      ) || null,
     [networks, requestData.chainId]
   )
 
@@ -232,7 +236,15 @@ const AddChainScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
+      header={
+        <HeaderAccountAndNetworkInfo
+          backgroundColor={
+            themeType === THEME_TYPES.DARK
+              ? (theme.tertiaryBackground as string)
+              : (theme.primaryBackground as string)
+          }
+        />
+      }
       footer={
         networkAlreadyAdded ? (
           <View style={flexbox.flex1}>
@@ -358,7 +370,12 @@ const AddChainScreen = () => {
                     nativeAssetSymbol={networkDetails.nativeAssetSymbol}
                     nativeAssetName={networkDetails.nativeAssetName}
                     explorerUrl={networkDetails.explorerUrl}
-                    style={{ backgroundColor: theme.primaryBackground }}
+                    style={{
+                      backgroundColor:
+                        themeType === THEME_TYPES.DARK
+                          ? theme.secondaryBackground
+                          : theme.primaryBackground
+                    }}
                     type="vertical"
                   />
                 </ScrollableWrapper>

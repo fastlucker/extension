@@ -12,7 +12,6 @@ import { EIP_1271_NOT_SUPPORTED_BY } from '@ambire-common/libs/signMessage/signM
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'

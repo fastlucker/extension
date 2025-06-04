@@ -37,11 +37,11 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#141833'
   },
   secondaryText: {
-    [THEME_TYPES.DARK]: '#FFFFFF99',
+    [THEME_TYPES.DARK]: '#A6A6A7',
     [THEME_TYPES.LIGHT]: '#54597A'
   },
   tertiaryText: {
-    [THEME_TYPES.DARK]: '#FFFFFF52',
+    [THEME_TYPES.DARK]: '#818181',
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
   linkText: {
