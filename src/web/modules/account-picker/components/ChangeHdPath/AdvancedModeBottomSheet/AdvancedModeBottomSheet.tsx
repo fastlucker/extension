@@ -152,7 +152,7 @@ const CustomHDPathBottomSheet: FC<Props> = ({
                       ? theme.tertiaryBackground
                       : theme.secondaryBackground
                   },
-                  hovered &&
+                  !!hovered &&
                     !isActive && {
                       borderColor:
                         themeType === THEME_TYPES.DARK ? theme.primaryLight80 : theme.primary

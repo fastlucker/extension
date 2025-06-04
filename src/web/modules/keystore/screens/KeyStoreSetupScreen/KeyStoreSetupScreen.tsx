@@ -14,6 +14,7 @@ import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNav
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -99,7 +100,9 @@ const KeyStoreSetupScreen = () => {
         id="terms-modal"
         style={{ maxWidth: 800 }}
         closeBottomSheet={closeTermsModal}
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         sheetRef={termsModalRef}
       >
         <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -114,6 +117,7 @@ const KeyStoreSetupScreen = () => {
           primaryButtonText={t('Ok')}
           onPrimaryButtonPress={closeTermsModal}
           primaryButtonTestID="terms-accept-btn"
+          style={common.borderRadiusPrimary}
         />
       </BottomSheet>
     </TabLayoutContainer>
