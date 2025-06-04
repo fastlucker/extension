@@ -96,7 +96,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
     if (!chainId || !identifiedBy || !txnId) return
 
-    return `https://benzin.ambire.com/${getBenzinUrlParams({ chainId, txnId, identifiedBy })}`
+    return `https://explorer.ambire.com/${getBenzinUrlParams({ chainId, txnId, identifiedBy })}`
   }, [submittedAccountOp])
 
   useEffect(() => {
