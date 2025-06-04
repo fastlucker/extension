@@ -77,19 +77,19 @@ const AddChainScreen = () => {
       networks.find(
         (network) => requestData?.chainId && network.chainId === BigInt(requestData.chainId)
       ) || null,
-    [networks, requestData.chainId]
+    [networks, requestData?.chainId]
   )
 
   // existingNetwork must be set in a useEffect and can't be a useMemo. That is because we must
   // set its value only once and never change it. Otherwise the screen rerenders when a network is
   // added/enabled with the wrong state.
   useEffect(() => {
-    if (existingNetwork || existingNetwork === null || !requestData.chainId) return
+    if (existingNetwork || existingNetwork === null || !requestData?.chainId) return
     const matchingNetwork =
       disabledNetworks.find((network) => network.chainId === BigInt(requestData.chainId)) || null
 
     setExistingNetwork(matchingNetwork)
-  }, [disabledNetworks, existingNetwork, requestData.chainId])
+  }, [disabledNetworks, existingNetwork, requestData?.chainId])
 
   useEffect(() => {
     setAreParamsValid(validateRequestParams(requestKind, requestData))
