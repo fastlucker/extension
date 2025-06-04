@@ -202,9 +202,12 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForTimeout(1000)
     await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 5000 })
     const selector = `[data-testid*="${receiveToken.toLowerCase()}"]`
-    await expect(this.page.locator(selector)).toHaveText(new RegExp(receiveToken.toUpperCase()), {
-      timeout: 3000
-    })
+    await expect(this.page.locator(selector).nth(0)).toHaveText(
+      new RegExp(receiveToken.toUpperCase()),
+      {
+        timeout: 3000
+      }
+    )
 
     const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
     if (address) {
@@ -232,7 +235,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.getByText('Not found. Try with token').isVisible()
 
     const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
-    await this.page.locator(SELECTORS.searchInput).fill(address)
+    await this.page.locator(SELECTORS.searchInput).fill(address, { timeout: 3000 })
 
     const selector = this.page.locator(`[data-tooltip-id*="${address}"]`).first()
     await this.page.waitForTimeout(1000)

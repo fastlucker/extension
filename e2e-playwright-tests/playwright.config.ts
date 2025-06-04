@@ -14,7 +14,7 @@ const config: PlaywrightTestConfig = {
   reporter: [
     ['list'],
     ['junit', { outputFile: 'test-results/results.xml' }],
-    ['html', { open: 'never' }]
+    ['html', { open: 'always' }]
   ],
   timeout: 480 * 1000,
   reportSlowTests: null,
