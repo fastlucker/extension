@@ -80,6 +80,7 @@ export const TEST_IDS = {
   nativeTokenPolygonDyn: 'token-0x0000000000000000000000000000000000000000-polygon',
   topUpButton: 'top-up-button',
   tokenSend: 'token-send',
+  tokensSelect: 'tokens-select',
   queueAndSignLaterButton: 'queue-and-sign-later-button',
   deleteTxnCallDyn: 'delete-txn-call',
   feeSlow: 'option-slow',
