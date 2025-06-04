@@ -128,6 +128,7 @@ const TokenOrNft: FC<Props> = ({
           marginRight={marginRight}
           fontSize={textSize}
           hideLinks={hideLinks}
+          chainId={chainId}
         />
       )
     else
