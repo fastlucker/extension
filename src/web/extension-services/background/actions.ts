@@ -539,13 +539,17 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
-    toSelectedToken?: SwapAndBridgeToToken | null
+    toSelectedTokenAddr?: SwapAndBridgeToToken['address'] | null
     routePriority?: 'output' | 'time'
   }
 }
 type SwapAndBridgeControllerAddToTokenByAddress = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS'
   params: { address: string }
+}
+type SwapAndBridgeControllerSearchToToken = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SEARCH_TO_TOKEN'
+  params: { searchTerm: string }
 }
 type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
@@ -810,6 +814,7 @@ export type Action =
   | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
   | SwapAndBridgeControllerAddToTokenByAddress
+  | SwapAndBridgeControllerSearchToToken
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerResetForm
