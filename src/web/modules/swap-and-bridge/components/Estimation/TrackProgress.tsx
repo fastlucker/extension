@@ -69,7 +69,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
     if (!identifiedBy) return
 
-    return `https://benzin.ambire.com/${getBenzinUrlParams({
+    return `https://explorer.ambire.com/${getBenzinUrlParams({
       chainId: toChainId,
       txnId: lastCompletedRoute.userTxHash,
       identifiedBy

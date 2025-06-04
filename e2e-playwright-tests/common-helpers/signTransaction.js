@@ -19,7 +19,7 @@ export async function signTransaction(actionWindowPage, transactionRecorder) {
   // Here are some such cases:
   // 1. Different PRs are running the E2E tests, or
   // 2. We run the tests locally and on the CI at the same time
-  // Because of this, as a hotfix, we now just check if the `benzin` page is loaded, without waiting for a
+  // Because of this, as a hotfix, we now just check if the `explorer` page is loaded, without waiting for a
   // transaction confirmation. Even in this case, we can still catch bugs, as on the SignAccountOp screen we are operating
   // with Simulations, Fees, and Signing.
   // We will research how we can rely again on the transaction receipt as a final step of confirming and testing a txn.
