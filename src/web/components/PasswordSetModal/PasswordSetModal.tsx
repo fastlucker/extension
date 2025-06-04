@@ -5,7 +5,9 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import spacings, { SPACING_3XL } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
@@ -17,10 +19,10 @@ interface Props {
 
 const PasswordSetModal: FC<Props> = ({ modalRef, onPress }) => {
   const { t } = useTranslation()
-
+  const { themeType } = useTheme()
   return (
     <BottomSheet
-      backgroundColor="primaryBackground"
+      backgroundColor={themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'}
       id="password-set-modal"
       sheetRef={modalRef}
       autoWidth
