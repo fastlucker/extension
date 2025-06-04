@@ -575,10 +575,6 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
-type SwapAndBridgeControllerOnEstimationFailure = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-  params: { activeRouteId?: SwapAndBridgeActiveRoute['activeRouteId'] }
-}
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
 }
@@ -848,7 +844,6 @@ export type Action =
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction
   | SignAccountOpUpdateAction
-  | SwapAndBridgeControllerOnEstimationFailure
   | SwapAndBridgeControllerMarkSelectedRouteAsFailed
   | SwapAndBridgeControllerDestroySignAccountOp
   | SwapAndBridgeControllerOpenSigningActionWindow
