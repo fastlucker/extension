@@ -21,6 +21,10 @@
   padding-bottom: .75rem;
   padding-left: 0;
   gap: .25rem;
+
+  @include breakpoint-down-from(tablet) {
+    top: -1rem;
+  }
 }
 
 .icon-placeholder {

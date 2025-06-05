@@ -22,7 +22,7 @@ const RewardsBadge: React.FC = () => {
   const claimWalletCard = legends?.find((card) =>
     isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
   )
-  const { userLeaderboardData, isLeaderboardLoading } = useLeaderboardContext()
+  const { season1LeaderboardData, isLeaderboardLoading } = useLeaderboardContext()
 
   const { accountPortfolio, claimableRewardsError, isLoadingClaimableRewards } =
     usePortfolioControllerState()
@@ -33,7 +33,7 @@ const RewardsBadge: React.FC = () => {
     isLoadingClaimableRewards ||
     isLoading ||
     isLeaderboardLoading ||
-    !userLeaderboardData ||
+    !season1LeaderboardData ||
     !accountPortfolio ||
     !accountPortfolio?.isReady
 
@@ -42,7 +42,7 @@ const RewardsBadge: React.FC = () => {
     ((accountPortfolio || accountPortfolio?.isReady) &&
       amountFormatted &&
       Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500) ||
-    (userLeaderboardData?.level ?? 0) <= 2
+    (season1LeaderboardData?.currentUser?.level ?? 0) <= 2
 
   const rewardsDisabledState =
     !claimWalletCard ||
@@ -151,7 +151,7 @@ const RewardsBadge: React.FC = () => {
               if (
                 !isRewardsLoading &&
                 accountPortfolio?.isReady &&
-                userLeaderboardData &&
+                season1LeaderboardData &&
                 !isEligible
               ) {
                 return (

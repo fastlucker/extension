@@ -1,12 +1,9 @@
 import React from 'react'
 import Svg, { Path } from 'react-native-svg'
 
-interface UnionIconProps {
-  width?: number
-  height?: number
-}
+import { LegendsSvgProps } from '@legends/types/svg'
 
-const UnionIcon: React.FC<UnionIconProps> = ({ width = 7, height = 13 }) => {
+const UnionIcon: React.FC<LegendsSvgProps> = ({ width = 7, height = 13 }) => {
   return (
     <Svg width={width} height={height} viewBox="0 0 7 13" fill="none">
       <Path
