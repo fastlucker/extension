@@ -33,11 +33,11 @@ const Page = ({
 
   return (
     <div>
-      <Banner />
       <div className={styles.wrapper}>
         <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
 
         <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
+          <Banner />
           <div className={`${styles.container} ${customContainerSizeClass}`}>
             <div className={styles.header}>
               <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
