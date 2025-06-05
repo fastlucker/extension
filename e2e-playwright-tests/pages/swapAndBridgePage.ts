@@ -379,7 +379,7 @@ export class SwapAndBridgePage extends BasePage {
       await clickOnElement(this.page, `[data-testid*="option-${receiveNetwork}"]`)
 
       // Select receive token by address
-      await this.page.waitForTimeout(500)
+      await this.page.waitForTimeout(1000)
       await this.page.waitForSelector(SELECTORS.receiveTokenSab, {
         state: 'visible',
         timeout: 5000
