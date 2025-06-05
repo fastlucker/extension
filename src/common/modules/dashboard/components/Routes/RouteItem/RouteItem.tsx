@@ -1,6 +1,5 @@
 import React, { FC } from 'react'
 import { Pressable, View } from 'react-native'
-import { RuntimeGlobals } from 'webpack'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
