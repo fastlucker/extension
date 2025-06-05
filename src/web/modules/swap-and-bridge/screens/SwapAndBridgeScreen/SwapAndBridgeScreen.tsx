@@ -79,18 +79,6 @@ const SwapAndBridgeScreen = () => {
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
 
-  useEffect(() => {
-    if (!signAccountOpController || isAutoSelectRouteDisabled) return
-    if (signAccountOpController.estimation.status === EstimationStatus.Error) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE',
-        params: {
-          activeRouteId: signAccountOpController.accountOp.meta?.swapTxn?.activeRouteId
-        }
-      })
-    }
-  }, [dispatch, isAutoSelectRouteDisabled, signAccountOpController])
-
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
   }, [navigate])
