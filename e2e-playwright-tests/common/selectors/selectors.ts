@@ -119,7 +119,9 @@ export const TEST_IDS = {
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
-  removeNetworkConfirmButton: 'remove-network-confirm-btn'
+  removeNetworkConfirmButton: 'remove-network-confirm-btn',
+  signButton: 'sign-button',
+  backButton: 'back-button'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

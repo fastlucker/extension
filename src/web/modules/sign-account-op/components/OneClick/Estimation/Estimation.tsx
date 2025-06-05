@@ -130,7 +130,7 @@ const OneClickEstimation = ({
             />
             <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
               <Button
-                testID="swap-button-back"
+                testID="back-button"
                 type="secondary"
                 text={t('Back')}
                 onPress={closeEstimationModal}
@@ -139,7 +139,7 @@ const OneClickEstimation = ({
                 style={{ width: 98 }}
               />
               <Button
-                testID="swap-button-sign"
+                testID="sign-button"
                 text={isSignLoading ? t('Signing...') : t('Sign')}
                 hasBottomSpacing={false}
                 disabled={isSignDisabled || signingErrors.length > 0}

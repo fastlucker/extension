@@ -404,12 +404,12 @@ export async function batchActionPage(page) {
 }
 
 export async function signActionPage(page) {
-  const isClickable = await isElementClickable(page, SELECTORS.signButtonSwap)
+  const isClickable = await isElementClickable(page, SELECTORS.signButton)
   if (!isClickable) {
     console.log("⚠️ the 'Sign' button is not clicable, but it should be")
     return
   }
-  await clickOnElement(page, SELECTORS.signButtonSwap)
+  await clickOnElement(page, SELECTORS.signButton)
   await page.waitForTimeout(1500)
 }
 
@@ -436,7 +436,7 @@ export async function clickOnSecondRoute(page) {
   } else {
     console.log("⚠️ the 'Select route' is not found")
   }
-  await clickOnElement(page, SELECTORS.signButtonSwap)
+  await clickOnElement(page, SELECTORS.signButton)
   await page.waitForTimeout(1500)
 }
 
