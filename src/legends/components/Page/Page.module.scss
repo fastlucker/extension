@@ -2,7 +2,7 @@
 
 .wrapper {
   display: flex;
-  height: 100vh;
+  height: 100%;
 
   .scroll {
     overflow-y: auto;
@@ -17,6 +17,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+              @include container;
+
 
         .sidebarButton {
           font-size: 1.25rem;
@@ -47,7 +49,7 @@
   @include breakpoint-from(large-tablet) {
     .scroll {
       .container {
-        padding: 2rem 0;
+        padding: 6.375rem 0;
 
         .header {
           .account {
