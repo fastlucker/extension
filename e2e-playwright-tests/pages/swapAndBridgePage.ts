@@ -358,4 +358,69 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.locator(locators.selectRouteButton).last().click()
     await this.assertSelectedAggregator()
   }
+
+  async prepareBridgeTransaction(
+    sendAmount: number,
+    sendToken: string,
+    sendNetwork: string,
+    receiveNetwork: string
+  ): Promise<string | null> {
+    try {
+      await this.openSwapAndBridge()
+      await this.page.waitForTimeout(1000)
+      await this.selectSendTokenOnNetwork(sendToken, sendNetwork)
+
+      // Select target receive network
+      await this.page.waitForSelector(SELECTORS.recieveNetworkBase, {
+        state: 'visible',
+        timeout: 3000
+      })
+      await clickOnElement(this.page, SELECTORS.recieveNetworkBase)
+      await clickOnElement(this.page, `[data-testid*="option-${receiveNetwork}"]`)
+
+      // Select receive token by address
+      await this.page.waitForTimeout(500)
+      await this.page.waitForSelector(SELECTORS.receiveTokenSab, {
+        state: 'visible',
+        timeout: 5000
+      })
+      await clickOnElement(this.page, SELECTORS.receiveTokenSab)
+      await this.page.waitForSelector(SELECTORS.searchInput, { state: 'visible', timeout: 3000 })
+      await this.page.type(SELECTORS.searchInput, sendToken)
+
+      const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${sendToken}`]
+      await clickOnElement(this.page, `[data-tooltip-id*="${address}"]`)
+
+      // Validate sendAmount
+      if (sendAmount === null) return null
+      if (sendAmount <= 0) throw new Error('sendAmount must be greater than 0')
+
+      await this.page.type(SELECTORS.fromAmountInputSab, sendAmount.toString(), { delay: 100 })
+      const isFollowUp = await this.page
+        .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 6000 })
+        .catch(() => null)
+      if (isFollowUp) {
+        await clickOnElement(this.page, SELECTORS.confirmFollowUpTxn)
+      }
+      const isHighPrice = await this.page
+        .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
+        .catch(() => null)
+      if (isHighPrice) {
+        await clickOnElement(this.page, SELECTORS.highPriceImpactSab)
+        return 'Continue anyway'
+      }
+
+      return 'Proceed'
+    } catch (error) {
+      console.error(`[ERROR] Prepare Bridge Transaction Failed: ${error.message}`)
+      throw error
+    }
+  }
+
+  async signTokens(): Promise<void> {
+    await this.page.locator(locators.proceedButton).click()
+    await this.page.locator(locators.swapSignButton).click()
+    await expect(this.page.getByText('Confirming your trade')).toBeVisible()
+    // TODO: add more assertion
+  }
 }

@@ -95,4 +95,10 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.prepareSwapAndBridge(0.009, 'USDC', '8453', 'WALLET')
     await swapAndBridgePage.clickOnSecondRoute()
   })
+
+  test.only('should Bridge tokens with a Smart Account', async ({ swapAndBridgePage }) => {
+    await swapAndBridgePage.pause()
+    await swapAndBridgePage.prepareBridgeTransaction(0.0063, 'USDC', '8453', '10')
+    await swapAndBridgePage.signTokens()
+  })
 })
