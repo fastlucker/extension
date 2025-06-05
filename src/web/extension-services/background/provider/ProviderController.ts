@@ -562,7 +562,7 @@ export class ProviderController {
     )[0]
     const chainId = Number(network.chainId)
 
-    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+    const link = `https://explorer.ambire.com/${getBenzinUrlParams({
       txnId: identifiedBy.type === 'Transaction' ? identifiedBy.identifier : null,
       chainId,
       identifiedBy
@@ -646,6 +646,16 @@ export class ProviderController {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result
+  }
+
+  /**
+   * Revokes the current dapp permissions. Experimental, but supported in MetaMask. Specified by MIP-2:
+   * {@link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md}
+   */
+  walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
+    await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
+    this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
+    return null
   }
 
   @Reflect.metadata('SAFE', true)

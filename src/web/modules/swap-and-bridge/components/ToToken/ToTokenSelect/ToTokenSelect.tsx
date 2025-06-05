@@ -16,6 +16,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES, ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
@@ -75,11 +76,17 @@ const ToTokenSelect: React.FC<Props> = ({
   handleAddToTokenByAddress
 }) => {
   const { t } = useTranslation()
+<<<<<<< HEAD
   const { theme, themeType } = useTheme()
   const { errors, isTokenListLoading } = useSwapAndBridgeControllerState()
+=======
+  const { theme } = useTheme()
+  const { errors, isTokenListLoading, toTokenSearchTerm } = useSwapAndBridgeControllerState()
+>>>>>>> v2
   const { portfolio } = useSelectedAccountControllerState()
   const [didAttemptSearchingTokenByAddress, setDidAttemptSearchingTokenByAddress] =
     React.useState(false)
+  const { dispatch } = useBackgroundService()
 
   const handleAttemptToFetchMoreOptions = useCallback(
     (searchTerm: string) => {
@@ -91,6 +98,16 @@ const ToTokenSelect: React.FC<Props> = ({
       return handleAddToTokenByAddress(searchTerm)
     },
     [handleAddToTokenByAddress]
+  )
+
+  const handleOnSearch = useCallback(
+    (searchTerm: string) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_SEARCH_TO_TOKEN',
+        params: { searchTerm }
+      })
+    },
+    [dispatch]
   )
 
   const isAttemptingToAddToTokenByAddress = addToTokenByAddressStatus !== 'INITIAL'
@@ -152,17 +169,25 @@ const ToTokenSelect: React.FC<Props> = ({
 
     return [
       {
-        title: { icon: <CoinsIcon />, text: t('Tokens in current account') },
+        title: {
+          icon: <CoinsIcon />,
+          text: toTokenSearchTerm
+            ? t('Tokens found in current account')
+            : t('Tokens in current account')
+        },
         data: toTokenOptionsInAccount,
         key: 'swap-and-bridge-to-account-tokens'
       },
       {
-        title: { icon: <StarFilledIcon />, text: t('Tokens') },
+        title: {
+          icon: <StarFilledIcon />,
+          text: toTokenSearchTerm ? t('Search results') : t('Popular tokens')
+        },
         data: restToTokenOptions,
         key: 'swap-and-bridge-to-service-provider-tokens'
       }
     ]
-  }, [toTokenOptions, toTokenListError, t, portfolio.tokens, theme])
+  }, [toTokenOptions, toTokenListError, t, portfolio.tokens, theme, toTokenSearchTerm])
 
   const renderFeeOptionSectionHeader = useCallback(
     ({ section }: any) => {
@@ -206,6 +231,7 @@ const ToTokenSelect: React.FC<Props> = ({
         isAttemptingToAddToTokenByAddress ? t('Pulling token details...') : notFoundPlaceholderText
       }
       attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
+      onSearch={handleOnSearch}
       containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
       selectStyle={{
         backgroundColor: themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#54597A14',

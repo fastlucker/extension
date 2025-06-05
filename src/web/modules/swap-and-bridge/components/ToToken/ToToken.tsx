@@ -42,7 +42,9 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
     updateQuoteStatus,
-    toTokenList,
+    toTokenShortList,
+    toTokenSearchResults,
+    toTokenSearchTerm,
     quote,
     formStatus,
     toChainId,
@@ -75,16 +77,31 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     [networks, dispatch]
   )
 
+  const tokensInToTokenSelect = useMemo(() => {
+    if (toTokenSearchTerm) return toTokenSearchResults
+
+    // Token might not be in the short list (if it's pulled from search for example)
+    const isSelectTokenMissingInToTokenShortList =
+      toSelectedToken &&
+      !toTokenShortList.some(
+        (tk) => tk.address === toSelectedToken.address && tk.chainId === toSelectedToken.chainId
+      )
+
+    return isSelectTokenMissingInToTokenShortList
+      ? [toSelectedToken, ...toTokenShortList]
+      : toTokenShortList
+  }, [toTokenSearchTerm, toTokenSearchResults, toSelectedToken, toTokenShortList])
+
   const {
     options: toTokenOptions,
     value: toTokenValue,
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: toTokenList,
+    tokens: tokensInToTokenSelect,
     token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
     networks,
     supportedChainIds,
-    isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
+    isLoading: !toTokenShortList.length && updateToTokenListStatus !== 'INITIAL',
     isToToken: true
   })
 
@@ -159,19 +176,15 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   }, [networks, toChainId, toNetworksOptions])
 
   const handleChangeToToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find(
-        (tk: SwapAndBridgeToToken) => getTokenId(tk, networks) === value
-      )
-
+    ({ address: toSelectedTokenAddr }: SelectValue) => {
       setIsAutoSelectRouteDisabled(false)
 
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { toSelectedToken: tokenToSelect }
+        params: { toSelectedTokenAddr }
       })
     },
-    [toTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
+    [setIsAutoSelectRouteDisabled, dispatch]
   )
 
   const handleAddToTokenByAddress = useCallback(

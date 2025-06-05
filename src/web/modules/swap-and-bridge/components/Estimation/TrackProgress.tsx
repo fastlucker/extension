@@ -18,11 +18,11 @@ import { getUiType } from '@web/utils/uiType'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import formatTime from '@common/utils/formatTime'
-import { formatUnits } from 'ethers'
 import TrackProgressWrapper from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
-import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
 import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
 import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
+import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
+import { formatUnits } from 'ethers'
 import RouteStepsToken from '../RouteStepsToken'
 
 const { isActionWindow } = getUiType()
@@ -69,7 +69,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
     if (!identifiedBy) return
 
-    return `https://benzin.ambire.com/${getBenzinUrlParams({
+    return `https://explorer.ambire.com/${getBenzinUrlParams({
       chainId: toChainId,
       txnId: lastCompletedRoute.userTxHash,
       identifiedBy
