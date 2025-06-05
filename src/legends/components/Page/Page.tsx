@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AccountInfo from '@legends/components/AccountInfo'
+import Banner from '@legends/components/Banner'
 import Sidebar from '@legends/components/Sidebar'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
@@ -36,6 +37,7 @@ const Page = ({
 
       <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
         <div className={`${styles.container} ${customContainerSizeClass}`}>
+          <Banner />
           <div className={styles.header}>
             <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
               <FontAwesomeIcon icon={faBars} />

@@ -66,7 +66,7 @@ const Footer: FC<Props> = ({
   const handleOpenBenzina = useCallback(async () => {
     if (!chainId || !txnId) throw new Error('Invalid chainId or txnId')
 
-    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+    const link = `https://explorer.ambire.com/${getBenzinUrlParams({
       txnId,
       chainId: Number(chainId),
       identifiedBy
@@ -77,7 +77,7 @@ const Footer: FC<Props> = ({
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [network?.chainId, txnId, identifiedBy, addToast])
+  }, [txnId, identifiedBy, addToast, chainId])
 
   useEffect((): void => {
     const feeTokenAddress = gasFeePayment?.inToken

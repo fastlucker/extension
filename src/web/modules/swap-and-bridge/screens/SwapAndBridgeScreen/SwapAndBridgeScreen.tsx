@@ -79,15 +79,6 @@ const SwapAndBridgeScreen = () => {
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
 
-  useEffect(() => {
-    if (!signAccountOpController || isAutoSelectRouteDisabled) return
-    if (signAccountOpController.estimation.status === EstimationStatus.Error) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-      })
-    }
-  })
-
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
   }, [navigate])
@@ -193,7 +184,14 @@ const SwapAndBridgeScreen = () => {
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
+  }, [
+    handleBackButtonPress,
+    handleSubmitForm,
+    isBridge,
+    isNotReadyToProceed,
+    fromSelectedToken,
+    swapSignErrors
+  ])
 
   if (!sessionIds.includes(sessionId)) {
     // If the portfolio has loaded we can skip the spinner as initializing the screen
