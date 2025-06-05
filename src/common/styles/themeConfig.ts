@@ -37,11 +37,11 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#141833'
   },
   secondaryText: {
-    [THEME_TYPES.DARK]: '#FFFFFF99',
+    [THEME_TYPES.DARK]: '#A6A6A7',
     [THEME_TYPES.LIGHT]: '#54597A'
   },
   tertiaryText: {
-    [THEME_TYPES.DARK]: '#FFFFFF52',
+    [THEME_TYPES.DARK]: '#818181',
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
   linkText: {
@@ -89,7 +89,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#F7F8FC'
   },
   backdrop: {
-    [THEME_TYPES.DARK]: '#54597ACC',
+    [THEME_TYPES.DARK]: '#0D0D0F95',
     [THEME_TYPES.LIGHT]: '#54597ACC'
   },
   // Success
@@ -162,11 +162,11 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#FEEBEE'
   },
   featureDecorative: {
-    [THEME_TYPES.DARK]: '#3851FF',
+    [THEME_TYPES.DARK]: '#70B4FF',
     [THEME_TYPES.LIGHT]: '#3851FF'
   },
   featureBackground: {
-    [THEME_TYPES.DARK]: '#ECF4FD',
+    [THEME_TYPES.DARK]: '#70B4FF1F',
     [THEME_TYPES.LIGHT]: '#ECF4FD'
   },
   iconPrimary: {

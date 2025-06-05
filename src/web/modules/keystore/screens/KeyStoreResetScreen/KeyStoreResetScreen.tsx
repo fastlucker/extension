@@ -15,6 +15,7 @@ import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -48,7 +49,7 @@ const KeyStoreResetScreen = () => {
   })
 
   const formEmail = watch('email')
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { dispatch } = useBackgroundService()
   const {
     ref: passwordSetModalRef,
@@ -223,7 +224,9 @@ const KeyStoreResetScreen = () => {
         <BottomSheet
           id="keystore-reset-confirmation-modal"
           sheetRef={confirmationModalRef}
-          backgroundColor="primaryBackground"
+          backgroundColor={
+            themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+          }
           style={{ minWidth: 500, paddingVertical: SPACING_3XL }}
         >
           <ModalHeader title={t('Email Confirmation Required')} />

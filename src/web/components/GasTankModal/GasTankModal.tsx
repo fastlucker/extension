@@ -344,7 +344,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               : 'create-smart-account-gas-tank-modal-button'
           }
           type="primary"
-          text={hasGasTank ? t('Top Up') : t('Ok, create a Smart Account')}
+          text={hasGasTank ? t('Top up') : t('Ok, create a Smart Account')}
           size="large"
           hasBottomSpacing={false}
           textStyle={[spacings.prTy]}
@@ -354,18 +354,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
               : navigate('account-select?triggerAddAccountBottomSheet=true')
           }
         >
-          {hasGasTank && (
-            <TopUpIcon
-              color={
-                themeType === THEME_TYPES.DARK
-                  ? theme.primaryBackgroundInverted
-                  : theme.primaryBackground
-              }
-              strokeWidth={1}
-              width={20}
-              height={20}
-            />
-          )}
+          {hasGasTank && <TopUpIcon strokeWidth={1} width={20} height={20} />}
         </Button>
       </View>
     </BottomSheet>

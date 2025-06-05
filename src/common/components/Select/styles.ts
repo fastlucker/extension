@@ -49,7 +49,7 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       ...common.borderRadiusPrimary,
       backgroundColor:
         themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.secondaryBackground,
-      borderWidth: 1,
+      borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1,
       ...common.hidden,
       borderColor: 'transparent',
       ...flexbox.alignCenter,

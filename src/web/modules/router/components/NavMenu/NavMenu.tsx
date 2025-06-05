@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Animated, Pressable, ScrollView, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
 import LockFilledIcon from '@common/assets/svg/LockFilledIcon'
@@ -25,12 +25,12 @@ import {
   TabLayoutContainer,
   tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import ThemeToggle from '@web/components/ThemeToggle'
 import { DISCORD_URL, TELEGRAM_URL, TWITTER_URL } from '@web/constants/social'
 import { getAutoLockLabel } from '@web/extension-services/background/controllers/auto-lock'
 import { createTab, openInTab } from '@web/extension-services/background/webapi/tab'
 import useAutoLockStateController from '@web/hooks/useAutoLockStateController'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useHover from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
 import { SETTINGS_LINKS } from '@web/modules/settings/components/Sidebar/Sidebar'
@@ -67,8 +67,6 @@ const NavMenu = () => {
       navigate('accounts')
     }
   }, [navigate])
-
-  const [bindMaximizeAnim, maximizeAnimStyle] = useHover({ preset: 'opacity' })
 
   return (
     <TabLayoutContainer
@@ -123,39 +121,44 @@ const NavMenu = () => {
       <View style={[flexbox.flex1]}>
         <View style={[commonWebStyles.contentContainer, flexbox.flex1, spacings.pt]}>
           <View style={[spacings.ph, flexbox.flex1]}>
-            <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
-              <Text
-                fontSize={20}
-                weight="medium"
-                style={[SETTINGS_LINKS.length > 8 ? spacings.mbSm : spacings.mb, spacings.pl]}
-              >
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.justifySpaceBetween,
+                flexbox.alignCenter,
+                SETTINGS_LINKS.length > 8 ? spacings.mbSm : spacings.mb,
+                spacings.pl
+              ]}
+            >
+              <Text fontSize={20} weight="medium">
                 {t('Settings')}
               </Text>
               <View>
                 {isPopup && (
-                  <>
-                    <Pressable
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <ThemeToggle />
+                    <Button
+                      type="ghost2"
+                      size="small"
+                      hasBottomSpacing={false}
                       onPress={() =>
                         openInTab({
                           url: `tab.html#/${WEB_ROUTES.dashboard}`,
                           shouldCloseCurrentWindow: true
                         })
                       }
-                      {...bindMaximizeAnim}
                     >
-                      <Animated.View style={maximizeAnimStyle}>
-                        <MaximizeIcon
-                          color={theme.primaryText}
-                          // @ts-ignore missing type, but the prop is valid
-                          dataSet={{ tooltipId: expandViewTooltipId }}
-                          style={styles.maximizeButton}
-                          width={16}
-                          height={16}
-                        />
-                      </Animated.View>
-                    </Pressable>
+                      <MaximizeIcon
+                        color={theme.secondaryBackgroundInverted}
+                        // @ts-ignore missing type, but the prop is valid
+                        dataSet={{ tooltipId: expandViewTooltipId }}
+                        width={16}
+                        height={16}
+                      />
+                    </Button>
+
                     <Tooltip content={t('Expand view')} id={expandViewTooltipId} />
-                  </>
+                  </View>
                 )}
               </View>
             </View>
