@@ -31,7 +31,7 @@ const ManifestImage = ({
   imageStyle = {},
   skeletonAppearance
 }: Props) => {
-  const { theme, themeType } = useTheme()
+  const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
   const [currentUri, setCurrentUri] = useState({
@@ -95,10 +95,7 @@ const ManifestImage = ({
             {
               height: scaledSize,
               width: scaledSize,
-              backgroundColor:
-                themeType === THEME_TYPES.DARK
-                  ? theme.primaryBackgroundInverted
-                  : theme.primaryBackground,
+              backgroundColor: theme.primaryBackground,
               opacity: isLoading ? 0 : 1
             },
             !!isRound && { borderRadius: roundBorderRadius },

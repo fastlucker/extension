@@ -17,6 +17,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -59,7 +60,7 @@ const ManageRecoveryPhrase = ({
   } = useModalize()
 
   const { addToast } = useToast()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme, styles, themeType } = useTheme(getStyles)
   const { t } = useTranslation()
 
   const onPasswordConfirmed = () => {
@@ -151,7 +152,13 @@ const ManageRecoveryPhrase = ({
             !blurred && seed !== DUMMY_SEED ? styles.notBlurred : styles.blurred,
             spacings.pvMd,
             spacings.phMd,
-            { backgroundColor: theme.secondaryBackground, borderRadius: BORDER_RADIUS_PRIMARY }
+            {
+              backgroundColor:
+                themeType === THEME_TYPES.DARK
+                  ? theme.tertiaryBackground
+                  : theme.secondaryBackground,
+              borderRadius: BORDER_RADIUS_PRIMARY
+            }
           ]}
         >
           <Text fontSize={14} color={theme.secondaryText}>
@@ -193,7 +200,7 @@ const ManageRecoveryPhrase = ({
                 cursor: !seed || seed === DUMMY_SEED ? 'default' : 'pointer'
               }}
             >
-              <CopyIcon style={spacings.mlTy} width={18} color={theme.iconPrimary} />
+              <CopyIcon style={spacings.mlTy} width={18} />
             </Button>
           </View>
           <Button
@@ -205,9 +212,9 @@ const ManageRecoveryPhrase = ({
             text={blurred ? t('Reveal phrase') : t('Hide phrase')}
           >
             {blurred ? (
-              <VisibilityIcon color={theme.iconPrimary} style={spacings.mlTy} width={18} />
+              <VisibilityIcon style={spacings.mlTy} width={18} />
             ) : (
-              <InvisibilityIcon color={theme.iconPrimary} style={spacings.mlTy} width={18} />
+              <InvisibilityIcon style={spacings.mlTy} width={18} />
             )}
           </Button>
         </View>
@@ -226,7 +233,9 @@ const ManageRecoveryPhrase = ({
         id="delete-saved-seed-sheet"
         type="modal"
         sheetRef={sheetRefDeleteConfirmation}
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         closeBottomSheet={closeDeleteConfirmation}
         scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
         containerInnerWrapperStyles={{ flex: 1 }}
@@ -272,7 +281,9 @@ const ManageRecoveryPhrase = ({
         sheetRef={sheetRefConfirmPassword}
         id="confirm-password-bottom-sheet"
         type="modal"
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         closeBottomSheet={closeConfirmPassword}
         scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
         containerInnerWrapperStyles={{ flex: 1 }}

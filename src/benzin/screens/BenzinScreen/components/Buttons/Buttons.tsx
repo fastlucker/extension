@@ -8,6 +8,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { isExtension } from '@web/constants/browserapi'
 
 import getStyles from './styles'
@@ -27,7 +28,7 @@ const Buttons: FC<Props> = ({
   showCopyBtn,
   showOpenExplorerBtn
 }) => {
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
 
   return (
     <View style={[styles.buttons, style]}>
@@ -36,11 +37,11 @@ const Buttons: FC<Props> = ({
           <OpenIcon
             width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
             height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
-            color={theme.primary}
+            color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
           />
           <Text
             fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 16 : 14}
-            appearance="primary"
+            color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
             weight="medium"
             style={styles.openExplorerText}
             onPress={handleOpenExplorer}

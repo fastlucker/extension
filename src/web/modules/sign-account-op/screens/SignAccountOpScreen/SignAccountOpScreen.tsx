@@ -13,6 +13,7 @@ import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { setStringAsync } from '@common/utils/clipboard'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -43,7 +44,7 @@ const SignAccountOpScreen = () => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
 
   const handleUpdateStatus = useCallback(
     (status: SigningStatus) => {
@@ -202,10 +203,18 @@ const SignAccountOpScreen = () => {
       />
       <TabLayoutContainer
         width="full"
-        backgroundColor="#F7F8FC"
+        backgroundColor={theme.quinaryBackground}
         withHorizontalPadding={false}
         style={spacings.phMd}
-        header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
+        header={
+          <HeaderAccountAndNetworkInfo
+            backgroundColor={
+              themeType === THEME_TYPES.DARK
+                ? (theme.tertiaryBackground as string)
+                : (theme.primaryBackground as string)
+            }
+          />
+        }
         renderDirectChildren={() => (
           <View style={styles.footer}>
             {!estimationFailed ? (
@@ -224,7 +233,8 @@ const SignAccountOpScreen = () => {
                 <View
                   style={{
                     height: 1,
-                    backgroundColor: theme.secondaryBorder,
+                    backgroundColor:
+                      themeType === THEME_TYPES.DARK ? theme.primaryBorder : theme.secondaryBorder,
                     ...spacings.mvLg
                   }}
                 />

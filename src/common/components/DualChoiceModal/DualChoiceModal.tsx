@@ -23,6 +23,7 @@ export interface Props {
   secondaryButtonTestID?: string
   buttonsContainerStyle?: ViewStyle
   hideHeader?: boolean
+  style?: ViewStyle
 }
 
 const DualChoiceModal: FC<Props> = ({
@@ -37,7 +38,8 @@ const DualChoiceModal: FC<Props> = ({
   secondaryButtonTestID,
   primaryButtonTestID,
   buttonsContainerStyle,
-  hideHeader
+  hideHeader,
+  style
 }) => {
   const { styles, theme } = useTheme(getStyles)
 
@@ -55,7 +57,7 @@ const DualChoiceModal: FC<Props> = ({
           )}
         </View>
       )}
-      <View style={styles.modalInnerContainer}>
+      <View style={[styles.modalInnerContainer, style]}>
         {!!Icon && (
           <View>
             <Icon style={spacings.mrLg} color={theme.iconPrimary} />
