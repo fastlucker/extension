@@ -42,6 +42,7 @@ export interface Props extends PressableProps {
   children?: React.ReactNode
   childrenPosition?: 'left' | 'right'
   childrenContainerStyle?: ViewStyle
+  innerContainerStyle?: (hovered: boolean) => ViewStyle
   testID?: string
   submitOnEnter?: boolean
 }
@@ -58,11 +59,13 @@ const ButtonInnerContainer = ({
   type,
   forceHoveredStyle,
   children,
+  innerContainerStyle,
   ...rest
 }: {
   type: ButtonTypes
   forceHoveredStyle?: boolean
   children?: React.ReactNode
+  innerContainerStyle?: (hovered: boolean) => ViewStyle
 } & PressableProps) => {
   const { themeType, theme } = useTheme()
 
@@ -99,7 +102,7 @@ const ButtonInnerContainer = ({
     [themeType, theme]
   )
 
-  const [buttonInnerContainerBind, buttonInnerContainerAnimatedStyle] = useMultiHover({
+  const [buttonInnerContainerBind, buttonInnerContainerAnimatedStyle, isHovered] = useMultiHover({
     values: buttonInnerContainerColors[type],
     forceHoveredStyle
   })
@@ -114,7 +117,8 @@ const ButtonInnerContainer = ({
           spacings.pvMi,
           common.borderRadiusPrimary,
           { height: 32 },
-          buttonInnerContainerAnimatedStyle
+          buttonInnerContainerAnimatedStyle,
+          !!innerContainerStyle && innerContainerStyle(isHovered)
         ]}
         {...buttonInnerContainerBind}
         {...rest}
@@ -194,15 +198,12 @@ const Button = ({
       danger: [
         {
           property: 'backgroundColor',
-          from:
-            themeType === THEME_TYPES.DARK
-              ? `${String(theme.errorDecorative)}00`
-              : `${String(theme.errorBackground)}00`,
+          from: `${String(theme.errorBackground)}00`,
           to: theme.errorBackground
         }
       ],
       outline: [OPACITY_ANIMATION],
-      ghost: [OPACITY_ANIMATION],
+      ghost: [],
       ghost2: [],
       error: [OPACITY_ANIMATION],
       warning: [OPACITY_ANIMATION],
@@ -329,36 +330,36 @@ const Button = ({
       error: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground,
-          to: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryBackground
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       warning: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       info: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       info2: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       success: [
         {
           property: 'color',
-          from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.primaryText,
-          to: theme.primaryText
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
         }
       ],
       gray: [
@@ -396,7 +397,11 @@ const Button = ({
 
   const enhancedChildren = React.Children.toArray(children).map((child, index) => {
     if (index === 0 && React.isValidElement(child)) {
-      return React.cloneElement(child, { color: accentColor || effectiveColor } as any)
+      // Only override color if it's not already set
+      const childProps = child.props as any
+      if (childProps.color === undefined) {
+        return React.cloneElement(child, { color: accentColor || effectiveColor } as any)
+      }
     }
 
     return child

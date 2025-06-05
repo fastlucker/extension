@@ -14,6 +14,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
@@ -48,7 +49,7 @@ const LedgerConnectModal = ({
   const { t } = useTranslation()
   const [isGrantingPermission, setIsGrantingPermission] = useState(false)
   const { currentAction, actionWindow } = useActionsControllerState()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
 
   useEffect(() => {
     if (isVisible) open()
@@ -89,7 +90,7 @@ const LedgerConnectModal = ({
     <BottomSheet
       id="ledger-connect-modal"
       sheetRef={ref}
-      backgroundColor="primaryBackground"
+      backgroundColor={themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'}
       autoWidth={false}
       closeBottomSheet={handleClose}
       onClosed={handleClose}

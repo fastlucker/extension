@@ -34,7 +34,7 @@ const SelectNetwork = () => {
   const { theme } = useTheme()
   const [searchParams] = useSearchParams()
 
-  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useMultiHover({
+  const [bindNetworkButtonAnim, networkButtonAnimStyle, isHovered] = useMultiHover({
     values: [
       {
         property: 'backgroundColor',
@@ -122,9 +122,11 @@ const SelectNetwork = () => {
             <Text fontSize={14}>{filterByNetworkName}</Text>
           </View>
         ) : (
-          <Text fontSize={14}>{t('All Networks')}</Text>
+          <Text fontSize={14} color={isHovered ? theme.primaryText : theme.secondaryText}>
+            {t('All Networks')}
+          </Text>
         )}
-        <RightArrowIcon height={12} color={theme.primaryBackgroundInverted} />
+        <RightArrowIcon height={12} color={isHovered ? theme.primaryText : theme.secondaryText} />
       </AnimatedPressable>
     </View>
   )

@@ -12,6 +12,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { TRANSACTION_FORM_WIDTH } from '@web/components/TransactionsScreen/styles'
@@ -34,7 +35,7 @@ const RoutesModal = ({
   closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const { quote, shouldEnableRoutesSelection, signAccountOpController } =
     useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
@@ -120,11 +121,11 @@ const RoutesModal = ({
       return (
         <Pressable
           key={item.routeId}
-          style={[
+          style={({ hovered }: any) => [
             styles.itemContainer,
             index + 1 === quote?.routes?.length && spacings.mb0,
             isDisabled && styles.disabledItem,
-            isSelected && styles.selectedItem,
+            (isSelected || hovered) && styles.selectedItem,
             isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
           onPress={() => handleSelectRoute(item)}
@@ -140,19 +141,14 @@ const RoutesModal = ({
                 right: 0,
                 bottom: 0,
                 zIndex: 2,
-                backgroundColor: '#54597ACC',
+                backgroundColor:
+                  themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#54597ACC',
                 ...flexbox.alignCenter,
                 ...flexbox.justifyCenter,
                 ...common.borderRadiusPrimary
               }}
             >
-              <Spinner
-                style={{
-                  width: 64,
-                  height: 64
-                }}
-                variant="white"
-              />
+              <Spinner style={{ width: 64, height: 64 }} variant="white" />
             </View>
           )}
           <RouteStepsPreview
@@ -174,7 +170,9 @@ const RoutesModal = ({
       styles.selectedItem,
       styles.otherItemLoading,
       quote?.routes?.length,
-      handleSelectRoute
+      handleSelectRoute,
+      theme,
+      themeType
     ]
   )
 

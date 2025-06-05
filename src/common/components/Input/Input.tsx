@@ -116,7 +116,8 @@ const Input = ({
   const inputWrapperStyles = [
     styles.inputWrapper,
     {
-      backgroundColor: theme.secondaryBackground,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.primaryBackground : theme.secondaryBackground,
       borderColor: theme.secondaryBorder
     },
     isFocused && {

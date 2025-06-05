@@ -97,7 +97,7 @@ const FallbackVisualization: FC<{
                 componentToReturn = (
                   <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                     <Text weight="semiBold" style={[spacings.mrTy]}>
-                      Infinite amount
+                      {t('Infinite amount')}
                     </Text>
                     <WarningFilledIcon width={16} height={16} />
                   </View>

@@ -18,6 +18,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -92,7 +93,7 @@ const Estimation = ({
 }: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { minWidthSize } = useWindowSize()
 
   const feeTokenPriceUnavailableWarning = useMemo(() => {
@@ -425,7 +426,7 @@ const Estimation = ({
             // @ts-ignore
             setValue={onFeeSelect}
             options={feeSpeedOptions}
-            selectStyle={{ height: 32 }}
+            selectStyle={{ height: 32, borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1 }}
             menuOptionHeight={32}
             // Display a wider menu if the fee token price is unavailable
             // as the native amount takes up more space
@@ -451,6 +452,9 @@ const Estimation = ({
           defaultFeeOption.label === NO_FEE_OPTIONS.label
         }
         defaultValue={payValue ?? undefined}
+        selectStyle={{
+          borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1
+        }}
         withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
         stickySectionHeadersEnabled
       />

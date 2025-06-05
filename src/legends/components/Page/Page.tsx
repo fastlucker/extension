@@ -32,26 +32,28 @@ const Page = ({
   const closeSidebar = () => setIsSidebarOpen(false)
 
   return (
-    <div className={styles.wrapper}>
-      <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
+    <div>
+      <Banner />
+      <div className={styles.wrapper}>
+        <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
 
-      <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
-        <div className={`${styles.container} ${customContainerSizeClass}`}>
-          <Banner />
-          <div className={styles.header}>
-            <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
-              <FontAwesomeIcon icon={faBars} />
-            </button>
-            {connectedAccount &&
-              !nonV2Account &&
-              pathname !== LEGENDS_ROUTES.home &&
-              pathname !== '/' && (
-                <div className={styles.account}>
-                  <AccountInfo />
-                </div>
-              )}
+        <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
+          <div className={`${styles.container} ${customContainerSizeClass}`}>
+            <div className={styles.header}>
+              <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
+                <FontAwesomeIcon icon={faBars} />
+              </button>
+              {connectedAccount &&
+                !nonV2Account &&
+                pathname !== LEGENDS_ROUTES.home &&
+                pathname !== '/' && (
+                  <div className={styles.account}>
+                    <AccountInfo />
+                  </div>
+                )}
+            </div>
+            <div className={styles.content}>{children}</div>
           </div>
-          <div className={styles.content}>{children}</div>
         </div>
       </div>
     </div>
