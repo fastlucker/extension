@@ -14,8 +14,7 @@ interface Style {
 const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
     withContainerStyle: {
-      backgroundColor:
-        themeType === THEME_TYPES.DARK ? theme.quaternaryBackground : theme.secondaryBackground,
+      backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter
