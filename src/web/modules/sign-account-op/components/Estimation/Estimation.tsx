@@ -190,6 +190,7 @@ const Estimation = ({
 
   const feeSpeeds = useMemo(() => {
     if (!signAccountOpState?.selectedOption) return []
+    if (!signAccountOpState?.hasSpeeds) return []
 
     const identifier = getFeeSpeedIdentifier(
       signAccountOpState.selectedOption,
@@ -201,7 +202,8 @@ const Estimation = ({
     signAccountOpState?.feeSpeeds,
     signAccountOpState?.selectedOption,
     signAccountOpState?.accountOp.accountAddr,
-    signAccountOpState?.rbfAccountOps
+    signAccountOpState?.rbfAccountOps,
+    signAccountOpState?.hasSpeeds
   ])
 
   const isGaslessTransaction = useMemo(() => {
