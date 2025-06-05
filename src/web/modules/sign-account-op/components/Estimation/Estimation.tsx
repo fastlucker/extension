@@ -196,6 +196,9 @@ const Estimation = ({
       signAccountOpState.accountOp.accountAddr,
       signAccountOpState.rbfAccountOps[signAccountOpState.selectedOption.paidBy]
     )
+
+    // The fallback array covers a corner case, that I could not reproduce,
+    // but theoretically is possible - fan speed with this identifier to be missing
     return signAccountOpState.feeSpeeds[identifier] || []
   }, [
     signAccountOpState?.feeSpeeds,
