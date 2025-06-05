@@ -76,13 +76,8 @@ const ToTokenSelect: React.FC<Props> = ({
   handleAddToTokenByAddress
 }) => {
   const { t } = useTranslation()
-<<<<<<< HEAD
   const { theme, themeType } = useTheme()
-  const { errors, isTokenListLoading } = useSwapAndBridgeControllerState()
-=======
-  const { theme } = useTheme()
   const { errors, isTokenListLoading, toTokenSearchTerm } = useSwapAndBridgeControllerState()
->>>>>>> v2
   const { portfolio } = useSelectedAccountControllerState()
   const [didAttemptSearchingTokenByAddress, setDidAttemptSearchingTokenByAddress] =
     React.useState(false)

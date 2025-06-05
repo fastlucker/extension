@@ -64,11 +64,12 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       ...spacings.ph
     },
     menuContainer: {
-      backgroundColor: theme.primaryBackground,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.primaryBackground,
       ...spacings.mvMi,
       ...common.borderRadiusPrimary,
       overflow: 'hidden',
-      borderWidth: 1,
+      borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1,
       borderColor: theme.secondaryBorder,
       ...common.shadowSecondary,
       position: 'absolute',
