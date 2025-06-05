@@ -130,13 +130,17 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       borderTopWidth: 1,
       borderBottomWidth: 0,
       borderRadius: 0,
-      borderColor: theme.secondaryBorder
+      borderColor: themeType === THEME_TYPES.DARK ? theme.primaryBorder : theme.secondaryBorder,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.secondaryBackground
     },
     bottomSearchInputWrapperStyle: {
       borderWidth: 0,
       borderBottomWidth: 1,
       borderRadius: 0,
-      borderColor: theme.secondaryBorder
+      borderColor: themeType === THEME_TYPES.DARK ? theme.primaryBorder : theme.secondaryBorder,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.secondaryBackground
     }
   })
 
