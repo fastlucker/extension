@@ -6,7 +6,6 @@ import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
-import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
@@ -25,7 +24,6 @@ const SortHat = () => {
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-  const { goToNextRoute } = useOnboardingNavigation()
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -40,12 +38,7 @@ const SortHat = () => {
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return goToNextRoute(WEB_ROUTES.getStarted)
-    }
-
-    if (!keystoreState.isReadyToStoreKeys) {
-      console.log('in')
-      return goToNextRoute(WEB_ROUTES.keyStoreSetup)
+      return navigate(WEB_ROUTES.getStarted)
     }
 
     if (isActionWindow && actionsState.currentAction) {
@@ -129,8 +122,7 @@ const SortHat = () => {
     dispatch,
     swapAndBridgeState.sessionIds,
     transferState?.hasPersistedState,
-    transferState?.isTopUp,
-    goToNextRoute
+    transferState?.isTopUp
   ])
 
   useEffect(() => {
