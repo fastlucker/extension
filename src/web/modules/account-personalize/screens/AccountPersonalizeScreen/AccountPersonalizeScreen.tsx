@@ -98,8 +98,14 @@ const AccountPersonalizeScreen = () => {
     accountPickerState.isInitialized,
     accountsToPersonalize.length,
     completed,
-    newlyAddedAccounts.length
+    newlyAddedAccounts.length,
+    goToNextRoute,
+    isSetupComplete
   ])
+
+  useEffect(() => {
+    if (!isSetupComplete && !!completed) goToNextRoute()
+  }, [completed, goToNextRoute, isSetupComplete])
 
   // hold the loading state for 1.1 seconds before displaying the accountsToPersonalize for better UX
   useEffect(() => {
@@ -198,13 +204,13 @@ const AccountPersonalizeScreen = () => {
   const handleComplete = useCallback(async () => {
     await handleSubmit(handleSave)()
     dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
-    if (!isSetupComplete) {
-      goToNextRoute()
-    } else {
+    if (isSetupComplete) {
       initPassed.current = false
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET' })
+    } else {
+      setCompleted(true)
     }
-  }, [isSetupComplete, dispatch, handleSave, handleSubmit, goToNextRoute])
+  }, [isSetupComplete, dispatch, handleSave, handleSubmit])
 
   const handleContactSupport = useCallback(async () => {
     try {

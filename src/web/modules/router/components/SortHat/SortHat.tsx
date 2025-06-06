@@ -6,6 +6,7 @@ import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
@@ -13,8 +14,8 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import { getUiType } from '@web/utils/uiType'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
@@ -24,7 +25,7 @@ const SortHat = () => {
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-
+  const { goToNextRoute } = useOnboardingNavigation()
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -39,7 +40,12 @@ const SortHat = () => {
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return navigate(WEB_ROUTES.getStarted)
+      return goToNextRoute(WEB_ROUTES.getStarted)
+    }
+
+    if (!keystoreState.isReadyToStoreKeys) {
+      console.log('in')
+      return goToNextRoute(WEB_ROUTES.keyStoreSetup)
     }
 
     if (isActionWindow && actionsState.currentAction) {
@@ -121,7 +127,10 @@ const SortHat = () => {
     actionsState.currentAction,
     navigate,
     dispatch,
-    swapAndBridgeState.sessionIds
+    swapAndBridgeState.sessionIds,
+    transferState?.hasPersistedState,
+    transferState?.isTopUp,
+    goToNextRoute
   ])
 
   useEffect(() => {
