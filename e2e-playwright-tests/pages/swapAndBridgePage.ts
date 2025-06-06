@@ -5,6 +5,7 @@ import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { SELECTORS } from '../common/selectors/selectors'
 import { BasePage } from './basePage'
+import Token from '../interfaces/token'
 
 export class SwapAndBridgePage extends BasePage {
   async init(param) {
@@ -104,17 +105,16 @@ export class SwapAndBridgePage extends BasePage {
     }
   }
 
-  async prepareSwapAndBridge(send_amount, send_token, send_network, receive_token) {
+  async prepareSwapAndBridge(send_amount, fromToken: Token, toToken: Token) {
     try {
       await this.openSwapAndBridge()
       await this.page.waitForTimeout(1000)
-      await this.selectSendTokenOnNetwork(send_token, send_network)
+      await this.selectSendTokenOnNetwork(fromToken)
 
       // Select Receive Token on the same Network, which is automatically selected
       await this.page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
       await clickOnElement(this.page, SELECTORS.receiveTokenSab)
-      await typeText(this.page, SELECTORS.searchInput, receive_token)
-      await clickOnElement(this.page, `[data-testid*="${receive_token.toLowerCase()}"]`)
+      await this.clickOnMenuToken(toToken)
 
       // If checking prepareSwapAndBridge functionality without providing send amount
       if (send_amount === null) {
@@ -147,14 +147,9 @@ export class SwapAndBridgePage extends BasePage {
     }
   }
 
-  async selectSendTokenOnNetwork(send_token, send_network) {
+  async selectSendTokenOnNetwork(send_token: Token) {
     await clickOnElement(this.page, SELECTORS.sendTokenSab)
-    await this.page.locator(SELECTORS.searchInput).waitFor({ state: 'visible', timeout: 3000 })
-    await typeText(this.page, SELECTORS.searchInput, send_token)
-    await clickOnElement(
-      this.page,
-      `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-    )
+    await this.clickOnMenuToken(send_token)
   }
 
   async verifyIfSwitchIsActive(reference = true) {
@@ -171,10 +166,10 @@ export class SwapAndBridgePage extends BasePage {
     expect(isActive).toBe(reference)
   }
 
-  async verifySendMaxTokenAmount(send_token, send_network) {
+  async verifySendMaxTokenAmount(fromToken: Token) {
     const valueDecimals = 2 // Set presison of values to 2 decimals
     await this.openSwapAndBridge()
-    await this.selectSendTokenOnNetwork(send_token, send_network)
+    await this.selectSendTokenOnNetwork(fromToken)
     await this.page.waitForTimeout(500) // Wait before read Amount value
     const maxBalance = await this.extractMaxBalance()
     const roundMaxBalance = this.roundAmount(maxBalance, valueDecimals)
@@ -185,7 +180,7 @@ export class SwapAndBridgePage extends BasePage {
     // There is an intermittent difference in balances when running on CI; I have added an Alert to monitor it and using toBeCloseTo
     if (roundMaxBalance !== roundSendAmount) {
       console.log(
-        `⚠️ Token: ${send_token} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`
+        `⚠️ Token: ${fromToken} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`
       )
     }
     expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison

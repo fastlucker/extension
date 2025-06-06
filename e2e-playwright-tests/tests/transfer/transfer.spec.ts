@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test'
 import { TEST_IDS } from '../../common/selectors/selectors'
 import { saParams } from '../../config/constants'
+import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('transfer', () => {
@@ -17,10 +18,7 @@ test.describe('transfer', () => {
     const tokensSelect = page.getByTestId(TEST_IDS.tokensSelect)
     await tokensSelect.click()
 
-    const token = page
-      .getByTestId('bottom-sheet')
-      .getByTestId('option-0x0b2c639c533813f4aa9d7837caf62653d097ff85.10')
-    await token.click()
+    await transferPage.clickOnMenuToken(tokens.usdc.optimism)
 
     const amountField = page.getByTestId(TEST_IDS.amountField)
     await amountField.fill('0.001')
@@ -39,7 +37,7 @@ test.describe('transfer', () => {
     const sign = page.getByTestId(TEST_IDS.signButton)
     await sign.click()
 
-    const txnStatus = await page.getByTestId('txn-status').textContent()
+    const txnStatus = await page.getByTestId(TEST_IDS.txnStatus).textContent()
 
     expect(txnStatus).toEqual('Transfer done!')
   })

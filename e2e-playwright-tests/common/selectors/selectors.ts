@@ -121,7 +121,8 @@ export const TEST_IDS = {
   removeNetworkButton: 'remove-network-btn',
   removeNetworkConfirmButton: 'remove-network-confirm-btn',
   signButton: 'sign-button',
-  backButton: 'back-button'
+  backButton: 'back-button',
+  txnStatus: 'txn-status'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
