@@ -14,6 +14,7 @@ const DeFiProviderPosition: FC<PositionsByProvider> = ({
   positionInUSD,
   type,
   chainId,
+  iconUrl,
   positions
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -42,11 +43,13 @@ const DeFiProviderPosition: FC<PositionsByProvider> = ({
         isExpanded={isExpanded}
         positionInUSD={positionInUSDFormatted}
         healthRate={positions.length === 1 ? positions[0].additionalData.healthRate : undefined}
+        iconUrl={iconUrl}
       />
       {isExpanded &&
         positions.map(({ id, assets, additionalData }, index) => (
           <DeFiPosition
             key={id}
+            index={index}
             withTopBorder={index !== 0 && positions.length > 1}
             id={id}
             type={type}

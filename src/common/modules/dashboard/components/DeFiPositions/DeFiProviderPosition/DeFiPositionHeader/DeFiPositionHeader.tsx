@@ -48,7 +48,8 @@ const DeFiPositionHeader: FC<Props> = ({
   chainId,
   positionInUSD,
   isExpanded,
-  healthRate
+  healthRate,
+  iconUrl
 }) => {
   const {
     state: { dapps }
@@ -85,7 +86,7 @@ const DeFiPositionHeader: FC<Props> = ({
       {...bindAnim}
     >
       <View style={styles.providerData}>
-        <ProtocolIcon providerName={providerName} chainId={chainId} />
+        <ProtocolIcon iconUrl={iconUrl} providerName={providerName} chainId={chainId} />
         <Text fontSize={16} weight="semiBold" style={spacings.mrMi}>
           {providerName}
         </Text>

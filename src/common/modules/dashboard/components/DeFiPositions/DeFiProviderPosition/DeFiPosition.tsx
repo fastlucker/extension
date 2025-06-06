@@ -10,10 +10,11 @@ import flexbox from '@common/styles/utils/flexbox'
 import DeFiPositionAssets from './DeFiPositionAssets'
 import Badge from './DeFiPositionHeader/Badge'
 
-type Props = Omit<PositionsByProvider, 'positions' | 'positionInUSD'> &
+type Props = Omit<PositionsByProvider, 'iconUrl' | 'positions' | 'positionInUSD'> &
   Position & {
     positionInUSD?: string
     withTopBorder?: boolean
+    index: number
   }
 
 const ASSET_TYPE_TO_LABEL = {
@@ -23,16 +24,15 @@ const ASSET_TYPE_TO_LABEL = {
 }
 
 const POSITION_TYPE_TO_NAME = {
-  lending: 'Net Worth',
-  'liquidity-pool': 'Liquidity Pool'
+  lending: 'Net worth',
+  'liquidity-pool': 'Liquidity pool',
+  common: 'Position'
 }
-
-const UUID_4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 
 const DeFiPosition: FC<Props> = ({
   type,
+  index,
   withTopBorder,
-  id,
   providerName,
   chainId,
   positionInUSD,
@@ -44,7 +44,7 @@ const DeFiPosition: FC<Props> = ({
     (asset) => asset.type === AssetType.Liquidity || asset.type === AssetType.Collateral
   )
   const borrowedAssets = assets.filter((asset) => asset.type === AssetType.Borrow)
-  const isIdGeneratedByUs = UUID_4_REGEX.test(id)
+
   const { theme } = useTheme()
 
   return (
@@ -68,14 +68,14 @@ const DeFiPosition: FC<Props> = ({
           <Text fontSize={14} weight="semiBold">
             {POSITION_TYPE_TO_NAME[type]}
           </Text>
-          {!isIdGeneratedByUs && (
+          {type !== 'lending' && (
             <Text
               fontSize={12}
               appearance="secondaryText"
               style={[spacings.mlMi, spacings.mrTy]}
               selectable
             >
-              #{id}
+              #{index + 1}
             </Text>
           )}
           {typeof inRange === 'boolean' && (

@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View } from 'react-native'
+import { Image, View } from 'react-native'
 
 import AaveIcon from '@common/assets/svg/AaveIcon'
 import UniswapIcon from '@common/assets/svg/UniswapIcon'
@@ -17,13 +17,25 @@ const POSITION_TO_ICON: {
   'AAVE v1': AaveIcon
 }
 
-const ProtocolIcon = ({ providerName, chainId }: { providerName: string; chainId: bigint }) => {
+const ProtocolIcon = ({
+  providerName,
+  chainId,
+  iconUrl
+}: {
+  providerName: string
+  chainId: bigint
+  iconUrl?: string
+}) => {
   const { theme } = useTheme()
   const Icon = POSITION_TO_ICON[providerName]
 
   return (
     <View style={spacings.mrSm}>
-      <Icon />
+      {iconUrl ? (
+        <Image style={{ width: 28, height: 28, borderRadius: 50 }} source={{ uri: iconUrl }} />
+      ) : Icon ? (
+        <Icon />
+      ) : null}
       <NetworkIcon
         style={{
           backgroundColor: theme.primaryBackground,
