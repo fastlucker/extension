@@ -155,10 +155,7 @@ async function selectSendTokenOnNetwork(page, send_token, send_network) {
   await page.waitForSelector(SELECTORS.searchInput, { visible: true, timeout: 3000 })
   await typeText(page, SELECTORS.searchInput, send_token)
   // ToDo: data-testid missing for receive network dropdown
-  await clickOnElement(
-    page,
-    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-  )
+  await clickOnElement(page, `[data-testid="option-${send_token}.${send_network}"]`)
 }
 
 export async function switchUSDValueOnSwapAndBridge(
