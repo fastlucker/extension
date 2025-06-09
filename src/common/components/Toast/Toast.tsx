@@ -128,7 +128,8 @@ const parseTextAndAddLinks = (text: string, type: ToastType['type']) => {
     result.push(textWithLinks.substring(lastIndex))
   }
 
-  return result.length > 0 ? result : textWithLinks
+  // If no links were found return the original text
+  return result.length > 0 ? result : text
 }
 
 const Toast = ({
