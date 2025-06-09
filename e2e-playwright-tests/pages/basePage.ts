@@ -10,7 +10,8 @@ export abstract class BasePage {
   }
 
   async clickOnElement(element: string): Promise<void> {
-    await this.page.locator(element).click()
+    await this.page.waitForLoadState()
+    await this.page.locator(element).nth(0).click()
   }
 
   async typeTextInInputField(locator: string, text: string): Promise<void> {
@@ -24,7 +25,6 @@ export abstract class BasePage {
       context.waitForEvent('page'),
       this.page.locator(locator).first().click({ timeout: 3000 })
     ])
-    console.log('NEW PAGE URL: ', newPage.url())
     await newPage.waitForLoadState()
     return newPage
   }
