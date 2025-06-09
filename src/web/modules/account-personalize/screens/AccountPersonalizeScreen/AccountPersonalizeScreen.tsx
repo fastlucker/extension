@@ -116,7 +116,11 @@ const AccountPersonalizeScreen = () => {
         setIsLoading(false)
       }
 
-      if (!accountPickerState.isInitialized && accountsToPersonalize.length) {
+      if (
+        !accountPickerState.initParams &&
+        !accountPickerState.isInitialized &&
+        accountsToPersonalize.length
+      ) {
         setIsLoading(false)
       }
 
