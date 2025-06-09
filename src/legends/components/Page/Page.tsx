@@ -36,7 +36,7 @@ const Page = ({
       <div className={styles.wrapper}>
         <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
 
-        <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
+        <div ref={pageRef} className={`${styles.scroll} ${styles.containerfull}`} style={style}>
           <Banner />
           <div className={`${styles.container} ${customContainerSizeClass}`}>
             <div className={styles.header}>
