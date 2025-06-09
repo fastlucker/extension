@@ -236,8 +236,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
 
   const goToNextRoute = useCallback(
     (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => {
-      const currentRoute = path?.substring(1)
-      if (!currentRoute) return
+      const currentRoute = path?.substring(1) || '/'
 
       let nextRoute: RouteNode | null = null
       if (routeName && ONBOARDING_WEB_ROUTES.includes(routeName)) {
@@ -401,6 +400,19 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       window.removeEventListener('hashchange', handleBackButton)
     }
   }, [goToPrevRoute, history, deepSearchRouteNode, onboardingRoutesTree])
+
+  useEffect(() => {
+    const currentRoute = path?.substring(1)
+    if (!currentRoute) return
+
+    if (
+      !hasPasswordSecret &&
+      authStatus === AUTH_STATUS.AUTHENTICATED &&
+      !ONBOARDING_WEB_ROUTES.includes(currentRoute)
+    ) {
+      goToNextRoute(WEB_ROUTES.keyStoreSetup)
+    }
+  }, [authStatus, path, goToNextRoute, hasPasswordSecret])
 
   const value = useMemo(
     () => ({

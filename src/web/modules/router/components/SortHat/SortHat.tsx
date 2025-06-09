@@ -13,8 +13,8 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import { getUiType } from '@web/utils/uiType'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
@@ -24,7 +24,6 @@ const SortHat = () => {
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -121,7 +120,9 @@ const SortHat = () => {
     actionsState.currentAction,
     navigate,
     dispatch,
-    swapAndBridgeState.sessionIds
+    swapAndBridgeState.sessionIds,
+    transferState?.hasPersistedState,
+    transferState?.isTopUp
   ])
 
   useEffect(() => {

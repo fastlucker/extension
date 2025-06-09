@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
+  ActionExecutionType,
   ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
@@ -584,9 +584,6 @@ type SwapAndBridgeControllerDestroySignAccountOp = {
 type SwapAndBridgeControllerOpenSigningActionWindow = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW'
 }
-type SwapAndBridgeControllerCloseSigningActionWindow = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
-}
 type OpenSigningActionWindow = {
   type: 'OPEN_SIGNING_ACTION_WINDOW'
   params: {
@@ -847,7 +844,6 @@ export type Action =
   | SwapAndBridgeControllerMarkSelectedRouteAsFailed
   | SwapAndBridgeControllerDestroySignAccountOp
   | SwapAndBridgeControllerOpenSigningActionWindow
-  | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
   | OpenSigningActionWindow
