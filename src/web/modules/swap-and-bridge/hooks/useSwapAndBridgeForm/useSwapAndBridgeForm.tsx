@@ -340,7 +340,10 @@ const useSwapAndBridgeForm = () => {
       openEstimationModalAndDispatch()
     } else {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+        params: {
+          openActionWindow: false
+        }
       })
       setShowAddedToBatch(true)
     }
@@ -367,7 +370,10 @@ const useSwapAndBridgeForm = () => {
         openEstimationModalAndDispatch()
       } else {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          params: {
+            openActionWindow: false
+          }
         })
         setShowAddedToBatch(true)
       }

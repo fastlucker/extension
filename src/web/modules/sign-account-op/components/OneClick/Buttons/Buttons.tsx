@@ -2,6 +2,8 @@ import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import Tooltip from '@common/components/Tooltip'
@@ -10,8 +12,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
-import { TokenResult } from '@ambire-common/libs/portfolio'
-import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 
 type Props = {
   token: TokenResult | null
@@ -47,18 +47,12 @@ const Buttons: FC<Props> = ({
     : []
 
   const oneClickDisabledReason = useMemo(() => {
-    if (!isBridge && networkUserRequests.length > 0) {
-      return t(
-        'You have pending transactions on this network. Please add this transaction to the batch.'
-      )
-    }
-
     if (signAccountOpErrors.length > 0) {
       return signAccountOpErrors[0].title
     }
 
     return ''
-  }, [isBridge, networkUserRequests.length, t, signAccountOpErrors])
+  }, [signAccountOpErrors])
 
   const batchDisabledReason = useMemo(() => {
     if (isBridge) return t('Batching is not available for bridges.')

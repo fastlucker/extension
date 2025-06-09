@@ -563,6 +563,9 @@ type SwapAndBridgeControllerResetForm = {
 }
 type SwapAndBridgeControllerBuildUserRequest = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+  params: {
+    openActionWindow?: boolean
+  }
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'

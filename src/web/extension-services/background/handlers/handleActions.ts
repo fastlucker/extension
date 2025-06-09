@@ -308,7 +308,10 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
     case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
-      return await mainCtrl.buildSwapAndBridgeUserRequest()
+      return await mainCtrl.buildSwapAndBridgeUserRequest(
+        undefined,
+        params.openActionWindow ?? undefined
+      )
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
