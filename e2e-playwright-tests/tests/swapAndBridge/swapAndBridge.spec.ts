@@ -100,4 +100,13 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.prepareBridgeTransaction(0.0063, 'USDC', '8453', '10')
     await swapAndBridgePage.signTokens()
   })
+
+  test('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({
+    swapAndBridgePage
+  }) => {
+    await swapAndBridgePage.prepareSwapAndBridge(0.003, 'WALLET', '8453', 'USDC')
+    await swapAndBridgePage.batchAction()
+    await swapAndBridgePage.prepareSwapAndBridge(0.002, 'USDC', '8453', 'ETH')
+    await swapAndBridgePage.batchActionWithSign()
+  })
 })

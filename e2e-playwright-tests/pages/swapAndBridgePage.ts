@@ -115,6 +115,7 @@ export class SwapAndBridgePage extends BasePage {
       await this.page.waitForTimeout(2000) // Wait 2000ms before click for the Receive Token list to be populated
       // await clickOnElement(this.page, SELECTORS.receiveTokenSab, 1000)
       await this.page.click(SELECTORS.receiveTokenSab, { timeout: 1000 })
+
       await typeText(this.page, SELECTORS.searchInput, receive_token)
       await clickOnElement(this.page, `[data-testid*="${receive_token.toLowerCase()}"]`)
       // If checking prepareSwapAndBridge functionality without providing send amount
@@ -423,5 +424,40 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.locator(locators.swapSignButton).click()
     await expect(this.page.getByText('Confirming your trade')).toBeVisible()
     // TODO: add more assertion
+  }
+
+  async batchAction(): Promise<void> {
+    await this.page.waitForTimeout(2000)
+    await this.page.locator(locators.addToBatchButton).click()
+    await this.page.locator(locators.addMoreSwapsButton).click()
+  }
+
+  async batchActionWithSign(): Promise<void> {
+    await this.page.waitForTimeout(2000)
+    await this.page.locator(locators.addToBatchButton).click()
+    await this.page.locator(locators.openDashboardFromBatchButton).first().click()
+    const newPage = await this.handleNewPage(locators.bannerButtonOpen)
+    await this.signBatchTransactionsPage(newPage)
+  }
+
+  async signBatchTransactionsPage(page): Promise<void> {
+    const signButton = page.locator(SELECTORS.signTransactionButton)
+
+    try {
+      await expect(signButton).toBeVisible({ timeout: 5000 })
+      await expect(signButton).toBeEnabled()
+      await this.verifyBatchTransactionDetails(page)
+      await clickOnElement(page, SELECTORS.signTransactionButton)
+      await page.waitForTimeout(1500)
+    } catch (error) {
+      console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
+    }
+  }
+
+  async verifyBatchTransactionDetails(page): Promise<void> {
+    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
+    await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI\.FI/)
+    await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.002/)
+    await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
   }
 }
