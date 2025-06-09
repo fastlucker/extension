@@ -69,7 +69,6 @@
     "@ensdomains/eth-ens-namehash": "^2.0.15",
     "@ethersproject/providers": "5.5.2",
     "@ethersproject/shims": "^5.5.0",
-    "@ethersproject/units": "5.5.0",
     "@expo-google-fonts/poppins": "0.2.2",
     "@expo-google-fonts/roboto": "^0.2.3",
     "@expo/vector-icons": "^13.0.0",
