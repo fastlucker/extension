@@ -87,6 +87,7 @@
     "@ledgerhq/react-native-hw-transport-ble": "6.32.5",
     "@metamask/eth-sig-util": "6.0.2",
     "@metamask/obs-store": "^6.0.2",
+    "@noble/hashes": "^1.8.0",
     "@otplib/preset-default": "^12.0.1",
     "@raugfer/jazzicon": "^1.0.6",
     "@react-native-async-storage/async-storage": "~1.17.3",
@@ -106,7 +107,6 @@
     "@types/js-yaml": "^4.0.9",
     "@types/react-dom": "^18.2.0",
     "@types/w3c-web-hid": "^1.0.6",
-    "@noble/hashes": "^1.8.0",
     "@yfi/sdk": "1.1.1",
     "aes-js": "^3.1.2",
     "babel-jest": "^29.5.0",
@@ -239,7 +239,6 @@
     "uuid": "9.0.0",
     "validator": "^13.7.0",
     "vm-browserify": "0.0.4",
-    "web3": "^1.7.5",
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
