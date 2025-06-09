@@ -131,7 +131,10 @@ const SwapAndBridgeScreen = () => {
     })
     if (isActionWindow) {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+        type: 'CLOSE_SIGNING_ACTION_WINDOW',
+        params: {
+          type: 'swapAndBridge'
+        }
       })
     } else {
       navigate(ROUTES.dashboard)
