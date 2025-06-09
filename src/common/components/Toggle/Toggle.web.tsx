@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import Text, { Props as TextProps } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -9,6 +9,8 @@ import { ToggleProps } from './types'
 interface Props extends ToggleProps {
   labelProps?: TextProps
   toggleStyle?: React.CSSProperties
+  trackStyle?: React.CSSProperties
+  children?: ReactNode
 }
 
 const Toggle: React.FC<Props> = ({
@@ -18,6 +20,8 @@ const Toggle: React.FC<Props> = ({
   label,
   labelProps,
   toggleStyle,
+  trackStyle,
+  children,
   disabled,
   testID
 }) => {
@@ -60,7 +64,7 @@ const Toggle: React.FC<Props> = ({
             : themeType === THEME_TYPES.DARK
             ? (theme.quaternaryBackground as string)
             : `${theme.secondaryText as string}3D`,
-          ...toggleStyle
+          ...trackStyle
         }}
       >
         <div
@@ -83,9 +87,11 @@ const Toggle: React.FC<Props> = ({
                 ? (theme.primaryBorder as string)
                 : (theme.secondaryBorder as string)
             }`,
-            transform: isOn ? 'translateX(12px)' : ''
+            transform: isOn ? 'translateX(12px)' : '',
+            ...toggleStyle
           }}
         />
+        {children}
       </div>
       <Text fontSize={12} weight="medium" {...labelProps}>
         {label}

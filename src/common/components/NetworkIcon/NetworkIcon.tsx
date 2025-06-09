@@ -134,6 +134,7 @@ const NetworkIcon = ({
             iconScale={iconScale}
             isRound
             fallback={() => renderDefaultIcon()}
+            imageStyle={themeType === THEME_TYPES.DARK ? { backgroundColor: 'transparent' } : {}}
           />
         )}
       </View>

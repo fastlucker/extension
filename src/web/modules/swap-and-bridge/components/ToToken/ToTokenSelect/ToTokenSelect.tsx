@@ -14,7 +14,7 @@ import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { ThemeProps } from '@common/styles/themeConfig'
+import { THEME_TYPES, ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -76,7 +76,7 @@ const ToTokenSelect: React.FC<Props> = ({
   handleAddToTokenByAddress
 }) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { errors, isTokenListLoading, toTokenSearchTerm } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
   const [didAttemptSearchingTokenByAddress, setDidAttemptSearchingTokenByAddress] =
@@ -228,7 +228,10 @@ const ToTokenSelect: React.FC<Props> = ({
       attemptToFetchMoreOptions={handleAttemptToFetchMoreOptions}
       onSearch={handleOnSearch}
       containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
-      selectStyle={{ backgroundColor: '#54597A14', borderWidth: 0 }}
+      selectStyle={{
+        backgroundColor: themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#54597A14',
+        borderWidth: 0
+      }}
       stickySectionHeadersEnabled
     />
   )

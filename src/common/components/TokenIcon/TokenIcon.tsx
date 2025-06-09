@@ -105,11 +105,13 @@ const TokenIcon: React.FC<Props> = ({
         width: withContainer ? containerWidth : width,
         height: withContainer ? containerHeight : height
       },
-      withContainer && styles.withContainerStyle
+      withContainer && styles.withContainerStyle,
+      withContainer && withNetworkIcon && { borderTopLeftRadius: 7 }
     ],
     [
       containerStyle,
       withContainer,
+      withNetworkIcon,
       containerWidth,
       width,
       containerHeight,
@@ -149,7 +151,7 @@ const TokenIcon: React.FC<Props> = ({
         <View
           style={[
             styles.networkIconWrapper,
-            !withContainer && { left: -3, top: -3 },
+            withContainer ? { left: -1, top: -1 } : { left: -4, top: -4 },
             networkWrapperStyle
           ]}
         >

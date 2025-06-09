@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AccountInfo from '@legends/components/AccountInfo'
+import Banner from '@legends/components/Banner'
 import Sidebar from '@legends/components/Sidebar'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
@@ -31,25 +32,28 @@ const Page = ({
   const closeSidebar = () => setIsSidebarOpen(false)
 
   return (
-    <div className={styles.wrapper}>
-      <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
+    <div>
+      <div className={styles.wrapper}>
+        <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
 
-      <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
-        <div className={`${styles.container} ${customContainerSizeClass}`}>
-          <div className={styles.header}>
-            <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
-              <FontAwesomeIcon icon={faBars} />
-            </button>
-            {connectedAccount &&
-              !nonV2Account &&
-              pathname !== LEGENDS_ROUTES.home &&
-              pathname !== '/' && (
-                <div className={styles.account}>
-                  <AccountInfo />
-                </div>
-              )}
+        <div ref={pageRef} className={`${styles.scroll} ${customContainerSizeClass}`} style={style}>
+          <Banner />
+          <div className={`${styles.container} ${customContainerSizeClass}`}>
+            <div className={styles.header}>
+              <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
+                <FontAwesomeIcon icon={faBars} />
+              </button>
+              {connectedAccount &&
+                !nonV2Account &&
+                pathname !== LEGENDS_ROUTES.home &&
+                pathname !== '/' && (
+                  <div className={styles.account}>
+                    <AccountInfo />
+                  </div>
+                )}
+            </div>
+            <div className={styles.content}>{children}</div>
           </div>
-          <div className={styles.content}>{children}</div>
         </div>
       </div>
     </div>
