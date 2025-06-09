@@ -8,8 +8,7 @@ import walletCoin from './assets/wallet-coin.png'
 import styles from './Home.module.scss'
 
 const Home = () => {
-  const { walletTokenPrice, walletTokenInfo, isLoadingWalletTokenInfo } =
-    usePortfolioControllerState()
+  const { walletTokenInfo, isLoadingWalletTokenInfo } = usePortfolioControllerState()
   const stakedWallet = walletTokenInfo && walletTokenInfo.percentageStakedWallet
 
   return (
@@ -75,7 +74,7 @@ const Home = () => {
                   {isLoadingWalletTokenInfo
                     ? 'Loading...'
                     : walletTokenInfo?.walletPrice !== undefined
-                    ? Number(walletTokenInfo?.walletPrice).toFixed(3)
+                    ? `$${Number(walletTokenInfo?.walletPrice).toFixed(3)}`
                     : ''}
                 </span>
               </div>

@@ -45,7 +45,7 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       ...spacings.pbLg,
       ...flexbox.justifyEnd
     },
-    headerSideContainer: { width: isTab ? 300 : 200, minWidth: isTab ? 300 : 200 }
+    headerSideContainer: { width: isTab ? 300 : 170, minWidth: isTab ? 300 : 160 }
   })
 
 export default getStyles
