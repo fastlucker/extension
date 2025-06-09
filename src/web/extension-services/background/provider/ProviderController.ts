@@ -673,6 +673,7 @@ export class ProviderController {
    * Revokes the current dapp permissions. Experimental, but supported in MetaMask. Specified by MIP-2:
    * {@link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md}
    */
+  @Reflect.metadata('SAFE', true)
   walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
     await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
     this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
@@ -682,7 +683,7 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
-    if (this.mainCtrl.dapps.getDapp(origin) && this.isUnlocked) {
+    if (this.mainCtrl.dapps.hasPermission(origin) && this.isUnlocked) {
       const date = Date.now()
       const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
       const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
