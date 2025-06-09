@@ -1,7 +1,7 @@
 import Token from '../interfaces/token'
 
 type TokenSymbol = 'dai' | 'usdc' | 'usdce' | 'wallet'
-type Network = 'optimism' | 'base'
+type Network = 'optimism' | 'base' | 'ethereum'
 
 type Tokens = Record<TokenSymbol, Partial<Record<Network, Token>>>
 
@@ -22,6 +22,11 @@ const tokens: Tokens = {
     base: {
       address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
       chainId: '8453',
+      symbol: 'USDC'
+    },
+    ethereum: {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      chainId: '1',
       symbol: 'USDC'
     }
   },

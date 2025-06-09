@@ -19,8 +19,10 @@ const formatOptionString = (optionString: string): string => {
   return formattedString
 }
 
-const Option = React.memo(({ item }: { item: SelectValue }) => {
+const Option = React.memo(({ item, ...rest }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)
+
+  console.log({ item, rest })
 
   // Attempt to create a dynamic testID using the label or value if they contain a string.
   // Otherwise, default to 'undefined', and letting Puppeteer to assert using alternative selectors.

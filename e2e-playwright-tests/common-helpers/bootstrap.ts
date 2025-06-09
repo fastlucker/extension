@@ -123,7 +123,7 @@ export async function bootstrapWithStorage(
   shouldUnlockKeystoreManually = false
 ) {
   // Initialize browser and page using bootstrap
-  const { page, extensionURL, serviceWorker } = await initBrowser(namespace)
+  const { page, extensionURL, serviceWorker, context } = await initBrowser(namespace)
 
   const {
     parsedKeystoreAccounts: accounts,
@@ -200,5 +200,5 @@ export async function bootstrapWithStorage(
     }
   }
 
-  return { page }
+  return { page, context }
 }

@@ -81,6 +81,7 @@ export const TEST_IDS = {
   topUpButton: 'top-up-button',
   tokenSend: 'token-send',
   tokensSelect: 'tokens-select',
+  feeTokensSelect: 'fee-option-select',
   queueAndSignLaterButton: 'queue-and-sign-later-button',
   deleteTxnCallDyn: 'delete-txn-call',
   feeSlow: 'option-slow',
@@ -90,6 +91,7 @@ export const TEST_IDS = {
   transactionButtonReject: 'transaction-button-reject',
   totalPortfolioAmountInteger: 'total-portfolio-amount-integer',
   proceedBtn: 'proceed-btn',
+  batchBtn: 'batch-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
   nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-8453',
@@ -122,7 +124,8 @@ export const TEST_IDS = {
   removeNetworkConfirmButton: 'remove-network-confirm-btn',
   signButton: 'sign-button',
   backButton: 'back-button',
-  txnStatus: 'txn-status'
+  txnStatus: 'txn-status',
+  batchModalGotIt: 'queue-modal-got-it-button'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

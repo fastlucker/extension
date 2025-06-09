@@ -1,44 +1,97 @@
 import { expect } from '@playwright/test'
 import { TEST_IDS } from '../../common/selectors/selectors'
-import { saParams } from '../../config/constants'
+import { baParams } from '../../config/constants'
 import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('transfer', () => {
   test.beforeEach(async ({ transferPage }) => {
-    await transferPage.init(saParams)
+    await transferPage.init(baParams)
   })
 
-  test('should send a transaction', async ({ transferPage }) => {
+  test('should send a transaction and pay with the current account gas tank', async ({
+    transferPage
+  }) => {
+    const sendToken = tokens.usdc.optimism
+    // This address is derived from SA testing account seed phrase
+    const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
+    const feeToken = tokens.usdc.ethereum
+    const payWithGasTank = true
+
+    await transferPage.send(sendToken, recipientAddress, feeToken, payWithGasTank)
+  })
+
+  test("should send a transaction and pay with the current account's ERC-20 token", async ({
+    transferPage
+  }) => {
+    const sendToken = tokens.usdc.optimism
+    // This address is derived from SA testing account seed phrase
+    const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
+    const feeToken = tokens.usdc.optimism
+    const payWithGasTank = false
+
+    await transferPage.send(sendToken, recipientAddress, feeToken, payWithGasTank)
+  })
+
+  test('should batch multiple transfer transactions', async ({ transferPage }) => {
     const page = transferPage.page
 
+    // Navigate to Transfer
     const sendButton = page.getByTestId(TEST_IDS.dashboardButtonSend)
     await sendButton.click()
 
-    const tokensSelect = page.getByTestId(TEST_IDS.tokensSelect)
-    await tokensSelect.click()
+    // Choose token
+    const sendToken = tokens.usdc.optimism
+    await transferPage.clickOnMenuToken(sendToken)
 
-    await transferPage.clickOnMenuToken(tokens.usdc.optimism)
-
+    // Amount
     const amountField = page.getByTestId(TEST_IDS.amountField)
     await amountField.fill('0.001')
 
-    const addressField = page.getByTestId(TEST_IDS.addressEnsField)
-    // This address is derived from SA testing account seed phrase
+    // Address
     const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
-    await addressField.fill(recipientAddress)
+    await transferPage.fillRecipient(recipientAddress)
 
-    const checkbox = page.getByTestId(TEST_IDS.recipientAddressUnknownCheckbox)
-    await checkbox.click()
+    // Batch
+    const batchButton = page.getByTestId(TEST_IDS.batchBtn)
+    await batchButton.click()
+    const gotIt = page.getByTestId(TEST_IDS.batchModalGotIt)
+    await gotIt.click()
 
-    const proceedButton = page.getByTestId(TEST_IDS.proceedBtn)
-    await proceedButton.click()
+    // Add More
+    const addMoreButton = page.getByTestId('add-more-button')
+    await addMoreButton.click()
 
-    const sign = page.getByTestId(TEST_IDS.signButton)
-    await sign.click()
+    // Choose token
+    const sendToken2 = tokens.usdc.optimism
+    await transferPage.clickOnMenuToken(sendToken2)
 
-    const txnStatus = await page.getByTestId(TEST_IDS.txnStatus).textContent()
+    // Amount
+    const amountField2 = page.getByTestId(TEST_IDS.amountField)
+    await amountField2.fill('0.001')
 
-    expect(txnStatus).toEqual('Transfer done!')
+    // Address
+    const recipientAddress2 = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
+    await transferPage.fillRecipient(recipientAddress2)
+
+    // Batch
+    const batchButton2 = page.getByTestId(TEST_IDS.batchBtn)
+    await batchButton2.click()
+    const gotIt2 = page.getByTestId(TEST_IDS.batchModalGotIt)
+    await gotIt2.click()
+
+    // Go to Dashboard
+    const goDashboardButton = page.getByTestId('go-dashboard-button')
+    await goDashboardButton.click()
+
+    // Open AccountOp screen
+    await page.getByTestId('banner-button-open').first().click()
+
+    const pages = page.context().pages()
+    const actionWindowPage = pages.find((p) => p.url().includes('action-window.html'))
+
+    await actionWindowPage.getByTestId('transaction-button-sign').click()
+
+    // TODO - confirm Transaction
   })
 })
