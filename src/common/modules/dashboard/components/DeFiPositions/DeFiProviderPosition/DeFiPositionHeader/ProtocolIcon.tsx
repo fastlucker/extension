@@ -1,11 +1,13 @@
 import React, { FC } from 'react'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 import AaveIcon from '@common/assets/svg/AaveIcon'
 import UniswapIcon from '@common/assets/svg/UniswapIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
+import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 
 const POSITION_TO_ICON: {
   [key: string]: FC
@@ -26,27 +28,57 @@ const ProtocolIcon = ({
   chainId: bigint
   iconUrl?: string
 }) => {
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const Icon = POSITION_TO_ICON[providerName]
 
   return (
     <View style={spacings.mrSm}>
       {iconUrl ? (
-        <Image style={{ width: 28, height: 28, borderRadius: 50 }} source={{ uri: iconUrl }} />
+        <TokenIcon
+          withContainer
+          chainId={chainId}
+          uri={iconUrl}
+          containerHeight={40}
+          containerWidth={40}
+          width={28}
+          height={28}
+          containerStyle={{
+            backgroundColor:
+              themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.tertiaryBackground
+          }}
+          networkWrapperStyle={{
+            borderColor:
+              themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.tertiaryBackground
+          }}
+        />
       ) : Icon ? (
-        <Icon />
+        <View>
+          <Icon />
+          <View
+            style={{
+              position: 'absolute',
+              left: -1,
+              top: -1,
+              zIndex: 3,
+              borderWidth: 1,
+              borderColor:
+                themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.secondaryBorder,
+              borderRadius: 12
+            }}
+          >
+            <NetworkIcon
+              id={chainId.toString()}
+              size={14}
+              style={{
+                backgroundColor:
+                  themeType === THEME_TYPES.DARK
+                    ? theme.primaryBackgroundInverted
+                    : theme.primaryBackground
+              }}
+            />
+          </View>
+        </View>
       ) : null}
-      <NetworkIcon
-        style={{
-          backgroundColor: theme.primaryBackground,
-          position: 'absolute',
-          left: -8,
-          top: -4
-        }}
-        scale={1}
-        id={chainId.toString()}
-        size={20}
-      />
     </View>
   )
 }

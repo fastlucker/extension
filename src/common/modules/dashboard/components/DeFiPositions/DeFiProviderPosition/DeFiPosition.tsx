@@ -14,24 +14,16 @@ type Props = Omit<PositionsByProvider, 'iconUrl' | 'positions' | 'positionInUSD'
   Position & {
     positionInUSD?: string
     withTopBorder?: boolean
-    index: number
   }
 
 const ASSET_TYPE_TO_LABEL = {
   [AssetType.Borrow]: 'Borrowed',
   [AssetType.Collateral]: 'Collateral',
-  [AssetType.Liquidity]: 'Supplied'
-}
-
-const POSITION_TYPE_TO_NAME = {
-  lending: 'Net worth',
-  'liquidity-pool': 'Liquidity pool',
-  common: 'Position'
+  [AssetType.Liquidity]: 'Supplied',
+  [AssetType.Reward]: 'Rewards'
 }
 
 const DeFiPosition: FC<Props> = ({
-  type,
-  index,
   withTopBorder,
   providerName,
   chainId,
@@ -39,11 +31,13 @@ const DeFiPosition: FC<Props> = ({
   additionalData,
   assets
 }) => {
-  const { inRange } = additionalData
+  const { inRange, name, positionIndex } = additionalData
   const suppliedAssets = assets.filter(
     (asset) => asset.type === AssetType.Liquidity || asset.type === AssetType.Collateral
   )
   const borrowedAssets = assets.filter((asset) => asset.type === AssetType.Borrow)
+
+  const rewardAssets = assets.filter((asset) => asset.type === AssetType.Reward)
 
   const { theme } = useTheme()
 
@@ -66,16 +60,16 @@ const DeFiPosition: FC<Props> = ({
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text fontSize={14} weight="semiBold">
-            {POSITION_TYPE_TO_NAME[type]}
+            {name}
           </Text>
-          {type !== 'lending' && (
+          {!!positionIndex && (
             <Text
               fontSize={12}
               appearance="secondaryText"
               style={[spacings.mlMi, spacings.mrTy]}
               selectable
             >
-              #{index + 1}
+              #{positionIndex}
             </Text>
           )}
           {typeof inRange === 'boolean' && (
@@ -103,6 +97,14 @@ const DeFiPosition: FC<Props> = ({
           providerName={providerName}
           assets={borrowedAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Borrow]}
+        />
+      )}
+      {rewardAssets.length > 0 && (
+        <DeFiPositionAssets
+          chainId={chainId}
+          providerName={providerName}
+          assets={rewardAssets}
+          label={ASSET_TYPE_TO_LABEL[AssetType.Reward]}
         />
       )}
     </View>
