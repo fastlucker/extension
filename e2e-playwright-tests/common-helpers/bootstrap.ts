@@ -191,7 +191,7 @@ export async function bootstrapWithStorage(
   if (!shouldUnlockKeystoreManually) {
     try {
       // Navigate to a specific URL if necessary
-      await page.goto(`${extensionURL}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
+      await page.goto(`${extensionURL}/tab.html#/`, { waitUntil: 'load' }) // removed '/keystore-unlock' because of wrong redirection to /keystore-setup
 
       await typeKeystorePassAndUnlock(page, DEF_KEYSTORE_PASS)
     } catch (e) {
