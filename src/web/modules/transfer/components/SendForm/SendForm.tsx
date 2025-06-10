@@ -115,33 +115,13 @@ const SendForm = ({
   )
 
   const setMaxAmount = useCallback(() => {
-    const shouldDeductGas = selectedToken?.address === ZeroAddress && !isSmartAccount
-    const canDeductGas = estimation && estimation.chainId === selectedToken?.chainId
-
-    if (!shouldDeductGas || !canDeductGas) {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: {
-          formValues: { amount: maxAmount, amountFieldMode: 'token' }
-        }
-      })
-
-      return
-    }
-
-    const gasDeductedAmountBigInt = getTokenAmount(selectedToken) - estimation.totalGasWei
-    const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
-
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
       params: {
-        formValues: {
-          amount: gasDeductedAmount,
-          amountFieldMode: 'token'
-        }
+        formValues: { amount: maxAmount, amountFieldMode: 'token' }
       }
     })
-  }, [estimation, isSmartAccount, maxAmount, selectedToken, dispatch])
+  }, [maxAmount, dispatch])
 
   const switchAmountFieldMode = useCallback(() => {
     dispatch({
