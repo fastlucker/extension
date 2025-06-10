@@ -266,12 +266,6 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                 </div>
               </div>
             </div>
-            <div className={styles.stakedTotalRow}>
-              <div className={styles.label}>Staked Total</div>
-              {Number(walletTokenInfo?.stakedWallets || 0).toLocaleString(undefined, {
-                maximumFractionDigits: 0
-              })}
-            </div>
             <div className={styles.stakeInputRow}>
               <div className={styles.stakeInputRowWrapper}>
                 <div className={styles.stakeInputLabel}>Stake</div>
