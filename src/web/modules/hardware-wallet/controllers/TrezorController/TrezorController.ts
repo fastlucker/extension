@@ -12,7 +12,7 @@ export type {
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'wallet@ambire.com',
-  appUrl: 'https://wallet.ambire.com',
+  appUrl: 'https://ambire.com',
   appName: 'Ambire Wallet',
   appIcon: 'https://assets.coingecko.com/coins/images/23154/standard/wallet.PNG?1696522445'
 }
