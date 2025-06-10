@@ -38,7 +38,7 @@ const Feedback = () => {
     const queryParam = `${hashMessage(`${connectedAccount}ambire salt`)}`
     const queryParamName = 'ambro'
     Linking.openURL(
-      `https://survey.typeform.com/to/nbSnXDPw#${queryParamName}=${queryParam}`
+      `https://survey.typeform.com/to/eSdGAYPK#${queryParamName}=${queryParam}`
     ).catch(() => {
       addToast('Cannot open survey')
     })
