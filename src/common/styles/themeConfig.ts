@@ -37,11 +37,11 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#141833'
   },
   secondaryText: {
-    [THEME_TYPES.DARK]: '#FFFFFF99',
+    [THEME_TYPES.DARK]: '#A6A6A7',
     [THEME_TYPES.LIGHT]: '#54597A'
   },
   tertiaryText: {
-    [THEME_TYPES.DARK]: '#FFFFFF52',
+    [THEME_TYPES.DARK]: '#818181',
     [THEME_TYPES.LIGHT]: '#767DAD'
   },
   linkText: {
@@ -68,6 +68,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#F2F3FA'
   },
+  secondaryBackgroundInverted: {
+    [THEME_TYPES.DARK]: '#F2F3FA',
+    [THEME_TYPES.LIGHT]: '#2A2A2C'
+  },
   tertiaryBackground: {
     [THEME_TYPES.DARK]: '#202022',
     [THEME_TYPES.LIGHT]: '#E7E9FB'
@@ -77,7 +81,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#767DAD16'
   },
   quaternaryBackgroundSolid: {
-    [THEME_TYPES.DARK]: 'red',
+    [THEME_TYPES.DARK]: '#2A2A2C',
     [THEME_TYPES.LIGHT]: '#F4F5F8'
   },
   quinaryBackground: {
@@ -85,7 +89,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#F7F8FC'
   },
   backdrop: {
-    [THEME_TYPES.DARK]: '#54597ACC',
+    [THEME_TYPES.DARK]: '#0D0D0F95',
     [THEME_TYPES.LIGHT]: '#54597ACC'
   },
   // Success
@@ -98,7 +102,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#018649'
   },
   successBackground: {
-    [THEME_TYPES.DARK]: '#70FF8D1F',
+    [THEME_TYPES.DARK]: '#1d2a1f',
     [THEME_TYPES.LIGHT]: '#EBF5F0'
   },
   // Info
@@ -111,7 +115,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#8B3DFF'
   },
   infoBackground: {
-    [THEME_TYPES.DARK]: '#70B4FF1F',
+    [THEME_TYPES.DARK]: '#1b212b',
     [THEME_TYPES.LIGHT]: '#F6F0FF'
   },
   // Info 2
@@ -137,11 +141,11 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#CA7E04'
   },
   warningDecorative2: {
-    [THEME_TYPES.DARK]: '#FFD970',
+    [THEME_TYPES.DARK]: '#FBBA27',
     [THEME_TYPES.LIGHT]: '#FBBA27'
   },
   warningBackground: {
-    [THEME_TYPES.DARK]: '#FFD9701F',
+    [THEME_TYPES.DARK]: '#29251c',
     [THEME_TYPES.LIGHT]: '#FBF5EB'
   },
   // Error
@@ -154,15 +158,15 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#EA0129'
   },
   errorBackground: {
-    [THEME_TYPES.DARK]: '#FF70891F',
+    [THEME_TYPES.DARK]: '#281a1e',
     [THEME_TYPES.LIGHT]: '#FEEBEE'
   },
   featureDecorative: {
-    [THEME_TYPES.DARK]: '#3851FF',
+    [THEME_TYPES.DARK]: '#70B4FF',
     [THEME_TYPES.LIGHT]: '#3851FF'
   },
   featureBackground: {
-    [THEME_TYPES.DARK]: '#ECF4FD',
+    [THEME_TYPES.DARK]: '#70B4FF1F',
     [THEME_TYPES.LIGHT]: '#ECF4FD'
   },
   iconPrimary: {

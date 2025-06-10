@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
+  ActionExecutionType,
   ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
@@ -575,10 +575,6 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
-type SwapAndBridgeControllerOnEstimationFailure = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-  params: { activeRouteId?: SwapAndBridgeActiveRoute['activeRouteId'] }
-}
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
 }
@@ -587,9 +583,6 @@ type SwapAndBridgeControllerDestroySignAccountOp = {
 }
 type SwapAndBridgeControllerOpenSigningActionWindow = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW'
-}
-type SwapAndBridgeControllerCloseSigningActionWindow = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
 }
 type OpenSigningActionWindow = {
   type: 'OPEN_SIGNING_ACTION_WINDOW'
@@ -848,11 +841,9 @@ export type Action =
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction
   | SignAccountOpUpdateAction
-  | SwapAndBridgeControllerOnEstimationFailure
   | SwapAndBridgeControllerMarkSelectedRouteAsFailed
   | SwapAndBridgeControllerDestroySignAccountOp
   | SwapAndBridgeControllerOpenSigningActionWindow
-  | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
   | OpenSigningActionWindow

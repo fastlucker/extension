@@ -29,13 +29,9 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       maxHeight: 80,
       ...spacings.ph3Xl,
       backgroundColor:
-        themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.primaryBackground,
-      shadowColor: '#B8BDE080',
-      shadowOffset: {
-        width: 0,
-        height: -2
-      },
-      shadowOpacity: themeType === THEME_TYPES.DARK ? 0 : 1,
+        themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.primaryBackground,
+      shadowColor: themeType === THEME_TYPES.DARK ? '#00000052' : '#B8BDE080',
+      shadowOffset: { width: 0, height: -2 },
       shadowRadius: 4,
       elevation: 7
     },
