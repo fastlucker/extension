@@ -9,6 +9,7 @@ import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/sty
 import StarsIcon from '@common/assets/svg/StarsIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import ConfettiAnimation from '@common/modules/dashboard/components/ConfettiAnimation'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import DelegationHumanization from '@web/components/DelegationHumanization'
@@ -119,59 +120,71 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
   const isFinalized = activeStep === 'finalized'
 
   return (
-    <View style={IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : spacings.mbXl}>
-      <Step
-        title="Signed"
-        stepName="signed"
-        activeStep={activeStep}
-        finalizedStatus={finalizedStatus}
-        rows={stepRows}
-        testID="signed-step"
-      />
-      {shouldShowTxnProgress(finalizedStatus) && (
+    <>
+      {isFinalized && (
+        <ConfettiAnimation
+          type="tertiary"
+          width={1000}
+          height={1000}
+          autoPlay
+          loop
+          style={{ zIndex: 1 }}
+        />
+      )}
+      <View style={IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : spacings.mbXl}>
         <Step
-          title={isFinalized ? 'Transaction details' : 'Your transaction is in progress'}
-          stepName="in-progress"
+          title="Signed"
+          stepName="signed"
           activeStep={activeStep}
           finalizedStatus={finalizedStatus}
-          testID="txn-progress-step"
-        >
-          {!delegation && !!summary && summary}
-          {delegation && (
-            <DelegationHumanization
-              setDelegation={delegation.address !== ZERO_ADDRESS}
-              delegatedContract={delegation.address}
-            />
-          )}
-          {
-            // if there's an userOpHash & txnId but no callData decoded,
-            // it means handleOps has not been called directly and we cannot decode
-            // the data correctly
-            txnId &&
-              userOpHash &&
-              stepsState.userOp &&
-              stepsState.userOp.callData === '' &&
-              stepsState.finalizedStatus?.status !== 'fetching' && (
-                <Text appearance="errorText" fontSize={14}>
-                  Could not decode calldata. Open the explorer for a better summarization
-                </Text>
-              )
-          }
-        </Step>
-      )}
-      <Step
-        // We want to show the user the positive outcome of the transaction while it is still in progress
-        title={finalizedStatus && finalizedStatus.status ? finalizedStatus.status : 'Confirmed'}
-        testID="finalized-rows"
-        stepName="finalized"
-        finalizedStatus={finalizedStatus}
-        activeStep={activeStep}
-        style={spacings.pb0}
-        rows={isFinalized ? finalStepRows : []}
-        collapsibleRows={isFinalized}
-        titleStyle={!isFinalized ? spacings.mb0 : undefined}
-      />
-    </View>
+          rows={stepRows}
+          testID="signed-step"
+        />
+        {shouldShowTxnProgress(finalizedStatus) && (
+          <Step
+            title={isFinalized ? 'Transaction details' : 'Your transaction is in progress'}
+            stepName="in-progress"
+            activeStep={activeStep}
+            finalizedStatus={finalizedStatus}
+            testID="txn-progress-step"
+          >
+            {!delegation && !!summary && summary}
+            {delegation && (
+              <DelegationHumanization
+                setDelegation={delegation.address !== ZERO_ADDRESS}
+                delegatedContract={delegation.address}
+              />
+            )}
+            {
+              // if there's an userOpHash & txnId but no callData decoded,
+              // it means handleOps has not been called directly and we cannot decode
+              // the data correctly
+              txnId &&
+                userOpHash &&
+                stepsState.userOp &&
+                stepsState.userOp.callData === '' &&
+                stepsState.finalizedStatus?.status !== 'fetching' && (
+                  <Text appearance="errorText" fontSize={14}>
+                    Could not decode calldata. Open the explorer for a better summarization
+                  </Text>
+                )
+            }
+          </Step>
+        )}
+        <Step
+          // We want to show the user the positive outcome of the transaction while it is still in progress
+          title={finalizedStatus && finalizedStatus.status ? finalizedStatus.status : 'Confirmed'}
+          testID="finalized-rows"
+          stepName="finalized"
+          finalizedStatus={finalizedStatus}
+          activeStep={activeStep}
+          style={spacings.pb0}
+          rows={isFinalized ? finalStepRows : []}
+          collapsibleRows={isFinalized}
+          titleStyle={!isFinalized ? spacings.mb0 : undefined}
+        />
+      </View>
+    </>
   )
 }
 
