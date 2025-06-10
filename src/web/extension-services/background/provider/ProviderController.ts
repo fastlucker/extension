@@ -649,13 +649,13 @@ export class ProviderController {
       const dapp = this.mainCtrl.dapps.getDapp(origin)
       const grantedPermissionId = dapp?.grantedPermissionId || nanoid(21)
       const grantedPermissionAt = dapp?.grantedPermissionAt || Date.now()
+      const account = this._internalGetAccounts(origin)
 
-      const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
       result.push({
         id: grantedPermissionId,
         parentCapability: 'eth_accounts',
         invoker: origin,
-        caveats: [{ type: 'restrictReturnedAccounts', value: accounts }],
+        caveats: [{ type: 'restrictReturnedAccounts', value: account }],
         date: grantedPermissionAt
       })
 
@@ -699,13 +699,13 @@ export class ProviderController {
     const hasGrantedPermission =
       !!grantedPermissionId && !!grantedPermissionAt && this.mainCtrl.dapps.hasPermission(origin)
     if (hasGrantedPermission) {
-      const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
+      const account = this._internalGetAccounts(origin)
 
       result.push({
         id: grantedPermissionId,
         parentCapability: 'eth_accounts',
         invoker: origin,
-        caveats: [{ type: 'restrictReturnedAccounts', value: accounts }],
+        caveats: [{ type: 'restrictReturnedAccounts', value: account }],
         date: grantedPermissionAt
       })
 
