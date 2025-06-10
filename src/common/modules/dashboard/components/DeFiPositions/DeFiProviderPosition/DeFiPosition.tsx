@@ -86,7 +86,6 @@ const DeFiPosition: FC<Props> = ({
       {suppliedAssets.length > 0 && (
         <DeFiPositionAssets
           chainId={chainId}
-          providerName={providerName}
           assets={suppliedAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Liquidity]}
         />
@@ -94,7 +93,6 @@ const DeFiPosition: FC<Props> = ({
       {borrowedAssets.length > 0 && (
         <DeFiPositionAssets
           chainId={chainId}
-          providerName={providerName}
           assets={borrowedAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Borrow]}
         />
@@ -102,7 +100,6 @@ const DeFiPosition: FC<Props> = ({
       {rewardAssets.length > 0 && (
         <DeFiPositionAssets
           chainId={chainId}
-          providerName={providerName}
           assets={rewardAssets}
           label={ASSET_TYPE_TO_LABEL[AssetType.Reward]}
         />
