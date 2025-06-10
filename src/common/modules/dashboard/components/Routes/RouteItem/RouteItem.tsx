@@ -1,20 +1,16 @@
 import React, { FC } from 'react'
-import { Animated, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import {
-  NEUTRAL_BACKGROUND,
-  NEUTRAL_BACKGROUND_HOVERED
-} from '@common/modules/dashboard/screens/styles'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import { useMultiHover } from '@web/hooks/useHover'
 
 interface Props {
   routeItem: {
@@ -35,24 +31,10 @@ interface Props {
 const ITEM_HEIGHT = 44
 
 const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { addToast } = useToast()
-  const [bindAccountBtnAnim, accountBtnAnimStyle, isAccountBtnHovered] = useMultiHover({
-    values: [
-      {
-        property: 'opacity',
-        from: 0.9,
-        to: 1
-      },
-      {
-        property: 'scaleX',
-        from: routeItem.scale,
-        to: routeItem.scaleOnHover
-      }
-    ]
-  })
 
   return (
     <Pressable
@@ -65,7 +47,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
           return
         }
 
-        if (routeItem.isExternal) {
+        if (routeItem.isExternal && routeItem.route) {
           try {
             await createTab(routeItem.route)
           } catch {
@@ -73,39 +55,55 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
           }
           return
         }
+        if (!routeItem.route) return
+
         navigate(routeItem.route)
       }}
-      {...bindAccountBtnAnim}
     >
-      <View
-        testID={routeItem.testID}
-        style={{
-          height: ITEM_HEIGHT,
-          paddingHorizontal: 9, // this way it gets equal to ITEM_HEIGHT (when square), and flexible otherwise
-          borderRadius: BORDER_RADIUS_PRIMARY,
-          backgroundColor: isAccountBtnHovered ? NEUTRAL_BACKGROUND_HOVERED : NEUTRAL_BACKGROUND,
-          ...flexbox.center,
-          // opacity: routeItem.disabled ? 0.4 : 1,
-          ...spacings.mbTy
-        }}
-      >
-        <Animated.View
-          style={{
-            opacity: routeItem.disabled ? 0.4 : accountBtnAnimStyle.opacity,
-            transform: [{ scale: accountBtnAnimStyle.scaleX as number }]
-          }}
-        >
-          <routeItem.icon color={theme.primaryBackground} height={ITEM_HEIGHT} />
-        </Animated.View>
-      </View>
-      <Text
-        color={theme.primaryBackground}
-        weight="regular"
-        fontSize={12}
-        style={routeItem.disabled && { opacity: 0.4 }}
-      >
-        {routeItem.label}
-      </Text>
+      {({ hovered }: any) => (
+        <>
+          <View
+            testID={routeItem.testID}
+            style={{
+              height: ITEM_HEIGHT,
+              paddingHorizontal: 9, // this way it gets equal to ITEM_HEIGHT (when square), and flexible otherwise
+              borderRadius: BORDER_RADIUS_PRIMARY,
+              backgroundColor: hovered
+                ? themeType === THEME_TYPES.DARK
+                  ? '#1b2b2c'
+                  : '#141833CC'
+                : themeType === THEME_TYPES.DARK
+                ? theme.primaryBackground
+                : theme.primaryText,
+              ...flexbox.center,
+              ...spacings.mbTy
+            }}
+          >
+            <routeItem.icon
+              color={
+                themeType === THEME_TYPES.DARK
+                  ? theme.primary
+                  : hovered
+                  ? '#c197ff'
+                  : theme.primaryBackground
+              }
+              height={ITEM_HEIGHT}
+            />
+          </View>
+          <Text
+            color={
+              themeType === THEME_TYPES.DARK
+                ? theme.primaryBackgroundInverted
+                : theme.primaryBackground
+            }
+            weight="regular"
+            fontSize={12}
+            style={routeItem.disabled && { opacity: 0.4 }}
+          >
+            {routeItem.label}
+          </Text>
+        </>
+      )}
     </Pressable>
   )
 }

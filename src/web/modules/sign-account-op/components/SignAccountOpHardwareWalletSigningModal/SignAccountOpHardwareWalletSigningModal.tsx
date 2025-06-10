@@ -10,25 +10,39 @@ import usePrevious from '@common/hooks/usePrevious'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
+import { getUiType } from '@web/utils/uiType'
+
+const { isPopup } = getUiType()
 
 interface Props {
   signingKeyType?: AccountOp['signingKeyType']
   feePayerKeyType?: Key['type']
-  broadcastSignedAccountOpStatus: MainController['statuses']['broadcastSignedAccountOp']
+  signAndBroadcastAccountOpStatus: MainController['statuses']['signAndBroadcastAccountOp']
   signAccountOpStatusType?: SigningStatus
+  shouldSignAuth: {
+    type: 'V2Deploy' | '7702'
+    text: string
+  } | null
+  signedTransactionsCount?: number | null
+  accountOp: AccountOp
+  actionType?: 'swapAndBridge' | 'transfer'
 }
 
 const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   signingKeyType,
   feePayerKeyType,
-  broadcastSignedAccountOpStatus,
-  signAccountOpStatusType
+  signAndBroadcastAccountOpStatus,
+  signAccountOpStatusType,
+  shouldSignAuth,
+  signedTransactionsCount,
+  accountOp,
+  actionType
 }: Props) => {
+  const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const state = useSignAccountOpControllerState()
-  const { signedTransactionsCount, accountOp } = state || {}
+
   const prevTransactionCount = usePrevious(signedTransactionsCount)
 
   const shouldBeVisible = useMemo(() => {
@@ -36,7 +50,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     if (signAccountOpStatusType === SigningStatus.UpdatesPaused) return false
 
     const isCurrentlyBroadcastingWithExternalKey =
-      broadcastSignedAccountOpStatus === 'LOADING' &&
+      signAndBroadcastAccountOpStatus === 'BROADCASTING' &&
       !!feePayerKeyType &&
       feePayerKeyType !== 'internal'
     const isCurrentlySigningWithExternalKey =
@@ -45,7 +59,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
       signingKeyType !== 'internal'
 
     return isCurrentlyBroadcastingWithExternalKey || isCurrentlySigningWithExternalKey
-  }, [broadcastSignedAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
+  }, [signAndBroadcastAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
 
   const currentlyInvolvedSignOrBroadcastKeyType = useMemo(
     () => (signAccountOpStatusType === SigningStatus.InProgress ? signingKeyType : feePayerKeyType),
@@ -70,6 +84,25 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     }
   }, [accountOp?.calls.length, addToast, prevTransactionCount, signedTransactionsCount])
 
+  useEffect(() => {
+    if (
+      shouldBeVisible &&
+      isPopup &&
+      actionType &&
+      currentlyInvolvedSignOrBroadcastKeyType === 'trezor'
+    ) {
+      // If the user needs to sign using a hardware wallet, we need to open the
+      // screen in an action window and close the popup
+      dispatch({
+        type: 'OPEN_SIGNING_ACTION_WINDOW',
+        params: {
+          type: actionType
+        }
+      })
+      window.close()
+    }
+  }, [actionType, currentlyInvolvedSignOrBroadcastKeyType, dispatch, shouldBeVisible])
+
   if (!currentlyInvolvedSignOrBroadcastKeyType) return null
 
   return (
@@ -82,6 +115,14 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
           <Text weight="medium" fontSize={16}>
             {signedTransactionsCount} / {accountOp?.calls.length}{' '}
             {signedTransactionsCount === 1 ? 'transaction' : 'transactions'} signed
+          </Text>
+        </View>
+      ) : null}
+
+      {shouldSignAuth ? (
+        <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.ptLg]}>
+          <Text weight="medium" fontSize={16}>
+            {shouldSignAuth.text}
           </Text>
         </View>
       ) : null}

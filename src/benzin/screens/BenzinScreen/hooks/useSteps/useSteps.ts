@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { BUNDLER } from '@ambire-common/consts/bundlers'
-import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
+import { AMBIRE_PAYMASTER, ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -39,6 +39,7 @@ import {
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
+import { EIP7702Auth } from '@ambire-common/consts/7702'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
@@ -49,6 +50,8 @@ export type FeePaidWith = {
   symbol: string
   usdValue: string
   isErc20: boolean
+  isSponsored: boolean
+  chainId: bigint
 }
 
 interface Props {
@@ -64,6 +67,7 @@ interface Props {
   provider: JsonRpcProvider | null
   bundler?: BUNDLER
   extensionAccOp?: SubmittedAccountOp // only for in-app benzina
+  networks: Network[]
 }
 
 export interface StepsData {
@@ -76,6 +80,7 @@ export interface StepsData {
   from: string | null
   originatedFrom: string | null
   userOp: UserOperation | null
+  delegation?: EIP7702Auth
 }
 
 // if the transaction hash is found, we make the top url the real txn id
@@ -132,7 +137,8 @@ const useSteps = ({
   setActiveStep,
   provider,
   bundler,
-  extensionAccOp
+  extensionAccOp,
+  networks
 }: Props): StepsData => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
@@ -583,16 +589,25 @@ const useSteps = ({
     let isMounted = true
     let address: string | undefined
     let amount = 0n
+    let isGasTank = false
+    let tokenChainId = network.chainId
 
     // Smart account
     // Decode the fee call and get the token address and amount
     // that was used to cover the gas feePaidWith
     if (feeCall) {
       try {
-        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.chainId)
+        const {
+          address: addr,
+          amount: tokenAmount,
+          isGasTank: isTokenGasTank,
+          chainId
+        } = decodeFeeCall(feeCall, network)
 
         address = addr
         amount = tokenAmount
+        isGasTank = isTokenGasTank
+        tokenChainId = chainId
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error decoding fee call', e)
@@ -606,40 +621,51 @@ const useSteps = ({
       address = ZeroAddress
     }
 
-    if (!address || !amount) return
+    const isSponsored =
+      (amount === 0n && isGasTank) ||
+      (!!userOp && !!userOp.paymaster && userOp.paymaster !== AMBIRE_PAYMASTER)
+    if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    resolveAssetInfo(address, network, ({ tokenInfo }) => {
-      if (!tokenInfo || !amount) return
-      const { decimals, priceIn } = tokenInfo
-      const price = priceIn.length ? priceIn[0].price : null
+    resolveAssetInfo(
+      address,
+      networks.find((net: Network) => net.chainId === tokenChainId)!,
+      ({ tokenInfo }) => {
+        if (!tokenInfo || (!amount && !isSponsored)) return
+        const { decimals, priceIn } = tokenInfo
+        const price = priceIn.length ? priceIn[0].price : null
 
-      const fee = parseFloat(formatUnits(amount, decimals))
+        const fee = parseFloat(formatUnits(amount, decimals))
 
-      if (!isMounted) return
+        if (!isMounted) return
 
-      setFeePaidWith({
-        amount: formatDecimals(fee),
-        symbol: tokenInfo.symbol,
-        usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
-        isErc20: address !== ZeroAddress,
-        address: address as string
-      })
-    }).catch(() => {
+        setFeePaidWith({
+          amount: formatDecimals(fee),
+          symbol: tokenInfo.symbol,
+          usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
+          isErc20: address !== ZeroAddress,
+          address: address as string,
+          isSponsored,
+          chainId: tokenChainId
+        })
+      }
+    ).catch(() => {
       if (!isMounted) return
       setFeePaidWith({
         amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
-        symbol: address === ZeroAddress ? 'ETH' : '',
+        symbol: address === ZeroAddress ? network.nativeAssetSymbol : '',
         usdValue: '-$',
         isErc20: false,
-        address: address as string
+        address: address as string,
+        isSponsored,
+        chainId: network.chainId
       })
     })
 
     return () => {
       isMounted = false
     }
-  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network])
+  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network, userOp, networks])
 
   useEffect(() => {
     if (!network) return
@@ -702,7 +728,11 @@ const useSteps = ({
     txnId: foundTxnId,
     from: from || null,
     originatedFrom: txnReceipt.originatedFrom,
-    userOp
+    userOp,
+    delegation:
+      extensionAccOp && extensionAccOp.meta && extensionAccOp.meta.setDelegation !== undefined
+        ? extensionAccOp.meta.delegation
+        : undefined
   }
 }
 

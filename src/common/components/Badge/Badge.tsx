@@ -1,8 +1,9 @@
+import { nanoid } from 'nanoid'
 import React from 'react'
 import { View } from 'react-native'
-import { v4 as uuidv4 } from 'uuid'
 
 import InformationIcon from '@common/assets/svg/InformationIcon'
+import StarsIcon from '@common/assets/svg/StarsIcon'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
@@ -10,6 +11,7 @@ import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
+import MetamaskIcon from '@common/assets/svg/Metamask/MetamaskIcon'
 import getStyles from './styles'
 import { Props } from './types'
 
@@ -37,6 +39,10 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   ok: {
     color: theme.secondaryText,
     iconColor: theme.successText
+  },
+  new: {
+    color: '#fff',
+    iconColor: '#fff'
   }
 })
 
@@ -55,12 +61,13 @@ const Badge = ({
   style,
   nativeID,
   children,
-  size = 'sm'
+  size = 'sm',
+  specialType
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
-  const { color, iconColor } = badgeTypes[type]
-  const tooltipId = uuidv4()
+  const { color, iconColor } = badgeTypes[type] || badgeTypes.default
+  const tooltipId = nanoid(6)
   const sizeMultiplier = SIZES[size]
 
   return (
@@ -73,10 +80,11 @@ const Badge = ({
         type === 'warning' && styles.warningBadge,
         type === 'info' && styles.infoBadge,
         type === 'error' && styles.errorBadge,
+        type === 'new' && styles.newBadge,
         {
           height: sizeMultiplier * 20
         },
-        withRightSpacing && spacings.mrSm,
+        withRightSpacing && spacings.mrMd,
         !!tooltipText && spacings.prMi,
         style
       ]}
@@ -84,7 +92,7 @@ const Badge = ({
     >
       {text && (
         <Text
-          weight={weight || 'regular'}
+          weight={weight || (type === 'new' ? 'semiBold' : 'regular')}
           fontSize={sizeMultiplier * 10}
           color={color}
           style={[!!tooltipText && spacings.mrMi]}
@@ -93,7 +101,7 @@ const Badge = ({
         </Text>
       )}
       {children}
-      {!!tooltipText && (
+      {!!tooltipText && type !== 'new' && !specialType && (
         <>
           <InformationIcon
             data-tooltip-id={tooltipId}
@@ -103,6 +111,26 @@ const Badge = ({
           />
           <Tooltip id={tooltipId} content={tooltipText} />
         </>
+      )}
+      {!!tooltipText && type !== 'new' && specialType && specialType === 'metamask' && (
+        <>
+          {text === 'Metamask' && (
+            <MetamaskIcon
+              data-tooltip-id={tooltipId}
+              width={sizeMultiplier * 14}
+              height={sizeMultiplier * 14}
+            />
+          )}
+          <Tooltip id={tooltipId} content={tooltipText} />
+        </>
+      )}
+      {type === 'new' && (
+        <StarsIcon
+          style={spacings.mlMi}
+          color={iconColor}
+          width={sizeMultiplier * 11}
+          height={sizeMultiplier * 11}
+        />
       )}
     </View>
   )

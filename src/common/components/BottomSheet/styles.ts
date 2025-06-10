@@ -1,16 +1,15 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import spacings, { DEVICE_HEIGHT, SPACING, SPACING_LG } from '@common/styles/spacings'
+import spacings, { DEVICE_HEIGHT, SPACING, SPACING_MD } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 
 interface Style {
-  root: ViewStyle
   bottomSheet: ViewStyle
   modal: ViewStyle
-
+  portalHost: ViewStyle
   dragger: ViewStyle
   backDrop: ViewStyle
 }
@@ -19,16 +18,11 @@ export const BOTTOM_SHEET_Z_INDEX = 900
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    root: {
-      // Lower number than the toasts' zIndex
-      zIndex: BOTTOM_SHEET_Z_INDEX,
-      elevation: 19
-    },
     bottomSheet: {
       borderTopStartRadius: BORDER_RADIUS_PRIMARY,
       borderTopEndRadius: BORDER_RADIUS_PRIMARY,
       ...spacings.pvMd,
-      paddingHorizontal: isWeb ? SPACING_LG : SPACING
+      paddingHorizontal: isWeb ? SPACING_MD : SPACING
     },
     modal: {
       borderBottomEndRadius: BORDER_RADIUS_PRIMARY,
@@ -51,6 +45,14 @@ const getStyles = (theme: ThemeProps) =>
       position: 'absolute',
       backgroundColor: 'transparent',
       zIndex: BOTTOM_SHEET_Z_INDEX - 1
+    },
+    portalHost: {
+      ...StyleSheet.absoluteFillObject,
+      // @ts-ignore prop is supported by react-native-web, but missing in types
+      pointerEvents: 'none',
+      // Lower number than the toasts' zIndex
+      zIndex: BOTTOM_SHEET_Z_INDEX,
+      elevation: 19
     }
   })
 

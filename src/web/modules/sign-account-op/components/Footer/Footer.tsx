@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import CartIcon from '@common/assets/svg/CartIcon'
-import CloseIcon from '@common/assets/svg/CloseIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import ActionsPagination from '@web/modules/action-requests/components/ActionsPagination'
 
 import getStyles from './styles'
@@ -35,6 +37,20 @@ const Footer = ({
 }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
+  const { userRequests } = useMainControllerState()
+  const { account } = useSelectedAccountControllerState()
+  const { accountOp } = useSignAccountOpControllerState() || {}
+  const chainId = accountOp?.chainId
+
+  const batchCount = useMemo(() => {
+    return userRequests.filter((r) => {
+      return (
+        r.action.kind === 'calls' &&
+        r.meta.accountAddr === account?.addr &&
+        r.meta.chainId === chainId
+      )
+    }).length
+  }, [account?.addr, userRequests, chainId])
 
   return (
     <View style={styles.container}>
@@ -47,11 +63,8 @@ const Footer = ({
           hasBottomSpacing={false}
           size="large"
           disabled={isSignLoading}
-        >
-          <View style={spacings.plSm}>
-            <CloseIcon color={theme.errorDecorative} />
-          </View>
-        </Button>
+          style={{ width: 98 }}
+        />
       </View>
       <ActionsPagination />
       <View
@@ -62,16 +75,20 @@ const Footer = ({
             testID="queue-and-sign-later-button"
             type="outline"
             accentColor={theme.primary}
-            text={t('Queue and Sign Later')}
+            text={
+              batchCount > 1
+                ? t('Add to batch ({{batchCount}})', {
+                    batchCount
+                  })
+                : t('Start a batch')
+            }
             onPress={onAddToCart}
             disabled={isAddToCartDisabled}
             hasBottomSpacing={false}
-            style={spacings.mr}
+            style={{ minWidth: 160, ...spacings.ph, ...spacings.mr }}
             size="large"
           >
-            <View style={spacings.plSm}>
-              <CartIcon color={theme.primary} />
-            </View>
+            <BatchIcon style={spacings.mlTy} />
           </Button>
         )}
         <Button
@@ -81,6 +98,7 @@ const Footer = ({
           text={isSignLoading ? inProgressButtonText : t('Sign')}
           onPress={onSign}
           hasBottomSpacing={false}
+          style={{ width: 160 }}
           size="large"
         />
       </View>

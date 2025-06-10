@@ -25,11 +25,16 @@ import getStyles from './styles'
 interface Props {
   withAmbireLogo?: boolean
   withOG?: boolean
+  backgroundColor?: string
 }
 
 // @TODO: Not renamed because this component will no longer exist in the near future
 // @TODO: refactor the header component @petromir.
-const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG = false }) => {
+const HeaderAccountAndNetworkInfo: FC<Props> = ({
+  withAmbireLogo = true,
+  withOG = false,
+  backgroundColor
+}) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -46,15 +51,16 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG 
       mode="custom"
       withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}
       style={styles.container}
+      backgroundColor={backgroundColor}
     >
       <View
         style={[headerStyles.widthContainer, !isActionWindow && { maxWidth: tabLayoutWidths.xl }]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} />
-          <View>
-            <View style={[flexbox.directionRow]}>
-              <Text fontSize={16} weight="medium">
+          <View style={flexbox.flex1}>
+            <View style={[flexbox.flex1, flexbox.directionRow]}>
+              <Text fontSize={16} weight="medium" numberOfLines={1}>
                 {account.preferences.label}
               </Text>
 
@@ -66,7 +72,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true, withOG 
             </View>
           </View>
         </View>
-        {!!withAmbireLogo && maxWidthSize(700) && (
+        {!!withAmbireLogo && (maxWidthSize(700) || isActionWindow) && (
           <View style={spacings.pl}>
             {withOG ? <AmbireLogoHorizontalWithOG /> : <AmbireLogoHorizontal />}
           </View>

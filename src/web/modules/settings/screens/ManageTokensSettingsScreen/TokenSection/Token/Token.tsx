@@ -44,7 +44,9 @@ const Token: FC<Props> = ({
   )?.isHidden
 
   const toggleHideToken = useCallback(async () => {
-    addToast(t('Token is now visible. You can hide it again from the dashboard.'))
+    addToast(t('Token is now visible. You can hide it again from the dashboard.'), {
+      timeout: 2000
+    })
 
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
@@ -54,7 +56,9 @@ const Token: FC<Props> = ({
   }, [addToast, t, dispatch, address, chainId, onTokenPreferenceOrCustomTokenChange])
 
   const removeCustomToken = useCallback(() => {
-    addToast(t('Token removed'))
+    addToast(t('Token removed'), {
+      timeout: 2000
+    })
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_REMOVE_CUSTOM_TOKEN',
       params: { token: { address, chainId } }
@@ -81,7 +85,7 @@ const Token: FC<Props> = ({
         const network = networks.find(({ chainId: nChainId }) => nChainId === chainId)
         if (!network) return
 
-        await openInTab(`${network.explorerUrl}/address/${address}`, false)
+        await openInTab({ url: `${network.explorerUrl}/address/${address}` })
       }
     },
     [address, chainId, networks, removeCustomToken]

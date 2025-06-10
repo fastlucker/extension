@@ -22,8 +22,7 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -32,16 +31,17 @@ import {
   getActiveRoutesLowestServiceTime,
   getActiveRoutesUpdateInterval
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
 import { isProd } from '@common/config/env'
-import { createRecurringTimeout } from '@common/utils/timeout'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  LI_FI_API_KEY,
   RELAYER_URL,
-  SOCKET_API_KEY,
+  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
-import { browser } from '@web/constants/browserapi'
+import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -201,7 +201,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
     updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
     swapAndBridgeQuoteStatus: 'INITIAL' | 'LOADING'
-    gasPriceTimeout?: { start: any; stop: any }
     estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
     accountStatePendingInterval?: ReturnType<typeof setTimeout>
@@ -276,11 +275,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   mainCtrl = new MainController({
-    storage,
+    platform,
+    storageAPI: storage,
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    socketApiKey: SOCKET_API_KEY,
+    // Temporarily use NO API key in production, until we have a middleware to handle the API key
+    swapApiKey: isProd ? undefined : LI_FI_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -295,6 +296,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     } as any,
     windowManager: {
       ...windowManager,
+      remove: async (winId: number) => {
+        await windowManager.remove(winId, pm)
+      },
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       },
@@ -307,7 +311,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const badgesCtrl = new BadgesController(mainCtrl)
+  const badgesCtrl = new BadgesController(mainCtrl, walletStateCtrl)
   const autoLockCtrl = new AutoLockController(() => {
     // Prevents sending multiple notifications if the event is triggered multiple times
     if (mainCtrl.keystore.isUnlocked) {
@@ -435,7 +439,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: SwapAndBridgeActiveRoute[]) {
     if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
       !!backgroundState.updateActiveRoutesInterval &&
         clearTimeout(backgroundState.updateActiveRoutesInterval)
@@ -672,21 +676,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     )
   }
 
-  function createGasPriceRecurringTimeout(accountOp: AccountOp) {
-    const currentNetwork = mainCtrl.networks.networks.filter(
-      (n) => n.chainId === accountOp.chainId
-    )[0]
-    // 12 seconds is the time needed for a new ethereum block
-    const time = currentNetwork.reestimateOn ?? 12000
-
-    return createRecurringTimeout(
-      () => mainCtrl.updateSignAccountOpGasPrice({ emitLevelOnFailure: 'major' }),
-      time
-    )
-  }
-
   function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 30000)
+    return createRecurringTimeout(() => {
+      if (mainCtrl.signAccountOp) return mainCtrl.signAccountOp.simulate()
+      return new Promise((resolve) => {
+        resolve()
+      })
+    }, 30000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
@@ -753,25 +749,18 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
       if (mainCtrl.signAccountOp) {
-        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
         backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
-
-        backgroundState.gasPriceTimeout = createGasPriceRecurringTimeout(
-          mainCtrl.signAccountOp.accountOp
-        )
-        backgroundState.gasPriceTimeout.start()
 
         backgroundState.estimateTimeout = createEstimateRecurringTimeout()
         backgroundState.estimateTimeout.start()
       } else {
-        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
         backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
     }
 
-    if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
+    if (mainCtrl.statuses.signAndBroadcastAccountOp === 'SUCCESS') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
       initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
@@ -840,9 +829,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
             stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            const controller = (mainCtrl as any)[ctrlName]
+
+            // In case the controller was destroyed and an error was emitted
+            if (!controller) return
+
             pm.send('> ui-error', {
               method: ctrlName,
-              params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
+              params: { errors: controller.emittedErrors, controller: ctrlName }
             })
           }, 'background')
         }
@@ -926,9 +920,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               pm,
               port,
               mainCtrl,
-              ledgerCtrl,
-              trezorCtrl,
-              latticeCtrl,
               walletStateCtrl,
               autoLockCtrl,
               extensionUpdateCtrl
@@ -965,6 +956,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
+
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup
@@ -1025,4 +1017,7 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+// TODO: Found the root cause of this! Event handler of 'disconnect' event must be added on the initial
+// evaluation of worker script. More info: https://developer.chrome.com/docs/extensions/mv3/service_workers/events/
+// Would be tricky to replace this workaround with different logic, but it's doable.
 if ('hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -20,7 +20,7 @@ import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { findAccountDomainFromPartialDomain } from '@common/utils/domains'
+import { findAccountDomainFromPartialDomain } from '@ambire-common/utils/domains'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
@@ -47,7 +47,9 @@ interface Props extends InputProps {
   isRecipientDomainResolving: boolean
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   selectedTokenSymbol?: TokenResult['symbol']
+  menuPosition?: 'top' | 'bottom'
 }
 
 const ADDRESS_BOOK_VISIBLE_VALIDATION = {
@@ -67,6 +69,7 @@ const SelectedMenuOption: React.FC<{
   toggleMenu: () => void
   isAddressInAddressBook: boolean
   filteredContacts: Contact[]
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
 }> = ({
   selectRef,
   filteredContacts,
@@ -78,17 +81,18 @@ const SelectedMenuOption: React.FC<{
   setAddress,
   disabled,
   toggleMenu,
-  isAddressInAddressBook
+  isAddressInAddressBook,
+  recipientMenuClosedAutomaticallyRef
 }) => {
   const { theme } = useTheme()
-  const menuClosedAutomatically = useRef(false)
 
   useEffect(() => {
     if (isMenuOpen && !filteredContacts.length) {
       toggleMenu()
-      menuClosedAutomatically.current = true
+      // eslint-disable-next-line no-param-reassign
+      recipientMenuClosedAutomaticallyRef.current = true
     } else if (
-      menuClosedAutomatically.current &&
+      recipientMenuClosedAutomaticallyRef.current &&
       !isMenuOpen &&
       filteredContacts.length &&
       // Reopen the menu only if the address is invalid
@@ -97,9 +101,17 @@ const SelectedMenuOption: React.FC<{
       validation.isError
     ) {
       toggleMenu()
-      menuClosedAutomatically.current = false
+      // eslint-disable-next-line no-param-reassign
+      recipientMenuClosedAutomaticallyRef.current = false
     }
-  }, [filteredContacts.length, isMenuOpen, toggleMenu, validation.isError])
+  }, [
+    address,
+    filteredContacts.length,
+    isMenuOpen,
+    recipientMenuClosedAutomaticallyRef,
+    toggleMenu,
+    validation.isError
+  ])
 
   return (
     <AddressInput
@@ -108,7 +120,7 @@ const SelectedMenuOption: React.FC<{
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
-      label="Add Recipient"
+      label="Add recipient"
       value={address}
       onChangeText={setAddress}
       disabled={disabled}
@@ -145,7 +157,8 @@ const Recipient: React.FC<Props> = ({
   disabled,
   isSWWarningVisible,
   isSWWarningAgreed,
-  selectedTokenSymbol
+  selectedTokenSymbol,
+  recipientMenuClosedAutomaticallyRef
 }) => {
   const { account } = useSelectedAccountControllerState()
   const actualAddress = ensAddress || address
@@ -274,7 +287,7 @@ const Recipient: React.FC<Props> = ({
       if (section.data.length === 0) return null
 
       return section.key === 'contacts' ? (
-        <TitleAndIcon title={t('Contacts')} icon={AccountsFilledIcon}>
+        <TitleAndIcon title={t('Address Book')} icon={AccountsFilledIcon}>
           <AnimatedPressable
             style={[flexbox.directionRow, flexbox.alignCenter, manageBtnAnimStyle]}
             onPress={onManagePress}
@@ -282,12 +295,12 @@ const Recipient: React.FC<Props> = ({
           >
             <SettingsIcon width={18} height={18} color={theme.secondaryText} />
             <Text fontSize={14} style={spacings.mlMi} appearance="secondaryText">
-              {t('Manage Contacts')}
+              {t('Manage contacts')}
             </Text>
           </AnimatedPressable>
         </TitleAndIcon>
       ) : (
-        <TitleAndIcon title={t('My Wallets')} icon={WalletFilledIcon} />
+        <TitleAndIcon title={t('My wallets')} icon={WalletFilledIcon} />
       )
     },
     [bindManageBtnAnim, manageBtnAnimStyle, onManagePress, t, theme.secondaryText]
@@ -308,6 +321,7 @@ const Recipient: React.FC<Props> = ({
           setAddress={setAddress}
           disabled={disabled}
           isAddressInAddressBook={isAddressInAddressBook}
+          recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
         />
       )
     },
@@ -319,7 +333,8 @@ const Recipient: React.FC<Props> = ({
       address,
       setAddress,
       disabled,
-      isAddressInAddressBook
+      isAddressInAddressBook,
+      recipientMenuClosedAutomaticallyRef
     ]
   )
 
@@ -335,19 +350,9 @@ const Recipient: React.FC<Props> = ({
         renderSectionHeader={renderSectionHeader}
         renderSelectedOption={renderSelectedOption}
         emptyListPlaceholderText={t('No contacts found')}
+        menuPosition="bottom"
       />
       <View style={styles.inputBottom}>
-        <Text
-          style={styles.doubleCheckMessage}
-          weight="regular"
-          fontSize={12}
-          appearance="secondaryText"
-        >
-          {t(
-            'Please double-check the recipient address, blockchain transactions are not reversible.'
-          )}
-        </Text>
-
         <ConfirmAddress
           onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
           isRecipientHumanizerKnownTokenOrSmartContract={

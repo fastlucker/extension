@@ -26,12 +26,13 @@ type LegendsContextType = {
 const legendsContext = createContext<LegendsContextType>({} as LegendsContextType)
 
 const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, nonV2Account } = useAccountContext()
   const { addToast } = useToast()
   const { getCharacter } = useCharacterContext()
   const { getActivity } = useActivityContext()
   const { updateLeaderboard } = useLeaderboardContext()
-
+  const noConnectionAcc = Boolean(!connectedAccount || nonV2Account)
+  const [legendsAcc, setLegendsAcc] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [legends, setLegends] = useState<CardFromResponse[]>([])
@@ -46,7 +47,8 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
   const treasureChestOpenedForToday = useMemo(
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
-        ?.card.status === CardStatus.completed ||  legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
+        ?.card.status === CardStatus.completed ||
+      legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest))
         ?.card.status === CardStatus.disabled,
     [legends]
   )
@@ -60,11 +62,17 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   const getLegends = useCallback(async () => {
     setError(null)
-    try {
-      const rawCards = await fetch(`${RELAYER_URL}/legends/cards?identity=${connectedAccount}`)
 
+    if (legendsAcc !== connectedAccount) {
+      setIsLoading(true)
+    }
+    try {
+      const rawCards = await fetch(
+        `${RELAYER_URL}/legends/cards${!noConnectionAcc ? `?identity=${connectedAccount}` : ''}`
+      )
       const cards = await rawCards.json()
       const sortedCards = sortCards(cards)
+      setLegendsAcc(connectedAccount)
       setLegends(sortedCards)
     } catch (e: any) {
       console.error(e)
@@ -72,7 +80,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     } finally {
       setIsLoading(false)
     }
-  }, [connectedAccount])
+  }, [connectedAccount, legendsAcc, noConnectionAcc])
 
   useEffect(() => {
     getLegends().catch(() => {
@@ -129,6 +137,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     () => ({
       legends,
       isLoading,
+      setIsLoading,
       error,
       completedCount,
       getLegends,
@@ -140,6 +149,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
     [
       legends,
       isLoading,
+      setIsLoading,
       error,
       completedCount,
       getLegends,

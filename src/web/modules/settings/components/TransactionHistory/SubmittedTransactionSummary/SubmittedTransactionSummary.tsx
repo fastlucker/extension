@@ -17,6 +17,7 @@ import TransactionSummary, {
   sizeMultiplier
 } from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import DelegationHumanization from '@web/components/DelegationHumanization'
 import Footer from './Footer'
 import getStyles from './styles'
 
@@ -24,6 +25,7 @@ interface Props {
   submittedAccountOp: SubmittedAccountOp
   style?: ViewStyle
   size?: 'sm' | 'md' | 'lg'
+  // The primary difference is the ability to expand and view raw transaction details in 'full-info'. All other features are identical.
   defaultType: 'summary' | 'full-info'
 }
 
@@ -66,6 +68,9 @@ const SubmittedTransactionSummaryInner = ({
     )
   }
 
+  const isDelegationTxn =
+    submittedAccountOp.meta && submittedAccountOp.meta.setDelegation !== undefined
+
   return (
     <View
       style={[
@@ -76,20 +81,28 @@ const SubmittedTransactionSummaryInner = ({
         }
       ]}
     >
-      {calls.map((call: IrCall) => (
-        <TransactionSummary
-          key={call.id}
-          style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
-          call={call}
-          chainId={submittedAccountOp.chainId}
-          isHistory
-          enableExpand={defaultType === 'full-info'}
-          size={size}
+      {!isDelegationTxn &&
+        calls.map((call: IrCall) => (
+          <TransactionSummary
+            key={call.id}
+            style={{ ...styles.summaryItem, marginBottom: SPACING_SM * sizeMultiplier[size] }}
+            call={call}
+            chainId={submittedAccountOp.chainId}
+            isHistory
+            enableExpand={defaultType === 'full-info'}
+            size={size}
+            hideLinks
+          />
+        ))}
+      {isDelegationTxn && (
+        <DelegationHumanization
+          setDelegation={submittedAccountOp.meta?.setDelegation}
+          delegatedContract={submittedAccountOp.meta?.delegation?.address}
+          isBorderless
         />
-      ))}
+      )}
       <Footer
         size={size}
-        defaultType={defaultType}
         network={network}
         rawCalls={submittedAccountOp.calls}
         txnId={submittedAccountOp.txnId}

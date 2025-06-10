@@ -12,6 +12,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -42,15 +43,16 @@ const Main = ({
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const signStatus = signMessageState.statuses.sign
-  const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { styles, theme, themeType } = useTheme(getStyles)
+  const { maxWidthSize, minHeightSize } = useWindowSize()
   const { networks } = useNetworksControllerState()
   const network = useMemo(
     () =>
       networks.find((n) => {
         return signMessageState.messageToSign?.content.kind === 'typedMessage' &&
           signMessageState.messageToSign?.content.domain.chainId
-          ? n.chainId.toString() === signMessageState.messageToSign?.content.domain.chainId
+          ? n.chainId.toString() ===
+              signMessageState.messageToSign?.content.domain.chainId.toString()
           : n.chainId === signMessageState.messageToSign?.chainId
       }),
     [networks, signMessageState.messageToSign]
@@ -68,54 +70,56 @@ const Main = ({
   )
 
   return (
-    <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
+    <TabLayoutWrapperMainContent style={spacings.mbLg}>
       <View
         style={[
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
-          spacings.mbLg
+          spacings.mbXl
         ]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text weight="medium" fontSize={24} style={[spacings.mrSm]}>
             {t('Sign message')}
           </Text>
-          <NetworkBadge
-            style={{ borderRadius: 25, ...spacings.pv0 }}
-            chainId={signMessageState.messageToSign?.chainId}
-            withOnPrefix
-          />
+          <View style={styles.kindOfMessage}>
+            <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
+              {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
+              {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
+              {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
+                t('EIP-7702')}{' '}
+              {t('Type')}
+            </Text>
+          </View>
         </View>
+        <NetworkBadge chainId={signMessageState.messageToSign?.chainId} withOnPrefix />
         {/* @TODO: Replace with Badge; add size prop to badge; add tooltip  */}
-        <View style={styles.kindOfMessage}>
-          <Text fontSize={12} color={theme.infoText} numberOfLines={1}>
-            {signMessageState.messageToSign?.content.kind === 'typedMessage' && t('EIP-712')}
-            {signMessageState.messageToSign?.content.kind === 'message' && t('Standard')}
-            {signMessageState.messageToSign?.content.kind === 'authorization-7702' &&
-              t('EIP-7702')}{' '}
-            {t('Type')}
-          </Text>
-        </View>
       </View>
       <View style={styles.container}>
-        <View style={[styles.leftSideContainer, !maxWidthSize('m') && { flexBasis: '40%' }]}>
+        <View style={spacings.mbLg}>
           <Info />
           {shouldDisplayEIP1271Warning && (
             <Alert
               type="error"
               title="This app has been flagged to not support Smart Account signatures."
-              text="If you encounter issues, please use a Basic Account and contact the app to resolve this."
+              text="If you encounter issues, please use an EOA account and contact the app to resolve this."
             />
           )}
         </View>
-        <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
         <View style={flexbox.flex1}>
           <ExpandableCard
             enableToggleExpand={!!visualizeHumanized}
             isInitiallyExpanded={!visualizeHumanized}
             hasArrow={!!visualizeHumanized}
-            style={{ ...spacings.mbTy, maxHeight: '100%' }}
+            style={{
+              ...spacings.mbTy,
+              // Setting maxHeight on larger screens introduced internal content scroll
+              // (which aligns the content better - with internal scrollbar).
+              ...(minHeightSize(660) ? {} : { maxHeight: '100%' }),
+              backgroundColor:
+                themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.primaryBackground
+            }}
             content={
               visualizeHumanized &&
               // @TODO: Duplicate check. For some reason ts throws an error if we don't do this

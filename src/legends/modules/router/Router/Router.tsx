@@ -1,22 +1,23 @@
 import React, { FC, ReactNode, useEffect } from 'react'
-import { createHashRouter, RouterProvider } from 'react-router-dom'
+import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 import { DomainsContextProvider } from '@common/contexts/domainsContext'
 import ErrorPage from '@legends/components/ErrorPage'
 import PrivateRoute from '@legends/components/PrivateRoute'
-import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
-import { LegendsContextProvider } from '@legends/contexts/legendsContext'
-import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
 import { ActivityContextProvider } from '@legends/contexts/activityContext'
 import { DataPollingContextProvider } from '@legends/contexts/dataPollingContext'
+import { LeaderboardContextProvider } from '@legends/contexts/leaderboardContext'
+import { LegendsContextProvider } from '@legends/contexts/legendsContext'
 import { MidnightTimerContextProvider } from '@legends/contexts/midnightTimerContext'
-import Character from '@legends/modules/character/screens/Character'
+import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
-import Landing from '@legends/modules/landing/screens/Landing'
+import Home from '@legends/modules/Home'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
 import Legends from '@legends/modules/legends/screens/Legends'
+import Wallet from '@legends/modules/wallet'
 
 import { LEGENDS_ROUTES } from '../constants'
+import { LEGENDS_LEGACY_ROUTES } from '../constants/routes'
 
 // In LegendsInit.tsx, we've already declared some top-level contexts that all child components use.
 // However, we also have private contexts/components within a `PrivateArea`
@@ -32,7 +33,7 @@ import { LEGENDS_ROUTES } from '../constants'
 //              -> child Route.
 const PrivateArea: FC<{ children: ReactNode }> = ({ children }) => {
   useEffect(() => {
-    document.title = 'Ambire Legends'
+    document.title = 'Ambire Rewards'
   }, [])
 
   return (
@@ -57,11 +58,6 @@ const router = createHashRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: LEGENDS_ROUTES.landing,
-        element: <Landing />,
-        index: true
-      },
-      {
         path: LEGENDS_ROUTES.characterSelect,
         element: <CharacterSelect />
       },
@@ -73,7 +69,7 @@ const router = createHashRouter([
         ),
         children: [
           {
-            path: LEGENDS_ROUTES.legends,
+            path: LEGENDS_ROUTES.quests,
             element: <Legends />
           },
           {
@@ -81,8 +77,24 @@ const router = createHashRouter([
             element: <Leaderboard />
           },
           {
-            path: LEGENDS_ROUTES.character,
-            element: <Character />
+            path: LEGENDS_ROUTES.home,
+            element: <Home />
+          },
+          {
+            path: LEGENDS_ROUTES.wallet,
+            element: <Wallet />
+          },
+          {
+            path: LEGENDS_ROUTES['/'],
+            element: <Home />
+          },
+          {
+            path: LEGENDS_LEGACY_ROUTES.legends,
+            element: <Navigate to={LEGENDS_ROUTES.quests} />
+          },
+          {
+            path: LEGENDS_LEGACY_ROUTES.character,
+            element: <Navigate to={LEGENDS_ROUTES.home} />
           }
         ]
       }

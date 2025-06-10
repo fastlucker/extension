@@ -2,14 +2,13 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SocketAPIToken } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import RouteStepsArrow from '@web/modules/swap-and-bridge/components/RouteStepsArrow'
 import RouteStepsToken from '@web/modules/swap-and-bridge/components/RouteStepsToken'
@@ -22,7 +21,7 @@ const RouteStepsPlaceholder = ({
   withBadge
 }: {
   fromSelectedToken: TokenResult
-  toSelectedToken: SocketAPIToken
+  toSelectedToken: SwapAndBridgeToToken
   withBadge?: 'loading' | 'no-route-found'
 }) => {
   const { theme } = useTheme()
@@ -46,7 +45,7 @@ const RouteStepsPlaceholder = ({
             height={14}
             style={spacings.mrTy}
             strokeWidth="2.2"
-            color={iconColors.warning}
+            color={theme.warningDecorative}
           />
           <Text appearance="warningText" weight="medium" fontSize={12}>
             {t('No route found!')}
@@ -55,7 +54,7 @@ const RouteStepsPlaceholder = ({
       )
 
     return null
-  }, [t, withBadge])
+  }, [t, withBadge, theme.warningDecorative])
 
   const getBadgeStyle = useMemo(() => {
     if (withBadge === 'loading') return { backgroundColor: '#54597A14' }
@@ -87,12 +86,6 @@ const RouteStepsPlaceholder = ({
         />
       </View>
       <Text fontSize={12} weight="medium">
-        <Text fontSize={12} weight="medium">
-          {t('Total gas fees: {{fees}}', { fees: '-/-' })}
-        </Text>
-        <Text fontSize={12} weight="medium" appearance="secondaryText">
-          {'  |  '}
-        </Text>
         <Text fontSize={12} weight="medium">
           {t('Estimation: {{time}}', { time: '-/-' })}
         </Text>

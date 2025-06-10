@@ -6,7 +6,8 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { breakpointsByWindowWidth } from '@common/hooks/useWindowSize/breakpoints'
 import { WindowSizes } from '@common/hooks/useWindowSize/types'
-import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
+import spacings, { SPACING_3XL, SPACING_MD } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TAB_CONTENT_WIDTH, TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
@@ -34,7 +35,7 @@ type TabLayoutContainerProps = {
   hideFooterInPopup?: boolean
   width?: Width
   children: ReactElement | ReactElement[] | ReactNode | ReactNode[]
-  renderDirectChildren?: React.ReactNode
+  renderDirectChildren?: () => React.ReactNode
   style?: ViewStyle
   withHorizontalPadding?: boolean
 }
@@ -42,7 +43,7 @@ type TabLayoutContainerProps = {
 export const getTabLayoutPadding = (maxWidthSize: (size: WindowSizes) => boolean) => {
   if (isTab || isActionWindow) {
     return {
-      paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL
+      paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_MD
     }
   }
 
@@ -103,7 +104,7 @@ export const TabLayoutContainer = ({
           </View>
         </View>
       )}
-      {renderDirectChildren}
+      {renderDirectChildren && renderDirectChildren()}
     </View>
   )
 }
@@ -122,11 +123,17 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
   ...rest
 }: TabLayoutWrapperMainContentProps) => {
   const { styles } = useTheme(getStyles)
+  const { isOnboardingRoute } = useOnboardingNavigation()
+  const { minHeightSize } = useWindowSize()
 
   if (withScroll) {
     return (
       <ScrollableWrapper
-        contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
+        contentContainerStyle={[
+          styles.contentContainer,
+          isOnboardingRoute && (minHeightSize('l') ? spacings.pv0 : spacings.pt2Xl),
+          contentContainerStyle
+        ]}
         showsVerticalScrollIndicator={false}
         wrapperRef={wrapperRef}
         {...rest}

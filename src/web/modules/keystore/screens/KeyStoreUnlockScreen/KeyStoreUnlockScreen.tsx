@@ -220,11 +220,16 @@ const KeyStoreUnlockScreen = () => {
             />
 
             <TouchableOpacity
-              onPress={() => openInTab(`tab.html#/${ROUTES.keyStoreReset}`)}
+              onPress={() =>
+                openInTab({
+                  url: `tab.html#/${ROUTES.keyStoreReset}`,
+                  shouldCloseCurrentWindow: true
+                })
+              }
               hitSlop={FOOTER_BUTTON_HIT_SLOP}
             >
               <Text weight="medium" appearance="secondaryText" fontSize={14} underline>
-                {t('Forgot Device Password?')}
+                {t('Forgot extension password?')}
               </Text>
             </TouchableOpacity>
           </View>

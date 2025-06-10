@@ -12,8 +12,10 @@ import { EIP_1271_NOT_SUPPORTED_BY } from '@ambire-common/libs/signMessage/signM
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
+import SmallNotificationWindowWrapper from '@web/components/SmallNotificationWindowWrapper'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -44,7 +46,7 @@ const SignMessageScreen = () => {
   const [makeItSmartConfirmed, setMakeItSmartConfirmed] = useState(false)
   const [doNotAskMeAgain, setDoNotAskMeAgain] = useState(false)
   const actionState = useActionsControllerState()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
 
   const signMessageAction = useMemo(() => {
     if (actionState.currentAction?.type !== 'signMessage') return undefined
@@ -110,7 +112,9 @@ const SignMessageScreen = () => {
   )
 
   useEffect(() => {
-    if (!userRequest || !signMessageAction) return
+    const isAlreadyInit = signMessageState.messageToSign?.fromActionId === signMessageAction?.id
+
+    if (!userRequest || !signMessageAction || isAlreadyInit) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
@@ -128,7 +132,7 @@ const SignMessageScreen = () => {
         }
       }
     })
-  }, [dispatch, userRequest, signMessageAction])
+  }, [dispatch, userRequest, signMessageAction, signMessageState.messageToSign?.fromActionId])
 
   useEffect(() => {
     return () => {
@@ -234,55 +238,65 @@ const SignMessageScreen = () => {
   }
 
   return (
-    <TabLayoutContainer
-      width="full"
-      header={<HeaderAccountAndNetworkInfo />}
-      footer={
-        <ActionFooter
-          onReject={handleReject}
-          onResolve={handleSign}
-          resolveButtonText={resolveButtonText}
-          resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
-          resolveButtonTestID="button-sign"
-          rejectButtonText={rejectButtonText}
-        />
-      }
-    >
-      <SigningKeySelect
-        isVisible={isChooseSignerShown}
-        isSigning={signStatus === 'LOADING'}
-        selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-        handleChooseSigningKey={handleSign}
-        handleClose={() => setIsChooseSignerShown(false)}
-        account={account}
-      />
-      {isViewOnly && (
-        <View style={styles.noKeysToSignAlert}>
-          <NoKeysToSignAlert
-            style={{
-              width: 640
-            }}
-            isTransaction={false}
+    <SmallNotificationWindowWrapper>
+      <TabLayoutContainer
+        width="full"
+        header={
+          <HeaderAccountAndNetworkInfo
+            backgroundColor={
+              themeType === THEME_TYPES.DARK
+                ? (theme.secondaryBackground as string)
+                : (theme.primaryBackground as string)
+            }
           />
-        </View>
-      )}
-      {isAuthorization && !makeItSmartConfirmed ? (
-        <Authorization7702
-          onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
-          doNotAskMeAgain={doNotAskMeAgain}
-          displayFullInformation
+        }
+        footer={
+          <ActionFooter
+            onReject={handleReject}
+            onResolve={handleSign}
+            resolveButtonText={resolveButtonText}
+            resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
+            resolveButtonTestID="button-sign"
+            rejectButtonText={rejectButtonText}
+          />
+        }
+        backgroundColor={
+          isAuthorization && !makeItSmartConfirmed
+            ? theme.primaryBackground
+            : theme.quinaryBackground
+        }
+      >
+        <SigningKeySelect
+          isVisible={isChooseSignerShown}
+          isSigning={signStatus === 'LOADING'}
+          selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+          handleChooseSigningKey={handleSign}
+          handleClose={() => setIsChooseSignerShown(false)}
+          account={account}
         />
-      ) : (
-        <Main
-          shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
-          isLedgerConnected={isLedgerConnected}
-          handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
-          hasReachedBottom={hasReachedBottom}
-          setHasReachedBottom={setHasReachedBottom}
-          shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
-        />
-      )}
-    </TabLayoutContainer>
+        {isAuthorization && !makeItSmartConfirmed ? (
+          <Authorization7702
+            onDoNotAskMeAgainChange={onDoNotAskMeAgainChange}
+            doNotAskMeAgain={doNotAskMeAgain}
+            displayFullInformation
+          />
+        ) : (
+          <Main
+            shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+            isLedgerConnected={isLedgerConnected}
+            handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+            hasReachedBottom={hasReachedBottom}
+            setHasReachedBottom={setHasReachedBottom}
+            shouldDisplayEIP1271Warning={shouldDisplayEIP1271Warning}
+          />
+        )}
+        {isViewOnly && (
+          <View style={styles.noKeysToSignAlert}>
+            <NoKeysToSignAlert style={{ width: '100%' }} isTransaction={false} />
+          </View>
+        )}
+      </TabLayoutContainer>
+    </SmallNotificationWindowWrapper>
   )
 }
 

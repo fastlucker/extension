@@ -14,10 +14,10 @@ type Props = {
   disabled: boolean
   hasEstimation: boolean
   slowRequest: boolean
-  slowPaymasterRequest: boolean
   isViewOnly: boolean
   isSponsored: boolean
   sponsor: Sponsor | undefined
+  updateType: 'Main' | 'Swap&Bridge' | 'Transfer&TopUp'
 }
 
 export type { FeeOption, Props }

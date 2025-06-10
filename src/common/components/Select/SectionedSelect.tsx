@@ -18,7 +18,9 @@ const SectionedSelect = ({
   stickySectionHeadersEnabled,
   emptyListPlaceholderText,
   attemptToFetchMoreOptions,
+  onSearch,
   testID,
+  menuPosition,
   ...props
 }: SectionedSelectProps) => {
   const selectData = useSelectInternal({
@@ -28,7 +30,9 @@ const SectionedSelect = ({
     headerHeight,
     stickySectionHeadersEnabled,
     data: sections,
-    attemptToFetchMoreOptions
+    attemptToFetchMoreOptions,
+    onSearch,
+    menuPosition
   })
   const {
     listRef,
@@ -41,7 +45,14 @@ const SectionedSelect = ({
   } = selectData
 
   return (
-    <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
+    <SelectContainer
+      value={value}
+      setValue={setValue}
+      {...selectData}
+      {...props}
+      id={testID}
+      testID={testID}
+    >
       <SectionList
         ref={listRef}
         sections={filteredData as SectionedSelectProps['sections']}

@@ -1,4 +1,5 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, ReactNode, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
@@ -23,6 +24,9 @@ interface Props {
   customValue?: string
   setCustomValue?: (value: string) => void
   testID?: string
+  children?: ReactNode
+  onSetIsEditing?: (isEditing: boolean) => void
+  disabled?: boolean
 }
 
 const Editable: FC<Props> = ({
@@ -34,25 +38,32 @@ const Editable: FC<Props> = ({
   fontSize = 16,
   height = 30,
   textProps = {},
-  minWidth = 80,
+  minWidth = 100,
   maxLength = 20,
-  testID
+  testID,
+  children,
+  onSetIsEditing,
+  disabled
 }) => {
   const { theme } = useTheme()
+  const { t } = useTranslation()
   const [value, setValue] = useState(initialValue)
   const [isEditing, setIsEditing] = useState(false)
   const [textWidth, setTextWidth] = useState(0)
   const actualValue = typeof customValue === 'string' ? customValue : value
+  // TODO: check it
+  const iconSize = fontSize - 2
 
   const handleSave = useCallback(() => {
     setIsEditing(false)
+    !!onSetIsEditing && onSetIsEditing(false)
     if (actualValue === initialValue || !actualValue) {
       setValue(initialValue)
       return
     }
 
     if (onSave) onSave(actualValue)
-  }, [actualValue, initialValue, onSave])
+  }, [actualValue, initialValue, onSave, onSetIsEditing])
 
   const setValueWrapped = useCallback(
     (newValue: string) => {
@@ -67,16 +78,8 @@ const Editable: FC<Props> = ({
   )
 
   return (
-    <View
-      style={[
-        flexbox.directionRow,
-        flexbox.alignCenter,
-        {
-          height
-        }
-      ]}
-    >
-      {isEditing ? (
+    <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter, { height }]}>
+      {isEditing && !disabled ? (
         <Input
           value={actualValue}
           // Prevents the input from being too small
@@ -115,43 +118,56 @@ const Editable: FC<Props> = ({
           {actualValue || fallbackValue}
         </Text>
       )}
-      <Pressable
-        onPress={() => {
-          if (isEditing) {
-            handleSave()
-            return
-          }
-          setIsEditing(true)
-        }}
-        style={[spacings.mlTy]}
-        testID={`edit-btn-for-${testID}`}
-      >
-        {({ hovered }: any) => (
-          <>
-            {!isEditing && (
-              <EditPenIcon
-                color={hovered ? theme.primaryText : theme.secondaryText}
-                width={fontSize}
-                height={fontSize}
-              />
-            )}
-            {isEditing && (actualValue === initialValue || !actualValue) && (
-              <CloseIcon
-                width={fontSize}
-                height={fontSize}
-                color={hovered ? theme.primaryText : theme.secondaryText}
-              />
-            )}
-            {isEditing && actualValue !== initialValue && !!actualValue && (
-              <View style={{ opacity: hovered ? 0.9 : 1 }}>
-                <CheckIcon width={fontSize} height={fontSize} />
-              </View>
-            )}
-          </>
-        )}
-      </Pressable>
+      {!disabled && (
+        <Pressable
+          onPress={() => {
+            if (isEditing) {
+              handleSave()
+              return
+            }
+            setIsEditing(true)
+            !!onSetIsEditing && onSetIsEditing(true)
+          }}
+          style={[spacings.mlTy]}
+          testID={`edit-btn-for-${testID}`}
+        >
+          {({ hovered }: any) => (
+            <>
+              {!isEditing && (
+                <EditPenIcon
+                  color={hovered ? theme.primaryText : theme.primary}
+                  width={iconSize}
+                  height={iconSize}
+                />
+              )}
+              {isEditing && (actualValue === initialValue || !actualValue) && (
+                <CloseIcon
+                  width={iconSize}
+                  height={iconSize}
+                  color={hovered ? theme.primaryText : theme.secondaryText}
+                />
+              )}
+              {isEditing && actualValue !== initialValue && !!actualValue && (
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.alignCenter,
+                    { opacity: hovered ? 0.8 : 1 }
+                  ]}
+                >
+                  <CheckIcon width={iconSize} height={iconSize} style={spacings.mrMi} />
+                  <Text fontSize={12} weight="medium" color={theme.successText}>
+                    {t('Save')}
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+        </Pressable>
+      )}
+      {children}
     </View>
   )
 }
 
-export default Editable
+export default React.memo(Editable)

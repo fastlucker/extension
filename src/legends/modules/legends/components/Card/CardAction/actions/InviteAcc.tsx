@@ -5,6 +5,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
 import AddressInput from '@legends/components/AddressInput'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
@@ -35,8 +36,9 @@ const InviteAcc: FC<Props> = ({
 }) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
-  const { connectedAccount, allAccounts } = useAccountContext()
 
+  const { connectedAccount, allAccounts, v1Account } = useAccountContext()
+  const isInvalidAccount = Boolean(!connectedAccount || v1Account)
   const [isInProgress, setIsInProgress] = useState(false)
 
   const {
@@ -106,7 +108,7 @@ const InviteAcc: FC<Props> = ({
 
   const onButtonClick = async () => {
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
       setIsInProgress(true)
       const txnId = await inviteEOA()
       onComplete(txnId)
@@ -125,8 +127,12 @@ const InviteAcc: FC<Props> = ({
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
-      buttonText={buttonText}
-      disabled={validation.isError || addressState.isDomainResolving}
+      buttonText={
+        isInvalidAccount
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+          : buttonText
+      }
+      disabled={isInvalidAccount || validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}
     >
       <AddressInput
@@ -134,7 +140,7 @@ const InviteAcc: FC<Props> = ({
         addressState={addressState}
         setAddressState={setAddressState}
         validation={validation}
-        label="Ambire v1 or Basic Account address"
+        label="Ambire v1 or EOA account address"
         rightLabel={`Left invitations ${MAX_INVITATIONS - usedInvitationSlots}/2`}
       />
     </CardActionWrapper>

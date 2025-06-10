@@ -6,9 +6,11 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import useTransferControllerState from '@web/hooks/useTransferControllerState'
 
 type Props = {
   onAddToAddressBook: () => any
@@ -36,16 +38,18 @@ const ConfirmAddress = ({
   selectedTokenSymbol
 }: Props) => {
   const { t } = useTranslation()
-  const { transferCtrl } = useTransferControllerState()
+  const { dispatch } = useBackgroundService()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
+  const { theme, themeType } = useTheme()
 
   const onSWWarningCheckboxClick = useCallback(() => {
-    transferCtrl.update({
-      isSWWarningAgreed: true
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: { formValues: { isSWWarningAgreed: true } }
     })
-  }, [transferCtrl])
+  }, [dispatch])
 
   return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&
@@ -56,7 +60,7 @@ const ConfirmAddress = ({
         <Checkbox
           value={isRecipientAddressUnknownAgreed}
           onValueChange={onRecipientAddressUnknownCheckboxClick}
-          label={t('Confirm sending to a previously unknown address')}
+          label={t('Confirm sending to this address.')}
           style={isSWWarningVisible ? spacings.mbSm : spacings.mb0}
           testID="recipient-address-unknown-checkbox"
         />
@@ -87,7 +91,7 @@ const ConfirmAddress = ({
             ...spacings.mbMd
           }}
           fontSize={14}
-          appearance="primary"
+          color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
         >
           {t('+ Add to Address Book')}
         </Text>

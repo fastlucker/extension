@@ -7,13 +7,16 @@ import {
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import PayOption from './components/PayOption'
 import { NO_FEE_OPTIONS } from './consts'
 import { FeeOption } from './types'
 
 const sortBasedOnUSDValue = (a: FeePaymentOption, b: FeePaymentOption) => {
-  const aPrice = a.token.priceIn?.[0]?.price
-  const bPrice = b.token.priceIn?.[0]?.price
+  if (!a || !b) return 0
+
+  const aPrice = a.token?.priceIn?.[0]?.price
+  const bPrice = b.token?.priceIn?.[0]?.price
 
   if (!aPrice || !bPrice) return 0
   const aBalance = formatUnits(a.availableAmount, a.token.decimals)
@@ -41,7 +44,7 @@ const sortFeeOptions = (
     signAccountOpState.accountOp.accountAddr,
     signAccountOpState.rbfAccountOps[a.paidBy]
   )
-  const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
+  const aSlow = signAccountOpState.feeSpeeds[aId]?.find((speed) => speed.type === 'slow')
   if (!aSlow) return 1
   const aCanCoverFee = a.availableAmount >= aSlow.amount
 
@@ -50,21 +53,24 @@ const sortFeeOptions = (
     signAccountOpState.accountOp.accountAddr,
     signAccountOpState.rbfAccountOps[b.paidBy]
   )
-  const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
+  const bSlow = signAccountOpState.feeSpeeds[bId]?.find((speed) => speed.type === 'slow')
   if (!bSlow) return -1
   const bCanCoverFee = b.availableAmount >= bSlow.amount
 
   if (aCanCoverFee && !bCanCoverFee) return -1
   if (!aCanCoverFee && bCanCoverFee) return 1
+  if (!signAccountOpState) sortBasedOnUSDValue(a, b)
+
+  // gas tank first
   if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
   if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
-  if (a.token.flags.onGasTank && b.token.flags.onGasTank) {
-    return sortBasedOnUSDValue(a, b)
-  }
-  if (!a.token.flags.onGasTank && !b.token.flags.onGasTank) {
-    return sortBasedOnUSDValue(a, b)
-  }
-  return 0
+
+  // native second
+  if (a.token.address === ZERO_ADDRESS && b.token.address !== ZERO_ADDRESS) return -1
+  if (a.token.address !== ZERO_ADDRESS && b.token.address === ZERO_ADDRESS) return 1
+
+  // based on value after
+  return sortBasedOnUSDValue(a, b)
 }
 
 const mapFeeOptions = (
@@ -84,8 +90,18 @@ const mapFeeOptions = (
     if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
   })
 
+  const feeSpeed = signAccountOpState.feeSpeeds[id]?.find(
+    (speed) => speed.type === signAccountOpState.selectedFeeSpeed
+  )
+  const feeSpeedAmount = feeSpeed?.amount || 0n
+  const feeSpeedUsd = feeSpeed?.amountUsd || '0'
+
   if (!speedCoverage.includes(FeeSpeed.Slow)) {
-    disabledReason = 'Insufficient amount'
+    if (!feeOption.token.priceIn.length) {
+      disabledReason = 'No price data'
+    } else {
+      disabledReason = 'Insufficient amount'
+    }
   }
 
   return {
@@ -94,7 +110,14 @@ const mapFeeOptions = (
       feeOption.token.address +
       feeOption.token.symbol.toLowerCase() +
       gasTankKey,
-    label: <PayOption feeOption={feeOption} disabledReason={disabledReason} />,
+    label: (
+      <PayOption
+        amount={feeSpeedAmount}
+        amountUsd={feeSpeedUsd}
+        feeOption={feeOption}
+        disabledReason={disabledReason}
+      />
+    ),
     paidBy: feeOption.paidBy,
     token: feeOption.token,
     disabled: !!disabledReason,

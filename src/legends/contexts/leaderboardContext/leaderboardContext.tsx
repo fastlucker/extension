@@ -7,8 +7,10 @@ import { getLeaderboard } from './helpers'
 
 type LeaderboardContextType = {
   isLeaderboardLoading: boolean
-  leaderboardData: Array<LeaderboardEntry>
-  userLeaderboardData: LeaderboardEntry | null
+  fullLeaderboardData: LeaderboardEntry
+  season0LeaderboardData: LeaderboardEntry
+  season1LeaderboardData: LeaderboardEntry
+  userLeaderboardData: LeaderboardEntry['currentUser'] | null
   error: string | null
   updateLeaderboard: () => Promise<void>
 }
@@ -18,8 +20,12 @@ const LeaderboardContext = createContext<LeaderboardContextType>({} as Leaderboa
 const LeaderboardContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = React.useState<string | null>(null)
-  const [leaderboardData, setLeaderboardData] = useState<Array<LeaderboardEntry>>([])
-  const [userLeaderboardData, setUserLeaderboardData] = useState<LeaderboardEntry | null>(null)
+  const [userLeaderboardData, setUserLeaderboardData] = useState<
+    LeaderboardEntry['currentUser'] | null
+  >(null)
+  const [fullLeaderboardData, setFullLeaderboardData] = useState<LeaderboardEntry | null>(null)
+  const [season0LeaderboardData, setSeason0Leaderboard] = useState<LeaderboardEntry | null>(null)
+  const [season1LeaderboardData, setSeason1Leaderboard] = useState<LeaderboardEntry | null>(null)
   const { connectedAccount } = useAccountContext()
 
   const updateLeaderboard = useCallback(async () => {
@@ -27,10 +33,16 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
       setError(null)
       const response = await getLeaderboard(connectedAccount ?? undefined)
 
+      if (userLeaderboardData && userLeaderboardData?.account !== connectedAccount) {
+        setLoading(true)
+      }
       if (response) {
-        const { leaderboard, currentUser } = response
-        setLeaderboardData(leaderboard)
-        currentUser && setUserLeaderboardData(currentUser)
+        const { fullLeaderboard, season0Leaderboard, season1Leaderboard } = response
+
+        setFullLeaderboardData(fullLeaderboard)
+        setSeason0Leaderboard(season0Leaderboard)
+        setSeason1Leaderboard(season1Leaderboard)
+        fullLeaderboard.currentUser && setUserLeaderboardData(fullLeaderboard.currentUser)
       } else {
         setError('Failed to fetch leaderboard')
       }
@@ -47,29 +59,25 @@ const LeaderboardContextProvider = ({ children }: { children: React.ReactNode })
     updateLeaderboard()
   }, [connectedAccount, updateLeaderboard])
 
-  const sortedData = useMemo(
-    () =>
-      [
-        ...leaderboardData,
-        (userLeaderboardData &&
-          !leaderboardData.find((user) => user.account === userLeaderboardData.account) &&
-          userLeaderboardData) ||
-          []
-      ]
-        .flat()
-        .sort((a, b) => b.xp - a.xp),
-    [leaderboardData, userLeaderboardData]
-  )
-
   const value: LeaderboardContextType = useMemo(
     () => ({
       isLeaderboardLoading: loading,
-      leaderboardData: sortedData,
       userLeaderboardData,
+      fullLeaderboardData,
+      season0LeaderboardData,
+      season1LeaderboardData,
       error,
       updateLeaderboard
     }),
-    [loading, sortedData, userLeaderboardData, error, updateLeaderboard]
+    [
+      loading,
+      userLeaderboardData,
+      fullLeaderboardData,
+      season0LeaderboardData,
+      season1LeaderboardData,
+      error,
+      updateLeaderboard
+    ]
   )
 
   return <LeaderboardContext.Provider value={value}>{children}</LeaderboardContext.Provider>

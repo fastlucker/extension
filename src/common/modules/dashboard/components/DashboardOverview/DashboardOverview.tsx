@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
@@ -14,9 +13,11 @@ import useBalanceAffectingErrors from '@common/modules/dashboard/hooks/useBalanc
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -57,11 +58,10 @@ const DashboardOverview: FC<Props> = ({
 }) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme, styles, themeType } = useTheme(getStyles)
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
-
-  const isSA = useMemo(() => isSmartAccount(account), [account])
+  const { hasGasTank } = useHasGasTank({ account })
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -133,7 +133,10 @@ const DashboardOverview: FC<Props> = ({
                 outputRange: [SPACING_TY, SPACING],
                 extrapolate: 'clamp'
               }),
-              backgroundColor: DASHBOARD_OVERVIEW_BACKGROUND,
+              backgroundColor:
+                themeType === THEME_TYPES.DARK
+                  ? `${DASHBOARD_OVERVIEW_BACKGROUND}80`
+                  : DASHBOARD_OVERVIEW_BACKGROUND,
               overflow: 'hidden'
             }
           ]}
@@ -190,6 +193,8 @@ const DashboardOverview: FC<Props> = ({
                           color={
                             networksWithErrors.length || isOffline
                               ? theme.warningDecorative2
+                              : themeType === THEME_TYPES.DARK
+                              ? theme.primaryBackgroundInverted
                               : theme.primaryBackground
                           }
                           selectable
@@ -204,6 +209,8 @@ const DashboardOverview: FC<Props> = ({
                           color={
                             networksWithErrors.length || isOffline
                               ? theme.warningDecorative2
+                              : themeType === THEME_TYPES.DARK
+                              ? theme.primaryBackgroundInverted
                               : theme.primaryBackground
                           }
                           selectable
@@ -223,7 +230,11 @@ const DashboardOverview: FC<Props> = ({
                   >
                     <RefreshIcon
                       spin={!portfolio?.isAllReady}
-                      color={theme.primaryBackground}
+                      color={
+                        themeType === THEME_TYPES.DARK
+                          ? theme.primaryBackgroundInverted
+                          : theme.primaryBackground
+                      }
                       width={16}
                       height={16}
                     />
@@ -231,7 +242,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady && isSA ? (
+                  {!portfolio?.isAllReady && hasGasTank ? (
                     <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
@@ -239,6 +250,7 @@ const DashboardOverview: FC<Props> = ({
                       onPosition={onGasTankButtonPositionWrapped}
                       portfolio={portfolio}
                       account={account}
+                      hasGasTank={hasGasTank}
                     />
                   )}
                   <BalanceAffectingErrors

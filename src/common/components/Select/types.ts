@@ -6,6 +6,10 @@ export type SelectValue = {
   label: string | ReactNode
   icon?: string | ReactNode
   disabled?: boolean
+  isPending?: boolean
+  balanceFormatted?: string
+  pendingBalanceFormatted?: string
+  symbol?: string
   [key: string]: any
 }
 
@@ -16,13 +20,17 @@ export type RenderSelectedOptionParams = {
 }
 
 export type CommonSelectProps = {
+  id?: string
   value?: SelectValue | null
   setValue?: (value: SelectValue) => void
   handleSearch?: (search: string) => void
   defaultValue?: {}
   placeholder?: string
   label?: string | ReactNode
+  bottomSheetTitle?: string
   size?: 'sm' | 'md'
+  mode?: 'select' | 'bottomSheet'
+  menuPosition?: 'top' | 'bottom'
   containerStyle?: ViewStyle
   selectStyle?: ViewStyle
   labelStyle?: TextStyle
@@ -36,6 +44,7 @@ export type CommonSelectProps = {
   testID?: string
   extraSearchProps?: { [key: string]: string }
   attemptToFetchMoreOptions?: (search: string) => void
+  onSearch?: (search: string) => void
   renderSelectedOption?: ({
     toggleMenu,
     isMenuOpen,

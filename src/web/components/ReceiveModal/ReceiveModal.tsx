@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { FC, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -15,7 +14,9 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -36,7 +37,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, themeType } = useTheme(getStyles)
   const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
@@ -46,7 +47,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const handleCopyAddress = () => {
     if (!account) return
 
-    Clipboard.setStringAsync(account.addr)
+    setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 
@@ -55,7 +56,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
       id="receive-assets-modal"
       type="modal"
       sheetRef={modalRef}
-      backgroundColor="primaryBackground"
+      backgroundColor={themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'}
       containerInnerWrapperStyles={flexbox.alignCenter}
       closeBottomSheet={handleClose}
     >

@@ -9,16 +9,16 @@
     "service_worker": "background.js"
   },
   "icons": {
-    "16": "./assets/images/xicon@16.png",
-    "48": "./assets/images/xicon@48.png",
-    "96": "./assets/images/xicon@96.png",
-    "128": "./assets/images/xicon@128.png"
+    "16": "assets/images/xicon@16.png",
+    "48": "assets/images/xicon@48.png",
+    "96": "assets/images/xicon@96.png",
+    "128": "assets/images/xicon@128.png"
   },
   "action": {
     "default_title": "Ambire",
     "default_popup": "index.html"
   },
-  "host_permissions": ["http://*/*", "https://*/*", "wss://*/*", "*://connect.trezor.io/9/*"],
+  "host_permissions": ["http://*/*", "https://*/*", "file://*/*", "wss://*/*"],
   "externally_connectable": {
     "ids": ["*"]
   },

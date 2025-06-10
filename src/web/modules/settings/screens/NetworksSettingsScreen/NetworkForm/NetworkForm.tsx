@@ -1,12 +1,11 @@
 /* eslint-disable no-param-reassign */
-import { JsonRpcProvider } from 'ethers'
-import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 
 import { getFeatures } from '@ambire-common/libs/networks/networks'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { isValidURL } from '@ambire-common/services/validations'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Button from '@common/components/Button'
@@ -21,6 +20,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { setStringAsync } from '@common/utils/clipboard'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
@@ -145,13 +145,13 @@ const NetworkForm = ({
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { networks, networkToAddOrUpdate, statuses } = useNetworksControllerState()
+  const { allNetworks, networkToAddOrUpdate, statuses } = useNetworksControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
   const { styles } = useTheme(getStyles)
 
   const selectedNetwork = useMemo(
-    () => networks.find((network) => network.chainId.toString() === selectedChainId.toString()),
-    [networks, selectedChainId]
+    () => allNetworks.find((network) => network.chainId.toString() === selectedChainId.toString()),
+    [allNetworks, selectedChainId]
   )
 
   const isPredefinedNetwork = useMemo(
@@ -193,6 +193,7 @@ const NetworkForm = ({
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
   const [selectedRpcUrl, setSelectedRpcUrl] = useState(selectedNetwork?.selectedRpcUrl)
   const networkFormValues = watch()
+  const errorCount = Object.keys(errors).length
 
   const isSomethingUpdated = useMemo(() => {
     if (selectedRpcUrl !== selectedNetwork?.selectedRpcUrl) return true
@@ -206,7 +207,7 @@ const NetworkForm = ({
         : errors.chainId
         ? getFeatures(undefined, selectedNetwork)
         : selectedNetwork?.features || getFeatures(undefined, selectedNetwork),
-    [errors.chainId, networkToAddOrUpdate?.info, selectedNetwork?.features, selectedNetwork]
+    [errors.chainId, networkToAddOrUpdate?.info, selectedNetwork]
   )
 
   useEffect(() => {
@@ -252,7 +253,8 @@ const NetworkForm = ({
       }
 
       try {
-        const rpc = new JsonRpcProvider(rpcUrl)
+        if (!rpcUrl) throw new Error('No RPC URL provided')
+        const rpc = getRpcProvider([rpcUrl], chainId ? Number(chainId) : undefined)
         const network = await rpc.getNetwork()
         rpc.destroy()
 
@@ -271,7 +273,7 @@ const NetworkForm = ({
         }
 
         if (
-          networks.find((n) => n.chainId === network.chainId) &&
+          allNetworks.find((n) => n.chainId === network.chainId) &&
           selectedChainId === 'add-custom-network'
         ) {
           setValidatingRPC(false)
@@ -308,7 +310,7 @@ const NetworkForm = ({
       rpcUrls,
       dispatch,
       setError,
-      networks,
+      allNetworks,
       selectedChainId,
       selectedNetwork?.selectedRpcUrl,
       selectedNetwork?.chainId,
@@ -334,7 +336,7 @@ const NetworkForm = ({
       if (name === 'name') {
         if (
           selectedChainId === 'add-custom-network' &&
-          networks.some((n) => n.name.toLowerCase() === value.name?.toLowerCase())
+          allNetworks.some((n) => n.name.toLowerCase() === value.name?.toLowerCase())
         ) {
           setError('name', {
             type: 'custom-error',
@@ -356,7 +358,7 @@ const NetworkForm = ({
       if (name === 'chainId') {
         if (
           selectedChainId === 'add-custom-network' &&
-          networks.some((n) => Number(n.chainId) === Number(value.chainId))
+          allNetworks.some((n) => Number(n.chainId) === Number(value.chainId))
         ) {
           setError('chainId', {
             type: 'custom-error',
@@ -403,7 +405,7 @@ const NetworkForm = ({
     }
   }, [
     selectedChainId,
-    networks,
+    allNetworks,
     touchedFields,
     validateRpcUrlAndRecalculateFeatures,
     clearErrors,
@@ -506,7 +508,7 @@ const NetworkForm = ({
     (url: string) => {
       if (
         isPredefinedNetwork &&
-        networks.filter((n) => n.predefined).find((n) => n.rpcUrls.includes(url))
+        allNetworks.filter((n) => n.predefined).find((n) => n.rpcUrls.includes(url))
       )
         return
 
@@ -518,7 +520,7 @@ const NetworkForm = ({
       }
       setRpcUrls(filteredRpcUrls)
     },
-    [isPredefinedNetwork, rpcUrls, selectedRpcUrl, handleSelectRpcUrl]
+    [isPredefinedNetwork, allNetworks, rpcUrls, selectedRpcUrl, handleSelectRpcUrl]
   )
 
   const handleAddRpcUrl = useCallback(
@@ -537,11 +539,13 @@ const NetworkForm = ({
 
   const isSaveOrAddButtonDisabled = useMemo(
     () =>
-      !!Object.keys(errors).length ||
+      !!errorCount ||
       isValidatingRPC ||
       features.some((f) => f.level === 'loading') ||
       !!features.filter((f) => f.id === 'flagged')[0],
-    [errors, features, isValidatingRPC]
+    // errorCount must be a dependency in order to re-calculate the value when
+    // errors change. Using errors as a dependency doesn't work
+    [errorCount, features, isValidatingRPC]
   )
 
   return (
@@ -694,7 +698,7 @@ const NetworkForm = ({
                         onPress={handleSelectRpcUrl}
                         shouldShowRemove={
                           isPredefinedNetwork
-                            ? !networks
+                            ? !allNetworks
                                 .filter((n) => n.predefined)
                                 .find((n) => n.rpcUrls.includes(url))
                             : true

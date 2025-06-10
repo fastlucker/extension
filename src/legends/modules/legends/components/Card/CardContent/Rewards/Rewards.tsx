@@ -2,11 +2,11 @@ import React, { FC } from 'react'
 
 import ArbitrumLogo from '@legends/components/NetworkIcons/ArbitrumLogo'
 import BaseLogo from '@legends/components/NetworkIcons/BaseLogo'
+import BinanceSmartChainLogo from '@legends/components/NetworkIcons/BinanceSmartChainLogo'
 import EthereumLogo from '@legends/components/NetworkIcons/EthereumLogo'
 import OptimismLogo from '@legends/components/NetworkIcons/OptimismLogo'
 import ScrollLogo from '@legends/components/NetworkIcons/ScrollLogo'
-import GoldCoin from '@legends/modules/legends/components/GoldCoin'
-import { CardFromResponse, Networks } from '@legends/modules/legends/types'
+import { CardFromResponse } from '@legends/modules/legends/types'
 
 import styles from './Rewards.module.scss'
 
@@ -15,12 +15,13 @@ type Props = Pick<CardFromResponse, 'xp'> & {
   reverse?: boolean
 }
 
-const NETWORK_ICONS: { [key in Networks]: React.ReactNode } = {
+const NETWORK_ICONS: { [networkId: string]: React.ReactNode } = {
   ethereum: <EthereumLogo />,
   base: <BaseLogo />,
   arbitrum: <ArbitrumLogo />,
   optimism: <OptimismLogo />,
-  scroll: <ScrollLogo />
+  scroll: <ScrollLogo />,
+  'binance-smart-chain': <BinanceSmartChainLogo />
 }
 
 const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
@@ -37,9 +38,8 @@ const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
           )}
           <div className={styles.itemText}>
             {from}
-            {to !== from ? `-${to}` : ''} XP
+            {to !== from ? ` - ${to}` : ''} XP
           </div>
-          <GoldCoin />
         </div>
       ))}
     </div>

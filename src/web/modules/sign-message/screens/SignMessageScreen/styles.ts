@@ -7,8 +7,6 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  leftSideContainer: ViewStyle
-  separator: ViewStyle
   noKeysToSignAlert: ViewStyle
   kindOfMessage: ViewStyle
 }
@@ -16,22 +14,11 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      ...flexbox.flex1,
-      ...flexbox.directionRow
-    },
-    leftSideContainer: {
-      flexBasis: '30%',
-      justifyContent: 'flex-start',
-      height: '100%'
-    },
-    separator: {
-      width: 1,
-      backgroundColor: theme.secondaryBorder
+      ...flexbox.flex1
     },
     noKeysToSignAlert: {
       ...common.shadowSecondary,
       position: 'absolute',
-      right: 0,
       bottom: SPACING_MD,
       zIndex: 10,
       borderRadius: BORDER_RADIUS_PRIMARY

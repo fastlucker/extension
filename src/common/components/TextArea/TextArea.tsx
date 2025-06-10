@@ -12,7 +12,6 @@ import {
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 
 import getStyles from './styles'
 
@@ -28,6 +27,7 @@ export interface InputProps extends TextInputProps {
   inputStyle?: ViewStyle | ViewStyle[]
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   bottomLabelStyle?: TextStyle | TextStyle[]
+  nativeInputStyle?: TextStyle
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
@@ -44,6 +44,7 @@ const TextArea = ({
   inputStyle,
   inputWrapperStyle,
   bottomLabelStyle,
+  nativeInputStyle,
   leftIcon,
   ...rest
 }: InputProps) => {
@@ -101,8 +102,12 @@ const TextArea = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              // @ts-ignore outline: 'none'
-              style={{ ...styles.nativeInput, outline: 'none' }}
+              style={{
+                ...styles.nativeInput,
+                // @ts-ignore outline: 'none'
+                outline: 'none',
+                ...nativeInputStyle
+              }}
             />
           </View>
         </View>
@@ -123,7 +128,7 @@ const TextArea = ({
           style={[styles.bottomLabel, bottomLabelStyle]}
           weight="regular"
           fontSize={12}
-          color={colors.greenHaze}
+          color={theme.successText}
         >
           {validLabel}
         </Text>

@@ -27,8 +27,9 @@ const Feedback = () => {
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const { onComplete, handleClose } = useCardActionContext()
   const { addToast } = useToast()
-  const { connectedAccount } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
+  const { connectedAccount, v1Account } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account)
 
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
@@ -37,7 +38,7 @@ const Feedback = () => {
     const queryParam = `${hashMessage(`${connectedAccount}ambire salt`)}`
     const queryParamName = 'ambro'
     Linking.openURL(
-      `https://survey.typeform.com/to/nbSnXDPw#${queryParamName}=${queryParam}`
+      `https://survey.typeform.com/to/eSdGAYPK#${queryParamName}=${queryParam}`
     ).catch(() => {
       addToast('Cannot open survey')
     })
@@ -48,7 +49,7 @@ const Feedback = () => {
       if (!connectedAccount) throw new Error('No connected account')
       if (!surveyCode) throw new Error('No survey code')
       setIsInProgress(true)
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
       const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 
@@ -102,8 +103,14 @@ const Feedback = () => {
       onButtonClick={onButtonClick}
       isLoading={isInProgress}
       loadingText="Signing..."
-      disabled={isFeedbackFormOpen && !surveyCode}
-      buttonText={isFeedbackFormOpen ? 'Claim xp' : 'Open feedback form'}
+      disabled={disabledButton || (isFeedbackFormOpen && !surveyCode)}
+      buttonText={
+        disabledButton
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+          : isFeedbackFormOpen
+          ? 'Claim xp'
+          : 'Open feedback form'
+      }
     >
       <div className={styles.wrapper}>
         {isFeedbackFormOpen && (

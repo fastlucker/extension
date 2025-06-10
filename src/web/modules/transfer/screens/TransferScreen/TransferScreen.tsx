@@ -1,56 +1,55 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
-import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
-import CartIcon from '@common/assets/svg/CartIcon'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
+import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import { getAddressFromAddressState } from '@ambire-common/utils/domains'
 import InfoIcon from '@common/assets/svg/InfoIcon'
-import SendIcon from '@common/assets/svg/SendIcon'
-import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
-import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import DualChoiceModal from '@common/components/DualChoiceModal'
-import Panel from '@common/components/Panel'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { getAddressFromAddressState } from '@common/utils/domains'
-import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
-import {
-  TabLayoutContainer,
-  TabLayoutWrapperMainContent
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useActionsControllerState from '@web/hooks/useActionsControllerState'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
+import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
+import Estimation from '@web/modules/sign-account-op/components/OneClick/Estimation'
+import TrackProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
+import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
+import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
+import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
+import { getUiType } from '@web/utils/uiType'
 
-import getStyles from './styles'
+const { isPopup, isTab, isActionWindow } = getUiType()
 
-const TransferScreen = () => {
+const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { maxWidthSize } = useWindowSize()
-  const { state, transferCtrl } = useTransferControllerState()
+  const { state } = useTransferControllerState()
   const {
     isTopUp,
     validationFormMsgs,
@@ -58,11 +57,16 @@ const TransferScreen = () => {
     isRecipientHumanizerKnownTokenOrSmartContract,
     isSWWarningVisible,
     isRecipientAddressUnknown,
-    isFormValid
+    isFormValid,
+    signAccountOpController,
+    latestBroadcastedAccountOp,
+    latestBroadcastedToken,
+    hasProceeded
   } = state
+
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme()
   const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -71,26 +75,137 @@ const TransferScreen = () => {
     open: openGasTankInfoBottomSheet,
     close: closeGasTankInfoBottomSheet
   } = useModalize()
-  const { userRequests } = useMainControllerState()
-  const actionsState = useActionsControllerState()
+  const { accountsOps } = useActivityControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
+  const recipientMenuClosedAutomatically = useRef(false)
 
-  const hasFocusedActionWindow = useMemo(
-    () => actionsState.actionWindow.windowProps?.focused,
-    [actionsState.actionWindow.windowProps]
-  )
+  const [showAddedToBatch, setShowAddedToBatch] = useState(false)
 
-  const transactionUserRequests = useMemo(() => {
-    return userRequests.filter((r) => {
-      const isSelectedAccountAccountOp =
-        r.action.kind === 'calls' && r.meta.accountAddr === account?.addr
+  const submittedAccountOp = useMemo(() => {
+    if (!accountsOps.transfer || !latestBroadcastedAccountOp?.signature) return
 
-      if (!isSelectedAccountAccountOp) return false
+    return accountsOps.transfer.result.items.find(
+      (accOp) => accOp.signature === latestBroadcastedAccountOp.signature
+    )
+  }, [accountsOps.transfer, latestBroadcastedAccountOp?.signature])
 
-      const isMatchingSelectedTokenNetwork = r.meta.chainId === state.selectedToken?.chainId
+  const explorerLink = useMemo(() => {
+    if (!submittedAccountOp) return
 
-      return !state.selectedToken || isMatchingSelectedTokenNetwork
+    const { chainId, identifiedBy, txnId } = submittedAccountOp
+
+    if (!chainId || !identifiedBy || !txnId) return
+
+    return `https://explorer.ambire.com/${getBenzinUrlParams({ chainId, txnId, identifiedBy })}`
+  }, [submittedAccountOp])
+
+  useEffect(() => {
+    // Optimization: Don't apply filtration if we don't have a recent broadcasted account op
+    if (!latestBroadcastedAccountOp?.accountAddr || !latestBroadcastedAccountOp?.chainId) return
+
+    const sessionId = 'transfer'
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
+      params: {
+        sessionId,
+        filters: {
+          account: latestBroadcastedAccountOp.accountAddr,
+          chainId: latestBroadcastedAccountOp.chainId
+        },
+        pagination: {
+          itemsPerPage: 10,
+          fromPage: 0
+        }
+      }
     })
-  }, [account?.addr, state.selectedToken, userRequests])
+
+    const killSession = () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS',
+        params: { sessionId }
+      })
+    }
+
+    return () => {
+      killSession()
+    }
+  }, [dispatch, latestBroadcastedAccountOp?.accountAddr, latestBroadcastedAccountOp?.chainId])
+
+  const displayedView: 'transfer' | 'batch' | 'track' = useMemo(() => {
+    if (showAddedToBatch) return 'batch'
+
+    if (latestBroadcastedAccountOp) return 'track'
+
+    return 'transfer'
+  }, [latestBroadcastedAccountOp, showAddedToBatch])
+
+  // When navigating to another screen internally in the extension, we unload the TransferController
+  // to ensure that no estimation or SignAccountOp logic is still running.
+  // If the screen is closed entirely, the clean-up is handled by the port.onDisconnect callback in the background.
+  useEffect(() => {
+    return () => {
+      dispatch({ type: 'TRANSFER_CONTROLLER_UNLOAD_SCREEN' })
+    }
+  }, [dispatch])
+
+  const {
+    ref: estimationModalRef,
+    open: openEstimationModal,
+    close: closeEstimationModal
+  } = useModalize()
+
+  const openEstimationModalAndDispatch = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED',
+      params: {
+        proceeded: true
+      }
+    })
+    openEstimationModal()
+  }, [openEstimationModal, dispatch])
+
+  useEffect(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      // `isTopUp` should be sent as a boolean.
+      // Sending it as undefined will not correctly reflect the state of the transfer controller.
+      params: { formValues: { isTopUp: !!isTopUpScreen } }
+    })
+  }, [dispatch, isTopUpScreen])
+
+  /**
+   * Single click broadcast
+   */
+  const handleBroadcastAccountOp = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
+      params: {
+        updateType: 'Transfer&TopUp'
+      }
+    })
+  }, [dispatch])
+
+  const handleUpdateStatus = useCallback(
+    (status: SigningStatus) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        params: {
+          status
+        }
+      })
+    },
+    [dispatch]
+  )
+  const updateController = useCallback(
+    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params
+      })
+    },
+    [dispatch]
+  )
 
   const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
     return portfolio.totalBalance >= 10
@@ -98,9 +213,12 @@ const TransferScreen = () => {
 
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
-      transferCtrl.update({ addressState: newPartialAddressState })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { addressState: newPartialAddressState } }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const handleCacheResolvedDomain = useCallback(
@@ -131,60 +249,43 @@ const TransferScreen = () => {
     handleCacheResolvedDomain
   })
 
-  const isFormEmpty = useMemo(() => {
-    return (!transferCtrl.amount && !transferCtrl.recipientAddress) || !transferCtrl.selectedToken
-  }, [transferCtrl.amount, transferCtrl.recipientAddress, transferCtrl.selectedToken])
-
-  const submitButtonText = useMemo(() => {
-    if (hasFocusedActionWindow) return isTopUp ? t('Top Up') : t('Send')
-
-    let numOfRequests = transactionUserRequests.length
-
-    if (numOfRequests) {
-      if (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) {
-        numOfRequests++ // the queued txns + the one from the form
-      }
-
-      if (isFormEmpty) return t('Sign All Pending ({{count}})', { count: numOfRequests })
-      return isTopUp
-        ? t('Top Up ({{count}})', { count: numOfRequests })
-        : t('Send ({{count}})', { count: numOfRequests })
-    }
-
-    return isTopUp ? t('Top Up') : t('Send')
-  }, [
-    isTopUp,
-    transactionUserRequests,
-    addressInputState.validation.isError,
-    isFormValid,
-    isFormEmpty,
-    hasFocusedActionWindow,
-    t
-  ])
+  const submitButtonText = useMemo(() => (isTopUp ? t('Top Up') : t('Send')), [isTopUp, t])
 
   const isTransferFormValid = useMemo(
-    () => (isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
+    () => !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
     [addressInputState.validation.isError, isFormValid, isTopUp]
   )
 
-  const isSendButtonDisabled = useMemo(() => {
-    if (transactionUserRequests.length && !hasFocusedActionWindow) {
-      return !isFormEmpty && !isTransferFormValid
-    }
-    return !isTransferFormValid
-  }, [isFormEmpty, isTransferFormValid, transactionUserRequests.length, hasFocusedActionWindow])
-
   const onBack = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
     navigate(ROUTES.dashboard)
-  }, [navigate])
+  }, [navigate, dispatch])
+
+  const resetTransferForm = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
+    recipientMenuClosedAutomatically.current = false
+  }, [dispatch])
 
   const addTransaction = useCallback(
     (actionExecutionType: ActionExecutionType) => {
       if (isFormValid && state.selectedToken) {
-        if (actionExecutionType === 'queue' && !transferCtrl.shouldSkipTransactionQueuedModal) {
+        // In the case of a Batch, we show an info modal explaining what Batching is.
+        // We provide an option to skip this modal next time.
+        if (actionExecutionType === 'queue' && !state.shouldSkipTransactionQueuedModal) {
           openBottomSheet()
         }
 
+        // Proceed in OneClick txn
+        if (actionExecutionType === 'open-action-window') {
+          openEstimationModalAndDispatch()
+          return
+        }
+
+        // Batch
         dispatch({
           type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
           params: {
@@ -195,48 +296,23 @@ const TransferScreen = () => {
           }
         })
 
-        transferCtrl.resetForm()
-        return
-      }
-
-      if (
-        actionExecutionType === 'open-action-window' &&
-        transactionUserRequests.length &&
-        isFormEmpty
-      ) {
-        const firstAccountOpAction = actionsState.visibleActionsQueue
-          .reverse()
-          .find((a) => a.type === 'accountOp')
-        if (!firstAccountOpAction) {
-          const entryPointAction = actionsState.visibleActionsQueue.find(
-            (a) => a.id.toString() === ENTRY_POINT_AUTHORIZATION_REQUEST_ID
-          )
-          if (entryPointAction) {
-            dispatch({
-              type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-              params: { actionId: ENTRY_POINT_AUTHORIZATION_REQUEST_ID }
-            })
-          }
-          return
+        // If the Batch modal is already skipped, we show the success batch page.
+        if (state.shouldSkipTransactionQueuedModal) {
+          setShowAddedToBatch(true)
         }
-        dispatch({
-          type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-          params: { actionId: firstAccountOpAction?.id }
-        })
+
+        resetTransferForm()
       }
     },
     [
-      transferCtrl,
+      state,
       addressState,
       isTopUp,
-      state.amount,
-      state.selectedToken,
-      isFormEmpty,
-      transactionUserRequests.length,
-      actionsState,
       isFormValid,
       dispatch,
-      openBottomSheet
+      openBottomSheet,
+      resetTransferForm,
+      openEstimationModalAndDispatch
     ]
   )
 
@@ -246,12 +322,10 @@ const TransferScreen = () => {
   )
 
   const gasTankLabelWithInfo = useMemo(() => {
-    const fontSize = maxWidthSize('xl') ? 20 : 18
-
     return (
-      <View style={flexbox.directionRow}>
+      <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
         <Text
-          fontSize={fontSize}
+          fontSize={20}
           weight="medium"
           appearance="primaryText"
           numberOfLines={1}
@@ -259,90 +333,173 @@ const TransferScreen = () => {
         >
           {t('Top Up Gas Tank')}
         </Text>
-        <Pressable style={[flexbox.center]} onPress={handleGasTankInfoPressed}>
-          <InfoIcon width={fontSize} height={fontSize} />
+        <Pressable onPress={handleGasTankInfoPressed}>
+          <InfoIcon width={20} height={20} />
         </Pressable>
       </View>
     )
-  }, [handleGasTankInfoPressed, maxWidthSize, t])
+  }, [handleGasTankInfoPressed, t])
+
+  // Title shown in BottomSheet header
+  const headerTitle = useMemo(
+    () => (state.isTopUp ? gasTankLabelWithInfo : t('Send')),
+    [state.isTopUp, gasTankLabelWithInfo, t]
+  )
+
+  // Title shown before SendToken component
+  const formTitle = useMemo(() => {
+    if (state.isTopUp) {
+      if (isPopup) {
+        return t('Top Up')
+      }
+
+      return gasTankLabelWithInfo
+    }
+
+    return t('Send')
+  }, [state.isTopUp, t, gasTankLabelWithInfo])
+
+  const buttons = useMemo(() => {
+    return (
+      <>
+        {isTab && <BackButton onPress={onBack} />}
+        <Buttons
+          token={state.selectedToken}
+          handleSubmitForm={(isOneClickMode) =>
+            addTransaction(isOneClickMode ? 'open-action-window' : 'queue')
+          }
+          proceedBtnText={submitButtonText}
+          isNotReadyToProceed={!isTransferFormValid}
+          signAccountOpErrors={[]}
+        />
+      </>
+    )
+  }, [state.selectedToken, addTransaction, onBack, submitButtonText, isTransferFormValid])
+
+  const handleGoBackPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
+    navigate(ROUTES.dashboard)
+  }, [navigate, dispatch])
+
+  const onBatchAddedPrimaryButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
+    })
+    navigate(WEB_ROUTES.dashboard)
+  }, [dispatch, navigate])
+  const onBatchAddedSecondaryButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
+    })
+    setShowAddedToBatch(false)
+  }, [dispatch, setShowAddedToBatch])
+
+  const onPrimaryButtonPress = useCallback(() => {
+    if (isActionWindow) {
+      dispatch({
+        type: 'CLOSE_SIGNING_ACTION_WINDOW',
+        params: {
+          type: 'transfer'
+        }
+      })
+    } else {
+      navigate(WEB_ROUTES.dashboard)
+    }
+
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
+  }, [dispatch, navigate])
+
+  if (displayedView === 'track') {
+    return (
+      <TrackProgress
+        title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
+        onPrimaryButtonPress={onPrimaryButtonPress}
+        secondaryButtonText={t('Add more')}
+        handleClose={() => {
+          dispatch({
+            type: 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP'
+          })
+        }}
+      >
+        {submittedAccountOp?.status === AccountOpStatus.BroadcastedButNotConfirmed && (
+          <InProgress title={isTopUp ? t('Confirming your top up') : t('Confirming your transfer')}>
+            {t('Almost there!')}
+          </InProgress>
+        )}
+        {(submittedAccountOp?.status === AccountOpStatus.Success ||
+          submittedAccountOp?.status === AccountOpStatus.UnknownButPastNonce) && (
+          <Completed
+            title={isTopUp ? t('Top up ready!') : t('Transfer done!')}
+            titleSecondary={
+              isTopUp
+                ? t('You can now use your gas tank')
+                : t('{{symbol}} delivered - like magic.', {
+                    symbol: latestBroadcastedToken?.symbol || 'Token'
+                  })
+            }
+            explorerLink={explorerLink}
+            openExplorerText="View Transfer"
+          />
+        )}
+        {/*
+            Note: It's very unlikely for Transfer or Top-Up to fail. That's why we show a predefined error message.
+            If it does fail, we need to retrieve the broadcast error from the main controller and display it here.
+          */}
+        {(submittedAccountOp?.status === AccountOpStatus.Failure ||
+          submittedAccountOp?.status === AccountOpStatus.Rejected ||
+          submittedAccountOp?.status === AccountOpStatus.BroadcastButStuck) && (
+          <Failed
+            title={t('Something went wrong!')}
+            errorMessage={
+              isTopUp
+                ? t(
+                    'Unable to top up the Gas tank. Please try again later or contact Ambire support.'
+                  )
+                : t(
+                    "We couldn't complete your transfer. Please try again later or contact Ambire support."
+                  )
+            }
+          />
+        )}
+      </TrackProgress>
+    )
+  }
+
+  if (displayedView === 'batch') {
+    return (
+      <BatchAdded
+        title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
+        primaryButtonText={t('Open dashboard')}
+        secondaryButtonText={t('Add more')}
+        onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
+        onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
+      />
+    )
+  }
 
   return (
-    <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
-      width="xl"
-      header={<HeaderAccountAndNetworkInfo withOG />}
-      footer={
-        <>
-          <BackButton onPress={onBack} />
-          <View
-            style={[flexbox.directionRow, !isSmartAccount && flexbox.flex1, flexbox.justifyEnd]}
-          >
-            <Button
-              testID="transfer-queue-and-add-more-button"
-              type="outline"
-              accentColor={theme.primary}
-              text={t('Queue and Add More')}
-              onPress={() => addTransaction('queue')}
-              disabled={!isFormValid || (!isTopUp && addressInputState.validation.isError)}
-              hasBottomSpacing={false}
-              style={spacings.mr}
-              size="large"
-            >
-              <View style={[spacings.plSm, flexbox.directionRow, flexbox.alignCenter]}>
-                <CartIcon color={theme.primary} />
-                {!!transactionUserRequests.length && !hasFocusedActionWindow && (
-                  <Text
-                    fontSize={16}
-                    weight="medium"
-                    color={theme.primary}
-                  >{` (${transactionUserRequests.length})`}</Text>
-                )}
-              </View>
-            </Button>
-            <Button
-              testID="transfer-button-confirm"
-              type="primary"
-              text={submitButtonText}
-              onPress={() => addTransaction('open-action-window')}
-              hasBottomSpacing={false}
-              size="large"
-              disabled={isSendButtonDisabled}
-            >
-              <View style={spacings.plTy}>
-                {isTopUp ? (
-                  <TopUpIcon
-                    strokeWidth={1}
-                    width={24}
-                    height={24}
-                    color={theme.primaryBackground}
-                  />
-                ) : (
-                  <SendIcon width={24} height={24} color={theme.primaryBackground} />
-                )}
-              </View>
-            </Button>
-          </View>
-        </>
-      }
-    >
-      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
+    <Wrapper title={headerTitle} handleGoBack={handleGoBackPress} buttons={buttons}>
+      <Content buttons={buttons}>
         {state?.isInitialized ? (
-          <Panel
-            style={[styles.panel]}
-            forceContainerSmallSpacings
-            title={state.isTopUp ? gasTankLabelWithInfo : 'Send'}
-          >
+          <Form>
             <SendForm
               addressInputState={addressInputState}
               isSmartAccount={isSmartAccount}
+              hasGasTank={hasGasTank}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
               isRecipientAddressUnknown={isRecipientAddressUnknown}
               isRecipientHumanizerKnownTokenOrSmartContract={
                 isRecipientHumanizerKnownTokenOrSmartContract
               }
               isSWWarningVisible={isSWWarningVisible}
+              recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
+              formTitle={formTitle}
             />
-            {isTopUp && !isSmartAccount && (
+            {isTopUp && !hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -373,7 +530,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-            {isTopUp && isSmartAccount && (
+            {isTopUp && hasGasTank && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
@@ -389,7 +546,7 @@ const TransferScreen = () => {
                 />
               </View>
             )}
-          </Panel>
+          </Form>
         ) : (
           <SkeletonLoader
             width={640}
@@ -398,7 +555,7 @@ const TransferScreen = () => {
             style={{ marginLeft: 'auto', marginRight: 'auto' }}
           />
         )}
-      </TabLayoutWrapperMainContent>
+      </Content>
       <BottomSheet
         id="import-seed-phrase"
         sheetRef={sheetRef}
@@ -408,7 +565,7 @@ const TransferScreen = () => {
         type="modal"
       >
         <DualChoiceModal
-          title={t('Transaction queued')}
+          title={t('Transaction added to batch')}
           description={
             <View>
               <Text style={spacings.mbTy} appearance="secondaryText">
@@ -417,13 +574,17 @@ const TransferScreen = () => {
                 )}
               </Text>
               <Text appearance="secondaryText" style={spacings.mbLg}>
-                {t('The queued pending transactions are available on your Dashboard.')}
+                {t('All pending batch transactions are available on your Dashboard.')}
               </Text>
               <Checkbox
-                value={transferCtrl.shouldSkipTransactionQueuedModal}
+                value={state.shouldSkipTransactionQueuedModal}
                 onValueChange={() => {
-                  transferCtrl.shouldSkipTransactionQueuedModal =
-                    !transferCtrl.shouldSkipTransactionQueuedModal
+                  dispatch({
+                    type: 'TRANSFER_CONTROLLER_SHOULD_SKIP_TRANSACTION_QUEUED_MODAL',
+                    params: {
+                      shouldSkip: true
+                    }
+                  })
                 }}
                 uncheckedBorderColor={theme.secondaryText}
                 label={t("Don't show this modal again")}
@@ -437,9 +598,13 @@ const TransferScreen = () => {
               />
             </View>
           }
-          onPrimaryButtonPress={closeBottomSheet}
           primaryButtonText={t('Got it')}
           primaryButtonTestID="queue-modal-got-it-button"
+          onPrimaryButtonPress={() => {
+            closeBottomSheet()
+            setShowAddedToBatch(true)
+          }}
+          onCloseIconPress={() => setShowAddedToBatch(true)}
         />
       </BottomSheet>
       <GasTankInfoModal
@@ -450,7 +615,17 @@ const TransferScreen = () => {
         portfolio={portfolio}
         account={account}
       />
-    </TabLayoutContainer>
+      <Estimation
+        updateType="Transfer&TopUp"
+        estimationModalRef={estimationModalRef}
+        closeEstimationModal={closeEstimationModal}
+        updateController={updateController}
+        handleUpdateStatus={handleUpdateStatus}
+        handleBroadcastAccountOp={handleBroadcastAccountOp}
+        hasProceeded={hasProceeded}
+        signAccountOpController={signAccountOpController}
+      />
+    </Wrapper>
   )
 }
 

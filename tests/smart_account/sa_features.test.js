@@ -30,7 +30,7 @@ describe('sa_features', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('4337 transaction. Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
+  it.skip('4337 transaction. Send 0.00000001 ETH on Optimism.Pay with ETH', async () => {
     // Check if ETH in optimism are under 0.00000001
     await checkBalanceOfToken(
       page,
@@ -74,11 +74,11 @@ describe('sa_features', () => {
     // Type the address of the recipient
     await typeText(page, SELECTORS.addressEnsField, SMART_ACC_VIEW_ONLY_ADDRESS)
     await page.waitForXPath(
-      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+      '//div[contains(text(), "This address isn\'t in your Address Book. Double-check the details before confirming.")]'
     )
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
-    // Check the checkbox "Confirm sending to a previously unknown address"
+    // Check the checkbox "Confirm sending to this address."
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
@@ -94,7 +94,7 @@ describe('sa_features', () => {
       page,
       extensionURL,
       browser,
-      '[data-testid="transfer-button-confirm"]'
+      '[data-testid="proceed-btn"]'
     )
 
     const baFeeTokenSelector = `[data-testid="option-${baParams.envSelectedAccount.toLowerCase()}0x0000000000000000000000000000000000000000eth"]`

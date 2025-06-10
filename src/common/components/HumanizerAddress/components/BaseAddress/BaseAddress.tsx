@@ -1,6 +1,6 @@
 import { ZeroAddress } from 'ethers'
-import * as Clipboard from 'expo-clipboard'
-import React, { FC, useCallback } from 'react'
+import { nanoid } from 'nanoid'
+import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
@@ -17,6 +17,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -27,11 +28,18 @@ import Option from './BaseAddressOption'
 interface Props extends TextProps {
   address: string
   explorerChainId?: bigint
+  hideLinks?: boolean
 }
 
 const { isActionWindow } = getUiType()
 
-const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest }) => {
+const BaseAddress: FC<Props> = ({
+  children,
+  address,
+  explorerChainId,
+  hideLinks = false,
+  ...rest
+}) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
@@ -44,7 +52,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest })
 
   const handleCopyAddress = useCallback(async () => {
     try {
-      await Clipboard.setStringAsync(address)
+      await setStringAsync(address)
       addToast(t('Address copied to clipboard'))
     } catch {
       addToast(t('Failed to copy address'), {
@@ -70,7 +78,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest })
       }
       // Close the action-window if this address is opened in one, otherwise
       // the user will have to minimize it to see the explorer.
-      await openInTab(targetUrl, isActionWindow)
+      await openInTab({ url: targetUrl, shouldCloseCurrentWindow: isActionWindow })
     } catch {
       addToast(t('Failed to open explorer'), {
         type: 'error'
@@ -78,23 +86,28 @@ const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest })
     }
   }, [addToast, address, network, t])
 
+  // The uuid must be unique for each tooltip, otherwise multiple tooltips
+  // will be show at the same time. We cannot use a shared tooltip as the content
+  // is JSX and not a string.
+  const tooltipId = useMemo(() => `address-${address}-${nanoid(6)}`, [address])
+
   return (
-    <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.wrap]}>
+    <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.flex1]}>
       <Text fontSize={14} weight="medium" appearance="primaryText" selectable {...rest}>
         {children}
+        <Pressable style={spacings.mlMi}>
+          {({ hovered }: any) => (
+            <InfoIcon
+              data-tooltip-id={tooltipId}
+              color={hovered ? theme.primaryText : theme.secondaryText}
+              width={14}
+              height={14}
+            />
+          )}
+        </Pressable>
       </Text>
-      <Pressable style={spacings.mlMi}>
-        {({ hovered }: any) => (
-          <InfoIcon
-            data-tooltip-id={`address-${address}`}
-            color={hovered ? theme.primaryText : theme.secondaryText}
-            width={14}
-            height={14}
-          />
-        )}
-      </Pressable>
       <Tooltip
-        id={`address-${address}`}
+        id={tooltipId}
         style={{
           padding: 0,
           overflow: 'hidden'
@@ -103,7 +116,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerChainId, ...rest })
         noArrow
         place="bottom-end"
       >
-        {network?.explorerUrl && (
+        {network?.explorerUrl && !hideLinks && (
           <Option
             title={t('View in Explorer')}
             renderIcon={() => <OpenIcon color={theme.secondaryText} width={14} height={14} />}

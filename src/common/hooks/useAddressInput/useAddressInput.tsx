@@ -69,7 +69,7 @@ const useAddressInput = ({
           })
           .catch(() => {
             ensAddress = ''
-            addToast('Something went wrong while resolving Ethereum Name Services® domain.', {
+            addToast('Something went wrong while attempting to resolve the ENS domain.', {
               type: 'error'
             })
           })

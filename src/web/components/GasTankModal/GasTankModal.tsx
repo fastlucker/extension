@@ -5,9 +5,6 @@ import { Animated, Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { PortfolioGasTankResult } from '@ambire-common/libs/portfolio/interfaces'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ReceivingIcon from '@common/assets/svg/ReceivingIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -22,13 +19,13 @@ import Tooltip from '@common/components/Tooltip'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
+import { getGasTankTokenDetails } from '@common/utils/getGasTankTokenDetails'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import { useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -58,11 +55,12 @@ const createAnimation = (): Animation => ({
 
 const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { isPopup } = getUiType()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
 
   const [bindAnim, , isHovered] = useCustomHover({
     property: 'borderColor',
@@ -72,30 +70,19 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     }
   })
 
-  const isSA = useMemo(() => isSmartAccount(account), [account])
-
-  const savedInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'saved'),
-    [account, isSA, portfolio]
-  )
-  const cashbackInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
-    [account, isSA, portfolio]
+  // Note: total balance Gas Tank details
+  const { token, balanceFormatted } = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'amount'),
+    [account, hasGasTank, networks, portfolio]
   )
 
-  const token = useMemo(() => {
-    const result = portfolio?.latest?.gasTank?.result as PortfolioGasTankResult
-
-    if (!isSA || !result) {
-      return null
-    }
-
-    return result.gasTankTokens ? result.gasTankTokens[0] : null
-  }, [isSA, portfolio?.latest?.gasTank?.result])
-
-  const balanceFormatted = useMemo(
-    () => (token ? getAndFormatTokenDetails(token, networks)?.balanceFormatted ?? 0 : 0),
-    [networks, token]
+  const savedGasTankDetails = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'saved'),
+    [account, hasGasTank, networks, portfolio]
+  )
+  const cashbackGasTankDetails = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'cashback'),
+    [account, hasGasTank, networks, portfolio]
   )
 
   const [visibleCount, setVisibleCount] = useState(0)
@@ -116,7 +103,16 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       {
         key: 'save',
         icon: (
-          <SavingsIcon width={32} height={32} color="white" fillColor={theme.successDecorative} />
+          <SavingsIcon
+            width={32}
+            height={32}
+            color={
+              themeType === THEME_TYPES.DARK
+                ? theme.primaryBackgroundInverted
+                : theme.primaryBackground
+            }
+            fillColor={theme.successDecorative}
+          />
         ),
         text: 'Save on network fees by prepaying with Gas Tank.'
       }
@@ -170,7 +166,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       style={{ maxWidth: 600 }}
       onOpen={handleOpen}
     >
-      {isSA ? (
+      {hasGasTank ? (
         <View style={styles.content}>
           <Text fontSize={20} weight="medium" style={[spacings.mb]}>
             Gas Tank
@@ -209,7 +205,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                       {`${t('Total Saved')} `}
                     </Text>
                     <InfoIcon
-                      color={iconColors.success}
+                      color={theme.successDecorative}
                       width={12}
                       data-tooltip-id="saved-tooltip"
                     />
@@ -223,7 +219,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="successText">
-                    {formatDecimals(savedInUsd, 'price')}
+                    {`${savedGasTankDetails.balanceFormatted} ${
+                      savedGasTankDetails.token?.symbol || ''
+                    }`}
                   </Text>
                 </View>
                 <View style={styles.rightPartInnerWrapper}>
@@ -231,11 +229,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     <Text fontSize={12} appearance="primary">
                       {`${t('Total Cashback')} `}
                     </Text>
-                    <InfoIcon
-                      color={iconColors.primary2}
-                      width={12}
-                      data-tooltip-id="cashback-tooltip"
-                    />
+                    <InfoIcon color={theme.primary} width={12} data-tooltip-id="cashback-tooltip" />
                     <Tooltip
                       id="cashback-tooltip"
                       content={String(
@@ -246,7 +240,9 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="primary">
-                    {formatDecimals(cashbackInUsd, 'price')}
+                    {`${cashbackGasTankDetails.balanceFormatted} ${
+                      cashbackGasTankDetails.token?.symbol || ''
+                    }`}
                   </Text>
                 </View>
               </View>
@@ -265,7 +261,11 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                 style={[
                   styles.descriptionTextWrapper,
                   {
-                    borderColor: isHovered ? theme.primary : 'transparent'
+                    borderColor: isHovered
+                      ? themeType === THEME_TYPES.DARK
+                        ? theme.primaryLight80
+                        : theme.primary
+                      : 'transparent'
                   }
                 ]}
                 {...bindAnim}
@@ -285,7 +285,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
         <View style={styles.content}>
           <View style={[flexbox.directionRow, flexbox.center, common.fullWidth]}>
             <Text fontSize={20} weight="medium">
-              Gas Tank
+              {t('Gas Tank')}
             </Text>
           </View>
           <View style={[flexbox.directionRow, flexbox.center, common.fullWidth, spacings.mtLg]}>
@@ -339,20 +339,22 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       <View style={styles.buttonWrapper}>
         <Button
           testID={
-            isSA ? 'top-up-gas-tank-modal-button' : 'create-smart-account-gas-tank-modal-button'
+            hasGasTank
+              ? 'top-up-gas-tank-modal-button'
+              : 'create-smart-account-gas-tank-modal-button'
           }
           type="primary"
-          text={isSA ? t('Top Up') : t('Ok, create a Smart Account')}
+          text={hasGasTank ? t('Top up') : t('Ok, create a Smart Account')}
           size="large"
           hasBottomSpacing={false}
           textStyle={[spacings.prTy]}
           onPress={() =>
-            isSA
+            hasGasTank
               ? navigate('top-up-gas-tank')
               : navigate('account-select?triggerAddAccountBottomSheet=true')
           }
         >
-          {isSA && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
+          {hasGasTank && <TopUpIcon strokeWidth={1} width={20} height={20} />}
         </Button>
       </View>
     </BottomSheet>

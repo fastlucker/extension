@@ -1,11 +1,15 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import spacings from '@common/styles/spacings'
-import { ThemeProps } from '@common/styles/themeConfig'
+import { THEME_TYPES, ThemeProps, ThemeType } from '@common/styles/themeConfig'
 import commonStyles from '@common/styles/utils/common'
+import text from '@common/styles/utils/text'
 
 interface Style {
   buttonContainer: ViewStyle
+  buttonText: TextStyle
+  buttonTextUnderline: TextStyle
 
   buttonContainerPrimary: ViewStyle
   buttonContainerSecondary: ViewStyle
@@ -18,12 +22,6 @@ interface Style {
   buttonContainerStylesSizeSmall: ViewStyle
   buttonContainerStylesSizeTiny: ViewStyle
 
-  buttonTextPrimary: TextStyle
-  buttonTextSecondary: TextStyle
-  buttonTextDanger: TextStyle
-  buttonTextOutline: TextStyle
-  buttonTextGhost: TextStyle
-
   buttonTextStylesSizeLarge: TextStyle
   buttonTextStylesSizeRegular: TextStyle
   buttonTextStylesSizeSmall: TextStyle
@@ -32,7 +30,7 @@ interface Style {
   disabled: ViewStyle
 }
 
-const getStyles = (theme: ThemeProps) =>
+const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
     // Default button container styles
     buttonContainer: {
@@ -42,6 +40,15 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       borderColor: 'transparent',
       ...commonStyles.borderRadiusPrimary
+    },
+
+    buttonText: {
+      fontFamily: FONT_FAMILIES.MEDIUM,
+      ...text.center
+    },
+
+    buttonTextUnderline: {
+      textDecorationLine: 'underline'
     },
 
     // Button container styles by type
@@ -57,7 +64,7 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.errorDecorative
     },
     buttonContainerOutline: {
-      borderColor: theme.successDecorative
+      borderColor: themeType === THEME_TYPES.DARK ? theme.primary : theme.successDecorative
     },
     buttonContainerGhost: {
       backgroundColor: 'transparent',
@@ -70,13 +77,13 @@ const getStyles = (theme: ThemeProps) =>
       height: 56,
       ...spacings.pvMi,
       ...spacings.phXl,
-      ...spacings.mb
+      ...spacings.mbSm
     },
     buttonContainerStylesSizeRegular: {
       height: 56,
       ...spacings.pvMi,
       ...spacings.phSm,
-      ...spacings.mb
+      ...spacings.mbSm
     },
     buttonContainerStylesSizeSmall: {
       height: 36,
@@ -89,23 +96,6 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pvMi,
       ...spacings.phSm,
       ...spacings.mbTy
-    },
-
-    // Button text styles by type
-    buttonTextPrimary: {
-      color: '#fff'
-    },
-    buttonTextSecondary: {
-      color: theme.primary
-    },
-    buttonTextDanger: {
-      color: theme.errorDecorative
-    },
-    buttonTextOutline: {
-      color: theme.successDecorative
-    },
-    buttonTextGhost: {
-      color: theme.secondaryText
     },
 
     // Button text sizes (regular/small)

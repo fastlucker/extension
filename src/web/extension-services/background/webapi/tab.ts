@@ -1,19 +1,61 @@
 // @ts-nocheck
 
-import { browser, isSafari } from '@web/constants/browserapi'
+import { browser, engine, isSafari } from '@web/constants/browserapi'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 
-import { closeCurrentWindow } from './window'
+/**
+ * Creates a new browser tab, optionally in a specific window.
+ *
+ * @param {string} url - The full URL to create the new tab with. Required.
+ * @param {number} windowId - Optional ID of the browser window where the tab should be created.
+ *                            It also helps to identify if there is an Ambire tab already opened in the desired window.
+ *                            If the windowId prop is omitted the tab will be created in the first found window that is not of a `popup` type
+ *
+ * @returns {Promise<Tabs.Tab>} - The newly opened or focused browser tab.
+ */
+const createTab = async (url: string, windowId?: number): Promise<number | undefined> => {
+  let extensionId = browser?.runtime?.id
 
-const createTab = async (url): Promise<number | undefined> => {
-  const tab = await browser.tabs.create({ active: true, url })
+  if (engine === 'gecko') {
+    extensionId = browser.runtime.getURL('/')
+  }
 
-  return tab?.id
-}
+  if (url.startsWith('http') && !url.includes(extensionId)) {
+    const tab = await browser.tabs.create({ active: true, url })
+    return tab
+  }
+  try {
+    const baseWindow = windowId
+      ? await browser.windows.get(windowId, { populate: true })
+      : await browser.windows.getCurrent({
+          populate: true,
+          windowTypes: ['normal', 'panel', 'app']
+        })
+    const allTabs = (baseWindow.tabs || []).filter((t) => !t.url.includes('action-window.html'))
+    const base = browser.runtime.getURL('/')
+    const fullUrl = new URL(url, base)
+    const route = fullUrl.hash.replace(/^#/, '')
+    const existingTab = allTabs.find((tab) => tab.url?.includes(extensionId))
 
-const openIndexPage = (route = ''): Promise<number | undefined> => {
-  const url = `index.html${route && `#/${route}`}`
+    if (existingTab && existingTab.id) {
+      const existingUrl = new URL(existingTab.url)
+      const tabRoute = existingUrl.hash.replace(/^#/, '')
+      const samePath = tabRoute === route
 
-  return createTab(url)
+      if (samePath) {
+        await browser.tabs.update(existingTab.id, { active: true })
+      } else {
+        await browser.tabs.update(existingTab.id, { url, active: true })
+      }
+      await browser.tabs.move(existingTab.id, { index: -1 })
+      return existingTab.id
+    }
+
+    const tab = await browser.tabs.create({ active: true, url })
+    return tab
+  } catch (error) {
+    console.error('Error in createTab: ', error)
+  }
 }
 
 const getCurrentTab = async (): Promise<Tabs.Tab> => {
@@ -26,9 +68,31 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
   }
 }
 
-export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
-  const tab = await browser.tabs.create({ active: true, url })
-  if (needClose) {
+/**
+ * Opens a URL in a new browser tab, optionally in a specific window.
+ *
+ * @param {string} url - The full URL to open in a new tab. Required.
+ * @param {number} windowId - Optional ID of the browser window where the tab should be opened.
+ *                            Helps ensure the tab opens in the intended window (especially useful in multi-window
+ *                            scenarios e.g. opening a new tab from an action-window).
+ * @param {boolean} shouldCloseCurrentWindow - If true, closes the current window after opening the new tab.
+ *                                             Has no effect in Safari due to API limitations.
+ *
+ * @returns {Promise<Tabs.Tab>} - The newly opened or focused browser tab.
+ */
+export const openInTab = async ({
+  url,
+  windowId,
+  shouldCloseCurrentWindow
+}: {
+  url: string
+  windowId?: number
+  shouldCloseCurrentWindow?: boolean
+}): Promise<Tabs.Tab> => {
+  if (!url) return
+
+  const tab = await createTab(url, windowId)
+  if (shouldCloseCurrentWindow) {
     if (!isSafari()) await closeCurrentWindow()
   }
 
@@ -37,28 +101,48 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
 
 const routeableSearchParams = ['flow', 'goBack']
 
-const openInternalPageInTab = async (route?: string, useWebapi = true, searchParams = {}) => {
-  if (useWebapi) {
-    const searchToParams = searchParams
-      ? `${Object.keys(searchParams)
-          .map((key) =>
-            routeableSearchParams.indexOf(key) !== -1 ? `${key}=${searchParams[key]}` : ''
-          )
-          .filter((value: string) => value)
-          .join('&')}`
-      : ''
+/**
+ * Opens an internal route in a new tab, similar to react-router's `navigate` function.
+ *
+ * @param {string} route - The internal route to navigate to (e.g., WEB_ROUTES.someRouteName).
+ * @param {object} searchParams - Optional URL search parameters (e.g., { flow: 'onboarding' }).
+ *                                Only parameters listed in `routeableSearchParams` will be included.
+ * @param {number} windowId - Optional ID of the browser window where the tab should open.
+ *                            Recommended when the current context is an action window—
+ *                            use `createdFromWindowId` from actions controller to ensure
+ *                            the tab opens in the correct window (avoids opening in the action window itself or searching
+ *                            for existing Ambire tabs in the wrong window).
+ * @param {boolean} shouldCloseCurrentWindow - If true, closes the current window after opening the new tab.
+ *
+ * @returns {void}
+ */
+const openInternalPageInTab = async ({
+  route,
+  searchParams = {},
+  windowId,
+  shouldCloseCurrentWindow
+}: {
+  route: string
+  searchParams?: any
+  windowId?: number
+  shouldCloseCurrentWindow?: boolean
+}) => {
+  const searchToParams = searchParams
+    ? `${Object.keys(searchParams)
+        .map((key) =>
+          routeableSearchParams.indexOf(key) !== -1 ? `${key}=${searchParams[key]}` : ''
+        )
+        .filter((value: string) => value)
+        .join('&')}`
+    : ''
 
-    /* eslint-disable @typescript-eslint/no-floating-promises */
-    openInTab(
-      `./tab.html${route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''}`
-    )
-  } else {
-    window.open(`./tab.html${route ? `#/${route}` : ''}`)
-  }
+  await openInTab({
+    url: `./tab.html${
+      route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''
+    }`,
+    windowId,
+    shouldCloseCurrentWindow
+  })
 }
 
-const getAllOpenedTabs = async (): Promise<Tabs.Tab[]> => {
-  return browser.tabs.query({})
-}
-
-export { createTab, openIndexPage, getCurrentTab, openInternalPageInTab, getAllOpenedTabs }
+export { createTab, getCurrentTab, openInternalPageInTab }

@@ -8,7 +8,18 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import {
+  getFailureStatus,
+  getPendingStatus,
+  getSuccessStatus,
+  getVersion
+} from '@ambire-common/libs/5792/5792'
+import { getBaseAccount } from '@ambire-common/libs/account/getBaseAccount'
+import {
+  AccountOpIdentifiedBy,
+  fetchTxnId,
+  isIdentifiedByMultipleTxn
+} from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { getBundlerByName, getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
@@ -285,22 +296,16 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
-    ({ request, mainCtrl }: { request: ProviderRequest; mainCtrl: MainController }) => {
-      const { params, session } = request
+    ({ request }: { request: ProviderRequest; mainCtrl: MainController }) => {
+      const { params } = request
       if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
       if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
-      const dapp = mainCtrl.dapps.getDapp(session.origin)
-      const { chainId } = params[0]
-      const network = mainCtrl.networks.networks.find(
-        (n: any) => Number(n.chainId) === Number(chainId)
-      )
-      if (!network || !dapp?.isConnected) return false
 
-      return true
+      return false
     }
   ])
   walletAddEthereumChain = async ({
@@ -319,13 +324,6 @@ export class ProviderController {
     }
 
     this.mainCtrl.dapps.updateDapp(origin, { chainId })
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      await notificationManager.create({
-        title: 'Network added',
-        message: `Network switched to ${network.name} for ${name || origin}.`
-      })
-    })()
     await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
@@ -354,11 +352,40 @@ export class ProviderController {
       throw ethErrors.rpc.invalidParams(`account with address ${accountAddr} does not exist`)
     }
 
+    const states = await this.mainCtrl.accounts.getOrFetchAccountStates(accountAddr)
     const capabilities: any = {}
     this.mainCtrl.networks.networks.forEach((network) => {
-      const accountState =
-        this.mainCtrl.accounts.accountStates[accountAddr][network.chainId.toString()]
-      const isSmart = !accountState.isEOA || accountState.isSmarterEoa
+      const accountState = states[network.chainId.toString()]
+
+      // if there's no account state for some reason (RPC not working atm),
+      // we should play it safe and return false for everything
+      if (!accountState) {
+        capabilities[networkChainIdToHex(network.chainId)] = {
+          atomicBatch: {
+            supported: false
+          },
+          auxiliaryFunds: {
+            supported: false
+          },
+          paymasterService: {
+            supported: false
+          },
+          atomic: {
+            status: 'unsupported'
+          }
+        }
+        return
+      }
+
+      const accout = this.mainCtrl.accounts.accounts.find((acc) => acc.addr === accountAddr)!
+      const baseAccount = getBaseAccount(
+        accout,
+        accountState,
+        this.mainCtrl.keystore.keys.filter((key) => accout.associatedKeys.includes(key.addr)),
+        network
+      )
+      const isSmart = baseAccount.getAtomicStatus() !== 'unsupported'
+
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
           supported: true
@@ -374,6 +401,9 @@ export class ProviderController {
             // our default may be the relayer but we will broadcast an userOp
             // in case of sponsorships
             (network.erc4337.enabled || network.erc4337.hasBundlerSupport)
+        },
+        atomic: {
+          status: baseAccount.getAtomicStatus()
         }
       }
     })
@@ -413,6 +443,15 @@ export class ProviderController {
     const network = this.mainCtrl.networks.networks.filter(
       (n) => n.chainId === dappNetwork.chainId
     )[0]
+    const accOp = this.mainCtrl.selectedAccount.account
+      ? this.mainCtrl.activity.findByIdentifiedBy(
+          identifiedBy,
+          this.mainCtrl.selectedAccount.account.addr,
+          network.chainId
+        )
+      : undefined
+    const version = getVersion(accOp)
+
     const txnIdData = await fetchTxnId(
       identifiedBy,
       network,
@@ -421,36 +460,67 @@ export class ProviderController {
     )
     if (txnIdData.status === 'rejected') {
       return {
-        status: 'FAILURE'
+        status: getFailureStatus(version)
       }
     }
     if (txnIdData.status !== 'success') {
       return {
-        status: 'PENDING'
+        status: getPendingStatus(version)
       }
     }
 
+    const isMultipleTxn = isIdentifiedByMultipleTxn(identifiedBy)
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
     const isUserOp = identifiedBy.type === 'UserOperation'
     const bundler = bundlerName ? getBundlerByName(bundlerName) : getDefaultBundler(network)
-    const receipt = isUserOp
-      ? await bundler.getReceipt(identifiedBy.identifier, network)
-      : await provider.getTransactionReceipt(txnId)
 
-    if (!receipt) {
-      return {
-        status: 'PENDING'
+    const receipts = []
+    if (isUserOp) {
+      const userOpReceipt = await bundler
+        .getReceipt(identifiedBy.identifier, network)
+        .catch(() => null)
+      if (!userOpReceipt) {
+        return {
+          status: getPendingStatus(version)
+        }
       }
+
+      receipts.push(userOpReceipt)
+    } else if (!isMultipleTxn) {
+      const txnReceipt = await provider.getTransactionReceipt(txnId).catch(() => null)
+      if (!txnReceipt) {
+        return {
+          status: getPendingStatus(version)
+        }
+      }
+
+      receipts.push(txnReceipt)
+    } else {
+      const txnIds = identifiedBy.identifier.split('-')
+      const txnReceipts = await Promise.all(
+        txnIds.map((oneTxnId) => provider.getTransactionReceipt(oneTxnId).catch(() => null))
+      )
+      const foundTxnReceipts = txnReceipts.filter((r) => r)
+
+      if (!foundTxnReceipts.length || foundTxnReceipts.length < txnIds.length) {
+        return {
+          status: getPendingStatus(version)
+        }
+      }
+
+      receipts.push(...foundTxnReceipts)
     }
 
-    const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
-    const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
-
     return {
-      status: 'CONFIRMED',
-      receipts: [
-        {
+      version,
+      id: identifiedBy,
+      atomic: !isMultipleTxn,
+      status: getSuccessStatus(version),
+      receipts: receipts.map((receipt) => {
+        const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
+        const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
+        return {
           logs: receipt.logs,
           status,
           chainId: networkChainIdToHex(network.chainId),
@@ -461,7 +531,7 @@ export class ProviderController {
           gasUsed: isUserOp ? receipt.receipt.gasUsed : toBeHex(receipt.gasUsed),
           transactionHash: isUserOp ? receipt.receipt.transactionHash : receipt.hash
         }
-      ]
+      })
     }
   }
 
@@ -492,7 +562,7 @@ export class ProviderController {
     )[0]
     const chainId = Number(network.chainId)
 
-    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+    const link = `https://explorer.ambire.com/${getBenzinUrlParams({
       txnId: identifiedBy.type === 'Transaction' ? identifiedBy.identifier : null,
       chainId,
       identifiedBy
@@ -576,6 +646,16 @@ export class ProviderController {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result
+  }
+
+  /**
+   * Revokes the current dapp permissions. Experimental, but supported in MetaMask. Specified by MIP-2:
+   * {@link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md}
+   */
+  walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
+    await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
+    this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
+    return null
   }
 
   @Reflect.metadata('SAFE', true)

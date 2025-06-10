@@ -4,27 +4,28 @@ import { createPortal } from 'react-dom'
 
 import { preloadImages } from '@common/utils/images'
 import CheckIcon from '@legends/common/assets/svg/CheckIcon'
-import CoinIcon from '@legends/common/assets/svg/CoinIcon'
+import ZapIcon from '@legends/common/assets/svg/ZapIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import chainImage from './assets/chain-treasure-chest.png'
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
+import smokeAndLights from './assets/smoke-and-lights-background.png'
 import starImage from './assets/star.png'
-import streakImage from './assets/streak-modal.png'
 import CongratsModal from './components/CongratsModal'
 import styles from './TreasureChestComponentModal.module.scss'
 
@@ -38,9 +39,11 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   handleClose
 }) => {
   const { addToast } = useToast()
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
-  
+
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
+
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
 
@@ -50,7 +53,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   // Load the modal in the dom but don't show it immediately
   // This is done to preload all images
   useEffect(() => {
-    preloadImages([chestImage, chainImage, chestImageOpened, starImage])
+    preloadImages([chestImage, chestImageOpened, starImage])
   }, [])
 
   const unlockChainAnimation = useCallback(() => {
@@ -65,13 +68,6 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
 
   const { legends, getLegends } = useLegendsContext()
 
-  const closeModal = async () => {
-    handleClose()
-    if (chestState === 'opened') {
-      await onLegendComplete()
-    }
-  }
-
   const treasureLegend: ChestCard | undefined = useMemo(
     () =>
       legends.find((legend) => isMatchingPredefinedId(legend.action, CARD_PREDEFINED_ID.chest)) as
@@ -85,6 +81,13 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const [chestState, setChestState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'opening' | 'opened' | 'error'
   >(isActive ? 'locked' : 'opened')
+
+  const closeModal = async () => {
+    handleClose()
+    if (chestState === 'opened') {
+      await onLegendComplete()
+    }
+  }
 
   useEffect(() => {
     // In the case we quickly update legends route and switch accounts,
@@ -101,7 +104,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       case 'unlocking':
         return 'Unlocking...'
       case 'unlocked':
-        return 'Open chest'
+        return 'Open The Chest'
       case 'error':
         return 'Close'
       case 'opening':
@@ -109,7 +112,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       case 'opened':
         return <MidnightTimer type="minutes" />
       default:
-        return 'Unlock chest'
+        return 'Unlock The Chest'
     }
   }, [chestState])
 
@@ -128,7 +131,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     setChestState('unlocking')
 
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner()
@@ -156,8 +159,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
-          if (attempts >= 10) {
-            console.error('Failed to fetch transaction status after 10 attempts')
+          if (attempts >= 15) {
+            console.error('Failed to fetch transaction status after 15 attempts')
             addToast(
               "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
               { type: 'error' }
@@ -172,7 +175,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           )
 
           if (!found) {
-            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
+            setTimeout(() => checkStatusWithTimeout(attempts + 1), 2000)
           }
         }
 
@@ -227,10 +230,18 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     <div>
       <div className={styles.backdrop}>
         <div className={styles.wrapper}>
+          <div
+            className={styles.backgroundEffect}
+            style={{
+              backgroundImage: `url(${smokeAndLights})`
+            }}
+          />
+
           {!!treasureLegend.meta.streak && (
-            <div className={styles.streak} style={{ backgroundImage: `url(${streakImage})` }}>
+            <div className={styles.streak}>
               <p className={styles.streakNumber}>{treasureLegend.meta.streak}</p>
               <p className={styles.streakLabel}>
+                <ZapIcon />
                 {treasureLegend.meta.streak === 1 ? 'Day' : 'Days'} Streak
               </p>
             </div>
@@ -271,7 +282,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
                       <CheckIcon width={20} height={20} />
                     ) : (
                       <>
-                        +{point} <CoinIcon width={20} height={20} />
+                        +{point}
+                        <span className={styles.xpText}>XP</span>
                       </>
                     )}
                   </div>
@@ -281,18 +293,22 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             })}
           </div>
           <div className={styles.chestWrapper}>
-            <img src={chainImage} ref={chainRef} alt="chain" className={styles.chain} />
             <img src={chestImage} alt="spinner" className={styles.chest} />
           </div>
           <button
             type="button"
             className={styles.button}
             disabled={
-              chestState === 'opening' || chestState === 'opened' || chestState === 'unlocking'
+              nonConnectedAcc ||
+              chestState === 'opening' ||
+              chestState === 'opened' ||
+              chestState === 'unlocking'
             }
             onClick={onButtonClick}
           >
-            {buttonLabel}
+            {nonConnectedAcc
+              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+              : buttonLabel}
           </button>
         </div>
       </div>

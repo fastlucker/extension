@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useCallback } from 'react'
 import { Trans } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
@@ -14,6 +13,7 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { setStringAsync } from '@common/utils/clipboard'
 import { PortalHost } from '@gorhom/portal'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
@@ -36,7 +36,7 @@ const ErrorBoundary = ({ error }: Props) => {
 
   const handleCopyError = useCallback(async () => {
     try {
-      await Clipboard.setStringAsync(error.stack!)
+      await setStringAsync(error.stack!)
       addToast(t('Error copied to clipboard!') as string, { timeout: 2500 })
     } catch {
       addToast(t('Failed to copy error to clipboard!') as string, {
@@ -88,7 +88,11 @@ const ErrorBoundary = ({ error }: Props) => {
         <Text style={{ ...spacings.mbTy, textAlign: 'center' }}>
           <Trans i18nKey="errorBoundaryHeading">
             Please share it with{' '}
-            <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
+            <TouchableOpacity
+              onPress={() =>
+                openInTab({ url: 'https://help.ambire.com/hc', shouldCloseCurrentWindow: true })
+              }
+            >
               <Text weight="medium" color={theme.primary}>
                 our support team
               </Text>
@@ -176,7 +180,11 @@ const ErrorBoundary = ({ error }: Props) => {
           >
             <Text fontSize={14} style={text.center}>
               {t('Try reloading the page. If the issue persists, restart your browser or ')}
-              <TouchableOpacity onPress={() => openInTab('https://help.ambire.com/hc')}>
+              <TouchableOpacity
+                onPress={() =>
+                  openInTab({ url: 'https://help.ambire.com/hc', shouldCloseCurrentWindow: true })
+                }
+              >
                 <Text fontSize={14} weight="medium" color={theme.primary}>
                   {t('contact Support')}
                 </Text>

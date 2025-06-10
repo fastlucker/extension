@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
@@ -20,6 +20,7 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import useStorageControllerState from '@web/hooks/useStorageControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 import { getUiType } from '@web/utils/uiType'
@@ -38,9 +39,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const [areControllerStatesLoaded, setAreControllerStatesLoaded] = useState(false)
   const [isStatesLoadingTakingTooLong, setIsStatesLoadingTakingTooLong] = useState(false)
   const { dispatch } = useBackgroundService()
-  const accountAdderState = useAccountAdderControllerState()
+  const accountPickerState = useAccountPickerControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const storageCtrl = useStorageControllerState()
   const networksState = useNetworksControllerState()
   const providersState = useProvidersControllerState()
   const accountsState = useAccountsControllerState()
@@ -64,6 +66,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
     [mainState]
   )
+  const hasStorageState: boolean = useMemo(() => !!Object.keys(storageCtrl).length, [storageCtrl])
   const hasNetworksState: boolean = useMemo(
     () => !!Object.keys(networksState).length,
     [networksState]
@@ -84,9 +87,9 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(walletState).length && !!walletState?.isReady,
     [walletState]
   )
-  const hasAccountAdderState: boolean = useMemo(
-    () => !!Object.keys(accountAdderState).length,
-    [accountAdderState]
+  const hasAccountPickerState: boolean = useMemo(
+    () => !!Object.keys(accountPickerState).length,
+    [accountPickerState]
   )
   const hasKeystoreState: boolean = useMemo(
     () => !!Object.keys(keystoreState).length,
@@ -152,12 +155,13 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     const timeout = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
     if (
       hasMainState &&
+      hasStorageState &&
       hasNetworksState &&
       hasProvidersState &&
       hasAccountsState &&
       hasSelectedAccountState &&
       hasWalletState &&
-      hasAccountAdderState &&
+      hasAccountPickerState &&
       hasKeystoreState &&
       hasSignMessageState &&
       hasActionsState &&
@@ -181,12 +185,13 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     return () => clearTimeout(timeout)
   }, [
     hasMainState,
+    hasStorageState,
     hasNetworksState,
     hasProvidersState,
     hasAccountsState,
     hasSelectedAccountState,
     hasWalletState,
-    hasAccountAdderState,
+    hasAccountPickerState,
     hasKeystoreState,
     hasSignMessageState,
     hasActionsState,

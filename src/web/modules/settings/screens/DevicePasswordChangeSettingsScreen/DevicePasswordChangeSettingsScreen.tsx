@@ -12,9 +12,11 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useExtraEntropy from '@common/hooks/useExtraEntropy'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_XL } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -30,7 +32,7 @@ const DevicePasswordChangeSettingsScreen = () => {
   const state = useKeystoreControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
-
+  const { themeType } = useTheme()
   const {
     control,
     handleSubmit,
@@ -99,7 +101,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     <>
       <View style={{ maxWidth: 440 }}>
         <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-          {t('Change Device Password')}
+          {t('Change extension password')}
         </Text>
         <Controller
           control={control}
@@ -162,7 +164,7 @@ const DevicePasswordChangeSettingsScreen = () => {
               onChangeText={onChange}
               value={value}
               isValid={!!value && !errors.newPassword && newPassword === value}
-              validLabel={t('✅ The new passwords match, you are ready to continue')}
+              validLabel={t('The new passwords match, you are ready to continue')}
               secureTextEntry
               error={errors.confirmNewPassword && (t("The new passwords don't match.") as string)}
               autoCorrect={false}
@@ -175,30 +177,31 @@ const DevicePasswordChangeSettingsScreen = () => {
         <Button
           testID="change-device-pass-button"
           style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
-          textStyle={{ fontSize: 14 }}
           hasBottomSpacing={false}
           // !== 'INITIAL' to prevent calling same func while the prev execution of that func sends it's status to the FE
           disabled={state.statuses.changeKeystorePassword !== 'INITIAL' || !isValid}
           text={
             state.statuses.changeKeystorePassword === 'LOADING'
               ? t('Loading...')
-              : t('Change Device Password')
+              : t('Change extension password')
           }
           onPress={handleChangeKeystorePassword}
         />
       </View>
       <BottomSheet
         id="device-password-success-modal"
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         sheetRef={modalRef}
         autoWidth
       >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
-          {t('Device Password')}
+          {t('Extension password')}
         </Text>
         <KeyStoreLogo style={[flexbox.alignSelfCenter, spacings.mbXl]} />
         <Text fontSize={16} style={[spacings.mbLg, text.center]}>
-          {t('Your Device Password was successfully changed!')}
+          {t('Your extension password was successfully changed!')}
         </Text>
         <Button
           testID="device-pass-success-modal"

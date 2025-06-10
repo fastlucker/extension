@@ -15,12 +15,19 @@ interface Props {
   isVisible: boolean
   onPress: () => void
   customZIndex?: number
+  withBlur?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
 
-const Backdrop = ({ isBottomSheetVisible, isVisible, onPress, customZIndex }: Props) => {
-  const { styles } = useTheme(getStyles)
+const Backdrop = ({
+  isBottomSheetVisible,
+  isVisible,
+  onPress,
+  customZIndex,
+  withBlur = true
+}: Props) => {
+  const { styles, theme } = useTheme(getStyles)
 
   const opacity = React.useRef(new Animated.Value(0)).current
 
@@ -56,7 +63,7 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress, customZIndex }: Pr
           zIndex: customZIndex || styles.backDrop.zIndex
         }
       ]}
-      nativeID="modalBackdrop"
+      nativeID={withBlur ? 'modalBackdrop' : undefined}
       pointerEvents={isVisible ? 'auto' : 'none'}
     >
       <TouchableOpacity style={flexboxStyles.flex1} activeOpacity={1} onPress={onPress}>
@@ -77,7 +84,7 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress, customZIndex }: Pr
             style={[
               StyleSheet.absoluteFillObject,
               {
-                backgroundColor: 'rgba(45, 49, 77, 0.6)'
+                backgroundColor: theme.backdrop
               }
             ]}
           />

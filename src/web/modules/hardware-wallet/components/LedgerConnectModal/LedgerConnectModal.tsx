@@ -10,17 +10,18 @@ import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-
-import useLedger from '../../hooks/useLedger'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
+import { getUiType } from '@web/utils/uiType'
 
 type Props = {
   isVisible: boolean
@@ -32,6 +33,8 @@ type Props = {
    */
   displayOptionToAuthorize?: boolean
 }
+
+const { isTab } = getUiType()
 
 const LedgerConnectModal = ({
   isVisible,
@@ -45,7 +48,8 @@ const LedgerConnectModal = ({
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [isGrantingPermission, setIsGrantingPermission] = useState(false)
-  const { currentAction } = useActionsControllerState()
+  const { currentAction, actionWindow } = useActionsControllerState()
+  const { theme, themeType } = useTheme()
 
   useEffect(() => {
     if (isVisible) open()
@@ -71,22 +75,30 @@ const LedgerConnectModal = ({
 
   const handleOnLedgerReauthorize = useCallback(
     () =>
-      openInternalPageInTab(`${WEB_ROUTES.hardwareWalletReconnect}?actionId=${currentAction?.id}`),
-    [currentAction?.id]
+      openInternalPageInTab({
+        route: `${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`,
+        shouldCloseCurrentWindow: true,
+        windowId: actionWindow.windowProps?.createdFromWindowId
+      }),
+    [currentAction?.id, actionWindow.windowProps?.createdFromWindowId]
   )
 
   const isLoading =
-    isGrantingPermission || mainCtrlState.statuses.handleAccountAdderInitLedger === 'LOADING'
+    isGrantingPermission || mainCtrlState.statuses.handleAccountPickerInitLedger === 'LOADING'
 
   return (
     <BottomSheet
       id="ledger-connect-modal"
       sheetRef={ref}
-      backgroundColor="primaryBackground"
+      backgroundColor={themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'}
       autoWidth={false}
       closeBottomSheet={handleClose}
       onClosed={handleClose}
       autoOpen={isVisible}
+      // The modal is displayed in tab in swap and bridge
+      type={!isTab ? 'bottom-sheet' : 'modal'}
+      containerInnerWrapperStyles={isTab ? { ...spacings.pv2Xl, ...spacings.ph2Xl } : {}}
+      withBackdropBlur={false}
     >
       <ModalHeader title={t('Connect Ledger')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>
@@ -116,7 +128,7 @@ const LedgerConnectModal = ({
               weight="semiBold"
               fontSize={14}
               underline
-              color={colors.heliotrope}
+              color={theme.primaryLight}
               onPress={handleOnLedgerReauthorize}
             >
               try re-authorizing Ambire to connect

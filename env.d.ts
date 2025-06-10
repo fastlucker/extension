@@ -8,12 +8,13 @@ declare module '@env' {
     RELAYER_URL: string
     VELCRO_URL: string
     SOCKET_API_KEY: string
+    LI_FI_API_KEY: string
     SENTRY_DSN?: string
     ENVIRONMENT: string
-    DEFAULT_INVITATION_CODE_DEV: string
     DEFAULT_KEYSTORE_PASSWORD_DEV: string
     NFT_CDN_URL: string
     LEGENDS_NFT_ADDRESS: string
+    USE_SWAP_KEY: string
     SENTRY_DSN_LEGENDS?: string
   }
 
@@ -72,11 +73,6 @@ declare module '@env' {
   export const ENVIRONMENT: string
 
   /**
-   * Unlimited-use invitation code for the app, for easy access during development
-   */
-  export const DEFAULT_INVITATION_CODE_DEV: EnvTypes['DEFAULT_INVITATION_CODE_DEV']
-
-  /**
    * Auto-Fill Keystore Password during development
    */
   export const DEFAULT_KEYSTORE_PASSWORD_DEV: EnvTypes['DEFAULT_KEYSTORE_PASSWORD_DEV']
@@ -98,10 +94,22 @@ declare module '@env' {
   export const SOCKET_API_KEY: EnvTypes['SOCKET_API_KEY']
 
   /**
+   * Socket API is part of the Bungee API. It allows developers to easily transfer
+   * liquidity across chains, access aggregated liquidity and information from
+   * hundreds of on-chain and off-chain decentralized exchange networks, bridges,
+   * across multiple blockchains. Access is restricted and requires an API key.
+   */
+  export const LI_FI_API_KEY: EnvTypes['LI_FI_API_KEY']
+
+  /**
    * The address of the Legends NFT contract (same on PROD and STAGING)
    */
   export const LEGENDS_NFT_ADDRESS: EnvTypes['LEGENDS_NFT_ADDRESS']
 
+  /**
+   * Should we use the swap key for dev purposes to avoid the rate limit
+   */
+  export const USE_SWAP_KEY: EnvTypes['USE_SWAP_KEY']
 
   export const SENTRY_DSN_LEGENDS: EnvTypes['SENTRY_DSN_LEGENDS']
 }

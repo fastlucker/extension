@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 
 import { CollectionResult, TokenResult } from '@ambire-common/libs/portfolio'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import { useTranslation } from '@common/config/localization'
@@ -21,6 +22,7 @@ interface Props {
   sizeMultiplierSize?: number
   textSize?: number
   chainId: bigint
+  hideLinks?: boolean
 }
 
 const TokenOrNft: FC<Props> = ({
@@ -28,7 +30,8 @@ const TokenOrNft: FC<Props> = ({
   address,
   textSize = 16,
   chainId,
-  sizeMultiplierSize = 1
+  sizeMultiplierSize = 1,
+  hideLinks = false
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { addToast } = useToast()
@@ -53,7 +56,8 @@ const TokenOrNft: FC<Props> = ({
 
   useEffect(() => {
     if (!network) return
-    if (!provider) setProvider(new JsonRpcProvider(network.selectedRpcUrl || network.rpcUrls[0]))
+    const rpcUrl = network.selectedRpcUrl || network.rpcUrls[0]
+    if (!provider) setProvider(getRpcProvider([rpcUrl], network.chainId))
     return () => {
       if (provider && provider.destroy) provider.destroy()
     }
@@ -123,6 +127,7 @@ const TokenOrNft: FC<Props> = ({
           highestPriorityAlias={`${fallbackName} #${value}`}
           marginRight={marginRight}
           fontSize={textSize}
+          hideLinks={hideLinks}
         />
       )
     else
@@ -134,6 +139,7 @@ const TokenOrNft: FC<Props> = ({
           amount={value}
           tokenInfo={assetInfo?.tokenInfo}
           marginRight={marginRight}
+          hideLinks={hideLinks}
         />
       )
 
@@ -157,6 +163,7 @@ const TokenOrNft: FC<Props> = ({
       amount={value}
       tokenInfo={assetInfo?.tokenInfo}
       marginRight={marginRight}
+      hideLinks={hideLinks}
     />
   )
 }

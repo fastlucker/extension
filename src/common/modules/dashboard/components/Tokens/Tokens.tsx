@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import { FlatListProps, Pressable, View } from 'react-native'
+import { Animated, FlatListProps, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Network } from '@ambire-common/interfaces/network'
+import { AssetType } from '@ambire-common/libs/defiPositions/types'
 import { getTokenAmount, getTokenBalanceInUSD } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -40,6 +41,7 @@ interface Props {
   }
   onScroll: FlatListProps<any>['onScroll']
   dashboardNetworkFilterName: string | null
+  animatedOverviewHeight: Animated.Value
 }
 
 // if any of the post amount (during simulation) or the current state
@@ -61,6 +63,7 @@ const Tokens = ({
   initTab,
   sessionId,
   onScroll,
+  animatedOverviewHeight,
   dashboardNetworkFilterName
 }: Props) => {
   const { t } = useTranslation()
@@ -86,7 +89,8 @@ const Tokens = ({
   const tokens = useMemo(
     () =>
       (portfolio?.tokens || [])
-        .filter((token) => !token.flags.onGasTank) // Hide gas tank tokens from the list
+        // Hide gas tank and borrowed defi tokens from the list
+        .filter((token) => !token.flags.onGasTank && token.flags.defiTokenType !== AssetType.Borrow)
         .filter((token) => {
           if (!dashboardNetworkFilter) return true
           if (dashboardNetworkFilter === 'rewards') return token.flags.rewardsType
@@ -283,7 +287,7 @@ const Tokens = ({
             )}
             <Button
               type="secondary"
-              text={t('+ Add Custom Token')}
+              text={t('+ Add custom token')}
               onPress={navigateToAddCustomToken}
             />
           </View>
@@ -347,6 +351,7 @@ const Tokens = ({
         tab="tokens"
         openTab={openTab}
         ListHeaderComponent={<DashboardBanners />}
+        animatedOverviewHeight={animatedOverviewHeight}
         data={[
           'header',
           !sortedTokens.length && !portfolio?.isAllReady

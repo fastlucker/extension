@@ -1,36 +1,29 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { ThemeProps } from '@common/styles/themeConfig'
-import flexbox from '@common/styles/utils/flexbox'
+import spacings from '@common/styles/spacings'
+import { THEME_TYPES, ThemeProps, ThemeType } from '@common/styles/themeConfig'
 
 interface Style {
-  container: ViewStyle
-  leftSideContainer: ViewStyle
-  separator: ViewStyle
-  warningsModal: ViewStyle
+  footer: ViewStyle
 }
 
-const getStyles = (theme: ThemeProps) =>
+const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
-    container: {
-      ...flexbox.flex1,
-      ...flexbox.directionRow
-    },
-    leftSideContainer: {
-      flexBasis: '60%',
-      justifyContent: 'flex-start',
-      height: '100%'
-    },
-    separator: {
-      width: 1,
-      backgroundColor: theme.secondaryBorder
-    },
-    warningsModal: {
-      width: 492,
-      backgroundColor: theme.primaryBackground,
-      paddingHorizontal: 0,
-      paddingVertical: 0,
-      overflow: 'hidden'
+    footer: {
+      ...spacings.pvMd,
+      ...spacings.phMd,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.primaryBackground,
+      shadowColor: themeType === THEME_TYPES.DARK ? '#00000052' : '#B8BDE080',
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.64,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: themeType === THEME_TYPES.DARK ? theme.primaryLight80 : theme.primary,
+      borderBottomWidth: 0,
+      borderTopLeftRadius: 12,
+      borderTopRightRadius: 12
     }
   })
 

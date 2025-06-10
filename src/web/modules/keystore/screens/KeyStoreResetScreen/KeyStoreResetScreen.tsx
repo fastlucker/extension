@@ -12,8 +12,10 @@ import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
+import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -47,7 +49,7 @@ const KeyStoreResetScreen = () => {
   })
 
   const formEmail = watch('email')
-
+  const { theme, themeType } = useTheme()
   const { dispatch } = useBackgroundService()
   const {
     ref: passwordSetModalRef,
@@ -112,7 +114,11 @@ const KeyStoreResetScreen = () => {
     <TabLayoutContainer
       width="xs"
       header={
-        <Header customTitle={t('Restore Device Password')} withAmbireLogo mode="image-and-title" />
+        <Header
+          customTitle={t('Restore extension password')}
+          withAmbireLogo
+          mode="image-and-title"
+        />
       }
       footer={
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
@@ -125,7 +131,7 @@ const KeyStoreResetScreen = () => {
             text={
               !ev.hasConfirmedRecoveryEmail
                 ? t('Send Confirmation Email')
-                : t('Change Device password')
+                : t('Change extension password')
             }
           />
         </View>
@@ -137,12 +143,12 @@ const KeyStoreResetScreen = () => {
           {!ev.hasConfirmedRecoveryEmail ? (
             <Text style={styles.text} weight="regular" fontSize={14}>
               At Ambire Wallet, we take your security seriously.{'\n'}
-              To ensure that your device password remains private, we do not keep a copy of it. Your
-              device password recovery is activated by email. To change your device password, simply
-              click on the &apos;recover by email&apos; option and enter the one-time code that you
-              receive. Then, fill out the password and confirm password fields to reset your device
-              password. This ensures that only you have access to your wallet. Thanks for trusting
-              Ambire Wallet with your crypto!
+              To ensure that your extension password remains private, we do not keep a copy of it.
+              Your extension password recovery is activated by email. To change your extension
+              password, simply click on the &apos;recover by email&apos; option and enter the
+              one-time code that you receive. Then, fill out the password and confirm password
+              fields to reset your extension password. This ensures that only you have access to
+              your wallet. Thanks for trusting Ambire Wallet with your crypto!
             </Text>
           ) : (
             <>
@@ -151,7 +157,7 @@ const KeyStoreResetScreen = () => {
               </Text>
               <Text style={styles.text} weight="regular" fontSize={14}>
                 {t(
-                  'To finish the Device password recovery procedure, simply add your new password when prompted'
+                  'To finish the extension password recovery procedure, simply add your new password when prompted'
                 )}
                 .
               </Text>
@@ -192,13 +198,14 @@ const KeyStoreResetScreen = () => {
               style={[
                 styles.currentEmailContainer,
                 {
-                  marginBottom: SPACING_LG
+                  marginBottom: SPACING_LG,
+                  backgroundColor: theme.secondaryBackground
                 }
               ]}
             >
               <Text style={styles.currentEmailLabel} weight="regular" fontSize={14}>
-                {t('The recovery email for current device is')}{' '}
-                <Text style={styles.currentEmailValue} fontSize={14} weight="medium">
+                {t('The recovery email for current extension is')}{' '}
+                <Text appearance="primary" fontSize={14} weight="medium">
                   {email}
                 </Text>
               </Text>
@@ -217,7 +224,9 @@ const KeyStoreResetScreen = () => {
         <BottomSheet
           id="keystore-reset-confirmation-modal"
           sheetRef={confirmationModalRef}
-          backgroundColor="primaryBackground"
+          backgroundColor={
+            themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+          }
           style={{ minWidth: 500, paddingVertical: SPACING_3XL }}
         >
           <ModalHeader title={t('Email Confirmation Required')} />

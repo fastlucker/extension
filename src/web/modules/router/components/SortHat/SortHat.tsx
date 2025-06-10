@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -12,14 +11,16 @@ import flexbox from '@common/styles/utils/flexbox'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
-  const { inviteStatus } = useInviteControllerState()
   const { navigate } = useNavigation()
+  const swapAndBridgeState = useSwapAndBridgeControllerState()
+  const { state: transferState } = useTransferControllerState()
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
@@ -36,12 +37,8 @@ const SortHat = () => {
       return navigate(ROUTES.keyStoreUnlock)
     }
 
-    if (inviteStatus !== INVITE_STATUS.VERIFIED) {
-      return navigate(ROUTES.inviteVerify)
-    }
-
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return navigate(ROUTES.getStarted)
+      return navigate(WEB_ROUTES.getStarted)
     }
 
     if (isActionWindow && actionsState.currentAction) {
@@ -71,6 +68,13 @@ const SortHat = () => {
 
       if (actionType === 'signMessage') return navigate(ROUTES.signMessage)
 
+      if (actionType === 'swapAndBridge') return navigate(ROUTES.swapAndBridge)
+
+      // TODO: This navigation occurs when signing with Trezor.
+      // Currently, Gas Top-Ups are not supported by Trezor.
+      // Once support is added, we need to introduce a new actionType specifically for Top-Up.
+      if (actionType === 'transfer') return navigate(ROUTES.transfer)
+
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
         const link =
@@ -88,16 +92,37 @@ const SortHat = () => {
     } else if (!isActionWindow) {
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
-      navigate(ROUTES.dashboard)
+      const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
+        (id) => id === 'popup' || id === 'action-window'
+      )
+
+      if (hasSwapAndBridgePersistentSession) {
+        navigate(ROUTES.swapAndBridge)
+      } else if (transferState?.hasPersistedState) {
+        if (transferState.isTopUp) {
+          navigate(ROUTES.topUpGasTank, {
+            state: { backTo: WEB_ROUTES.dashboard }
+          })
+        } else {
+          navigate(ROUTES.transfer, {
+            state: { backTo: WEB_ROUTES.dashboard }
+          })
+        }
+      } else {
+        navigate(ROUTES.dashboard)
+      }
     }
   }, [
+    keystoreState.isReadyToStoreKeys,
+    keystoreState.isUnlocked,
+    authStatus,
     isActionWindow,
     actionsState.currentAction,
-    authStatus,
-    keystoreState,
-    inviteStatus,
     navigate,
-    dispatch
+    dispatch,
+    swapAndBridgeState.sessionIds,
+    transferState?.hasPersistedState,
+    transferState?.isTopUp
   ])
 
   useEffect(() => {

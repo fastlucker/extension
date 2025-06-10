@@ -1,4 +1,4 @@
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import { AccountsController } from '@ambire-common/controllers/accounts/accounts'
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
@@ -18,6 +18,7 @@ import { ProvidersController } from '@ambire-common/controllers/providers/provid
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { StorageController } from '@ambire-common/controllers/storage/storage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -25,11 +26,12 @@ import { ExtensionUpdateController } from '@web/extension-services/background/co
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
 export const controllersNestedInMainMapping = {
+  storage: StorageController,
   providers: ProvidersController,
   networks: NetworksController,
   accounts: AccountsController,
   selectedAccount: SelectedAccountController,
-  accountAdder: AccountAdderController,
+  accountPicker: AccountPickerController,
   keystore: KeystoreController,
   signMessage: SignMessageController,
   portfolio: PortfolioController,

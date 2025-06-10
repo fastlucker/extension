@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import useDebounce from '@common/hooks/useDebounce'
 import { browser } from '@web/constants/browserapi'
-
-import LedgerController from '../../controllers/LedgerController'
+import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 const useLedger = () => {
   const [isLedgerConnected, setIsLedgerConnected] = useState(false)
@@ -39,7 +38,7 @@ const useLedger = () => {
   }, [])
 
   const requestLedgerDeviceAccess = useCallback(async () => {
-    const isSupported = await LedgerController.isSupported()
+    const isSupported = LedgerController.isSupported()
     if (!isSupported) {
       const message =
         "Your browser doesn't support WebHID, which is required for the Ledger device. Please try using a different browser."

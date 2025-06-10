@@ -1,19 +1,30 @@
-import React, { createContext, FC, useCallback, useContext, useMemo, useState } from 'react'
+import React, {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
+import { createPortal } from 'react-dom'
 
 import Modal from '@legends/components/Modal'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
 import { CardActionComponentProps } from '@legends/modules/legends/components/Card/CardAction/CardAction'
 import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
+import ClaimRewards from '@legends/modules/legends/components/ClaimRewardsModal/ClaimRewardsModal'
+import StakeWalletModal from '@legends/modules/legends/components/StakeWalletModal/StakeWalletModal'
 import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
 
+import MigrateRewardsModal from '../MigrateRewardsModal'
 import WheelComponentModal from '../WheelComponentModal'
 import styles from './ActionModal.module.scss'
-import InviteAccount from './InviteAccount/InviteAccount'
-import Referral from './Referral/Referral'
 
 type CardActionContextType = {
   onComplete: (txnId: string) => Promise<void>
@@ -42,24 +53,44 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'action'
+    | 'meta'
+    | 'xp'
+    | 'card'
+    | 'contentImageV2'
+    | 'contentSteps'
+    | 'contentVideoV2'
+    | 'title'
+    | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
   title,
   xp,
-  contentImage,
+  contentImageV2,
   buttonText,
   onLegendCompleteWrapped,
   closeActionModal,
   contentSteps,
-  contentVideo,
+  contentVideoV2,
   meta,
+  card,
   action,
   predefinedId
 }) => {
   const [activeStep, setActiveStep] = useState<null | number>(null)
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
 
   const closeActionModalWrapped = useCallback(() => {
     closeActionModal()
@@ -76,8 +107,49 @@ const ActionModal: FC<ActionModalProps> = ({
     [activeStep, closeActionModalWrapped, onLegendCompleteWrapped]
   )
 
+  if (isMobile && isOpen) {
+    return createPortal(
+      <MobileDisclaimerModal
+        shouldClose
+        modalOpened={isOpen}
+        closeModal={closeActionModalWrapped}
+      />,
+      document.getElementById('modal-root') as HTMLElement
+    )
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.claimRewards) {
+    return (
+      <ClaimRewards
+        isOpen={isOpen}
+        handleClose={closeActionModalWrapped}
+        action={action}
+        meta={meta}
+        card={card}
+      />
+    )
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.migrateToStk) {
+    return (
+      <MigrateRewardsModal
+        isOpen={isOpen}
+        handleClose={closeActionModalWrapped}
+        action={action}
+        meta={meta}
+        card={card}
+      />
+    )
+  }
+
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
     return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModalWrapped} />
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.staking) {
+    return (
+      <StakeWalletModal isOpen={isOpen} action={action} handleClose={closeActionModalWrapped} />
+    )
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.chest) {
@@ -95,13 +167,10 @@ const ActionModal: FC<ActionModalProps> = ({
         <HowTo
           steps={contentSteps}
           activeStep={activeStep}
-          image={contentImage}
+          image={contentImageV2}
           imageAlt={title}
-          video={contentVideo}
-        >
-          {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||
-            (predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />)}
-        </HowTo>
+          video={contentVideoV2}
+        />
       )}
       {!!action && (
         <cardActionContext.Provider value={cardActionContextValue}>

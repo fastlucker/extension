@@ -14,8 +14,10 @@ import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -31,6 +33,7 @@ const DevicePasswordRecoverySettingsScreen = () => {
   const { t } = useTranslation()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { navigate } = useNavigation()
+  const { themeType } = useTheme()
   const {
     ref: confirmationModalRef,
     open: openConfirmationModal,
@@ -96,7 +99,7 @@ const DevicePasswordRecoverySettingsScreen = () => {
     <>
       <View style={{ ...flexbox.flex1, maxWidth: 440 }}>
         <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-          {t('Device Password Recovery with email')}
+          {t('Extension password recovery with email')}
         </Text>
 
         {!keystoreState.hasPasswordSecret && (
@@ -106,14 +109,14 @@ const DevicePasswordRecoverySettingsScreen = () => {
             style={spacings.mbXl}
             title={
               <Text appearance="warningText" weight="semiBold">
-                {t('Set Device Password')}
+                {t('Set extension password')}
               </Text>
             }
             text={t(
-              'Before enabling Device Password Recovery via email, you need to first set a password for your device.'
+              'Before enabling extension password recovery via email, you need to first set a password for your device.'
             )}
             buttonProps={{
-              text: t('Set Device Password'),
+              text: t('Set extension password'),
               onPress: () =>
                 navigate(ROUTES.devicePasswordSet, { state: { flow: 'password-recovery' } })
             }}
@@ -151,7 +154,6 @@ const DevicePasswordRecoverySettingsScreen = () => {
         />
         <Button
           style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
-          textStyle={{ fontSize: 14 }}
           disabled={
             ev.currentState === EmailVaultState.Loading ||
             isSubmitting ||
@@ -177,12 +179,14 @@ const DevicePasswordRecoverySettingsScreen = () => {
           title={t('How it works')}
           titleWeight="semiBold"
           text={t(
-            "This is a recovery mechanism for your local device password via email. Please note that it doesn't upload any keys, and it is not an account recovery mechanism. \nIt is just an alternative way of unlocking your extension on this device in case you forget your password."
+            "This is a recovery mechanism for your local extension password via email. \nPlease note that it doesn't upload any keys, and it is not an account recovery mechanism. \nIt is just an alternative way of unlocking your extension on this device in case you forget your password."
           )}
         />
       </View>
       <BottomSheet
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         id="backup-password-confirmation-modal"
         sheetRef={confirmationModalRef}
         style={{ paddingVertical: SPACING_3XL }}
@@ -193,14 +197,16 @@ const DevicePasswordRecoverySettingsScreen = () => {
       </BottomSheet>
       <BottomSheet
         id="backup-password-success-modal"
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         sheetRef={successModalRef}
         autoWidth
       >
-        <ModalHeader title={t('Device Password Recovery')} />
+        <ModalHeader title={t('Extension password recovery')} />
         <KeyStoreLogo style={[flexbox.alignSelfCenter, spacings.mbXl]} />
         <Text fontSize={16} style={[spacings.mbLg, text.center]}>
-          {t('Your Device Password Recovery was successfully enabled!')}
+          {t('Your extension password recovery was successfully enabled!')}
         </Text>
         <Button
           text={t('Got it')}

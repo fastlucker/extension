@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import usePrevious from '@common/hooks/usePrevious'
 import useSelect from '@common/hooks/useSelect'
@@ -9,12 +9,13 @@ import useSelectKeyboardControl from './useSelectKeyboardControl'
 
 type Props = Pick<
   SelectProps,
-  'menuOptionHeight' | 'setValue' | 'size' | 'attemptToFetchMoreOptions'
+  'menuOptionHeight' | 'setValue' | 'size' | 'attemptToFetchMoreOptions' | 'mode' | 'menuPosition'
 > & {
   value: SelectProps['value']
   data: SectionedSelectProps['sections']
   stickySectionHeadersEnabled?: boolean
   headerHeight?: number
+  onSearch?: (searchTerm: string) => void
 }
 
 const useSelectInternal = ({
@@ -25,9 +26,12 @@ const useSelectInternal = ({
   data,
   stickySectionHeadersEnabled,
   headerHeight = 0,
-  attemptToFetchMoreOptions
+  attemptToFetchMoreOptions,
+  mode = 'select',
+  menuPosition,
+  onSearch
 }: Props) => {
-  const useSelectReturnValue = useSelect()
+  const useSelectReturnValue = useSelect({ menuPosition })
   const { search, isMenuOpen, setIsMenuOpen, setSearch } = useSelectReturnValue
   const optionHeight = menuOptionHeight || SELECT_SIZE_TO_HEIGHT[size]
 
@@ -43,11 +47,15 @@ const useSelectInternal = ({
   )
 
   const prevSearch = usePrevious(search)
+  const prevIsMenuOpen = usePrevious(isMenuOpen)
 
   const filteredData = useMemo(() => {
-    if (!search) return data
+    const normalizedSearchTerm = search.trim().toLowerCase()
 
-    const normalizedSearchTerm = search.toLowerCase()
+    const hasNewSearchTerm = onSearch && search !== prevSearch
+    if (hasNewSearchTerm) onSearch(search)
+
+    if (!search) return data
 
     const filterOptions = (options: SelectProps['options']) => {
       const { exactMatches, partialMatches } = options.reduce(
@@ -97,7 +105,7 @@ const useSelectInternal = ({
     if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
 
     return noMatchesFound ? [] : sectionsWithFilteredData
-  }, [data, search, attemptToFetchMoreOptions, prevSearch])
+  }, [search, onSearch, prevSearch, data, attemptToFetchMoreOptions])
 
   const keyExtractor = useCallback((item: SelectValue) => item.key || item.value, [])
 
@@ -117,6 +125,13 @@ const useSelectInternal = ({
     setListHeight(height)
   }, [])
 
+  // Clear search when menu closes
+  useEffect(() => {
+    if (prevIsMenuOpen && !isMenuOpen) {
+      setSearch('search', '')
+    }
+  }, [isMenuOpen, prevIsMenuOpen, setSearch])
+
   const { listRef, renderItem, handleScroll } = useSelectKeyboardControl({
     listHeight,
     optionHeight,
@@ -127,7 +142,8 @@ const useSelectInternal = ({
     isMenuOpen,
     stickySectionHeadersEnabled,
     setIsMenuOpen,
-    handleOptionSelect
+    handleOptionSelect,
+    mode
   })
 
   return {

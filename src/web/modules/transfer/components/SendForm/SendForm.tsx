@@ -1,16 +1,15 @@
-import { formatUnits, JsonRpcProvider, ZeroAddress } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { formatUnits, ZeroAddress } from 'ethers'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
 import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
-import InputSendToken from '@common/components/InputSendToken'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import Select from '@common/components/Select'
+import SendToken from '@common/components/SendToken'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -25,6 +24,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -32,25 +32,31 @@ const ONE_MINUTE = 60 * 1000
 const SendForm = ({
   addressInputState,
   isSmartAccount = false,
+  hasGasTank,
   amountErrorMessage,
   isRecipientAddressUnknown,
   isSWWarningVisible,
-  isRecipientHumanizerKnownTokenOrSmartContract
+  isRecipientHumanizerKnownTokenOrSmartContract,
+  recipientMenuClosedAutomaticallyRef,
+  formTitle
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
+  hasGasTank: boolean
   amountErrorMessage: string
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
+  formTitle: string | ReactNode
 }) => {
   const { validation } = addressInputState
-  const { state, tokens, transferCtrl } = useTransferControllerState()
+  const { state, tokens } = useTransferControllerState()
+  const { dispatch } = useBackgroundService()
   const { accountStates } = useAccountsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const {
     maxAmount,
-    maxAmountInFiat,
     amountFieldMode,
     amountInFiat,
     selectedToken,
@@ -83,91 +89,69 @@ const SendForm = ({
     isToToken: false
   })
 
-  const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
+  const disableForm = (!hasGasTank && isTopUp) || !tokens.length
 
   const handleChangeToken = useCallback(
     (value: string) => {
       const tokenToSelect = tokens.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
-
-      transferCtrl.update({ selectedToken: tokenToSelect, amount: '' })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { selectedToken: tokenToSelect, amount: '' } }
+      })
     },
-    [tokens, transferCtrl, networks]
+    [tokens, networks, dispatch]
   )
 
   const setAddressStateFieldValue = useCallback(
     (value: string) => {
-      transferCtrl.update({ addressState: { fieldValue: value } })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { addressState: { fieldValue: value } } }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const setMaxAmount = useCallback(() => {
-    const shouldDeductGas = selectedToken?.address === ZeroAddress && !isSmartAccount
-    const canDeductGas = estimation && estimation.chainId === selectedToken?.chainId
-
-    if (!shouldDeductGas || !canDeductGas) {
-      transferCtrl.update({
-        amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat
-      })
-
-      return
-    }
-
-    const gasDeductedAmountBigInt = getTokenAmount(selectedToken) - estimation.totalGasWei
-    const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
-
-    // Let the user see for himself that the amount is less than the gas fee
-    if (gasDeductedAmountBigInt < 0n) {
-      transferCtrl.update({ amount: amountFieldMode === 'token' ? maxAmount : maxAmountInFiat })
-      return
-    }
-
-    if (amountFieldMode === 'token') {
-      transferCtrl.update({ amount: gasDeductedAmount })
-      return
-    }
-
-    if (amountFieldMode === 'fiat') {
-      const tokenPrice = selectedToken.priceIn[0].price
-      const { tokenPriceBigInt, tokenPriceDecimals } = convertTokenPriceToBigInt(tokenPrice)
-
-      const gasDeductedAmountInFiat = formatUnits(
-        gasDeductedAmountBigInt * tokenPriceBigInt,
-        tokenPriceDecimals + selectedToken.decimals
-      )
-
-      transferCtrl.update({ amount: String(gasDeductedAmountInFiat) })
-    }
-  }, [
-    amountFieldMode,
-    estimation,
-    isSmartAccount,
-    maxAmount,
-    maxAmountInFiat,
-    selectedToken,
-    transferCtrl
-  ])
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: { amount: maxAmount, amountFieldMode: 'token' }
+      }
+    })
+  }, [maxAmount, dispatch])
 
   const switchAmountFieldMode = useCallback(() => {
-    transferCtrl.update({
-      amountFieldMode: amountFieldMode === 'token' ? 'fiat' : 'token'
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: { amountFieldMode: amountFieldMode === 'token' ? 'fiat' : 'token' }
+      }
     })
-  }, [amountFieldMode, transferCtrl])
+  }, [amountFieldMode, dispatch])
 
   const setAmount = useCallback(
     (value: string) => {
-      transferCtrl.update({ amount: value })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: value }
+        }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
-    transferCtrl.update({
-      isRecipientAddressUnknownAgreed: true
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: { isRecipientAddressUnknownAgreed: true }
+      }
     })
-  }, [transferCtrl])
+  }, [dispatch])
 
   const isMaxAmountEnabled = useMemo(() => {
     if (!maxAmount) return false
@@ -198,10 +182,15 @@ const SendForm = ({
       }
 
       if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
-        transferCtrl.update({ selectedToken: tokenToSelect })
+        dispatch({
+          type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+          params: {
+            formValues: { selectedToken: tokenToSelect }
+          }
+        })
       }
     }
-  }, [tokens, selectedTokenFromUrl, state.selectedToken, transferCtrl])
+  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
 
   useEffect(() => {
     if (
@@ -215,7 +204,7 @@ const SendForm = ({
     if (!networkData || isSmartAccount || !account || !selectedToken?.chainId) return
 
     const rpcUrl = networkData.selectedRpcUrl
-    const provider = new JsonRpcProvider(rpcUrl)
+    const provider = getRpcProvider([rpcUrl], selectedToken.chainId)
     const nonce = accountStates?.[account.addr]?.[selectedToken.chainId.toString()]?.nonce
 
     if (typeof nonce !== 'bigint') return
@@ -301,34 +290,30 @@ const SendForm = ({
               ? t('Loading tokens...')
               : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
-          <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
+          <SkeletonLoader width="100%" height={120} style={spacings.mbLg} />
         </View>
       ) : (
-        <Select
-          setValue={({ value }) => handleChangeToken(value as string)}
-          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
-          options={options}
-          value={tokenSelectValue}
-          disabled={disableForm}
-          containerStyle={styles.tokenSelect}
-          testID="tokens-select"
+        <SendToken
+          fromTokenOptions={options}
+          fromTokenValue={tokenSelectValue}
+          fromAmountValue={amountFieldMode === 'token' ? amount : amountInFiat}
+          fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
+          handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
+          fromSelectedToken={selectedToken}
+          fromAmount={amount}
+          fromAmountInFiat={amountInFiat}
+          fromAmountFieldMode={amountFieldMode}
+          maxFromAmount={maxAmount}
+          validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
+          onFromAmountChange={setAmount}
+          handleSwitchFromAmountFieldMode={switchAmountFieldMode}
+          handleSetMaxFromAmount={setMaxAmount}
+          inputTestId="amount-field"
+          selectTestId="tokens-select"
+          title={formTitle}
+          maxAmountDisabled={!isMaxAmountEnabled}
         />
       )}
-      <InputSendToken
-        amount={amount}
-        onAmountChange={setAmount}
-        selectedTokenSymbol={selectedToken?.symbol || ''}
-        errorMessage={amountErrorMessage}
-        setMaxAmount={setMaxAmount}
-        maxAmount={maxAmount}
-        amountInFiat={amountInFiat}
-        amountFieldMode={amountFieldMode}
-        maxAmountInFiat={maxAmountInFiat}
-        switchAmountFieldMode={switchAmountFieldMode}
-        disabled={disableForm || amountSelectDisabled}
-        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
-        isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
-      />
       <View>
         {!isTopUp && (
           <Recipient
@@ -348,6 +333,7 @@ const SendForm = ({
             isSWWarningVisible={isSWWarningVisible}
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
+            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
           />
         )}
       </View>

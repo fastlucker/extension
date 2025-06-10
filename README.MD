@@ -178,7 +178,7 @@ And find the resulting zips in the "build" folder as `ambire-extension-<VERSION>
 
 The Ambire v2 compatible mobile apps are yet to be developed. Coming sometime in the near future 🤞
 
-## Benzin
+## Explorer (Old name: Benzin)
 
 Ambire's transaction explorer, that makes human readable ERC-4337 transactions and contract interactions.
 
@@ -200,9 +200,9 @@ yarn build:web:benzin
 
 And find the resulting build in the "build/benzin-prod" folder.
 
-## Ambire Legends
+## Ambire Rewards
 
-Ambire Legends is a gamified testing web3 app for the Ambire browser extensions. It is designed to users you discover the power of Smart Accounts via an epic onchain adventure. [Read more](https://legends.ambire.com/).
+Ambire Rewards is a gamified testing web3 app for the Ambire browser extensions. It is designed to users you discover the power of Smart Accounts via an epic onchain adventure. [Read more](https://rewards.ambire.com/).
 
 ### Development-optimized Build
 
