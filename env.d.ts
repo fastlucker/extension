@@ -111,5 +111,8 @@ declare module '@env' {
    */
   export const USE_SWAP_KEY: EnvTypes['USE_SWAP_KEY']
 
+  /**
+   * Sentry is application monitoring and error tracking app
+   */
   export const SENTRY_DSN_LEGENDS: EnvTypes['SENTRY_DSN_LEGENDS']
 }
