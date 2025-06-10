@@ -17,6 +17,8 @@ import { openInTab } from '@web/extension-services/background/webapi/tab'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import { getUiType } from '@web/utils/uiType'
 
+const DOMAIN_WHITELIST = ['ambire.com']
+
 const { isPopup } = getUiType()
 
 const TOAST_CLOSE_BACKGROUND_COLOR = {
@@ -88,7 +90,17 @@ const parseTextAndAddLinks = (text: string, type: ToastType['type']) => {
   // Find all links in the format [text](url)
   const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g
   const result = []
-  const matches = Array.from(textWithLinks.matchAll(linkRegex))
+  const matches = Array.from(textWithLinks.matchAll(linkRegex)).filter(([, , url]) => {
+    try {
+      const urlObj = new URL(url)
+
+      // Check if the URL's hostname is in the whitelist
+      // Allow subdomains of each allowed domain
+      return DOMAIN_WHITELIST.some((domain) => urlObj.hostname.endsWith(domain))
+    } catch (e) {
+      return false
+    }
+  })
   let lastIndex = 0
   let linkIndex = 0
 
