@@ -18,7 +18,7 @@ const DeFiProviderPosition: FC<PositionsByProvider> = ({
   positions
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
-  const { styles, theme } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
 
   const positionInUSDFormatted = formatDecimals(positionInUSD, 'value')
 
@@ -41,7 +41,6 @@ const DeFiProviderPosition: FC<PositionsByProvider> = ({
         positions.map(({ id, assets, additionalData }, index) => (
           <DeFiPosition
             key={id}
-            index={index}
             withTopBorder={index !== 0 && positions.length > 1}
             id={id}
             type={type}
