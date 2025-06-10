@@ -64,8 +64,7 @@ const HumanizerAddressInner: FC<Props> = ({
 
   useEffect(() => {
     if (!localAddressLabel && chainId)
-      // @TODO change for cena's url
-      fetch(`http://localhost:1930/api/v3/contracts/${address}/${chainId}`)
+      fetch(`https://cena.ambire.com/api/v3/contracts/${address}/${chainId}`)
         .then((r) => r.json())
         .then((r) => setFetchedAddressLabel(r.name))
         .catch(console.error)
