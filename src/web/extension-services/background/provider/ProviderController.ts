@@ -646,6 +646,8 @@ export class ProviderController {
     const date = Date.now()
     const origin = session.origin
 
+    // TODO: Double-check for permission already existing with ID
+
     if (permissions && 'eth_accounts' in permissions[0]) {
       const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
       result.push({
@@ -664,6 +666,8 @@ export class ProviderController {
         caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
         date
       })
+
+      // TODO: Store permission ID in this.mainCtrl.dapps
     }
 
     return result
@@ -683,7 +687,9 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
+
     if (this.mainCtrl.dapps.hasPermission(origin) && this.isUnlocked) {
+      // TODO: Pull the permission ID from this.mainCtrl.dapps
       const date = Date.now()
       const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
       const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
