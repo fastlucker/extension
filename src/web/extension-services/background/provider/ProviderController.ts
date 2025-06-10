@@ -643,31 +643,33 @@ export class ProviderController {
 
   walletRequestPermissions = ({ params: permissions, session }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
-    const date = Date.now()
     const origin = session.origin
 
-    // TODO: Double-check for permission already existing with ID
-
     if (permissions && 'eth_accounts' in permissions[0]) {
+      const dapp = this.mainCtrl.dapps.getDapp(origin)
+      const grantedPermissionId = dapp?.grantedPermissionId || nanoid(21)
+      const grantedPermissionAt = dapp?.grantedPermissionAt || Date.now()
+
       const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
       result.push({
-        id: nanoid(21),
+        id: grantedPermissionId,
         parentCapability: 'eth_accounts',
         invoker: origin,
         caveats: [{ type: 'restrictReturnedAccounts', value: accounts }],
-        date
+        date: grantedPermissionAt
       })
 
-      const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
-      result.push({
-        id: nanoid(21),
-        parentCapability: 'endowment:permitted-chains',
-        invoker: origin,
-        caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
-        date
-      })
+      // TODO: Undecided yet if we should support this `parentCapability` permission too
+      // const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
+      // result.push({
+      //   id: grantedPermissionId,
+      //   parentCapability: 'endowment:permitted-chains',
+      //   invoker: origin,
+      //   caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
+      //   date: grantedPermissionAt
+      // })
 
-      // TODO: Store permission ID in this.mainCtrl.dapps
+      this.mainCtrl.dapps.updateDapp(origin, { grantedPermissionId, grantedPermissionAt })
     }
 
     return result
@@ -680,35 +682,42 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
     await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
-    this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
+    this.mainCtrl.dapps.updateDapp(origin, {
+      isConnected: false,
+      grantedPermissionId: undefined,
+      grantedPermissionAt: undefined
+    })
     return null
   }
 
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
+    const { grantedPermissionId, grantedPermissionAt } = this.mainCtrl.dapps.getDapp(origin) || {}
 
-    if (this.mainCtrl.dapps.hasPermission(origin) && this.isUnlocked) {
-      // TODO: Pull the permission ID from this.mainCtrl.dapps
-      const date = Date.now()
+    // Do not check if extension is unlocked, always return the permissions if one are granted
+    const hasGrantedPermission =
+      !!grantedPermissionId && !!grantedPermissionAt && this.mainCtrl.dapps.hasPermission(origin)
+    if (hasGrantedPermission) {
       const accounts = this.mainCtrl.accounts.accounts.map((a) => a.addr)
-      const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
 
       result.push({
-        id: nanoid(21),
+        id: grantedPermissionId,
         parentCapability: 'eth_accounts',
         invoker: origin,
         caveats: [{ type: 'restrictReturnedAccounts', value: accounts }],
-        date
+        date: grantedPermissionAt
       })
 
-      result.push({
-        id: nanoid(21),
-        parentCapability: 'endowment:permitted-chains',
-        invoker: origin,
-        caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
-        date
-      })
+      // TODO: Undecided yet if we should support this `parentCapability` permission too
+      // const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
+      // result.push({
+      //   id: grantedPermissionId,
+      //   parentCapability: 'endowment:permitted-chains',
+      //   invoker: origin,
+      //   caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
+      //   date: grantedPermissionAt
+      // })
     }
 
     return result
