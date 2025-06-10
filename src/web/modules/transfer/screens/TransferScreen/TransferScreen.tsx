@@ -96,7 +96,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
     if (!chainId || !identifiedBy || !txnId) return
 
-    return `https://benzin.ambire.com/${getBenzinUrlParams({ chainId, txnId, identifiedBy })}`
+    return `https://explorer.ambire.com/${getBenzinUrlParams({ chainId, txnId, identifiedBy })}`
   }, [submittedAccountOp])
 
   useEffect(() => {
@@ -323,7 +323,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
   const gasTankLabelWithInfo = useMemo(() => {
     return (
-      <View style={flexbox.directionRow}>
+      <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
         <Text
           fontSize={20}
           weight="medium"
@@ -333,7 +333,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         >
           {t('Top Up Gas Tank')}
         </Text>
-        <Pressable style={[flexbox.center]} onPress={handleGasTankInfoPressed}>
+        <Pressable onPress={handleGasTankInfoPressed}>
           <InfoIcon width={20} height={20} />
         </Pressable>
       </View>

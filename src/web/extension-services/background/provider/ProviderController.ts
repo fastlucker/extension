@@ -563,7 +563,7 @@ export class ProviderController {
     )[0]
     const chainId = Number(network.chainId)
 
-    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+    const link = `https://explorer.ambire.com/${getBenzinUrlParams({
       txnId: identifiedBy.type === 'Transaction' ? identifiedBy.identifier : null,
       chainId,
       identifiedBy

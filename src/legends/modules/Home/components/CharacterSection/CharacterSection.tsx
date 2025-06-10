@@ -2,6 +2,7 @@ import React from 'react'
 
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
+import UnionIcon from '@legends/common/assets/svg/UnionIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
 import OverachieverBanner from '@legends/components/OverachieverBanner'
@@ -19,7 +20,7 @@ const CharacterSection = () => {
   const { character } = useCharacterContext()
 
   const { accountPortfolio } = usePortfolioControllerState()
-  const { userLeaderboardData } = useLeaderboardContext()
+  const { season1LeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
   const formatXp = (xp: number) => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
@@ -35,9 +36,9 @@ const CharacterSection = () => {
       />
     )
 
-  const xpForNextLevel = Math.ceil(((character.level + 1) * 4.5) ** 2)
-
-  const startXpForCurrentLevel = character.level === 1 ? 0 : Math.ceil((character.level * 4.5) ** 2)
+  const currentLevel = season1LeaderboardData?.currentUser?.level ?? 1
+  const xpForNextLevel = Math.ceil(((currentLevel + 1) * 4.5) ** 2)
+  const startXpForCurrentLevel = Math.ceil((currentLevel * 4.5) ** 2)
 
   return (
     <>
@@ -54,11 +55,15 @@ const CharacterSection = () => {
             displayTooltip
           />
           <div className={styles.characterLevelInfoWrapper}>
+            <div className={styles.currentSeasonBadge}>
+              {' '}
+              <UnionIcon /> Season 1
+            </div>
             <div className={styles.characterItemWrapper}>
               <div className={styles.levelWrapper}>
                 <div className={`${styles.levelInfo} ${styles.levelInfoTop}`}>
-                  <span className={styles.startXp}>Lvl. {character.level}</span>
-                  <span className={styles.endXp}>Lvl. {character.level + 1}</span>
+                  <span className={styles.startXp}>Lvl. {currentLevel}</span>
+                  <span className={styles.endXp}>Lvl. {currentLevel + 1}</span>
                 </div>
                 <div className={styles.levelProgress}>
                   <div className={styles.levelProgressBarWrapper}>
@@ -69,7 +74,8 @@ const CharacterSection = () => {
                     className={styles.levelProgressBar}
                     style={{
                       width: `${(
-                        ((character.xp - startXpForCurrentLevel) /
+                        (((season1LeaderboardData?.currentUser?.xp ?? startXpForCurrentLevel) -
+                          startXpForCurrentLevel) /
                           (xpForNextLevel - startXpForCurrentLevel)) *
                         100
                       ).toFixed(2)}%`
@@ -77,7 +83,9 @@ const CharacterSection = () => {
                   />
                 </div>
 
-                <div className={styles.xp}>{formatXp(character.xp)} XP</div>
+                <div className={styles.xp}>
+                  {formatXp(season1LeaderboardData?.currentUser?.xp)} XP
+                </div>
               </div>
             </div>
 
@@ -124,7 +132,9 @@ const CharacterSection = () => {
             <div className={styles.characterItemWrapper}>
               <div className={styles.characterItem}>
                 <span className={styles.item}>
-                  {userLeaderboardData?.rank ? userLeaderboardData?.rank : 'Loading...'}
+                  {season1LeaderboardData?.currentUser?.rank
+                    ? season1LeaderboardData?.currentUser?.rank
+                    : 'Loading...'}
                 </span>
                 <div className={styles.characterInfoWrapper}>
                   Leaderboard

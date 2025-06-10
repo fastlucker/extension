@@ -1,8 +1,7 @@
-import { CSSProperties } from 'react'
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
-import { ThemeProps } from '@common/styles/themeConfig'
+import { THEME_TYPES, ThemeProps, ThemeType } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -13,11 +12,11 @@ interface Style {
   boxWrapper: ViewStyle
   backgroundShapes: ViewStyle
   animationContainer: ViewStyle
-  lottieView: CSSProperties
+  lottieView: ViewStyle
   checkIcon: ViewStyle
 }
 
-const getStyles = (theme: ThemeProps) =>
+const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
     dappInfoContainer: {
       ...flexbox.directionRow,
@@ -40,8 +39,9 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pvMd,
       ...spacings.phMd,
       ...common.borderRadiusPrimary,
-      ...common.shadowTertiary,
-      backgroundColor: theme.primaryBackground,
+      ...(themeType === THEME_TYPES.DARK ? common.shadowTertiaryDarkMode : common.shadowTertiary),
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.primaryBackground,
       width: 421,
       height: 343
     },
@@ -59,6 +59,7 @@ const getStyles = (theme: ThemeProps) =>
     lottieView: {
       width: 388,
       height: 217,
+      // @ts-ignore
       pointerEvents: 'none'
     },
     checkIcon: { position: 'absolute', top: '50%', left: '50%' }

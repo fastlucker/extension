@@ -6,6 +6,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -30,7 +31,7 @@ const ControlOption: FC<Props> = ({
   style,
   onPress
 }) => {
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const [bindAnim, animStyle] = useCustomHover({
@@ -83,7 +84,7 @@ const ControlOption: FC<Props> = ({
             {readMoreLink && (
               <Text
                 fontSize={14}
-                appearance="primary"
+                color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
                 style={{ fontStyle: 'italic' }}
                 onPress={openReadMoreLink}
               >

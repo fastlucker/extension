@@ -539,13 +539,17 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
-    toSelectedToken?: SwapAndBridgeToToken | null
+    toSelectedTokenAddr?: SwapAndBridgeToToken['address'] | null
     routePriority?: 'output' | 'time'
   }
 }
 type SwapAndBridgeControllerAddToTokenByAddress = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS'
   params: { address: string }
+}
+type SwapAndBridgeControllerSearchToToken = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SEARCH_TO_TOKEN'
+  params: { searchTerm: string }
 }
 type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
@@ -571,9 +575,6 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
-type SwapAndBridgeControllerOnEstimationFailure = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-}
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
 }
@@ -582,9 +583,6 @@ type SwapAndBridgeControllerDestroySignAccountOp = {
 }
 type SwapAndBridgeControllerOpenSigningActionWindow = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW'
-}
-type SwapAndBridgeControllerCloseSigningActionWindow = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
 }
 type OpenSigningActionWindow = {
   type: 'OPEN_SIGNING_ACTION_WINDOW'
@@ -809,6 +807,7 @@ export type Action =
   | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
   | SwapAndBridgeControllerAddToTokenByAddress
+  | SwapAndBridgeControllerSearchToToken
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerResetForm
@@ -842,11 +841,9 @@ export type Action =
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction
   | SignAccountOpUpdateAction
-  | SwapAndBridgeControllerOnEstimationFailure
   | SwapAndBridgeControllerMarkSelectedRouteAsFailed
   | SwapAndBridgeControllerDestroySignAccountOp
   | SwapAndBridgeControllerOpenSigningActionWindow
-  | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
   | OpenSigningActionWindow

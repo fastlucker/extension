@@ -14,8 +14,7 @@ interface Style {
 const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
     withContainerStyle: {
-      backgroundColor:
-        themeType === THEME_TYPES.DARK ? theme.quaternaryBackground : theme.secondaryBackground,
+      backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter
@@ -26,7 +25,8 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
       top: 0,
       zIndex: 3,
       borderWidth: 1,
-      borderColor: theme.secondaryBorder,
+      borderColor:
+        themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.secondaryBorder,
       borderRadius: 12
     },
     networkIcon: {
