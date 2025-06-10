@@ -15,9 +15,9 @@ export abstract class BasePage {
     await this.page.locator(element).click()
   }
 
-  async clickOnMenuToken(token: Token) {
-    const tokensSelect = this.page.getByTestId(TEST_IDS.tokensSelect)
-    await tokensSelect.click()
+  async clickOnMenuToken(token: Token, menuSelector: string = TEST_IDS.tokensSelect) {
+    const menu = this.page.getByTestId(menuSelector)
+    await menu.click()
 
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
     const searchInput = this.page.getByTestId(TEST_IDS.searchInput)

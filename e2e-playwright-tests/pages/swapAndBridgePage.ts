@@ -113,8 +113,7 @@ export class SwapAndBridgePage extends BasePage {
 
       // Select Receive Token on the same Network, which is automatically selected
       await this.page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
-      await clickOnElement(this.page, SELECTORS.receiveTokenSab)
-      await this.clickOnMenuToken(toToken)
+      await this.clickOnMenuToken(toToken, SELECTORS.receiveTokenSab)
 
       // If checking prepareSwapAndBridge functionality without providing send amount
       if (send_amount === null) {
@@ -148,8 +147,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async selectSendTokenOnNetwork(send_token: Token) {
-    await clickOnElement(this.page, SELECTORS.sendTokenSab)
-    await this.clickOnMenuToken(send_token)
+    await this.clickOnMenuToken(send_token, SELECTORS.sendTokenSab)
   }
 
   async verifyIfSwitchIsActive(reference = true) {
