@@ -101,7 +101,6 @@ const Estimation = ({
   }, [signAccountOpState?.warnings])
 
   const payOptionsPaidByUsOrGasTank = useMemo(() => {
-    console.log({ hasEstimation, signAccountOpState })
     if (!signAccountOpState?.estimation.availableFeeOptions.length || !hasEstimation) return []
 
     return signAccountOpState.estimation.availableFeeOptions
