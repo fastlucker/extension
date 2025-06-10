@@ -1,6 +1,8 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
+import { EIP7702Auth } from '@ambire-common/consts/7702'
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
@@ -9,10 +11,8 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-
-import { EIP7702Auth } from '@ambire-common/consts/7702'
-import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import DelegationHumanization from '@web/components/DelegationHumanization'
+
 import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
@@ -27,6 +27,7 @@ interface Props {
 
 const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, delegation }) => {
   const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
+  const finalStepRows: any = getFinalizedRows(blockData, finalizedStatus)
 
   const stepRows: any = [
     {
@@ -93,14 +94,14 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
         value: from
       })
     if (from !== originatedFrom)
-      stepRows.push({
+      finalStepRows.push({
         label: 'Originated from',
         value: originatedFrom
       })
   }
 
   if (txnId) {
-    stepRows.push({
+    finalStepRows.push({
       label: 'Transaction ID',
       value: txnId,
       isValueSmall: true
@@ -108,12 +109,14 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
   }
 
   if (userOpHash) {
-    stepRows.push({
+    finalStepRows.push({
       label: 'User Op ID',
       value: userOpHash,
       isValueSmall: true
     })
   }
+
+  const isFinalized = activeStep === 'finalized'
 
   return (
     <View style={IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : spacings.mbXl}>
@@ -127,9 +130,7 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
       />
       {shouldShowTxnProgress(finalizedStatus) && (
         <Step
-          title={
-            activeStep === 'finalized' ? 'Transaction details' : 'Your transaction is in progress'
-          }
+          title={isFinalized ? 'Transaction details' : 'Your transaction is in progress'}
           stepName="in-progress"
           activeStep={activeStep}
           finalizedStatus={finalizedStatus}
@@ -161,22 +162,15 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
       <Step
         // We want to show the user the positive outcome of the transaction while it is still in progress
         title={finalizedStatus && finalizedStatus.status ? finalizedStatus.status : 'Confirmed'}
+        testID="finalized-rows"
         stepName="finalized"
         finalizedStatus={finalizedStatus}
         activeStep={activeStep}
         style={spacings.pb0}
-        titleStyle={spacings.mb0}
+        rows={isFinalized ? finalStepRows : []}
+        collapsibleRows={isFinalized}
+        titleStyle={!isFinalized ? spacings.mb0 : undefined}
       />
-      {activeStep === 'finalized' ? (
-        <Step
-          testID="finalized-rows"
-          style={{
-            ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
-            borderWidth: 0
-          }}
-          rows={getFinalizedRows(blockData, finalizedStatus)}
-        />
-      ) : null}
     </View>
   )
 }

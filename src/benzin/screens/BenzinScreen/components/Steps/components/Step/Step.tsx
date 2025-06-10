@@ -1,11 +1,13 @@
 import { LinearGradient } from 'expo-linear-gradient'
-import React, { FC } from 'react'
-import { TextStyle, View, ViewStyle } from 'react-native'
+import React, { FC, useMemo, useState } from 'react'
+import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import ConfirmedIcon from '@common/assets/svg/ConfirmedIcon'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import RejectedIcon from '@common/assets/svg/RejectedIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -21,14 +23,17 @@ const STEPS = ['signed', 'in-progress', 'finalized'] as const
 interface StepProps {
   title?: string
   rows?: StepRowInterface[]
-  stepName?: typeof STEPS[number]
-  activeStep?: typeof STEPS[number]
+  stepName: typeof STEPS[number]
+  activeStep: typeof STEPS[number]
   finalizedStatus?: FinalizedStatusType
   style?: ViewStyle
   titleStyle?: TextStyle
   children?: React.ReactNode | React.ReactNode[]
   testID?: string
+  collapsibleRows?: boolean
 }
+
+const TOGGLE_ROW_LIMIT = 2
 
 const Step: FC<StepProps> = ({
   title,
@@ -39,24 +44,23 @@ const Step: FC<StepProps> = ({
   style,
   titleStyle,
   children,
-  testID
+  testID,
+  collapsibleRows = false
 }) => {
   const { theme, styles } = useTheme(getStyles)
 
-  if (!title || !stepName || !activeStep) {
-    if (!rows) return null
+  const [showAllRows, setShowAllRows] = useState(false)
 
-    return (
-      <View
-        style={[styles.step, spacings.plMd, { flexDirection: 'column' }, style]}
-        testID={testID}
-      >
-        {rows.map((row) => (
-          <StepRow {...row} key={row.label} />
-        ))}
-      </View>
-    )
-  }
+  const visibleRows = useMemo(() => {
+    if (!rows) return []
+
+    if (collapsibleRows && !showAllRows) {
+      return rows.slice(0, TOGGLE_ROW_LIMIT)
+    }
+
+    return rows
+  }, [collapsibleRows, rows, showAllRows])
+
   // Steps have 3 stages:
   // 1. Initial (not yet started and not next step)
   // 2. Next (not yet started but next step)
@@ -139,7 +143,7 @@ const Step: FC<StepProps> = ({
         ]}
       >
         {!!title && (
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
             <Text
               appearance={getTitleAppearance()}
               fontSize={16}
@@ -148,11 +152,25 @@ const Step: FC<StepProps> = ({
             >
               {title === 'fetching' ? 'Confirmed' : title}
             </Text>
+            {collapsibleRows && (
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Text fontSize={14} color={theme.linkText}>
+                  {showAllRows ? 'show less' : 'show more'}
+                </Text>
+                <Pressable onPress={() => setShowAllRows((prev) => !prev)}>
+                  {({ hovered }: any) => (
+                    <View style={[styles.arrow, hovered && styles.arrowHovered]}>
+                      {showAllRows ? <UpArrowIcon /> : <DownArrowIcon />}
+                    </View>
+                  )}
+                </Pressable>
+              </View>
+            )}
             <StatusExplanation status={finalizedStatus?.status} stepName={stepName} />
           </View>
         )}
         {children}
-        {!!rows && rows.map((row) => <StepRow {...row} key={row.label} />)}
+        {!!visibleRows && visibleRows.map((row) => <StepRow {...row} key={row.label} />)}
       </View>
     </View>
   )
