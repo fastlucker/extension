@@ -31,17 +31,16 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     this.walletSDK = walletSDK
   }
 
-  // FIXME: Addresses do not match the expected ones
   private deriveAddressFromXpub(xpub: string, path: string, i: number): string {
     try {
-      // Create an HDNode from the xpub
       const hdNode = HDNodeWallet.fromExtendedKey(xpub)
-      // Derive the child node using the index
-      // The index should be a regular number (not hardened) since we're deriving from an xpub
+      // If index is 0, return the address directly from the xpub node
+      if (i === 0) return hdNode.address
+      // For other indices, derive the child node
       const childNode = hdNode.deriveChild(i)
-      // Get the address from the child node
       return childNode.address
     } catch (error) {
+      // TODO: Handle this!
       console.error('trezorKeyIterator: error deriving address from xpub', error)
       return ''
     }
