@@ -19,6 +19,7 @@ import Tooltip from '@common/components/Tooltip'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -35,13 +36,15 @@ type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRoute
 }
 
 const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
-  const { theme, styles } = useTheme(getStyles)
+  const { theme, styles, themeType } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
     updateQuoteStatus,
-    toTokenList,
+    toTokenShortList,
+    toTokenSearchResults,
+    toTokenSearchTerm,
     quote,
     formStatus,
     toChainId,
@@ -74,16 +77,31 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     [networks, dispatch]
   )
 
+  const tokensInToTokenSelect = useMemo(() => {
+    if (toTokenSearchTerm) return toTokenSearchResults
+
+    // Token might not be in the short list (if it's pulled from search for example)
+    const isSelectTokenMissingInToTokenShortList =
+      toSelectedToken &&
+      !toTokenShortList.some(
+        (tk) => tk.address === toSelectedToken.address && tk.chainId === toSelectedToken.chainId
+      )
+
+    return isSelectTokenMissingInToTokenShortList
+      ? [toSelectedToken, ...toTokenShortList]
+      : toTokenShortList
+  }, [toTokenSearchTerm, toTokenSearchResults, toSelectedToken, toTokenShortList])
+
   const {
     options: toTokenOptions,
     value: toTokenValue,
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: toTokenList,
+    tokens: tokensInToTokenSelect,
     token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
     networks,
     supportedChainIds,
-    isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
+    isLoading: !toTokenShortList.length && updateToTokenListStatus !== 'INITIAL',
     isToToken: true
   })
 
@@ -108,7 +126,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       networks.map((n) => {
         const tooltipId = `network-${n.chainId}-not-supported-tooltip`
         const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
-
+        const network = networks.find((net) => Number(net.chainId) === toChainId)
+        const isSelected = network && String(network.chainId) === String(n.chainId)
         return {
           value: String(n.chainId),
           extraSearchProps: [n.name],
@@ -133,13 +152,20 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             <NetworkIcon
               key={n.chainId.toString()}
               id={n.chainId.toString()}
-              style={{ backgroundColor: theme.primaryBackground }}
-              size={18}
+              style={{
+                backgroundColor:
+                  themeType === THEME_TYPES.DARK
+                    ? isSelected
+                      ? theme.primaryBackground
+                      : theme.secondaryBackground
+                    : theme.primaryBackground
+              }}
+              size={28}
             />
           )
         }
       }),
-    [networks, supportedChainIds, theme.primaryBackground]
+    [networks, supportedChainIds, theme, themeType, toChainId]
   )
 
   const getToNetworkSelectValue = useMemo(() => {
@@ -150,19 +176,15 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   }, [networks, toChainId, toNetworksOptions])
 
   const handleChangeToToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find(
-        (tk: SwapAndBridgeToToken) => getTokenId(tk, networks) === value
-      )
-
+    ({ address: toSelectedTokenAddr }: SelectValue) => {
       setIsAutoSelectRouteDisabled(false)
 
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { toSelectedToken: tokenToSelect }
+        params: { toSelectedTokenAddr }
       })
     },
-    [toTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
+    [setIsAutoSelectRouteDisabled, dispatch]
   )
 
   const handleAddToTokenByAddress = useCallback(
@@ -227,14 +249,15 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
         </Text>
         <Select
           setValue={handleSetToNetworkValue}
-          containerStyle={{ ...spacings.mb0, width: 142 }}
+          containerStyle={{ ...spacings.mb0, width: 160 }}
           options={toNetworksOptions}
           size="sm"
           value={getToNetworkSelectValue}
           mode="bottomSheet"
           bottomSheetTitle={t('Receive token network')}
           selectStyle={{
-            backgroundColor: '#54597A14',
+            backgroundColor:
+              themeType === THEME_TYPES.DARK ? theme.secondaryBackground : '#54597A14',
             borderWidth: 0
           }}
         />
@@ -311,7 +334,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           {!!quote?.selectedRoute && isReadyToDisplayAmounts && (
             <Text
               fontSize={12}
-              appearance="primary"
+              color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
               weight="medium"
               testID="switch-currency-sab"
               style={{ marginLeft: 'auto' }}

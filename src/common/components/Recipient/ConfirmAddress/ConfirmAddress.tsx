@@ -6,10 +6,11 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 type Props = {
   onAddToAddressBook: () => any
@@ -37,18 +38,18 @@ const ConfirmAddress = ({
   selectedTokenSymbol
 }: Props) => {
   const { t } = useTranslation()
-  const { state } = useTransferControllerState()
   const { dispatch } = useBackgroundService()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
+  const { theme, themeType } = useTheme()
 
   const onSWWarningCheckboxClick = useCallback(() => {
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
       params: { formValues: { isSWWarningAgreed: true } }
     })
-  }, [state, dispatch])
+  }, [dispatch])
 
   return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&
@@ -90,7 +91,7 @@ const ConfirmAddress = ({
             ...spacings.mbMd
           }}
           fontSize={14}
-          appearance="primary"
+          color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
         >
           {t('+ Add to Address Book')}
         </Text>

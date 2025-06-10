@@ -10,6 +10,7 @@ import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
@@ -31,7 +32,7 @@ const RouteInfo: FC<Props> = ({
   const { formStatus, signAccountOpController, quote, swapSignErrors } =
     useSwapAndBridgeControllerState()
   const { isOG } = useInviteControllerState()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { t } = useTranslation()
 
   return (
@@ -119,16 +120,22 @@ const RouteInfo: FC<Props> = ({
               <Text
                 fontSize={14}
                 weight="medium"
-                appearance="primary"
+                color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
                 style={{
                   ...spacings.mr,
-                  textDecorationColor: theme.primary,
+                  textDecorationColor:
+                    themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary,
                   textDecorationLine: 'underline'
                 }}
               >
                 {t('Select route')}
               </Text>
-              <RightArrowIcon weight="2" width={5} height={16} color={theme.primary} />
+              <RightArrowIcon
+                weight="2"
+                width={5}
+                height={16}
+                color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
+              />
             </Pressable>
           </>
         )}
