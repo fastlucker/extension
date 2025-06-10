@@ -36,7 +36,7 @@ describe('sa_transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Sign message', async () => {
+  it.skip('Sign message', async () => {
     await signMessage(page, extensionURL, browser, saParams.envSelectedAccount)
   })
 

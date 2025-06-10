@@ -12,6 +12,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -42,8 +43,8 @@ const Main = ({
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const signStatus = signMessageState.statuses.sign
-  const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { styles, theme, themeType } = useTheme(getStyles)
+  const { maxWidthSize, minHeightSize } = useWindowSize()
   const { networks } = useNetworksControllerState()
   const network = useMemo(
     () =>
@@ -69,7 +70,7 @@ const Main = ({
   )
 
   return (
-    <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvMd}>
+    <TabLayoutWrapperMainContent style={spacings.mbLg}>
       <View
         style={[
           flexbox.directionRow,
@@ -113,8 +114,11 @@ const Main = ({
             hasArrow={!!visualizeHumanized}
             style={{
               ...spacings.mbTy,
-              maxHeight: '100%',
-              backgroundColor: theme.primaryBackground
+              // Setting maxHeight on larger screens introduced internal content scroll
+              // (which aligns the content better - with internal scrollbar).
+              ...(minHeightSize(660) ? {} : { maxHeight: '100%' }),
+              backgroundColor:
+                themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.primaryBackground
             }}
             content={
               visualizeHumanized &&

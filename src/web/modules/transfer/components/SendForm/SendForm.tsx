@@ -24,6 +24,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -50,7 +51,8 @@ const SendForm = ({
   formTitle: string | ReactNode
 }) => {
   const { validation } = addressInputState
-  const { state, tokens, transferCtrl } = useTransferControllerState()
+  const { state, tokens } = useTransferControllerState()
+  const { dispatch } = useBackgroundService()
   const { accountStates } = useAccountsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const {
@@ -94,17 +96,22 @@ const SendForm = ({
       const tokenToSelect = tokens.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
-
-      transferCtrl.update({ selectedToken: tokenToSelect, amount: '' })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { selectedToken: tokenToSelect, amount: '' } }
+      })
     },
-    [tokens, transferCtrl, networks]
+    [tokens, networks, dispatch]
   )
 
   const setAddressStateFieldValue = useCallback(
     (value: string) => {
-      transferCtrl.update({ addressState: { fieldValue: value } })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { addressState: { fieldValue: value } } }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const setMaxAmount = useCallback(() => {
@@ -112,9 +119,11 @@ const SendForm = ({
     const canDeductGas = estimation && estimation.chainId === selectedToken?.chainId
 
     if (!shouldDeductGas || !canDeductGas) {
-      transferCtrl.update({
-        amount: maxAmount,
-        amountFieldMode: 'token'
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: maxAmount, amountFieldMode: 'token' }
+        }
       })
 
       return
@@ -123,30 +132,46 @@ const SendForm = ({
     const gasDeductedAmountBigInt = getTokenAmount(selectedToken) - estimation.totalGasWei
     const gasDeductedAmount = formatUnits(gasDeductedAmountBigInt, selectedToken.decimals)
 
-    transferCtrl.update({
-      amount: gasDeductedAmount,
-      amountFieldMode: 'token'
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: {
+          amount: gasDeductedAmount,
+          amountFieldMode: 'token'
+        }
+      }
     })
-  }, [estimation, isSmartAccount, maxAmount, selectedToken, transferCtrl])
+  }, [estimation, isSmartAccount, maxAmount, selectedToken, dispatch])
 
   const switchAmountFieldMode = useCallback(() => {
-    transferCtrl.update({
-      amountFieldMode: amountFieldMode === 'token' ? 'fiat' : 'token'
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: { amountFieldMode: amountFieldMode === 'token' ? 'fiat' : 'token' }
+      }
     })
-  }, [amountFieldMode, transferCtrl])
+  }, [amountFieldMode, dispatch])
 
   const setAmount = useCallback(
     (value: string) => {
-      transferCtrl.update({ amount: value })
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: {
+          formValues: { amount: value }
+        }
+      })
     },
-    [transferCtrl]
+    [dispatch]
   )
 
   const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
-    transferCtrl.update({
-      isRecipientAddressUnknownAgreed: true
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+      params: {
+        formValues: { isRecipientAddressUnknownAgreed: true }
+      }
     })
-  }, [transferCtrl])
+  }, [dispatch])
 
   const isMaxAmountEnabled = useMemo(() => {
     if (!maxAmount) return false
@@ -177,10 +202,15 @@ const SendForm = ({
       }
 
       if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
-        transferCtrl.update({ selectedToken: tokenToSelect }, { shouldPersist: false })
+        dispatch({
+          type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+          params: {
+            formValues: { selectedToken: tokenToSelect }
+          }
+        })
       }
     }
-  }, [tokens, selectedTokenFromUrl, state.selectedToken, transferCtrl])
+  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
 
   useEffect(() => {
     if (

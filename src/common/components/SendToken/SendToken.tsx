@@ -12,6 +12,7 @@ import Text from '@common/components/Text'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import MaxAmount from '@web/modules/swap-and-bridge/components/MaxAmount'
@@ -60,7 +61,7 @@ const SendToken: FC<Props> = ({
   maxAmountDisabled
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme, styles, themeType } = useTheme(getStyles)
   const { t } = useTranslation()
   const heading = title ?? t('Send')
 
@@ -101,7 +102,8 @@ const SendToken: FC<Props> = ({
             emptyListPlaceholderText={t('No tokens found.')}
             containerStyle={{ ...flexbox.flex1, ...spacings.mb0 }}
             selectStyle={{
-              backgroundColor: '#54597A14',
+              backgroundColor:
+                themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#54597A14',
               borderWidth: 0
             }}
             mode="bottomSheet"
@@ -163,7 +165,14 @@ const SendToken: FC<Props> = ({
                 {({ hovered }: any) => (
                   <View
                     style={{
-                      backgroundColor: hovered ? '#6000FF14' : theme.infoBackground,
+                      backgroundColor:
+                        themeType === THEME_TYPES.DARK
+                          ? hovered
+                            ? theme.primary20
+                            : `${theme.primary as string}14`
+                          : hovered
+                          ? '#6000FF14'
+                          : theme.infoBackground,
                       borderRadius: 50,
                       paddingHorizontal: 5,
                       paddingVertical: 5,
@@ -174,7 +183,12 @@ const SendToken: FC<Props> = ({
                   </View>
                 )}
               </Pressable>
-              <Text fontSize={12} appearance="primary" weight="medium" testID="switch-currency-sab">
+              <Text
+                fontSize={12}
+                color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
+                weight="medium"
+                testID="switch-currency-sab"
+              >
                 {fromAmountFieldMode === 'token'
                   ? `${
                       fromAmountInFiat

@@ -9,6 +9,13 @@ import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappC
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import {
+  getFailureStatus,
+  getPendingStatus,
+  getSuccessStatus,
+  getVersion
+} from '@ambire-common/libs/5792/5792'
+import { getBaseAccount } from '@ambire-common/libs/account/getBaseAccount'
+import {
   AccountOpIdentifiedBy,
   fetchTxnId,
   isIdentifiedByMultipleTxn
@@ -21,13 +28,6 @@ import { APP_VERSION } from '@common/config/env'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
-import {
-  getFailureStatus,
-  getPendingStatus,
-  getSuccessStatus,
-  getVersion
-} from '@ambire-common/libs/5792/5792'
-import { getBaseAccount } from '@ambire-common/libs/account/getBaseAccount'
 import { createTab } from '../webapi/tab'
 import { RequestRes, Web3WalletPermission } from './types'
 
@@ -296,22 +296,16 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
-    ({ request, mainCtrl }: { request: ProviderRequest; mainCtrl: MainController }) => {
-      const { params, session } = request
+    ({ request }: { request: ProviderRequest; mainCtrl: MainController }) => {
+      const { params } = request
       if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
       if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
-      const dapp = mainCtrl.dapps.getDapp(session.origin)
-      const { chainId } = params[0]
-      const network = mainCtrl.networks.networks.find(
-        (n: any) => Number(n.chainId) === Number(chainId)
-      )
-      if (!network || !dapp?.isConnected) return false
 
-      return true
+      return false
     }
   ])
   walletAddEthereumChain = async ({
@@ -330,13 +324,6 @@ export class ProviderController {
     }
 
     this.mainCtrl.dapps.updateDapp(origin, { chainId })
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      await notificationManager.create({
-        title: 'Network added',
-        message: `Network switched to ${network.name} for ${name || origin}.`
-      })
-    })()
     await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
@@ -575,7 +562,7 @@ export class ProviderController {
     )[0]
     const chainId = Number(network.chainId)
 
-    const link = `https://benzin.ambire.com/${getBenzinUrlParams({
+    const link = `https://explorer.ambire.com/${getBenzinUrlParams({
       txnId: identifiedBy.type === 'Transaction' ? identifiedBy.identifier : null,
       chainId,
       identifiedBy
@@ -659,6 +646,16 @@ export class ProviderController {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result
+  }
+
+  /**
+   * Revokes the current dapp permissions. Experimental, but supported in MetaMask. Specified by MIP-2:
+   * {@link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md}
+   */
+  walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
+    await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
+    this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
+    return null
   }
 
   @Reflect.metadata('SAFE', true)

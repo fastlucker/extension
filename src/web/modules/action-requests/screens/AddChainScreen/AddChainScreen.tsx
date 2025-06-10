@@ -1,3 +1,4 @@
+import LottieView from 'lottie-react'
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -6,13 +7,16 @@ import { View } from 'react-native'
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
+import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
+import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
@@ -27,7 +31,9 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
+import BackgroundShapes from '@web/modules/swap-and-bridge/components/Estimation/BackgroundShapes'
 
+import animation from './animation.json'
 import getStyles from './styles'
 
 /**
@@ -37,11 +43,12 @@ import getStyles from './styles'
  */
 const AddChainScreen = () => {
   const { t } = useTranslation()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
-  const { statuses, networkToAddOrUpdate, disabledNetworks } = useNetworksControllerState()
+  const { statuses, networkToAddOrUpdate, disabledNetworks, networks } =
+    useNetworksControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const [existingNetwork, setExistingNetwork] = useState<Network | null | undefined>(undefined)
@@ -65,17 +72,24 @@ const AddChainScreen = () => {
 
   const requestSession = useMemo(() => userRequest?.session, [userRequest?.session])
 
+  const networkAlreadyAdded = useMemo(
+    () =>
+      networks.find(
+        (network) => requestData?.chainId && network.chainId === BigInt(requestData.chainId)
+      ) || null,
+    [networks, requestData?.chainId]
+  )
+
   // existingNetwork must be set in a useEffect and can't be a useMemo. That is because we must
   // set its value only once and never change it. Otherwise the screen rerenders when a network is
   // added/enabled with the wrong state.
   useEffect(() => {
-    if (existingNetwork || existingNetwork === null || !requestData.chainId) return
-
+    if (existingNetwork || existingNetwork === null || !requestData?.chainId) return
     const matchingNetwork =
       disabledNetworks.find((network) => network.chainId === BigInt(requestData.chainId)) || null
 
     setExistingNetwork(matchingNetwork)
-  }, [disabledNetworks, existingNetwork, requestData.chainId])
+  }, [disabledNetworks, existingNetwork, requestData?.chainId])
 
   useEffect(() => {
     setAreParamsValid(validateRequestParams(requestKind, requestData))
@@ -170,6 +184,16 @@ const AddChainScreen = () => {
     })
   }, [dappAction, t, dispatch])
 
+  const handleCloseOnAlreadyAdded = useCallback(() => {
+    if (!dappAction) return
+
+    actionButtonPressedRef.current = true
+    dispatch({
+      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+      params: { data: null, id: dappAction.id }
+    })
+  }, [dappAction, dispatch])
+
   const handlePrimaryButtonPress = useCallback(() => {
     if (!networkDetails) return
     actionButtonPressedRef.current = true
@@ -212,119 +236,176 @@ const AddChainScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
-      footer={
-        <ActionFooter
-          onReject={handleDenyButtonPress}
-          onResolve={handlePrimaryButtonPress}
-          resolveButtonText={resolveButtonText}
-          resolveDisabled={
-            !areParamsValid ||
-            statuses.addNetwork === 'LOADING' ||
-            statuses.updateNetwork === 'LOADING' ||
-            (features &&
-              (features.some((f) => f.level === 'loading') ||
-                !!features.filter((f) => f.id === 'flagged')[0])) ||
-            actionButtonPressedRef.current
+      header={
+        <HeaderAccountAndNetworkInfo
+          backgroundColor={
+            themeType === THEME_TYPES.DARK
+              ? (theme.tertiaryBackground as string)
+              : (theme.primaryBackground as string)
           }
         />
       }
+      footer={
+        networkAlreadyAdded ? (
+          <View style={flexbox.flex1}>
+            <Button
+              testID="added-network-close-button"
+              style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
+              size="large"
+              hasBottomSpacing={false}
+              onPress={handleCloseOnAlreadyAdded}
+              text={t('Close')}
+              type="primary"
+              disabled={statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'}
+            />
+          </View>
+        ) : (
+          <ActionFooter
+            onReject={handleDenyButtonPress}
+            onResolve={handlePrimaryButtonPress}
+            resolveButtonText={resolveButtonText}
+            resolveDisabled={
+              !areParamsValid ||
+              statuses.addNetwork === 'LOADING' ||
+              statuses.updateNetwork === 'LOADING' ||
+              (features &&
+                (features.some((f) => f.level === 'loading') ||
+                  !!features.filter((f) => f.id === 'flagged')[0])) ||
+              actionButtonPressedRef.current
+            }
+          />
+        )
+      }
       backgroundColor={theme.quinaryBackground}
     >
-      <TabLayoutWrapperMainContent
-        style={spacings.mbLg}
-        withScroll={false}
-        contentContainerStyle={[spacings.pvMd, { flexGrow: 1 }]}
-      >
-        <Text weight="medium" fontSize={20} style={spacings.mbMd}>
-          {t('Add new network')}
-        </Text>
-
-        <View style={styles.dappInfoContainer}>
-          {!existingNetwork && (
-            <ManifestImage
-              uri={requestSession?.icon}
-              size={50}
-              fallback={() => <ManifestFallbackIcon />}
-              containerStyle={spacings.mrMd}
-            />
-          )}
-
-          {!existingNetwork ? (
-            <Trans values={{ name: requestSession?.name || 'The App' }}>
-              <Text>
-                <Text fontSize={20} appearance="secondaryText">
-                  {t('Allow ')}
+      <TabLayoutWrapperMainContent style={spacings.mbLg} withScroll={false}>
+        {networkAlreadyAdded ? (
+          <View style={[flexbox.flex1, flexbox.alignCenter, spacings.mt2Xl]}>
+            <View style={styles.boxWrapper}>
+              <BackgroundShapes style={[styles.backgroundShapes, spacings.mhSm]} />
+              <View style={styles.animationContainer}>
+                <LottieView animationData={animation} style={styles.lottieView} loop />
+                <CheckIcon2
+                  style={[
+                    styles.checkIcon,
+                    {
+                      transform: [{ translateX: -0.5 * 64 }, { translateY: -0.5 * 64 }]
+                    }
+                  ]}
+                />
+              </View>
+              <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+                <Text fontSize={20} weight="medium">
+                  {networkAlreadyAdded.name} Network
                 </Text>
-                <Text fontSize={20} weight="semiBold">
-                  {'{{name}} '}
-                </Text>
-                <Text fontSize={20} appearance="secondaryText">
-                  {t('to add a network')}
-                </Text>
-              </Text>
-            </Trans>
-          ) : (
-            <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-              <NetworkIcon id={String(existingNetwork.chainId)} size={50} style={spacings.mrMd} />
-
-              <View style={flexbox.flex1}>
-                <Text fontSize={20} weight="semiBold">
-                  {existingNetwork.name}
-                </Text>
-                <Text appearance="secondaryText" weight="medium" numberOfLines={2}>
-                  {t("found in Ambire Wallet but it's disabled. Do you wish to enable it?")}
+                <Text fontSize={15} appearance="secondaryText">
+                  {t('already added to your wallet.')}
                 </Text>
               </View>
             </View>
-          )}
-        </View>
-        {!existingNetwork && (
-          <Text fontSize={14} weight="medium" appearance="secondaryText" style={spacings.mb}>
-            {t('Ambire Wallet does not verify custom networks.')}
-          </Text>
-        )}
-        {!!areParamsValid && !!networkDetails && (
-          <View style={[flexbox.directionRow, flexbox.flex1]}>
-            <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
-              <NetworkDetails
-                name={networkDetails.name || userRequest?.action?.params?.[0]?.chainName}
-                iconUrls={networkDetails?.iconUrls || []}
-                chainId={networkDetails.chainId}
-                rpcUrls={networkDetails.rpcUrls}
-                selectedRpcUrl={rpcUrls[rpcUrlIndex]}
-                nativeAssetSymbol={networkDetails.nativeAssetSymbol}
-                nativeAssetName={networkDetails.nativeAssetName}
-                explorerUrl={networkDetails.explorerUrl}
-                style={{ backgroundColor: theme.primaryBackground }}
-                type="vertical"
-              />
-            </ScrollableWrapper>
-            <View style={styles.separator} />
-            <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
-              {!!networkDetails && (
-                <NetworkAvailableFeatures
-                  features={features}
-                  chainId={networkDetails.chainId}
-                  withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
-                  handleRetry={handleRetryWithDifferentRpcUrl}
+          </View>
+        ) : (
+          <>
+            <Text weight="medium" fontSize={20} style={spacings.mbMd}>
+              {t('Add new network')}
+            </Text>
+
+            <View style={styles.dappInfoContainer}>
+              {!existingNetwork && (
+                <ManifestImage
+                  uri={requestSession?.icon}
+                  size={50}
+                  fallback={() => <ManifestFallbackIcon />}
+                  containerStyle={spacings.mrMd}
                 />
               )}
-            </ScrollableWrapper>
-          </View>
-        )}
-        {!areParamsValid && areParamsValid !== null && !actionButtonPressedRef.current && (
-          <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
-            <Alert
-              title={t('Invalid Request Params')}
-              text={t(
-                `${
-                  userRequest?.session?.name || 'The App'
-                } provided invalid params for adding a new network.`
+
+              {!existingNetwork ? (
+                <Trans values={{ name: requestSession?.name || 'The App' }}>
+                  <Text>
+                    <Text fontSize={20} appearance="secondaryText">
+                      {t('Allow ')}
+                    </Text>
+                    <Text fontSize={20} weight="semiBold">
+                      {'{{name}} '}
+                    </Text>
+                    <Text fontSize={20} appearance="secondaryText">
+                      {t('to add a network')}
+                    </Text>
+                  </Text>
+                </Trans>
+              ) : (
+                <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+                  <NetworkIcon
+                    id={String(existingNetwork.chainId)}
+                    size={50}
+                    style={spacings.mrMd}
+                  />
+
+                  <View style={flexbox.flex1}>
+                    <Text fontSize={20} weight="semiBold">
+                      {existingNetwork.name}
+                    </Text>
+                    <Text appearance="secondaryText" weight="medium" numberOfLines={2}>
+                      {t("found in Ambire Wallet but it's disabled. Do you wish to enable it?")}
+                    </Text>
+                  </View>
+                </View>
               )}
-              type="error"
-            />
-          </View>
+            </View>
+            {!existingNetwork && (
+              <Text fontSize={14} weight="medium" appearance="secondaryText" style={spacings.mb}>
+                {t('Ambire Wallet does not verify custom networks.')}
+              </Text>
+            )}
+            {!!areParamsValid && !!networkDetails && (
+              <View style={[flexbox.directionRow, flexbox.flex1]}>
+                <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
+                  <NetworkDetails
+                    name={networkDetails.name || userRequest?.action?.params?.[0]?.chainName}
+                    iconUrls={networkDetails?.iconUrls || []}
+                    chainId={networkDetails.chainId}
+                    rpcUrls={networkDetails.rpcUrls}
+                    selectedRpcUrl={rpcUrls[rpcUrlIndex]}
+                    nativeAssetSymbol={networkDetails.nativeAssetSymbol}
+                    nativeAssetName={networkDetails.nativeAssetName}
+                    explorerUrl={networkDetails.explorerUrl}
+                    style={{
+                      backgroundColor:
+                        themeType === THEME_TYPES.DARK
+                          ? theme.secondaryBackground
+                          : theme.primaryBackground
+                    }}
+                    type="vertical"
+                  />
+                </ScrollableWrapper>
+                <View style={styles.separator} />
+                <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
+                  {!!networkDetails && (
+                    <NetworkAvailableFeatures
+                      features={features}
+                      chainId={networkDetails.chainId}
+                      withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
+                      handleRetry={handleRetryWithDifferentRpcUrl}
+                    />
+                  )}
+                </ScrollableWrapper>
+              </View>
+            )}
+            {!areParamsValid && areParamsValid !== null && !actionButtonPressedRef.current && (
+              <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+                <Alert
+                  title={t('Invalid Request Params')}
+                  text={t(
+                    `${
+                      userRequest?.session?.name || 'The App'
+                    } provided invalid params for adding a new network.`
+                  )}
+                  type="error"
+                />
+              </View>
+            )}
+          </>
         )}
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

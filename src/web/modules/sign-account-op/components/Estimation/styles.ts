@@ -1,6 +1,5 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -8,7 +7,6 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Style {
   selectedFee: ViewStyle
   gasTankContainer: ViewStyle
-  gasTankText: TextStyle
   estimationContainer: ViewStyle
   estimationScrollView: ViewStyle
   spinner: ViewStyle
@@ -24,10 +22,6 @@ const getStyles = (theme: ThemeProps) =>
     gasTankContainer: {
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween
-    },
-    gasTankText: {
-      color: colors.greenHaze,
-      fontSize: 14
     },
     estimationContainer: {
       ...flexbox.flex1,

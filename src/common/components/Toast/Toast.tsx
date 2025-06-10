@@ -83,7 +83,7 @@ const Toast = ({
 
   const onPress = async () => {
     if (url) {
-      await openInTab(url, false)
+      await openInTab({ url })
     } else if (onClick) {
       onClick()
     }
@@ -107,7 +107,7 @@ const Toast = ({
           flexbox.directionRow,
           common.borderRadiusPrimary,
           {
-            borderWidth: 2,
+            borderWidth: 1,
             backgroundColor: theme[`${type}Background`],
             borderColor: theme[`${type}Decorative`]
           }
