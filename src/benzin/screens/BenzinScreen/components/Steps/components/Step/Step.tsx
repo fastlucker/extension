@@ -107,25 +107,22 @@ const Step: FC<StepProps> = ({
         {hasFailed && (
           <RejectedIcon width={18} height={18} color={theme.errorDecorative} style={styles.icon} />
         )}
-        {isCompleted ? (
+        {isCompleted && stepName !== 'finalized' && (
           <LinearGradient
             style={{
               width: 2,
               flex: 1
             }}
-            colors={
-              !hasFailed
-                ? [
-                    theme.successDecorative as string,
-                    (isRedDisplayedInLineGradient
-                      ? theme.errorDecorative
-                      : theme.successDecorative) as string
-                  ]
-                : [theme.errorDecorative as string, theme.errorDecorative as string]
-            }
+            colors={[
+              theme.successDecorative as string,
+              (isRedDisplayedInLineGradient
+                ? theme.errorDecorative
+                : theme.successDecorative) as string
+            ]}
             locations={[0.5, 1]}
           />
-        ) : (
+        )}
+        {!isCompleted && (
           <View
             style={{
               width: 2,
