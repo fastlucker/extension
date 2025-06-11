@@ -25,7 +25,6 @@ const ASSET_TYPE_TO_LABEL = {
 
 const DeFiPosition: FC<Props> = ({
   withTopBorder,
-  providerName,
   chainId,
   positionInUSD,
   additionalData,

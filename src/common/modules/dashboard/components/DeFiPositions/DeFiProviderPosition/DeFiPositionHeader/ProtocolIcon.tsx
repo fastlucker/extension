@@ -8,6 +8,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 
 const POSITION_TO_ICON: {
   [key: string]: FC
@@ -53,7 +54,21 @@ const ProtocolIcon = ({
         />
       ) : Icon ? (
         <View>
-          <Icon />
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor:
+                themeType === THEME_TYPES.DARK
+                  ? theme.secondaryBackground
+                  : theme.tertiaryBackground,
+              ...common.borderRadiusPrimary
+            }}
+          >
+            <Icon />
+          </View>
           <View
             style={{
               position: 'absolute',
@@ -62,7 +77,9 @@ const ProtocolIcon = ({
               zIndex: 3,
               borderWidth: 1,
               borderColor:
-                themeType === THEME_TYPES.DARK ? theme.secondaryBackground : theme.secondaryBorder,
+                themeType === THEME_TYPES.DARK
+                  ? theme.secondaryBackground
+                  : theme.tertiaryBackground,
               borderRadius: 12
             }}
           >

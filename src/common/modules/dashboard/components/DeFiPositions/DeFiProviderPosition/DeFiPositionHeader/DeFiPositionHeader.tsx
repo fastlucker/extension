@@ -50,7 +50,8 @@ const DeFiPositionHeader: FC<Props> = ({
   positionInUSD,
   isExpanded,
   healthRate,
-  iconUrl
+  iconUrl,
+  siteUrl
 }) => {
   const {
     state: { dapps }
@@ -78,7 +79,7 @@ const DeFiPositionHeader: FC<Props> = ({
 
   const openDAppUrl = useCallback(async () => {
     try {
-      await openInTab({ url: dappUrl! })
+      await openInTab({ url: siteUrl || dappUrl! })
     } catch (e) {
       console.error(e)
     }
