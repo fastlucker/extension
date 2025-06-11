@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
     ['junit', { outputFile: 'test-results/results.xml' }],
     ['html', { open: 'always' }]
   ],
-  timeout: 480 * 1000,
+  timeout: 180 * 1000,
   reportSlowTests: null,
   snapshotPathTemplate: 'data/screenshots/{projectName}/{testFilePath}/{arg}/text',
   retries: process.env.CI ? 1 : 0,

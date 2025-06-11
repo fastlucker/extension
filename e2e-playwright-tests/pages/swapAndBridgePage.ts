@@ -107,6 +107,7 @@ export class SwapAndBridgePage extends BasePage {
     }
   }
 
+  // TODO: refactor this method
   async prepareSwapAndBridge(send_amount, send_token, send_network, receive_token) {
     try {
       await this.openSwapAndBridge()
@@ -153,13 +154,12 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async selectSendTokenOnNetwork(send_token, send_network) {
-    await clickOnElement(this.page, SELECTORS.sendTokenSab)
-    await this.page.locator(SELECTORS.searchInput).waitFor({ state: 'visible', timeout: 3000 })
-    await typeText(this.page, SELECTORS.searchInput, send_token)
-    await clickOnElement(
-      this.page,
-      `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-    )
+    await this.page.getByTestId(selectors.sendTokenSab).click()
+    await this.page.getByTestId(selectors.searchInput).fill(send_token)
+    await this.page
+      .locator(`[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`)
+      .first()
+      .click()
   }
 
   async verifyIfSwitchIsActive(reference = true) {
@@ -342,7 +342,7 @@ export class SwapAndBridgePage extends BasePage {
 
   async verifyAutoRefreshRoute(): Promise<void> {
     const routeSelector = this.page.locator('text=Select route')
-    await routeSelector.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null)
+    await routeSelector.waitFor({ state: 'visible', timeout: 10000 }).catch(() => null)
     await routeSelector.waitFor({ state: 'hidden', timeout: 65000 })
     const didReappear = await routeSelector
       .waitFor({ state: 'visible', timeout: 65000 })
@@ -425,7 +425,7 @@ export class SwapAndBridgePage extends BasePage {
   async signTokens(): Promise<void> {
     await this.page.getByTestId(selectors.proceedButton).click()
     await this.page.getByTestId(selectors.swapSignButton).click()
-    await expect(this.page.getByText('Confirming your trade')).toBeVisible()
+    await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 5000 })
     // TODO: add more assertion
   }
 
