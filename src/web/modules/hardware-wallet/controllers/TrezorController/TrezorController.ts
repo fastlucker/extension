@@ -12,7 +12,10 @@ export type {
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'wallet@ambire.com',
-  appUrl: 'https://wallet.ambire.com'
+  appUrl: 'https://ambire.com',
+  appName: 'Ambire Wallet',
+  // TODO: Replace with https://www.ambire.com/ambire-trezor-connect-app-icon.png when it's ready
+  appIcon: 'https://assets.coingecko.com/coins/images/23154/standard/wallet.PNG?1696522445'
 }
 
 class TrezorController implements ExternalSignerController {
