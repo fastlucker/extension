@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
   ActionExecutionType,
+  Action as ActionFromActionsQueue,
   ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
@@ -358,7 +358,7 @@ type MainControllerSignAccountOpUpdateAction = {
     feeToken?: TokenResult
     paidBy?: string
     speed?: FeeSpeed
-    signingKeyAddr?: string
+    signingKeyAddr?: Key['addr']
     signingKeyType?: InternalKey['type'] | ExternalKey['type']
     gasUsedTooHighAgreed?: boolean
   }
@@ -373,8 +373,8 @@ type SignAccountOpUpdateAction = {
     feeToken?: TokenResult
     paidBy?: string
     speed?: FeeSpeed
-    signingKeyAddr?: string
-    signingKeyType?: string
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
     gasUsedTooHighAgreed?: boolean
   }
 }
@@ -564,7 +564,7 @@ type SwapAndBridgeControllerResetForm = {
 type SwapAndBridgeControllerBuildUserRequest = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
   params: {
-    openActionWindow?: boolean
+    openActionWindow: boolean
   }
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {

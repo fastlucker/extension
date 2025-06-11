@@ -350,7 +350,17 @@ const useSwapAndBridgeForm = () => {
     closePriceImpactModal()
 
     if (isOneClickModeDuringPriceImpact) {
-      openEstimationModalAndDispatch()
+      if (networkUserRequests.length > 0) {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          params: {
+            openActionWindow: true
+          }
+        })
+        window.close()
+      } else {
+        openEstimationModalAndDispatch()
+      }
     } else {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
@@ -365,7 +375,8 @@ const useSwapAndBridgeForm = () => {
     openEstimationModalAndDispatch,
     dispatch,
     isOneClickModeDuringPriceImpact,
-    setShowAddedToBatch
+    setShowAddedToBatch,
+    networkUserRequests
   ])
 
   const handleSubmitForm = useCallback(
@@ -380,7 +391,17 @@ const useSwapAndBridgeForm = () => {
       // open the estimation modal on one click method;
       // build/add a swap user request on batch
       if (isOneClickMode) {
-        openEstimationModalAndDispatch()
+        if (networkUserRequests.length > 0) {
+          dispatch({
+            type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+            params: {
+              openActionWindow: true
+            }
+          })
+          window.close()
+        } else {
+          openEstimationModalAndDispatch()
+        }
       } else {
         dispatch({
           type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
@@ -396,7 +417,8 @@ const useSwapAndBridgeForm = () => {
       highPriceImpactOrSlippageWarning,
       openEstimationModalAndDispatch,
       openPriceImpactModal,
-      quote
+      quote,
+      networkUserRequests
     ]
   )
 

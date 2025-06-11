@@ -28,7 +28,7 @@ const Buttons: FC<Props> = ({
   handleSubmitForm,
   isNotReadyToProceed,
   isBridge,
-  networkUserRequests
+  networkUserRequests = []
 }) => {
   const { t } = useTranslation()
 
@@ -72,7 +72,13 @@ const Buttons: FC<Props> = ({
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <Button
-          text={proceedBtnText}
+          text={
+            networkUserRequests.length > 0
+              ? `${proceedBtnText} ${t('({{count}})', {
+                  count: networkUserRequests.length
+                })}`
+              : proceedBtnText
+          }
           disabled={isNotReadyToProceed || !!oneClickDisabledReason}
           style={{ minWidth: 160, ...spacings.mlLg }}
           hasBottomSpacing={false}
