@@ -8,9 +8,13 @@ import Token from '../interfaces/token'
 
 export class TransferPage extends BasePage {
   async init(param) {
-    const { page, context } = await bootstrapWithStorage('transfer', param)
+    const { page } = await bootstrapWithStorage('transfer', param)
     this.page = page
-    this.context = context
+  }
+
+  async navigateToTransfer() {
+    const sendButton = this.page.getByTestId(TEST_IDS.dashboardButtonSend)
+    await sendButton.click()
   }
 
   async fillRecipient(address: string) {
@@ -20,11 +24,7 @@ export class TransferPage extends BasePage {
     await checkbox.click()
   }
 
-  async send(token: Token, recipientAddress: string, feeToken: Token, payWithGasTank?: boolean) {
-    // Navigate to Transfer
-    const sendButton = this.page.getByTestId(TEST_IDS.dashboardButtonSend)
-    await sendButton.click()
-
+  async fillForm(token: Token, recipientAddress: string) {
     // Choose token
     await this.clickOnMenuToken(token)
 
@@ -34,7 +34,9 @@ export class TransferPage extends BasePage {
 
     // Address
     await this.fillRecipient(recipientAddress)
+  }
 
+  async signAndValidate(feeToken: Token, payWithGasTank?: boolean) {
     // Proceed
     const proceedButton = this.page.getByTestId(TEST_IDS.proceedBtn)
     await proceedButton.click()
@@ -49,5 +51,19 @@ export class TransferPage extends BasePage {
     // Validate
     const txnStatus = await this.page.getByTestId(TEST_IDS.txnStatus).textContent()
     expect(txnStatus).toEqual('Transfer done!')
+  }
+
+  async send(token: Token, recipientAddress: string, feeToken: Token, payWithGasTank?: boolean) {
+    await this.navigateToTransfer()
+    await this.fillForm(token, recipientAddress)
+    await this.signAndValidate(feeToken, payWithGasTank)
+  }
+
+  async addToBatch() {
+    const batchButton = this.page.getByTestId(TEST_IDS.batchBtn)
+    await batchButton.click()
+
+    const gotIt = this.page.getByTestId(TEST_IDS.batchModalGotIt)
+    await gotIt.click()
   }
 }
