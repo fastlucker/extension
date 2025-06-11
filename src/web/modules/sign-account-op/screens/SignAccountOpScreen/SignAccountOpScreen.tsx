@@ -95,8 +95,8 @@ const SignAccountOpScreen = () => {
     feePayerKeyType,
     shouldDisplayLedgerConnectModal,
     network,
-    actionLoaded,
-    setActionLoaded,
+    initDispatchedForId,
+    setInitDispatchedForId,
     isSignDisabled
   } = useSign({
     handleUpdateStatus,
@@ -111,9 +111,8 @@ const SignAccountOpScreen = () => {
   }, [actionsState.currentAction])
 
   useEffect(() => {
-    // we're checking for actionLoaded as we're closing the current and
-    // opening a new window each time a new action comes. If we're not
-    // checking for actionLoaded, two dispatches occur for the same id:
+    // Check if the action is already initialized to avoid double dispatching
+    // Without this check two dispatches occur for the same id:
     // - one from the current window before it gets closed
     // - one from the new window
     // leading into two threads trying to initialize the same signAccountOp
@@ -121,14 +120,14 @@ const SignAccountOpScreen = () => {
     // gasPrice controller that sets an interval for fetching gas price
     // each 12s and that interval gets persisted into memory, causing double
     // fetching
-    if (accountOpAction?.id && !actionLoaded) {
-      setActionLoaded(true)
+    if (accountOpAction?.id && initDispatchedForId !== accountOpAction.id) {
+      setInitDispatchedForId(accountOpAction.id)
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
         params: { actionId: accountOpAction.id }
       })
     }
-  }, [accountOpAction?.id, actionLoaded, dispatch, setActionLoaded])
+  }, [accountOpAction?.id, initDispatchedForId, dispatch, setInitDispatchedForId])
 
   const handleRejectAccountOp = useCallback(() => {
     if (!accountOpAction) return

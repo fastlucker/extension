@@ -8,11 +8,9 @@ const Banner: React.FC = () => {
     <div className={styles.container}>
       <img className={styles.iconPlaceholder} src={governance} alt="Governance banner icon" />
       <div className={styles.textContent}>
-        <div className={styles.title}>
-          Governance vote for Season 1 allocation is in discussion.
-        </div>
+        <div className={styles.title}>Vote to decide Season 1 rewards until 24.6.2025 </div>
         <a
-          href="https://blog.ambire.com/p/667d3361-b91d-4a48-8101-2b09e81366dd/"
+          href="https://blog.ambire.com/rewards-distribution-season1/"
           className={styles.readMoreLink}
           target="_blank"
           rel="noreferrer"
