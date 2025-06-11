@@ -113,12 +113,16 @@ const Step: FC<StepProps> = ({
               width: 2,
               flex: 1
             }}
-            colors={[
-              theme.successDecorative as string,
-              (isRedDisplayedInLineGradient
-                ? theme.errorDecorative
-                : theme.successDecorative) as string
-            ]}
+            colors={
+              !hasFailed
+                ? [
+                    theme.successDecorative as string,
+                    (isRedDisplayedInLineGradient
+                      ? theme.errorDecorative
+                      : theme.successDecorative) as string
+                  ]
+                : [theme.errorDecorative as string, theme.errorDecorative as string]
+            }
             locations={[0.5, 1]}
           />
         ) : (
@@ -153,24 +157,27 @@ const Step: FC<StepProps> = ({
               {title === 'fetching' ? 'Confirmed' : title}
             </Text>
             {collapsibleRows && (
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <Text fontSize={14} color={theme.linkText}>
-                  {showAllRows ? 'show less' : 'show more'}
-                </Text>
-                <Pressable onPress={() => setShowAllRows((prev) => !prev)}>
-                  {({ hovered }: any) => (
+              <Pressable onPress={() => setShowAllRows((prev) => !prev)}>
+                {({ hovered }: any) => (
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Text fontSize={14} color={theme.linkText}>
+                      {showAllRows ? 'show less' : 'show more'}
+                    </Text>
+
                     <View style={[styles.arrow, hovered && styles.arrowHovered]}>
                       {showAllRows ? <UpArrowIcon /> : <DownArrowIcon />}
                     </View>
-                  )}
-                </Pressable>
-              </View>
+                  </View>
+                )}
+              </Pressable>
             )}
             <StatusExplanation status={finalizedStatus?.status} stepName={stepName} />
           </View>
         )}
         {children}
-        {!!visibleRows && visibleRows.map((row) => <StepRow {...row} key={row.label} />)}
+        {visibleRows.map((row) => (
+          <StepRow {...row} key={row.label} />
+        ))}
       </View>
     </View>
   )
