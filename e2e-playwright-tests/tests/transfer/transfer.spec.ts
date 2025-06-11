@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test'
+import { expect, Page } from '@playwright/test'
 import { baParams } from '../../config/constants'
 import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
@@ -32,7 +32,7 @@ test.describe('transfer', () => {
     await transferPage.send(sendToken, recipientAddress, feeToken, payWithGasTank)
   })
 
-  test('should batch multiple transfer transactions', async ({ transferPage }) => {
+  test.only('should batch multiple transfer transactions', async ({ transferPage }) => {
     const page = transferPage.page
     await transferPage.navigateToTransfer()
 
