@@ -64,6 +64,20 @@ const calculateWindowSizeAndPosition = async (
   customSize?: CustomSize,
   windowId?: number
 ): Promise<{ width: number; height: number; left: number; top: number }> => {
+  // When running E2E tests with `headless: true` (CI), window.screen is not available.
+  // As a workaround, we return a hardcoded centered window position based on a 1920x1080 viewport.
+  if (
+    process.env.IS_TESTING === 'true' &&
+    (window.screen.width === 0 || window.screen.height === 0)
+  ) {
+    return {
+      width: 1100,
+      height: 800,
+      left: 410,
+      top: 140
+    }
+  }
+
   let screenWidth = 0
   let screenHeight = 0
 
