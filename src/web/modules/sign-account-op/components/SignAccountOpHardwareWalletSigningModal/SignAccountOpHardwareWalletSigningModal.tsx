@@ -101,7 +101,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
       })
       window.close()
     }
-  }, [currentlyInvolvedSignOrBroadcastKeyType, dispatch, shouldBeVisible])
+  }, [actionType, currentlyInvolvedSignOrBroadcastKeyType, dispatch, shouldBeVisible])
 
   if (!currentlyInvolvedSignOrBroadcastKeyType) return null
 

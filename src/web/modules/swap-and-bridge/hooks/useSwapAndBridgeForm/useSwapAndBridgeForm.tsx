@@ -123,7 +123,10 @@ const useSwapAndBridgeForm = () => {
         }
 
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+          type: 'CLOSE_SIGNING_ACTION_WINDOW',
+          params: {
+            type: 'swapAndBridge'
+          }
         })
         navigate(ROUTES.dashboard)
 

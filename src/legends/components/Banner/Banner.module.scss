@@ -1,9 +1,10 @@
 @import '@legends/styles/base.scss';
 
 .container {
-  position: relative;
+  position: static;
   margin-left: auto;
-  top: -2rem;
+  top: 0rem;
+  right: 0;
   width: fit-content;
   display: flex;
   align-items: center;
@@ -22,8 +23,8 @@
   padding-left: 0;
   gap: .25rem;
 
-  @include breakpoint-down-from(tablet) {
-    top: -1rem;
+   @include breakpoint-down-from(tablet) {
+    top: -2rem;
   }
 }
 
