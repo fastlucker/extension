@@ -19,7 +19,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
 
   subType = 'hw' as 'hw'
 
-  walletSDK: KeyIteratorProps['walletSDK']
+  #walletSDK: KeyIteratorProps['walletSDK']
 
   // Cache the extended public key that would allow calculating all addresses
   // in the range, to avoid unnecessary requests to the Trezor device.
@@ -28,12 +28,17 @@ class TrezorKeyIterator implements KeyIteratorInterface {
   constructor({ walletSDK }: KeyIteratorProps) {
     if (!walletSDK) throw new Error('trezorKeyIterator: missing walletSDK prop')
 
-    this.walletSDK = walletSDK
+    this.#walletSDK = walletSDK
   }
 
-  private deriveAddressFromXpub(xpub: string, path: string, index: number): string {
+  #deriveAddressFromXpub(index: number): string {
+    if (!this.#xpub)
+      throw new ExternalSignerError(
+        'Could not generate an Ethereum address because the extended public key is missing.'
+      )
+
     try {
-      const hdNode = HDNodeWallet.fromExtendedKey(xpub)
+      const hdNode = HDNodeWallet.fromExtendedKey(this.#xpub)
       const childNode = hdNode.deriveChild(index)
 
       return childNode.address
@@ -48,7 +53,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     fromToArr: { from: number; to: number }[],
     hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
   ) {
-    if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
+    if (!this.#walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
     if (!hdPathTemplate) throw new Error('trezorKeyIterator: missing hdPathTemplate')
 
     const addrBundleToBeRequested: { path: string; index: number }[] = []
@@ -64,7 +69,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
 
     if (!this.#xpub) {
       try {
-        const res = await this.walletSDK.getPublicKey({
+        const res = await this.#walletSDK.getPublicKey({
           coin: 'ETH',
           path: getParentHdPathFromTemplate(hdPathTemplate),
           showOnTrezor: false
@@ -85,15 +90,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       }
     }
 
-    return addrBundleToBeRequested.map(({ path, index }) => {
-      // should never happen
-      if (!this.#xpub)
-        throw new ExternalSignerError(
-          'Could not generate an Ethereum address because the extended public key is missing.'
-        )
-
-      return this.deriveAddressFromXpub(this.#xpub, path, index)
-    })
+    return addrBundleToBeRequested.map(({ index }) => this.#deriveAddressFromXpub(index))
   }
 }
 
