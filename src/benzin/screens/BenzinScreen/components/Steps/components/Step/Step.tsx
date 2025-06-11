@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient'
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC, useState } from 'react'
 import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
@@ -33,8 +33,6 @@ interface StepProps {
   collapsibleRows?: boolean
 }
 
-const TOGGLE_ROW_LIMIT = 2
-
 const Step: FC<StepProps> = ({
   title,
   rows,
@@ -50,16 +48,6 @@ const Step: FC<StepProps> = ({
   const { theme, styles } = useTheme(getStyles)
 
   const [showAllRows, setShowAllRows] = useState(false)
-
-  const visibleRows = useMemo(() => {
-    if (!rows) return []
-
-    if (collapsibleRows && !showAllRows) {
-      return rows.slice(0, TOGGLE_ROW_LIMIT)
-    }
-
-    return rows
-  }, [collapsibleRows, rows, showAllRows])
 
   // Steps have 3 stages:
   // 1. Initial (not yet started and not next step)
@@ -172,9 +160,10 @@ const Step: FC<StepProps> = ({
           </View>
         )}
         {children}
-        {visibleRows.map((row) => (
-          <StepRow {...row} key={row.label} />
-        ))}
+        {rows &&
+          rows
+            .filter((row) => !(row.collapsedByDefault && !showAllRows))
+            .map((row) => <StepRow {...row} key={row.label} />)}
       </View>
     </View>
   )

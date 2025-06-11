@@ -98,7 +98,8 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
     if (from !== originatedFrom)
       finalStepRows.push({
         label: 'Originated from',
-        value: originatedFrom
+        value: originatedFrom,
+        collapsedByDefault: true
       })
   }
 
@@ -106,7 +107,8 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
     finalStepRows.push({
       label: 'Transaction ID',
       value: txnId,
-      isValueSmall: true
+      isValueSmall: true,
+      collapsedByDefault: true
     })
   }
 
@@ -114,7 +116,8 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
     finalStepRows.push({
       label: 'User Op ID',
       value: userOpHash,
-      isValueSmall: true
+      isValueSmall: true,
+      collapsedByDefault: true
     })
   }
 
