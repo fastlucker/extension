@@ -158,7 +158,8 @@ class TrezorSigner implements KeystoreSignerInterface {
           ? toBeHex(txnRequest.maxPriorityFeePerGas)
           : undefined,
       nonce: toBeHex(txnRequest.nonce),
-      chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
+      chainId: Number(txnRequest.chainId), // assuming the value is a BigInt within the safe integer range
+      to: txnRequest.to !== undefined ? txnRequest.to : null
     }
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
