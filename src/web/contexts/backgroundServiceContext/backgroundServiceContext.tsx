@@ -170,6 +170,8 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
           // so keep a longer timeout to give the user enough time to read them.
           addToast(lastError.message, { timeout: 12000, type: 'error' })
 
+        console.log('Error', lastError.toString(), JSON.stringify(newState))
+
         console.error(
           `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`
         )
