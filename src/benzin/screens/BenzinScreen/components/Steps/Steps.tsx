@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View } from 'react-native'
+import { useWindowDimensions, View } from 'react-native'
 
 import { EIP7702Auth } from '@ambire-common/consts/7702'
 import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
@@ -27,6 +27,7 @@ interface Props {
 }
 
 const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, delegation }) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions()
   const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
   const finalStepRows: any = getFinalizedRows(blockData, finalizedStatus)
 
@@ -118,14 +119,16 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
   }
 
   const isFinalized = activeStep === 'finalized'
+  const showConfetti =
+    isFinalized && finalizedStatus !== null && finalizedStatus.status === 'confirmed'
 
   return (
     <>
-      {isFinalized && (
+      {showConfetti && (
         <ConfettiAnimation
           type="tertiary"
-          width={1000}
-          height={1000}
+          width={windowWidth}
+          height={windowHeight}
           autoPlay
           loop={false}
           style={{ zIndex: 1 }}
