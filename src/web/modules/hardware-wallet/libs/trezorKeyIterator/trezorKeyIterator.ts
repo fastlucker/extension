@@ -4,7 +4,7 @@ import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
-import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { getHdPathFromTemplate, getParentHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { TrezorConnect } from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 interface KeyIteratorProps {
@@ -34,9 +34,6 @@ class TrezorKeyIterator implements KeyIteratorInterface {
   private deriveAddressFromXpub(xpub: string, path: string, index: number): string {
     try {
       const hdNode = HDNodeWallet.fromExtendedKey(xpub)
-      // If index is 0, return the address directly from the xpub node
-      if (index === 0) return hdNode.address
-      // For other indices, derive the child node
       const childNode = hdNode.deriveChild(index)
       return childNode.address
     } catch (error: any) {
@@ -71,7 +68,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
           // generated at index 0 lets you derive all addresses (0, 1, 2, ...).
           // If you generate an xpub at index 2, you can only derive addresses 2, 3, 4, etc.
           // You cannot derive earlier addresses (0 or 1) from an xpub generated at a higher index.
-          path: addrBundleToBeRequested[0].path,
+          path: getParentHdPathFromTemplate(hdPathTemplate!),
           showOnTrezor: false
         })
 
