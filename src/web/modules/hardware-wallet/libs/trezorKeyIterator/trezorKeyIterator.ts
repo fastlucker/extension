@@ -31,13 +31,13 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     this.walletSDK = walletSDK
   }
 
-  private deriveAddressFromXpub(xpub: string, path: string, i: number): string {
+  private deriveAddressFromXpub(xpub: string, path: string, index: number): string {
     try {
       const hdNode = HDNodeWallet.fromExtendedKey(xpub)
       // If index is 0, return the address directly from the xpub node
-      if (i === 0) return hdNode.address
+      if (index === 0) return hdNode.address
       // For other indices, derive the child node
-      const childNode = hdNode.deriveChild(i)
+      const childNode = hdNode.deriveChild(index)
       return childNode.address
     } catch (error: any) {
       throw new ExternalSignerError(
@@ -52,14 +52,14 @@ class TrezorKeyIterator implements KeyIteratorInterface {
   ) {
     if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
 
-    const addrBundleToBeRequested: { path: string; showOnTrezor: boolean; i: number }[] = []
+    const addrBundleToBeRequested: { path: string; index: number }[] = []
     fromToArr.forEach(({ from, to }) => {
       if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
         throw new Error('trezorKeyIterator: invalid or missing arguments')
 
       for (let i = from; i <= to; i++) {
         const path = getHdPathFromTemplate(hdPathTemplate, i)
-        addrBundleToBeRequested.push({ path, showOnTrezor: false, i })
+        addrBundleToBeRequested.push({ path, index: i })
       }
     })
 
@@ -67,6 +67,10 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       try {
         const res = await this.walletSDK.getPublicKey({
           coin: 'ETH',
+          // Always request the xpub from the first address (index 0). // An xpub
+          // generated at index 0 lets you derive all addresses (0, 1, 2, ...).
+          // If you generate an xpub at index 2, you can only derive addresses 2, 3, 4, etc.
+          // You cannot derive earlier addresses (0 or 1) from an xpub generated at a higher index.
           path: addrBundleToBeRequested[0].path,
           showOnTrezor: false
         })
@@ -86,15 +90,14 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       }
     }
 
-    return addrBundleToBeRequested.flatMap(({ path, i }) => {
+    return addrBundleToBeRequested.map(({ path, index }) => {
       // should never happen
       if (!this.#xpub)
         throw new ExternalSignerError(
           'Could not generate an Ethereum address because the extended public key is missing.'
         )
 
-      const address = this.deriveAddressFromXpub(this.#xpub, path, i)
-      return address
+      return this.deriveAddressFromXpub(this.#xpub, path, index)
     })
   }
 }
