@@ -42,7 +42,7 @@ const useSwapAndBridgeForm = () => {
     sessionIds,
     toSelectedToken
   } = useSwapAndBridgeControllerState()
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
+  const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   /**
@@ -93,6 +93,16 @@ const useSwapAndBridgeForm = () => {
     if (!fromSelectedToken || !toSelectedToken) return false
     return fromSelectedToken.chainId !== BigInt(toSelectedToken.chainId)
   }, [fromSelectedToken, toSelectedToken])
+
+  const networkUserRequests = useMemo(() => {
+    if (!fromSelectedToken || !account || !userRequests.length) return []
+    return userRequests.filter(
+      (r) =>
+        r.action.kind === 'calls' &&
+        r.meta.accountAddr === account.addr &&
+        r.meta.chainId === fromSelectedToken.chainId
+    )
+  }, [fromSelectedToken, userRequests, account])
 
   const handleSetFromAmount = useCallback(
     (val: string) => {
@@ -471,7 +481,8 @@ const useSwapAndBridgeForm = () => {
     estimationModalRef,
     setIsAutoSelectRouteDisabled,
     isBridge,
-    setShowAddedToBatch
+    setShowAddedToBatch,
+    networkUserRequests
   }
 }
 

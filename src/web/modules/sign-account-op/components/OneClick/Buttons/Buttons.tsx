@@ -3,48 +3,34 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
-import { TokenResult } from '@ambire-common/libs/portfolio'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import Tooltip from '@common/components/Tooltip'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 type Props = {
-  token: TokenResult | null
   handleSubmitForm: (isOneClickMode: boolean) => void
   proceedBtnText?: string
   signAccountOpErrors: SignAccountOpError[]
   isNotReadyToProceed: boolean
   isBridge?: boolean
+  networkUserRequests: UserRequest[]
 }
 
 const { isActionWindow } = getUiType()
 
 const Buttons: FC<Props> = ({
-  token,
   signAccountOpErrors,
   proceedBtnText = 'Proceed',
   handleSubmitForm,
   isNotReadyToProceed,
-  isBridge
+  isBridge,
+  networkUserRequests
 }) => {
   const { t } = useTranslation()
-  const { userRequests } = useMainControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const fromChainId = token?.chainId
-
-  const networkUserRequests = fromChainId
-    ? userRequests?.filter(
-        (r) =>
-          r.action.kind === 'calls' &&
-          r.meta.accountAddr === account?.addr &&
-          r.meta.chainId === fromChainId
-      )
-    : []
 
   const oneClickDisabledReason = useMemo(() => {
     if (signAccountOpErrors.length > 0) {
