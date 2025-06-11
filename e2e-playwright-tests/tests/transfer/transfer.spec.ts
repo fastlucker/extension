@@ -32,7 +32,7 @@ test.describe('transfer', () => {
     await transferPage.send(sendToken, recipientAddress, feeToken, payWithGasTank)
   })
 
-  test.only('should batch multiple transfer transactions', async ({ transferPage }) => {
+  test('should batch multiple transfer transactions', async ({ transferPage }) => {
     const page = transferPage.page
     await transferPage.navigateToTransfer()
 
