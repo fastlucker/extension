@@ -56,5 +56,5 @@ export const locators = {
   proceedButton: 'div[data-testid="proceed-btn"]',
   swapSignButton: 'div[data-testid="swap-button-sign"]',
   addMoreSwapsButton: 'div[data-testid="add-more-swaps"]',
-  openDashboardFromBatchButton: 'div:has-text("Open dashboard") >> nth=10'
+  openDashboardFromBatchButton: '//div[contains(text(),"Open dashboard")]'
 }

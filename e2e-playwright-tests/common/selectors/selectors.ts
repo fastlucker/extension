@@ -1,5 +1,6 @@
 import { buildSelector } from '../../common-helpers/buildSelector'
 
+// TODO: this should be refactored; we should have single file with selector IDs
 export const TEST_IDS = {
   account: 'account',
   importBtn: 'import-button',
@@ -120,7 +121,9 @@ export const TEST_IDS = {
   removeNetworkButton: 'remove-network-btn',
   removeNetworkConfirmButton: 'remove-network-confirm-btn',
   signButtonSwap: 'swap-button-sign',
-  flipUSDIcon: 'flip-icon'
+  flipUSDIcon: 'flip-icon',
+  proceedButton: 'proceed-btn',
+  swapSignButton: 'swap-button-sign'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

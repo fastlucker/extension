@@ -4,7 +4,7 @@ import { expect } from '@playwright/test'
 import { bootstrapWithStorage } from '../common-helpers/bootstrap'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { SELECTORS } from '../common/selectors/selectors'
+import { SELECTORS, TEST_IDS as selectors } from '../common/selectors/selectors'
 import { constants } from '../constants/constants'
 import { BasePage } from './basePage'
 
@@ -101,7 +101,8 @@ export class SwapAndBridgePage extends BasePage {
 
   async openSwapAndBridge() {
     if (!this.page.url().includes('/swap-and-bridge')) {
-      await clickOnElement(this.page, SELECTORS.dashboardButtonSwapAndBridge)
+      await this.page.getByTestId(selectors.dashboardButtonSwapAndBridge).click()
+      // await clickOnElement(this.page, SELECTORS.dashboardButtonSwapAndBridge)
       await this.verifyIfOnSwapAndBridgePage()
     }
   }
@@ -114,9 +115,11 @@ export class SwapAndBridgePage extends BasePage {
       // Select Receive Token on the same Network, which is automatically selected
       await this.page.waitForTimeout(2000) // Wait 2000ms before click for the Receive Token list to be populated
       // await clickOnElement(this.page, SELECTORS.receiveTokenSab, 1000)
-      await this.page.click(SELECTORS.receiveTokenSab, { timeout: 1000 })
+      await this.page.getByTestId(selectors.receiveTokenSab).click()
 
-      await typeText(this.page, SELECTORS.searchInput, receive_token)
+      // await typeText(this.page, SELECTORS.searchInput, receive_token)
+      await this.page.getByTestId(selectors.searchInput).fill(receive_token)
+      // TODO: refactor this; we have data-testid for options in drop down
       await clickOnElement(this.page, `[data-testid*="${receive_token.toLowerCase()}"]`)
       // If checking prepareSwapAndBridge functionality without providing send amount
       if (send_amount === null) {
@@ -129,7 +132,8 @@ export class SwapAndBridgePage extends BasePage {
       }
 
       // Enter the amount
-      await typeText(this.page, SELECTORS.fromAmountInputSab, send_amount.toString())
+      await this.page.getByTestId(selectors.fromAmountInputSab).fill(send_amount.toString())
+
       // TODO: Implement verifyRouteFound
       // await verifyRouteFound()
 
@@ -138,7 +142,7 @@ export class SwapAndBridgePage extends BasePage {
         .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
         .catch(() => null)
       if (isHighPrice) {
-        await clickOnElement(this.page, SELECTORS.highPriceImpactSab)
+        await this.page.getByTestId(selectors.highPriceImpactSab).click()
         return 'Continue anyway'
       }
       return 'Proceed'
@@ -286,7 +290,6 @@ export class SwapAndBridgePage extends BasePage {
     await this.openSwapAndBridge()
     await this.selectSendTokenOnNetwork(sendToken, sendNetwork)
     await typeText(this.page, SELECTORS.fromAmountInputSab, sendAmount.toString())
-
     const [usdOldAmount, currency] = await this.getUSDTextContent()
     expect(currency).toBe('$')
     const oldAmount = await this.getSendAmount()
@@ -354,7 +357,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async clickOnSecondRoute(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 8000 })
     await this.page.locator(locators.selectRouteButton).last().click()
     await this.page.locator(locators.liFiRoute).last().click()
     await this.page.locator(locators.selectRouteButton).last().click()
@@ -420,20 +423,22 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async signTokens(): Promise<void> {
-    await this.page.locator(locators.proceedButton).click()
-    await this.page.locator(locators.swapSignButton).click()
+    await this.page.getByTestId(selectors.proceedButton).click()
+    await this.page.getByTestId(selectors.swapSignButton).click()
     await expect(this.page.getByText('Confirming your trade')).toBeVisible()
     // TODO: add more assertion
   }
 
   async batchAction(): Promise<void> {
     await this.page.waitForTimeout(2000)
+    await this.page.locator(locators.addToBatchButton).isEnabled()
     await this.page.locator(locators.addToBatchButton).click()
     await this.page.locator(locators.addMoreSwapsButton).click()
   }
 
   async batchActionWithSign(): Promise<void> {
     await this.page.waitForTimeout(2000)
+    await this.page.locator(locators.addToBatchButton).isEnabled()
     await this.page.locator(locators.addToBatchButton).click()
     await this.page.locator(locators.openDashboardFromBatchButton).first().click()
     const newPage = await this.handleNewPage(locators.bannerButtonOpen)

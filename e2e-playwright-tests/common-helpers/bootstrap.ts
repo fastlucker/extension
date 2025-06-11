@@ -1,5 +1,6 @@
 import { BrowserContext, chromium, Page } from '@playwright/test'
 
+import { TEST_IDS as selectors } from '../common/selectors/selectors'
 import { DEF_KEYSTORE_PASS } from '../config/constants'
 import { constants } from '../constants/constants'
 import { typeKeystorePassAndUnlock } from './typeKeystorePassAndUnlock'
@@ -193,7 +194,9 @@ export async function bootstrapWithStorage(
       // Navigate to a specific URL if necessary
       await page.goto(`${extensionURL}/tab.html#/`, { waitUntil: 'load' }) // removed '/keystore-unlock' because of wrong redirection to /keystore-setup
 
-      await typeKeystorePassAndUnlock(page, DEF_KEYSTORE_PASS)
+      // await typeKeystorePassAndUnlock(page, DEF_KEYSTORE_PASS) // TODO: this method should be deprecarted
+      await page.getByTestId(selectors.passphraseField).fill(DEF_KEYSTORE_PASS)
+      await page.getByTestId(selectors.buttonUnlock).click()
     } catch (e) {
       console.log(e)
       process.exit(1)
