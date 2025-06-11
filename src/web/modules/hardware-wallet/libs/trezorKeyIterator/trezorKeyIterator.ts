@@ -39,10 +39,10 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       // For other indices, derive the child node
       const childNode = hdNode.deriveChild(i)
       return childNode.address
-    } catch (error) {
-      // TODO: Handle this!
-      console.error('trezorKeyIterator: error deriving address from xpub', error)
-      return ''
+    } catch (error: any) {
+      throw new ExternalSignerError(
+        `Could not generate Ethereum address from the extended public key received from your Trezor device. Technical details: <${error?.message}>.`
+      )
     }
   }
 
@@ -77,14 +77,22 @@ class TrezorKeyIterator implements KeyIteratorInterface {
           )
 
         this.#xpub = res.payload.xpub
-      } catch (error) {
-        console.error('trezorKeyIterator: error getting xpub', error)
-        throw new ExternalSignerError('trezorKeyIterator: error getting xpub')
+      } catch (error: any) {
+        if (error instanceof ExternalSignerError) throw error
+
+        throw new ExternalSignerError(
+          `Could not receive the extended public key from your Trezor device. Technical details: <${error?.message}>.`
+        )
       }
     }
 
-    return addrBundleToBeRequested.map(({ path, i }) => {
-      // TODO: Fix ts warn
+    return addrBundleToBeRequested.flatMap(({ path, i }) => {
+      // should never happen
+      if (!this.#xpub)
+        throw new ExternalSignerError(
+          'Could not generate an Ethereum address because the extended public key is missing.'
+        )
+
       const address = this.deriveAddressFromXpub(this.#xpub, path, i)
       return address
     })
