@@ -23,7 +23,7 @@ export abstract class BasePage {
     const context = this.page.context()
     const [newPage] = await Promise.all([
       context.waitForEvent('page'),
-      this.page.locator(locator).first().click({ timeout: 3000 })
+      this.page.getByTestId(locator).first().click({ timeout: 3000 })
     ])
     await newPage.waitForLoadState()
     return newPage
