@@ -127,7 +127,7 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, 
           width={1000}
           height={1000}
           autoPlay
-          loop
+          loop={false}
           style={{ zIndex: 1 }}
         />
       )}

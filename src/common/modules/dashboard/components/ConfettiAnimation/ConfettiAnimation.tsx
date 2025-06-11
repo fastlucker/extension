@@ -39,7 +39,6 @@ const ConfettiAnimation = ({
         alignSelf: 'center',
         ...style
       }}
-      loop
     />
   )
 }
