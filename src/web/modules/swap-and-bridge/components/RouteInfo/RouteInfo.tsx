@@ -29,11 +29,13 @@ const RouteInfo: FC<Props> = ({
   isAutoSelectRouteDisabled,
   openRoutesModal
 }) => {
-  const { formStatus, signAccountOpController, quote, swapSignErrors } =
+  const { formStatus, signAccountOpController, quote, swapSignErrors, errors } =
     useSwapAndBridgeControllerState()
   const { isOG } = useInviteControllerState()
   const { theme, themeType } = useTheme()
   const { t } = useTranslation()
+
+  const noRoutesFoundError = errors.find(({ id }) => id === 'no-routes')?.title
 
   return (
     <View
@@ -59,7 +61,9 @@ const RouteInfo: FC<Props> = ({
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <WarningIcon width={14} height={14} color={theme.warningDecorative} />
           <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
-            {t('No routes found, please try again by changing the amount')}
+            {noRoutesFoundError
+              ? t(`No routes found. Reason: ${noRoutesFoundError}`)
+              : t('No routes found, please try again by changing the amount')}
           </Text>
         </View>
       )}
