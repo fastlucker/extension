@@ -35,6 +35,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     try {
       const hdNode = HDNodeWallet.fromExtendedKey(xpub)
       const childNode = hdNode.deriveChild(index)
+
       return childNode.address
     } catch (error: any) {
       throw new ExternalSignerError(
@@ -48,10 +49,11 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
   ) {
     if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
+    if (!hdPathTemplate) throw new Error('trezorKeyIterator: missing hdPathTemplate')
 
     const addrBundleToBeRequested: { path: string; index: number }[] = []
     fromToArr.forEach(({ from, to }) => {
-      if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
+      if ((!from && from !== 0) || (!to && to !== 0))
         throw new Error('trezorKeyIterator: invalid or missing arguments')
 
       for (let i = from; i <= to; i++) {
@@ -64,11 +66,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       try {
         const res = await this.walletSDK.getPublicKey({
           coin: 'ETH',
-          // Always request the xpub from the first address (index 0). // An xpub
-          // generated at index 0 lets you derive all addresses (0, 1, 2, ...).
-          // If you generate an xpub at index 2, you can only derive addresses 2, 3, 4, etc.
-          // You cannot derive earlier addresses (0 or 1) from an xpub generated at a higher index.
-          path: getParentHdPathFromTemplate(hdPathTemplate!),
+          path: getParentHdPathFromTemplate(hdPathTemplate),
           showOnTrezor: false
         })
 
