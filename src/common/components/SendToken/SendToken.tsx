@@ -65,20 +65,6 @@ const SendToken: FC<Props> = ({
   const { t } = useTranslation()
   const heading = title ?? t('Send')
 
-  const dollarIcon = useCallback(() => {
-    if (fromAmountFieldMode === 'token') return null
-
-    return (
-      <Text
-        fontSize={20}
-        weight="medium"
-        style={{ marginBottom: 3 }}
-        appearance={fromAmountInFiat ? 'primaryText' : 'secondaryText'}
-      >
-        $
-      </Text>
-    )
-  }, [fromAmountFieldMode, fromAmountInFiat])
   return (
     <View style={spacings.mbLg}>
       <Text appearance="secondaryText" fontSize={16} weight="medium" style={spacings.mbTy}>
@@ -123,10 +109,42 @@ const SendToken: FC<Props> = ({
               }}
               disabled={fromTokenAmountSelectDisabled}
               containerStyle={[spacings.mb0, flexbox.flex1]}
-              leftIcon={dollarIcon}
-              leftIconStyle={spacings.plXl}
               inputStyle={spacings.ph0}
               testID={inputTestId}
+              childrenBelowInput={
+                fromAmountFieldMode === 'fiat' && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: 0,
+                      zIndex: -1,
+                      width: '100%',
+                      height: '100%',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Text
+                      fontSize={20}
+                      weight="medium"
+                      style={{ zIndex: 3 }}
+                      appearance="secondaryText"
+                    >
+                      $
+                      <Text
+                        fontSize={20}
+                        weight="medium"
+                        style={{ opacity: 0 }}
+                        appearance="secondaryText"
+                      >
+                        {fromAmountValue || '0'}
+                      </Text>
+                    </Text>
+                  </View>
+                )
+              }
             />
           </View>
           <View
