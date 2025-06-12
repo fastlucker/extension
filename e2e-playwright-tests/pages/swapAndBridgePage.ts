@@ -432,7 +432,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForTimeout(2000)
     await this.page.locator(locators.addToBatchButton).isEnabled()
     await this.page.locator(locators.addToBatchButton).click()
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(2000)
     await this.page.locator(locators.addMoreSwapsButton).isVisible()
     await this.page.locator(locators.addMoreSwapsButton).click({ timeout: 3000 })
   }
