@@ -67,12 +67,13 @@ const RouteInfo: FC<Props> = ({
           </Text>
         </View>
       )}
-      {[
-        SwapAndBridgeFormStatus.InvalidRouteSelected,
-        SwapAndBridgeFormStatus.ReadyToEstimate,
-        SwapAndBridgeFormStatus.ReadyToSubmit,
-        SwapAndBridgeFormStatus.Proceeded
-      ].includes(formStatus) &&
+      {swapSignErrors.length === 0 &&
+        [
+          SwapAndBridgeFormStatus.InvalidRouteSelected,
+          SwapAndBridgeFormStatus.ReadyToEstimate,
+          SwapAndBridgeFormStatus.ReadyToSubmit,
+          SwapAndBridgeFormStatus.Proceeded
+        ].includes(formStatus) &&
         (signAccountOpController?.estimation.status === EstimationStatus.Success ||
           (signAccountOpController?.estimation.status === EstimationStatus.Error &&
             isAutoSelectRouteDisabled)) &&
