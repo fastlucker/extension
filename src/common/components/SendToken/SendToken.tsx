@@ -108,7 +108,13 @@ const SendToken: FC<Props> = ({
                 textAlign: 'right'
               }}
               disabled={fromTokenAmountSelectDisabled}
-              containerStyle={[spacings.mb0, flexbox.flex1]}
+              containerStyle={[
+                spacings.mb0,
+                flexbox.flex1,
+                {
+                  overflow: 'hidden'
+                }
+              ]}
               inputStyle={spacings.ph0}
               testID={inputTestId}
               childrenBelowInput={
