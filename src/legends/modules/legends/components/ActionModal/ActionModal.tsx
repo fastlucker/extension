@@ -147,9 +147,7 @@ const ActionModal: FC<ActionModalProps> = ({
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.staking) {
-    return (
-      <StakeWalletModal isOpen={isOpen} action={action} handleClose={closeActionModalWrapped} />
-    )
+    return <StakeWalletModal isOpen={isOpen} handleClose={closeActionModalWrapped} />
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.chest) {
