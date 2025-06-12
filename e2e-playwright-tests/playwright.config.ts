@@ -9,7 +9,7 @@ const config: PlaywrightTestConfig = {
       maxDiffPixelRatio: 1 / 100
     }
   },
-  testDir: 'tests/transfer/',
+  testDir: 'tests/',
   testMatch: '**/*.spec.ts',
   reporter: [
     ['list'],
