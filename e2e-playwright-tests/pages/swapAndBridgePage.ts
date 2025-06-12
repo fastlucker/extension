@@ -244,7 +244,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.locator(SELECTORS.searchInput).fill(address, { timeout: 3000 })
 
     const selector = this.page.locator(`[data-tooltip-id*="${address}"]`).first()
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(2000)
     await expect(selector).toHaveText(new RegExp(receiveToken), { timeout: 3000 })
     await expect(selector).toHaveText(new RegExp(address), { timeout: 3000 })
   }
@@ -432,6 +432,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForTimeout(2000)
     await this.page.locator(locators.addToBatchButton).isEnabled()
     await this.page.locator(locators.addToBatchButton).click()
+    await this.page.waitForTimeout(1000)
     await this.page.locator(locators.addMoreSwapsButton).isVisible()
     await this.page.locator(locators.addMoreSwapsButton).click({ timeout: 3000 })
   }
@@ -440,7 +441,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForTimeout(2000)
     await this.page.locator(locators.addToBatchButton).isEnabled()
     await this.page.locator(locators.addToBatchButton).click()
-    await this.page.locator(locators.openDashboardFromBatchButton).isVisible()
+    await this.page.locator(locators.openDashboardFromBatchButton).first().isVisible()
     await this.page.locator(locators.openDashboardFromBatchButton).first().click()
     const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
     await this.signBatchTransactionsPage(newPage)
