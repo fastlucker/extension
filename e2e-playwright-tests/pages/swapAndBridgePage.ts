@@ -355,9 +355,9 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async clickOnSecondRoute(): Promise<void> {
-    await this.page.locator(selectors.selectRouteButton).last().click()
+    await this.page.getByTestId(selectors.selectRouteButton).last().click()
     await this.page.locator(locators.liFiRoute).last().click()
-    await this.page.locator(selectors.selectRouteButton).last().click()
+    await this.page.getByTestId(selectors.selectRouteButton).last().click()
     await this.assertSelectedAggregator()
   }
 
@@ -430,9 +430,8 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForTimeout(2000)
     await this.page.locator(locators.addToBatchButton).isEnabled()
     await this.page.locator(locators.addToBatchButton).click()
-    await this.page.waitForTimeout(2000)
-    await this.page.locator(locators.addMoreSwapsButton).isVisible()
-    await this.page.locator(locators.addMoreSwapsButton).click({ timeout: 3000 })
+    await this.page.getByTestId(selectors.addMoreSwapsButton).isVisible()
+    await this.page.getByTestId(selectors.addMoreSwapsButton).click()
   }
 
   async batchActionWithSign(): Promise<void> {

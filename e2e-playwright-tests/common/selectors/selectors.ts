@@ -122,6 +122,7 @@ export const TEST_IDS = {
   removeNetworkButton: 'remove-network-btn',
   removeNetworkConfirmButton: 'remove-network-confirm-btn',
   signButtonSwap: 'swap-button-sign',
+  addMoreSwapsButton: 'add-more-swaps',
   flipUSDIcon: 'flip-icon',
   proceedButton: 'proceed-btn',
   swapSignButton: 'swap-button-sign'
