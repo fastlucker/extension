@@ -261,8 +261,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
     await this.clickOnElement(locators.addToBatchButton)
     await this.clickOnElement(locators.openDashboardFromBatchButton)
-    await this.page.waitForTimeout(3000) // trying to fix new page event
-    const newPage = await this.handleNewPage(locators.bannerButtonOpen)
+    const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
     await this.signTransactionPage(newPage)
   }
 
