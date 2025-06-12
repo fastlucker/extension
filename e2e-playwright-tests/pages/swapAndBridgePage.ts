@@ -340,8 +340,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async verifyAutoRefreshRoute(): Promise<void> {
-    const routeSelector = this.page.locator('text=Select route')
-    await routeSelector.waitFor({ state: 'visible', timeout: 10000 }).catch(() => null)
+    const routeSelector = this.page.getByTestId('select-route')
     await routeSelector.waitFor({ state: 'hidden', timeout: 65000 })
     const didReappear = await routeSelector
       .waitFor({ state: 'visible', timeout: 65000 })

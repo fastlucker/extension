@@ -132,6 +132,7 @@ const RouteInfo: FC<Props> = ({
                     themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary,
                   textDecorationLine: 'underline'
                 }}
+                testID="select-route"
               >
                 {t('Select route')}
               </Text>
