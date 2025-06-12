@@ -5,6 +5,7 @@ import {
   SignAccountOpController,
   SigningStatus
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Key } from '@ambire-common/interfaces/keystore'
 import usePrevious from '@common/hooks/usePrevious'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -14,7 +15,7 @@ import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
 type Props = {
   handleUpdateStatus: (status: SigningStatus) => void
   handleBroadcast: () => void
-  handleUpdate: (params: { signingKeyAddr?: string; signingKeyType?: string }) => void
+  handleUpdate: (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => void
   signAccountOpState: SignAccountOpController | null
   isOneClickSign?: boolean
 }
@@ -173,7 +174,7 @@ const useSign = ({
   )
 
   const handleChangeSigningKey = useCallback(
-    (signingKeyAddr: string, _chosenSigningKeyType: string) => {
+    (signingKeyAddr: Key['addr'], _chosenSigningKeyType: Key['type']) => {
       handleUpdate({ signingKeyAddr, signingKeyType: _chosenSigningKeyType })
 
       // Explicitly pass the currently selected signing key type, because
