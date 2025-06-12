@@ -108,6 +108,7 @@ export const TEST_IDS = {
   // Swap & Bridge selectors
   sendTokenSab: 'from-token-select',
   receiveTokenSab: 'to-token-select',
+  selectRouteButton: 'select-route',
   routeLoadingTextSab: 'route-loading-text-sab',
   fromAmountInputSab: 'from-amount-input-sab',
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',

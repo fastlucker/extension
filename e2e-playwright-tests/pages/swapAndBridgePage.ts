@@ -355,10 +355,9 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async clickOnSecondRoute(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 8000 })
-    await this.page.locator(locators.selectRouteButton).last().click()
+    await this.page.locator(selectors.selectRouteButton).last().click()
     await this.page.locator(locators.liFiRoute).last().click()
-    await this.page.locator(locators.selectRouteButton).last().click()
+    await this.page.locator(selectors.selectRouteButton).last().click()
     await this.assertSelectedAggregator()
   }
 
