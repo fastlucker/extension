@@ -1,7 +1,9 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
+import { SvgProps } from 'react-native-svg'
 
 import AaveIcon from '@common/assets/svg/AaveIcon'
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import UniswapIcon from '@common/assets/svg/UniswapIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import TokenIcon from '@common/components/TokenIcon'
@@ -11,8 +13,9 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 
 const POSITION_TO_ICON: {
-  [key: string]: FC
+  [key: string]: FC<SvgProps>
 } = {
+  Ambire: AmbireLogo,
   'Uniswap V3': UniswapIcon,
   'Uniswap V2': UniswapIcon,
   'AAVE v3': AaveIcon,
@@ -67,7 +70,7 @@ const ProtocolIcon = ({
               ...common.borderRadiusPrimary
             }}
           >
-            <Icon />
+            <Icon width={28} height={28} />
           </View>
           <View
             style={{

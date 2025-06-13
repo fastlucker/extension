@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
 import { AssetType, Position, PositionsByProvider } from '@ambire-common/libs/defiPositions/types'
@@ -40,6 +40,14 @@ const DeFiPosition: FC<Props> = ({
 
   const { theme } = useTheme()
 
+  const description = useMemo(() => {
+    try {
+      if (Number(positionIndex)) return `#${positionIndex}`
+    } catch (error) {
+      return positionIndex
+    }
+  }, [positionIndex])
+
   return (
     <View
       style={{
@@ -57,18 +65,21 @@ const DeFiPosition: FC<Props> = ({
           flexbox.justifySpaceBetween
         ]}
       >
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Text fontSize={14} weight="semiBold">
-            {name}
-          </Text>
+        <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
+          <View>
+            <Text fontSize={14} weight="semiBold">
+              {name}
+            </Text>
+          </View>
           {!!positionIndex && (
             <Text
               fontSize={12}
               appearance="secondaryText"
               style={[spacings.mlMi, spacings.mrTy]}
               selectable
+              numberOfLines={1}
             >
-              #{positionIndex}
+              {description}
             </Text>
           )}
           {typeof inRange === 'boolean' && (
@@ -78,7 +89,7 @@ const DeFiPosition: FC<Props> = ({
             />
           )}
         </View>
-        <Text fontSize={14} weight="semiBold">
+        <Text fontSize={14} weight="semiBold" style={spacings.ml}>
           {positionInUSD || '$-'}
         </Text>
       </View>
