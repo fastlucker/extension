@@ -143,9 +143,9 @@ const routesConfig: RouteConfig = {
   [ROUTES.signAccountOp]: {
     route: ROUTES.signAccountOp,
     title: Platform.select({
-      default: i18n.t('Sign Account Operation')
+      default: i18n.t('Transaction Builder')
     }),
-    name: Platform.select({ default: i18n.t('Sign Account Operation') })
+    name: Platform.select({ default: i18n.t('Transaction Builder') })
   },
   [ROUTES.transfer]: {
     route: ROUTES.transfer,
