@@ -101,7 +101,7 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.signTokens()
   })
 
-  test.only('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({
+  test('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({
     swapAndBridgePage
   }) => {
     await swapAndBridgePage.prepareSwapAndBridge(0.003, 'WALLET', '8453', 'USDC')
