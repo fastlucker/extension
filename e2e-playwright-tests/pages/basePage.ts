@@ -10,11 +10,37 @@ export abstract class BasePage {
   }
 
   async clickOnElement(element: string): Promise<void> {
-    await this.page.locator(element).click()
+    await this.page.waitForLoadState()
+    await this.page.locator(element).nth(0).click()
   }
 
   async typeTextInInputField(locator: string, text: string): Promise<void> {
     await this.page.locator(locator).clear()
     await this.page.locator(locator).pressSequentially(text)
+  }
+
+  async handleNewPage(locator: string) {
+    // TODO: this was old solution, remove it if new one works
+    // const context = this.page.context()
+    // const [newPage] = await Promise.all([
+    //   context.waitForEvent('page'),
+    //   this.page.getByTestId(locator).first().click({ timeout: 3000 })
+    // ])
+    // await newPage.waitForLoadState()
+    // return newPage
+
+    const context = this.page.context()
+    const actionWindowPagePromise = new Promise<Page>((resolve) => {
+      context.once('page', (p) => {
+        resolve(p)
+      })
+    })
+
+    await this.page.getByTestId(locator).first().click({ timeout: 3000 })
+    return actionWindowPagePromise
+  }
+
+  async pause() {
+    await this.page.pause()
   }
 }

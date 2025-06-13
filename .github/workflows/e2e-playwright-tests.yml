@@ -89,7 +89,7 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: ./e2e-playwright-tests
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       # Test if CI pipeline can work in headless mode
       # - name: Start virtual display (Xvfb)
