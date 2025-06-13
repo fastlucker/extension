@@ -220,7 +220,7 @@
   margin-top: 0.25rem;
 }
 .blur {
-  filter: blur(5px);
+  filter: blur(5px) brightness(0.7);
 }
 
 .lockPeriodInfo {
@@ -259,4 +259,30 @@
   padding-right: 1rem;
   color: $secondaryText;
   cursor: pointer;
+}
+
+.readyToWithdrawText {
+  position: absolute;
+  align-self: center;
+  margin-top: 25%;
+  padding: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.readyToWithdrawText :nth-child(1) {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.readyToWithdrawText :nth-child(2) {
+  font-weight: 500;
+  font-size: 1.5rem;
+}
+
+.readyToWithdrawText :nth-child(3) {
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: $secondaryText;
 }

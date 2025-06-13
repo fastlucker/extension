@@ -47,14 +47,15 @@ const xWalletIface = new Interface([
   'function leave(uint256 shares, bool skipMint)',
   'function lockedShares(address) public view returns(uint)',
   'function commitments(bytes32) public view returns(uint)',
-  'event LogLeave(address indexed owner, uint256 shares, uint256 unlocksAt, uint256 maxTokens)',
   'function balanceOf(address) view returns (uint256)',
-  'function withdraw(uint shares, uint unlocksAt, bool skipMint) external'
+  'function withdraw(uint shares, uint unlocksAt, bool skipMint) external',
+  'event LogLeave(address indexed owner, uint256 shares, uint256 unlocksAt, uint256 maxTokens)'
 ])
 
 function goToAPYArticle() {
   window.open('https://blog.ambire.com/migrate-to-stkwallet/', '_blank')
 }
+
 const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> = ({
   isOpen,
   handleClose
@@ -137,8 +138,8 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       // eslint-disable-next-line no-console
       .catch((err) => console.error(err))
   }, [isConnected, isOpen, connectedAccount, addToast])
+
   useEffect(() => {
-    if (onchainData) return
     if (!leaveLogs) return
     const parsedLogs = leaveLogs
       .filter(
@@ -186,11 +187,200 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       .finally(() => setIsLoadingLogs(false))
   }, [addToast, connectedAccount, firstToCollect, leaveLogs, onchainData])
 
-  const toWithdraw = useMemo(() => {
-    return onchainData?.lockedShares && activeTab === 'unstake'
-  }, [activeTab, onchainData])
+  const stakeAction = useCallback(
+    async (dataFromInput: string) => {
+      try {
+        if (!connectedAccount) throw new HumanReadableError('No connected account.')
 
-  useEffect(() => {}, [])
+        await switchNetwork(ETHEREUM_CHAIN_ID)
+        const amount = parseEther(dataFromInput)
+        const calls = [
+          {
+            to: WALLET_TOKEN,
+            data: walletIface.encodeFunctionData('approve', [STK_WALLET, amount])
+          },
+          { to: STK_WALLET, data: stkWalletIface.encodeFunctionData('enter', [amount]) }
+        ]
+        setIsSigning(true)
+        const signer = await new BrowserProvider(window.ambire).getSigner(connectedAccount)
+
+        const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
+        await getCallsStatus(txId)
+        addToast('Stake successful!', { type: 'success' })
+        handleClose()
+        setInputAmount('')
+      } catch (e: any) {
+        addToast(humanizeError(e, ERROR_MESSAGES.transactionSigningFailed), { type: 'error' })
+      } finally {
+        setIsSigning(false)
+      }
+    },
+    [
+      addToast,
+      chainId,
+      connectedAccount,
+      getCallsStatus,
+      handleClose,
+      inputAmount,
+      sendCalls,
+      switchNetwork
+    ]
+  )
+
+  const goToSwap = useCallback(() => {
+    window.ambire
+      .request({
+        method: 'open-wallet-route',
+        params: { route: 'swap-and-bridge' }
+      })
+      .catch((e) => {
+        console.log(e)
+        addToast('Failed to go to internal swap.', { type: 'error' })
+      })
+  }, [addToast])
+
+  const requestWithdrawAction = useCallback(
+    async (dataFromInput: string) => {
+      try {
+        if (!connectedAccount) throw new HumanReadableError('No connected account.')
+        if (!onchainData) throw new HumanReadableError('We were unable to fetch unstaking data.')
+        await switchNetwork(ETHEREUM_CHAIN_ID)
+
+        const amount = parseUnits(dataFromInput, 36) / onchainData.shareValue
+        const calls = [
+          { to: STK_WALLET, data: stkWalletIface.encodeFunctionData('unwrap', [amount]) },
+          {
+            to: WALLET_STAKING_ADDR,
+            data: xWalletIface.encodeFunctionData('leave', [amount, false])
+          }
+        ]
+
+        setIsSigning(true)
+        const signer = await new BrowserProvider(window.ambire).getSigner(connectedAccount)
+
+        const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
+        await getCallsStatus(txId)
+        addToast('Stake successful!', { type: 'success' })
+        handleClose()
+        setInputAmount('')
+      } catch (e: any) {
+        console.log(e)
+        addToast(humanizeError(e, ERROR_MESSAGES.transactionSigningFailed), { type: 'error' })
+      } finally {
+        setIsSigning(false)
+      }
+    },
+    [
+      addToast,
+      chainId,
+      connectedAccount,
+      firstToCollect,
+      getCallsStatus,
+      handleClose,
+      inputAmount,
+      onchainData,
+      sendCalls,
+      switchNetwork
+    ]
+  )
+
+  const withdrawAction = useCallback(async () => {
+    try {
+      if (!firstToCollect) throw new HumanReadableError('Enter a valid amount.')
+      if (!connectedAccount) throw new HumanReadableError('No connected account.')
+      if (!onchainData) throw new HumanReadableError('We were unable to fetch unstaking data.')
+      await switchNetwork(ETHEREUM_CHAIN_ID)
+
+      if (onchainData.xWalletBalance < onchainData.lockedShares)
+        throw new HumanReadableError(
+          'No $xWALLET tokens to withdraw. Send them back to this account to be able to withdraw.'
+        )
+      const { shares, unlocksAt } = firstToCollect
+
+      const calls = [
+        {
+          to: WALLET_STAKING_ADDR,
+          data: xWalletIface.encodeFunctionData('withdraw', [shares, unlocksAt, true])
+        }
+      ]
+
+      setIsSigning(true)
+      const signer = await new BrowserProvider(window.ambire).getSigner(connectedAccount)
+
+      const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
+      await getCallsStatus(txId)
+      // @TODO fix all of those text
+      addToast('Stake successful!', { type: 'success' })
+      handleClose()
+      setInputAmount('')
+    } catch (e: any) {
+      console.log(e)
+      addToast(humanizeError(e, ERROR_MESSAGES.transactionSigningFailed), { type: 'error' })
+    } finally {
+      setIsSigning(false)
+    }
+  }, [
+    addToast,
+    chainId,
+    connectedAccount,
+    firstToCollect,
+    getCallsStatus,
+    handleClose,
+    onchainData,
+    sendCalls,
+    switchNetwork
+  ])
+
+  function formatDuration(ms: number) {
+    const totalMinutes = Math.floor(ms / 60000)
+    const days = Math.floor(totalMinutes / 1440)
+    const hours = Math.floor((totalMinutes % 1440) / 60)
+    const minutes = totalMinutes % 60
+    return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(
+      minutes
+    ).padStart(2, '0')}`
+  }
+
+  const buttonState = useMemo((): { text: string; action?: () => any } => {
+    if (!isConnected) return { text: 'Connect a new account' }
+    if (isLoadingLogs || isLoadingOnchainData) return { text: 'Loading...' }
+    if (isSigning) return { text: 'Signing...' }
+    if (activeTab === 'stake')
+      return onchainData?.walletBalance
+        ? { text: 'Stake', action: inputAmount ? () => stakeAction(inputAmount) : undefined }
+        : { text: 'Buy $WALLET', action: goToSwap }
+
+    // then it is in unstake
+    if (!onchainData?.lockedShares) {
+      return onchainData?.stkWalletBalance
+        ? {
+            text: 'Unstake',
+            action: inputAmount ? () => requestWithdrawAction(inputAmount) : undefined
+          }
+        : { text: 'No $WALLET staked to withdraw' }
+    }
+
+    if (!firstToCollect) return { text: 'Failed to get unstaking info' }
+    const { unlocksAt } = firstToCollect
+    const unlockDate = new Date(Number(unlocksAt) * 1000)
+    return unlockDate < new Date()
+      ? { text: 'Withdraw', action: withdrawAction }
+      : { text: `Withdraw in ${formatDuration(unlockDate.getTime() - new Date().getTime())}` }
+  }, [
+    activeTab,
+    firstToCollect,
+    goToSwap,
+    isConnected,
+    isLoadingLogs,
+    isLoadingOnchainData,
+    isSigning,
+    onchainData?.lockedShares,
+    onchainData?.stkWalletBalance,
+    onchainData?.walletBalance,
+    requestWithdrawAction,
+    stakeAction,
+    withdrawAction
+  ])
 
   const formatToken = useCallback(
     (value: bigint): { usd: string; token: string } => {
@@ -217,129 +407,6 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     return time > new Date()
   }, [firstToCollect])
 
-  const handleAction = useCallback(async () => {
-    try {
-      if (!connectedAccount) throw new HumanReadableError('No connected account.')
-      if (isLoadingLogs || isLoadingOnchainData) throw new HumanReadableError('Still loading.')
-      if (isSigning) throw new HumanReadableError('In progress.')
-      if (!onchainData) throw new HumanReadableError('No token data available.')
-      const { walletBalance, shareValue } = onchainData
-
-      await switchNetwork(ETHEREUM_CHAIN_ID)
-      let calls: { to: string; data: string }[] = []
-      if (activeTab === 'stake') {
-        if (!walletBalance) {
-          return await window.ambire
-            .request({
-              method: 'open-wallet-route',
-              params: { route: 'swap-and-bridge' }
-            })
-            .catch((e) => {
-              // eslint-disable-next-line no-console
-              console.error(e)
-            })
-        }
-        if (!inputAmount) throw new HumanReadableError('Enter a valid amount.')
-
-        const amount = parseEther(inputAmount)
-
-        calls = [
-          {
-            to: WALLET_TOKEN,
-            data: walletIface.encodeFunctionData('approve', [STK_WALLET, amount])
-          },
-          { to: STK_WALLET, data: stkWalletIface.encodeFunctionData('enter', [amount]) }
-        ]
-      } else if (!toWithdraw) {
-        if (!inputAmount) throw new HumanReadableError('Enter a valid amount.')
-        const amount = parseUnits(inputAmount, 36) / shareValue
-        calls = [
-          { to: STK_WALLET, data: stkWalletIface.encodeFunctionData('unwrap', [amount]) },
-          {
-            to: WALLET_STAKING_ADDR,
-            data: xWalletIface.encodeFunctionData('leave', [amount, false])
-          }
-        ]
-      } else if (!shouldWaitWithdraw) {
-        if (!firstToCollect) return addToast('We failed to get unstaking data', { type: 'error' })
-        const { shares, unlocksAt } = firstToCollect
-        if (onchainData.xWalletBalance < onchainData.lockedShares)
-          throw new HumanReadableError(
-            'The $xWALLET tokens you are trying to unlock are not in this account'
-          )
-        calls = [
-          {
-            to: WALLET_STAKING_ADDR,
-            data: xWalletIface.encodeFunctionData('withdraw', [shares, unlocksAt, true])
-          }
-        ]
-      } else if (!inputAmount) throw new HumanReadableError('should wait for unlock time.')
-
-      setIsSigning(true)
-      const signer = await new BrowserProvider(window.ambire).getSigner(connectedAccount)
-
-      const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
-      await getCallsStatus(txId)
-      addToast('Stake successful!', { type: 'success' })
-      handleClose()
-      setInputAmount('')
-    } catch (e: any) {
-      console.log(e)
-      addToast(humanizeError(e, ERROR_MESSAGES.transactionSigningFailed), { type: 'error' })
-    } finally {
-      setIsSigning(false)
-    }
-  }, [
-    connectedAccount,
-    inputAmount,
-    isLoadingLogs,
-    isLoadingOnchainData,
-    isSigning,
-    onchainData,
-    switchNetwork,
-    activeTab,
-    toWithdraw,
-    firstToCollect,
-    addToast,
-    sendCalls,
-    chainId,
-    getCallsStatus,
-    handleClose,
-    shouldWaitWithdraw
-  ])
-
-  function formatDuration(ms: number) {
-    const totalMinutes = Math.floor(ms / 60000)
-    const days = Math.floor(totalMinutes / 1440)
-    const hours = Math.floor((totalMinutes % 1440) / 60)
-    const minutes = totalMinutes % 60
-    return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(
-      minutes
-    ).padStart(2, '0')}`
-  }
-
-  const buttonText = useMemo(() => {
-    if (!isConnected) return 'Connect a new account'
-    if (isLoadingLogs || isLoadingOnchainData) return 'Loading...'
-    if (isSigning) return 'Signing...'
-    if (activeTab === 'stake') return onchainData?.walletBalance ? 'Stake' : 'Buy $WALLET'
-    if (!toWithdraw) return 'Unstake'
-    if (!firstToCollect) return "We couldn't get withdraw info"
-    const { unlocksAt } = firstToCollect
-    const time = new Date(Number(unlocksAt * 1000n))
-    if (time < new Date()) return 'Withdraw'
-    return `Withdraw in ${formatDuration(time.getTime() - new Date().getTime())}`
-  }, [
-    isConnected,
-    isLoadingLogs,
-    isLoadingOnchainData,
-    isSigning,
-    activeTab,
-    toWithdraw,
-    firstToCollect,
-    onchainData
-  ])
-
   const meaningfulToken = useMemo(() => {
     return activeTab === 'stake'
       ? { balance: onchainData?.walletBalance || 0n, symbol: 'WALLET' }
@@ -350,35 +417,6 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     if (meaningfulToken.balance < parseEther(inputAmount || '0')) return 'Insufficient balance'
     return ''
   }, [meaningfulToken, inputAmount])
-
-  const isButtonDisabled = useMemo(() => {
-    if (
-      !isConnected ||
-      isLoadingLogs ||
-      isLoadingOnchainData ||
-      isSigning ||
-      !onchainData ||
-      inputValidationError
-    )
-      return true
-    if (activeTab === 'stake') {
-      if (!onchainData?.walletBalance) return false
-      return !inputAmount
-    }
-
-    if (!onchainData.lockedShares) return !onchainData.stkWalletBalance
-    return !!shouldWaitWithdraw
-  }, [
-    isConnected,
-    isLoadingLogs,
-    isLoadingOnchainData,
-    isSigning,
-    onchainData,
-    inputAmount,
-    inputValidationError,
-    activeTab,
-    shouldWaitWithdraw
-  ])
 
   const setPercentage = useCallback(
     (percentage: number) => {
@@ -442,18 +480,10 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                   loop
                 />
               ) : (
-                <div
-                  style={{
-                    position: 'absolute',
-                    fontSize: '1.5rem',
-                    alignSelf: 'center',
-                    marginTop: '25%',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  Ready to withdraw{' '}
-                  {firstToCollect?.maxTokens ? formatToken(firstToCollect.maxTokens).token : ''}{' '}
-                  $WALLET
+                <div className={styles.readyToWithdrawText}>
+                  <div>Ready to withdraw</div>
+                  <div>{formatToken(firstToCollect?.maxTokens || 0n).token}</div>
+                  <div>$WALLET</div>
                 </div>
               ))}
             <div className={`${styles.infoRow} ${styles.aprInfo}`}>
@@ -469,7 +499,9 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
               </button>
               {walletTokenInfo?.apy.toFixed(2)}%
             </div>
-            <div className={`${toWithdraw && styles.blur}`}>
+            <div
+              className={`${activeTab === 'unstake' && onchainData?.lockedShares && styles.blur}`}
+            >
               <div className={styles.infoRow}>
                 <div className={styles.actionLabel}>
                   {activeTab === 'stake' ? 'Stake' : 'Unstake'}
@@ -530,7 +562,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
           </div>
           {activeTab === 'unstake' && (
             <div className={styles.lockPeriodInfo}>
-              {toWithdraw
+              {onchainData?.lockedShares
                 ? 'You will be able to withdraw and unstake more as soon as the locking period has ended.'
                 : 'The selected amount will have a 1 month locking period.'}
             </div>
@@ -538,10 +570,10 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
           <button
             type="button"
             className={styles.stakeButton}
-            onClick={handleAction}
-            disabled={isButtonDisabled}
+            onClick={buttonState.action}
+            disabled={!!inputValidationError || !buttonState.action}
           >
-            {buttonText}
+            {buttonState.text}
           </button>
         </div>
       </div>
