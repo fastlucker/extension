@@ -30,7 +30,6 @@ import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
 import RouteInfo from '../../components/RouteInfo'
-import ServiceFeeInfo from '../../components/ServiceFeeInfo'
 import ToToken from '../../components/ToToken'
 
 const { isTab, isActionWindow } = getUiType()
@@ -266,7 +265,6 @@ const SwapAndBridgeScreen = () => {
           shouldEnableRoutesSelection={shouldEnableRoutesSelection}
           isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
         />
-        <ServiceFeeInfo swapTxn={signAccountOpController?.accountOp.meta?.swapTxn} />
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <Estimation

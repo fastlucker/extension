@@ -23,7 +23,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import EstimationSkeleton from './components/EstimationSkeleton'
+import PayOption from './components/PayOption'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
 import { Props } from './types'
@@ -305,6 +307,49 @@ const Estimation = ({
     ]
   }, [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank, t, theme.secondaryText])
 
+  const serviceFee = useMemo(() => {
+    const fees = signAccountOpState?.accountOp.meta?.swapTxn?.serviceFee || []
+    if (fees.length === 0) return null
+    return fees[0]
+  }, [signAccountOpState])
+
+  const paidByNativeValue = useMemo(() => {
+    if (!serviceFee || !signAccountOpState?.estimation.availableFeeOptions.length || !hasEstimation)
+      return null
+
+    const nativeFeeOption = signAccountOpState.estimation.availableFeeOptions.find(
+      (feeOption) =>
+        feeOption.paidBy === signAccountOpState.accountOp.accountAddr &&
+        feeOption.token.address === ZERO_ADDRESS
+    )
+    if (!nativeFeeOption) return
+
+    const mappedFeeOption = mapFeeOptions(nativeFeeOption, signAccountOpState)
+    mappedFeeOption.label = (
+      <PayOption
+        amount={BigInt(serviceFee.amount)}
+        amountUsd={serviceFee.amountUSD}
+        feeOption={nativeFeeOption}
+      />
+    )
+    return mappedFeeOption
+  }, [hasEstimation, signAccountOpState, serviceFee])
+
+  const bridgeFeeOptions = useMemo(() => {
+    if (!serviceFee || !paidByNativeValue) return null
+
+    return [
+      {
+        title: {
+          icon: <FeeIcon color={theme.secondaryText} width={16} height={16} />,
+          text: t('With fee tokens from current account')
+        },
+        data: [paidByNativeValue],
+        key: 'account-tokens'
+      }
+    ]
+  }, [serviceFee, paidByNativeValue, t, theme.secondaryText])
+
   const renderFeeOptionSectionHeader = useCallback(
     ({ section }: any) => {
       if (section.data.length === 0 || !section.title) return null
@@ -462,6 +507,27 @@ const Estimation = ({
         withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
         stickySectionHeadersEnabled
       />
+      {serviceFee && bridgeFeeOptions && paidByNativeValue && (
+        <>
+          <Text fontSize={12} style={spacings.mvTy}>
+            {t('+ Additional bridge fee:')}
+          </Text>
+          <SectionedSelect
+            headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
+            sections={bridgeFeeOptions}
+            renderSectionHeader={renderFeeOptionSectionHeader}
+            containerStyle={spacings.mb0}
+            value={paidByNativeValue}
+            disabled
+            defaultValue={paidByNativeValue}
+            selectStyle={{
+              borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1
+            }}
+            withSearch={false}
+            stickySectionHeadersEnabled
+          />
+        </>
+      )}
     </>
   )
 }
