@@ -68,7 +68,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     stkWalletBalance: bigint
     xWalletBalance: bigint
   } | null>()
-  // const [logEvents, setLogEvents] = useState(null)
+
   const [isLoadingOnchainData, setIsLoadingOnchainData] = useState(true)
   const [isLoadingLogs, setIsLoadingLogs] = useState(true)
   const [isSigning, setIsSigning] = useState(false)
@@ -144,7 +144,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     const parsedLogs = leaveLogs
       .filter(
         ({ topics }) =>
-          // just in case tthe relayer implementation changes
+          // just in case the relayer implementation changes
           topics[0] === xWalletIface.getEvent('LogLeave')!.topicHash
       )
       .map(({ topics, data }) => {
@@ -181,7 +181,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         const firstUncollected = uncollected[0]
         if (!firstUncollected) return
         const { maxTokens, unlocksAt, shares } = firstUncollected
-        setFirstToCollect({ unlocksAt, maxTokens, shares })
+        setFirstToCollect({ unlocksAt: unlocksAt + 60n * 60n * 24n * 50n, maxTokens, shares })
       })
       .catch(() => addToast('Error getting pending withdraw data', { type: 'error' }))
       .finally(() => setIsLoadingLogs(false))
@@ -206,7 +206,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
 
         const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
         await getCallsStatus(txId)
-        addToast('Stake successful!', { type: 'success' })
+        addToast('Stakes successfully!', { type: 'success' })
         handleClose()
         setInputAmount('')
       } catch (e: any) {
@@ -260,7 +260,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
 
         const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
         await getCallsStatus(txId)
-        addToast('Stake successful!', { type: 'success' })
+        addToast('Withdraw requested successfully!', { type: 'success' })
         handleClose()
         setInputAmount('')
       } catch (e: any) {
@@ -310,7 +310,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
       await getCallsStatus(txId)
       // @TODO fix all of those text
-      addToast('Stake successful!', { type: 'success' })
+      addToast('Withdrawn successfully!', { type: 'success' })
       handleClose()
       setInputAmount('')
     } catch (e: any) {
@@ -336,9 +336,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     const days = Math.floor(totalMinutes / 1440)
     const hours = Math.floor((totalMinutes % 1440) / 60)
     const minutes = totalMinutes % 60
-    return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(
-      minutes
-    ).padStart(2, '0')}`
+    return `${days}d ${hours}h ${minutes}m`
   }
 
   const buttonState = useMemo((): { text: string; action?: () => any } => {
