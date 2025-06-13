@@ -125,7 +125,8 @@ export const TEST_IDS = {
   addMoreSwapsButton: 'add-more-swaps',
   flipUSDIcon: 'flip-icon',
   proceedButton: 'proceed-btn',
-  swapSignButton: 'swap-button-sign'
+  swapSignButton: 'swap-button-sign',
+  addToBatchButton: 'batch-btn'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

@@ -427,17 +427,15 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async batchAction(): Promise<void> {
-    await this.page.waitForTimeout(2000)
-    await this.page.locator(locators.addToBatchButton).isEnabled()
-    await this.page.locator(locators.addToBatchButton).click()
+    await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
+    await this.page.getByTestId(selectors.addToBatchButton).click()
     await this.page.getByTestId(selectors.addMoreSwapsButton).isVisible()
     await this.page.getByTestId(selectors.addMoreSwapsButton).click()
   }
 
   async batchActionWithSign(): Promise<void> {
-    await this.page.waitForTimeout(2000)
-    await this.page.locator(locators.addToBatchButton).isEnabled()
-    await this.page.locator(locators.addToBatchButton).click()
+    await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
+    await this.page.getByTestId(selectors.addToBatchButton).click()
     await this.page.locator(locators.openDashboardFromBatchButton).first().isVisible()
     await this.page.locator(locators.openDashboardFromBatchButton).first().click()
     const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
