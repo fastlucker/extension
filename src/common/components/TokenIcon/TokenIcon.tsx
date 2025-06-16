@@ -62,7 +62,10 @@ const TokenIcon: React.FC<Props> = ({
   // Component used across Benzin and Extension, make sure to always set networks
   const networks = controllerNetworks ?? benzinNetworks
 
-  const network = useMemo(() => networks.find((n) => n.chainId === chainId), [chainId, networks])
+  const network = useMemo(
+    () => networks.find((n) => String(n.chainId) === String(chainId)),
+    [chainId, networks]
+  )
 
   const handleImageLoaded = useCallback(() => setUriStatus(UriStatus.IMAGE_EXISTS), [])
   const attemptToLoadFallbackImage = useCallback(async () => {
@@ -100,13 +103,13 @@ const TokenIcon: React.FC<Props> = ({
 
   const memoizedContainerStyle = useMemo(
     () => [
-      containerStyle,
       {
         width: withContainer ? containerWidth : width,
         height: withContainer ? containerHeight : height
       },
       withContainer && styles.withContainerStyle,
-      withContainer && withNetworkIcon && { borderTopLeftRadius: 7 }
+      withContainer && withNetworkIcon && { borderTopLeftRadius: 7 },
+      containerStyle
     ],
     [
       containerStyle,

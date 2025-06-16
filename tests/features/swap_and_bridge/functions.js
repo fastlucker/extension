@@ -155,10 +155,7 @@ async function selectSendTokenOnNetwork(page, send_token, send_network) {
   await page.waitForSelector(SELECTORS.searchInput, { visible: true, timeout: 3000 })
   await typeText(page, SELECTORS.searchInput, send_token)
   // ToDo: data-testid missing for receive network dropdown
-  await clickOnElement(
-    page,
-    `[data-testid*="${send_network.toLowerCase()}.${send_token.toLowerCase()}"]`
-  )
+  await clickOnElement(page, `[data-testid="option-${send_token}.${send_network}"]`)
 }
 
 export async function switchUSDValueOnSwapAndBridge(
@@ -404,12 +401,12 @@ export async function batchActionPage(page) {
 }
 
 export async function signActionPage(page) {
-  const isClickable = await isElementClickable(page, SELECTORS.signButtonSwap)
+  const isClickable = await isElementClickable(page, SELECTORS.signButton)
   if (!isClickable) {
     console.log("⚠️ the 'Sign' button is not clicable, but it should be")
     return
   }
-  await clickOnElement(page, SELECTORS.signButtonSwap)
+  await clickOnElement(page, SELECTORS.signButton)
   await page.waitForTimeout(1500)
 }
 
@@ -436,7 +433,7 @@ export async function clickOnSecondRoute(page) {
   } else {
     console.log("⚠️ the 'Select route' is not found")
   }
-  await clickOnElement(page, SELECTORS.signButtonSwap)
+  await clickOnElement(page, SELECTORS.signButton)
   await page.waitForTimeout(1500)
 }
 
