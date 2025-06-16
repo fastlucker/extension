@@ -378,8 +378,8 @@ const routesConfig: RouteConfig = {
   },
   [ROUTES.dappConnectRequest]: {
     route: ROUTES.dappConnectRequest,
-    title: Platform.select({ default: i18n.t('Dapp Connect Request') }),
-    name: Platform.select({ default: i18n.t('Dapp Connect Request') })
+    title: Platform.select({ default: i18n.t('App Connect Request') }),
+    name: Platform.select({ default: i18n.t('App Connect Request') })
   },
   [ROUTES.addChain]: {
     route: ROUTES.addChain,
