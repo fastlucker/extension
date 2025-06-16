@@ -367,7 +367,8 @@ export class SwapAndBridgePage extends BasePage {
       if (sendAmount === null) return null
       if (sendAmount <= 0) throw new Error('sendAmount must be greater than 0')
 
-      await this.page.type(SELECTORS.fromAmountInputSab, sendAmount.toString(), { delay: 100 })
+      await this.page.getByTestId(selectors.fromAmountInputSab).fill(sendAmount.toString())
+
       const isFollowUp = await this.page
         .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 6000 })
         .catch(() => null)
