@@ -513,7 +513,7 @@ const Estimation = ({
               <View>
                 <Text fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
                   {t(
-                    `The selected bridge provider demands an additional service fee, paid out in ${paidByNativeValue.token.symbol}. This additional fee is not included in the gas fee mentioned above. `
+                    `The selected bridge provider demands an additional service fee, paid out in ${paidByNativeValue.token.symbol}. This additional fee is not included in the gas fee displayed above or the quote. `
                   )}
                   <Pressable
                     onPress={() => {
