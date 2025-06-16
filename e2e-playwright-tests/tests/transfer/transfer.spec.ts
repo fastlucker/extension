@@ -1,5 +1,6 @@
 import { expect, Page } from '@playwright/test'
 import { baParams } from '../../config/constants'
+import { TEST_IDS as selectors } from '../../common/selectors/selectors'
 import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
@@ -43,7 +44,7 @@ test.describe('transfer', () => {
     await transferPage.addToBatch()
 
     // Add More
-    const addMoreButton = page.getByTestId('add-more-button')
+    const addMoreButton = page.getByTestId(selectors.addMoreButton)
     await addMoreButton.click()
 
     // Second txn
@@ -51,7 +52,7 @@ test.describe('transfer', () => {
     await transferPage.addToBatch()
 
     // Go to Dashboard
-    const goDashboardButton = page.getByTestId('go-dashboard-button')
+    const goDashboardButton = page.getByTestId(selectors.goDashboardButton)
     await goDashboardButton.click()
 
     // New Page promise
@@ -63,13 +64,13 @@ test.describe('transfer', () => {
     })
 
     // Open AccountOp screen
-    await page.getByTestId('banner-button-open').first().click()
+    await page.getByTestId(selectors.bannerButtonOpen).first().click()
 
     // Sign
     const actionWindowPage = await actionWindowPagePromise
-    await actionWindowPage.getByTestId('transaction-button-sign').click()
+    await actionWindowPage.getByTestId(selectors.signTransactionButton).click()
 
     // Expect the txn to be Confirmed
-    await expect(actionWindowPage.getByTestId('txn-confirmed')).toBeVisible()
+    await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible()
   })
 })

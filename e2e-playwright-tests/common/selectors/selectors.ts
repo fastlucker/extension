@@ -134,7 +134,8 @@ export const TEST_IDS = {
   proceedButton: 'proceed-btn',
   swapSignButton: 'swap-button-sign',
   addToBatchButton: 'batch-btn',
-  goDashboardButton: 'go-dashboard-button'
+  goDashboardButton: 'go-dashboard-button',
+  txnConfirmed: 'txn-confirmed'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
