@@ -604,7 +604,7 @@ export const handleActions = async (
     }
 
     case 'SET_THEME_TYPE': {
-      walletStateCtrl.setThemeType(params.themeType)
+      await walletStateCtrl.setThemeType(params.themeType)
       break
     }
 
