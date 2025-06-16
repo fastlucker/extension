@@ -14,11 +14,12 @@ const config: PlaywrightTestConfig = {
   reporter: [
     ['list'],
     ['junit', { outputFile: 'test-results/results.xml' }],
-    ['html', { open: 'never' }]
+    ['html', { open: 'always' }]
   ],
-  timeout: 480 * 1000,
+  timeout: 180 * 1000,
   reportSlowTests: null,
   snapshotPathTemplate: 'data/screenshots/{projectName}/{testFilePath}/{arg}/text',
+  retries: process.env.CI ? 1 : 0,
   use: {
     viewport: { width: 1920, height: 1080 },
     baseURL: process.env.APP_URL || '',

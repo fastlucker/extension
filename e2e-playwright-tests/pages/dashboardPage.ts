@@ -10,26 +10,31 @@ export class DashboardPage extends BasePage {
     this.page = page
   }
 
+  // TODO: should be refactored
   async checkBalanceInAccount(): Promise<void> {
-    await this.page.waitForFunction(() => window.location.href.includes('/dashboard'))
     await this.page.waitForSelector(locators.fullAmountDashboard)
+    expect(this.page.url()).toContain('/dashboard')
     const amountText = await this.page.locator(locators.fullAmountDashboard).innerText()
     const amountNumber = parseFloat(amountText.replace(/[^\d.]/g, ''))
     expect(amountNumber).toBeGreaterThan(0)
   }
 
+  // TODO: should be refactored
   async checkIfTokensExist(): Promise<void> {
     const TOKEN_SYMBOLS = ['BTC', 'ETH', 'USDT']
-    await this.page.waitForFunction(() => window.location.href.includes('/dashboard'))
+    // await this.page.waitForFunction(() => window.location.href.includes('/dashboard'))
     await this.page.waitForSelector(locators.fullAmountDashboard)
+    expect(this.page.url()).toContain('/dashboard')
     const innerTextOfTheWholePage = await this.page.innerText('body')
     const foundToken = TOKEN_SYMBOLS.find((token) => innerTextOfTheWholePage.includes(token))
     expect(foundToken).toBeTruthy()
   }
 
+  // TODO: should be refactored
   async checkCollectibleItem(): Promise<void> {
-    await this.page.waitForFunction(() => window.location.href.includes('/dashboard'))
+    // await this.page.waitForFunction(() => window.location.href.includes('/dashboard'))
     await this.page.click(locators.tabNft)
+    expect(this.page.url()).toContain('/dashboard')
     await this.page.waitForSelector(locators.collectionItem)
     const firstCollectiblesItem = await this.page.$$eval(
       locators.collectionItem,
