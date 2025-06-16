@@ -20,7 +20,7 @@ const formatOptionString = (optionString: string): string => {
   return formattedString
 }
 
-const Option = React.memo(({ item }: { item: SelectValue }) => {
+const Option = React.memo(({ item, ...rest }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)
 
   // Attempt to create a dynamic testID using the label or value if they contain a string.
