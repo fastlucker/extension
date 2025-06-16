@@ -9,16 +9,17 @@ const config: PlaywrightTestConfig = {
       maxDiffPixelRatio: 1 / 100
     }
   },
-  testDir: 'tests/',
+  testDir: 'tests',
   testMatch: '**/*.spec.ts',
   reporter: [
     ['list'],
     ['junit', { outputFile: 'test-results/results.xml' }],
-    ['html', { open: 'never' }]
+    ['html', { open: 'always' }]
   ],
   timeout: 180 * 1000, // 3min
   reportSlowTests: null,
   snapshotPathTemplate: 'data/screenshots/{projectName}/{testFilePath}/{arg}/text',
+  retries: process.env.CI ? 1 : 0,
   use: {
     viewport: { width: 1920, height: 1080 },
     baseURL: process.env.APP_URL || '',

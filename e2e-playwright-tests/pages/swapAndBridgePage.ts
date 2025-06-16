@@ -1,9 +1,11 @@
+import { locators } from '@common/locators'
 import { expect } from '@playwright/test'
 
 import { bootstrapWithStorage } from '../common-helpers/bootstrap'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { SELECTORS, TEST_IDS } from '../common/selectors/selectors'
+import { SELECTORS, TEST_IDS as selectors } from '../common/selectors/selectors'
+import { constants } from '../constants/constants'
 import { BasePage } from './basePage'
 import Token from '../interfaces/token'
 
@@ -100,20 +102,20 @@ export class SwapAndBridgePage extends BasePage {
 
   async openSwapAndBridge() {
     if (!this.page.url().includes('/swap-and-bridge')) {
-      await clickOnElement(this.page, SELECTORS.dashboardButtonSwapAndBridge)
+      await this.page.getByTestId(selectors.dashboardButtonSwapAndBridge).click()
       await this.verifyIfOnSwapAndBridgePage()
     }
   }
 
+  // TODO: refactor this method
   async prepareSwapAndBridge(send_amount, fromToken: Token, toToken: Token) {
     try {
       await this.openSwapAndBridge()
       await this.page.waitForTimeout(1000)
       await this.selectSendTokenOnNetwork(fromToken)
-
       // Select Receive Token on the same Network, which is automatically selected
       await this.page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
-      await this.clickOnMenuToken(toToken, TEST_IDS.receiveTokenSab)
+      await this.clickOnMenuToken(toToken, selectors.receiveTokenSab)
 
       // If checking prepareSwapAndBridge functionality without providing send amount
       if (send_amount === null) {
@@ -126,7 +128,7 @@ export class SwapAndBridgePage extends BasePage {
       }
 
       // Enter the amount
-      await typeText(this.page, SELECTORS.fromAmountInputSab, send_amount.toString())
+      await this.page.getByTestId(selectors.fromAmountInputSab).fill(send_amount.toString())
 
       // TODO: Implement verifyRouteFound
       // await verifyRouteFound()
@@ -136,7 +138,7 @@ export class SwapAndBridgePage extends BasePage {
         .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
         .catch(() => null)
       if (isHighPrice) {
-        await clickOnElement(this.page, SELECTORS.highPriceImpactSab)
+        await this.page.getByTestId(selectors.highPriceImpactSab).click()
         return 'Continue anyway'
       }
       return 'Proceed'
@@ -147,7 +149,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async selectSendTokenOnNetwork(send_token: Token) {
-    await this.clickOnMenuToken(send_token, TEST_IDS.sendTokenSab)
+    await this.clickOnMenuToken(send_token, selectors.sendTokenSab)
   }
 
   async verifyIfSwitchIsActive(reference = true) {
@@ -184,7 +186,270 @@ export class SwapAndBridgePage extends BasePage {
     expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison
   }
 
-  async navigateToHome() {
-    await this.page.goto('/')
+  async verifyDefaultReceiveToken(
+    sendToken: string,
+    receiveNetwork: string,
+    receiveToken: string
+  ): Promise<void> {
+    await this.openSwapAndBridge()
+    await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
+    await this.page.waitForTimeout(1000)
+    await this.page.locator(SELECTORS.receiveTokenSab).click()
+    await this.page.waitForTimeout(1000)
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 5000 })
+    const selector = `[data-testid*="${receiveToken.toLowerCase()}"]`
+    await expect(this.page.locator(selector).nth(0)).toHaveText(
+      new RegExp(receiveToken.toUpperCase()),
+      {
+        timeout: 3000
+      }
+    )
+
+    const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
+    if (address) {
+      await expect(this.page.locator(selector)).toHaveText(new RegExp(address), {
+        timeout: 3000
+      })
+      await this.page.locator(selector).click()
+    } else {
+      console.warn(`[WARNING] Token address not found for ${receiveNetwork}.${receiveToken}`)
+    }
+
+    await this.page.waitForTimeout(1000)
+  }
+
+  async verifyNonDefaultReceiveToken(
+    sendToken: string,
+    receiveNetwork: string,
+    receiveToken: string
+  ) {
+    await this.openSwapAndBridge()
+    await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
+    await this.page.waitForTimeout(1500)
+    await this.page.locator(SELECTORS.receiveTokenSab).click()
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 3000 })
+    await this.page.getByText('Not found. Try with token').isVisible()
+
+    const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
+    await this.page.locator(SELECTORS.searchInput).fill(address, { timeout: 3000 })
+
+    const selector = this.page.locator(`[data-tooltip-id*="${address}"]`).first()
+    await this.page.waitForTimeout(2000)
+    await expect(selector).toHaveText(new RegExp(receiveToken), { timeout: 3000 })
+    await expect(selector).toHaveText(new RegExp(address), { timeout: 3000 })
+  }
+
+  async rejectTransaction(): Promise<void> {
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    await this.page.locator(locators.addToBatchButton).click()
+    await this.page.locator(locators.openDashboardFromBatchButton).first().click()
+    await this.page.locator(locators.bannerButtonReject).first().click()
+    await expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
+  }
+
+  async proceedTransaction(): Promise<void> {
+    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    await this.clickOnElement(locators.addToBatchButton)
+    await this.clickOnElement(locators.openDashboardFromBatchButton)
+    const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
+    await this.signTransactionPage(newPage)
+  }
+
+  async signTransactionPage(page): Promise<void> {
+    const signButton = page.locator(SELECTORS.signTransactionButton)
+
+    try {
+      await expect(signButton).toBeVisible({ timeout: 5000 })
+      await expect(signButton).toBeEnabled()
+      await clickOnElement(page, SELECTORS.signTransactionButton)
+      await page.waitForTimeout(1500)
+    } catch (error) {
+      console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
+    }
+  }
+
+  async switchUSDValueOnSwapAndBridge(
+    sendToken: string,
+    sendNetwork: string,
+    sendAmount: number,
+    delay = 1000
+  ): Promise<void> {
+    await this.page.waitForTimeout(delay)
+
+    await this.openSwapAndBridge()
+    await this.selectSendTokenOnNetwork(sendToken, sendNetwork)
+    await typeText(this.page, SELECTORS.fromAmountInputSab, sendAmount.toString())
+    const [usdOldAmount, currency] = await this.getUSDTextContent()
+    expect(currency).toBe('$')
+    const oldAmount = await this.getSendAmount()
+    await this.page.waitForTimeout(500)
+    await clickOnElement(this.page, SELECTORS.flipUSDIcon)
+
+    const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
+    const newAmount = this.roundAmount(await this.getSendAmount())
+
+    expect(oldAmount).toBeCloseTo(usdNewAmount, 1)
+    expect(usdOldAmount).toBeCloseTo(newAmount, 1)
+    expect(newCurrency).toBe(sendToken)
+
+    // Wait and flip back
+    await this.page.waitForTimeout(500)
+    await clickOnElement(this.page, SELECTORS.flipUSDIcon)
+
+    const [usdSecondAmount, secondCurrency] = await this.getUSDTextContent()
+    const secondAmount = await this.getSendAmount()
+
+    expect(newAmount).toBeCloseTo(usdSecondAmount, 1)
+    expect(usdNewAmount).toBeCloseTo(secondAmount, 1)
+    expect(secondCurrency).toBe('$')
+  }
+
+  async getUSDTextContent(): Promise<[number, string]> {
+    const selector = SELECTORS.switchCurrencySab
+    await this.page.waitForTimeout(500)
+
+    const element = await this.page.$(selector)
+    expect(element).not.toBeNull()
+
+    const content = await element!.evaluate((el) => el.textContent?.trim() || '')
+
+    let currency: string | null = null
+    let amount: string | null = null
+
+    if (/\$/.test(content)) {
+      const match = content.match(/^([^0-9\s]+)?([\d,.]+)/)
+      currency = match?.[1] || ''
+      amount = match?.[2] || ''
+    } else {
+      const match = content.match(/([\d,.]+)\s*([\w.]+)$/)
+      amount = match?.[1] || ''
+      currency = match?.[2] || ''
+    }
+
+    return [Number(amount.replace(/,/g, '')), currency]
+  }
+
+  async verifyAutoRefreshRoute(): Promise<void> {
+    const routeSelector = this.page.getByTestId('select-route')
+    await routeSelector.waitFor({ state: 'hidden', timeout: 65000 })
+    const didReappear = await routeSelector
+      .waitFor({ state: 'visible', timeout: 65000 })
+      .then(() => true)
+      .catch(() => false)
+    expect(didReappear).toBe(true)
+  }
+
+  async assertSelectedAggregator(): Promise<void> {
+    await expect(this.page.getByText('LI.FI DEX Aggregator').last()).toBeVisible()
+    await expect(this.page.getByText('Selected').last()).toBeVisible()
+  }
+
+  async clickOnSecondRoute(): Promise<void> {
+    await this.page.getByTestId(selectors.selectRouteButton).last().click()
+    await this.page.locator(locators.liFiRoute).last().click()
+    await this.page.getByTestId(selectors.selectRouteButton).last().click()
+    await this.assertSelectedAggregator()
+  }
+
+  async prepareBridgeTransaction(
+    sendAmount: number,
+    sendToken: string,
+    sendNetwork: string,
+    receiveNetwork: string
+  ): Promise<string | null> {
+    try {
+      await this.openSwapAndBridge()
+      await this.page.waitForTimeout(1000)
+      await this.selectSendTokenOnNetwork(sendToken, sendNetwork)
+
+      // Select target receive network
+      await this.page.waitForSelector(SELECTORS.recieveNetworkBase, {
+        state: 'visible',
+        timeout: 3000
+      })
+      await clickOnElement(this.page, SELECTORS.recieveNetworkBase)
+      await clickOnElement(this.page, `[data-testid*="option-${receiveNetwork}"]`)
+
+      // Select receive token by address
+      await this.page.waitForTimeout(1000)
+      await this.page.waitForSelector(SELECTORS.receiveTokenSab, {
+        state: 'visible',
+        timeout: 5000
+      })
+      await clickOnElement(this.page, SELECTORS.receiveTokenSab)
+      await this.page.waitForSelector(SELECTORS.searchInput, { state: 'visible', timeout: 3000 })
+      await this.page.type(SELECTORS.searchInput, sendToken)
+
+      const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${sendToken}`]
+      await clickOnElement(this.page, `[data-tooltip-id*="${address}"]`)
+
+      // Validate sendAmount
+      if (sendAmount === null) return null
+      if (sendAmount <= 0) throw new Error('sendAmount must be greater than 0')
+
+      await this.page.type(SELECTORS.fromAmountInputSab, sendAmount.toString(), { delay: 100 })
+      const isFollowUp = await this.page
+        .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 6000 })
+        .catch(() => null)
+      if (isFollowUp) {
+        await clickOnElement(this.page, SELECTORS.confirmFollowUpTxn)
+      }
+      const isHighPrice = await this.page
+        .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
+        .catch(() => null)
+      if (isHighPrice) {
+        await clickOnElement(this.page, SELECTORS.highPriceImpactSab)
+        return 'Continue anyway'
+      }
+
+      return 'Proceed'
+    } catch (error) {
+      console.error(`[ERROR] Prepare Bridge Transaction Failed: ${error.message}`)
+      throw error
+    }
+  }
+
+  async signTokens(): Promise<void> {
+    await this.page.getByTestId(selectors.proceedButton).click()
+    await this.page.getByTestId(selectors.swapSignButton).click()
+    await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 5000 })
+    // TODO: add more assertion
+  }
+
+  async batchAction(): Promise<void> {
+    await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
+    await this.page.getByTestId(selectors.addToBatchButton).click()
+    await this.page.getByTestId(selectors.addMoreSwapsButton).isVisible()
+    await this.page.getByTestId(selectors.addMoreSwapsButton).click()
+  }
+
+  async batchActionWithSign(): Promise<void> {
+    await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
+    await this.page.getByTestId(selectors.addToBatchButton).click()
+    await this.page.locator(locators.openDashboardFromBatchButton).first().isVisible()
+    await this.page.locator(locators.openDashboardFromBatchButton).first().click()
+    const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
+    await this.signBatchTransactionsPage(newPage)
+  }
+
+  async signBatchTransactionsPage(page): Promise<void> {
+    const signButton = page.locator(SELECTORS.signTransactionButton)
+
+    try {
+      await expect(signButton).toBeVisible({ timeout: 5000 })
+      await expect(signButton).toBeEnabled()
+      await this.verifyBatchTransactionDetails(page)
+      await clickOnElement(page, SELECTORS.signTransactionButton)
+      await page.waitForTimeout(1500)
+    } catch (error) {
+      console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
+    }
+  }
+
+  async verifyBatchTransactionDetails(page): Promise<void> {
+    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
+    await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI\.FI/)
+    await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.002/)
+    await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
   }
 }

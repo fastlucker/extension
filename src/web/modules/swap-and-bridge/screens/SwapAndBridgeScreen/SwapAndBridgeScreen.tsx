@@ -25,6 +25,7 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import { Key } from '@ambire-common/interfaces/keystore'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -58,7 +59,8 @@ const SwapAndBridgeScreen = () => {
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
     isBridge,
-    setShowAddedToBatch
+    setShowAddedToBatch,
+    networkUserRequests
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -69,7 +71,6 @@ const SwapAndBridgeScreen = () => {
     signAccountOpController,
     isAutoSelectRouteDisabled,
     hasProceeded,
-    fromSelectedToken,
     swapSignErrors
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
@@ -165,7 +166,7 @@ const SwapAndBridgeScreen = () => {
     [dispatch]
   )
   const updateController = useCallback(
-    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+    (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params
@@ -179,11 +180,11 @@ const SwapAndBridgeScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          token={fromSelectedToken}
           signAccountOpErrors={swapSignErrors}
           isNotReadyToProceed={isNotReadyToProceed}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
+          networkUserRequests={networkUserRequests}
         />
       </>
     )
@@ -192,8 +193,8 @@ const SwapAndBridgeScreen = () => {
     handleSubmitForm,
     isBridge,
     isNotReadyToProceed,
-    fromSelectedToken,
-    swapSignErrors
+    swapSignErrors,
+    networkUserRequests
   ])
 
   if (!sessionIds.includes(sessionId)) {

@@ -6,6 +6,7 @@ import {
   SignAccountOpController,
   SigningStatus
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Key } from '@ambire-common/interfaces/keystore'
 import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -24,7 +25,7 @@ type Props = {
   closeEstimationModal: () => void
   handleBroadcastAccountOp: () => void
   handleUpdateStatus: (status: SigningStatus) => void
-  updateController: (params: { signingKeyAddr?: string; signingKeyType?: string }) => void
+  updateController: (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => void
   estimationModalRef: React.RefObject<any>
   errors?: SignAccountOpError[]
   signAccountOpController: SignAccountOpController | null
