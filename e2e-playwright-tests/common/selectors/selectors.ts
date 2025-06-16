@@ -129,11 +129,12 @@ export const TEST_IDS = {
   txnStatus: 'txn-status',
   batchModalGotIt: 'queue-modal-got-it-button',
   signButtonSwap: 'swap-button-sign',
-  addMoreSwapsButton: 'add-more-swaps',
+  addMoreButton: 'add-more-button',
   flipUSDIcon: 'flip-icon',
   proceedButton: 'proceed-btn',
   swapSignButton: 'swap-button-sign',
-  addToBatchButton: 'batch-btn'
+  addToBatchButton: 'batch-btn',
+  goDashboardButton: 'go-dashboard-button'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

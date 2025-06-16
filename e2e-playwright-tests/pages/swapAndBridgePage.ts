@@ -4,7 +4,7 @@ import { expect } from '@playwright/test'
 import { bootstrapWithStorage } from '../common-helpers/bootstrap'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { SELECTORS, TEST_IDS as selectors } from '../common/selectors/selectors'
+import { SELECTORS, TEST_IDS, TEST_IDS as selectors } from '../common/selectors/selectors'
 import { constants } from '../constants/constants'
 import { BasePage } from './basePage'
 import Token from '../interfaces/token'
@@ -104,6 +104,8 @@ export class SwapAndBridgePage extends BasePage {
     if (!this.page.url().includes('/swap-and-bridge')) {
       await this.page.getByTestId(selectors.dashboardButtonSwapAndBridge).click()
       await this.verifyIfOnSwapAndBridgePage()
+    } else {
+      await this.page.reload()
     }
   }
 
@@ -112,10 +114,10 @@ export class SwapAndBridgePage extends BasePage {
     try {
       await this.openSwapAndBridge()
       await this.page.waitForTimeout(1000)
-      await this.selectSendTokenOnNetwork(fromToken)
+      await this.selectSendToken(fromToken)
       // Select Receive Token on the same Network, which is automatically selected
       await this.page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
-      await this.clickOnMenuToken(toToken, selectors.receiveTokenSab)
+      await this.selectReceiveToken(toToken)
 
       // If checking prepareSwapAndBridge functionality without providing send amount
       if (send_amount === null) {
@@ -148,8 +150,15 @@ export class SwapAndBridgePage extends BasePage {
     }
   }
 
-  async selectSendTokenOnNetwork(send_token: Token) {
-    await this.clickOnMenuToken(send_token, selectors.sendTokenSab)
+  async selectSendToken(sendToken: Token) {
+    await this.clickOnMenuToken(sendToken, selectors.sendTokenSab)
+  }
+
+  async selectReceiveToken(receiveToken: Token) {
+    const loadingSelector = `[data-testid="${selectors.receiveTokenSab}"] >> text=Please select token`
+    await this.page.locator(loadingSelector).waitFor({ state: 'visible' })
+
+    await this.clickOnMenuToken(receiveToken, selectors.receiveTokenSab)
   }
 
   async verifyIfSwitchIsActive(reference = true) {
@@ -169,7 +178,7 @@ export class SwapAndBridgePage extends BasePage {
   async verifySendMaxTokenAmount(fromToken: Token) {
     const valueDecimals = 2 // Set presison of values to 2 decimals
     await this.openSwapAndBridge()
-    await this.selectSendTokenOnNetwork(fromToken)
+    await this.selectSendToken(fromToken)
     await this.page.waitForTimeout(500) // Wait before read Amount value
     const maxBalance = await this.extractMaxBalance()
     const roundMaxBalance = this.roundAmount(maxBalance, valueDecimals)
@@ -186,57 +195,44 @@ export class SwapAndBridgePage extends BasePage {
     expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison
   }
 
-  async verifyDefaultReceiveToken(
-    sendToken: string,
-    receiveNetwork: string,
-    receiveToken: string
-  ): Promise<void> {
+  async verifyDefaultReceiveToken(sendToken: Token, receiveToken: Token): Promise<void> {
     await this.openSwapAndBridge()
-    await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
-    await this.page.waitForTimeout(1000)
-    await this.page.locator(SELECTORS.receiveTokenSab).click()
-    await this.page.waitForTimeout(1000)
-    await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 5000 })
-    const selector = `[data-testid*="${receiveToken.toLowerCase()}"]`
-    await expect(this.page.locator(selector).nth(0)).toHaveText(
-      new RegExp(receiveToken.toUpperCase()),
-      {
-        timeout: 3000
-      }
-    )
-
-    const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
-    if (address) {
-      await expect(this.page.locator(selector)).toHaveText(new RegExp(address), {
-        timeout: 3000
-      })
-      await this.page.locator(selector).click()
-    } else {
-      console.warn(`[WARNING] Token address not found for ${receiveNetwork}.${receiveToken}`)
-    }
+    await this.selectSendToken(sendToken)
 
     await this.page.waitForTimeout(1000)
+
+    const loadingSelector = `[data-testid="${selectors.receiveTokenSab}"] >> text=Please select token`
+    await this.page.locator(loadingSelector).waitFor({ state: 'visible' })
+
+    await this.page.getByTestId(selectors.receiveTokenSab).click()
+    await this.page.getByTestId(selectors.searchInput).fill(receiveToken.symbol)
+
+    const tokenLocator = this.page
+      .getByTestId(TEST_IDS.bottomSheet)
+      .getByTestId(`option-${receiveToken.address}.${receiveToken.chainId}`)
+    await expect(tokenLocator).toBeVisible()
   }
 
-  async verifyNonDefaultReceiveToken(
-    sendToken: string,
-    receiveNetwork: string,
-    receiveToken: string
-  ) {
+  async verifyNonDefaultReceiveToken(sendToken: Token, receiveToken: Token) {
     await this.openSwapAndBridge()
-    await this.selectSendTokenOnNetwork(sendToken, receiveNetwork)
-    await this.page.waitForTimeout(1500)
+    await this.selectSendToken(sendToken)
+
+    await this.page.waitForTimeout(1000)
+
+    const loadingSelector = `[data-testid="${selectors.receiveTokenSab}"] >> text=Please select token`
+    await this.page.locator(loadingSelector).waitFor({ state: 'visible' })
+
     await this.page.locator(SELECTORS.receiveTokenSab).click()
-    await this.page.locator(SELECTORS.searchInput).fill(receiveToken, { timeout: 3000 })
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken.symbol, { timeout: 3000 })
     await this.page.getByText('Not found. Try with token').isVisible()
 
-    const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${receiveToken}`]
-    await this.page.locator(SELECTORS.searchInput).fill(address, { timeout: 3000 })
+    await this.page.locator(SELECTORS.searchInput).fill(receiveToken.address, { timeout: 3000 })
 
-    const selector = this.page.locator(`[data-tooltip-id*="${address}"]`).first()
-    await this.page.waitForTimeout(2000)
-    await expect(selector).toHaveText(new RegExp(receiveToken), { timeout: 3000 })
-    await expect(selector).toHaveText(new RegExp(address), { timeout: 3000 })
+    const tokenLocator = this.page
+      .getByTestId(TEST_IDS.bottomSheet)
+      .getByTestId(`option-${receiveToken.address}.${receiveToken.chainId}`)
+
+    await expect(tokenLocator).toBeVisible()
   }
 
   async rejectTransaction(): Promise<void> {
@@ -269,15 +265,14 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async switchUSDValueOnSwapAndBridge(
-    sendToken: string,
-    sendNetwork: string,
-    sendAmount: number,
+    sendToken: Token,
+    sendAmount?: number,
     delay = 1000
   ): Promise<void> {
     await this.page.waitForTimeout(delay)
 
     await this.openSwapAndBridge()
-    await this.selectSendTokenOnNetwork(sendToken, sendNetwork)
+    await this.selectSendToken(sendToken)
     await typeText(this.page, SELECTORS.fromAmountInputSab, sendAmount.toString())
     const [usdOldAmount, currency] = await this.getUSDTextContent()
     expect(currency).toBe('$')
@@ -290,7 +285,7 @@ export class SwapAndBridgePage extends BasePage {
 
     expect(oldAmount).toBeCloseTo(usdNewAmount, 1)
     expect(usdOldAmount).toBeCloseTo(newAmount, 1)
-    expect(newCurrency).toBe(sendToken)
+    expect(newCurrency).toBe(sendToken.symbol)
 
     // Wait and flip back
     await this.page.waitForTimeout(500)
@@ -305,13 +300,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async getUSDTextContent(): Promise<[number, string]> {
-    const selector = SELECTORS.switchCurrencySab
-    await this.page.waitForTimeout(500)
-
-    const element = await this.page.$(selector)
-    expect(element).not.toBeNull()
-
-    const content = await element!.evaluate((el) => el.textContent?.trim() || '')
+    const content = await this.page.getByTestId(selectors.switchCurrencySab).innerText()
 
     let currency: string | null = null
     let amount: string | null = null
@@ -353,35 +342,26 @@ export class SwapAndBridgePage extends BasePage {
 
   async prepareBridgeTransaction(
     sendAmount: number,
-    sendToken: string,
-    sendNetwork: string,
-    receiveNetwork: string
+    sendToken: Token,
+    receiveToken: Token
   ): Promise<string | null> {
     try {
       await this.openSwapAndBridge()
       await this.page.waitForTimeout(1000)
-      await this.selectSendTokenOnNetwork(sendToken, sendNetwork)
+      await this.selectSendToken(sendToken)
 
       // Select target receive network
-      await this.page.waitForSelector(SELECTORS.recieveNetworkBase, {
-        state: 'visible',
-        timeout: 3000
-      })
-      await clickOnElement(this.page, SELECTORS.recieveNetworkBase)
-      await clickOnElement(this.page, `[data-testid*="option-${receiveNetwork}"]`)
+      const networkSelector = this.page.getByTestId(`option-${sendToken.chainId}`)
+      await networkSelector.click()
+
+      const recieveNetwork = this.page
+        .getByTestId(selectors.bottomSheet)
+        .getByTestId(`option-${receiveToken.chainId}`)
+      await recieveNetwork.click()
 
       // Select receive token by address
       await this.page.waitForTimeout(1000)
-      await this.page.waitForSelector(SELECTORS.receiveTokenSab, {
-        state: 'visible',
-        timeout: 5000
-      })
-      await clickOnElement(this.page, SELECTORS.receiveTokenSab)
-      await this.page.waitForSelector(SELECTORS.searchInput, { state: 'visible', timeout: 3000 })
-      await this.page.type(SELECTORS.searchInput, sendToken)
-
-      const address = constants.TOKEN_ADDRESS[`${receiveNetwork}.${sendToken}`]
-      await clickOnElement(this.page, `[data-tooltip-id*="${address}"]`)
+      await this.selectReceiveToken(receiveToken)
 
       // Validate sendAmount
       if (sendAmount === null) return null
@@ -411,7 +391,7 @@ export class SwapAndBridgePage extends BasePage {
 
   async signTokens(): Promise<void> {
     await this.page.getByTestId(selectors.proceedButton).click()
-    await this.page.getByTestId(selectors.swapSignButton).click()
+    await this.page.getByTestId(selectors.signButton).click()
     await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 5000 })
     // TODO: add more assertion
   }
@@ -419,15 +399,14 @@ export class SwapAndBridgePage extends BasePage {
   async batchAction(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.page.getByTestId(selectors.addToBatchButton).click()
-    await this.page.getByTestId(selectors.addMoreSwapsButton).isVisible()
-    await this.page.getByTestId(selectors.addMoreSwapsButton).click()
+    await this.page.getByTestId(selectors.addMoreButton).isVisible()
+    await this.page.getByTestId(selectors.addMoreButton).click()
   }
 
   async batchActionWithSign(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.page.getByTestId(selectors.addToBatchButton).click()
-    await this.page.locator(locators.openDashboardFromBatchButton).first().isVisible()
-    await this.page.locator(locators.openDashboardFromBatchButton).first().click()
+    await this.page.getByTestId(selectors.goDashboardButton).click()
     const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
     await this.signBatchTransactionsPage(newPage)
   }
