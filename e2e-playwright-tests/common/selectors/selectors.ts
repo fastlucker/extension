@@ -1,5 +1,6 @@
 import { buildSelector } from '../../common-helpers/buildSelector'
 
+// TODO: this should be refactored; we should have single file with selector IDs
 export const TEST_IDS = {
   account: 'account',
   importBtn: 'import-button',
@@ -107,6 +108,7 @@ export const TEST_IDS = {
   // Swap & Bridge selectors
   sendTokenSab: 'from-token-select',
   receiveTokenSab: 'to-token-select',
+  selectRouteButton: 'select-route',
   routeLoadingTextSab: 'route-loading-text-sab',
   fromAmountInputSab: 'from-amount-input-sab',
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
@@ -118,7 +120,13 @@ export const TEST_IDS = {
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
-  removeNetworkConfirmButton: 'remove-network-confirm-btn'
+  removeNetworkConfirmButton: 'remove-network-confirm-btn',
+  signButtonSwap: 'swap-button-sign',
+  addMoreSwapsButton: 'add-more-swaps',
+  flipUSDIcon: 'flip-icon',
+  proceedButton: 'proceed-btn',
+  swapSignButton: 'swap-button-sign',
+  addToBatchButton: 'batch-btn'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
