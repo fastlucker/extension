@@ -123,7 +123,7 @@ const SendToken: FC<Props> = ({
                     style={{
                       position: 'absolute',
                       right: 0,
-                      top: 0,
+                      top: -2,
                       zIndex: -1,
                       width: '100%',
                       height: '100%',
