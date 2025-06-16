@@ -7,30 +7,31 @@ import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/
 import { FeeSpeed, SpeedCalc } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Warning } from '@ambire-common/interfaces/signAccountOp'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import AssetIcon from '@common/assets/svg/AssetIcon'
 import FeeIcon from '@common/assets/svg/FeeIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
 import Select, { SectionedSelect } from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
-import InfoIcon from '@common/assets/svg/InfoIcon'
-import Tooltip from '@common/components/Tooltip'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import PayOption from './components/PayOption'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
+import getStyles from './styles'
 import { Props } from './types'
 
 const FEE_SECTION_LIST_MENU_HEADER_HEIGHT = 34
@@ -98,7 +99,7 @@ const Estimation = ({
 }: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { theme, themeType } = useTheme()
+  const { theme, themeType, styles } = useTheme(getStyles)
   const { minWidthSize } = useWindowSize()
 
   const feeTokenPriceUnavailableWarning = useMemo(() => {
@@ -316,15 +317,16 @@ const Estimation = ({
     return fees[0]
   }, [signAccountOpState])
 
+  const nativeFeeOption = signAccountOpState?.estimation.availableFeeOptions.find(
+    (feeOption) =>
+      feeOption.paidBy === signAccountOpState.accountOp.accountAddr &&
+      feeOption.token.address === ZERO_ADDRESS
+  )
+
   const paidByNativeValue = useMemo(() => {
     if (!serviceFee || !signAccountOpState?.estimation.availableFeeOptions.length || !hasEstimation)
       return null
 
-    const nativeFeeOption = signAccountOpState.estimation.availableFeeOptions.find(
-      (feeOption) =>
-        feeOption.paidBy === signAccountOpState.accountOp.accountAddr &&
-        feeOption.token.address === ZERO_ADDRESS
-    )
     if (!nativeFeeOption) return
 
     const mappedFeeOption = mapFeeOptions(nativeFeeOption, signAccountOpState)
@@ -337,21 +339,6 @@ const Estimation = ({
     )
     return mappedFeeOption
   }, [hasEstimation, signAccountOpState, serviceFee])
-
-  const bridgeFeeOptions = useMemo(() => {
-    if (!serviceFee || !paidByNativeValue) return null
-
-    return [
-      {
-        title: {
-          icon: <FeeIcon color={theme.secondaryText} width={16} height={16} />,
-          text: t('With fee tokens from current account')
-        },
-        data: [paidByNativeValue],
-        key: 'account-tokens'
-      }
-    ]
-  }, [serviceFee, paidByNativeValue, t, theme.secondaryText])
 
   const renderFeeOptionSectionHeader = useCallback(
     ({ section }: any) => {
@@ -510,7 +497,7 @@ const Estimation = ({
         withSearch={!!payOptionsPaidByUsOrGasTank.length || !!payOptionsPaidByEOA.length}
         stickySectionHeadersEnabled
       />
-      {serviceFee && bridgeFeeOptions && paidByNativeValue && (
+      {serviceFee && paidByNativeValue && nativeFeeOption && (
         <>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <Text fontSize={12} style={spacings.mvTy}>
@@ -522,7 +509,7 @@ const Estimation = ({
               data-tooltip-id="bridge-fee-icon"
               style={spacings.mlTy}
             />
-            <Tooltip id="bridge-fee-icon">
+            <Tooltip id="bridge-fee-icon" clickable>
               <View>
                 <Text fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
                   {t(
@@ -542,10 +529,8 @@ const Estimation = ({
               </View>
             </Tooltip>
           </View>
-          <SectionedSelect
-            headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
-            sections={bridgeFeeOptions}
-            renderSectionHeader={renderFeeOptionSectionHeader}
+          <Select
+            options={[paidByNativeValue]}
             containerStyle={spacings.mb0}
             value={paidByNativeValue}
             disabled
@@ -553,8 +538,16 @@ const Estimation = ({
             selectStyle={{
               borderWidth: themeType === THEME_TYPES.DARK ? 0 : 1
             }}
+            renderSelectedOption={() => (
+              <View style={styles.nativeBridgeFeeContainer}>
+                <PayOption
+                  amount={BigInt(serviceFee.amount)}
+                  amountUsd={serviceFee.amountUSD}
+                  feeOption={nativeFeeOption}
+                />
+              </View>
+            )}
             withSearch={false}
-            stickySectionHeadersEnabled
           />
         </>
       )}
