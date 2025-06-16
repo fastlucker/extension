@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
@@ -24,6 +24,9 @@ import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
+import InfoIcon from '@common/assets/svg/InfoIcon'
+import Tooltip from '@common/components/Tooltip'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import PayOption from './components/PayOption'
 import { NO_FEE_OPTIONS } from './consts'
@@ -509,9 +512,36 @@ const Estimation = ({
       />
       {serviceFee && bridgeFeeOptions && paidByNativeValue && (
         <>
-          <Text fontSize={12} style={spacings.mvTy}>
-            {t('+ Additional bridge fee:')}
-          </Text>
+          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+            <Text fontSize={12} style={spacings.mvTy}>
+              {t('+ Additional bridge fee')}
+            </Text>
+            <InfoIcon
+              width={16}
+              height={16}
+              data-tooltip-id="bridge-fee-icon"
+              style={spacings.mlTy}
+            />
+            <Tooltip id="bridge-fee-icon">
+              <View>
+                <Text fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
+                  {t(
+                    `Our bridge providers demand an additional service fee paid out in ${paidByNativeValue.token.symbol}. This fee is extra and it is not included in the quote. `
+                  )}
+                  <Pressable
+                    onPress={() => {
+                      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                      openInTab({ url: 'https://help.ambire.com/hc/en-us/articles/20618326653596' })
+                    }}
+                  >
+                    <Text fontSize={14} weight="medium" appearance="primary">
+                      {t('More info')}
+                    </Text>
+                  </Pressable>
+                </Text>
+              </View>
+            </Tooltip>
+          </View>
           <SectionedSelect
             headerHeight={FEE_SECTION_LIST_MENU_HEADER_HEIGHT}
             sections={bridgeFeeOptions}
