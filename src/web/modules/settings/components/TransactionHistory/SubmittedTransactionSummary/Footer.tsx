@@ -104,7 +104,6 @@ const Footer: FC<Props> = ({
       setFeeFormattedValue(`${formatDecimals(fee)} ${tokenInfo.symbol}`)
     }).catch((e) => {
       console.error(e)
-      addToast('We had a problem fetching fee token data', { type: 'error' })
     })
   }, [
     networks,
