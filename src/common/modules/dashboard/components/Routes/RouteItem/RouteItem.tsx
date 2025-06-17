@@ -76,6 +76,8 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
                 ? theme.primaryBackground
                 : theme.primaryText,
               ...flexbox.center,
+              ...flexbox.alignCenter,
+              ...flexbox.justifyCenter,
               ...spacings.mbTy
             }}
           >
