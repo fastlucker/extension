@@ -1,11 +1,11 @@
-import { locators } from '@common/locators'
+import { bootstrapWithStorage } from 'common-helpers/bootstrap'
+import { clickOnElement } from 'common-helpers/clickOnElement'
+import { typeText } from 'common-helpers/typeText'
+import locators from 'constants/locators'
+import selectors, { SELECTORS } from 'constants/selectors'
+
 import { expect } from '@playwright/test'
 
-import { bootstrapWithStorage } from '../common-helpers/bootstrap'
-import { clickOnElement } from '../common-helpers/clickOnElement'
-import { typeText } from '../common-helpers/typeText'
-import { SELECTORS, TEST_IDS as selectors } from '../common/selectors/selectors'
-import { constants } from '../constants/constants'
 import Token from '../interfaces/token'
 import { BasePage } from './basePage'
 

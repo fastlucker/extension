@@ -1,7 +1,7 @@
-import { buildSelector } from '../../common-helpers/buildSelector'
+import { buildSelector } from '@helpers/buildSelector'
 
 // TODO: this should be refactored; we should have single file with selector IDs
-export const TEST_IDS = {
+const selectors = {
   account: 'account',
   importBtn: 'import-button',
   importPrivateBtn: 'button-import-private-key',
@@ -139,9 +139,11 @@ export const TEST_IDS = {
 
 }
 
-type SelectorKey = keyof typeof TEST_IDS
+type SelectorKey = keyof typeof selectors
 type Selectors = { [K in SelectorKey]?: string }
 
 export const SELECTORS: Selectors = Object.fromEntries(
-  Object.entries(TEST_IDS).map(([key, value]) => [key, buildSelector(value)])
+  Object.entries(selectors).map(([key, value]) => [key, buildSelector(value)])
 )
+
+export default selectors
