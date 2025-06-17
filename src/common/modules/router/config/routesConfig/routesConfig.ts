@@ -8,6 +8,8 @@ type RouteConfig = {
     route: string
     title: string
     name: string
+    /** Should the prefix 'Ambire' be prepended to the title. True by default */
+    withTitlePrefix?: boolean
   }
 }
 
@@ -150,9 +152,10 @@ const routesConfig: RouteConfig = {
   [ROUTES.transfer]: {
     route: ROUTES.transfer,
     title: Platform.select({
-      default: i18n.t('Send Crypto')
+      default: i18n.t('Send')
     }),
-    name: Platform.select({ default: i18n.t('Send Crypto') })
+    name: Platform.select({ default: i18n.t('Send') }),
+    withTitlePrefix: false
   },
   [ROUTES.transactions]: {
     route: ROUTES.transactions,
@@ -298,7 +301,8 @@ const routesConfig: RouteConfig = {
     title: Platform.select({
       default: i18n.t('Swap and Bridge')
     }),
-    name: Platform.select({ default: i18n.t('Swap and Bridge') })
+    name: Platform.select({ default: i18n.t('Swap and Bridge') }),
+    withTitlePrefix: false
   },
   [ROUTES.generalSettings]: {
     route: ROUTES.generalSettings,
