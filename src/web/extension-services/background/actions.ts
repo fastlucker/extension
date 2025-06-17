@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
+  ActionExecutionType,
   ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
@@ -278,6 +278,16 @@ type MainControllerUpdateSelectedAccountPortfolio = {
     forceUpdate?: boolean
     network?: Network
   }
+}
+
+type DefiControllerAddSessionAction = {
+  type: 'DEFI_CONTOLLER_ADD_SESSION'
+  params: { sessionId: string }
+}
+
+type DefiControllerRemoveSessionAction = {
+  type: 'DEFI_CONTOLLER_REMOVE_SESSION'
+  params: { sessionId: string }
 }
 
 type SelectedAccountSetDashboardNetworkFilter = {
@@ -777,6 +787,8 @@ export type Action =
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
   | MainControllerUpdateSelectedAccountPortfolio
+  | DefiControllerAddSessionAction
+  | DefiControllerRemoveSessionAction
   | SelectedAccountSetDashboardNetworkFilter
   | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
