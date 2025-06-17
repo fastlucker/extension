@@ -1,4 +1,4 @@
-export const locators = {
+const locators = {
   watchAnAddress: 'div[data-testid="view-only-address-btn"]',
   viewOnlyInputAddressField: 'input[data-testid="view-only-address-field-0"]',
   importViewOnlyButton: 'div[data-testid="view-only-button-import"]',
@@ -58,3 +58,5 @@ export const locators = {
   addMoreSwapsButton: 'div[data-testid="add-more-swaps"]',
   openDashboardFromBatchButton: '//div[contains(text(),"Open dashboard")]'
 }
+
+export default locators

@@ -1,6 +1,6 @@
 import { expect, Page } from '@playwright/test'
 import { baParams } from 'constants/env'
-import { TEST_IDS as selectors } from 'common/selectors/selectors'
+import selectors from 'constants/selectors'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
 

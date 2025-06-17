@@ -1,5 +1,4 @@
-
-import { SELECTORS } from '../common/selectors/selectors'
+import { SELECTORS } from '../constants/selectors'
 import { clickOnElement } from './clickOnElement'
 import { typeText } from './typeText'
 

@@ -1,6 +1,6 @@
 import { BrowserContext, chromium, Page } from '@playwright/test'
 
-import { TEST_IDS as selectors } from 'common/selectors/selectors'
+import selectors from 'constants/selectors'
 import { KEYSTORE_PASS } from 'constants/env'
 import { constants } from 'constants/constants'
 

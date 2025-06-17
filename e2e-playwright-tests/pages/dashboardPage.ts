@@ -1,4 +1,4 @@
-import { locators } from '@common/locators'
+import locators from 'constants/locators'
 import { expect } from '@playwright/test'
 
 import { bootstrapWithStorage } from 'common-helpers/bootstrap'

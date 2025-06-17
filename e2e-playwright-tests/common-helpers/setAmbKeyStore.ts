@@ -1,7 +1,7 @@
+import { SELECTORS } from 'constants/selectors'
 import { clickOnElement } from './clickOnElement'
 import { completeOnboardingSteps } from './completeOnboardingSteps'
 import { typeText } from './typeText'
-import { SELECTORS } from '../common/selectors/selectors'
 
 export async function setAmbKeyStore(page, privKeyOrPhraseSelector, flow = 'seed') {
   await completeOnboardingSteps(page)

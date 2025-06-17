@@ -1,9 +1,9 @@
-import { TEST_IDS } from '@common/selectors/selectors'
 import { expect } from '@playwright/test'
 import { bootstrapWithStorage } from 'common-helpers/bootstrap'
-import { BasePage } from './basePage'
 import { baParams } from 'constants/env'
 import Token from 'interfaces/token'
+import selectors from 'constants/selectors'
+import { BasePage } from './basePage'
 
 export class TransferPage extends BasePage {
   async init(param) {
@@ -12,14 +12,14 @@ export class TransferPage extends BasePage {
   }
 
   async navigateToTransfer() {
-    const sendButton = this.page.getByTestId(TEST_IDS.dashboardButtonSend)
+    const sendButton = this.page.getByTestId(selectors.dashboardButtonSend)
     await sendButton.click()
   }
 
   async fillRecipient(address: string) {
-    const addressField = this.page.getByTestId(TEST_IDS.addressEnsField)
+    const addressField = this.page.getByTestId(selectors.addressEnsField)
     await addressField.fill(address)
-    const checkbox = this.page.getByTestId(TEST_IDS.recipientAddressUnknownCheckbox)
+    const checkbox = this.page.getByTestId(selectors.recipientAddressUnknownCheckbox)
     await checkbox.click()
   }
 
@@ -28,7 +28,7 @@ export class TransferPage extends BasePage {
     await this.clickOnMenuToken(token)
 
     // Amount
-    const amountField = this.page.getByTestId(TEST_IDS.amountField)
+    const amountField = this.page.getByTestId(selectors.amountField)
     await amountField.fill('0.001')
 
     // Address
@@ -37,18 +37,18 @@ export class TransferPage extends BasePage {
 
   async signAndValidate(feeToken: Token, payWithGasTank?: boolean) {
     // Proceed
-    const proceedButton = this.page.getByTestId(TEST_IDS.proceedBtn)
+    const proceedButton = this.page.getByTestId(selectors.proceedBtn)
     await proceedButton.click()
 
     // Select Fee token and payer
     await this.clickOnMenuFeeToken(baParams.envSelectedAccount, feeToken, payWithGasTank)
 
     // Sign & Broadcast
-    const sign = this.page.getByTestId(TEST_IDS.signButton)
+    const sign = this.page.getByTestId(selectors.signButton)
     await sign.click()
 
     // Validate
-    const txnStatus = await this.page.getByTestId(TEST_IDS.txnStatus).textContent()
+    const txnStatus = await this.page.getByTestId(selectors.txnStatus).textContent()
     expect(txnStatus).toEqual('Transfer done!')
   }
 
@@ -59,10 +59,10 @@ export class TransferPage extends BasePage {
   }
 
   async addToBatch() {
-    const batchButton = this.page.getByTestId(TEST_IDS.batchBtn)
+    const batchButton = this.page.getByTestId(selectors.batchBtn)
     await batchButton.click()
 
-    const gotIt = this.page.getByTestId(TEST_IDS.batchModalGotIt)
+    const gotIt = this.page.getByTestId(selectors.batchModalGotIt)
     await gotIt.click()
   }
 }

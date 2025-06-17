@@ -1,5 +1,5 @@
-import { locators } from '@common/locators'
-import { TEST_IDS as selectors } from '@common/selectors/selectors'
+import locators from 'constants/locators'
+import selectors from 'constants/selectors'
 
 import { bootstrap } from 'common-helpers/bootstrap'
 import { BA_PRIVATE_KEY, KEYSTORE_PASS } from 'constants/env'
