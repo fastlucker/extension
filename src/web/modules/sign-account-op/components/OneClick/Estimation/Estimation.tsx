@@ -6,24 +6,26 @@ import {
   SignAccountOpController,
   SigningStatus
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Key } from '@ambire-common/interfaces/keystore'
+import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Modals from '@web/modules/sign-account-op/components/Modals/Modals'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import { getUiType } from '@web/utils/uiType'
-import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 
 type Props = {
   closeEstimationModal: () => void
   handleBroadcastAccountOp: () => void
   handleUpdateStatus: (status: SigningStatus) => void
-  updateController: (params: { signingKeyAddr?: string; signingKeyType?: string }) => void
+  updateController: (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => void
   estimationModalRef: React.RefObject<any>
   errors?: SignAccountOpError[]
   signAccountOpController: SignAccountOpController | null
@@ -45,7 +47,7 @@ const OneClickEstimation = ({
   updateType
 }: Props) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
 
   const signingErrors = useMemo(() => {
     const signAccountOpErrors = signAccountOpController ? signAccountOpController.errors : []
@@ -85,7 +87,9 @@ const OneClickEstimation = ({
         id="estimation-modal"
         sheetRef={estimationModalRef}
         type={isTab ? 'modal' : 'bottom-sheet'}
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         // NOTE: This must be lower than SigningKeySelect's z-index
         customZIndex={5}
         autoOpen={hasProceeded || (isActionWindow && !!signAccountOpController)}
@@ -130,7 +134,7 @@ const OneClickEstimation = ({
             />
             <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
               <Button
-                testID="swap-button-back"
+                testID="back-button"
                 type="secondary"
                 text={t('Back')}
                 onPress={closeEstimationModal}
@@ -139,7 +143,7 @@ const OneClickEstimation = ({
                 style={{ width: 98 }}
               />
               <Button
-                testID="swap-button-sign"
+                testID="sign-button"
                 text={isSignLoading ? t('Signing...') : t('Sign')}
                 hasBottomSpacing={false}
                 disabled={isSignDisabled || signingErrors.length > 0}

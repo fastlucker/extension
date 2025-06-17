@@ -9,7 +9,6 @@ import {
   SignAccountOpType
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -304,16 +303,15 @@ export const handleActions = async (
       return await mainCtrl.swapAndBridge.switchFromAndToTokens()
     case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
       return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_SEARCH_TO_TOKEN':
+      return await mainCtrl.swapAndBridge.searchToToken(params.searchTerm)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
     case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
-      return await mainCtrl.buildSwapAndBridgeUserRequest()
-    }
-    case 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE': {
-      return await mainCtrl.swapAndBridge.onEstimationFailure()
+      return await mainCtrl.buildSwapAndBridgeUserRequest(params.openActionWindow)
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
-      return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
       await mainCtrl.swapAndBridge.updateQuote({
         skipPreviousQuoteRemoval: true,
@@ -400,6 +398,15 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
       return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
+    }
+
+    case 'DEFI_CONTOLLER_ADD_SESSION': {
+      mainCtrl.defiPositions.addSession(params.sessionId)
+      break
+    }
+    case 'DEFI_CONTOLLER_REMOVE_SESSION': {
+      mainCtrl.defiPositions.removeSession(params.sessionId)
+      break
     }
 
     case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
@@ -606,7 +613,7 @@ export const handleActions = async (
     }
 
     case 'SET_THEME_TYPE': {
-      walletStateCtrl.setThemeType(params.themeType)
+      await walletStateCtrl.setThemeType(params.themeType)
       break
     }
 

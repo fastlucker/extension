@@ -22,7 +22,7 @@ const RewardsBadge: React.FC = () => {
   const claimWalletCard = legends?.find((card) =>
     isMatchingPredefinedId(card.action, CARD_PREDEFINED_ID.claimRewards)
   )
-  const { userLeaderboardData } = useLeaderboardContext()
+  const { season1LeaderboardData, isLeaderboardLoading } = useLeaderboardContext()
 
   const { accountPortfolio, claimableRewardsError, isLoadingClaimableRewards } =
     usePortfolioControllerState()
@@ -30,14 +30,19 @@ const RewardsBadge: React.FC = () => {
   const closeClaimModal = () => setIsOpen(false)
 
   const isRewardsLoading =
-    isLoadingClaimableRewards || isLoading || !accountPortfolio || !accountPortfolio?.isReady
+    isLoadingClaimableRewards ||
+    isLoading ||
+    isLeaderboardLoading ||
+    !season1LeaderboardData ||
+    !accountPortfolio ||
+    !accountPortfolio?.isReady
 
   const { amountFormatted } = accountPortfolio || {}
   const isNotAvailableForRewards =
     ((accountPortfolio || accountPortfolio?.isReady) &&
       amountFormatted &&
       Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500) ||
-    (userLeaderboardData?.level ?? 0) <= 2
+    (season1LeaderboardData?.currentUser?.level ?? 0) <= 2
 
   const rewardsDisabledState =
     !claimWalletCard ||
@@ -48,10 +53,11 @@ const RewardsBadge: React.FC = () => {
 
   const shouldShowIcon = rewardsDisabledState || isRewardsLoading || claimableRewardsError
   const hasNoRewardsAvailable =
-    !claimWalletCard?.meta?.availableToClaim ||
+    claimWalletCard?.meta?.availableToClaim !== undefined &&
     Number(claimWalletCard?.meta?.availableToClaim) === 0
   const isEligible = !isNotAvailableForRewards
-  const shouldShowHourglass = !isRewardsLoading && hasNoRewardsAvailable && isEligible
+  const shouldShowHourglass =
+    !isRewardsLoading && isEligible && (!claimWalletCard || hasNoRewardsAvailable)
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const card = cardRef.current
@@ -141,21 +147,27 @@ const RewardsBadge: React.FC = () => {
                 return <p>Error loading rewards</p>
               }
 
-              // Disabled state
-              if (rewardsDisabledState) {
-                if (shouldShowHourglass) {
-                  return (
-                    <p className={styles.rewardsTitle}>
-                      You haven&apos;t accumulated $WALLET rewards yet.
-                    </p>
-                  )
-                }
-
+              // Check eligibility first
+              if (
+                !isRewardsLoading &&
+                accountPortfolio?.isReady &&
+                season1LeaderboardData &&
+                !isEligible
+              ) {
                 return (
                   <p className={styles.rewardsTitle}>
                     You need to reach Level 3 and keep a minimum balance of
                     <br />
                     $500 on the supported networks to start accruing rewards.
+                  </p>
+                )
+              }
+
+              // If eligible but no rewards
+              if (!claimWalletCard || hasNoRewardsAvailable) {
+                return (
+                  <p className={styles.rewardsTitle}>
+                    You haven&apos;t accumulated $WALLET rewards yet.
                   </p>
                 )
               }

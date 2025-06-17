@@ -1,9 +1,11 @@
+import { formatUnits } from 'ethers'
 import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { getIsBridgeRoute } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -12,17 +14,15 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import { getUiType } from '@web/utils/uiType'
-
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import formatTime from '@common/utils/formatTime'
-import { formatUnits } from 'ethers'
 import TrackProgressWrapper from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
-import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
 import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
 import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
+import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
+import { getUiType } from '@web/utils/uiType'
+
 import RouteStepsToken from '../RouteStepsToken'
 
 const { isActionWindow } = getUiType()
@@ -51,7 +51,10 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const onPrimaryButtonPress = useCallback(() => {
     if (isActionWindow) {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+        type: 'CLOSE_SIGNING_ACTION_WINDOW',
+        params: {
+          type: 'swapAndBridge'
+        }
       })
     } else {
       navigate(WEB_ROUTES.dashboard)
@@ -69,7 +72,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
     if (!identifiedBy) return
 
-    return `https://benzin.ambire.com/${getBenzinUrlParams({
+    return `https://explorer.ambire.com/${getBenzinUrlParams({
       chainId: toChainId,
       txnId: lastCompletedRoute.userTxHash,
       identifiedBy

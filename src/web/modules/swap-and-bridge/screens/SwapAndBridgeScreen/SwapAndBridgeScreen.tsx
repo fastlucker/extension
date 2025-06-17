@@ -25,6 +25,7 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import { Key } from '@ambire-common/interfaces/keystore'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -58,7 +59,8 @@ const SwapAndBridgeScreen = () => {
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
     isBridge,
-    setShowAddedToBatch
+    setShowAddedToBatch,
+    networkUserRequests
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -69,7 +71,6 @@ const SwapAndBridgeScreen = () => {
     signAccountOpController,
     isAutoSelectRouteDisabled,
     hasProceeded,
-    fromSelectedToken,
     swapSignErrors
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
@@ -78,15 +79,6 @@ const SwapAndBridgeScreen = () => {
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
-
-  useEffect(() => {
-    if (!signAccountOpController || isAutoSelectRouteDisabled) return
-    if (signAccountOpController.estimation.status === EstimationStatus.Error) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-      })
-    }
-  })
 
   const handleBackButtonPress = useCallback(() => {
     navigate(ROUTES.dashboard)
@@ -140,7 +132,10 @@ const SwapAndBridgeScreen = () => {
     })
     if (isActionWindow) {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+        type: 'CLOSE_SIGNING_ACTION_WINDOW',
+        params: {
+          type: 'swapAndBridge'
+        }
       })
     } else {
       navigate(ROUTES.dashboard)
@@ -171,7 +166,7 @@ const SwapAndBridgeScreen = () => {
     [dispatch]
   )
   const updateController = useCallback(
-    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+    (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params
@@ -185,15 +180,22 @@ const SwapAndBridgeScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          token={fromSelectedToken}
           signAccountOpErrors={swapSignErrors}
           isNotReadyToProceed={isNotReadyToProceed}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
+          networkUserRequests={networkUserRequests}
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
+  }, [
+    handleBackButtonPress,
+    handleSubmitForm,
+    isBridge,
+    isNotReadyToProceed,
+    swapSignErrors,
+    networkUserRequests
+  ])
 
   if (!sessionIds.includes(sessionId)) {
     // If the portfolio has loaded we can skip the spinner as initializing the screen
@@ -223,7 +225,6 @@ const SwapAndBridgeScreen = () => {
         title={t('Swap & Bridge')}
         primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
-        secondaryButtonTestID="add-more-swaps"
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
         onSecondaryButtonPress={onBatchAddedSecondaryButtonPress}
       />

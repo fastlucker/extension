@@ -280,6 +280,16 @@ type MainControllerUpdateSelectedAccountPortfolio = {
   }
 }
 
+type DefiControllerAddSessionAction = {
+  type: 'DEFI_CONTOLLER_ADD_SESSION'
+  params: { sessionId: string }
+}
+
+type DefiControllerRemoveSessionAction = {
+  type: 'DEFI_CONTOLLER_REMOVE_SESSION'
+  params: { sessionId: string }
+}
+
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
   params: { dashboardNetworkFilter: bigint | string | null }
@@ -358,7 +368,7 @@ type MainControllerSignAccountOpUpdateAction = {
     feeToken?: TokenResult
     paidBy?: string
     speed?: FeeSpeed
-    signingKeyAddr?: string
+    signingKeyAddr?: Key['addr']
     signingKeyType?: InternalKey['type'] | ExternalKey['type']
     gasUsedTooHighAgreed?: boolean
   }
@@ -373,8 +383,8 @@ type SignAccountOpUpdateAction = {
     feeToken?: TokenResult
     paidBy?: string
     speed?: FeeSpeed
-    signingKeyAddr?: string
-    signingKeyType?: string
+    signingKeyAddr?: Key['addr']
+    signingKeyType?: Key['type']
     gasUsedTooHighAgreed?: boolean
   }
 }
@@ -539,13 +549,17 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
-    toSelectedToken?: SwapAndBridgeToToken | null
+    toSelectedTokenAddr?: SwapAndBridgeToToken['address'] | null
     routePriority?: 'output' | 'time'
   }
 }
 type SwapAndBridgeControllerAddToTokenByAddress = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS'
   params: { address: string }
+}
+type SwapAndBridgeControllerSearchToToken = {
+  type: 'SWAP_AND_BRIDGE_CONTROLLER_SEARCH_TO_TOKEN'
+  params: { searchTerm: string }
 }
 type SwapAndBridgeControllerSwitchFromAndToTokensAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
@@ -559,6 +573,9 @@ type SwapAndBridgeControllerResetForm = {
 }
 type SwapAndBridgeControllerBuildUserRequest = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+  params: {
+    openActionWindow: boolean
+  }
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
@@ -571,9 +588,6 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
   type: 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE'
   params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
-type SwapAndBridgeControllerOnEstimationFailure = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-}
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
 }
@@ -582,9 +596,6 @@ type SwapAndBridgeControllerDestroySignAccountOp = {
 }
 type SwapAndBridgeControllerOpenSigningActionWindow = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW'
-}
-type SwapAndBridgeControllerCloseSigningActionWindow = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
 }
 type OpenSigningActionWindow = {
   type: 'OPEN_SIGNING_ACTION_WINDOW'
@@ -776,6 +787,8 @@ export type Action =
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
   | MainControllerUpdateSelectedAccountPortfolio
+  | DefiControllerAddSessionAction
+  | DefiControllerRemoveSessionAction
   | SelectedAccountSetDashboardNetworkFilter
   | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
@@ -809,6 +822,7 @@ export type Action =
   | SwapAndBridgeControllerUnloadScreenAction
   | SwapAndBridgeControllerUpdateFormAction
   | SwapAndBridgeControllerAddToTokenByAddress
+  | SwapAndBridgeControllerSearchToToken
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerResetForm
@@ -842,11 +856,9 @@ export type Action =
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction
   | SignAccountOpUpdateAction
-  | SwapAndBridgeControllerOnEstimationFailure
   | SwapAndBridgeControllerMarkSelectedRouteAsFailed
   | SwapAndBridgeControllerDestroySignAccountOp
   | SwapAndBridgeControllerOpenSigningActionWindow
-  | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
   | OpenSigningActionWindow

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import usePrevious from '@common/hooks/usePrevious'
 import useSelect from '@common/hooks/useSelect'
@@ -15,6 +15,7 @@ type Props = Pick<
   data: SectionedSelectProps['sections']
   stickySectionHeadersEnabled?: boolean
   headerHeight?: number
+  onSearch?: (searchTerm: string) => void
 }
 
 const useSelectInternal = ({
@@ -27,7 +28,8 @@ const useSelectInternal = ({
   headerHeight = 0,
   attemptToFetchMoreOptions,
   mode = 'select',
-  menuPosition
+  menuPosition,
+  onSearch
 }: Props) => {
   const useSelectReturnValue = useSelect({ menuPosition })
   const { search, isMenuOpen, setIsMenuOpen, setSearch } = useSelectReturnValue
@@ -45,11 +47,15 @@ const useSelectInternal = ({
   )
 
   const prevSearch = usePrevious(search)
+  const prevIsMenuOpen = usePrevious(isMenuOpen)
 
   const filteredData = useMemo(() => {
-    if (!search) return data
+    const normalizedSearchTerm = search.trim().toLowerCase()
 
-    const normalizedSearchTerm = search.toLowerCase()
+    const hasNewSearchTerm = onSearch && search !== prevSearch
+    if (hasNewSearchTerm) onSearch(search)
+
+    if (!search) return data
 
     const filterOptions = (options: SelectProps['options']) => {
       const { exactMatches, partialMatches } = options.reduce(
@@ -99,7 +105,7 @@ const useSelectInternal = ({
     if (shouldAttemptToFetchMoreOptions) attemptToFetchMoreOptions(search)
 
     return noMatchesFound ? [] : sectionsWithFilteredData
-  }, [data, search, attemptToFetchMoreOptions, prevSearch])
+  }, [search, onSearch, prevSearch, data, attemptToFetchMoreOptions])
 
   const keyExtractor = useCallback((item: SelectValue) => item.key || item.value, [])
 
@@ -118,6 +124,13 @@ const useSelectInternal = ({
     const { height } = event.nativeEvent.layout
     setListHeight(height)
   }, [])
+
+  // Clear search when menu closes
+  useEffect(() => {
+    if (prevIsMenuOpen && !isMenuOpen) {
+      setSearch('search', '')
+    }
+  }, [isMenuOpen, prevIsMenuOpen, setSearch])
 
   const { listRef, renderItem, handleScroll } = useSelectKeyboardControl({
     listHeight,

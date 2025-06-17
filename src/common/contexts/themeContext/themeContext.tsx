@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useMemo } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo } from 'react'
 import { useColorScheme } from 'react-native'
 
 import ThemeColors, {
@@ -22,14 +22,32 @@ const ThemeContext = createContext<ThemeContextReturnType>({
   theme: {} as ThemeProps
 })
 
-const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ThemeProvider: React.FC<{ children: React.ReactNode; forceThemeType?: ThemeType }> = ({
+  children,
+  forceThemeType
+}) => {
   const systemThemeType = useColorScheme()
-  const { dispatch } = useBackgroundService()
+  const { dispatch } = useBackgroundService() || {}
 
-  const { themeType } = useWalletStateController()
+  const { themeType } = useWalletStateController() || {}
+
+  useEffect(() => {
+    if (themeType === THEME_TYPES.DARK) {
+      document.body.classList.add('dark-scrollbar')
+      document.body.classList.remove('light-scrollbar')
+    } else {
+      document.body.classList.add('light-scrollbar')
+      document.body.classList.remove('dark-scrollbar')
+    }
+  }, [themeType])
 
   const theme = useMemo(() => {
-    const type = themeType === THEME_TYPES.SYSTEM ? (systemThemeType as ThemeType) : themeType
+    let type = themeType === THEME_TYPES.SYSTEM ? (systemThemeType as ThemeType) : themeType
+
+    if (forceThemeType) {
+      type = forceThemeType
+    }
+
     const currentTheme: ThemeProps = Object.fromEntries(
       Object.entries(ThemeColors).map(([key, value]) => [
         key,
