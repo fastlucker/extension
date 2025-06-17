@@ -6,6 +6,7 @@ import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRo
 
 import AutoLockDeviceControlOption from './components/AutoLockDeviceControlOption'
 import LockAmbireControlOption from './components/LockAmbireControlOption'
+import LogLevelControlOption from './components/LogLevelControlOption'
 import ThemeControlOption from './components/ThemeControlOption'
 
 const GeneralSettingsScreen = () => {
@@ -22,6 +23,7 @@ const GeneralSettingsScreen = () => {
         <LockAmbireControlOption />
         <AutoLockDeviceControlOption />
         <ThemeControlOption />
+        <LogLevelControlOption />
       </View>
     </>
   )
