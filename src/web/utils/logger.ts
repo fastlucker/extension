@@ -1,15 +1,14 @@
-import logger from 'loglevel'
+import logger, { LogLevelDesc, LogLevelNames } from 'loglevel'
 
 import {
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV,
   BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
 } from '@env'
 
-logger.setDefaultLevel(
-  process.env.APP_ENV === 'production'
-    ? BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD || 'warn'
-    : BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV || 'trace'
-)
+export const LOG_LEVEL_PROD = BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD || 'warn'
+export const LOG_LEVEL_DEV = BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV || 'trace'
+
+logger.setDefaultLevel(process.env.APP_ENV === 'production' ? LOG_LEVEL_PROD : LOG_LEVEL_DEV)
 
 export const logInfoWithPrefix = (event: any, ...args: any) => {
   logger.info(
@@ -27,4 +26,9 @@ export const logWarnWithPrefix = (event: any, ...args: any) => {
   )
 }
 
+export const getCurrentLogLevel = (): LogLevelNames => logger.getLevel()
+
+export const setLogLevel = (level: LogLevelNames) => logger.setLevel(level)
+
+export type { LogLevelNames }
 export default logger
