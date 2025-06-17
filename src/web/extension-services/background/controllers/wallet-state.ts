@@ -3,6 +3,7 @@ import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { DEFAULT_THEME, ThemeType } from '@common/styles/themeConfig'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import { LOG_LEVEL_DEV, LOG_LEVEL_PROD, LogLevelNames, setLogLevel } from '@web/utils/logger'
 
 export class WalletStateController extends EventEmitter {
   isReady: boolean = false
@@ -14,6 +15,8 @@ export class WalletStateController extends EventEmitter {
   #isSetupComplete: boolean = false
 
   themeType: ThemeType = DEFAULT_THEME
+
+  logLevel: LogLevelNames = process.env.APP_ENV === 'production' ? LOG_LEVEL_PROD : LOG_LEVEL_DEV
 
   get isSetupComplete() {
     return this.#isSetupComplete
@@ -36,6 +39,9 @@ export class WalletStateController extends EventEmitter {
     this.themeType = await storage.get('themeType', DEFAULT_THEME)
     this.isPinned = await this.#checkIsPinned()
     if (!this.isPinned) this.#initContinuousCheckIsPinned()
+
+    this.logLevel = await storage.get('logLevel', this.logLevel)
+    setLogLevel(this.logLevel)
 
     this.isReady = true
     this.emitUpdate()
