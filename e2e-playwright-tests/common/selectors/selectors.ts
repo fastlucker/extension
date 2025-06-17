@@ -79,7 +79,6 @@ export const TEST_IDS = {
   createSeedBtn: 'create-seed-btn',
   importFromSavedSeed: 'import-from-saved-seed',
   nativeTokenPolygonDyn: 'token-0x0000000000000000000000000000000000000000-polygon',
-  topUpButton: 'top-up-button',
   tokenSend: 'token-send',
   tokensSelect: 'tokens-select',
   feeTokensSelect: 'fee-option-select',
@@ -119,7 +118,6 @@ export const TEST_IDS = {
   routePrioritySab: 'route-priority-sab',
   highPriceImpactSab: 'high-price-impact-sab',
   signButtonSab: 'button-sign',
-  processButtonSab: 'proceed-btn',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
@@ -130,12 +128,15 @@ export const TEST_IDS = {
   batchModalGotIt: 'queue-modal-got-it-button',
   signButtonSwap: 'swap-button-sign',
   addMoreButton: 'add-more-button',
-  flipUSDIcon: 'flip-icon',
-  proceedButton: 'proceed-btn',
+  flipIcon: 'flip-icon',
   swapSignButton: 'swap-button-sign',
   addToBatchButton: 'batch-btn',
   goDashboardButton: 'go-dashboard-button',
-  txnConfirmed: 'txn-confirmed'
+  txnConfirmed: 'txn-confirmed',
+  // Top up
+  topUpButton: 'top-up-gas-tank-modal-button',
+  topUpProceedButton: 'proceed-btn'
+
 }
 
 type SelectorKey = keyof typeof TEST_IDS

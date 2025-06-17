@@ -4,10 +4,10 @@ import { expect } from '@playwright/test'
 import { bootstrapWithStorage } from '../common-helpers/bootstrap'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
-import { SELECTORS, TEST_IDS, TEST_IDS as selectors } from '../common/selectors/selectors'
+import { SELECTORS, TEST_IDS as selectors } from '../common/selectors/selectors'
 import { constants } from '../constants/constants'
-import { BasePage } from './basePage'
 import Token from '../interfaces/token'
+import { BasePage } from './basePage'
 
 export class SwapAndBridgePage extends BasePage {
   async init(param) {
@@ -208,7 +208,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.getByTestId(selectors.searchInput).fill(receiveToken.symbol)
 
     const tokenLocator = this.page
-      .getByTestId(TEST_IDS.bottomSheet)
+      .getByTestId(selectors.bottomSheet)
       .getByTestId(`option-${receiveToken.address}.${receiveToken.chainId}`)
     await expect(tokenLocator).toBeVisible()
   }
@@ -229,7 +229,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.locator(SELECTORS.searchInput).fill(receiveToken.address, { timeout: 3000 })
 
     const tokenLocator = this.page
-      .getByTestId(TEST_IDS.bottomSheet)
+      .getByTestId(selectors.bottomSheet)
       .getByTestId(`option-${receiveToken.address}.${receiveToken.chainId}`)
 
     await expect(tokenLocator).toBeVisible()
@@ -278,7 +278,7 @@ export class SwapAndBridgePage extends BasePage {
     expect(currency).toBe('$')
     const oldAmount = await this.getSendAmount()
     await this.page.waitForTimeout(500)
-    await clickOnElement(this.page, SELECTORS.flipUSDIcon)
+    await clickOnElement(this.page, selectors.flipIcon)
 
     const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
     const newAmount = this.roundAmount(await this.getSendAmount())
@@ -289,7 +289,7 @@ export class SwapAndBridgePage extends BasePage {
 
     // Wait and flip back
     await this.page.waitForTimeout(500)
-    await clickOnElement(this.page, SELECTORS.flipUSDIcon)
+    await clickOnElement(this.page, selectors.flipIcon)
 
     const [usdSecondAmount, secondCurrency] = await this.getUSDTextContent()
     const secondAmount = await this.getSendAmount()
@@ -391,7 +391,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async signTokens(): Promise<void> {
-    await this.page.getByTestId(selectors.proceedButton).click()
+    await this.page.getByTestId(selectors.topUpProceedButton).click()
     await this.page.getByTestId(selectors.signButton).click()
     await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 5000 })
     // TODO: add more assertion

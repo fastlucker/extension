@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test'
-import Token from '../interfaces/token'
+
 import { TEST_IDS } from '../common/selectors/selectors'
+import Token from '../interfaces/token'
 
 export abstract class BasePage {
   page: Page
@@ -13,7 +14,7 @@ export abstract class BasePage {
 
   async clickOnElement(element: string): Promise<void> {
     await this.page.waitForLoadState()
-    await this.page.locator(element).nth(0).click()
+    await this.page.locator(element).click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = TEST_IDS.tokensSelect) {
