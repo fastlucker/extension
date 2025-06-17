@@ -87,7 +87,13 @@ const Step: FC<StepProps> = ({
     <View style={[styles.step, style]} testID={testID}>
       <View>
         {isCompleted && !hasFailed && (
-          <ConfirmedIcon color={theme.successDecorative} style={styles.icon} />
+          <ConfirmedIcon
+            color={theme.successDecorative}
+            style={styles.icon}
+            // If this is the final step, and it's completed successfully,
+            // we set a testID to allow easy txn status verification in E2E tests.
+            testID={stepName === 'finalized' ? 'txn-confirmed' : ''}
+          />
         )}
         {(isNext || isInitial) && !hasFailed && (
           <View style={[styles.circle, isNext ? styles.nextCircle : {}]} />

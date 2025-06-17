@@ -81,6 +81,8 @@ export const TEST_IDS = {
   nativeTokenPolygonDyn: 'token-0x0000000000000000000000000000000000000000-polygon',
   topUpButton: 'top-up-button',
   tokenSend: 'token-send',
+  tokensSelect: 'tokens-select',
+  feeTokensSelect: 'fee-option-select',
   queueAndSignLaterButton: 'queue-and-sign-later-button',
   deleteTxnCallDyn: 'delete-txn-call',
   feeSlow: 'option-slow',
@@ -90,6 +92,7 @@ export const TEST_IDS = {
   transactionButtonReject: 'transaction-button-reject',
   totalPortfolioAmountInteger: 'total-portfolio-amount-integer',
   proceedBtn: 'proceed-btn',
+  batchBtn: 'batch-btn',
   privateKeyWarningCheckbox1: 'private-key-warning-checkbox-1',
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
   nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-8453',
@@ -121,12 +124,18 @@ export const TEST_IDS = {
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
   removeNetworkConfirmButton: 'remove-network-confirm-btn',
+  signButton: 'sign-button',
+  backButton: 'back-button',
+  txnStatus: 'txn-status',
+  batchModalGotIt: 'queue-modal-got-it-button',
   signButtonSwap: 'swap-button-sign',
-  addMoreSwapsButton: 'add-more-swaps',
+  addMoreButton: 'add-more-button',
   flipUSDIcon: 'flip-icon',
   proceedButton: 'proceed-btn',
   swapSignButton: 'swap-button-sign',
-  addToBatchButton: 'batch-btn'
+  addToBatchButton: 'batch-btn',
+  goDashboardButton: 'go-dashboard-button',
+  txnConfirmed: 'txn-confirmed'
 }
 
 type SelectorKey = keyof typeof TEST_IDS
