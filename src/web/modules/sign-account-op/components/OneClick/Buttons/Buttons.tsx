@@ -64,6 +64,7 @@ const Buttons: FC<Props> = ({
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
             onPress={() => handleSubmitForm(false)}
+            testID="batch-btn"
           >
             <BatchIcon style={spacings.mlTy} />
           </Button>

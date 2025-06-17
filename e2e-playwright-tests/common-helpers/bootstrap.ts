@@ -1,8 +1,8 @@
 import { BrowserContext, chromium, Page } from '@playwright/test'
 
-import { DEF_KEYSTORE_PASS } from '../config/constants'
-import { constants } from '../constants/constants'
-import { typeKeystorePassAndUnlock } from './typeKeystorePassAndUnlock'
+import selectors from 'constants/selectors'
+import { KEYSTORE_PASS } from 'constants/env'
+import mainConstants from 'constants/mainConstants'
 
 const buildPath = `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod'}`
 const USER_DATA_DIR = '' // you can set a temp dir if needed
@@ -98,11 +98,11 @@ async function initBrowser(namespace: string): Promise<{
 //----------------------------------------------------------------------------------------------
 export async function bootstrap(namespace: string) {
   const { page, extensionURL, serviceWorker } = await initBrowser(namespace)
-  await page.goto(`${extensionURL}${constants.urls.getStarted}`)
+  await page.goto(`${extensionURL}${mainConstants.urls.getStarted}`)
   // Bypass the invite verification step
   await serviceWorker.evaluate(
     (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
-    JSON.stringify(constants.inviteStorageItem)
+    JSON.stringify(mainConstants.inviteStorageItem)
   )
   return { page }
 }
@@ -123,7 +123,7 @@ export async function bootstrapWithStorage(
   shouldUnlockKeystoreManually = false
 ) {
   // Initialize browser and page using bootstrap
-  const { page, extensionURL, serviceWorker } = await initBrowser(namespace)
+  const { page, extensionURL, serviceWorker, context } = await initBrowser(namespace)
 
   const {
     parsedKeystoreAccounts: accounts,
@@ -191,14 +191,15 @@ export async function bootstrapWithStorage(
   if (!shouldUnlockKeystoreManually) {
     try {
       // Navigate to a specific URL if necessary
-      await page.goto(`${extensionURL}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
+      await page.goto(`${extensionURL}/tab.html#/`, { waitUntil: 'load' }) // removed '/keystore-unlock' because of wrong redirection to /keystore-setup
 
-      await typeKeystorePassAndUnlock(page, DEF_KEYSTORE_PASS)
+      await page.getByTestId(selectors.passphraseField).fill(KEYSTORE_PASS)
+      await page.getByTestId(selectors.buttonUnlock).click()
     } catch (e) {
       console.log(e)
       process.exit(1)
     }
   }
 
-  return { page }
+  return { page, context }
 }

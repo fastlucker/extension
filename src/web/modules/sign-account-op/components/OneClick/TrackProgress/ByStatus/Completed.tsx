@@ -50,7 +50,7 @@ const Completed: FC<CompletedProps> = ({
         }}
       />
       <CheckIcon2 style={spacings.mb3Xl} />
-      <Text fontSize={20} weight="medium" style={spacings.mbTy}>
+      <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
         {title}
       </Text>
       <Text weight="medium" appearance="secondaryText" style={spacings.mb2Xl}>

@@ -132,8 +132,8 @@ describe('Swap & Bridge transactions with a Smart Account', () => {
   })
 
   it.only('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async () => {
-    await verifySendMaxTokenAmount(page, 'DAI', '10')
-    await verifySendMaxTokenAmount(page, 'USDC', '8453')
+    await verifySendMaxTokenAmount(page, '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1', '10')
+    await verifySendMaxTokenAmount(page, '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', '8453')
   })
 
   it('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async () => {
