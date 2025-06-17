@@ -125,7 +125,7 @@ const ExportKey = ({
         style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
       >
         <PasswordConfirmation
-          text={t('Please enter your extension password to reveal your recovery phrase.')}
+          text={t('Please enter your extension password to reveal your private key.')}
           onPasswordConfirmed={onPasswordConfirmed}
           onBackButtonPress={closeConfirmPassword}
         />
