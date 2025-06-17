@@ -4,6 +4,7 @@ import 'reflect-metadata'
 import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
+import { nanoid } from 'nanoid'
 
 import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -640,11 +641,37 @@ export class ProviderController {
     result: requestRes
   })
 
-  walletRequestPermissions = ({ params: permissions }: DappProviderRequest) => {
+  walletRequestPermissions = ({ params: permissions, session }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
+    const origin = session.origin
+
     if (permissions && 'eth_accounts' in permissions[0]) {
-      result.push({ parentCapability: 'eth_accounts' })
+      const dapp = this.mainCtrl.dapps.getDapp(origin)
+      const grantedPermissionId = dapp?.grantedPermissionId || nanoid(21)
+      const grantedPermissionAt = dapp?.grantedPermissionAt || Date.now()
+      const account = this._internalGetAccounts(origin)
+
+      result.push({
+        id: grantedPermissionId,
+        parentCapability: 'eth_accounts',
+        invoker: origin,
+        caveats: [{ type: 'restrictReturnedAccounts', value: account }],
+        date: grantedPermissionAt
+      })
+
+      // TODO: Undecided yet if we should support this `parentCapability` permission too
+      // const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
+      // result.push({
+      //   id: grantedPermissionId,
+      //   parentCapability: 'endowment:permitted-chains',
+      //   invoker: origin,
+      //   caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
+      //   date: grantedPermissionAt
+      // })
+
+      this.mainCtrl.dapps.updateDapp(origin, { grantedPermissionId, grantedPermissionAt })
     }
+
     return result
   }
 
@@ -652,18 +679,47 @@ export class ProviderController {
    * Revokes the current dapp permissions. Experimental, but supported in MetaMask. Specified by MIP-2:
    * {@link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md}
    */
+  @Reflect.metadata('SAFE', true)
   walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
     await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
-    this.mainCtrl.dapps.updateDapp(origin, { isConnected: false })
+    this.mainCtrl.dapps.updateDapp(origin, {
+      isConnected: false,
+      grantedPermissionId: undefined,
+      grantedPermissionAt: undefined
+    })
     return null
   }
 
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
-    if (this.mainCtrl.dapps.getDapp(origin) && this.isUnlocked) {
-      result.push({ parentCapability: 'eth_accounts' })
+    const { grantedPermissionId, grantedPermissionAt } = this.mainCtrl.dapps.getDapp(origin) || {}
+
+    // Do not check if extension is unlocked, always return the permissions if one are granted
+    const hasGrantedPermission =
+      !!grantedPermissionId && !!grantedPermissionAt && this.mainCtrl.dapps.hasPermission(origin)
+    if (hasGrantedPermission) {
+      const account = this._internalGetAccounts(origin)
+
+      result.push({
+        id: grantedPermissionId,
+        parentCapability: 'eth_accounts',
+        invoker: origin,
+        caveats: [{ type: 'restrictReturnedAccounts', value: account }],
+        date: grantedPermissionAt
+      })
+
+      // TODO: Undecided yet if we should support this `parentCapability` permission too
+      // const chainIds = this.mainCtrl.networks.networks.map((n) => networkChainIdToHex(n.chainId))
+      // result.push({
+      //   id: grantedPermissionId,
+      //   parentCapability: 'endowment:permitted-chains',
+      //   invoker: origin,
+      //   caveats: [{ type: 'restrictNetworkSwitching', value: chainIds }],
+      //   date: grantedPermissionAt
+      // })
     }
+
     return result
   }
 

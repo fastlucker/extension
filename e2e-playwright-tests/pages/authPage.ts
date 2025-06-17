@@ -1,7 +1,8 @@
-import { locators } from '@common/locators'
+import locators from 'constants/locators'
+import selectors from 'constants/selectors'
 
-import { bootstrap } from '../common-helpers/bootstrap'
-import { BA_PRIVATE_KEY, DEF_KEYSTORE_PASS } from '../config/constants'
+import { bootstrap } from 'common-helpers/bootstrap'
+import { BA_PRIVATE_KEY, KEYSTORE_PASS } from 'constants/env'
 import { BasePage } from './basePage'
 
 export class AuthPage extends BasePage {
@@ -11,9 +12,9 @@ export class AuthPage extends BasePage {
   }
 
   async setExtensionPassword(): Promise<void> {
-    await this.typeTextInInputField(locators.enterPasswordField, DEF_KEYSTORE_PASS)
-    await this.typeTextInInputField(locators.repeatPasswordField, DEF_KEYSTORE_PASS)
-    await this.clickOnElement(locators.confirmButton)
+    await this.page.getByTestId(selectors.enterPassField).fill(KEYSTORE_PASS)
+    await this.page.getByTestId(selectors.repeatPassField).fill(KEYSTORE_PASS)
+    await this.page.getByTestId(selectors.createKeystorePassBtn).click()
   }
 
   async importViewOnlyAccount(account): Promise<void> {

@@ -64,6 +64,18 @@ const calculateWindowSizeAndPosition = async (
   customSize?: CustomSize,
   windowId?: number
 ): Promise<{ width: number; height: number; left: number; top: number }> => {
+  // In CI (headless: true), the calculated window position is always outside the visible screen, causing window.open() to fail with:
+  // "Invalid value for bounds. Bounds must be at least 50% within visible screen space".
+  // To fix this, we return hardcoded position values to ensure it works.
+  if (process.env.IS_TESTING === 'true') {
+    return {
+      width: 1100,
+      height: 800,
+      left: 0,
+      top: 0
+    }
+  }
+
   let screenWidth = 0
   let screenHeight = 0
 
@@ -204,9 +216,11 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
 
     const newWindowProps = { width, height, left, top, focused: true }
 
-    await chrome.windows.update(id, newWindowProps)
+    const win = await chrome.windows.update(id, newWindowProps)
+    if (win.focused) return { id, createdFromWindowId, ...newWindowProps }
 
-    return { id, createdFromWindowId, ...newWindowProps }
+    await chrome.windows.remove(windowProps.id)
+    return open()
   }
 
   throw new Error('windowProps is undefined')
