@@ -94,7 +94,7 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
     const wallet = tokens.wallet.base
 
     await swapAndBridgePage.openSwapAndBridge()
-    await swapAndBridgePage.prepareSwapAndBridge(0.8, usdc, wallet)
+    await swapAndBridgePage.prepareSwapAndBridge(0.005, usdc, wallet)
     await swapAndBridgePage.proceedTransaction()
   })
 
