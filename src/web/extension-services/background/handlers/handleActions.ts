@@ -308,10 +308,10 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
     case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
-      return await mainCtrl.buildSwapAndBridgeUserRequest()
+      return await mainCtrl.buildSwapAndBridgeUserRequest(params.openActionWindow)
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
-      return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
+      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
       await mainCtrl.swapAndBridge.updateQuote({
         skipPreviousQuoteRemoval: true,
@@ -398,6 +398,15 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
       return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
+    }
+
+    case 'DEFI_CONTOLLER_ADD_SESSION': {
+      mainCtrl.defiPositions.addSession(params.sessionId)
+      break
+    }
+    case 'DEFI_CONTOLLER_REMOVE_SESSION': {
+      mainCtrl.defiPositions.removeSession(params.sessionId)
+      break
     }
 
     case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
@@ -604,7 +613,7 @@ export const handleActions = async (
     }
 
     case 'SET_THEME_TYPE': {
-      walletStateCtrl.setThemeType(params.themeType)
+      await walletStateCtrl.setThemeType(params.themeType)
       break
     }
 

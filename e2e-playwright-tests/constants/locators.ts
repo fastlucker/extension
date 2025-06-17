@@ -1,4 +1,4 @@
-export const locators = {
+const locators = {
   watchAnAddress: 'div[data-testid="view-only-address-btn"]',
   viewOnlyInputAddressField: 'input[data-testid="view-only-address-field-0"]',
   importViewOnlyButton: 'div[data-testid="view-only-button-import"]',
@@ -46,5 +46,17 @@ export const locators = {
   tabNft: 'div[data-testid="tab-nft"]',
   collectionItem: 'div[data-testid="collection-item"]',
   collectiblePicture: 'div[data-testid="collectible-picture"]',
-  collectibleRow: 'div[data-testid="collectible-row"]'
+  collectibleRow: 'div[data-testid="collectible-row"]',
+  addToBatchButton: 'div[data-tooltip-id="batch-btn-tooltip"]',
+  closeBatchButton: 'div:has-text("Close") >> nth=10',
+  bannerButtonReject: 'div[data-testid="banner-button-reject"]',
+  bannerButtonOpen: 'div[data-testid="banner-button-open"]',
+  selectRouteButton: '//div[contains(text(),"Select route")]',
+  liFiRoute: 'div:has-text("LI.FI DEX Aggregator")',
+  proceedButton: 'div[data-testid="proceed-btn"]',
+  swapSignButton: 'div[data-testid="swap-button-sign"]',
+  addMoreSwapsButton: 'div[data-testid="add-more-swaps"]',
+  openDashboardFromBatchButton: '//div[contains(text(),"Open dashboard")]'
 }
+
+export default locators

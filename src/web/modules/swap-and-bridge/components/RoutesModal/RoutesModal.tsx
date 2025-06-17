@@ -12,7 +12,6 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_LG } from '@common/styles/spacings'
-import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { TRANSACTION_FORM_WIDTH } from '@web/components/TransactionsScreen/styles'
@@ -35,7 +34,7 @@ const RoutesModal = ({
   closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }) => {
   const { t } = useTranslation()
-  const { styles, theme, themeType } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { quote, shouldEnableRoutesSelection, signAccountOpController } =
     useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
@@ -141,8 +140,7 @@ const RoutesModal = ({
                 right: 0,
                 bottom: 0,
                 zIndex: 2,
-                backgroundColor:
-                  themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#54597ACC',
+                backgroundColor: theme.backdrop,
                 ...flexbox.alignCenter,
                 ...flexbox.justifyCenter,
                 ...common.borderRadiusPrimary
@@ -171,8 +169,7 @@ const RoutesModal = ({
       styles.otherItemLoading,
       quote?.routes?.length,
       handleSelectRoute,
-      theme,
-      themeType
+      theme
     ]
   )
 

@@ -21,16 +21,22 @@ e2e-playwright/
 
 ## 🛠️ Installation
 
-```bash
+
 # Navigate to the folder
+```bash
 cd e2e-playwright
-
+```
 # Install dependencies
+```bash
 npm install
-
+```
 # Install Playwright browser binaries
+```bash
 npx playwright install
 ```
+# Install VSC extensions
+- Playwright Test for VS Code
+- Playwright Test Runner
 
 ## ▶️ Running Tests
 

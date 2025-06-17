@@ -2,63 +2,43 @@ import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import Tooltip from '@common/components/Tooltip'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
-import { TokenResult } from '@ambire-common/libs/portfolio'
-import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 
 type Props = {
-  token: TokenResult | null
   handleSubmitForm: (isOneClickMode: boolean) => void
   proceedBtnText?: string
   signAccountOpErrors: SignAccountOpError[]
   isNotReadyToProceed: boolean
   isBridge?: boolean
+  networkUserRequests: UserRequest[]
 }
 
 const { isActionWindow } = getUiType()
 
 const Buttons: FC<Props> = ({
-  token,
   signAccountOpErrors,
   proceedBtnText = 'Proceed',
   handleSubmitForm,
   isNotReadyToProceed,
-  isBridge
+  isBridge,
+  networkUserRequests = []
 }) => {
   const { t } = useTranslation()
-  const { userRequests } = useMainControllerState()
-  const { account } = useSelectedAccountControllerState()
-  const fromChainId = token?.chainId
-
-  const networkUserRequests = fromChainId
-    ? userRequests?.filter(
-        (r) =>
-          r.action.kind === 'calls' &&
-          r.meta.accountAddr === account?.addr &&
-          r.meta.chainId === fromChainId
-      )
-    : []
 
   const oneClickDisabledReason = useMemo(() => {
-    if (!isBridge && networkUserRequests.length > 0) {
-      return t(
-        'You have pending transactions on this network. Please add this transaction to the batch.'
-      )
-    }
-
     if (signAccountOpErrors.length > 0) {
       return signAccountOpErrors[0].title
     }
 
     return ''
-  }, [isBridge, networkUserRequests.length, t, signAccountOpErrors])
+  }, [signAccountOpErrors])
 
   const batchDisabledReason = useMemo(() => {
     if (isBridge) return t('Batching is not available for bridges.')
@@ -84,6 +64,7 @@ const Buttons: FC<Props> = ({
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
             onPress={() => handleSubmitForm(false)}
+            testID="batch-btn"
           >
             <BatchIcon style={spacings.mlTy} />
           </Button>
@@ -92,7 +73,13 @@ const Buttons: FC<Props> = ({
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <Button
-          text={proceedBtnText}
+          text={
+            networkUserRequests.length > 0
+              ? `${proceedBtnText} ${t('({{count}})', {
+                  count: networkUserRequests.length
+                })}`
+              : proceedBtnText
+          }
           disabled={isNotReadyToProceed || !!oneClickDisabledReason}
           style={{ minWidth: 160, ...spacings.mlLg }}
           hasBottomSpacing={false}

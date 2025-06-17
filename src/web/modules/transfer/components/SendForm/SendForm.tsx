@@ -19,12 +19,12 @@ import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -144,11 +144,11 @@ const SendForm = ({
     [dispatch]
   )
 
-  const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
+  const onRecipientCheckboxClick = useCallback(() => {
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
       params: {
-        formValues: { isRecipientAddressUnknownAgreed: true }
+        formValues: { isRecipientAddressUnknownAgreed: true, isSWWarningAgreed: true }
       }
     })
   }, [dispatch])
@@ -329,7 +329,7 @@ const SendForm = ({
             isRecipientAddressUnknown={isRecipientAddressUnknown}
             isRecipientDomainResolving={addressState.isDomainResolving}
             isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
-            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
+            onRecipientCheckboxClick={onRecipientCheckboxClick}
             isSWWarningVisible={isSWWarningVisible}
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
