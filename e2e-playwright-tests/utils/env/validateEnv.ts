@@ -27,10 +27,12 @@ const REQUIRED_ENV_VARIABLES = [
   'SEED_24_WORDS'
 ]
 
-export const validateEnvVariables = (envVariables) => {
+const validateEnv = (envVariables) => {
   REQUIRED_ENV_VARIABLES.forEach((variable) => {
     if (!Object.hasOwn(envVariables, variable) || envVariables[variable] === undefined) {
       throw new Error(`Missing required environment variable: ${variable}`)
     }
   })
 }
+
+export default validateEnv

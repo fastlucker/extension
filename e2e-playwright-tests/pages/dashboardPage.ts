@@ -1,7 +1,7 @@
 import { locators } from '@common/locators'
 import { expect } from '@playwright/test'
 
-import { bootstrapWithStorage } from '../common-helpers/bootstrap'
+import { bootstrapWithStorage } from 'common-helpers/bootstrap'
 import { BasePage } from './basePage'
 
 export class DashboardPage extends BasePage {

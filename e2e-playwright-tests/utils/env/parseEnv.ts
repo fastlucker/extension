@@ -1,14 +1,11 @@
-import { constants } from '../constants/constants'
-import { loadEnv } from './setupEnv'
+import { constants } from '../../constants/constants'
 
-const loadedEnvVariables = loadEnv()
-
-const parseEnvVariables = (envVariables, prefix) => {
+const parseEnv = (envVariables, prefix: 'SA' | 'BA') => {
   if (prefix !== 'SA' && prefix !== 'BA') {
     throw new Error(`Invalid ${prefix}. Expected 'SA' or 'BA'`)
   }
 
-  const params = {
+  return {
     parsedKeystoreAccounts: JSON.parse(envVariables[`${prefix}_ACCOUNTS`]),
     parsedKeystoreUID: envVariables[`${prefix}_KEYSTORE_UID`],
     parsedKeystoreKeys: JSON.parse(envVariables[`${prefix}_KEYS`]),
@@ -25,19 +22,6 @@ const parseEnvVariables = (envVariables, prefix) => {
     invite: JSON.stringify(constants.inviteStorageItem),
     ...(prefix === 'SA' && { parsedIsOnBoarded: envVariables[`${prefix}_IS_ONBOARDED`] })
   }
-
-  return params
 }
 
-// TODO: UPPER CASE
-export const baParams = parseEnvVariables(loadedEnvVariables, 'BA')
-export const saParams = parseEnvVariables(loadedEnvVariables, 'SA')
-export const baPrivateKey = loadedEnvVariables.BA_PRIVATE_KEY
-export const SEED_12_WORDS = loadedEnvVariables.SEED
-export const SEED_24_WORDS = loadedEnvVariables.SEED_24_WORDS
-export const SHOULD_RUN_TREZOR_TESTS =
-  loadedEnvVariables.SHOULD_RUN_TREZOR_TESTS === 'true' || false
-export const DEF_KEYSTORE_PASS = loadedEnvVariables.KEYSTORE_PASS
-export const BA_PRIVATE_KEY = loadedEnvVariables.BA_PRIVATE_KEY
-export const BA_PASSPHRASE = loadedEnvVariables.BA_PASSPHRASE
-export const SA_PASSPHRASE = loadedEnvVariables.SA_PASSPHRASE
+export default parseEnv

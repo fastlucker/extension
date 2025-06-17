@@ -1,6 +1,6 @@
 import { Page } from '@playwright/test'
-import Token from '../interfaces/token'
-import { TEST_IDS } from '../common/selectors/selectors'
+import Token from 'interfaces/token'
+import { TEST_IDS } from 'common/selectors/selectors'
 
 export abstract class BasePage {
   page: Page

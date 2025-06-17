@@ -1,4 +1,4 @@
-import { BA_PASSPHRASE, SA_PASSPHRASE } from 'config/constants'
+import { BA_PASSPHRASE, SA_PASSPHRASE } from 'constants/env'
 
 import { constants } from '../../constants/constants'
 import { test } from '../../fixtures/pageObjects' // your extended test with authPage

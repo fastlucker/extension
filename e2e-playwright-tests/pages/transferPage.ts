@@ -1,10 +1,9 @@
 import { TEST_IDS } from '@common/selectors/selectors'
 import { expect } from '@playwright/test'
-import { bootstrapWithStorage } from '../common-helpers/bootstrap'
+import { bootstrapWithStorage } from 'common-helpers/bootstrap'
 import { BasePage } from './basePage'
-import tokens from '../constants/tokens'
-import { baParams } from '../config/constants'
-import Token from '../interfaces/token'
+import { baParams } from 'constants/env'
+import Token from 'interfaces/token'
 
 export class TransferPage extends BasePage {
   async init(param) {

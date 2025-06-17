@@ -1,8 +1,8 @@
 import { expect, Page } from '@playwright/test'
-import { baParams } from '../../config/constants'
-import { TEST_IDS as selectors } from '../../common/selectors/selectors'
-import tokens from '../../constants/tokens'
-import { test } from '../../fixtures/pageObjects'
+import { baParams } from 'constants/env'
+import { TEST_IDS as selectors } from 'common/selectors/selectors'
+import tokens from 'constants/tokens'
+import { test } from 'fixtures/pageObjects'
 
 test.describe('transfer', () => {
   test.beforeEach(async ({ transferPage }) => {
