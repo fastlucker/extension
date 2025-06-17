@@ -1,7 +1,7 @@
-import { BA_PASSPHRASE, SA_PASSPHRASE } from 'config/constants'
+import { BA_PASSPHRASE, SA_PASSPHRASE } from 'constants/env'
 
-import { constants } from '../../constants/constants'
-import { test } from '../../fixtures/pageObjects' // your extended test with authPage
+import mainConstants from 'constants/mainConstants'
+import { test } from 'fixtures/pageObjects' // your extended test with authPage
 
 test.describe.parallel('auth', () => {
   test.beforeEach(async ({ authPage }) => {
@@ -9,11 +9,11 @@ test.describe.parallel('auth', () => {
   })
 
   test('should import view-only Basic account', async ({ authPage }) => {
-    await authPage.importViewOnlyAccount(constants.addresses.basicAccount)
+    await authPage.importViewOnlyAccount(mainConstants.addresses.basicAccount)
   })
 
   test('should import view-only Smart account', async ({ authPage }) => {
-    await authPage.importViewOnlyAccount(constants.addresses.smartAccount)
+    await authPage.importViewOnlyAccount(mainConstants.addresses.smartAccount)
   })
 
   test('create new basic account', async ({ authPage }) => {
@@ -40,8 +40,8 @@ test.describe.parallel('auth', () => {
     authPage
   }) => {
     await authPage.importCoupleOfViewOnlyAccount(
-      constants.addresses.basicAccount,
-      constants.addresses.smartAccount
+      mainConstants.addresses.basicAccount,
+      mainConstants.addresses.smartAccount
     )
   })
 

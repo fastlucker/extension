@@ -1,18 +1,18 @@
 import dotenv from 'dotenv'
 import path from 'path'
-import { validateEnvVariables } from './envValidator'
+import validateEnv from './validateEnv'
 
-export const loadEnv = () => {
+const loadEnv = () => {
   try {
     if (process.env.CI) {
       const ciEnv = { ...process.env }
-      validateEnvVariables(ciEnv)
+      validateEnv(ciEnv)
       return ciEnv
     }
 
     delete require.cache[require.resolve('dotenv')]
 
-    const envPath = path.resolve(__dirname, '../../.env')
+    const envPath = path.resolve(__dirname, '../../../.env')
     const { parsed, error } = dotenv.config({ path: envPath })
 
     if (error) {
@@ -23,10 +23,12 @@ export const loadEnv = () => {
       throw new Error(`No environment variables were loaded from ${envPath}`)
     }
 
-    validateEnvVariables(parsed)
+    validateEnv(parsed)
     return parsed
   } catch (error) {
     console.error('Error loading environment variables:', (error as Error).message)
     throw error
   }
 }
+
+export default loadEnv
