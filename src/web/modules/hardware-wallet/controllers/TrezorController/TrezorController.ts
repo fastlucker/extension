@@ -13,7 +13,7 @@ export type {
 const TREZOR_CONNECT_MANIFEST = {
   email: 'wallet@ambire.com',
   appUrl: 'https://ambire.com',
-  appName: 'Ambire Wallet',
+  appName: 'Ambire',
   appIcon: 'https://www.ambire.com/ambire-trezor-connect-icon-light.png'
 }
 
