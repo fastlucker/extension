@@ -1,4 +1,4 @@
-import { constants } from '../../constants/constants'
+import mainConstants from 'constants/mainConstants'
 
 const parseEnv = (envVariables, prefix: 'SA' | 'BA') => {
   if (prefix !== 'SA' && prefix !== 'BA') {
@@ -19,7 +19,7 @@ const parseEnv = (envVariables, prefix: 'SA' | 'BA') => {
     parsedPreviousHints: JSON.parse(envVariables[`${prefix}_PREVIOUSHINTS`]),
     envSelectedAccount: envVariables[`${prefix}_SELECTED_ACCOUNT`],
     envTermState: envVariables[`${prefix}_TERMSTATE`],
-    invite: JSON.stringify(constants.inviteStorageItem),
+    invite: JSON.stringify(mainConstants.inviteStorageItem),
     ...(prefix === 'SA' && { parsedIsOnBoarded: envVariables[`${prefix}_IS_ONBOARDED`] })
   }
 }
