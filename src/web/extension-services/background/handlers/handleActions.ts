@@ -616,6 +616,10 @@ export const handleActions = async (
       await walletStateCtrl.setThemeType(params.themeType)
       break
     }
+    case 'SET_LOG_LEVEL': {
+      await walletStateCtrl.setLogLevel(params.logLevel)
+      break
+    }
 
     default:
       // eslint-disable-next-line no-console

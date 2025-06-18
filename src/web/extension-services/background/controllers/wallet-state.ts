@@ -79,6 +79,14 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
+  async setLogLevel(nextLogLevel: LogLevelNames) {
+    this.logLevel = nextLogLevel
+    await storage.set('logLevel', nextLogLevel)
+    setLogLevel(nextLogLevel)
+
+    this.emitUpdate()
+  }
+
   toJSON() {
     return {
       ...this,
