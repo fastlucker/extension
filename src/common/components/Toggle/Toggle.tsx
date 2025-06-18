@@ -11,7 +11,7 @@ import { ToggleProps } from './types'
 interface Props extends Omit<ToggleProps, 'toggleStyle' | 'trackStyle'> {
   labelProps?: TextProps
   toggleStyle?: ViewStyle
-  trackStyle?: React.CSSProperties
+  trackStyle?: ViewStyle
   children?: ReactNode
 }
 

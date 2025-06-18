@@ -22,7 +22,17 @@ const ThemeToggle = () => {
   }, [dispatch, themeType])
 
   return (
-    <FatToggle isOn={themeType === THEME_TYPES.DARK} onToggle={handleSetTheme}>
+    <FatToggle
+      trackStyle={{
+        backgroundColor: themeType === THEME_TYPES.DARK ? '#FFFFFF14' : '#14183314'
+      }}
+      toggleStyle={{
+        backgroundColor:
+          themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.primaryBackground
+      }}
+      isOn={themeType === THEME_TYPES.DARK}
+      onToggle={handleSetTheme}
+    >
       <View
         style={{
           width: 52,

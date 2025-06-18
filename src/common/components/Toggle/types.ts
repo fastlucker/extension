@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { TextProps } from 'react-native'
+import { TextProps, ViewStyle } from 'react-native'
 
 export type ToggleProps = {
   id?: string
@@ -10,7 +10,7 @@ export type ToggleProps = {
   disabled?: boolean
   testID?: string
   labelProps?: TextProps
-  toggleStyle?: React.CSSProperties
-  trackStyle?: React.CSSProperties
+  toggleStyle?: React.CSSProperties | ViewStyle
+  trackStyle?: React.CSSProperties | ViewStyle
   children?: ReactNode
 }
