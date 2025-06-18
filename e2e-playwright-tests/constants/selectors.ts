@@ -137,7 +137,8 @@ const selectors = {
   // Top up
   modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',
-  topUpProceedButton: 'proceed-btn'
+  topUpProceedButton: 'proceed-btn',
+  closeProgressModalButton: 'track-progress-primary-button'
 
 }
 

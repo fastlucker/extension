@@ -48,7 +48,7 @@ export class GasTankPage extends BasePage {
     const txnStatus = await this.page.getByTestId(selectors.txnStatus).textContent()
     expect(txnStatus).toEqual('Top up ready!')
 
-    await this.page.locator('//div[contains(text(),"Close")]').click()
+    await this.page.getByTestId(selectors.closeProgressModalButton).click()
   }
 
   async refreshUntilNewBalanceIsVisible(balance: number) {
