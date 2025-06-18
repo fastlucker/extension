@@ -278,7 +278,7 @@ export class SwapAndBridgePage extends BasePage {
     expect(currency).toBe('$')
     const oldAmount = await this.getSendAmount()
     await this.page.waitForTimeout(500)
-    await clickOnElement(this.page, selectors.flipIcon)
+    await this.page.getByTestId(selectors.flipIcon).click()
 
     const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
     const newAmount = this.roundAmount(await this.getSendAmount())
@@ -289,7 +289,7 @@ export class SwapAndBridgePage extends BasePage {
 
     // Wait and flip back
     await this.page.waitForTimeout(500)
-    await clickOnElement(this.page, selectors.flipIcon)
+    await this.page.getByTestId(selectors.flipIcon).click()
 
     const [usdSecondAmount, secondCurrency] = await this.getUSDTextContent()
     const secondAmount = await this.getSendAmount()
