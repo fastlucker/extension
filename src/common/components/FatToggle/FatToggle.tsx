@@ -1,3 +1,5 @@
+import React from 'react'
+
 import Toggle from '@common/components/Toggle'
 import { ToggleProps } from '@common/components/Toggle/types'
 import useTheme from '@common/hooks/useTheme'
@@ -29,4 +31,4 @@ const FatToggle: React.FC<ToggleProps> = (props) => {
   )
 }
 
-export default FatToggle
+export default React.memo(FatToggle)
