@@ -52,8 +52,8 @@ const xWalletIface = new Interface([
   'event LogLeave(address indexed owner, uint256 shares, uint256 unlocksAt, uint256 maxTokens)'
 ])
 
-function goToAPYArticle() {
-  window.open('https://blog.ambire.com/migrate-to-stkwallet/', '_blank')
+function goToStakingInfo() {
+  window.open('https://help.ambire.com/hc/en-us/sections/4421155466130-Staking/', '_blank')
 }
 
 const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> = ({
@@ -181,7 +181,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         const firstUncollected = uncollected[0]
         if (!firstUncollected) return
         const { maxTokens, unlocksAt, shares } = firstUncollected
-        setFirstToCollect({ unlocksAt: unlocksAt + 60n * 60n * 24n * 50n, maxTokens, shares })
+        setFirstToCollect({ unlocksAt: unlocksAt, maxTokens, shares })
       })
       .catch(() => addToast('Error getting pending withdraw data', { type: 'error' }))
       .finally(() => setIsLoadingLogs(false))
@@ -206,7 +206,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
 
         const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
         await getCallsStatus(txId)
-        addToast('Stakes successfully!', { type: 'success' })
+        addToast('Staked successfully!', { type: 'success' })
         handleClose()
         setInputAmount('')
       } catch (e: any) {
@@ -309,7 +309,6 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
 
       const txId = await sendCalls(chainId, await signer.getAddress(), calls, false)
       await getCallsStatus(txId)
-      // @TODO fix all of those text
       addToast('Withdrawn successfully!', { type: 'success' })
       handleClose()
       setInputAmount('')
@@ -365,6 +364,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       ? { text: 'Withdraw', action: withdrawAction }
       : { text: `Withdraw in ${formatDuration(unlockDate.getTime() - new Date().getTime())}` }
   }, [
+    inputAmount,
     activeTab,
     firstToCollect,
     goToSwap,
@@ -484,17 +484,16 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                   <div>$WALLET</div>
                 </div>
               ))}
-            <div className={`${styles.infoRow} ${styles.aprInfo}`}>
+            <div className={`${styles.infoRow} ${styles.apyInfo}`}>
               APY
-              <button type="button" onClick={goToAPYArticle}>
-                <InfoIcon
-                  width={12}
-                  height={12}
-                  color="currentColor"
-                  className={styles.infoIcon}
-                  data-tooltip-id="weight-info"
-                />
-              </button>
+              <InfoIcon
+                onPress={goToStakingInfo}
+                width={12}
+                height={12}
+                color="currentColor"
+                className={styles.infoIcon}
+                data-tooltip-id="weight-info"
+              />
               {walletTokenInfo?.apy.toFixed(2)}%
             </div>
             <div
@@ -524,7 +523,6 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                     onChange={(e) => setInputAmount(e.target.value)}
                     className={styles.stakeInput}
                     placeholder="0.00"
-                    style={{ textAlign: 'left' }}
                   />
                   <div
                     style={{
@@ -558,13 +556,15 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
               </div>
             </div>
           </div>
-          {activeTab === 'unstake' && (
-            <div className={styles.lockPeriodInfo}>
-              {onchainData?.lockedShares
-                ? 'You will be able to withdraw and unstake more as soon as the locking period has ended.'
-                : 'The selected amount will have a 1 month locking period.'}
-            </div>
-          )}
+          <div
+            className={`${styles.lockPeriodInfo} ${
+              activeTab === 'unstake' && styles.visibleLockPeriodInfo
+            }`}
+          >
+            {onchainData?.lockedShares
+              ? 'You will be able to withdraw and unstake more as soon as the locking period has ended.'
+              : 'The selected amount will have a 1 month locking period.'}
+          </div>
           <button
             type="button"
             className={styles.stakeButton}
