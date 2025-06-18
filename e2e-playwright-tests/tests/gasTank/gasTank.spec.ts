@@ -10,7 +10,7 @@ test.describe('gasTank - Basic Account', () => {
     await gasTankPage.init(baParams)
   })
 
-  test.only('top up Gas Tank with 0.1$ on Base', async ({ gasTankPage }) => {
+  test('top up Gas Tank with 0.1$ on Base', async ({ gasTankPage }) => {
     const sendToken = tokens.usdc.base
     // get initial balance
     const oldBalance = await gasTankPage.getCurrentBalance()
