@@ -4,7 +4,7 @@ import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 import useTheme from '@common/hooks/useTheme'
 
 const SwapAndBridgeIcon: React.FC<SvgProps> = ({
-  width = 64,
+  width = 24,
   height = 24,
   color,
   strokeWidth = 1.5,
@@ -13,9 +13,9 @@ const SwapAndBridgeIcon: React.FC<SvgProps> = ({
   const { theme } = useTheme()
 
   return (
-    <Svg width={width} height={height} viewBox="0 0 24 24" preserveAspectRatio="xMidYMid" {...rest}>
-      <Rect width={24} height={24} fill="none" />
-      <G transform="translate(7, 7) scale(0.5)">
+    <Svg width={width} height={height} viewBox="0 0 24 24" {...rest}>
+      <Rect width={width} height={width} transform="translate(24 0) rotate(90)" fill="none" />
+      <G transform="translate(3.385 1.23)">
         <Path
           d="M48.974,16.244l-4.308,4.308m0,0,4.308,4.308m-4.308-4.308H57.128a3.692,3.692,0,0,0,3.692-3.692V15.167"
           transform="translate(-44.666 -3.32)"
