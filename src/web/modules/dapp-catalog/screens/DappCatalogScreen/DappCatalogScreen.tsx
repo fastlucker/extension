@@ -104,37 +104,15 @@ const DappCatalogScreen = () => {
 
   const filteredDapps = useMemo(() => {
     const allDapps = state.dapps
-
-    let result: Dapp[] = []
-
     if (search && debouncedSearch) {
       if (predefinedFilter) setPredefinedFilter(null)
-
-      const query = search.toLowerCase()
-
-      result = allDapps.filter(
-        (dapp) => dapp.name.toLowerCase().includes(query) || dapp.url.toLowerCase().includes(query)
-      )
-    } else {
-      if (!predefinedFilter) setPredefinedFilter('all')
-
-      if (predefinedFilter === 'favorites') {
-        result = allDapps.filter((dapp) => !!dapp.favorite)
-      } else if (predefinedFilter === 'connected') {
-        result = allDapps.filter((dapp) => dapp.isConnected)
-      } else {
-        result = allDapps
-      }
+      return allDapps.filter((dapp) => dapp.name.toLowerCase().includes(search.toLowerCase()))
     }
+    if (!predefinedFilter) setPredefinedFilter('all')
+    if (predefinedFilter === 'favorites') return allDapps.filter((dapp) => !!dapp.favorite)
+    if (predefinedFilter === 'connected') return allDapps.filter((dapp) => dapp.isConnected)
 
-    // Ensure uniqueness by both name and URL
-    const seen = new Set<string>()
-    return result.filter((dapp) => {
-      const key = `${dapp.name.toLowerCase()}|${dapp.url.toLowerCase()}`
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
+    return allDapps
   }, [state.dapps, search, debouncedSearch, predefinedFilter])
 
   const sortedByFavoriteDApps = useMemo(() => {
