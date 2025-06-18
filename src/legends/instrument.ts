@@ -1,7 +1,9 @@
 import { SENTRY_DSN_LEGENDS } from '@env'
 import * as Sentry from '@sentry/react'
 
-const { version } = require('../ambire-common/package.json')
+import packageJsonData from '../ambire-common/package.json'
+
+const version = packageJsonData.version
 
 if (SENTRY_DSN_LEGENDS)
   Sentry.init({
