@@ -15,7 +15,7 @@ test.describe('gasTank - Basic Account', () => {
     // get initial balance
     const oldBalance = await gasTankPage.getCurrentBalance()
     // top up gas tank
-    await gasTankPage.topUpGasTank(sendToken, '0.1')
+    await gasTankPage.topUpGasTank(sendToken, '0.02')
 
     // takes time for new balance to appear
     const newBalance = await gasTankPage.refreshUntilNewBalanceIsVisible(oldBalance)
