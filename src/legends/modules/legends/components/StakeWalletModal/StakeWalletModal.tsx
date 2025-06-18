@@ -487,7 +487,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
             <div className={`${styles.infoRow} ${styles.apyInfo}`}>
               APY
               <InfoIcon
-                onPress={goToStakingInfo}
+                onClick={goToStakingInfo}
                 width={12}
                 height={12}
                 color="currentColor"
