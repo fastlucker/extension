@@ -1,6 +1,6 @@
 import { Page } from '@playwright/test'
-import Token from '../interfaces/token'
-import { TEST_IDS } from '../common/selectors/selectors'
+import Token from 'interfaces/token'
+import selectors from 'constants/selectors'
 
 export abstract class BasePage {
   page: Page
@@ -16,28 +16,28 @@ export abstract class BasePage {
     await this.page.locator(element).nth(0).click()
   }
 
-  async clickOnMenuToken(token: Token, menuSelector: string = TEST_IDS.tokensSelect) {
+  async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
     const menu = this.page.getByTestId(menuSelector)
     await menu.click()
 
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
-    const searchInput = this.page.getByTestId(TEST_IDS.searchInput)
+    const searchInput = this.page.getByTestId(selectors.searchInput)
     await searchInput.fill(token.symbol)
 
     // Ensure we click the token inside the BottomSheet,
     // not the one rendered as the default in the Select menu.
     const tokenLocator = this.page
-      .getByTestId(TEST_IDS.bottomSheet)
+      .getByTestId(selectors.bottomSheet)
       .getByTestId(`option-${token.address}.${token.chainId}`)
     await tokenLocator.click()
   }
 
   async clickOnMenuFeeToken(paidByAddress: string, token: Token, onGasTank?: boolean) {
-    const selectMenu = this.page.getByTestId(TEST_IDS.feeTokensSelect)
+    const selectMenu = this.page.getByTestId(selectors.feeTokensSelect)
     await selectMenu.click()
 
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
-    const searchInput = this.page.getByTestId(TEST_IDS.searchInput)
+    const searchInput = this.page.getByTestId(selectors.searchInput)
     await searchInput.fill(token.symbol)
 
     const paidBy = paidByAddress.toLowerCase()

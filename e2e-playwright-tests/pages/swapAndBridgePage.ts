@@ -1,11 +1,10 @@
-import { locators } from '@common/locators'
+import locators from 'constants/locators'
 import { expect } from '@playwright/test'
 
-import { bootstrapWithStorage } from '../common-helpers/bootstrap'
-import { clickOnElement } from '../common-helpers/clickOnElement'
-import { typeText } from '../common-helpers/typeText'
-import { SELECTORS, TEST_IDS, TEST_IDS as selectors } from '../common/selectors/selectors'
-import { constants } from '../constants/constants'
+import { bootstrapWithStorage } from 'common-helpers/bootstrap'
+import { clickOnElement } from 'common-helpers/clickOnElement'
+import { typeText } from 'common-helpers/typeText'
+import selectors, { SELECTORS } from 'constants/selectors'
 import { BasePage } from './basePage'
 import Token from '../interfaces/token'
 
@@ -208,7 +207,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.getByTestId(selectors.searchInput).fill(receiveToken.symbol)
 
     const tokenLocator = this.page
-      .getByTestId(TEST_IDS.bottomSheet)
+      .getByTestId(selectors.bottomSheet)
       .getByTestId(`option-${receiveToken.address}.${receiveToken.chainId}`)
     await expect(tokenLocator).toBeVisible()
   }
@@ -229,7 +228,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.locator(SELECTORS.searchInput).fill(receiveToken.address, { timeout: 3000 })
 
     const tokenLocator = this.page
-      .getByTestId(TEST_IDS.bottomSheet)
+      .getByTestId(selectors.bottomSheet)
       .getByTestId(`option-${receiveToken.address}.${receiveToken.chainId}`)
 
     await expect(tokenLocator).toBeVisible()
