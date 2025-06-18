@@ -86,6 +86,8 @@ const AppInit = () => {
                                                               <AddressBookControllerStateProvider>
                                                                 <SwapAndBridgeControllerStateProvider>
                                                                   <TransferControllerStateProvider>
+                                                                    {/* Reading from controllers in components, rendered above ControllersStateLoadedProvider
+                                                                    must be done very carefully, as it is not guaranteed that the state is loaded */}
                                                                     <ControllersStateLoadedProvider>
                                                                       <StorageProvider>
                                                                         <KeyboardProvider>
