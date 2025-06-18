@@ -75,18 +75,14 @@ const FilterButton = React.memo(({ value, active, style, onPress }: FilterButton
 
 const { isPopup } = getUiType()
 
-const sortDApps = (a?: Dapp, b?: Dapp) => {
-  if (a?.url.startsWith('https://rewards.ambire.com')) return -1
-
-  // Display favorite dApps first
-  if (a?.favorite && !b?.favorite) return -1
-  if (!a?.favorite && b?.favorite) return 1
-  // Display connect dApps second
-  if (a?.isConnected && !b?.isConnected) return -1
-  if (!a?.isConnected && b?.isConnected) return 1
-
-  return 0
+const getSortPriority = (dapp?: Dapp): number => {
+  if (dapp?.url?.startsWith('https://rewards.ambire.com')) return 0
+  if (dapp?.favorite) return 1
+  if (dapp?.isConnected) return 2
+  return 3
 }
+
+const sortDApps = (a?: Dapp, b?: Dapp) => getSortPriority(a) - getSortPriority(b)
 
 const DappCatalogScreen = () => {
   const { control, watch, setValue } = useForm({
@@ -106,15 +102,37 @@ const DappCatalogScreen = () => {
 
   const filteredDapps = useMemo(() => {
     const allDapps = state.dapps
+
+    let result: Dapp[] = []
+
     if (search && debouncedSearch) {
       if (predefinedFilter) setPredefinedFilter(null)
-      return allDapps.filter((dapp) => dapp.name.toLowerCase().includes(search.toLowerCase()))
-    }
-    if (!predefinedFilter) setPredefinedFilter('all')
-    if (predefinedFilter === 'favorites') return allDapps.filter((dapp) => !!dapp.favorite)
-    if (predefinedFilter === 'connected') return allDapps.filter((dapp) => dapp.isConnected)
 
-    return allDapps
+      const query = search.toLowerCase()
+
+      result = allDapps.filter(
+        (dapp) => dapp.name.toLowerCase().includes(query) || dapp.url.toLowerCase().includes(query)
+      )
+    } else {
+      if (!predefinedFilter) setPredefinedFilter('all')
+
+      if (predefinedFilter === 'favorites') {
+        result = allDapps.filter((dapp) => !!dapp.favorite)
+      } else if (predefinedFilter === 'connected') {
+        result = allDapps.filter((dapp) => dapp.isConnected)
+      } else {
+        result = allDapps
+      }
+    }
+
+    // Ensure uniqueness by both name and URL
+    const seen = new Set<string>()
+    return result.filter((dapp) => {
+      const key = `${dapp.name.toLowerCase()}|${dapp.url.toLowerCase()}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
   }, [state.dapps, search, debouncedSearch, predefinedFilter])
 
   const sortedByFavoriteDApps = useMemo(() => {
