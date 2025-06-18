@@ -8,7 +8,7 @@ import spacings from '@common/styles/spacings'
 
 import { ToggleProps } from './types'
 
-interface Props extends ToggleProps {
+interface Props extends Omit<ToggleProps, 'toggleStyle' | 'trackStyle'> {
   labelProps?: TextProps
   toggleStyle?: ViewStyle
   trackStyle?: React.CSSProperties

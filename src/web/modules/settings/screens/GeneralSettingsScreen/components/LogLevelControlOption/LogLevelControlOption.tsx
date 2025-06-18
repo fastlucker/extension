@@ -1,16 +1,21 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import LogIcon from '@common/assets/svg/LogIcon'
+import DevIcon from '@common/assets/svg/DevIcon/DevIcon'
 import ControlOption from '@common/components/ControlOption'
+import FatToggle from '@common/components/FatToggle'
 import Toggle from '@common/components/Toggle'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
+import ThemeToggle from '@web/components/ThemeToggle'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 import { LOG_LEVELS } from '@web/utils/logger'
 
 const LogLevelControlOption = () => {
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const { logLevel } = useWalletStateController()
   const { dispatch } = useBackgroundService()
 
@@ -25,9 +30,9 @@ const LogLevelControlOption = () => {
       style={spacings.mbTy}
       title={t('Development logs')}
       description={t('Includes essential technical details that may help Ambire Support.')}
-      renderIcon={<LogIcon />}
+      renderIcon={<DevIcon color={theme.primaryText} />}
     >
-      <Toggle isOn={logLevel === LOG_LEVELS.DEV} onToggle={handleToggleLogLevel} />
+      <FatToggle isOn={logLevel === LOG_LEVELS.DEV} onToggle={handleToggleLogLevel} />
     </ControlOption>
   )
 }
