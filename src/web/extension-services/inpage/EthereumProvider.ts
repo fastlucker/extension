@@ -157,7 +157,6 @@ export class EthereumProvider extends EventEmitter {
           id,
           method: 'tabCheckin',
           params: {
-            // @ts-ignore
             icon: await getIconWithRetry(),
             name:
               document.title ||
