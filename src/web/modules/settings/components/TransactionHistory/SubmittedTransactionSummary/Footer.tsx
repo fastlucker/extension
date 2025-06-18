@@ -104,6 +104,7 @@ const Footer: FC<Props> = ({
       setFeeFormattedValue(`${formatDecimals(fee)} ${tokenInfo.symbol}`)
     }).catch((e) => {
       console.error(e)
+      setFeeFormattedValue('Unknown. Please check the explorer.')
     })
   }, [
     networks,
