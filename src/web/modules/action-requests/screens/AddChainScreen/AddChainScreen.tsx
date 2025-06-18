@@ -7,12 +7,12 @@ import { View } from 'react-native'
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
-import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
+import SuccessAnimation from '@common/components/SuccessAnimation'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -31,9 +31,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
-import BackgroundShapes from '@web/modules/swap-and-bridge/components/Estimation/BackgroundShapes'
 
-import animation from './animation.json'
 import getStyles from './styles'
 
 /**
@@ -281,28 +279,14 @@ const AddChainScreen = () => {
       <TabLayoutWrapperMainContent style={spacings.mbLg} withScroll={false}>
         {networkAlreadyAdded ? (
           <View style={[flexbox.flex1, flexbox.alignCenter, spacings.mt2Xl]}>
-            <View style={styles.boxWrapper}>
-              <BackgroundShapes style={[styles.backgroundShapes, spacings.mhSm]} />
-              <View style={styles.animationContainer}>
-                <LottieView animationData={animation} style={styles.lottieView} loop />
-                <CheckIcon2
-                  style={[
-                    styles.checkIcon,
-                    {
-                      transform: [{ translateX: -0.5 * 64 }, { translateY: -0.5 * 64 }]
-                    }
-                  ]}
-                />
-              </View>
-              <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
-                <Text fontSize={20} weight="medium">
-                  {networkAlreadyAdded.name} Network
-                </Text>
-                <Text fontSize={15} appearance="secondaryText">
-                  {t('already added to your wallet.')}
-                </Text>
-              </View>
-            </View>
+            <SuccessAnimation>
+              <Text fontSize={20} weight="medium" style={spacings.mb}>
+                {networkAlreadyAdded.name} Network
+              </Text>
+              <Text fontSize={15} appearance="secondaryText">
+                {t('already added to your wallet.')}
+              </Text>
+            </SuccessAnimation>
           </View>
         ) : (
           <>
