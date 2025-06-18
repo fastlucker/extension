@@ -69,9 +69,9 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
-import { LOG_LEVEL_PROD, logInfoWithPrefix, LogLevelNames } from '@web/utils/logger'
+import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
-function stateDebug(logLevel: LogLevelNames, event: string, stateToLog: object, ctrlName: string) {
+function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -88,7 +88,7 @@ function stateDebug(logLevel: LogLevelNames, event: string, stateToLog: object, 
   // causing the extension to slow down or freeze.
   // Instead of logging with `logInfoWithPrefix` in production, we rely on EventEmitter.emitError() to log individual errors
   // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
-  if (logLevel === LOG_LEVEL_PROD) return
+  if (logLevel === LOG_LEVELS.PROD) return
 
   const args = parse(stringify(stateToLog))
   const ctrlState = ctrlName === 'main' ? args : args[ctrlName]

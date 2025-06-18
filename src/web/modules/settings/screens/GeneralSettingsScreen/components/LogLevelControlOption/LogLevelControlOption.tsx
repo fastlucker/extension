@@ -7,7 +7,7 @@ import Toggle from '@common/components/Toggle'
 import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
-import { LOG_LEVEL_DEV, LOG_LEVEL_PROD } from '@web/utils/logger'
+import { LOG_LEVELS } from '@web/utils/logger'
 
 const LogLevelControlOption = () => {
   const { t } = useTranslation()
@@ -15,7 +15,7 @@ const LogLevelControlOption = () => {
   const { dispatch } = useBackgroundService()
 
   const handleToggleLogLevel = useCallback(() => {
-    const nextLogLevel = logLevel === LOG_LEVEL_DEV ? LOG_LEVEL_PROD : LOG_LEVEL_DEV
+    const nextLogLevel = logLevel === LOG_LEVELS.DEV ? LOG_LEVELS.PROD : LOG_LEVELS.DEV
 
     dispatch({ type: 'SET_LOG_LEVEL', params: { logLevel: nextLogLevel } })
   }, [dispatch, logLevel])
@@ -27,7 +27,7 @@ const LogLevelControlOption = () => {
       description={t('Includes essential technical details that may help Ambire Support.')}
       renderIcon={<LogIcon />}
     >
-      <Toggle isOn={logLevel === LOG_LEVEL_DEV} onToggle={handleToggleLogLevel} />
+      <Toggle isOn={logLevel === LOG_LEVELS.DEV} onToggle={handleToggleLogLevel} />
     </ControlOption>
   )
 }
