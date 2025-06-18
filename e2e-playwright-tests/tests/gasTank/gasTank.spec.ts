@@ -1,4 +1,7 @@
-import { baParams } from '../../config/constants'
+import { baParams } from 'constants/env'
+
+import { expect } from '@playwright/test'
+
 import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
@@ -9,11 +12,13 @@ test.describe('gasTank - Basic Account', () => {
 
   test.only('top up Gas Tank with 0.1$ on Base', async ({ gasTankPage }) => {
     const sendToken = tokens.usdc.base
-
-    await gasTankPage.pause()
+    // get initial balance
     const oldBalance = await gasTankPage.getCurrentBalance()
+    // top up gas tank
     await gasTankPage.topUpGasTank(sendToken, '0.1')
-    const newBalance = await gasTankPage.getCurrentBalance()
+
+    // takes time for new balance to appear
+    const newBalance = await gasTankPage.refreshUntilNewBalanceIsVisible(oldBalance)
 
     expect(oldBalance).toBeLessThan(newBalance)
   })

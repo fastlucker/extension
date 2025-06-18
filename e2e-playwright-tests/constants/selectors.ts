@@ -99,6 +99,7 @@ const selectors = {
   confettiModalActionButton: 'confetti-modal-action-button',
   refreshButton: 'refresh-button',
   dashboardGasTankButton: 'dashboard-gas-tank-button',
+  dashboardGasTankBalance: 'dashboard-gas-tank-balance',
   createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button',
   recieveNetworkBase: 'option-8453',
   recieveNetworkOptimism: 'option-10',
@@ -134,6 +135,7 @@ const selectors = {
   goDashboardButton: 'go-dashboard-button',
   txnConfirmed: 'txn-confirmed',
   // Top up
+  modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',
   topUpProceedButton: 'proceed-btn'
 
