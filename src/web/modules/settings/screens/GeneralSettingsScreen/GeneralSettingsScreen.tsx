@@ -20,15 +20,13 @@ const GeneralSettingsScreen = () => {
   return (
     <>
       <SettingsPageHeader title="General settings" />
-      <View style={spacings.mbXl}>
+      <View style={spacings.mb2Xl}>
         <LockAmbireControlOption />
         <AutoLockDeviceControlOption />
         <ThemeControlOption />
       </View>
       <SettingsPageHeader title="Support tools" />
-      <View>
-        <LogLevelControlOption />
-      </View>
+      <LogLevelControlOption />
     </>
   )
 }
