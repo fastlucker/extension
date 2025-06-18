@@ -29,7 +29,7 @@ const LogLevelControlOption = () => {
     <ControlOption
       style={spacings.mbTy}
       title={t('Development logs')}
-      description={t('Includes essential technical details that may help Ambire Support.')}
+      description={t('Expose technical details in your browser console only, never shared.')}
       renderIcon={<DevIcon color={theme.primaryText} />}
     >
       <FatToggle isOn={logLevel === LOG_LEVELS.DEV} onToggle={handleToggleLogLevel} />
