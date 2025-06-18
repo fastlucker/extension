@@ -77,7 +77,9 @@ const { isPopup } = getUiType()
 
 const getSortPriority = (dapp?: Dapp): number => {
   if (dapp?.url?.startsWith('https://rewards.ambire.com')) return 0
+  // Display favorite dApps after Ambire Rewards
   if (dapp?.favorite) return 1
+  // Display connected dApps after favorites
   if (dapp?.isConnected) return 2
   return 3
 }
