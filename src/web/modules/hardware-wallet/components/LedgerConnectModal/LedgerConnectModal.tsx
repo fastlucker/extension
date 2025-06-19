@@ -10,10 +10,11 @@ import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
@@ -48,6 +49,7 @@ const LedgerConnectModal = ({
   const { t } = useTranslation()
   const [isGrantingPermission, setIsGrantingPermission] = useState(false)
   const { currentAction, actionWindow } = useActionsControllerState()
+  const { theme, themeType } = useTheme()
 
   useEffect(() => {
     if (isVisible) open()
@@ -88,7 +90,7 @@ const LedgerConnectModal = ({
     <BottomSheet
       id="ledger-connect-modal"
       sheetRef={ref}
-      backgroundColor="primaryBackground"
+      backgroundColor={themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'}
       autoWidth={false}
       closeBottomSheet={handleClose}
       onClosed={handleClose}
@@ -126,7 +128,7 @@ const LedgerConnectModal = ({
               weight="semiBold"
               fontSize={14}
               underline
-              color={colors.heliotrope}
+              color={theme.primaryLight}
               onPress={handleOnLedgerReauthorize}
             >
               try re-authorizing Ambire to connect

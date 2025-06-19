@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { NavigateOptions } from 'react-router-dom'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -10,6 +10,7 @@ import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ONBOARDING_WEB_ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -76,6 +77,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
     () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
     [path]
   )
+  const { areControllerStatesLoaded } = useContext(ControllersStateLoadedContext)
 
   // session storage is needed here to prevent state reset on account-personalize page reload
   const [accountsToPersonalize, setAccountsToPersonalize] = useState<Account[]>(() => {
@@ -236,8 +238,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
 
   const goToNextRoute = useCallback(
     (routeName?: OnboardingRoute, routeParams?: NavigateOptions) => {
-      const currentRoute = path?.substring(1)
-      if (!currentRoute) return
+      const currentRoute = path?.substring(1) || '/'
 
       let nextRoute: RouteNode | null = null
       if (routeName && ONBOARDING_WEB_ROUTES.includes(routeName)) {
@@ -401,6 +402,20 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       window.removeEventListener('hashchange', handleBackButton)
     }
   }, [goToPrevRoute, history, deepSearchRouteNode, onboardingRoutesTree])
+
+  useEffect(() => {
+    const currentRoute = path?.substring(1)
+    if (!currentRoute) return
+    if (!areControllerStatesLoaded) return
+
+    if (
+      !hasPasswordSecret &&
+      authStatus === AUTH_STATUS.AUTHENTICATED &&
+      !ONBOARDING_WEB_ROUTES.includes(currentRoute)
+    ) {
+      goToNextRoute(WEB_ROUTES.keyStoreSetup)
+    }
+  }, [authStatus, path, goToNextRoute, hasPasswordSecret, areControllerStatesLoaded])
 
   const value = useMemo(
     () => ({

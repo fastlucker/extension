@@ -51,7 +51,7 @@ const OnboardingCompletedScreen = () => {
             <View style={[flexbox.flex1, flexbox.alignCenter, spacings.pt3Xl]}>
               <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
                 <ConfettiAnimation width={TAB_CONTENT_WIDTH} height={380} autoPlay={false} />
-                <AmbireLogo height={96} />
+                <AmbireLogo height={96} withWrapper />
               </View>
               <Text
                 style={[spacings.mtLg, spacings.mb, text.center]}

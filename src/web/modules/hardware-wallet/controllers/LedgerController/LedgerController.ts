@@ -78,6 +78,8 @@ class LedgerController implements ExternalSignerController {
    * Checks if at least one Ledger device is connected.
    */
   static isConnected = async () => {
+    if (!('hid' in navigator)) return false
+
     const devices = await navigator.hid.getDevices()
     const hasFoundLedgerDevice =
       devices.filter((device) => device.vendorId === LedgerController.vendorId).length > 0
@@ -455,7 +457,7 @@ class LedgerController implements ExternalSignerController {
     this.unlockedPath = ''
     this.unlockedPathKeyAddr = ''
 
-    navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
+    if ('hid' in navigator) navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
   }
 
   async cleanUpListener({ device }: { device: HIDDevice }) {

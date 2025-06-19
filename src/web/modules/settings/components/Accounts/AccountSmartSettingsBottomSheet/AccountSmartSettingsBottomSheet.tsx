@@ -19,6 +19,7 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
@@ -38,7 +39,7 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
   const { accountStates } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
   const { networks } = useNetworksControllerState()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const [checkedAccountState, setCheckedAccountState] = useState<boolean>(false)
@@ -115,7 +116,7 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
       id="account-delegations-bottom-sheet"
       sheetRef={sheetRef}
       closeBottomSheet={closeBottomSheet}
-      backgroundColor="primaryBackground"
+      backgroundColor={themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'}
       scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
       isScrollEnabled={false}
       containerInnerWrapperStyles={{ flex: 1 }}
@@ -167,7 +168,10 @@ const AccountSmartSettingsBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet
                     style={[
                       {
                         borderBottomWidth: i !== delegationNetworks.length - 1 ? 1 : 0,
-                        borderBottomColor: theme.tertiaryBackground
+                        borderBottomColor:
+                          themeType === THEME_TYPES.DARK
+                            ? theme.primaryBorder
+                            : theme.tertiaryBackground
                       },
                       flexbox.directionRow,
                       flexbox.alignCenter,

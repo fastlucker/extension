@@ -22,7 +22,7 @@ const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
 const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
 const isExtension =
   outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
-const isBenzin = outputPath.includes('benzin')
+const isAmbireExplorer = outputPath.includes('benzin')
 const isLegends = outputPath.includes('legends')
 
 // style.css output file for WEB_ENGINE: GECKO
@@ -120,6 +120,10 @@ module.exports = async function (env, argv) {
   // Global configuration
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
   config.resolve.alias.dns = 'dns-js'
+  config.resolve.alias['@metamask/eth-sig-util'] = path.resolve(
+    __dirname,
+    'shim.metamask-eth-sig-util.js'
+  )
 
   // The files in the /web directory should be transpiled not just copied
   const excludeCopyPlugin = config.plugins.findIndex(
@@ -429,7 +433,7 @@ module.exports = async function (env, argv) {
 
     return config
   }
-  if (isBenzin) {
+  if (isAmbireExplorer) {
     if (process.env.APP_ENV === 'development') {
       config.optimization = { minimize: false }
     } else {

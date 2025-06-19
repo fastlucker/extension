@@ -85,11 +85,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'address' && item.address) {
           return (
             <View key={key} style={{ marginRight }}>
-              <HumanizerAddress
-                fontSize={textSize}
-                address={item.address}
-                explorerChainId={chainId}
-              />
+              <HumanizerAddress fontSize={textSize} address={item.address} chainId={chainId} />
             </View>
           )
         }

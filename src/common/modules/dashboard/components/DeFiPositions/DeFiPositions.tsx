@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Animated, FlatListProps, View } from 'react-native'
 
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
@@ -11,6 +13,7 @@ import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
 import { getDoesNetworkMatch } from '@common/utils/search'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -47,10 +50,34 @@ const DeFiPositions: FC<Props> = ({
   const { networks } = useNetworksControllerState()
   const { defiPositions, areDefiPositionsLoading, dashboardNetworkFilter } =
     useSelectedAccountControllerState()
+  const { setSearchParams } = useNavigation()
+
+  const { dispatch } = useBackgroundService()
+  const prevInitTab: any = usePrevious(initTab)
 
   useEffect(() => {
     setValue('search', '')
   }, [openTab, setValue])
+
+  useEffect(() => {
+    if (!prevInitTab?.defi && initTab?.defi) {
+      dispatch({ type: 'DEFI_CONTOLLER_ADD_SESSION', params: { sessionId } })
+      setSearchParams((prev) => {
+        prev.set('sessionId', sessionId)
+        return prev
+      })
+    }
+
+    if (prevInitTab?.defi && !initTab?.defi) {
+      dispatch({ type: 'DEFI_CONTOLLER_REMOVE_SESSION', params: { sessionId } })
+    }
+  }, [dispatch, setSearchParams, prevInitTab?.defi, initTab?.defi, sessionId])
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: 'DEFI_CONTOLLER_REMOVE_SESSION', params: { sessionId } })
+    }
+  }, [sessionId, dispatch])
 
   const filteredPositions = useMemo(
     () =>
