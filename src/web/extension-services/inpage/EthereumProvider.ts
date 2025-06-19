@@ -10,7 +10,7 @@ import DedupePromise from '@web/extension-services/inpage/services/dedupePromise
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import { initializeMessenger } from '@web/extension-services/messengers/initializeMessenger'
-import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
+import logger, { LOG_LEVELS, logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 export interface StateProvider {
   accounts: string[] | null
@@ -137,9 +137,10 @@ export class EthereumProvider extends EventEmitter {
     })
 
     try {
-      const { chainId, accounts, networkVersion, isUnlocked }: any =
+      const { chainId, accounts, networkVersion, isUnlocked, logLevel }: any =
         await this.requestInternalMethods({ method: 'getProviderState' })
 
+      this.setLogLevel(logLevel)
       if (isUnlocked) {
         this._isUnlocked = true
         this._state.isUnlocked = true
@@ -403,5 +404,9 @@ export class EthereumProvider extends EventEmitter {
 
   on = (event: string | symbol, handler: (...args: any[]) => void) => {
     return super.on(event, handler)
+  }
+
+  setLogLevel = (nextLogLevel: LOG_LEVELS) => {
+    logger.setLevel(nextLogLevel)
   }
 }

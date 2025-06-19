@@ -18,6 +18,11 @@ export class WalletStateController extends EventEmitter {
 
   logLevel: LOG_LEVELS = DEFAULT_LOG_LEVEL
 
+  // Holds the initial load promise, so that one can wait until it completes
+  initialLoadPromise: Promise<void>
+
+  #onLogLevelUpdateCallback: (logLevel: LOG_LEVELS) => Promise<void>
+
   get isSetupComplete() {
     return this.#isSetupComplete
   }
@@ -28,10 +33,15 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  constructor() {
+  constructor({
+    onLogLevelUpdateCallback
+  }: {
+    onLogLevelUpdateCallback: (logLevel: LOG_LEVELS) => Promise<void>
+  }) {
     super()
 
-    this.#init()
+    this.#onLogLevelUpdateCallback = onLogLevelUpdateCallback
+    this.initialLoadPromise = this.#init()
   }
 
   async #init(): Promise<void> {
@@ -83,6 +93,7 @@ export class WalletStateController extends EventEmitter {
     this.logLevel = nextLogLevel
     setLoggerInstanceLogLevel(nextLogLevel)
     await storage.set('logLevel', nextLogLevel)
+    await this.#onLogLevelUpdateCallback(nextLogLevel)
 
     this.emitUpdate()
   }

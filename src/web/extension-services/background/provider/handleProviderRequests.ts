@@ -4,6 +4,7 @@ import { Session } from '@ambire-common/classes/session'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { isDev } from '@common/config/env'
+import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import rpcFlow from '@web/extension-services/background/provider/rpcFlow'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
@@ -11,6 +12,7 @@ import { openInternalPageInTab } from '@web/extension-services/background/webapi
 const handleProviderRequests = async (
   request: DappProviderRequest & { session: Session },
   mainCtrl: MainController,
+  walletStateCtrl: WalletStateController,
   requestId: number
 ): Promise<any> => {
   const { method, params, session } = request
@@ -72,6 +74,8 @@ const handleProviderRequests = async (
   )
 
   if (method === 'getProviderState') {
+    await walletStateCtrl.initialLoadPromise
+
     const providerController = new ProviderController(mainCtrl)
     const isUnlocked = mainCtrl.keystore.isUnlocked
     const chainId = await providerController.ethChainId(request)
@@ -87,7 +91,8 @@ const handleProviderRequests = async (
       chainId,
       isUnlocked,
       accounts: isUnlocked ? await providerController.ethAccounts(request) : [],
-      networkVersion
+      networkVersion,
+      logLevel: walletStateCtrl.logLevel
     }
   }
 

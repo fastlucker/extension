@@ -101,6 +101,7 @@ function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctr
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
+let walletStateCtrl: WalletStateController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
@@ -109,7 +110,7 @@ handleKeepAlive()
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
-  while (!mainCtrl) await wait(200)
+  while (!mainCtrl || !walletStateCtrl) await wait(200)
 
   const tabId = meta.sender?.tab?.id
   if (tabId === undefined || !meta.sender?.url) {
@@ -131,6 +132,7 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
         origin
       },
       mainCtrl,
+      walletStateCtrl,
       id
     )
     return { id, result: res }
@@ -309,7 +311,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     notificationManager
   })
 
-  const walletStateCtrl = new WalletStateController()
+  walletStateCtrl = new WalletStateController({
+    onLogLevelUpdateCallback: async (nextLogLevel: LOG_LEVELS) => {
+      await mainCtrl.dapps.broadcastDappSessionEvent('logLevelUpdate', nextLogLevel)
+    }
+  })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, walletStateCtrl)
   const autoLockCtrl = new AutoLockController(() => {
