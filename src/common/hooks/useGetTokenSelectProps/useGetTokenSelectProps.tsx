@@ -277,11 +277,11 @@ const useGetTokenSelectProps = ({
     )
 
     return {
-      value: getTokenId(currentToken, networks),
+      value: getTokenId(currentToken),
       address: currentToken.address,
       chainId: currentToken.chainId,
       disabled: !isTokenNetworkSupported,
-      extraSearchProps: { symbol, name, address: currentToken.address },
+      extraSearchProps: { symbol, name, address: currentToken.address, networkName: network?.name },
       isPending,
       pendingBalanceFormatted: pendingBalanceFormatted || '0',
       balanceFormatted: balanceFormatted || '0',
@@ -304,7 +304,7 @@ const useGetTokenSelectProps = ({
   }
 
   const options = tokens.map((tk) => renderItem(tk, false))
-  const selectedToken = tokens.find((tk) => getTokenId(tk, networks) === token)
+  const selectedToken = tokens.find((tk) => getTokenId(tk) === token)
 
   return {
     options,

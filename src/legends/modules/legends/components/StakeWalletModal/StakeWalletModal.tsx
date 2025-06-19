@@ -17,6 +17,7 @@ import { STK_WALLET, WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/co
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon/InfoIcon'
 import { RELAYER_URL } from '@env'
+import { height } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import CloseIcon from '@legends/components/CloseIcon'
 import Input from '@legends/components/Input'
@@ -364,7 +365,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     const unlockDate = new Date(Number(unlocksAt) * 1000)
     return unlockDate < new Date()
       ? { text: 'Withdraw', action: withdrawAction }
-      : { text: `Withdraw in ${formatDuration(unlockDate.getTime() - new Date().getTime())}` }
+      : { text: 'Withdraw' }
   }, [
     inputAmount,
     activeTab,
@@ -400,11 +401,11 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     handleClose()
   }
 
-  const shouldWaitWithdraw = useMemo(() => {
+  const timeRemainingToWithdraw = useMemo(() => {
     if (!firstToCollect) return false
     const { unlocksAt } = firstToCollect
     const time = new Date(Number(unlocksAt * 1000n))
-    return time > new Date()
+    return Math.max(0, time.getTime() - new Date().getTime())
   }, [firstToCollect])
 
   const meaningfulToken = useMemo(() => {
@@ -467,18 +468,15 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
           <div className={`${styles.infoWrapper}`}>
             {!!onchainData?.lockedShares &&
               activeTab === 'unstake' &&
-              (shouldWaitWithdraw ? (
-                <LottieView
-                  animationData={loadingAnimation}
-                  style={{
-                    width: '5rem',
-                    height: '5rem',
-                    position: 'absolute',
-                    alignSelf: 'center',
-                    marginTop: '20%'
-                  }}
-                  loop
-                />
+              (timeRemainingToWithdraw ? (
+                <div className={styles.timerContainer}>
+                  <LottieView
+                    style={{ width: 80, height: 80 }}
+                    animationData={loadingAnimation}
+                    loop
+                  />
+                  <p>{formatDuration(timeRemainingToWithdraw)}</p>
+                </div>
               ) : (
                 <div className={styles.readyToWithdrawText}>
                   <div>Ready to withdraw</div>
@@ -525,7 +523,12 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                         ? parseFloat(parseFloat(inputAmount).toFixed(10)).toString()
                         : ''
                     }
-                    disabled={isLoadingLogs || isLoadingOnchainData || isSigning}
+                    disabled={
+                      isLoadingLogs ||
+                      isLoadingOnchainData ||
+                      isSigning ||
+                      (activeTab === 'unstake' && !!onchainData?.lockedShares)
+                    }
                     onChange={(e) => setInputAmount(e.target.value)}
                     className={styles.stakeInput}
                     placeholder="0.00"
@@ -553,6 +556,20 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                   <button
                     onClick={() => setPercentage(n)}
                     className={styles.percentageButton}
+                    disabled={
+                      isLoadingLogs ||
+                      isLoadingOnchainData ||
+                      isSigning ||
+                      (activeTab === 'unstake' && !!onchainData?.lockedShares)
+                    }
+                    style={
+                      isLoadingLogs ||
+                      isLoadingOnchainData ||
+                      isSigning ||
+                      (activeTab === 'unstake' && !!onchainData?.lockedShares)
+                        ? { pointerEvents: 'none' }
+                        : {}
+                    }
                     type="button"
                     key={n}
                   >
