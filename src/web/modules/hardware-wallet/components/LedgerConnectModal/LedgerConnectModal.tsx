@@ -57,10 +57,13 @@ const LedgerConnectModal = ({
   }, [open, close, isVisible])
 
   const onPressNext = async () => {
-    setIsGrantingPermission(true)
-
     try {
+      // Request Ledger access first, before any state updates to prevent error:
+      // "Failed to execute 'requestDevice' on 'HID': Must be handling a user
+      // gesture to show a permission request." on some browsers like Vivaldi.
       await requestLedgerDeviceAccess()
+
+      setIsGrantingPermission(true)
 
       if (handleOnConnect) handleOnConnect()
     } catch (error: any) {
