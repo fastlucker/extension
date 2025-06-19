@@ -193,6 +193,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     fontSize={32}
                     weight="number_bold"
                     appearance="primaryText"
+                    testID="gas-tank-balance"
                   >
                     {`${balanceFormatted} ${token?.symbol || ''}`}
                   </Text>

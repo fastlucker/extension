@@ -58,6 +58,9 @@ const useSelectInternal = ({
     if (!search) return data
 
     const filterOptions = (options: SelectProps['options']) => {
+      // Search term split by spaces to partially match separated terms.
+      const searchWords = normalizedSearchTerm.split(/\s+/)
+
       const { exactMatches, partialMatches } = options.reduce(
         (result, o) => {
           const { value: optionValue, label, extraSearchProps } = o
@@ -71,11 +74,17 @@ const useSelectInternal = ({
               : [])
           ]
 
-          // Prioritize exact matches, partial matches come after
+          // Exact match - if any field fully equals the full search term
           const isExactMatch = fieldsToBeSearchedInto.some((f) => f === normalizedSearchTerm)
-          const isPartialMatch = fieldsToBeSearchedInto.some((f) =>
-            f.includes(normalizedSearchTerm)
+
+          // Partial match - if all search words are found in any field
+          // Example: If we search for 'WALLET Ethereum',
+          // both search words should be found in any of the fields being searched.
+          const isPartialMatch = searchWords.every((word) =>
+            fieldsToBeSearchedInto.some((f) => f.includes(word))
           )
+
+          // Prioritize exact matches, partial matches come after
           if (isExactMatch) {
             result.exactMatches.push(o)
           } else if (isPartialMatch) {

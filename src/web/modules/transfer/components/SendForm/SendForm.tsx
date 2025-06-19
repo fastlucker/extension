@@ -1,4 +1,4 @@
-import { formatUnits, ZeroAddress } from 'ethers'
+import { ZeroAddress } from 'ethers'
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
@@ -84,7 +84,7 @@ const SendForm = ({
     amountSelectDisabled
   } = useGetTokenSelectProps({
     tokens,
-    token: selectedToken ? getTokenId(selectedToken, networks) : '',
+    token: selectedToken ? getTokenId(selectedToken) : '',
     networks,
     isToToken: false
   })
@@ -93,15 +93,13 @@ const SendForm = ({
 
   const handleChangeToken = useCallback(
     (value: string) => {
-      const tokenToSelect = tokens.find(
-        (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
-      )
+      const tokenToSelect = tokens.find((tokenRes: TokenResult) => getTokenId(tokenRes) === value)
       dispatch({
         type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
         params: { formValues: { selectedToken: tokenToSelect, amount: '' } }
       })
     },
-    [tokens, networks, dispatch]
+    [tokens, dispatch]
   )
 
   const setAddressStateFieldValue = useCallback(

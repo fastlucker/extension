@@ -1,8 +1,8 @@
 import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
@@ -16,14 +16,12 @@ const { isActionWindow } = getUiType()
 
 type TrackProgressProps = {
   handleClose: () => void
-  title: string
   onPrimaryButtonPress: () => void
   secondaryButtonText: string
   children: React.ReactNode
 }
 
 const TrackProgressWrapper: FC<TrackProgressProps> = ({
-  title,
   handleClose,
   onPrimaryButtonPress,
   secondaryButtonText,
@@ -41,12 +39,7 @@ const TrackProgressWrapper: FC<TrackProgressProps> = ({
         <Header
           backgroundColor="primaryBackground"
           displayBackButtonIn="never"
-          mode="title"
-          customTitle={
-            <Text fontSize={20} weight="medium">
-              {title}
-            </Text>
-          }
+          mode="custom-inner-content"
           withAmbireLogo
         />
       }
@@ -88,6 +81,7 @@ const TrackProgressWrapper: FC<TrackProgressProps> = ({
                 hasBottomSpacing={false}
                 type="secondary"
                 text={secondaryButtonText}
+                testID="track-progress-secondary-button"
               />
             ) : (
               <View />
@@ -97,6 +91,7 @@ const TrackProgressWrapper: FC<TrackProgressProps> = ({
               hasBottomSpacing={false}
               style={{ width: isActionWindow ? 240 : 160 }}
               text={t('Close')}
+              testID="track-progress-primary-button"
             />
           </View>
         </View>
