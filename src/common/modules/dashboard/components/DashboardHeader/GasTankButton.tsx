@@ -99,6 +99,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
           totalBalanceGasTankDetails.balanceFormatted ? (
             <>
               <Text
+                testID='dashboard-gas-tank-balance'
                 style={[spacings.mlTy]}
                 color={
                   themeType === THEME_TYPES.DARK

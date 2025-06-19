@@ -256,7 +256,7 @@ const useSwapAndBridgeForm = () => {
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
     tokens: portfolioTokenList,
-    token: fromSelectedToken ? getTokenId(fromSelectedToken, networks) : '',
+    token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
     isLoading: isTokenListLoading,
     networks,
     supportedChainIds
