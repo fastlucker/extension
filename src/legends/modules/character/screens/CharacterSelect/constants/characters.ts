@@ -1,9 +1,12 @@
-import orcWarrior from '../images/orc-warrior.png'
-import penguinPaladin from '../images/penguin-paladin.png'
-import shapeshifter from '../images/shapeshifter.png'
-import slimeCharacter from '../images/slime.png'
-import sorceressCharacter from '../images/sorceress.png'
-import vitalikCharacter from '../images/vitalik.png'
+// import orcWarrior from '../images/orc-warrior.png'
+// import penguinPaladin from '../images/penguin-paladin.png'
+// import shapeshifter from '../images/shapeshifter.png'
+// import slimeCharacter from '../images/slime.png'
+// import sorceressCharacter from '../images/sorceress.png'
+// import vitalikCharacter from '../images/vitalik.png'
+import astroCat from '../images/astroCat.png'
+import bearUp from '../images/bearUp.png'
+import yello from '../images/yello.png'
 
 export type Character = {
   id: number
@@ -15,38 +18,20 @@ export type Character = {
 export const CHARACTERS: Character[] = [
   {
     id: 1,
-    name: 'The Degenerate',
+    name: 'Astro Cat',
     description: '',
-    image: slimeCharacter
+    image: astroCat
   },
   {
     id: 2,
-    name: 'The Codeweaver',
+    name: 'Bear Up',
     description: '',
-    image: sorceressCharacter
+    image: bearUp
   },
   {
     id: 3,
-    name: 'The Layerbinder',
+    name: 'Yello',
     description: '',
-    image: vitalikCharacter
-  },
-  {
-    id: 4,
-    name: 'The Custodian',
-    description: '',
-    image: penguinPaladin
-  },
-  {
-    id: 5,
-    name: 'The Warrior',
-    description: '',
-    image: orcWarrior
-  },
-  {
-    id: 6,
-    name: 'The Shapeshifter',
-    description: '',
-    image: shapeshifter
+    image: yello
   }
 ]
