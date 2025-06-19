@@ -446,7 +446,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   if (displayedView === 'track') {
     return (
       <TrackProgress
-        title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
         onPrimaryButtonPress={onPrimaryButtonPress}
         secondaryButtonText={t('Add more')}
         handleClose={() => {
@@ -469,7 +468,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
             titleSecondary={
               isTopUp
                 ? t('You can now use your gas tank')
-                : t('{{symbol}} delivered - like magic.', {
+                : t('{{symbol}} delivered!', {
                     symbol: latestBroadcastedToken?.symbol || 'Token'
                   })
             }
