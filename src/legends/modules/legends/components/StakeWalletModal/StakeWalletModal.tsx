@@ -525,7 +525,12 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                         ? parseFloat(parseFloat(inputAmount).toFixed(10)).toString()
                         : ''
                     }
-                    disabled={isLoadingLogs || isLoadingOnchainData || isSigning}
+                    disabled={
+                      isLoadingLogs ||
+                      isLoadingOnchainData ||
+                      isSigning ||
+                      (activeTab === 'unstake' && !!onchainData?.lockedShares)
+                    }
                     onChange={(e) => setInputAmount(e.target.value)}
                     className={styles.stakeInput}
                     placeholder="0.00"
@@ -553,6 +558,20 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                   <button
                     onClick={() => setPercentage(n)}
                     className={styles.percentageButton}
+                    disabled={
+                      isLoadingLogs ||
+                      isLoadingOnchainData ||
+                      isSigning ||
+                      (activeTab === 'unstake' && !!onchainData?.lockedShares)
+                    }
+                    style={
+                      isLoadingLogs ||
+                      isLoadingOnchainData ||
+                      isSigning ||
+                      (activeTab === 'unstake' && !!onchainData?.lockedShares)
+                        ? { pointerEvents: 'none' }
+                        : {}
+                    }
                     type="button"
                     key={n}
                   >
