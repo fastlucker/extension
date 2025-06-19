@@ -400,6 +400,15 @@ export const handleActions = async (
       return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
     }
 
+    case 'DEFI_CONTOLLER_ADD_SESSION': {
+      mainCtrl.defiPositions.addSession(params.sessionId)
+      break
+    }
+    case 'DEFI_CONTOLLER_REMOVE_SESSION': {
+      mainCtrl.defiPositions.removeSession(params.sessionId)
+      break
+    }
+
     case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
       if (!mainCtrl.selectedAccount.account) return
 

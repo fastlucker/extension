@@ -1,17 +1,18 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
+
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { sortPortfolioTokenList } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import Spinner from '@common/components/Spinner'
+import useDeepMemo from '@common/hooks/useDeepMemo'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
-import useControllerState from '@web/hooks/useControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useDeepMemo from '@common/hooks/useDeepMemo'
 
 type ContextReturn = {
   state: TransferController
@@ -31,17 +32,12 @@ export const getInfoFromSearch = (search: string | undefined) => {
   }
 }
 
-const TransferControllerStateProvider = ({
-  children,
-  isTopUp
-}: {
-  children: any
-  isTopUp?: boolean
-}) => {
+const TransferControllerStateProvider = ({ children }: { children: any }) => {
   const controller = 'transfer'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
+  const isTopUp = state?.isTopUp
 
   useEffect(() => {
     if (!Object.keys(state).length) {
@@ -54,28 +50,28 @@ const TransferControllerStateProvider = ({
   const { networks } = useNetworksControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
-  const rawTokens = useMemo(
-    () =>
-      sortPortfolioTokenList(
-        portfolio?.tokens.filter((token) => {
-          const hasAmount = Number(getTokenAmount(token)) > 0
+  const rawTokens = useMemo(() => {
+    if (!networks || !portfolio?.tokens) return []
 
-          if (isTopUp) {
-            const tokenNetwork = networks.find((network) => network.chainId === token.chainId)
+    return sortPortfolioTokenList(
+      portfolio.tokens.filter((token) => {
+        const hasAmount = Number(getTokenAmount(token)) > 0
 
-            return (
-              hasAmount &&
-              tokenNetwork?.hasRelayer &&
-              token.flags.canTopUpGasTank &&
-              !token.flags.onGasTank
-            )
-          }
+        if (isTopUp) {
+          const tokenNetwork = networks.find((network) => network.chainId === token.chainId)
 
-          return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
-        }) || []
-      ),
-    [portfolio?.tokens, networks, isTopUp]
-  )
+          return (
+            hasAmount &&
+            tokenNetwork?.hasRelayer &&
+            token.flags.canTopUpGasTank &&
+            !token.flags.onGasTank
+          )
+        }
+
+        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
+      })
+    )
+  }, [portfolio?.tokens, networks, isTopUp])
 
   // This ensures that `tokens` won't trigger re-renders unless its deep content changes
   const tokens = useDeepMemo(rawTokens, 'tokens')

@@ -10,7 +10,10 @@ import {
 } from '../common/transactions'
 import { typeKeystorePassAndUnlock } from '../common-helpers/typeKeystorePassAndUnlock'
 import { buildSelector } from '../common-helpers/buildSelector'
-import { DASHBOARD_SEND_BTN_SELECTOR, SEND_TOKEN_SELECTOR } from '../features/transfer/constants'
+import { SELECTORS } from '../common/selectors/selectors'
+
+const SEND_TOKEN_SELECTOR = SELECTORS.nativeTokenBaseDashboard
+const DASHBOARD_SEND_BTN_SELECTOR = SELECTORS.tokenSend
 
 const startSWAndUnlockKeystore = async (page, extensionURL, recorder, serviceWorker) => {
   const {
