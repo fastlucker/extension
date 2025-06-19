@@ -86,7 +86,6 @@ export enum CardGroupNameMapping {
 export interface CardFromResponse {
   id: string
   title: string
-  shortTitle: string
   xp: CardXp[]
   action: CardAction
   card: {
