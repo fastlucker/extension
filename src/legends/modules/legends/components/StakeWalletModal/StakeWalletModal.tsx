@@ -520,7 +520,11 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                 <div>
                   <Input.Field
                     type="number"
-                    value={parseFloat(inputAmount) ? parseFloat(inputAmount).toFixed(5) : ''}
+                    value={
+                      parseFloat(inputAmount)
+                        ? parseFloat(parseFloat(inputAmount).toFixed(10)).toString()
+                        : ''
+                    }
                     disabled={isLoadingLogs || isLoadingOnchainData || isSigning}
                     onChange={(e) => setInputAmount(e.target.value)}
                     className={styles.stakeInput}
