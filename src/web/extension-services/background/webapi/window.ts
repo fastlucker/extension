@@ -216,11 +216,9 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
 
     const newWindowProps = { width, height, left, top, focused: true }
 
-    const win = await chrome.windows.update(id, newWindowProps)
-    if (win.focused) return { id, createdFromWindowId, ...newWindowProps }
+    await chrome.windows.update(id, newWindowProps)
 
-    await chrome.windows.remove(windowProps.id)
-    return open()
+    return { id, createdFromWindowId, ...newWindowProps }
   }
 
   throw new Error('windowProps is undefined')
