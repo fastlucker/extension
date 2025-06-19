@@ -18,19 +18,19 @@ export type Character = {
 export const CHARACTERS: Character[] = [
   {
     id: 1,
-    name: 'Astro Cat',
+    name: 'Sussy Baka',
     description: '',
     image: astroCat
   },
   {
     id: 2,
-    name: 'Bear Up',
+    name: 'Gustavo',
     description: '',
     image: bearUp
   },
   {
     id: 3,
-    name: 'Yello',
+    name: 'Beans',
     description: '',
     image: yello
   }
