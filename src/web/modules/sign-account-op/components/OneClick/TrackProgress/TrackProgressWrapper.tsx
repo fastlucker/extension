@@ -88,6 +88,7 @@ const TrackProgressWrapper: FC<TrackProgressProps> = ({
                 hasBottomSpacing={false}
                 type="secondary"
                 text={secondaryButtonText}
+                testID="track-progress-secondary-button"
               />
             ) : (
               <View />
@@ -97,6 +98,7 @@ const TrackProgressWrapper: FC<TrackProgressProps> = ({
               hasBottomSpacing={false}
               style={{ width: isActionWindow ? 240 : 160 }}
               text={t('Close')}
+              testID="track-progress-primary-button"
             />
           </View>
         </View>

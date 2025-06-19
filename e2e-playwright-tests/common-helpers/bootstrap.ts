@@ -1,8 +1,8 @@
-import { BrowserContext, chromium, Page } from '@playwright/test'
-
-import selectors from 'constants/selectors'
 import { KEYSTORE_PASS } from 'constants/env'
 import mainConstants from 'constants/mainConstants'
+import selectors from 'constants/selectors'
+
+import { BrowserContext, chromium, Page } from '@playwright/test'
 
 const buildPath = `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod'}`
 const USER_DATA_DIR = '' // you can set a temp dir if needed
