@@ -1,16 +1,17 @@
-import { DashboardPage } from 'pages/dashboardPage'
-import { TransferPage } from 'pages/transferPage'
-
 import { test as testBase } from '@playwright/test'
 
-import { AuthPage } from '../pages/authPage'
-import { SwapAndBridgePage } from '../pages/swapAndBridgePage'
+import { DashboardPage } from 'pages/dashboardPage'
+import { TransferPage } from 'pages/transferPage'
+import { AuthPage } from 'pages/authPage'
+import { SwapAndBridgePage } from 'pages/swapAndBridgePage'
+import { SignMessagePage } from 'pages/signMessagePage'
 
 type PageObjects = {
   authPage: AuthPage
   swapAndBridgePage: SwapAndBridgePage
   dashboardPage: DashboardPage
   transferPage: TransferPage
+  signMessagePage: SignMessagePage
 }
 
 export const test = testBase.extend<PageObjects>({
@@ -25,5 +26,8 @@ export const test = testBase.extend<PageObjects>({
   },
   transferPage: async ({ page }, use) => {
     await use(new TransferPage())
+  },
+  signMessagePage: async ({}, use) => {
+    await use(new SignMessagePage())
   }
 })
