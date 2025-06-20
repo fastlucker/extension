@@ -82,27 +82,27 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForTimeout(delay)
 
     // Extract text content from the elements
-    const sendToken = await this.getElementContentWords(SELECTORS.sendTokenSab)
-    const receiveToken = await this.getElementContentWords(SELECTORS.receiveTokenSab)
+    const sendToken = await this.getElementContentWords(selectors.sendTokenSab)
+    const receiveToken = await this.getElementContentWords(selectors.receiveTokenSab)
     // TODO: Selector should be created to have data-testid this is not maintainable
     // const network = await getElementContentWords(page, NETWORK_SELECTOR)
-    const network = await this.getElementContentWords(SELECTORS.recieveNetworkBase)
+    const network = await this.getElementContentWords(selectors.recieveNetworkBase)
 
     // Click the switch Tokens button
-    await clickOnElement(this.page, SELECTORS.switchTokensTooltipSab)
+    await this.click(selectors.switchTokensTooltipSab)
 
     // Ensure the tokens are switched
     await this.page.waitForTimeout(500)
-    expect(await this.getElementContentWords(SELECTORS.sendTokenSab)).toBe(receiveToken)
-    expect(await this.getElementContentWords(SELECTORS.receiveTokenSab)).toBe(sendToken)
+    expect(await this.getElementContentWords(selectors.sendTokenSab)).toBe(receiveToken)
+    expect(await this.getElementContentWords(selectors.receiveTokenSab)).toBe(sendToken)
 
     // Network name is 3rd word in the sendToken content
-    expect(await this.getElementContentWords(SELECTORS.sendTokenSab, 3)).toBe(network)
+    expect(await this.getElementContentWords(selectors.sendTokenSab, 3)).toBe(network)
   }
 
   async openSwapAndBridge() {
     if (!this.page.url().includes('/swap-and-bridge')) {
-      await this.page.getByTestId(selectors.dashboardButtonSwapAndBridge).click()
+      await this.click(selectors.dashboardButtonSwapAndBridge)
       await this.verifyIfOnSwapAndBridgePage()
     } else {
       await this.page.reload()
@@ -140,7 +140,7 @@ export class SwapAndBridgePage extends BasePage {
         .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
         .catch(() => null)
       if (isHighPrice) {
-        await this.page.getByTestId(selectors.highPriceImpactSab).click()
+        await this.click(selectors.highPriceImpactSab)
         return 'Continue anyway'
       }
       return 'Proceed'
@@ -204,7 +204,7 @@ export class SwapAndBridgePage extends BasePage {
     const loadingSelector = `[data-testid="${selectors.receiveTokenSab}"] >> text=Please select token`
     await this.page.locator(loadingSelector).waitFor({ state: 'visible' })
 
-    await this.page.getByTestId(selectors.receiveTokenSab).click()
+    await this.click(selectors.receiveTokenSab)
     await this.page.getByTestId(selectors.searchInput).fill(receiveToken.symbol)
 
     const tokenLocator = this.page
@@ -222,8 +222,8 @@ export class SwapAndBridgePage extends BasePage {
     const loadingSelector = `[data-testid="${selectors.receiveTokenSab}"] >> text=Please select token`
     await this.page.locator(loadingSelector).waitFor({ state: 'visible' })
 
-    await this.page.locator(SELECTORS.receiveTokenSab).click()
-    await this.page.locator(SELECTORS.searchInput).fill(receiveToken.symbol, { timeout: 3000 })
+    await this.click(selectors.receiveTokenSab)
+    await this.page.getByTestId(selectors.searchInput).fill(receiveToken.symbol, { timeout: 3000 })
     await this.page.getByText('Not found. Try with token').isVisible()
 
     await this.page.locator(SELECTORS.searchInput).fill(receiveToken.address, { timeout: 3000 })
@@ -237,16 +237,16 @@ export class SwapAndBridgePage extends BasePage {
 
   async rejectTransaction(): Promise<void> {
     await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
-    await this.page.locator(locators.addToBatchButton).click()
-    await this.page.locator(locators.openDashboardFromBatchButton).first().click()
-    await this.page.locator(locators.bannerButtonReject).first().click()
+    await this.click(selectors.addToBatchButton)
+    await this.click(selectors.goDashboardButton)
+    await this.click(selectors.bannerButtonReject)
     await expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
   }
 
   async proceedTransaction(): Promise<void> {
     await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
-    await this.clickOnElement(locators.addToBatchButton)
-    await this.clickOnElement(locators.openDashboardFromBatchButton)
+    await this.click(selectors.addToBatchButton)
+    await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
     await this.signTransactionPage(newPage)
   }
@@ -278,7 +278,7 @@ export class SwapAndBridgePage extends BasePage {
     expect(currency).toBe('$')
     const oldAmount = await this.getSendAmount()
     await this.page.waitForTimeout(500)
-    await this.page.getByTestId(selectors.flipIcon).click()
+    await this.click(selectors.flipIcon)
 
     const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
     const newAmount = this.roundAmount(await this.getSendAmount())
@@ -289,7 +289,7 @@ export class SwapAndBridgePage extends BasePage {
 
     // Wait and flip back
     await this.page.waitForTimeout(500)
-    await this.page.getByTestId(selectors.flipIcon).click()
+    await this.click(selectors.flipIcon)
 
     const [usdSecondAmount, secondCurrency] = await this.getUSDTextContent()
     const secondAmount = await this.getSendAmount()
@@ -334,9 +334,9 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async clickOnSecondRoute(): Promise<void> {
-    await this.page.getByTestId(selectors.selectRouteButton).last().click()
-    await this.page.locator(locators.liFiRoute).last().click()
-    await this.page.getByTestId(selectors.selectRouteButton).last().click()
+    await this.click(selectors.selectRouteButton)
+    await this.page.locator(locators.liFiRoute).last().click() // missing ID
+    await this.click(selectors.selectRouteButton)
     await this.assertSelectedAggregator()
   }
 
@@ -351,13 +351,8 @@ export class SwapAndBridgePage extends BasePage {
       await this.selectSendToken(sendToken)
 
       // Select target receive network
-      const networkSelector = this.page.getByTestId(`option-${sendToken.chainId}`)
-      await networkSelector.click()
-
-      const recieveNetwork = this.page
-        .getByTestId(selectors.bottomSheet)
-        .getByTestId(`option-${receiveToken.chainId}`)
-      await recieveNetwork.click()
+      await this.click(`option-${sendToken.chainId}`)
+      await this.click(`option-${receiveToken.chainId}`)
 
       // Select receive token by address
       await this.page.waitForTimeout(1000)
@@ -373,13 +368,13 @@ export class SwapAndBridgePage extends BasePage {
         .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 6000 })
         .catch(() => null)
       if (isFollowUp) {
-        await clickOnElement(this.page, SELECTORS.confirmFollowUpTxn)
+        await this.click(selectors.confirmFollowUpTxn)
       }
       const isHighPrice = await this.page
-        .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
+        .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
         .catch(() => null)
       if (isHighPrice) {
-        await clickOnElement(this.page, SELECTORS.highPriceImpactSab)
+        await this.click(selectors.highPriceImpactSab)
         return 'Continue anyway'
       }
 
@@ -391,23 +386,23 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async signTokens(): Promise<void> {
-    await this.page.getByTestId(selectors.topUpProceedButton).click()
-    await this.page.getByTestId(selectors.signButton).click()
+    await this.click(selectors.topUpProceedButton)
+    await this.click(selectors.signButton)
     await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 5000 })
     // TODO: add more assertion
   }
 
   async batchAction(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
-    await this.page.getByTestId(selectors.addToBatchButton).click()
+    await this.click(selectors.addToBatchButton)
     await this.page.getByTestId(selectors.addMoreButton).isVisible()
-    await this.page.getByTestId(selectors.addMoreButton).click()
+    await this.click(selectors.addMoreButton)
   }
 
   async batchActionWithSign(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
-    await this.page.getByTestId(selectors.addToBatchButton).click()
-    await this.page.getByTestId(selectors.goDashboardButton).click()
+    await this.click(selectors.addToBatchButton)
+    await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
     await this.signBatchTransactionsPage(newPage)
   }

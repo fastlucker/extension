@@ -1,7 +1,7 @@
 import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
-import { Page } from '@playwright/test'
+import { expect, Page } from '@playwright/test'
 
 export abstract class BasePage {
   page: Page
@@ -12,9 +12,8 @@ export abstract class BasePage {
     await this.page.goto('/')
   }
 
-  async clickOnElement(element: string): Promise<void> {
-    await this.page.waitForLoadState()
-    await this.page.locator(element).click()
+  async click(selector: string): Promise<void> {
+    await this.page.getByTestId(selector).click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
@@ -54,12 +53,17 @@ export abstract class BasePage {
     await tokenLocator.click()
   }
 
+  // TODO: refactor, this method can be depracated; switch to getByTestId
   async typeTextInInputField(locator: string, text: string): Promise<void> {
     await this.page.locator(locator).clear()
     await this.page.locator(locator).pressSequentially(text)
   }
 
-  async handleNewPage(locator: string) {
+  async entertext(selector: string, text: string): Promise<void> {
+    await this.page.getByTestId(selector).fill(text)
+  }
+
+  async handleNewPage(selector: string) {
     const context = this.page.context()
     const actionWindowPagePromise = new Promise<Page>((resolve) => {
       context.once('page', (p) => {
@@ -67,11 +71,21 @@ export abstract class BasePage {
       })
     })
 
-    await this.page.getByTestId(locator).first().click({ timeout: 3000 })
+    await this.page.getByTestId(selector).first().click({ timeout: 3000 })
     return actionWindowPagePromise
   }
 
   async pause() {
     await this.page.pause()
+  }
+
+  // assertion methods
+  async checkUrl(url: string) {
+    await this.page.waitForURL(`**${url}`, { timeout: 3000 })
+    expect(this.page.url()).toContain(url)
+  }
+
+  async expectButtonVisible(selector: string) {
+    await expect(this.page.getByTestId(selector)).toBeVisible()
   }
 }
