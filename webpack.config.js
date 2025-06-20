@@ -120,10 +120,6 @@ module.exports = async function (env, argv) {
   // Global configuration
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
   config.resolve.alias.dns = 'dns-js'
-  config.resolve.alias['@metamask/eth-sig-util'] = path.resolve(
-    __dirname,
-    'shim.metamask-eth-sig-util.js'
-  )
 
   // The files in the /web directory should be transpiled not just copied
   const excludeCopyPlugin = config.plugins.findIndex(
