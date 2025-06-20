@@ -241,10 +241,19 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
     chrome.windows.onFocusChanged.addListener(focusListener)
 
     // Attempt to focus the window
-    await chrome.windows.update(id, updatedProps).catch((error) => {
-      cleanup()
-      reject(error)
-    })
+    await chrome.windows
+      .update(id, updatedProps)
+      .then((focusedWindow) => {
+        if (focusedWindow && focusedWindow.focused) {
+          isFocused = true
+          cleanup()
+          resolve({ id, createdFromWindowId, ...updatedProps })
+        }
+      })
+      .catch((error) => {
+        cleanup()
+        reject(error)
+      })
 
     // Handle focus timeout - fallback to creating new window
     timeoutId = setTimeout(async () => {
