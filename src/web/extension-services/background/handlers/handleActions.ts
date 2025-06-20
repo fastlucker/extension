@@ -365,7 +365,7 @@ export const handleActions = async (
     case 'TRANSFER_CONTROLLER_RESET_FORM':
       return mainCtrl.transfer.resetForm()
     case 'TRANSFER_CONTROLLER_UNLOAD_SCREEN':
-      return mainCtrl.transfer.unloadScreen()
+      return mainCtrl.transfer.unloadScreen(false)
     case 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
       return mainCtrl.transfer.destroyLatestBroadcastedAccountOp()
     case 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED':
@@ -387,7 +387,7 @@ export const handleActions = async (
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
       return mainCtrl.actions.setCurrentActionById(params.actionId)
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-      return mainCtrl.actions.setCurrentActionByIndex(params.index)
+      return mainCtrl.actions.setCurrentActionByIndex(params.index, params.params)
     case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
       return mainCtrl.actions.setWindowLoaded()
 

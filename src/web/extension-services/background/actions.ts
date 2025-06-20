@@ -3,7 +3,8 @@ import {
   AccountOpAction,
   Action as ActionFromActionsQueue,
   ActionExecutionType,
-  ActionPosition
+  ActionPosition,
+  OpenActionWindowParams
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -653,6 +654,7 @@ type ActionsControllerSetCurrentActionByIndex = {
   type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX'
   params: {
     index: number
+    params?: OpenActionWindowParams
   }
 }
 
