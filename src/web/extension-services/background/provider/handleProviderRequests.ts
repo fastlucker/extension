@@ -47,7 +47,6 @@ const handleProviderRequests = async (
 
   if (method === 'tabCheckin') {
     mainCtrl.dapps.setSessionProp(session.sessionId, {
-      origin: request.origin,
       name: params.name,
       icon: params.icon
     })
