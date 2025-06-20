@@ -75,19 +75,19 @@ const ManageDapp = ({
 
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
-      if (dapp?.url) {
+      if (dapp?.id) {
         const newNetwork = networks.filter((n) => n.name === networkOption.value)[0]
         setNetwork(newNetwork)
         dispatch({
           type: 'CHANGE_CURRENT_DAPP_NETWORK',
           params: {
-            origin: dapp.url,
+            id: dapp.id,
             chainId: Number(newNetwork.chainId)
           }
         })
       }
     },
-    [networks, dapp?.url, dispatch]
+    [networks, dapp?.id, dispatch]
   )
 
   const shouldShowRemoveDappFromCatalog = useMemo(() => {
@@ -104,7 +104,7 @@ const ManageDapp = ({
   const removeDappFromCatalog = () => {
     dispatch({
       type: 'DAPP_CONTROLLER_REMOVE_DAPP',
-      params: dapp?.url!
+      params: dapp?.id!
     })
     closeDialog()
     closeBottomSheet()

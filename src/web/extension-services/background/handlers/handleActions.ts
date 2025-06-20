@@ -567,14 +567,14 @@ export const handleActions = async (
       break
     }
     case 'CHANGE_CURRENT_DAPP_NETWORK': {
-      mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
+      mainCtrl.dapps.updateDapp(params.id, { chainId: params.chainId })
       await mainCtrl.dapps.broadcastDappSessionEvent(
         'chainChanged',
         {
           chain: `0x${params.chainId.toString(16)}`,
           networkVersion: `${params.chainId}`
         },
-        params.origin
+        params.id
       )
       break
     }
@@ -582,7 +582,7 @@ export const handleActions = async (
       return mainCtrl.dapps.addDapp(params)
     }
     case 'DAPP_CONTROLLER_UPDATE_DAPP': {
-      return mainCtrl.dapps.updateDapp(params.url, params.dapp)
+      return mainCtrl.dapps.updateDapp(params.id, params.dapp)
     }
     case 'DAPP_CONTROLLER_REMOVE_DAPP': {
       await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)

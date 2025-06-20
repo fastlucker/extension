@@ -506,7 +506,7 @@ type DomainsControllerSaveResolvedReverseLookupAction = {
 
 type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_DISCONNECT_DAPP'
-  params: Dapp['url']
+  params: Dapp['id']
 }
 type DappsControllerAddDappAction = {
   type: 'DAPP_CONTROLLER_ADD_DAPP'
@@ -514,11 +514,11 @@ type DappsControllerAddDappAction = {
 }
 type DappsControllerUpdateDappAction = {
   type: 'DAPP_CONTROLLER_UPDATE_DAPP'
-  params: { url: string; dapp: Partial<Dapp> }
+  params: { id: string; dapp: Partial<Dapp> }
 }
 type DappsControllerRemoveDappAction = {
   type: 'DAPP_CONTROLLER_REMOVE_DAPP'
-  params: Dapp['url']
+  params: Dapp['id']
 }
 
 type SwapAndBridgeControllerInitAction = {
@@ -683,7 +683,7 @@ type AddressBookControllerRemoveContact = {
 
 type ChangeCurrentDappNetworkAction = {
   type: 'CHANGE_CURRENT_DAPP_NETWORK'
-  params: { chainId: number; origin: string }
+  params: { chainId: number; id: string }
 }
 
 type SetIsPinnedAction = {
