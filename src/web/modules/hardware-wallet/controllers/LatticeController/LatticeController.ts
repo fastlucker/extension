@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import * as SDK from 'gridplus-sdk'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
-import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
+// import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { browser } from '@web/constants/browserapi'
 
 const LATTICE_APP_NAME = 'Ambire Wallet (browser)' // should be 6-23 characters
@@ -12,7 +12,7 @@ const LATTICE_BASE_URL = 'https://signing.gridpl.us'
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
-class LatticeController implements ExternalSignerController {
+class LatticeController {
   walletSDK?: SDK.Client | null
 
   creds: any
