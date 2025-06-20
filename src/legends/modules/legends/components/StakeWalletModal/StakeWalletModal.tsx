@@ -18,7 +18,6 @@ import { STK_WALLET, WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/co
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon/InfoIcon'
 import { RELAYER_URL } from '@env'
-import { height } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import CloseIcon from '@legends/components/CloseIcon'
 import Input from '@legends/components/Input'
@@ -361,7 +360,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         : { text: 'No $WALLET staked to withdraw' }
     }
 
-    if (!firstToCollect) return { text: 'Failed to get unstaking info' }
+    if (!firstToCollect) return { text: 'Withdraw' }
     const { unlocksAt } = firstToCollect
     const unlockDate = new Date(Number(unlocksAt) * 1000)
     return unlockDate < new Date()
@@ -486,9 +485,23 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                 </div>
               ) : (
                 <div className={styles.readyToWithdrawText}>
-                  <div>Ready to withdraw</div>
-                  <div>{formatToken(firstToCollect?.maxTokens || 0n).token}</div>
-                  <div>$WALLET</div>
+                  {firstToCollect ? (
+                    <>
+                      <div>Ready to withdraw</div>
+                      <div>{formatToken(firstToCollect?.maxTokens || 0n).token}</div>
+                      <div>$WALLET</div>
+                    </>
+                  ) : (
+                    <div style={{ maxWidth: '20rem', textAlign: 'center' }}>
+                      {
+                        formatToken(
+                          ((onchainData?.lockedShares || 0n) * (onchainData?.shareValue || 0n)) /
+                            WeiPerEther
+                        ).token
+                      }{' '}
+                      $WALLET tokens will be available to withdraw in up to one month
+                    </div>
+                  )}
                 </div>
               ))}
             <div className={`${styles.infoRow} ${styles.apyInfo}`}>
