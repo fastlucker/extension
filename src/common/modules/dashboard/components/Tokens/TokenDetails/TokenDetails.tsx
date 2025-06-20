@@ -71,7 +71,7 @@ const TokenDetails = ({
   const isGasTankOrRewardsToken = isGasTankToken || isRewardsToken
   const isAmountZero = token && getTokenAmount(token) === 0n
   const canToToppedUp = token?.flags.canTopUpGasTank
-  const tokenId = token ? getTokenId(token, networks) : ''
+  const tokenId = token ? getTokenId(token) : ''
   const isNetworkNotSupportedForSwapAndBridge = !getIsNetworkSupported(supportedChainIds, network)
   const shouldDisableSwapAndBridge =
     isNetworkNotSupportedForSwapAndBridge || isGasTankOrRewardsToken || isAmountZero

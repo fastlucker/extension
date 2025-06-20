@@ -23,7 +23,6 @@ const config: PlaywrightTestConfig = {
   use: {
     viewport: { width: 1920, height: 1080 },
     baseURL: process.env.APP_URL || '',
-    browserName: 'chromium',
     headless: true,
     video: 'on',
     trace: 'retain-on-failure',

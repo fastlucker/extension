@@ -37,7 +37,7 @@ const TransferControllerStateProvider = ({ children }: { children: any }) => {
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-  const isTopUp = state.isTopUp
+  const isTopUp = state?.isTopUp
 
   useEffect(() => {
     if (!Object.keys(state).length) {
@@ -50,28 +50,28 @@ const TransferControllerStateProvider = ({ children }: { children: any }) => {
   const { networks } = useNetworksControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
-  const rawTokens = useMemo(
-    () =>
-      sortPortfolioTokenList(
-        portfolio?.tokens.filter((token) => {
-          const hasAmount = Number(getTokenAmount(token)) > 0
+  const rawTokens = useMemo(() => {
+    if (!networks || !portfolio?.tokens) return []
 
-          if (isTopUp) {
-            const tokenNetwork = networks.find((network) => network.chainId === token.chainId)
+    return sortPortfolioTokenList(
+      portfolio.tokens.filter((token) => {
+        const hasAmount = Number(getTokenAmount(token)) > 0
 
-            return (
-              hasAmount &&
-              tokenNetwork?.hasRelayer &&
-              token.flags.canTopUpGasTank &&
-              !token.flags.onGasTank
-            )
-          }
+        if (isTopUp) {
+          const tokenNetwork = networks.find((network) => network.chainId === token.chainId)
 
-          return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
-        }) || []
-      ),
-    [portfolio?.tokens, networks, isTopUp]
-  )
+          return (
+            hasAmount &&
+            tokenNetwork?.hasRelayer &&
+            token.flags.canTopUpGasTank &&
+            !token.flags.onGasTank
+          )
+        }
+
+        return hasAmount && !token.flags.onGasTank && !token.flags.rewardsType
+      })
+    )
+  }, [portfolio?.tokens, networks, isTopUp])
 
   // This ensures that `tokens` won't trigger re-renders unless its deep content changes
   const tokens = useDeepMemo(rawTokens, 'tokens')
