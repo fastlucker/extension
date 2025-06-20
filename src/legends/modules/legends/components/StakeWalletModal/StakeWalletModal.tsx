@@ -7,7 +7,8 @@ import {
   JsonRpcProvider,
   keccak256,
   parseEther,
-  parseUnits
+  parseUnits,
+  WeiPerEther
 } from 'ethers'
 import LottieView from 'lottie-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -424,10 +425,6 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       const inWei = (meaningfulToken.balance * BigInt(percentage)) / 100n
       const toSet = formatUnits(inWei, 18)
       setInputAmount(toSet)
-
-      // const currentBalance = parseFloat(formatUnits(meaningfulToken.balance, 18))
-      // if (percentage === 100) setInputAmount(currentBalance.toString())
-      // setInputAmount(((currentBalance / 100) * percentage).toString())
     },
     [meaningfulToken]
   )
@@ -475,6 +472,16 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                     animationData={loadingAnimation}
                     loop
                   />
+                  <p>
+                    {
+                      formatToken(
+                        ((firstToCollect?.shares || 0n) * (onchainData?.shareValue || 0n)) /
+                          WeiPerEther
+                      ).token
+                    }{' '}
+                    $WALLET
+                  </p>
+                  <p>will be available in</p>
                   <p>{formatDuration(timeRemainingToWithdraw)}</p>
                 </div>
               ) : (
