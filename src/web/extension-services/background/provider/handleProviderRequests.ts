@@ -51,7 +51,9 @@ const handleProviderRequests = async (
       name: params.name,
       icon: params.icon
     })
-    mainCtrl.dapps.updateDapp(params.origin, { name: params.name })
+    mainCtrl.dapps.updateDapp(mainCtrl.dapps.dappSessions[session.sessionId].id, {
+      name: params.name
+    })
     mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
     return
   }

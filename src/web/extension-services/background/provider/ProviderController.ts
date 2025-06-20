@@ -260,7 +260,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  netVersion = ({ session: { origin } }: any) => this.getDappNetwork(origin).chainId.toString()
+  netVersion = ({ session: { id } }: any) => this.getDappNetwork(id).chainId.toString()
 
   @Reflect.metadata('SAFE', true)
   web3ClientVersion = () => {
@@ -306,10 +306,7 @@ export class ProviderController {
       return false
     }
   ])
-  walletAddEthereumChain = async ({
-    params: [chainParams],
-    session: { origin, name }
-  }: ProviderRequest) => {
+  walletAddEthereumChain = async ({ params: [chainParams], session: { id } }: ProviderRequest) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
@@ -321,14 +318,14 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    this.mainCtrl.dapps.updateDapp(origin, { chainId })
+    this.mainCtrl.dapps.updateDapp(id, { chainId })
     await this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: `0x${network.chainId.toString(16)}`,
         networkVersion: `${network.chainId}`
       },
-      origin
+      id
     )
 
     return null
@@ -437,7 +434,7 @@ export class ProviderController {
       bundler: bundlerName
     }
 
-    const dappNetwork = this.getDappNetwork(data.session.origin)
+    const dappNetwork = this.getDappNetwork(data.session.id)
     const network = this.mainCtrl.networks.networks.filter(
       (n) => n.chainId === dappNetwork.chainId
     )[0]
@@ -554,7 +551,7 @@ export class ProviderController {
       bundler: bundlerName
     }
 
-    const dappNetwork = this.getDappNetwork(data.session.origin)
+    const dappNetwork = this.getDappNetwork(data.session.id)
     const network = this.mainCtrl.networks.networks.filter(
       (n) => n.chainId === dappNetwork.chainId
     )[0]
@@ -598,7 +595,7 @@ export class ProviderController {
   ])
   walletSwitchEthereumChain = async ({
     params: [chainParams],
-    session: { origin, name }
+    session: { id, origin, name }
   }: ProviderRequest) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
@@ -610,7 +607,7 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    this.mainCtrl.dapps.updateDapp(origin, { chainId })
+    this.mainCtrl.dapps.updateDapp(id, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       await notificationManager.create({
@@ -624,7 +621,7 @@ export class ProviderController {
         chain: `0x${network.chainId.toString(16)}`,
         networkVersion: `${network.chainId}`
       },
-      origin
+      id
     )
 
     return null
@@ -676,9 +673,9 @@ export class ProviderController {
    * {@link https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-2.md}
    */
   @Reflect.metadata('SAFE', true)
-  walletRevokePermissions = async ({ session: { origin } }: DappProviderRequest) => {
-    await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, origin)
-    this.mainCtrl.dapps.updateDapp(origin, {
+  walletRevokePermissions = async ({ session: { id } }: DappProviderRequest) => {
+    await this.mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, id)
+    this.mainCtrl.dapps.updateDapp(id, {
       isConnected: false,
       grantedPermissionId: undefined,
       grantedPermissionAt: undefined

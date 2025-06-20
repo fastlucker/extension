@@ -578,9 +578,6 @@ export const handleActions = async (
       )
       break
     }
-    case 'DAPP_CONTROLLER_ADD_DAPP': {
-      return mainCtrl.dapps.addDapp(params)
-    }
     case 'DAPP_CONTROLLER_UPDATE_DAPP': {
       return mainCtrl.dapps.updateDapp(params.id, params.dapp)
     }

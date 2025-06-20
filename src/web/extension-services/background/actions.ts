@@ -508,10 +508,6 @@ type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_DISCONNECT_DAPP'
   params: Dapp['id']
 }
-type DappsControllerAddDappAction = {
-  type: 'DAPP_CONTROLLER_ADD_DAPP'
-  params: Dapp
-}
 type DappsControllerUpdateDappAction = {
   type: 'DAPP_CONTROLLER_UPDATE_DAPP'
   params: { id: string; dapp: Partial<Dapp> }
@@ -815,7 +811,6 @@ export type Action =
   | DomainsControllerReverseLookupAction
   | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
-  | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
   | SwapAndBridgeControllerInitAction
