@@ -137,15 +137,16 @@ const TokenDetails = ({
       //   strokeWidth: 1
       // },
       // TODO: Temporarily moved to the "Deposit" place as of v4.49.0, due to aesthetic reasons solely.
-      {
-        id: 'earn',
-        text: t('Earn'),
-        icon: EarnIcon,
-        onPress: () => {},
-        isDisabled: true,
-        tooltipText: notImplementedYetTooltipText,
-        strokeWidth: 1
-      },
+      // Note: Earn is not implemented yet, so it is disabled.
+      // {
+      //   id: 'earn',
+      //   text: t('Earn'),
+      //   icon: EarnIcon,
+      //   onPress: () => {},
+      //   isDisabled: true,
+      //   tooltipText: notImplementedYetTooltipText,
+      //   strokeWidth: 1
+      // },
       {
         id: 'top-up',
         text: t('Top Up Gas Tank'),
@@ -175,17 +176,18 @@ const TokenDetails = ({
         strokeWidth: 1,
         testID: 'top-up-button'
       },
-      {
-        id: 'withdraw',
-        text: t('Withdraw'),
-        icon: WithdrawIcon,
-        onPress: () => {},
-        isDisabled: true,
-        tooltipText: isGasTankToken
-          ? t('Gas Tank deposits cannot be withdrawn.')
-          : notImplementedYetTooltipText,
-        strokeWidth: 1
-      },
+      // Note: Withdraw is not implemented yet, so it is disabled.
+      // {
+      //   id: 'withdraw',
+      //   text: t('Withdraw'),
+      //   icon: WithdrawIcon,
+      //   onPress: () => {},
+      //   isDisabled: true,
+      //   tooltipText: isGasTankToken
+      //     ? t('Gas Tank deposits cannot be withdrawn.')
+      //     : notImplementedYetTooltipText,
+      //   strokeWidth: 1
+      // },
       {
         id: 'info',
         text: t('Token Info'),
