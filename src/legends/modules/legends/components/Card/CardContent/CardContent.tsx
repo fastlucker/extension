@@ -12,7 +12,7 @@ import CompletedRibbon from './CompletedRibbon'
 
 type Props = Pick<
   CardFromResponse,
-  'title' | 'xp' | 'imageV2' | 'card' | 'action' | 'timesCollectedToday'
+  'shortTitle' | 'xp' | 'imageV2' | 'card' | 'action' | 'timesCollectedToday'
 > & {
   openActionModal: () => void
   disabled: boolean
@@ -28,7 +28,7 @@ const CARD_FREQUENCY: { [key in CardType]: string } = {
 }
 
 const CardContent: FC<Props> = ({
-  title,
+  shortTitle,
   xp,
   imageV2,
   card,
@@ -82,7 +82,7 @@ const CardContent: FC<Props> = ({
       )}
       <div className={styles.contentAndAction}>
         <div className={styles.content}>
-          <h2 className={styles.heading}>{title}</h2>
+          <h2 className={styles.heading}>{shortTitle}</h2>
           <img src={imageV2} alt="Card" className={styles.image} />
           <div
             className={styles.backgroundEffect}
