@@ -4231,20 +4231,6 @@
   resolved "https://registry.yarnpkg.com/@inversifyjs/common/-/common-1.4.0.tgz#4df42e8cb012a1630ebf2f3c65bb76ac5b0f3e4c"
   integrity sha512-qfRJ/3iOlCL/VfJq8+4o5X4oA14cZSBbpAmHsYj8EsIit1xDndoOl0xKOyglKtQD4u4gdNVxMHx4RWARk/I4QA==
 
-"@inversifyjs/common@1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@inversifyjs/common/-/common-1.5.0.tgz#542cdb0cfc02e36cca5a19208af726ecf904d400"
-  integrity sha512-Qj5BELk11AfI2rgZEAaLPmOftmQRLLmoCXgAjmaF0IngQN5vHomVT5ML7DZ3+CA5fgGcEVMcGbUDAun+Rz+oNg==
-
-"@inversifyjs/container@1.9.1":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@inversifyjs/container/-/container-1.9.1.tgz#56367187c8a155b929758b3ab46a0ff2016cce4f"
-  integrity sha512-8EhjFoAx1LoD7TpCuP9ptitwc+7kVXEpZB0IeoEsCQb9sWaNYYaBi+7Lommu3/1nYxdMbX2t7AJhQnryT1EEsg==
-  dependencies:
-    "@inversifyjs/common" "1.5.0"
-    "@inversifyjs/core" "5.2.0"
-    "@inversifyjs/reflect-metadata-utils" "1.1.0"
-
 "@inversifyjs/core@1.3.5":
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/@inversifyjs/core/-/core-1.3.5.tgz#c02ee3ed036aae40189302794f16a9f4e0ed4557"
@@ -4253,31 +4239,10 @@
     "@inversifyjs/common" "1.4.0"
     "@inversifyjs/reflect-metadata-utils" "0.2.4"
 
-"@inversifyjs/core@5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@inversifyjs/core/-/core-5.2.0.tgz#cd4e27a8096c7156f0b80ecb07af8baa40c453d7"
-  integrity sha512-MMaHGGRjQWT9uAof63sbZyEhRl4XptEAE17DJwrgUcN9LsdIEvecKP3r53pE9VF88PFR41knUKKzagUBvWLHmw==
-  dependencies:
-    "@inversifyjs/common" "1.5.0"
-    "@inversifyjs/prototype-utils" "0.1.0"
-    "@inversifyjs/reflect-metadata-utils" "1.1.0"
-
-"@inversifyjs/prototype-utils@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@inversifyjs/prototype-utils/-/prototype-utils-0.1.0.tgz#1378596f3d708244f390e9b233599b862aba450d"
-  integrity sha512-lNz1yyajMRDXBHLvJsYYX81FcmeD15e5Qz1zAZ/3zeYTl+u7ZF/GxNRKJzNOloeMPMtuR8BnvzHA1SZxjR+J9w==
-  dependencies:
-    "@inversifyjs/common" "1.5.0"
-
 "@inversifyjs/reflect-metadata-utils@0.2.4":
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/@inversifyjs/reflect-metadata-utils/-/reflect-metadata-utils-0.2.4.tgz#c65172283db9516c4a27e8d673ca7a31a07d528b"
   integrity sha512-u95rV3lKfG+NT2Uy/5vNzoDujos8vN8O18SSA5UyhxsGYd4GLQn/eUsGXfOsfa7m34eKrDelTKRUX1m/BcNX5w==
-
-"@inversifyjs/reflect-metadata-utils@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@inversifyjs/reflect-metadata-utils/-/reflect-metadata-utils-1.1.0.tgz#193ab71b92d47a8073e65e5bab640762bc435dcb"
-  integrity sha512-jmuAuC3eL1GnFAYfJGJOMKRDL9q1mgzOyrban6zxfM8Yg1FUHsj25h27bW2G7p8X1Amvhg3MLkaOuogszkrofA==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -4743,14 +4708,15 @@
     ws "^8.18.0"
     xstate "5.19.2"
 
-"@ledgerhq/device-signer-kit-ethereum@1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/device-signer-kit-ethereum/-/device-signer-kit-ethereum-1.5.0.tgz#62370fb3398b27d5801025230cc5b5cab43f7bce"
-  integrity sha512-owr/6RYhGJW6ut9Cyk9r7pmq+h1/vK7uWtj/VBqjFyM+nK4jI1VoCrA1XGBrqkMD7eYvn5blkKblCbaUxLlbPQ==
+"@ledgerhq/device-signer-kit-ethereum@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/device-signer-kit-ethereum/-/device-signer-kit-ethereum-1.4.0.tgz#67775c19404b8fe4db22e02dec8c252415dc9a25"
+  integrity sha512-WgEXm0rNB3wL7xRNcpeijAul8i4h4AtRrmLounbvitbWL94uG+QZReqCyRIv0vf6ZnJr7+OtD6/oD/Q0YAY4JA==
   dependencies:
-    "@ledgerhq/signer-utils" "^1.0.5"
-    ethers "6.14.1"
-    inversify "7.5.1"
+    "@ledgerhq/signer-utils" "1.0.5"
+    ethers "6.13.4"
+    inversify "6.2.2"
+    inversify-logger-middleware "3.1.0"
     purify-ts "2.1.0"
     reflect-metadata "0.2.2"
     semver "7.7.0"
@@ -4808,7 +4774,7 @@
     rxjs "^7.8.1"
     uuid "^9.0.1"
 
-"@ledgerhq/signer-utils@^1.0.5":
+"@ledgerhq/signer-utils@1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@ledgerhq/signer-utils/-/signer-utils-1.0.5.tgz#cca0ae223de87227f915a7ad6a8fc096e4949d02"
   integrity sha512-h8VWPxHUBa6aWXshMC6+e/txKzdw8KhvaGqV3LQnTOxVw4NVrb0pI4SzXQz48CcoyWPQYeS+/JD/WQgLEswyAg==
@@ -11510,19 +11476,6 @@ ethers@6.13.4:
     tslib "2.7.0"
     ws "8.17.1"
 
-ethers@6.14.1:
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-6.14.1.tgz#96b5e967d9c3c66c6b64304d8e7669a761d6fca3"
-  integrity sha512-JnFiPFi3sK2Z6y7jZ3qrafDMwiXmU+6cNZ0M+kPq+mTy9skqEzwqAdFW3nb/em2xjlIVXX6Lz8ID6i3LmS4+fQ==
-  dependencies:
-    "@adraffy/ens-normalize" "1.10.1"
-    "@noble/curves" "1.2.0"
-    "@noble/hashes" "1.3.2"
-    "@types/node" "22.7.5"
-    aes-js "4.0.0-beta.5"
-    tslib "2.7.0"
-    ws "8.17.1"
-
 ethers@^5.4.7, ethers@^5.6.5:
   version "5.7.2"
   resolved "https://registry.npmjs.org/ethers/-/ethers-5.7.2.tgz"
@@ -13627,15 +13580,6 @@ inversify@6.2.2:
   dependencies:
     "@inversifyjs/common" "1.4.0"
     "@inversifyjs/core" "1.3.5"
-
-inversify@7.5.1:
-  version "7.5.1"
-  resolved "https://registry.yarnpkg.com/inversify/-/inversify-7.5.1.tgz#aa69cf594d7703b63a2e77902f8c47e172840bf0"
-  integrity sha512-oWWFDU2BXiuqZynGcLDDD4tqiWAeaEUCALlCj0vk/QwHGgZY/tzDFPuTmWMY3jwRmDIHxVDkcj9SL3MFTlCEDw==
-  dependencies:
-    "@inversifyjs/common" "1.5.0"
-    "@inversifyjs/container" "1.9.1"
-    "@inversifyjs/core" "5.2.0"
 
 ip-address@^9.0.5:
   version "9.0.5"
@@ -20716,6 +20660,11 @@ tslib@^2.0.3, tslib@^2.4.0:
   version "2.5.3"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.5.3.tgz"
   integrity sha512-mSxlJJwl3BMEQCUNnxXBU9jP4JBktcEGhURcPR6VQVlnP0FdDEsIaz0C35dXNGLyRfrATNofF0F5p2KPxQgB+w==
+
+tslib@^2.8.1:
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.8.1.tgz#612efe4ed235d567e8aba5f2a5fab70280ade83f"
+  integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
 
 tty-browserify@^0.0.1:
   version "0.0.1"
