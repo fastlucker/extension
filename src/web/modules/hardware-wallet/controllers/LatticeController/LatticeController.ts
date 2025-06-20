@@ -12,7 +12,7 @@ const LATTICE_BASE_URL = 'https://signing.gridpl.us'
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
-class LatticeController {
+class LatticeController implements ExternalSignerController {
   walletSDK?: SDK.Client | null
 
   creds: any
