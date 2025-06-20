@@ -124,7 +124,6 @@ export class ProviderController {
   }
 
   ethRequestAccounts = async ({ session: { id, origin } }: DappProviderRequest) => {
-    console.log('before eth req accs')
     if (!this.mainCtrl.dapps.hasPermission(id) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
