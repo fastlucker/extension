@@ -61,10 +61,10 @@ import { notificationManager } from '@web/extension-services/background/webapi/n
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
-import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
+// import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
-import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
+// import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import { getExtensionInstanceId } from '@web/utils/analytics'
@@ -229,7 +229,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   const pm = new PortMessenger()
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
-  const latticeCtrl = new LatticeController()
+  const latticeCtrl = {}
 
   // Extension-specific additional trackings
   const fetchWithAnalytics: Fetch = (url, init) => {
@@ -287,7 +287,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // TODO: there is a mismatch in hw signer types, it's not a big deal
       ledger: LedgerSigner,
       trezor: TrezorSigner,
-      lattice: LatticeSigner
+      lattice: {}
     } as any,
     externalSignerControllers: {
       ledger: ledgerCtrl,
