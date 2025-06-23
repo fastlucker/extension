@@ -25,7 +25,7 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 const DappItem = (dapp: Dapp) => {
-  const { url, name, icon, description, isConnected, favorite, blacklisted } = dapp
+  const { id, url, name, icon, description, isConnected, favorite, blacklisted } = dapp
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
@@ -73,7 +73,7 @@ const DappItem = (dapp: Dapp) => {
                   onPress={() => {
                     dispatch({
                       type: 'DAPP_CONTROLLER_UPDATE_DAPP',
-                      params: { url, dapp: { favorite: !favorite } }
+                      params: { id, dapp: { favorite: !favorite } }
                     })
                   }}
                 >
