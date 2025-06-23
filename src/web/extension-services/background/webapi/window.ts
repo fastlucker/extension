@@ -230,7 +230,6 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
     }
 
     const focusListener = (winId: number) => {
-      console.log('Debug: Window focus changed:', winId, 'Expected ID:', id)
       if (winId === id) {
         isFocused = true
         cleanup()
@@ -260,7 +259,6 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
       cleanup()
 
       if (!isFocused) {
-        console.log('Debug: Window did not focus within 1 second, creating a new window')
         try {
           // Create new window and remove the old one
           const newWindow = await open()
