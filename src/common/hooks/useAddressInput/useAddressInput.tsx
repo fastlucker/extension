@@ -70,6 +70,8 @@ const useAddressInput = ({
             }
           })
           .catch((e) => {
+            if (fieldValueRef.current !== fieldValue) return
+
             setHasDomainResolveFailed(true)
             ensAddress = ''
             console.error('Failed to resolve ENS domain:', e)
