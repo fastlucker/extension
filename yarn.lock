@@ -20541,18 +20541,6 @@ tiny-secp256k1@^1.1.6:
     elliptic "^6.4.0"
     nan "^2.13.2"
 
-tldts-core@^7.0.9:
-  version "7.0.9"
-  resolved "https://registry.yarnpkg.com/tldts-core/-/tldts-core-7.0.9.tgz#da536abd31723003b036bf937df68b5068919298"
-  integrity sha512-/FGY1+CryHsxF9SFiPZlMOcwQsfABkAvOJO5VEKE8TNifVEqgMF7+UVXHGhm1z4gPUfvVS/EYcwhiRU3vUa1ag==
-
-tldts@^7.0.9:
-  version "7.0.9"
-  resolved "https://registry.yarnpkg.com/tldts/-/tldts-7.0.9.tgz#31e543bd72213791e3c2546bde849b89f6e51bb7"
-  integrity sha512-/nFtBeNs9nAKIAZE1i3ssOAroci8UqRldFVw5H6RCsNZw7NzDr+Yc3Ek7Tm8XSQKMzw7NSyRSszNxCM0ENsUbg==
-  dependencies:
-    tldts-core "^7.0.9"
-
 tmp@^0.0.33:
   version "0.0.33"
   resolved "https://registry.npmjs.org/tmp/-/tmp-0.0.33.tgz"
