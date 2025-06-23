@@ -6,7 +6,7 @@ export type BackgroundServiceContextReturnType = {
    * Does not return the result of the action.
    * It will only work when called from a focused window!
    */
-  dispatch: (action: Action) => void
+  dispatch: (action: Action, windowId?: number) => void
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {

@@ -112,12 +112,13 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   while (!mainCtrl) await wait(200)
 
   const tabId = meta.sender?.tab?.id
-  if (tabId === undefined || !meta.sender?.url) {
+  const windowId = meta.sender?.tab?.windowId
+  if (tabId === undefined || windowId === undefined || !meta.sender?.url) {
     return
   }
 
   const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, windowId, origin })
 
   await mainCtrl.dapps.initialLoadPromise
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)

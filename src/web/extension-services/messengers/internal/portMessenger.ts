@@ -9,12 +9,14 @@ type MessageType = '> ui' | '> ui-error' | '> ui-toast' | '> background'
 
 export type SendType = <TMessageType extends MessageType>(
   type: MessageType,
-  message: TMessageType extends '> background' ? ActionType : PortMessageType
+  message: TMessageType extends '> background' ? ActionType : PortMessageType,
+  meta: { windowId?: number; [key: string]: any }
 ) => void
 
 type ListenCallbackType = <TMessageType extends MessageType>(
   type: MessageType,
-  message: TMessageType extends '> background' ? ActionType : PortMessageType
+  message: TMessageType extends '> background' ? ActionType : PortMessageType,
+  meta: { windowId?: number; [key: string]: any }
 ) => Promise<any> | void
 
 export type PortMessageType = {
@@ -65,7 +67,7 @@ export class PortMessenger {
     })
   }
 
-  send: SendType = (type, message) => {
+  send: SendType = (type, message, meta) => {
     if (!this.ports.length) return
 
     try {
