@@ -12,7 +12,6 @@ test.describe.parallel('swapAndBridgePage Smart Account', () => {
   }) => {
     const fromToken = tokens.dai.optimism
     const toToken = tokens.usdce.optimism
-
     await swapAndBridgePage.prepareSwapAndBridge(0.1, fromToken, toToken)
     await swapAndBridgePage.enterNumber('00.01', true)
   })
