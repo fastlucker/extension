@@ -7,6 +7,7 @@ import { IHandles } from 'react-native-modalize/lib/options'
 import predefinedDapps from '@ambire-common/consts/dappCatalog.json'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Network } from '@ambire-common/interfaces/network'
+import { getDappIdFromUrl } from '@ambire-common/libs/dapps/helpers'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -92,8 +93,8 @@ const ManageDapp = ({
 
   const shouldShowRemoveDappFromCatalog = useMemo(() => {
     return (
-      !!state.dapps?.find((d) => d.url === dapp?.url) &&
-      !predefinedDapps.find((d) => d.url === dapp?.url)
+      !!state.dapps?.find((d) => d.id === dapp?.id) &&
+      !predefinedDapps.find((d) => getDappIdFromUrl(d.url) === dapp?.id)
     )
   }, [dapp?.url, state.dapps])
 
