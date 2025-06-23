@@ -229,11 +229,17 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
       if (timeoutId) clearTimeout(timeoutId)
     }
 
-    const focusListener = (winId: number) => {
+    const focusListener = async (winId: number) => {
       if (winId === id) {
-        isFocused = true
-        cleanup()
-        resolve({ id, createdFromWindowId, ...updatedProps })
+        const win = await chrome.windows.get(id)
+        // In some Arc browser instances, the window never gets focused
+        //therefore we need a fallback logic that will open a new window
+        // and close the unfocused one
+        if (win.focused) {
+          isFocused = true
+          resolve({ id, createdFromWindowId, ...updatedProps })
+          cleanup()
+        }
       }
     }
 
