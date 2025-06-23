@@ -206,22 +206,76 @@ const open = async (
   return create(url, customSize)
 }
 
+// Focuses an existing window. In some cases, the passed window
+// cannot be focused (e.g., on Arc browser). If the window cannot be focused
+// within 1 second, a new window is created and the old one is removed.
 const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
-  if (windowProps) {
-    const { id, width, height, createdFromWindowId } = windowProps
-    const { left, top } = await calculateWindowSizeAndPosition(
-      { width: windowProps.width, height: windowProps.height },
-      createdFromWindowId
-    )
-
-    const newWindowProps = { width, height, left, top, focused: true }
-
-    await chrome.windows.update(id, newWindowProps)
-
-    return { id, createdFromWindowId, ...newWindowProps }
+  if (!windowProps) {
+    throw new Error('windowProps is undefined')
   }
 
-  throw new Error('windowProps is undefined')
+  const { id, width, height, createdFromWindowId } = windowProps
+
+  const { left, top } = await calculateWindowSizeAndPosition({ width, height }, createdFromWindowId)
+
+  const updatedProps = { width, height, left, top, focused: true }
+
+  return new Promise<WindowProps>(async (resolve, reject) => {
+    let isFocused = false
+    let timeoutId: NodeJS.Timeout
+
+    const cleanup = () => {
+      chrome.windows.onFocusChanged.removeListener(focusListener)
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+
+    const focusListener = async (winId: number) => {
+      if (winId === id) {
+        const win = await chrome.windows.get(id)
+        // In some Arc browser instances, the window never gets focused
+        //therefore we need a fallback logic that will open a new window
+        // and close the unfocused one
+        if (win.focused) {
+          isFocused = true
+          resolve({ id, createdFromWindowId, ...updatedProps })
+          cleanup()
+        }
+      }
+    }
+
+    chrome.windows.onFocusChanged.addListener(focusListener)
+
+    // Attempt to focus the window
+    await chrome.windows
+      .update(id, updatedProps)
+      .then((focusedWindow) => {
+        if (focusedWindow && focusedWindow.focused) {
+          isFocused = true
+          cleanup()
+          resolve({ id, createdFromWindowId, ...updatedProps })
+        }
+      })
+      .catch((error) => {
+        cleanup()
+        reject(error)
+      })
+
+    // Handle focus timeout - fallback to creating new window
+    timeoutId = setTimeout(async () => {
+      cleanup()
+
+      if (!isFocused) {
+        try {
+          // Create new window and remove the old one
+          const newWindow = await open()
+          await chrome.windows.remove(id)
+          resolve(newWindow)
+        } catch (error) {
+          reject(error)
+        }
+      }
+    }, 1000)
+  })
 }
 
 const closeCurrentWindow = async () => {
