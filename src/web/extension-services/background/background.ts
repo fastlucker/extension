@@ -912,45 +912,50 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       initDefiPositionsContinuousUpdate()
       mainCtrl.phishing.updateIfNeeded()
 
-      // @ts-ignore
-      pm.addListener(port.id, async (messageType, action: Action) => {
-        const { type } = action
-        try {
-          if (messageType === '> background' && type) {
-            await handleActions(action, {
-              pm,
-              port,
-              mainCtrl,
-              walletStateCtrl,
-              autoLockCtrl,
-              extensionUpdateCtrl
+      pm.addListener(
+        port.id,
+        // @ts-ignore
+        async (messageType, action: Action, meta?: { windowId?: number; [key: string]: any }) => {
+          const { type } = action
+          const { windowId } = meta || {}
+
+          try {
+            if (messageType === '> background' && type) {
+              await handleActions(action, {
+                pm,
+                port,
+                mainCtrl,
+                walletStateCtrl,
+                autoLockCtrl,
+                extensionUpdateCtrl
+              })
+            }
+          } catch (err: any) {
+            console.error(`${type} action failed:`, err)
+            const shortenedError =
+              err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
+
+            let message = `Something went wrong! Please contact support. Error: ${shortenedError}`
+            // Emit the raw error only if it's a custom error
+            if (err instanceof EmittableError || err instanceof ExternalSignerError) {
+              message = err.message
+            }
+
+            pm.send('> ui-error', {
+              method: type,
+              params: {
+                errors: [
+                  {
+                    message,
+                    level: 'major',
+                    error: err
+                  }
+                ]
+              }
             })
           }
-        } catch (err: any) {
-          console.error(`${type} action failed:`, err)
-          const shortenedError =
-            err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
-
-          let message = `Something went wrong! Please contact support. Error: ${shortenedError}`
-          // Emit the raw error only if it's a custom error
-          if (err instanceof EmittableError || err instanceof ExternalSignerError) {
-            message = err.message
-          }
-
-          pm.send('> ui-error', {
-            method: type,
-            params: {
-              errors: [
-                {
-                  message,
-                  level: 'major',
-                  error: err
-                }
-              ]
-            }
-          })
         }
-      })
+      )
 
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)

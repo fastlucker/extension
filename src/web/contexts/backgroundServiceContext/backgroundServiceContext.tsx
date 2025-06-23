@@ -100,9 +100,15 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const [windowId, setWindowId] = useState<number | undefined>()
 
   useEffect(() => {
+    if (!isExtension) return
     ;(async () => {
-      const window = await chrome.windows.getCurrent()
-      if (window.id) setWindowId(window.id)
+      if (getUiType().isPopup) {
+        const win = await chrome.windows.getCurrent()
+        setWindowId(win.id)
+      } else {
+        const tab = await chrome.tabs.getCurrent()
+        if (tab) setWindowId(tab.windowId)
+      }
     })()
   }, [])
 
@@ -207,12 +213,15 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('navigate', onNavigate)
   }, [addToast, navigate])
 
-  const dispatch = useCallback((action: Action) => {
-    return globalDispatch(action, windowId)
-  }, [])
+  const dispatch = useCallback(
+    (action: Action) => {
+      globalDispatch(action, windowId)
+    },
+    [windowId]
+  )
 
   return (
-    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [])}>
+    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [dispatch])}>
       {children}
     </BackgroundServiceContext.Provider>
   )
