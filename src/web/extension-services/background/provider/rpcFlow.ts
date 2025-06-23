@@ -5,7 +5,6 @@ import { ethErrors } from 'eth-rpc-errors'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import getDomainFromUrl from '@ambire-common/utils/getDomainFromUrl'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { RequestRes } from '@web/extension-services/background/provider/types'
 import PromiseFlow from '@web/utils/promiseFlow'
