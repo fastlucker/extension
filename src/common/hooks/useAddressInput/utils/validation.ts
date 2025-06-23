@@ -52,7 +52,7 @@ const getAddressInputValidation = ({
   if (hasDomainResolveFailed) {
     return {
       // Change ENS to domain if we add more resolvers
-      message: 'Failed to resolve ENS. Please try again.',
+      message: 'Failed to resolve ENS. Please try again later or enter a hex address.',
       isError: true
     }
   }
