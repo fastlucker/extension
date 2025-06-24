@@ -411,7 +411,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
     async function updateDefiPositions() {
       const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-
       if (!isExtensionActive) return
 
       await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: 300000 }) // 5 min in ms
@@ -958,8 +957,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.dispose(port.id)
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
-        initDefiPositionsContinuousUpdate()
-
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup
@@ -981,6 +978,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   })
 
   initPortfolioContinuousUpdate()
+  mainCtrl.defiPositions.updatePositions({ forceUpdate: true }) // init the DeFi positions on sw init
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
