@@ -1,5 +1,5 @@
 import React, { FC, memo } from 'react'
-import { View } from 'react-native'
+import { StyleProp, View, ViewStyle } from 'react-native'
 
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import HumanizerAddress from '@common/components/HumanizerAddress'
@@ -37,6 +37,7 @@ interface Props {
   hasPadding?: boolean
   imageSize?: number
   hideLinks?: boolean
+  style?: StyleProp<ViewStyle>
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -48,7 +49,8 @@ const HumanizedVisualization: FC<Props> = ({
   testID,
   hasPadding = true,
   imageSize = 36,
-  hideLinks = false
+  hideLinks = false,
+  style
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { theme } = useTheme()
@@ -62,7 +64,8 @@ const HumanizedVisualization: FC<Props> = ({
         flexbox.wrap,
         {
           marginHorizontal: hasPadding ? SPACING_SM * sizeMultiplierSize : 0
-        }
+        },
+        style
       ]}
     >
       {data.map((item) => {
