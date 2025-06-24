@@ -49,6 +49,22 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const toAssetSymbol = steps ? steps[steps.length - 1].toAsset.symbol : null
   const isSwap = lastCompletedRoute.route && !getIsBridgeRoute(lastCompletedRoute.route)
 
+  const refunded = useMemo(() => {
+    if (!steps || steps.length === 0) return null
+    const firstStep = steps[0]
+    if (steps.length === 1) {
+      return {
+        amount: firstStep.fromAmount,
+        asset: firstStep.fromAsset
+      }
+    }
+    const lastCompletedStep = steps[1]
+    return {
+      amount: firstStep.toAmount,
+      asset: lastCompletedStep.fromAsset
+    }
+  }, [steps])
+
   const onPrimaryButtonPress = useCallback(() => {
     if (isActionWindow) {
       dispatch({
@@ -193,11 +209,11 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
         <Refunded
           title={t('Bridge refunded')}
           titleSecondary={t('{{token}} was refunded to your account as the bridge failed.', {
-            token: firstStep?.toAmount
+            token: refunded
               ? `${formatDecimals(
-                  Number(formatUnits(firstStep.toAmount, firstStep.toAsset.decimals)),
+                  Number(formatUnits(refunded.amount, refunded.asset.decimals)),
                   'amount'
-                )} ${firstStep.toAsset.symbol}`
+                )} ${refunded.asset.symbol}`
               : 'The swapped token'
           })}
           openExplorerText={t('More details')}

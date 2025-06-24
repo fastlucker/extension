@@ -76,7 +76,21 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
     return 'Pending Route'
   }, [activeRoute.routeStatus])
 
-  const firstStep = steps ? steps[0] : null
+  const refunded = useMemo(() => {
+    if (!steps || steps.length === 0) return null
+    const firstStep = steps[0]
+    if (steps.length === 1) {
+      return {
+        amount: firstStep.fromAmount,
+        asset: firstStep.fromAsset
+      }
+    }
+    const lastCompletedStep = steps[1]
+    return {
+      amount: firstStep.toAmount,
+      asset: lastCompletedStep.fromAsset
+    }
+  }, [steps])
 
   return (
     <Panel spacingsSize="small" style={getPanelContainerStyle()}>
@@ -191,11 +205,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
         >
           <Text fontSize={12} weight="medium" appearance="secondaryText">
             {t('Bridge failed! Account refunded with {{token}}', {
-              token: firstStep
+              token: refunded
                 ? `${formatDecimals(
-                    Number(formatUnits(firstStep.toAmount, firstStep.toAsset.decimals)),
+                    Number(formatUnits(refunded.amount, refunded.asset.decimals)),
                     'amount'
-                  )} ${firstStep.toAsset.symbol}`
+                  )} ${refunded.asset.symbol}`
                 : 'the swapped token'
             })}
           </Text>
