@@ -128,7 +128,7 @@ const SendForm = ({
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
       params: {
-        formValues: { amount: maxAmount, amountFieldMode: 'token' }
+        formValues: { shouldSetMaxAmount: true }
       }
     })
   }, [maxAmount, dispatch])
