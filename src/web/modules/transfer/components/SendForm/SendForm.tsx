@@ -22,6 +22,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSyncedState from '@web/hooks/useSyncedState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
@@ -64,12 +65,23 @@ const SendForm = ({
     isRecipientAddressUnknownAgreed,
     isTopUp,
     addressState,
-    amount
+    amount: controllerAmount
   } = state
+  const controllerAmountFieldValue = amountFieldMode === 'token' ? controllerAmount : amountInFiat
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { search } = useRoute()
   const [isEstimationLoading, setIsEstimationLoading] = useState(true)
+  const [amountFieldValue, setAmountFieldValue] = useSyncedState<string>({
+    backgroundState: controllerAmountFieldValue,
+    updateBackgroundState: (newAmount) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { amount: newAmount } }
+      })
+    },
+    forceUpdateOnChangeList: [state.amountUpdateCounter, state.amountFieldMode]
+  })
   const [estimation, setEstimation] = useState<null | {
     totalGasWei: bigint
     chainId: bigint
@@ -129,18 +141,6 @@ const SendForm = ({
       }
     })
   }, [amountFieldMode, dispatch])
-
-  const setAmount = useCallback(
-    (value: string) => {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: {
-          formValues: { amount: value }
-        }
-      })
-    },
-    [dispatch]
-  )
 
   const onRecipientCheckboxClick = useCallback(() => {
     dispatch({
@@ -294,16 +294,16 @@ const SendForm = ({
         <SendToken
           fromTokenOptions={options}
           fromTokenValue={tokenSelectValue}
-          fromAmountValue={amountFieldMode === 'token' ? amount : amountInFiat}
+          fromAmountValue={amountFieldValue}
           fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
           handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
           fromSelectedToken={selectedToken}
-          fromAmount={amount}
+          fromAmount={controllerAmount}
           fromAmountInFiat={amountInFiat}
           fromAmountFieldMode={amountFieldMode}
           maxFromAmount={maxAmount}
           validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
-          onFromAmountChange={setAmount}
+          onFromAmountChange={setAmountFieldValue}
           handleSwitchFromAmountFieldMode={switchAmountFieldMode}
           handleSetMaxFromAmount={setMaxAmount}
           inputTestId="amount-field"
