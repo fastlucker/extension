@@ -422,6 +422,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       )
     }
 
+    // this update will be triggered on window open (tab, popup or action-window)
     await updateDefiPositions()
   }
 
@@ -636,8 +637,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               false,
               mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
             )
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.defiPositions.updatePositions({ chainId: BigInt(chainId) })
           }
         })
       }
@@ -978,7 +977,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   })
 
   initPortfolioContinuousUpdate()
-  mainCtrl.defiPositions.updatePositions({ forceUpdate: true }) // init the DeFi positions on sw init
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
