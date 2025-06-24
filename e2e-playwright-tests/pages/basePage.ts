@@ -57,7 +57,7 @@ export abstract class BasePage {
   }
 
   async getText(selector: string): Promise<string> {
-    return await this.page.getByTestId(selector).textContent()
+    return await this.page.getByTestId(selector).innerText()
   }
 
   async entertext(selector: string, text: string): Promise<void> {
