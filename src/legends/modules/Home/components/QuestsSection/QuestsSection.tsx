@@ -14,7 +14,7 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@legends/components/Alert'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import Card from '@legends/modules/legends/components/Card'
-import { CardStatus, CardType } from '@legends/modules/legends/types'
+import { CardFromResponse, CardStatus, CardType } from '@legends/modules/legends/types'
 
 import SectionHeading from '../SectionHeading'
 import styles from './QuestsSection.module.scss'
@@ -23,17 +23,39 @@ const QuestsSection = () => {
   const { legends, isLoading, error } = useLegendsContext()
   const sliderRef = useRef(null)
 
-  const sortedLegends =
-    legends &&
-    legends.sort((a, b) => {
-      if (a.card.type === CardType.daily && b.card.type !== CardType.daily) return -1
-      if (a.card.type !== CardType.daily && b.card.type === CardType.daily) return 1
+  // Refactored sorting logic using a priority function
+  const getPriority = (card: CardFromResponse) => {
+    // Highest priority: any wheelOfFortune and chest
+    if (card.id === "chest" && card.card.status === CardStatus.active) return 0
+    if (card.id === "wheel-of-fortune" && card.card.status === CardStatus.active) return 1
 
-      if (a.card.status === CardStatus.active && b.card.status !== CardStatus.active) return -1
-      if (a.card.status !== CardStatus.active && b.card.status === CardStatus.active) return 1
+    // Then: hodl, overachiever and liquidity
+    if (card.id === "hodl") return 2
+    if (card.id === "overachiever") return 3
+    if (card.id === "liquidity") return 3
 
-      return 0
-    })
+
+    // Then: active wheelOfFortune and chest (now 4 and 5)
+    if (card.id === "chest" && card.card.status === CardStatus.completed) return 5
+    if (card.id === "wheel-of-fortune" && card.card.status === CardStatus.completed) return 6
+
+    // Then: daily quests
+    if (card.card.type === CardType.daily) return 7
+
+    // Then: active status
+    if (card.card.status === CardStatus.active) return 8
+
+    // Default: lowest priority
+    return 8
+  }
+
+  const sortedLegends = legends && [...legends].sort((a, b) => {
+    const pa = getPriority(a)
+    const pb = getPriority(b)
+    if (pa !== pb) return pa - pb
+    // Optionally, add a secondary sort (e.g., by title)
+    return a.title.localeCompare(b.title)
+  })
 
   // Handler to go to the next character
   const handleNext = () => {
