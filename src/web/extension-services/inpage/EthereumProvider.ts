@@ -34,6 +34,45 @@ const domReadyCall = (callback: any) => {
   }
 }
 
+function getIconWithRetry(delay = 1000): Promise<string> {
+  const tryFind = (): string | null => {
+    const linkIcon = document.querySelector('link[rel~="icon"]') as HTMLLinkElement | null
+    if (linkIcon?.href) {
+      try {
+        return new URL(linkIcon.href, document.baseURI).href
+      } catch {
+        // silent fail
+      }
+    }
+
+    const metaImage = document.querySelector('meta[itemprop="image"]') as HTMLMetaElement | null
+    if (metaImage?.content) {
+      try {
+        return new URL(metaImage.content, document.baseURI).href
+      } catch {
+        // silent fail
+      }
+    }
+
+    return null
+  }
+
+  return new Promise((resolve) => {
+    const icon = tryFind()
+    // eslint-disable-next-line no-promise-executor-return
+    if (icon) return resolve(icon)
+
+    setTimeout(() => {
+      const secondTry = tryFind()
+      if (secondTry) {
+        resolve(secondTry)
+      } else {
+        resolve(new URL('/favicon.ico', document.baseURI).href)
+      }
+    }, delay)
+  })
+}
+
 export class EthereumProvider extends EventEmitter {
   #pushEventHandlers: PushEventHandlers
 
@@ -111,17 +150,14 @@ export class EthereumProvider extends EventEmitter {
     document.addEventListener('visibilitychange', this.#requestPromiseCheckVisibility)
 
     const id = this.#requestId++
-    domReadyCall(() => {
+    domReadyCall(async () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
         {
           id,
           method: 'tabCheckin',
           params: {
-            // @ts-ignore
-            icon:
-              ($('head > link[rel~="icon"]') as HTMLLinkElement)?.href ||
-              ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content,
+            icon: await getIconWithRetry(),
             name:
               document.title ||
               ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
