@@ -119,11 +119,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     }
   })
 
-  const isLocalStateOutOfSync = useMemo(() => {
-    return (
-      controllerAmount !== amountFieldValue || addressState.fieldValue !== addressStateFieldValue
-    )
-  }, [])
+  const isLocalStateOutOfSync =
+    controllerAmount !== amountFieldValue || addressState.fieldValue !== addressStateFieldValue
 
   const submittedAccountOp = useMemo(() => {
     if (!accountsOps.transfer || !latestBroadcastedAccountOp?.signature) return
@@ -300,7 +297,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     () =>
       !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) &&
       !isLocalStateOutOfSync,
-    [addressInputState.validation.isError, isFormValid, isTopUp]
+    [addressInputState.validation.isError, isFormValid, isTopUp, isLocalStateOutOfSync]
   )
 
   const onBack = useCallback(() => {
