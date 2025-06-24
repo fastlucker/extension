@@ -27,10 +27,9 @@ export class SettingsPage extends BasePage {
 
   async unlockKeystore(): Promise<void> {
     await this.openSettingsGeneral()
-
-    await this.checkUrl('/tab.html#/keystore-unlock')
     
     await this.click(selectors.lockExtensionButton)
+    await this.checkUrl('/tab.html#/keystore-unlock')
 
     await this.entertext(selectors.passphraseField, DEF_KEYSTORE_PASS)
     await this.click(selectors.buttonUnlock)

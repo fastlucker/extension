@@ -135,6 +135,7 @@ const selectors = {
   addToBatchButton: 'batch-btn',
   goDashboardButton: 'go-dashboard-button',
   txnConfirmed: 'txn-confirmed',
+  maxAmountButton: 'max-amount-button',
   // Top up
   modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',

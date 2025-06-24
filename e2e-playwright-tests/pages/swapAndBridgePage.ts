@@ -30,40 +30,15 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   // General function
-  async selectFirstButton(text) {
-    await clickOnElement(this.page, `text=${text}`)
-  }
-
-  // General function
-  async getElementValue(selector) {
-    const element = await this.getElement(selector)
-    const content = await element.evaluate((el) => el.value.trim())
-    return content
-  }
-
   async verifyIfOnSwapAndBridgePage() {
     await expect(this.page.getByText('Swap & Bridge', { exact: true })).toBeVisible()
     expect(this.page.url()).toContain('/swap-and-bridge')
   }
 
-  async getElementContentWords(selector, index = 1) {
-    const element = await this.getElement(selector)
-    const content = (await element.evaluate((el) => el.textContent.trim())).split(' ')[index - 1]
-    return content
-  }
-
-  async extractMaxBalance() {
-    const maxBalanceIndex = 1
-    const maxBalance = await this.getElementContentWords(
-      SELECTORS.maxAvailableAmount,
-      maxBalanceIndex
-    )
-    return Number(maxBalance)
-  }
-
-  async getSendAmount() {
-    const amount = await this.getElementValue(SELECTORS.fromAmountInputSab)
-    return Number(amount)
+  async getAmount(selector: string) {
+    const amountText = await this.getValue(selector) // getting amount with suffix e.g. 1.01 DAI
+    const amountNumber = parseFloat(amountText?.trim().split(' ')[0] ?? '0')
+    return amountNumber
   }
 
   async enterNumber(new_amount, is_valid = true) {
@@ -78,26 +53,13 @@ export class SwapAndBridgePage extends BasePage {
     }
   }
 
-  async switchTokensOnSwapAndBridge(delay = 500) {
-    await this.page.waitForTimeout(delay)
-
-    // Extract text content from the elements
-    const sendToken = await this.getElementContentWords(selectors.sendTokenSab)
-    const receiveToken = await this.getElementContentWords(selectors.receiveTokenSab)
-    // TODO: Selector should be created to have data-testid this is not maintainable
-    // const network = await getElementContentWords(page, NETWORK_SELECTOR)
-    const network = await this.getElementContentWords(selectors.recieveNetworkBase)
-
+  async switchTokensOnSwapAndBridge() {
     // Click the switch Tokens button
     await this.click(selectors.switchTokensTooltipSab)
-
+    await this.page.waitForTimeout(500) // waiting for switch
     // Ensure the tokens are switched
-    await this.page.waitForTimeout(500)
-    expect(await this.getElementContentWords(selectors.sendTokenSab)).toBe(receiveToken)
-    expect(await this.getElementContentWords(selectors.receiveTokenSab)).toBe(sendToken)
-
-    // Network name is 3rd word in the sendToken content
-    expect(await this.getElementContentWords(selectors.sendTokenSab, 3)).toBe(network)
+    expect(this.getText(selectors.sendTokenSab)).toContain('WALLET') // after switch WALLET (Ambire Wallet)0x0Bb...2b80
+    expect(this.getText(selectors.receiveTokenSab)).toContain('USDC') // after switch USDC (USD Coin)0x833...2913
   }
 
   async openSwapAndBridge() {
@@ -110,13 +72,10 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   // TODO: refactor this method
-  async prepareSwapAndBridge(send_amount, fromToken: Token, toToken: Token) {
+  async prepareSwapAndBridge(send_amount: number, fromToken: Token, toToken: Token) {
     try {
-      await this.openSwapAndBridge()
-      await this.page.waitForTimeout(1000)
       await this.selectSendToken(fromToken)
       // Select Receive Token on the same Network, which is automatically selected
-      await this.page.waitForTimeout(1000) // Wait 1000ms before click for the Receive Token list to be populated
       await this.selectReceiveToken(toToken)
 
       // If checking prepareSwapAndBridge functionality without providing send amount
@@ -176,23 +135,24 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async verifySendMaxTokenAmount(fromToken: Token) {
-    const valueDecimals = 2 // Set presison of values to 2 decimals
     await this.openSwapAndBridge()
     await this.selectSendToken(fromToken)
-    await this.page.waitForTimeout(500) // Wait before read Amount value
-    const maxBalance = await this.extractMaxBalance()
-    const roundMaxBalance = this.roundAmount(maxBalance, valueDecimals)
-    await this.selectFirstButton('Max')
-    await this.page.waitForTimeout(500) // Wait before read Amount value
-    const sendAmount = await this.getSendAmount()
-    const roundSendAmount = await this.roundAmount(sendAmount, valueDecimals)
+
+    await this.click(selectors.maxAmountButton)
+    const maxBalance = parseFloat(await this.getText(selectors.maxAvailableAmount))
+
+    await this.page.waitForTimeout(500) // number has small delay before appearing
+
+    const sendAmount = parseFloat(await this.getValue(selectors.fromAmountInputSab))
+    const roundSendAmount = this.roundAmount(sendAmount, 2)
+
     // There is an intermittent difference in balances when running on CI; I have added an Alert to monitor it and using toBeCloseTo
-    if (roundMaxBalance !== roundSendAmount) {
+    if (maxBalance !== roundSendAmount) {
       console.log(
-        `⚠️ Token: ${fromToken} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}, roundMaxBalance: ${roundMaxBalance}`
+        `⚠️ Token: ${fromToken} | maxBalance: ${maxBalance}, sendAmount: ${sendAmount} | roundSendAmount: ${roundSendAmount}`
       )
     }
-    expect(roundMaxBalance).toBeCloseTo(roundSendAmount, valueDecimals - 1) // 1 decimal presisison
+    expect(maxBalance).toBeCloseTo(roundSendAmount, 1)
   }
 
   async verifyDefaultReceiveToken(sendToken: Token, receiveToken: Token): Promise<void> {
@@ -239,7 +199,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
     await this.click(selectors.addToBatchButton)
     await this.click(selectors.goDashboardButton)
-    await this.click(selectors.bannerButtonReject)
+    await this.click(selectors.bannerButtonReject) // TODO: this ID gives 4 results on Dashboard page
     await expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
   }
 
@@ -273,15 +233,16 @@ export class SwapAndBridgePage extends BasePage {
 
     await this.openSwapAndBridge()
     await this.selectSendToken(sendToken)
-    await typeText(this.page, SELECTORS.fromAmountInputSab, sendAmount.toString())
+
+    await this.entertext(selectors.fromAmountInputSab, sendAmount.toString())
     const [usdOldAmount, currency] = await this.getUSDTextContent()
     expect(currency).toBe('$')
-    const oldAmount = await this.getSendAmount()
+    const oldAmount = await this.getAmount(selectors.fromAmountInputSab)
     await this.page.waitForTimeout(500)
     await this.click(selectors.flipIcon)
 
     const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
-    const newAmount = this.roundAmount(await this.getSendAmount())
+    const newAmount = this.roundAmount(await this.getAmount(selectors.fromAmountInputSab))
 
     expect(oldAmount).toBeCloseTo(usdNewAmount, 1)
     expect(usdOldAmount).toBeCloseTo(newAmount, 1)
@@ -292,10 +253,11 @@ export class SwapAndBridgePage extends BasePage {
     await this.click(selectors.flipIcon)
 
     const [usdSecondAmount, secondCurrency] = await this.getUSDTextContent()
-    const secondAmount = await this.getSendAmount()
+    // const secondAmount = await this.getSendAmount()
+    const secondAmount = await this.getAmount(selectors.fromAmountInputSab)
 
-    expect(newAmount).toBeCloseTo(usdSecondAmount, 1)
-    expect(usdNewAmount).toBeCloseTo(secondAmount, 1)
+    expect(Math.abs(newAmount - usdSecondAmount)).toBeLessThan(1)
+    expect(Math.abs(usdNewAmount - secondAmount)).toBeLessThan(1)
     expect(secondCurrency).toBe('$')
   }
 

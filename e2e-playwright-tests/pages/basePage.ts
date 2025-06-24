@@ -12,17 +12,15 @@ export abstract class BasePage {
     await this.page.goto('/')
   }
 
-  async click(selector: string): Promise<void> {
-    await this.page.getByTestId(selector).click()
+  async click(selector: string, index?: number): Promise<void> {
+    await this.page.getByTestId(selector).nth(index ?? 0).click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
-    const menu = this.page.getByTestId(menuSelector)
-    await menu.click()
+    await this.click(menuSelector)
 
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
-    const searchInput = this.page.getByTestId(selectors.searchInput)
-    await searchInput.fill(token.symbol)
+    await this.entertext(selectors.searchInput, token.symbol)
 
     // Ensure we click the token inside the BottomSheet,
     // not the one rendered as the default in the Select menu.
@@ -37,8 +35,7 @@ export abstract class BasePage {
     await selectMenu.click()
 
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
-    const searchInput = this.page.getByTestId(selectors.searchInput)
-    await searchInput.fill(token.symbol)
+    await this.entertext(selectors.searchInput, token.symbol)
 
     const paidBy = paidByAddress.toLowerCase()
     const tokenAddress = token.address.toLowerCase()
@@ -59,8 +56,16 @@ export abstract class BasePage {
     await this.page.locator(locator).pressSequentially(text)
   }
 
+  async getText(selector: string): Promise<string> {
+    return await this.page.getByTestId(selector).textContent()
+  }
+
   async entertext(selector: string, text: string): Promise<void> {
     await this.page.getByTestId(selector).fill(text)
+  }
+
+  async getValue(selector: string): Promise<string> {
+    return await this.page.getByTestId(selector).inputValue()
   }
 
   async handleNewPage(selector: string) {

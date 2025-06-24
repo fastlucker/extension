@@ -2,7 +2,7 @@ import { saParams } from 'constants/env'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects' // your extended test with authPage
 
-test.describe.parallel('swapAndBridgePage Smart Account', () => {
+test.describe('swapAndBridgePage Smart Account', () => {
   test.beforeEach(async ({ swapAndBridgePage }) => {
     await swapAndBridgePage.init(saParams)
   })
