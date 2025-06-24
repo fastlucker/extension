@@ -413,7 +413,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
       if (!isExtensionActive) return
 
-      await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: 300000 }) // 5 min in ms
+      const FIVE_MINUTES = 1000 * 60 * 5
+      await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: FIVE_MINUTES })
 
       // Schedule the next update only when the previous one completes
       backgroundState.updateDefiPositionsInterval = setTimeout(
