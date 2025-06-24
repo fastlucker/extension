@@ -62,10 +62,10 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
+// import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
-import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
+// import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
@@ -227,7 +227,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   const pm = new PortMessenger()
-  const ledgerCtrl = new LedgerController()
+  // const ledgerCtrl = new LedgerController()
+  const ledgerCtrl = {}
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
@@ -285,7 +286,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
-      ledger: LedgerSigner,
+      // ledger: LedgerSigner,
+      ledger: {},
       trezor: TrezorSigner,
       lattice: LatticeSigner
     } as any,
