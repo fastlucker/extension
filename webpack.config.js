@@ -120,10 +120,6 @@ module.exports = async function (env, argv) {
   // Global configuration
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
   config.resolve.alias.dns = 'dns-js'
-  config.resolve.alias['@metamask/eth-sig-util'] = path.resolve(
-    __dirname,
-    'shim.metamask-eth-sig-util.js'
-  )
 
   // The files in the /web directory should be transpiled not just copied
   const excludeCopyPlugin = config.plugins.findIndex(
@@ -334,6 +330,18 @@ module.exports = async function (env, argv) {
       }),
       new CopyPlugin({ patterns: extensionCopyPatterns })
     ]
+
+    // Some dependencies, such as @metamask/eth-sig-util v7+ and v8+, ship .cjs
+    // files and define "exports" fields in their package.json. In multi-entry
+    // builds (like ours), Webpack 5 can get confused and attempt to emit the
+    // same .cjs file into multiple chunks, causing the error:
+    // "Multiple chunks emit assets to the same filename index..cjs".
+    // This rule tells Webpack to treat .cjs files as regular JS (not ESM),
+    // which prevents chunk emission conflicts.
+    config.module.rules.push({
+      test: /\.cjs$/,
+      type: 'javascript/auto'
+    })
 
     if (isWebkit) {
       // This plugin enables code-splitting support for the service worker, allowing it to import chunks dynamically.
