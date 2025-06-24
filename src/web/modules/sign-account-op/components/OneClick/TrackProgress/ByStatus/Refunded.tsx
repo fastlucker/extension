@@ -8,7 +8,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import React, { FC, useCallback } from 'react'
 import { Pressable } from 'react-native'
-import BackgroundShapes from '../BackgroundShapes'
 
 type CompletedProps = {
   title: string
@@ -37,18 +36,6 @@ const Refunded: FC<CompletedProps> = ({
 
   return (
     <>
-      <BackgroundShapes
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: -1
-        }}
-      />
       <WarningIcon style={spacings.mb3Xl} width={64} height={64} />
       <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
         {title}
