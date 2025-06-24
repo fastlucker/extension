@@ -119,6 +119,7 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
                 data={humanizedMessage?.fullVisualization}
                 chainId={network?.chainId || 1n}
                 style={[{ marginBottom: SPACING }]}
+                isHistory
               />
             )}
           </View>
