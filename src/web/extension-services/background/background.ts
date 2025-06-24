@@ -915,9 +915,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       pm.addListener(
         port.id,
         // @ts-ignore
-        async (messageType, action: Action, meta?: { windowId?: number; [key: string]: any }) => {
+        async (
+          messageType,
+          action: Action,
+          meta: { windowId?: number; [key: string]: any } = {}
+        ) => {
           const { type } = action
-          const { windowId } = meta || {}
+          const { windowId } = meta
 
           try {
             if (messageType === '> background' && type) {
@@ -927,7 +931,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
                 mainCtrl,
                 walletStateCtrl,
                 autoLockCtrl,
-                extensionUpdateCtrl
+                extensionUpdateCtrl,
+                windowId
               })
             }
           } catch (err: any) {

@@ -105,7 +105,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
       if (getUiType().isPopup) {
         const win = await chrome.windows.getCurrent()
         setWindowId(win.id)
-      } else {
+      } else if (getUiType().isTab) {
         const tab = await chrome.tabs.getCurrent()
         if (tab) setWindowId(tab.windowId)
       }

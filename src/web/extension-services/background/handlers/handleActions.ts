@@ -29,6 +29,7 @@ export const handleActions = async (
     walletStateCtrl,
     autoLockCtrl,
     extensionUpdateCtrl
+    windowId
   }: {
     pm: PortMessenger
     port: Port
@@ -36,6 +37,7 @@ export const handleActions = async (
     walletStateCtrl: WalletStateController
     autoLockCtrl: AutoLockController
     extensionUpdateCtrl: ExtensionUpdateController
+    windowId?: number
   }
 ) => {
   // @ts-ignore
@@ -196,7 +198,8 @@ export const handleActions = async (
         params.amount,
         params.recipientAddress,
         params.selectedToken,
-        params.actionExecutionType
+        params.actionExecutionType,
+        windowId
       )
 
     case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
