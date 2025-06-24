@@ -44,7 +44,7 @@ const ActivitySection = () => {
                 )
 
                 return (
-                  <tr key={txId}>
+                  <tr key={txId + submittedAt}>
                     <td>
                       <div className={styles.linksWrapper}>
                         {new Date(submittedAt).toLocaleString([], {
