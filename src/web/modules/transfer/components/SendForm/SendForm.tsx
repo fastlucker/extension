@@ -39,7 +39,11 @@ const SendForm = ({
   isSWWarningVisible,
   isRecipientHumanizerKnownTokenOrSmartContract,
   recipientMenuClosedAutomaticallyRef,
-  formTitle
+  formTitle,
+  amountFieldValue,
+  setAmountFieldValue,
+  addressStateFieldValue,
+  setAddressStateFieldValue
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
@@ -50,6 +54,10 @@ const SendForm = ({
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
   recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   formTitle: string | ReactNode
+  amountFieldValue: string
+  setAmountFieldValue: (value: string) => void
+  addressStateFieldValue: string
+  setAddressStateFieldValue: (value: string) => void
 }) => {
   const { validation } = addressInputState
   const { state, tokens } = useTransferControllerState()
@@ -67,21 +75,10 @@ const SendForm = ({
     addressState,
     amount: controllerAmount
   } = state
-  const controllerAmountFieldValue = amountFieldMode === 'token' ? controllerAmount : amountInFiat
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const { search } = useRoute()
   const [isEstimationLoading, setIsEstimationLoading] = useState(true)
-  const [amountFieldValue, setAmountFieldValue] = useSyncedState<string>({
-    backgroundState: controllerAmountFieldValue,
-    updateBackgroundState: (newAmount) => {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: { formValues: { amount: newAmount } }
-      })
-    },
-    forceUpdateOnChangeList: [state.amountUpdateCounter, state.amountFieldMode]
-  })
   const [estimation, setEstimation] = useState<null | {
     totalGasWei: bigint
     chainId: bigint
@@ -112,16 +109,6 @@ const SendForm = ({
       })
     },
     [tokens, dispatch]
-  )
-
-  const setAddressStateFieldValue = useCallback(
-    (value: string) => {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: { formValues: { addressState: { fieldValue: value } } }
-      })
-    },
-    [dispatch]
   )
 
   const setMaxAmount = useCallback(() => {
@@ -316,7 +303,7 @@ const SendForm = ({
         {!isTopUp && (
           <Recipient
             disabled={disableForm}
-            address={addressState.fieldValue}
+            address={addressStateFieldValue}
             setAddress={setAddressStateFieldValue}
             validation={validation}
             ensAddress={addressState.ensAddress}

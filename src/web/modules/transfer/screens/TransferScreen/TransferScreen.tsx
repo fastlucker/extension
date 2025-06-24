@@ -34,6 +34,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSyncedState from '@web/hooks/useSyncedState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
 import Buttons from '@web/modules/sign-account-op/components/OneClick/Buttons'
@@ -64,7 +65,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     latestBroadcastedAccountOp,
     latestBroadcastedToken,
     hasProceeded,
-    selectedToken
+    selectedToken,
+    amountFieldMode,
+    amount: controllerAmount,
+    amountInFiat
   } = state
 
   const { navigate } = useNavigation()
@@ -93,6 +97,33 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const recipientMenuClosedAutomatically = useRef(false)
 
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
+
+  const controllerAmountFieldValue = amountFieldMode === 'token' ? controllerAmount : amountInFiat
+  const [amountFieldValue, setAmountFieldValue] = useSyncedState<string>({
+    backgroundState: controllerAmountFieldValue,
+    updateBackgroundState: (newAmount) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { amount: newAmount } }
+      })
+    },
+    forceUpdateOnChangeList: [state.amountUpdateCounter, state.amountFieldMode]
+  })
+  const [addressStateFieldValue, setAddressStateFieldValue] = useSyncedState<string>({
+    backgroundState: addressState.fieldValue,
+    updateBackgroundState: (newAddress: string) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { addressState: { fieldValue: newAddress } } }
+      })
+    }
+  })
+
+  const isLocalStateOutOfSync = useMemo(() => {
+    return (
+      controllerAmount !== amountFieldValue || addressState.fieldValue !== addressStateFieldValue
+    )
+  }, [])
 
   const submittedAccountOp = useMemo(() => {
     if (!accountsOps.transfer || !latestBroadcastedAccountOp?.signature) return
@@ -224,6 +255,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     return portfolio.totalBalance >= 10
   }, [portfolio.totalBalance])
 
+  // Used to resolve ENS, not to update the field value
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
       dispatch({
@@ -265,7 +297,9 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const submitButtonText = useMemo(() => (isTopUp ? t('Top Up') : t('Send')), [isTopUp, t])
 
   const isTransferFormValid = useMemo(
-    () => !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
+    () =>
+      !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) &&
+      !isLocalStateOutOfSync,
     [addressInputState.validation.isError, isFormValid, isTopUp]
   )
 
@@ -529,6 +563,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
               isSWWarningVisible={isSWWarningVisible}
               recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
               formTitle={formTitle}
+              amountFieldValue={amountFieldValue}
+              setAmountFieldValue={setAmountFieldValue}
+              addressStateFieldValue={addressStateFieldValue}
+              setAddressStateFieldValue={setAddressStateFieldValue}
             />
             {isTopUp && !hasGasTank && (
               <View style={spacings.ptLg}>
