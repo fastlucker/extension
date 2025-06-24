@@ -28,7 +28,7 @@ export const handleActions = async (
     mainCtrl,
     walletStateCtrl,
     autoLockCtrl,
-    extensionUpdateCtrl
+    extensionUpdateCtrl,
     windowId
   }: {
     pm: PortMessenger
