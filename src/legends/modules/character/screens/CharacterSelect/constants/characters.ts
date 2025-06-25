@@ -6,6 +6,8 @@
 // import vitalikCharacter from '../images/vitalik.png'
 import astroCat from '../images/astroCat.png'
 import bearUp from '../images/bearUp.png'
+import black from '../images/black.png'
+import green from '../images/green.png'
 import yello from '../images/yello.png'
 
 export type Character = {
@@ -33,5 +35,17 @@ export const CHARACTERS: Character[] = [
     name: 'Beans',
     description: '',
     image: yello
+  },
+  {
+    id: 4,
+    name: 'Khidir Karawita',
+    description: '',
+    image: black
+  },
+  {
+    id: 5,
+    name: 'Algae',
+    description: '',
+    image: green
   }
 ]
