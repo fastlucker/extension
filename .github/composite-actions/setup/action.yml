@@ -42,4 +42,4 @@ runs:
         path: |
           node_modules
           ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        key: ${{ runner.os }}-yarn-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('yarn.lock') }}
