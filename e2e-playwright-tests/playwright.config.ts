@@ -20,6 +20,8 @@ const config: PlaywrightTestConfig = {
   reportSlowTests: null,
   snapshotPathTemplate: 'data/screenshots/{projectName}/{testFilePath}/{arg}/text',
   retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 3 : 4,
+  fullyParallel: true,
   use: {
     viewport: { width: 1920, height: 1080 },
     baseURL: process.env.APP_URL || '',
