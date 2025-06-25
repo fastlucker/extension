@@ -151,7 +151,6 @@ const create = async (
   baseWindowId?: number
 ): Promise<WindowProps> => {
   let windowId = baseWindowId
-  console.log('basee window id', baseWindowId)
   if (!windowId) {
     const window = await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
     windowId = window.id
@@ -170,17 +169,17 @@ const create = async (
     state: 'normal'
   })
 
-  return win && win.id
-    ? {
-        id: win.id,
-        width,
-        height,
-        left,
-        top,
-        focused: true,
-        createdFromWindowId: windowId
-      }
-    : null
+  if (!win || !win.id) return null
+
+  return {
+    id: win.id,
+    width,
+    height,
+    left,
+    top,
+    focused: true,
+    createdFromWindowId: windowId
+  }
 }
 
 const remove = async (winId: number, pm: PortMessenger) => {

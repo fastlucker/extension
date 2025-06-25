@@ -50,7 +50,11 @@ if (isExtension) {
         return
       }
       if (messageType === '> ui') {
-        eventBus.emit(method, params, forceEmit)
+        if (method === 'closePopup' && getUiType().isPopup) {
+          closeCurrentWindow()
+        } else {
+          eventBus.emit(method, params, forceEmit)
+        }
       }
       if (messageType === '> ui-error') {
         eventBus.emit('error', params)

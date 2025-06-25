@@ -296,8 +296,17 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     } as any,
     windowManager: {
       ...windowManager,
-      remove: async (winId: number) => {
-        await windowManager.remove(winId, pm)
+      remove: async (winId: number | 'popup') => {
+        if (winId === 'popup') {
+          return new Promise((resolve) => {
+            const popupPort = pm.ports.find((p) => p.name === 'popup')
+            if (!popupPort) return resolve()
+            popupPort.onDisconnect.addListener(() => resolve())
+            pm.send('> ui', { method: 'closePopup', params: {} })
+          })
+        } else {
+          await windowManager.remove(winId, pm)
+        }
       },
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
