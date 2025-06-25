@@ -96,6 +96,7 @@ const selectors = {
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
   nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-8453',
   bannerButtonOpen: 'banner-button-open',
+  bannerButtonReject: 'banner-button-reject',
   confettiModalActionButton: 'confetti-modal-action-button',
   refreshButton: 'refresh-button',
   dashboardGasTankButton: 'dashboard-gas-tank-button',
@@ -133,6 +134,7 @@ const selectors = {
   addToBatchButton: 'batch-btn',
   goDashboardButton: 'go-dashboard-button',
   txnConfirmed: 'txn-confirmed',
+  maxAmountButton: 'max-amount-button',
   // Top up
   modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',
