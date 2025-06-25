@@ -5,7 +5,7 @@ import { test } from 'fixtures/pageObjects'
 
 import { expect, Page } from '@playwright/test'
 
-test.describe.parallel('transfer', () => {
+test.describe('transfer', () => {
   test.beforeEach(async ({ transferPage }) => {
     await transferPage.init(baParams)
   })
