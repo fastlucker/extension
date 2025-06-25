@@ -41,11 +41,11 @@ const Legends = () => {
   return (
     <Page containerSize="lg">
       <OverachieverBanner />
-      {error && (
-        <Alert type="error" title={error} className={styles.error} />
-      )}
       {!isLoading ? (
-        <div>
+        <div className={styles.wrapper}>
+          {error && (
+            <Alert type="error" title={error} className={styles.error} />
+          )}
           {Object.entries(processedLegends).map(([groupName, cards]) => (
             <div key={groupName} className={styles.group}>
               <h2 className={styles.groupName}>
