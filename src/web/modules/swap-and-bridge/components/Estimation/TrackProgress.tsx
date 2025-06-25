@@ -23,6 +23,7 @@ import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgre
 import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
 import { getUiType } from '@web/utils/uiType'
 
+import Refunded from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Refunded'
 import RouteStepsToken from '../RouteStepsToken'
 
 const { isActionWindow } = getUiType()
@@ -47,6 +48,22 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const toAsset = lastStep ? lastStep.toAsset : null
   const toAssetSymbol = steps ? steps[steps.length - 1].toAsset.symbol : null
   const isSwap = lastCompletedRoute.route && !getIsBridgeRoute(lastCompletedRoute.route)
+
+  const refunded = useMemo(() => {
+    if (!steps || steps.length === 0) return null
+    const firstStep = steps[0]
+    if (steps.length === 1) {
+      return {
+        amount: firstStep.fromAmount,
+        asset: firstStep.fromAsset
+      }
+    }
+    const lastCompletedStep = steps[1]
+    return {
+      amount: firstStep.toAmount,
+      asset: lastCompletedStep.fromAsset
+    }
+  }, [steps])
 
   const onPrimaryButtonPress = useCallback(() => {
     if (isActionWindow) {
@@ -174,7 +191,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
         <Completed
           title={t('Nice trade!')}
           titleSecondary={t('{{symbol}} delivered - like magic.', {
-            symbol: toAssetSymbol || 'Token'
+            symbol: toAssetSymbol || 'The token'
           })}
           openExplorerText={isSwap ? t('View swap') : t('View bridge')}
           explorerLink={explorerLink}
@@ -185,6 +202,22 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
         <Failed
           title={t(isSwap ? 'Swap failed' : 'Bridge failed')}
           errorMessage={`Error: ${lastCompletedRoute.error!}`}
+        />
+      )}
+
+      {lastCompletedRoute?.routeStatus === 'refunded' && (
+        <Refunded
+          title={t('Bridge refunded')}
+          titleSecondary={t('{{token}} was refunded to your account as the bridge failed.', {
+            token: refunded
+              ? `${formatDecimals(
+                  Number(formatUnits(refunded.amount, refunded.asset.decimals)),
+                  'amount'
+                )} ${refunded.asset.symbol}`
+              : 'The swapped token'
+          })}
+          openExplorerText={t('More details')}
+          explorerLink={explorerLink}
         />
       )}
     </TrackProgressWrapper>
