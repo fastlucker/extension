@@ -397,9 +397,14 @@ export const handleActions = async (
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
       return mainCtrl.actions.focusActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
-      return mainCtrl.actions.setCurrentActionById(params.actionId)
+      return mainCtrl.actions.setCurrentActionById(params.actionId, {
+        baseWindowId: windowId
+      })
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-      return mainCtrl.actions.setCurrentActionByIndex(params.index, params.params)
+      return mainCtrl.actions.setCurrentActionByIndex(params.index, {
+        ...params.params,
+        baseWindowId: windowId
+      })
     case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
       return mainCtrl.actions.setWindowLoaded()
 

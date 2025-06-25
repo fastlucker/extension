@@ -112,8 +112,9 @@ const calculateWindowSizeAndPosition = async (
 
   const queryParams = windowId ? { active: true, windowId } : { active: true, currentWindow: true }
 
-  const [activeTab] =
-    [(baseWindow.tabs || []).find((t) => t.active)] || (await chrome.tabs.query(queryParams))
+  const [activeTab] = (baseWindow.tabs || []).find((t) => t.active)
+    ? [(baseWindow.tabs || []).find((t) => t.active)]
+    : await chrome.tabs.query(queryParams)
 
   let leftOffset = 0
   let topOffset = 0
@@ -149,8 +150,13 @@ const create = async (
   customSize?: CustomSize,
   baseWindowId?: number
 ): Promise<WindowProps> => {
-  const window = await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
-  const windowId = baseWindowId || window.id
+  let windowId = baseWindowId
+  console.log('basee window id', baseWindowId)
+  if (!windowId) {
+    const window = await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
+    windowId = window.id
+  }
+
   const { width, height, left, top } = await calculateWindowSizeAndPosition(customSize, windowId)
 
   const win = await chrome.windows.create({
