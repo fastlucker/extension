@@ -14,6 +14,8 @@ import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
+import { formatUnits } from 'ethers'
 import MoreDetails from './MoreDetails'
 import getStyles from './styles'
 
@@ -58,24 +60,53 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
         backgroundColor: theme.successBackground,
         borderColor: theme.successDecorative
       }
+    if (activeRoute.routeStatus === 'refunded')
+      panelStyles = {
+        borderWidth: 1,
+        backgroundColor: theme.warningBackground,
+        borderColor: theme.warningDecorative
+      }
 
     return { ...panelStyles, ...spacings.mbTy }
   }, [activeRoute.error, activeRoute.routeStatus, theme])
 
+  const routeText = useMemo(() => {
+    if (activeRoute.routeStatus === 'completed') return 'Completed Route'
+    if (activeRoute.routeStatus === 'refunded') return 'Refunded Route'
+    return 'Pending Route'
+  }, [activeRoute.routeStatus])
+
+  const refunded = useMemo(() => {
+    if (!steps || steps.length === 0) return null
+    const firstStep = steps[0]
+    if (steps.length === 1) {
+      return {
+        amount: firstStep.fromAmount,
+        asset: firstStep.fromAsset
+      }
+    }
+    const lastCompletedStep = steps[1]
+    return {
+      amount: firstStep.toAmount,
+      asset: lastCompletedStep.fromAsset
+    }
+  }, [steps])
+
   return (
     <Panel spacingsSize="small" style={getPanelContainerStyle()}>
-      {activeRoute.routeStatus === 'completed' && (
+      {(activeRoute.routeStatus === 'completed' || activeRoute.routeStatus === 'refunded') && (
         <Pressable style={styles.closeIcon} onPress={handleRejectActiveRoute}>
           <CloseIcon />
         </Pressable>
       )}
       <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
-        {activeRoute.routeStatus === 'completed' ? t('Completed Route') : t('Pending Route')}
+        {t(routeText)}
       </Text>
       <View
         style={[
           styles.container,
-          activeRoute.routeStatus === 'completed' && { backgroundColor: '#767DAD14' }
+          activeRoute.routeStatus === 'completed' && { backgroundColor: '#767DAD14' },
+          activeRoute.routeStatus === 'refunded' && { backgroundColor: theme.warningBackground }
         ]}
       >
         <RouteStepsPreview
@@ -86,10 +117,11 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
             (activeRoute.routeStatus === 'in-progress' ||
               activeRoute.routeStatus === 'waiting-approval-to-resolve')
           }
+          routeStatus={activeRoute.routeStatus}
         />
       </View>
 
-      {activeRoute.routeStatus !== 'completed' && (
+      {activeRoute.routeStatus !== 'completed' && activeRoute.routeStatus !== 'refunded' && (
         <View style={[spacings.ptSm, flexbox.directionRow, flexbox.alignCenter]}>
           {!activeRoute.error && (
             <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
@@ -160,6 +192,28 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
           {activeRoute.routeStatus === 'in-progress' && activeRoute.userTxHash && (
             <MoreDetails activeRoute={activeRoute} />
           )}
+        </View>
+      )}
+      {activeRoute.routeStatus === 'refunded' && (
+        <View
+          style={[
+            spacings.ptSm,
+            flexbox.directionRow,
+            flexbox.alignEnd,
+            flexbox.justifySpaceBetween
+          ]}
+        >
+          <Text fontSize={12} weight="medium" appearance="secondaryText">
+            {t('Bridge failed! Account refunded with {{token}}', {
+              token: refunded
+                ? `${formatDecimals(
+                    Number(formatUnits(refunded.amount, refunded.asset.decimals)),
+                    'amount'
+                  )} ${refunded.asset.symbol}`
+                : 'the swapped token'
+            })}
+          </Text>
+          <MoreDetails activeRoute={activeRoute} style={spacings.mtSm} />
         </View>
       )}
       {activeRoute.routeStatus === 'completed' && activeRoute.userTxHash && (
