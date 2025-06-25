@@ -12,3 +12,20 @@ export const BA_PASSPHRASE = envVariables.BA_PASSPHRASE
 export const SA_PASSPHRASE = envVariables.SA_PASSPHRASE
 export const KEYSTORE_PASS = envVariables.KEYSTORE_PASS
 export const BA_PRIVATE_KEY = envVariables.BA_PRIVATE_KEY
+
+export const NETWORKS_LIST = {
+  FLR: {
+    networkName: 'Flare network',
+    ccySymbol: 'FLR',
+    ccyName: 'Flare',
+    rpcUrl: 'https://rpc.au.cc/flare',
+    explorerUrl: 'https://flarescan.com'
+  },
+  FLOW: {
+    networkName: 'Flow EVM Mainnet',
+    ccySymbol: 'FLOW',
+    ccyName: 'FLOW',
+    rpcUrl: 'https://mainnet.evm.nodes.onflow.org',
+    explorerUrl: 'https://evm.flowscan.io'
+  }
+}
