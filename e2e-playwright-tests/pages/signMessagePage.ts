@@ -40,15 +40,8 @@ export class SignMessagePage extends BasePage {
     await connect.click()
 
     // Dapp Request action window
-    const context = this.page.context()
-    const actionWindowPagePromise = new Promise<Page>((resolve) => {
-      context.once('page', (p) => {
-        resolve(p)
-      })
-    })
-
     const ambire = this.page.getByRole('button', { name: 'MetaMask' })
-    await ambire.click()
+    const actionWindowPagePromise = this.handleNewPage(ambire)
 
     // Connect
     const actionWindowPage = await actionWindowPagePromise
@@ -61,14 +54,8 @@ export class SignMessagePage extends BasePage {
     await messageTextarea.fill(message)
 
     // Sign
-    const signContext = this.page.context()
-    const signActionWindowPagePromise = new Promise<Page>((resolve) => {
-      signContext.once('page', (p) => {
-        resolve(p)
-      })
-    })
     const sign = this.page.getByRole('button', { name: 'Sign' })
-    await sign.click()
+    const signActionWindowPagePromise = this.handleNewPage(sign)
 
     const signActionWindowPage = await signActionWindowPagePromise
     const signMessageButton = signActionWindowPage.getByTestId(selectors.signMessageButton)

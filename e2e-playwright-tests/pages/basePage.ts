@@ -1,7 +1,7 @@
 import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
-import { Page } from '@playwright/test'
+import { Page, Locator } from '@playwright/test'
 
 export abstract class BasePage {
   page: Page
@@ -59,7 +59,7 @@ export abstract class BasePage {
     await this.page.locator(locator).pressSequentially(text)
   }
 
-  async handleNewPage(locator: string) {
+  async handleNewPage(locator: Locator) {
     const context = this.page.context()
     const actionWindowPagePromise = new Promise<Page>((resolve) => {
       context.once('page', (p) => {
@@ -67,7 +67,8 @@ export abstract class BasePage {
       })
     })
 
-    await this.page.getByTestId(locator).first().click({ timeout: 3000 })
+    await locator.first().click({ timeout: 3000 })
+
     return actionWindowPagePromise
   }
 
