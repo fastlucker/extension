@@ -15,7 +15,6 @@ import {
   ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL,
   ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
   ACTIVITY_REFRESH_INTERVAL,
-  INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL,
   INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
   UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
 } from '@ambire-common/consts/intervals'
@@ -410,18 +409,22 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     if (backgroundState.updateDefiPositionsInterval)
       clearTimeout(backgroundState.updateDefiPositionsInterval)
 
-    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-    const updateInterval = isExtensionActive
-      ? ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
-      : INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL
-
     async function updateDefiPositions() {
-      await mainCtrl.defiPositions.updatePositions()
+      const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+      if (!isExtensionActive) return
+
+      const FIVE_MINUTES = 1000 * 60 * 5
+      await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: FIVE_MINUTES })
+
       // Schedule the next update only when the previous one completes
-      backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+      backgroundState.updateDefiPositionsInterval = setTimeout(
+        updateDefiPositions,
+        ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+      )
     }
 
-    backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+    // this update will be triggered on window open (tab, popup or action-window)
+    await updateDefiPositions()
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -635,8 +638,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               false,
               mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
             )
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.defiPositions.updatePositions({ chainId: BigInt(chainId) })
           }
         })
       }
@@ -909,6 +910,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
+
       mainCtrl.phishing.updateIfNeeded()
 
       // @ts-ignore
@@ -955,8 +957,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.dispose(port.id)
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
-        initDefiPositionsContinuousUpdate()
-
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup
@@ -978,7 +978,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   })
 
   initPortfolioContinuousUpdate()
-  initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 

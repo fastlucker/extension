@@ -1,6 +1,7 @@
-import { Page } from '@playwright/test'
-import Token from 'interfaces/token'
 import selectors from 'constants/selectors'
+import Token from 'interfaces/token'
+
+import { Page } from '@playwright/test'
 
 export abstract class BasePage {
   page: Page
@@ -13,7 +14,7 @@ export abstract class BasePage {
 
   async clickOnElement(element: string): Promise<void> {
     await this.page.waitForLoadState()
-    await this.page.locator(element).nth(0).click()
+    await this.page.locator(element).click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
@@ -59,15 +60,6 @@ export abstract class BasePage {
   }
 
   async handleNewPage(locator: string) {
-    // TODO: this was old solution, remove it if new one works
-    // const context = this.page.context()
-    // const [newPage] = await Promise.all([
-    //   context.waitForEvent('page'),
-    //   this.page.getByTestId(locator).first().click({ timeout: 3000 })
-    // ])
-    // await newPage.waitForLoadState()
-    // return newPage
-
     const context = this.page.context()
     const actionWindowPagePromise = new Promise<Page>((resolve) => {
       context.once('page', (p) => {
