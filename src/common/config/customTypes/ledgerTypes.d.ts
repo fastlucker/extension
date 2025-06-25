@@ -10,15 +10,15 @@
  *     - Fix the export paths in the main package.json
  * As a temporary workaround, fixing the types manually here.
  */
-// declare module '@ledgerhq/device-signer-kit-ethereum' {
-//   export * from '@ledgerhq/device-signer-kit-ethereum/lib/types'
-// }
-// declare module '@ledgerhq/context-module' {
-//   export * from '@ledgerhq/context-module/lib/types'
-// }
-// declare module '@ledgerhq/device-management-kit' {
-//   export * from '@ledgerhq/device-management-kit/lib/types'
-// }
-// declare module '@ledgerhq/device-transport-kit-web-hid' {
-//   export * from '@ledgerhq/device-transport-kit-web-hid/lib/types'
-// }
+declare module '@ledgerhq/device-signer-kit-ethereum' {
+  export * from '@ledgerhq/device-signer-kit-ethereum/lib/types'
+}
+declare module '@ledgerhq/context-module' {
+  export * from '@ledgerhq/context-module/lib/types'
+}
+declare module '@ledgerhq/device-management-kit' {
+  export * from '@ledgerhq/device-management-kit/lib/types'
+}
+declare module '@ledgerhq/device-transport-kit-web-hid' {
+  export * from '@ledgerhq/device-transport-kit-web-hid/lib/types'
+}
