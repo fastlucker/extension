@@ -28,7 +28,7 @@ const CharacterSelect = () => {
     isMinted && !character && !isLoading && mintedAt === 'past-block-watch'
 
   useEffect(() => {
-    if (character && !isMinting && !mintedAt) {
+    if (character && !isMinting && (!mintedAt || mintedAt === 'past-block-watch')) {
       navigate(LEGENDS_ROUTES.home)
       return
     }

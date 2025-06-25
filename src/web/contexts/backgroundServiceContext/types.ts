@@ -7,8 +7,10 @@ export type BackgroundServiceContextReturnType = {
    * It will only work when called from a focused window!
    */
   dispatch: (action: Action, windowId?: number) => void
+  windowId: number | undefined
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {
-  dispatch: Promise.resolve
+  dispatch: Promise.resolve,
+  windowId: undefined
 }

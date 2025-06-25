@@ -221,7 +221,9 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   )
 
   return (
-    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [dispatch])}>
+    <BackgroundServiceContext.Provider
+      value={useMemo(() => ({ dispatch, windowId }), [dispatch, windowId])}
+    >
       {children}
     </BackgroundServiceContext.Provider>
   )

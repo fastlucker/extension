@@ -203,16 +203,16 @@ export const handleActions = async (
       )
 
     case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
-      return await mainCtrl.buildClaimWalletUserRequest(params.token)
+      return await mainCtrl.buildClaimWalletUserRequest(params.token, windowId)
     case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
-      return await mainCtrl.buildMintVestingUserRequest(params.token)
+      return await mainCtrl.buildMintVestingUserRequest(params.token, windowId)
     case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-      return await mainCtrl.addUserRequest(
-        params.userRequest,
-        params.actionPosition,
-        params.actionExecutionType,
-        params.allowAccountSwitch
-      )
+      return await mainCtrl.addUserRequests([params.userRequest], {
+        actionPosition: params.actionPosition,
+        actionExecutionType: params.actionExecutionType,
+        allowAccountSwitch: params.allowAccountSwitch,
+        skipFocus: params.skipFocus
+      })
     case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
       return mainCtrl.removeUserRequest(params.id)
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
@@ -311,10 +311,14 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
     case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
-      return await mainCtrl.buildSwapAndBridgeUserRequest(params.openActionWindow)
+      return await mainCtrl.buildSwapAndBridgeUserRequest(
+        params.openActionWindow,
+        undefined,
+        windowId
+      )
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
-      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId)
+      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId, windowId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
       await mainCtrl.swapAndBridge.updateQuote({
         skipPreviousQuoteRemoval: true,
@@ -342,18 +346,23 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.addOrUpdateAction(
-        {
-          id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
-          type: params.type,
-          userRequest: {
-            meta: {
-              accountAddr: mainCtrl.selectedAccount.account.addr
+      return mainCtrl.actions.addOrUpdateActions(
+        [
+          {
+            id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
+            type: params.type,
+            userRequest: {
+              meta: {
+                accountAddr: mainCtrl.selectedAccount.account.addr
+              }
             }
           }
-        },
-        'last',
-        'open-action-window'
+        ],
+        {
+          position: 'last',
+          executionType: 'open-action-window',
+          baseWindowId: windowId
+        }
       )
     }
     case 'CLOSE_SIGNING_ACTION_WINDOW': {
@@ -368,7 +377,7 @@ export const handleActions = async (
     case 'TRANSFER_CONTROLLER_RESET_FORM':
       return mainCtrl.transfer.resetForm()
     case 'TRANSFER_CONTROLLER_UNLOAD_SCREEN':
-      return mainCtrl.transfer.unloadScreen()
+      return mainCtrl.transfer.unloadScreen(false)
     case 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
       return mainCtrl.transfer.destroyLatestBroadcastedAccountOp()
     case 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED':
@@ -390,7 +399,7 @@ export const handleActions = async (
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
       return mainCtrl.actions.setCurrentActionById(params.actionId)
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-      return mainCtrl.actions.setCurrentActionByIndex(params.index)
+      return mainCtrl.actions.setCurrentActionByIndex(params.index, params.params)
     case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
       return mainCtrl.actions.setWindowLoaded()
 
