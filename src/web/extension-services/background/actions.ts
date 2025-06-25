@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
   ActionExecutionType,
+  Action as ActionFromActionsQueue,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/controllers/actions/actions'
