@@ -1,5 +1,6 @@
 import { DashboardPage } from 'pages/dashboardPage'
 import { GasTankPage } from 'pages/gasTankPage'
+import { SettingsPage } from 'pages/settingsPage'
 import { TransferPage } from 'pages/transferPage'
 
 import { test as testBase } from '@playwright/test'
@@ -13,6 +14,7 @@ type PageObjects = {
   dashboardPage: DashboardPage
   transferPage: TransferPage
   gasTankPage: GasTankPage
+  settingsPage: SettingsPage
 }
 
 export const test = testBase.extend<PageObjects>({
@@ -30,5 +32,8 @@ export const test = testBase.extend<PageObjects>({
   },
   gasTankPage: async ({}, use) => {
     await use(new GasTankPage() as GasTankPage)
+  },
+  settingsPage: async ({}, use) => {
+    await use(new SettingsPage())
   }
 })
