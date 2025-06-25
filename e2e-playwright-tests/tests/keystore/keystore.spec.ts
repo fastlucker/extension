@@ -1,4 +1,4 @@
-import { DEF_KEYSTORE_PASS, NEW_KEYSTORE_PASSWORD, saParams } from 'constants/env'
+import { KEYSTORE_PASS, saParams } from 'constants/env'
 
 import { test } from '../../fixtures/pageObjects'
 
@@ -16,14 +16,13 @@ test.describe('keystore', () => {
   })
 
   test('should change keystore password', async ({ settingsPage }) => {
+    const newPass = 'B1234566'
+
     await test.step('go to Extension pass page', async () => {
       await settingsPage.openExtensionPassword()
     })
     await test.step('change current password', async () => {
-      await settingsPage.changeKeystorePassword(DEF_KEYSTORE_PASS, NEW_KEYSTORE_PASSWORD)
-    })
-    await test.step('return password to previous password', async () => {
-      await settingsPage.changeKeystorePassword(NEW_KEYSTORE_PASSWORD, DEF_KEYSTORE_PASS)
+      await settingsPage.changeKeystorePassword(KEYSTORE_PASS, newPass)
     })
   })
 })

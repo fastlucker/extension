@@ -1,4 +1,4 @@
-import { DEF_KEYSTORE_PASS, NEW_KEYSTORE_PASSWORD } from 'constants/env'
+import { KEYSTORE_PASS } from 'constants/env'
 import selectors from 'constants/selectors'
 
 import { bootstrapWithStorage } from '@helpers/bootstrap'
@@ -27,11 +27,11 @@ export class SettingsPage extends BasePage {
 
   async unlockKeystore(): Promise<void> {
     await this.openSettingsGeneral()
-    
+
     await this.click(selectors.lockExtensionButton)
     await this.checkUrl('/tab.html#/keystore-unlock')
 
-    await this.entertext(selectors.passphraseField, DEF_KEYSTORE_PASS)
+    await this.entertext(selectors.passphraseField, KEYSTORE_PASS)
     await this.click(selectors.buttonUnlock)
     await this.expectButtonVisible(selectors.fullBalance)
   }
