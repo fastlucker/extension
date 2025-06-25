@@ -13,6 +13,10 @@ import text from '@common/styles/utils/text'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
+const SET_CURRENT_ACTION_PARAMS = {
+  skipFocus: true
+}
+
 const ActionsPagination = () => {
   const state = useActionsControllerState()
   const { t } = useTranslation()
@@ -34,7 +38,7 @@ const ActionsPagination = () => {
     if (typeof currentActionIndex !== 'number') return
     dispatch({
       type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX',
-      params: { index: currentActionIndex - 1 }
+      params: { index: currentActionIndex - 1, params: SET_CURRENT_ACTION_PARAMS }
     })
   }
 
@@ -42,21 +46,21 @@ const ActionsPagination = () => {
     if (typeof currentActionIndex !== 'number') return
     dispatch({
       type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX',
-      params: { index: currentActionIndex + 1 }
+      params: { index: currentActionIndex + 1, params: SET_CURRENT_ACTION_PARAMS }
     })
   }
 
   const handleLargePageStepDecrement = () => {
     dispatch({
       type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX',
-      params: { index: 0 }
+      params: { index: 0, params: SET_CURRENT_ACTION_PARAMS }
     })
   }
 
   const handleLargePageStepIncrement = () => {
     dispatch({
       type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX',
-      params: { index: state.visibleActionsQueue.length - 1 }
+      params: { index: state.visibleActionsQueue.length - 1, params: SET_CURRENT_ACTION_PARAMS }
     })
   }
 
