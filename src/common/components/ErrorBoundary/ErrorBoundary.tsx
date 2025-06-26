@@ -12,7 +12,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import GestureHandler from '@common/modules/app-init/screens/AppInit/GestureHandler'
 import spacings from '@common/styles/spacings'
-import { DEFAULT_THEME } from '@common/styles/themeConfig'
+import { DEFAULT_THEME, THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
@@ -58,7 +58,7 @@ const ErrorBoundary = ({ error }: Props) => {
 }
 
 const ErrorBoundaryInner = ({ error }: Props) => {
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { addToast } = useToast()
@@ -118,7 +118,10 @@ const ErrorBoundaryInner = ({ error }: Props) => {
                 openInTab({ url: 'https://help.ambire.com/hc', shouldCloseCurrentWindow: true })
               }
             >
-              <Text weight="medium" color={theme.primary}>
+              <Text
+                weight="medium"
+                color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
+              >
                 our support team
               </Text>
             </TouchableOpacity>{' '}
@@ -210,20 +213,23 @@ const ErrorBoundaryInner = ({ error }: Props) => {
                   openInTab({ url: 'https://help.ambire.com/hc', shouldCloseCurrentWindow: true })
                 }
               >
-                <Text fontSize={14} weight="medium" color={theme.primary}>
+                <Text
+                  fontSize={14}
+                  weight="medium"
+                  color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
+                >
                   {t('contact Support')}
                 </Text>
               </TouchableOpacity>
               {t(' for assistance.')}
             </Text>
           </View>
-          <TouchableOpacity
-            style={{
-              ...spacings.mbXl
-            }}
-            onPress={() => openBottomSheet()}
-          >
-            <Text fontSize={12} underline>
+          <TouchableOpacity style={{ ...spacings.mbXl }} onPress={() => openBottomSheet()}>
+            <Text
+              fontSize={12}
+              underline
+              color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
+            >
               {t('Show Details')}
             </Text>
           </TouchableOpacity>
