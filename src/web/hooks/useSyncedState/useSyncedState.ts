@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-const DEBOUNCE_MS = 500
+const DEBOUNCE_MS = 300
 
 const getForceUpdateIdentifier = (forceUpdateOnChangeList?: (string | number | boolean)[]) => {
   return forceUpdateOnChangeList ? forceUpdateOnChangeList.join('-') : ''
@@ -42,7 +42,12 @@ const useSyncedState = <T>({
     }
   }
 
-  const updateState = (newState: T, skipControllerUpdate?: boolean) => {
+  /**
+   * Updates the local state immediately and schedules an update of the background state
+   * Local state --> Background state
+   * This is debounced to avoid excessive updates to the background state.
+   */
+  const updateLocalStateWithDebounce = (newState: T, skipControllerUpdate?: boolean) => {
     setState(newState)
 
     if (skipControllerUpdate) return
@@ -50,8 +55,11 @@ const useSyncedState = <T>({
     clearDebounceTimeout()
 
     debounceRef.current = setTimeout(() => {
-      clearDebounceTimeout()
+      // Local state --> Background state
       updateBackgroundState(newState)
+
+      // Clear the debounce timeout after the update
+      clearDebounceTimeout()
     }, DEBOUNCE_MS)
   }
 
@@ -63,6 +71,7 @@ const useSyncedState = <T>({
 
   // Update the local state with the background state when the
   // tab is focused
+  // Background state --> Local state
   useEffect(() => {
     window.addEventListener('focus', handleTabVisibilityChange)
 
@@ -73,6 +82,7 @@ const useSyncedState = <T>({
   }, [backgroundState])
 
   // Update the local state when one of the force update dependencies changes
+  // Background state --> Local state
   // Example: The selected token in transfer changes, which triggers an amount update
   // in the controller. This update must be reflected in the local copy of the state.
   useEffect(() => {
@@ -84,7 +94,7 @@ const useSyncedState = <T>({
     }
   }, [forceUpdateOnChangeList])
 
-  return [state, updateState]
+  return [state, updateLocalStateWithDebounce]
 }
 
 export default useSyncedState
