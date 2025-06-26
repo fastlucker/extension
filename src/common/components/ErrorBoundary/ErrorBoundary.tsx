@@ -41,7 +41,7 @@ const ErrorBoundary = ({ error }: Props) => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       ;(async () => {
         const storageThemeType = await storage.get('themeType', DEFAULT_THEME)
-        setThemeType(storageThemeType)
+        if (storageThemeType) setThemeType(storageThemeType)
       })()
     }
   }, [])
@@ -50,8 +50,7 @@ const ErrorBoundary = ({ error }: Props) => {
     // The global theme provider is rendered below the ErrorBoundary as it requires state from other contexts.
     // To ensure that the ErrorBoundary has access to the theme and wraps as many components as possible,
     // we render a ThemeProvider with a forced theme type.
-    <ThemeProvider forceThemeType={themeType || DEFAULT_THEME}>
-      {/* eslint-disable-next-line @typescript-eslint/no-use-before-define */}
+    <ThemeProvider forceThemeType={themeType}>
       <ErrorBoundaryInner error={error} />
     </ThemeProvider>
   )
