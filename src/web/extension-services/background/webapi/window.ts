@@ -152,6 +152,10 @@ const create = async (
 ): Promise<WindowProps> => {
   let windowId = baseWindowId
   if (!windowId) {
+    console.warn(
+      'No baseWindowId provided to windowManager.open(); using the current window as the reference for positioning.'
+    )
+
     const window = await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
     windowId = window.id
   }
