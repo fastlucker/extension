@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
-import Alert from '@legends/components/Alert'
 import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
@@ -21,33 +20,12 @@ const CharacterSelect = () => {
   const [hasStartedMinting, setHasStartedMinting] = useState(false)
 
   const { character, isLoading } = useCharacterContext()
-  const { isMinting, mintedAt, isMinted, loadingMessage, isCheckingMintStatus, mintCharacter } =
+  const { isMinting, isMinted, loadingMessage, isCheckingMintStatus, mintCharacter } =
     useMintCharacter()
 
-  const isMintedAndNotCaughtByRelayer =
-    isMinted && !character && !isLoading && mintedAt === 'past-block-watch'
-
   useEffect(() => {
-    if (character && !isMinting && (!mintedAt || mintedAt === 'past-block-watch')) {
-      navigate(LEGENDS_ROUTES.home)
-      return
-    }
-
-    if (isMintedAndNotCaughtByRelayer) {
-      setErrorMessage(
-        'Character is already minted but could not be retrieved. Please try again or refresh the page.'
-      )
-    }
-  }, [
-    character,
-    isMinted,
-    connectedAccount,
-    isLoading,
-    isMintedAndNotCaughtByRelayer,
-    mintedAt,
-    isMinting,
-    navigate
-  ])
+    if (isMinted) navigate(LEGENDS_ROUTES.home)
+  }, [character, isMinted, connectedAccount, isLoading, isMinting, navigate])
 
   const onCharacterChange = (id: number) => {
     setCharacterId(id)
@@ -78,19 +56,14 @@ const CharacterSelect = () => {
         Pick your profile avatar and mint a soulbound NFT for free
       </p>
       <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
-      {isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
-        <Alert
-          type="error"
-          title="Character is already minted"
-          message="Character is already minted but could not be retrieved. Please contact Ambire support."
-        />
-      )}
-      {!isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
+      {!isCheckingMintStatus && (
         <button
           onClick={() => {
             if (!isButtonDisabled) {
               setHasStartedMinting(true)
-              mintCharacter(characterId)
+              mintCharacter(characterId).catch(() =>
+                setErrorMessage('We failed to fetch NFT info.')
+              )
             }
           }}
           type="button"
@@ -108,7 +81,7 @@ const CharacterSelect = () => {
           // Currently minting
           (isMinting ||
             // Minted a short time ago and not caught by the relayer
-            (isMinted && !character && !isMintedAndNotCaughtByRelayer))
+            (isMinted && !character))
         }
         loadingMessage={loadingMessage}
         errorMessage={errorMessage}
