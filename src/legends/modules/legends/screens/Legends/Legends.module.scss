@@ -3,7 +3,9 @@
 
 .group {
   margin-bottom: 2.75rem;
+}
 
+.wrapper {
   @include breakpoint-down-from(medium-desktop) {
     margin-left: 3rem;
   }

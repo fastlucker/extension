@@ -112,8 +112,9 @@ const calculateWindowSizeAndPosition = async (
 
   const queryParams = windowId ? { active: true, windowId } : { active: true, currentWindow: true }
 
-  const [activeTab] =
-    [(baseWindow.tabs || []).find((t) => t.active)] || (await chrome.tabs.query(queryParams))
+  const [activeTab] = (baseWindow.tabs || []).find((t) => t.active)
+    ? [(baseWindow.tabs || []).find((t) => t.active)]
+    : await chrome.tabs.query(queryParams)
 
   let leftOffset = 0
   let topOffset = 0
@@ -144,9 +145,22 @@ const calculateWindowSizeAndPosition = async (
   }
 }
 
-const create = async (url: string, customSize?: CustomSize): Promise<WindowProps> => {
-  const window = await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
-  const { width, height, left, top } = await calculateWindowSizeAndPosition(customSize, window.id)
+const create = async (
+  url: string,
+  customSize?: CustomSize,
+  baseWindowId?: number
+): Promise<WindowProps> => {
+  let windowId = baseWindowId
+  if (!windowId) {
+    console.warn(
+      'No baseWindowId provided to windowManager.open(); using the current window as the reference for positioning.'
+    )
+
+    const window = await chrome.windows.getCurrent({ windowTypes: ['normal', 'panel', 'app'] })
+    windowId = window.id
+  }
+
+  const { width, height, left, top } = await calculateWindowSizeAndPosition(customSize, windowId)
 
   const win = await chrome.windows.create({
     focused: true,
@@ -159,17 +173,17 @@ const create = async (url: string, customSize?: CustomSize): Promise<WindowProps
     state: 'normal'
   })
 
-  return win && win.id
-    ? {
-        id: win.id,
-        width,
-        height,
-        left,
-        top,
-        focused: true,
-        createdFromWindowId: window.id
-      }
-    : null
+  if (!win || !win.id) return null
+
+  return {
+    id: win.id,
+    width,
+    height,
+    left,
+    top,
+    focused: true,
+    createdFromWindowId: windowId
+  }
 }
 
 const remove = async (winId: number, pm: PortMessenger) => {
@@ -198,12 +212,12 @@ const remove = async (winId: number, pm: PortMessenger) => {
 }
 
 const open = async (
-  options: { route?: string; customSize?: CustomSize } = {}
+  options: { route?: string; customSize?: CustomSize; baseWindowId?: number } = {}
 ): Promise<WindowProps> => {
-  const { route, customSize } = options
+  const { route, customSize, baseWindowId } = options
 
   const url = `action-window.html${route ? `#/${route}` : ''}`
-  return create(url, customSize)
+  return create(url, customSize, baseWindowId)
 }
 
 // Focuses an existing window. In some cases, the passed window
