@@ -222,7 +222,7 @@
   margin-top: 0.25rem;
 }
 .blur {
-  filter: blur(5px) brightness(0.7);
+  filter: blur(5px) brightness(0.5);
 }
 
 .lockPeriodInfo {
@@ -294,4 +294,23 @@
   font-weight: 700;
   font-size: 0.75rem;
   color: $secondaryText;
+}
+
+.timerContainer {
+  position: absolute;
+  align-self: center;
+  margin-top: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timerContainer > :nth-child(2) {
+  font-weight: 500;
+  font-size: 1.25rem;
+}
+
+.timerContainer > :nth-child(4) {
+  font-weight: 500;
+  font-size: 1.25rem;
 }

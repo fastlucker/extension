@@ -28,7 +28,8 @@ export const handleActions = async (
     mainCtrl,
     walletStateCtrl,
     autoLockCtrl,
-    extensionUpdateCtrl
+    extensionUpdateCtrl,
+    windowId
   }: {
     pm: PortMessenger
     port: Port
@@ -36,6 +37,7 @@ export const handleActions = async (
     walletStateCtrl: WalletStateController
     autoLockCtrl: AutoLockController
     extensionUpdateCtrl: ExtensionUpdateController
+    windowId?: number
   }
 ) => {
   // @ts-ignore
@@ -196,26 +198,27 @@ export const handleActions = async (
         params.amount,
         params.recipientAddress,
         params.selectedToken,
-        params.actionExecutionType
+        params.actionExecutionType,
+        windowId
       )
 
     case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
-      return await mainCtrl.buildClaimWalletUserRequest(params.token)
+      return await mainCtrl.buildClaimWalletUserRequest(params.token, windowId)
     case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
-      return await mainCtrl.buildMintVestingUserRequest(params.token)
+      return await mainCtrl.buildMintVestingUserRequest(params.token, windowId)
     case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-      return await mainCtrl.addUserRequest(
-        params.userRequest,
-        params.actionPosition,
-        params.actionExecutionType,
-        params.allowAccountSwitch
-      )
+      return await mainCtrl.addUserRequests([params.userRequest], {
+        actionPosition: params.actionPosition,
+        actionExecutionType: params.actionExecutionType,
+        allowAccountSwitch: params.allowAccountSwitch,
+        skipFocus: params.skipFocus
+      })
     case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-      return mainCtrl.removeUserRequest(params.id)
+      return mainCtrl.removeUserRequests([params.id])
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-      return mainCtrl.rejectUserRequest(params.err, params.id)
+      return mainCtrl.rejectUserRequests(params.err, [params.id])
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
@@ -308,10 +311,14 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
     case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
-      return await mainCtrl.buildSwapAndBridgeUserRequest(params.openActionWindow)
+      return await mainCtrl.buildSwapAndBridgeUserRequest(
+        params.openActionWindow,
+        undefined,
+        windowId
+      )
     }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
-      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId)
+      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId, windowId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
       await mainCtrl.swapAndBridge.updateQuote({
         skipPreviousQuoteRemoval: true,
@@ -339,18 +346,23 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.addOrUpdateAction(
-        {
-          id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
-          type: params.type,
-          userRequest: {
-            meta: {
-              accountAddr: mainCtrl.selectedAccount.account.addr
+      return mainCtrl.actions.addOrUpdateActions(
+        [
+          {
+            id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
+            type: params.type,
+            userRequest: {
+              meta: {
+                accountAddr: mainCtrl.selectedAccount.account.addr
+              }
             }
           }
-        },
-        'last',
-        'open-action-window'
+        ],
+        {
+          position: 'last',
+          executionType: 'open-action-window',
+          baseWindowId: windowId
+        }
       )
     }
     case 'CLOSE_SIGNING_ACTION_WINDOW': {
@@ -358,14 +370,16 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.removeAction(`${mainCtrl.selectedAccount.account.addr}-${idSuffix}`)
+      return mainCtrl.actions.removeActions([
+        `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`
+      ])
     }
     case 'TRANSFER_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transfer.update(params.formValues)
     case 'TRANSFER_CONTROLLER_RESET_FORM':
       return mainCtrl.transfer.resetForm()
     case 'TRANSFER_CONTROLLER_UNLOAD_SCREEN':
-      return mainCtrl.transfer.unloadScreen()
+      return mainCtrl.transfer.unloadScreen(false)
     case 'TRANSFER_CONTROLLER_DESTROY_LATEST_BROADCASTED_ACCOUNT_OP':
       return mainCtrl.transfer.destroyLatestBroadcastedAccountOp()
     case 'TRANSFER_CONTROLLER_HAS_USER_PROCEEDED':
@@ -381,13 +395,18 @@ export const handleActions = async (
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
     case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-      return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
+      return mainCtrl.actions.removeActions([params.id], params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
       return mainCtrl.actions.focusActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
-      return mainCtrl.actions.setCurrentActionById(params.actionId)
+      return mainCtrl.actions.setCurrentActionById(params.actionId, {
+        baseWindowId: windowId
+      })
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-      return mainCtrl.actions.setCurrentActionByIndex(params.index)
+      return mainCtrl.actions.setCurrentActionByIndex(params.index, {
+        ...params.params,
+        baseWindowId: windowId
+      })
     case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
       return mainCtrl.actions.setWindowLoaded()
 
@@ -567,22 +586,19 @@ export const handleActions = async (
       break
     }
     case 'CHANGE_CURRENT_DAPP_NETWORK': {
-      mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
+      mainCtrl.dapps.updateDapp(params.id, { chainId: params.chainId })
       await mainCtrl.dapps.broadcastDappSessionEvent(
         'chainChanged',
         {
           chain: `0x${params.chainId.toString(16)}`,
           networkVersion: `${params.chainId}`
         },
-        params.origin
+        params.id
       )
       break
     }
-    case 'DAPP_CONTROLLER_ADD_DAPP': {
-      return mainCtrl.dapps.addDapp(params)
-    }
     case 'DAPP_CONTROLLER_UPDATE_DAPP': {
-      return mainCtrl.dapps.updateDapp(params.url, params.dapp)
+      return mainCtrl.dapps.updateDapp(params.id, params.dapp)
     }
     case 'DAPP_CONTROLLER_REMOVE_DAPP': {
       await mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)

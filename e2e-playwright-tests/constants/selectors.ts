@@ -79,7 +79,6 @@ const selectors = {
   createSeedBtn: 'create-seed-btn',
   importFromSavedSeed: 'import-from-saved-seed',
   nativeTokenPolygonDyn: 'token-0x0000000000000000000000000000000000000000-polygon',
-  topUpButton: 'top-up-button',
   tokenSend: 'token-send',
   tokensSelect: 'tokens-select',
   feeTokensSelect: 'fee-option-select',
@@ -97,9 +96,11 @@ const selectors = {
   privateKeyWarningCheckbox2: 'private-key-warning-checkbox-2',
   nativeTokenBaseDashboard: 'token-0x0000000000000000000000000000000000000000-8453',
   bannerButtonOpen: 'banner-button-open',
+  bannerButtonReject: 'banner-button-reject',
   confettiModalActionButton: 'confetti-modal-action-button',
   refreshButton: 'refresh-button',
   dashboardGasTankButton: 'dashboard-gas-tank-button',
+  dashboardGasTankBalance: 'dashboard-gas-tank-balance',
   createSmartAccountGasTankModalButton: 'create-smart-account-gas-tank-modal-button',
   recieveNetworkBase: 'option-8453',
   recieveNetworkOptimism: 'option-10',
@@ -118,8 +119,6 @@ const selectors = {
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
   highPriceImpactSab: 'high-price-impact-sab',
-  signButtonSab: 'button-sign',
-  processButtonSab: 'proceed-btn',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
@@ -130,12 +129,21 @@ const selectors = {
   batchModalGotIt: 'queue-modal-got-it-button',
   signButtonSwap: 'swap-button-sign',
   addMoreButton: 'add-more-button',
-  flipUSDIcon: 'flip-icon',
-  proceedButton: 'proceed-btn',
+  flipIcon: 'flip-icon',
   swapSignButton: 'swap-button-sign',
   addToBatchButton: 'batch-btn',
   goDashboardButton: 'go-dashboard-button',
-  txnConfirmed: 'txn-confirmed'
+  txnConfirmed: 'txn-confirmed',
+  maxAmountButton: 'max-amount-button',
+  // Top up
+  modalGasTankBalance: 'gas-tank-balance',
+  topUpButton: 'top-up-gas-tank-modal-button',
+  topUpProceedButton: 'proceed-btn',
+  closeProgressModalButton: 'track-progress-primary-button',
+  // Sign
+  dappConnectButton: 'dapp-connect-button',
+  signMessageButton: 'button-sign'
+
 }
 
 type SelectorKey = keyof typeof selectors

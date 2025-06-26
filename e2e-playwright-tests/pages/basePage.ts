@@ -1,6 +1,7 @@
-import { Page } from '@playwright/test'
-import Token from 'interfaces/token'
 import selectors from 'constants/selectors'
+import Token from 'interfaces/token'
+
+import { expect, Page, Locator } from '@playwright/test'
 
 export abstract class BasePage {
   page: Page
@@ -11,18 +12,15 @@ export abstract class BasePage {
     await this.page.goto('/')
   }
 
-  async clickOnElement(element: string): Promise<void> {
-    await this.page.waitForLoadState()
-    await this.page.locator(element).nth(0).click()
+  async click(selector: string, index?: number): Promise<void> {
+    await this.page.getByTestId(selector).nth(index ?? 0).click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
-    const menu = this.page.getByTestId(menuSelector)
-    await menu.click()
+    await this.click(menuSelector)
 
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
-    const searchInput = this.page.getByTestId(selectors.searchInput)
-    await searchInput.fill(token.symbol)
+    await this.entertext(selectors.searchInput, token.symbol)
 
     // Ensure we click the token inside the BottomSheet,
     // not the one rendered as the default in the Select menu.
@@ -37,8 +35,7 @@ export abstract class BasePage {
     await selectMenu.click()
 
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
-    const searchInput = this.page.getByTestId(selectors.searchInput)
-    await searchInput.fill(token.symbol)
+    await this.entertext(selectors.searchInput, token.symbol)
 
     const paidBy = paidByAddress.toLowerCase()
     const tokenAddress = token.address.toLowerCase()
@@ -53,21 +50,25 @@ export abstract class BasePage {
     await tokenLocator.click()
   }
 
+  // TODO: refactor, this method can be depracated; switch to getByTestId
   async typeTextInInputField(locator: string, text: string): Promise<void> {
     await this.page.locator(locator).clear()
     await this.page.locator(locator).pressSequentially(text)
   }
 
-  async handleNewPage(locator: string) {
-    // TODO: this was old solution, remove it if new one works
-    // const context = this.page.context()
-    // const [newPage] = await Promise.all([
-    //   context.waitForEvent('page'),
-    //   this.page.getByTestId(locator).first().click({ timeout: 3000 })
-    // ])
-    // await newPage.waitForLoadState()
-    // return newPage
+  async getText(selector: string): Promise<string> {
+    return await this.page.getByTestId(selector).innerText()
+  }
 
+  async entertext(selector: string, text: string): Promise<void> {
+    await this.page.getByTestId(selector).fill(text)
+  }
+
+  async getValue(selector: string): Promise<string> {
+    return await this.page.getByTestId(selector).inputValue()
+  }
+
+  async handleNewPage(locator: Locator) {
     const context = this.page.context()
     const actionWindowPagePromise = new Promise<Page>((resolve) => {
       context.once('page', (p) => {
@@ -75,11 +76,22 @@ export abstract class BasePage {
       })
     })
 
-    await this.page.getByTestId(locator).first().click({ timeout: 3000 })
+    await locator.first().click({ timeout: 3000 })
+
     return actionWindowPagePromise
   }
 
   async pause() {
     await this.page.pause()
+  }
+
+  // assertion methods
+  async checkUrl(url: string) {
+    await this.page.waitForURL(`**${url}`, { timeout: 3000 })
+    expect(this.page.url()).toContain(url)
+  }
+
+  async expectButtonVisible(selector: string) {
+    await expect(this.page.getByTestId(selector)).toBeVisible()
   }
 }

@@ -120,10 +120,6 @@ module.exports = async function (env, argv) {
   // Global configuration
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
   config.resolve.alias.dns = 'dns-js'
-  config.resolve.alias['@metamask/eth-sig-util'] = path.resolve(
-    __dirname,
-    'shim.metamask-eth-sig-util.js'
-  )
 
   // The files in the /web directory should be transpiled not just copied
   const excludeCopyPlugin = config.plugins.findIndex(
@@ -335,6 +331,18 @@ module.exports = async function (env, argv) {
       new CopyPlugin({ patterns: extensionCopyPatterns })
     ]
 
+    // Some dependencies, such as @metamask/eth-sig-util v7+ and v8+, ship .cjs
+    // files and define "exports" fields in their package.json. In multi-entry
+    // builds (like ours), Webpack 5 can get confused and attempt to emit the
+    // same .cjs file into multiple chunks, causing the error:
+    // "Multiple chunks emit assets to the same filename index..cjs".
+    // This rule tells Webpack to treat .cjs files as regular JS (not ESM),
+    // which prevents chunk emission conflicts.
+    config.module.rules.push({
+      test: /\.cjs$/,
+      type: 'javascript/auto'
+    })
+
     if (isWebkit) {
       // This plugin enables code-splitting support for the service worker, allowing it to import chunks dynamically.
       config.plugins.push(
@@ -414,11 +422,15 @@ module.exports = async function (env, argv) {
             comments: false
           }
 
-          // Disable mangling to ensure bit-for-bit deterministic builds across platforms (e.g. x64 vs arm64)
-          // This avoids differences in variable/function names (e.g. P vs x) that can cause review rejections
-          // The drawback is larger bundle size, so we only do it for Gecko
-          // TODO: Temporarily disabled for testing
-          if (isGecko) terserRealOptions.mangle = false
+          // Disable mangling:
+          // 1) For Firefox, to ensure bit-for-bit deterministic builds across
+          // platforms (e.g. x64 vs arm64). This avoids differences in
+          // variable/function names (e.g. P vs x) that can cause review rejections.
+          // 2) For Webkit as well avoid issues with GridPlus SDK - signing
+          // EIP-712 messages fail with PROD build on Linux (work just fine on DEV)
+          // because the mangling messes up the gridplus-sdk package somehow.
+          // The drawback is larger bundle size.
+          terserRealOptions.mangle = false
         }
 
         // Disable parallel to avoid nondeterminism in some environments

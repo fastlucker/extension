@@ -97,7 +97,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
     tokens: tokensInToTokenSelect,
-    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
+    token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
     supportedChainIds,
     isLoading: !toTokenShortList.length && updateToTokenListStatus !== 'INITIAL',

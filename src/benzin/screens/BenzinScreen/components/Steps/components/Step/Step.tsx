@@ -89,6 +89,7 @@ const Step: FC<StepProps> = ({
         {isCompleted && !hasFailed && (
           <ConfirmedIcon
             color={theme.successDecorative}
+            checkColor={theme.primaryBackground}
             style={styles.icon}
             // If this is the final step, and it's completed successfully,
             // we set a testID to allow easy txn status verification in E2E tests.
