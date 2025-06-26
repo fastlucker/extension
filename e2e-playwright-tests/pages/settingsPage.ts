@@ -81,6 +81,7 @@ export class SettingsPage extends BasePage {
     )
   }
 
+  // TODO: once have IDs on FE remove this method and use .fill() instead
   async typeNetworkField(field: string, text: string) {
     const selector = `//div[text()="${field}"]/following-sibling::div//input`
     await this.page.waitForSelector(selector, { state: 'visible', timeout: 3000 })
