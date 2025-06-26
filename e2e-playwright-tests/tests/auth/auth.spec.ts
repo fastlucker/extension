@@ -1,5 +1,4 @@
 import { BA_PASSPHRASE, SA_PASSPHRASE } from 'constants/env'
-
 import mainConstants from 'constants/mainConstants'
 import { test } from 'fixtures/pageObjects' // your extended test with authPage
 
