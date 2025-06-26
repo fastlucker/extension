@@ -22,11 +22,11 @@ describe('networkManagement', () => {
     await browser.close()
   })
 
-  it.skip('adding network manually', async () => {
-    await addNetworkManually(page, 'FLR')
-    await editNetwork(page, 'FLR')
-    await disableNetwork(page, 'FLR')
-  })
+  // it.skip('adding network manually', async () => {
+  //   await addNetworkManually(page, 'FLR')
+  //   await editNetwork(page, 'FLR')
+  //   await disableNetwork(page, 'FLR')
+  // })
 
   it.skip('adding network from Chainlist', async () => {
     await addNetworkFromChainlist(page, 'FLOW')
