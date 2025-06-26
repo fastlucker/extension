@@ -59,7 +59,12 @@ import { controllersNestedInMainMapping } from '@web/extension-services/backgrou
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
-import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
+import {
+  initializeMessenger,
+  MessageMeta,
+  Port,
+  PortMessenger
+} from '@web/extension-services/messengers'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -926,11 +931,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       pm.addListener(
         port.id,
         // @ts-ignore
-        async (
-          messageType,
-          action: Action,
-          meta: { windowId?: number; [key: string]: any } = {}
-        ) => {
+        async (messageType, action: Action, meta: MessageMeta = {}) => {
           const { type } = action
           const { windowId } = meta
 

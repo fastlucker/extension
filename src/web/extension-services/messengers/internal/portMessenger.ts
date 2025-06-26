@@ -7,16 +7,18 @@ export type Port = chrome.runtime.Port & { id: string }
 
 type MessageType = '> ui' | '> ui-error' | '> ui-toast' | '> background'
 
+export type MessageMeta = { windowId?: number; [key: string]: any }
+
 export type SendType = <TMessageType extends MessageType>(
   type: MessageType,
   message: TMessageType extends '> background' ? ActionType : PortMessageType,
-  meta?: { windowId?: number; [key: string]: any }
+  meta?: MessageMeta
 ) => void
 
 type ListenCallbackType = <TMessageType extends MessageType>(
   type: MessageType,
   message: TMessageType extends '> background' ? ActionType : PortMessageType,
-  meta?: { windowId?: number; [key: string]: any }
+  meta?: MessageMeta
 ) => Promise<any> | void
 
 export type PortMessageType = {
