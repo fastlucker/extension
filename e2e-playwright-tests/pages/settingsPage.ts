@@ -1,7 +1,9 @@
-import { KEYSTORE_PASS, NETWORKS_LIST } from 'constants/env'
+import { KEYSTORE_PASS } from 'constants/env'
+import { networks } from 'constants/networks'
 import selectors from 'constants/selectors'
 
 import { bootstrapWithStorage } from '@helpers/bootstrap'
+import { expect } from '@playwright/test'
 
 import { BasePage } from './basePage'
 
@@ -54,38 +56,34 @@ export class SettingsPage extends BasePage {
 
   async addNetworkManually(network_symbol) {
     await this.openSettingsGeneral()
-    await this.page.pause()
 
+    // go to Network page
     await this.page.locator('//div[contains(text(),"Network")]').first().click()
     await this.checkUrl('/settings/networks')
-    // await selectSetting(page, 'Network', 'Network details')
 
+    // add network manually
     await this.click(selectors.settingsAddNetworkManually)
 
-    const network = NETWORKS_LIST[network_symbol]
-    // await typeNetworkField(page, 'Network name', network.networkName)
-    // await typeNetworkField(page, 'Currency Symbol', network.ccySymbol)
-    // await typeNetworkField(page, 'Currency Name', network.ccyName)
-    // await typeNetworkField(page, 'RPC URL', network.rpcUrl)
+    const network = networks[network_symbol]
+    await this.typeNetworkField('Network name', network.networkName)
+    await this.typeNetworkField('Currency Symbol', network.ccySymbol)
+    await this.typeNetworkField('Currency Name', network.ccyName)
+    await this.typeNetworkField('RPC URL', network.rpcUrl)
 
-    await this.entertext('Network name', network.networkName)
-    await this.entertext('Currency Symbol', network.ccySymbol)
-    await this.entertext('Currency Name', network.ccyName)
-    await this.entertext('RPC URL', network.rpcUrl)
+    // confirm adding rpc url
+    await this.page.locator(selectors.addRPCURLButton).click()
+    await this.typeNetworkField('Block Explorer URL', network.explorerUrl)
 
-    const [addButton] = await page.$x(MANUAL_ADD_BTN)
-    await addButton.click()
-    await typeNetworkField(page, 'Block Explorer URL', network.explorerUrl)
-    await page.waitForXPath(AMBIRE_SMART_ACCOUNTS_MSG, { hidden: true, timeout: 9000 })
-    await selectManualNetworkButton(page, 'Add network', 1000)
-
-    await verifyGreenMessage(page, GREEN_MSG_NETWORK_ADDED)
+    // add network
+    await this.page.locator(selectors.addNetworkButton).click({ timeout: 5000 })
+    await expect(this.page.locator(selectors.networkSuccessfullyAdded)).toHaveText(
+      'Network successfully added!'
+    )
   }
 
   async typeNetworkField(field: string, text: string) {
-    const xpath = `//div[text()="${field}"]/following-sibling::div//input`
-    await this.page.waitForXPath(xpath, { visible: true, timeout: 3000 })
-    const [inputElement] = await page.$x(xpath)
-    await inputElement.type(text)
+    const selector = `//div[text()="${field}"]/following-sibling::div//input`
+    await this.page.waitForSelector(selector, { state: 'visible', timeout: 3000 })
+    await this.page.locator(selector).fill(text)
   }
 }

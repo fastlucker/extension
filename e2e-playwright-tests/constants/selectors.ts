@@ -140,8 +140,14 @@ const selectors = {
   modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',
   topUpProceedButton: 'proceed-btn',
-  closeProgressModalButton: 'track-progress-primary-button'
-
+  closeProgressModalButton: 'track-progress-primary-button',
+  // Network Management
+  // TODO: change once we have IDs on FE
+  addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
+  AMBIRE_SMART_ACCOUNTS_MSG:
+  '//div[.//div[text()="?"] and .//div[contains(text(), "Ambire Smart Accounts")]]',
+  addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
+  networkSuccessfullyAdded: '(//div[contains(normalize-space(), "Network successfully added!")])[4]' // TODO: snackbar selector finding 8 elements; change once we have ID on FE
 }
 
 type SelectorKey = keyof typeof selectors

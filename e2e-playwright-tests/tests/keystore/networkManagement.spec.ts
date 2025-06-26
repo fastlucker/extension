@@ -7,7 +7,7 @@ test.describe('network management', () => {
     await settingsPage.init(saParams)
   })
 
-  test.only('adding network manually', async ({ settingsPage }) => {
+  test('adding network manually', async ({ settingsPage }) => {
     await settingsPage.addNetworkManually('FLR')
   })
 
