@@ -18,6 +18,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import useSyncedState from '@web/hooks/useSyncedState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -36,6 +37,7 @@ const useSwapAndBridgeForm = () => {
     fromAmountInFiat,
     activeRoutes,
     signAccountOpController,
+    fromAmountUpdateCounter,
     formStatus,
     supportedChainIds,
     updateQuoteStatus,
@@ -44,7 +46,17 @@ const useSwapAndBridgeForm = () => {
   } = useSwapAndBridgeControllerState()
   const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
-  const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+  const controllerAmountFieldValue = fromAmountFieldMode === 'token' ? fromAmount : fromAmountInFiat
+  const [fromAmountValue, setFromAmountValue] = useSyncedState<string>({
+    backgroundState: controllerAmountFieldValue,
+    updateBackgroundState: (newAmount) => {
+      dispatch({
+        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { amount: newAmount } }
+      })
+    },
+    forceUpdateOnChangeList: [fromAmountUpdateCounter, fromAmountFieldMode]
+  })
   /**
    * @deprecated - the settings menu is not used anymore
    */
@@ -57,8 +69,6 @@ const useSwapAndBridgeForm = () => {
   const { networks } = useNetworksControllerState()
   const currentRoute = useLocation()
   const { setSearchParams, navigate } = useNavigation()
-  const prevFromAmount = usePrevious(fromAmount)
-  const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
   const {
     ref: estimationModalRef,
@@ -207,48 +217,6 @@ const useSwapAndBridgeForm = () => {
       dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
     }
   }, [dispatch, sessionId])
-
-  useEffect(() => {
-    if (
-      fromAmountFieldMode === 'fiat' &&
-      prevFromAmountInFiat !== fromAmountInFiat &&
-      fromAmountInFiat !== fromAmountValue
-    ) {
-      handleSetFromAmount(fromAmountInFiat)
-    }
-  }, [
-    fromAmountInFiat,
-    fromAmountValue,
-    prevFromAmountInFiat,
-    fromAmountFieldMode,
-    handleSetFromAmount
-  ])
-
-  useEffect(() => {
-    if (fromAmountFieldMode === 'token') handleSetFromAmount(fromAmount)
-    if (fromAmountFieldMode === 'fiat') handleSetFromAmount(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, handleSetFromAmount])
-
-  useEffect(() => {
-    if (
-      fromAmountFieldMode === 'token' &&
-      prevFromAmount !== fromAmount &&
-      fromAmount !== fromAmountValue
-    ) {
-      handleSetFromAmount(fromAmount)
-    }
-  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode, handleSetFromAmount])
-
-  const onFromAmountChange = useCallback(
-    (value: string) => {
-      handleSetFromAmount(value)
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { fromAmount: value }
-      })
-    },
-    [dispatch, handleSetFromAmount]
-  )
 
   const {
     options: fromTokenOptions,
@@ -481,7 +449,7 @@ const useSwapAndBridgeForm = () => {
   return {
     sessionId,
     fromAmountValue,
-    onFromAmountChange,
+    onFromAmountChange: handleSetFromAmount,
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
     fromTokenValue,

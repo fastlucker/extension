@@ -544,6 +544,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromAmount?: string
     fromAmountInFiat?: string
     fromAmountFieldMode?: 'fiat' | 'token'
+    shouldSetMaxAmount?: boolean
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
