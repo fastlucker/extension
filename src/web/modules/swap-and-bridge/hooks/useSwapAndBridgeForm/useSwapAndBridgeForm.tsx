@@ -58,7 +58,7 @@ const useSwapAndBridgeForm = () => {
     forceUpdateOnChangeList: [fromAmountUpdateCounter, fromAmountFieldMode]
   })
 
-  const isLocalStateOutOfSync = fromAmount !== fromAmountValue
+  const isLocalStateOutOfSync = controllerAmountFieldValue !== fromAmountValue
   /**
    * @deprecated - the settings menu is not used anymore
    */

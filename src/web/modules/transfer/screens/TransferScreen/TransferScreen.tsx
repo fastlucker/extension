@@ -120,7 +120,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   })
 
   const isLocalStateOutOfSync =
-    controllerAmount !== amountFieldValue || addressState.fieldValue !== addressStateFieldValue
+    controllerAmountFieldValue !== amountFieldValue ||
+    addressState.fieldValue !== addressStateFieldValue
 
   const submittedAccountOp = useMemo(() => {
     if (!accountsOps.transfer || !latestBroadcastedAccountOp?.signature) return
