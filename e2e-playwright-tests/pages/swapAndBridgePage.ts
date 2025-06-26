@@ -212,7 +212,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
     await this.click(selectors.addToBatchButton)
     await this.click(selectors.goDashboardButton)
-    const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
+    const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
     await this.signTransactionPage(newPage)
   }
 
@@ -370,7 +370,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.click(selectors.addToBatchButton)
     await this.click(selectors.goDashboardButton)
-    const newPage = await this.handleNewPage(selectors.bannerButtonOpen)
+    const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
     await this.signBatchTransactionsPage(newPage)
   }
 
