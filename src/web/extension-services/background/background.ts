@@ -306,7 +306,15 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
           return new Promise((resolve) => {
             const popupPort = pm.ports.find((p) => p.name === 'popup')
             if (!popupPort) return resolve()
-            popupPort.onDisconnect.addListener(() => resolve())
+
+            const timeout = setTimeout(() => {
+              resolve()
+            }, 1500)
+
+            popupPort.onDisconnect.addListener(() => {
+              clearTimeout(timeout)
+              resolve()
+            })
             pm.send('> ui', { method: 'closePopup', params: {} })
           })
         } else {
