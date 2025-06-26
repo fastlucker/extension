@@ -51,7 +51,6 @@ const LedgerConnectScreen = () => {
       const actionId = params.get('actionId')
       if (actionId) {
         dispatch({ type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID', params: { actionId } })
-        closeCurrentWindow()
       } else {
         dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER' })
       }
