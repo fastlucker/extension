@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Trans } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -18,6 +18,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { setStringAsync } from '@common/utils/clipboard'
 import { PortalHost } from '@gorhom/portal'
+import { isExtension } from '@web/constants/browserapi'
+import storage from '@web/extension-services/background/webapi/storage'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
@@ -32,11 +34,24 @@ interface Props {
 }
 
 const ErrorBoundary = ({ error }: Props) => {
+  const [themeType, setThemeType] = useState(DEFAULT_THEME)
+
+  useEffect(() => {
+    if (isExtension) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      ;(async () => {
+        const storageThemeType = await storage.get('themeType', DEFAULT_THEME)
+        setThemeType(storageThemeType)
+      })()
+    }
+  }, [])
+
   return (
     // The global theme provider is rendered below the ErrorBoundary as it requires state from other contexts.
     // To ensure that the ErrorBoundary has access to the theme and wraps as many components as possible,
     // we render a ThemeProvider with a forced theme type.
-    <ThemeProvider forceThemeType={DEFAULT_THEME}>
+    <ThemeProvider forceThemeType={themeType || DEFAULT_THEME}>
+      {/* eslint-disable-next-line @typescript-eslint/no-use-before-define */}
       <ErrorBoundaryInner error={error} />
     </ThemeProvider>
   )
