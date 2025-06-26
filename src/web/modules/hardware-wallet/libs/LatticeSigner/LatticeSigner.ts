@@ -1,5 +1,4 @@
 import { hexlify, Signature, Transaction, TransactionLike } from 'ethers'
-import * as SDK from 'gridplus-sdk'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { EIP7702Auth } from '@ambire-common/consts/7702'
@@ -123,9 +122,9 @@ class LatticeSigner implements KeystoreSignerInterface {
         data: {
           signerPath,
           payload: unsignedSerializedTxn,
-          curveType: SDK.Constants.SIGNING.CURVES.SECP256K1,
-          hashType: SDK.Constants.SIGNING.HASHES.KECCAK256,
-          encodingType: SDK.Constants.SIGNING.ENCODINGS.EVM
+          curveType: GridPlusSDKConstants.SIGNING.CURVES.SECP256K1,
+          hashType: GridPlusSDKConstants.SIGNING.HASHES.KECCAK256,
+          encodingType: GridPlusSDKConstants.SIGNING.ENCODINGS.EVM
         }
       })
 
