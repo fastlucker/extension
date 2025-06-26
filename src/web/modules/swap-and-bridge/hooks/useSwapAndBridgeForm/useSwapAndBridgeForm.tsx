@@ -51,8 +51,8 @@ const useSwapAndBridgeForm = () => {
     backgroundState: controllerAmountFieldValue,
     updateBackgroundState: (newAmount) => {
       dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: { formValues: { amount: newAmount } }
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+        params: { fromAmount: newAmount }
       })
     },
     forceUpdateOnChangeList: [fromAmountUpdateCounter, fromAmountFieldMode]

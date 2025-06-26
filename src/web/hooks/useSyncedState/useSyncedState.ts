@@ -57,7 +57,6 @@ const useSyncedState = <T>({
 
   const handleTabVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
-      console.log('Debug: Tab is focused, updating local state with background state')
       setState(backgroundState)
     }
   }
@@ -79,13 +78,6 @@ const useSyncedState = <T>({
   useEffect(() => {
     const identifier = getForceUpdateIdentifier(forceUpdateOnChangeList)
     if (identifier !== lastForceUpdateIdentifier.current) {
-      console.log(
-        'Debug: Force update triggered due to change in dependencies:',
-        'Old Identifier:',
-        lastForceUpdateIdentifier.current,
-        'New Identifier:',
-        identifier
-      )
       lastForceUpdateIdentifier.current = identifier
       setState(backgroundState)
       clearDebounceTimeout()
