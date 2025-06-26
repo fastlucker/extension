@@ -57,6 +57,8 @@ const useSwapAndBridgeForm = () => {
     },
     forceUpdateOnChangeList: [fromAmountUpdateCounter, fromAmountFieldMode]
   })
+
+  const isLocalStateOutOfSync = fromAmount !== fromAmountValue
   /**
    * @deprecated - the settings menu is not used anymore
    */
@@ -472,7 +474,8 @@ const useSwapAndBridgeForm = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   }
 }
 
