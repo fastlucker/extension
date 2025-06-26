@@ -37,13 +37,14 @@ const ErrorBoundary = ({ error }: Props) => {
   const [themeType, setThemeType] = useState(DEFAULT_THEME)
 
   useEffect(() => {
-    if (isExtension) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      ;(async () => {
-        const storageThemeType = await storage.get('themeType', DEFAULT_THEME)
-        if (storageThemeType) setThemeType(storageThemeType)
-      })()
+    if (!isExtension) return
+
+    const loadTheme = async () => {
+      const storageThemeType = await storage.get('themeType', DEFAULT_THEME)
+      if (storageThemeType !== null) setThemeType(storageThemeType)
     }
+
+    loadTheme()
   }, [])
 
   return (
