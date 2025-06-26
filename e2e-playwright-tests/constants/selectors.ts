@@ -119,7 +119,6 @@ const selectors = {
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
   highPriceImpactSab: 'high-price-impact-sab',
-  signButtonSab: 'button-sign',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
@@ -140,7 +139,10 @@ const selectors = {
   modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',
   topUpProceedButton: 'proceed-btn',
-  closeProgressModalButton: 'track-progress-primary-button'
+  closeProgressModalButton: 'track-progress-primary-button',
+  // Sign
+  dappConnectButton: 'dapp-connect-button',
+  signMessageButton: 'button-sign'
 
 }
 
