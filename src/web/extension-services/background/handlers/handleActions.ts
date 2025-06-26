@@ -214,11 +214,11 @@ export const handleActions = async (
         skipFocus: params.skipFocus
       })
     case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-      return mainCtrl.removeUserRequest(params.id)
+      return mainCtrl.removeUserRequests([params.id])
     case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
       return mainCtrl.resolveUserRequest(params.data, params.id)
     case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-      return mainCtrl.rejectUserRequest(params.err, params.id)
+      return mainCtrl.rejectUserRequests(params.err, [params.id])
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
@@ -370,7 +370,9 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.removeAction(`${mainCtrl.selectedAccount.account.addr}-${idSuffix}`)
+      return mainCtrl.actions.removeActions([
+        `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`
+      ])
     }
     case 'TRANSFER_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transfer.update(params.formValues)
@@ -393,7 +395,7 @@ export const handleActions = async (
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
     case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-      return mainCtrl.actions.removeAction(params.id, params.shouldOpenNextAction)
+      return mainCtrl.actions.removeActions([params.id], params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
       return mainCtrl.actions.focusActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
