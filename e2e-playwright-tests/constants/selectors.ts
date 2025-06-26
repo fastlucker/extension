@@ -119,7 +119,6 @@ const selectors = {
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
   highPriceImpactSab: 'high-price-impact-sab',
-  signButtonSab: 'button-sign',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
@@ -144,10 +143,11 @@ const selectors = {
   // Network Management
   // TODO: change once we have IDs on FE
   addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
-  AMBIRE_SMART_ACCOUNTS_MSG:
-  '//div[.//div[text()="?"] and .//div[contains(text(), "Ambire Smart Accounts")]]',
   addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
-  networkSuccessfullyAdded: '(//div[contains(normalize-space(), "Network successfully added!")])[4]' // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  networkSuccessfullyAdded: '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  // Sign
+  dappConnectButton: 'dapp-connect-button',
+  signMessageButton: 'button-sign'
 }
 
 type SelectorKey = keyof typeof selectors
