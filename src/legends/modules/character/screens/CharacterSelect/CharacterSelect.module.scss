@@ -5,6 +5,10 @@
   max-width: 82rem;
   margin: 0 auto;
   padding: 8rem 4rem 4rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
 
   .backgroundEffect {
     position: absolute;

@@ -51,10 +51,12 @@ const CharacterSelect = () => {
         className={styles.backgroundEffect}
         style={{ backgroundImage: `url(${blurredLights})` }}
       />
-      <h1 className={styles.title}>Mint Your NFT</h1>
-      <p className={styles.description}>
-        Pick your profile avatar and mint a soulbound NFT for free
-      </p>
+      <div>
+        <h1 className={styles.title}>Mint Your NFT</h1>
+        <p className={styles.description}>
+          Pick your profile avatar and mint a soulbound NFT for free
+        </p>
+      </div>
       <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
       {!isCheckingMintStatus && (
         <button
