@@ -1,5 +1,5 @@
-import { saParams } from '../../config/constants'
-import { test } from '../../fixtures/pageObjects'
+import { saParams } from 'constants/env'
+import { test } from 'fixtures/pageObjects'
 
 test.describe('dashboard', () => {
   test.beforeEach(async ({ dashboardPage }) => {

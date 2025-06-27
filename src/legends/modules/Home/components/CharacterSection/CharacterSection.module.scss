@@ -109,7 +109,7 @@
 
       .currentSeasonBadge {
           position: absolute;
-          right: 0;
+          left: 0;
           background-color: $purple-700;
           padding: .35rem .7rem;
           border-bottom-right-radius: .5rem;
@@ -320,6 +320,8 @@
       }
     }
     .characterInfo {
+      padding-top: 1rem;
+
       .characterName {
         font-size: 3rem;
       }

@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
 
+import { SELECTORS } from 'constants/selectors'
 import { clickOnElement } from './clickOnElement'
-import { SELECTORS } from '../common/selectors/selectors'
 
 export async function completeOnboardingSteps(page) {
   // Expect the current page to be "get-started"

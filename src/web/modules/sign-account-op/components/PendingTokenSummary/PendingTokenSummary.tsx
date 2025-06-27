@@ -10,7 +10,6 @@ import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BigIntMath } from '@common/utils/bigint'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import getStyles from './styles'
@@ -23,8 +22,7 @@ interface Props {
 
 const PendingTokenSummary = ({ token, chainId, hasBottomSpacing = true }: Props) => {
   const { styles, theme } = useTheme(getStyles)
-  const { networks } = useNetworksControllerState()
-  const tokenId = getTokenId(token, networks)
+  const tokenId = getTokenId(token)
   const { formattedAmount, fullAmount } = useMemo(() => {
     if (token.simulationAmount === undefined || token.decimals === undefined) {
       return {

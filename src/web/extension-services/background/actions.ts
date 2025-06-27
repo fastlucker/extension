@@ -1,9 +1,10 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
-  ActionPosition
+  ActionExecutionType,
+  ActionPosition,
+  OpenActionWindowParams
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -188,6 +189,7 @@ type MainControllerAddUserRequestAction = {
     actionPosition?: ActionPosition
     actionExecutionType?: ActionExecutionType
     allowAccountSwitch?: boolean
+    skipFocus?: boolean
   }
 }
 type MainControllerBuildTransferUserRequest = {
@@ -278,6 +280,16 @@ type MainControllerUpdateSelectedAccountPortfolio = {
     forceUpdate?: boolean
     network?: Network
   }
+}
+
+type DefiControllerAddSessionAction = {
+  type: 'DEFI_CONTOLLER_ADD_SESSION'
+  params: { sessionId: string }
+}
+
+type DefiControllerRemoveSessionAction = {
+  type: 'DEFI_CONTOLLER_REMOVE_SESSION'
+  params: { sessionId: string }
 }
 
 type SelectedAccountSetDashboardNetworkFilter = {
@@ -496,19 +508,15 @@ type DomainsControllerSaveResolvedReverseLookupAction = {
 
 type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_DISCONNECT_DAPP'
-  params: Dapp['url']
-}
-type DappsControllerAddDappAction = {
-  type: 'DAPP_CONTROLLER_ADD_DAPP'
-  params: Dapp
+  params: Dapp['id']
 }
 type DappsControllerUpdateDappAction = {
   type: 'DAPP_CONTROLLER_UPDATE_DAPP'
-  params: { url: string; dapp: Partial<Dapp> }
+  params: { id: string; dapp: Partial<Dapp> }
 }
 type DappsControllerRemoveDappAction = {
   type: 'DAPP_CONTROLLER_REMOVE_DAPP'
-  params: Dapp['url']
+  params: Dapp['id']
 }
 
 type SwapAndBridgeControllerInitAction = {
@@ -563,9 +571,7 @@ type SwapAndBridgeControllerResetForm = {
 }
 type SwapAndBridgeControllerBuildUserRequest = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
-  params: {
-    openActionWindow: boolean
-  }
+  params: { openActionWindow: boolean }
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
@@ -643,6 +649,7 @@ type ActionsControllerSetCurrentActionByIndex = {
   type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX'
   params: {
     index: number
+    params?: OpenActionWindowParams
   }
 }
 
@@ -673,7 +680,7 @@ type AddressBookControllerRemoveContact = {
 
 type ChangeCurrentDappNetworkAction = {
   type: 'CHANGE_CURRENT_DAPP_NETWORK'
-  params: { chainId: number; origin: string }
+  params: { chainId: number; id: string }
 }
 
 type SetIsPinnedAction = {
@@ -777,6 +784,8 @@ export type Action =
   | MainControllerSignAccountOpUpdateStatus
   | MainControllerReloadSelectedAccount
   | MainControllerUpdateSelectedAccountPortfolio
+  | DefiControllerAddSessionAction
+  | DefiControllerRemoveSessionAction
   | SelectedAccountSetDashboardNetworkFilter
   | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
@@ -803,7 +812,6 @@ export type Action =
   | DomainsControllerReverseLookupAction
   | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
-  | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
   | SwapAndBridgeControllerInitAction

@@ -446,7 +446,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   if (displayedView === 'track') {
     return (
       <TrackProgress
-        title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
         onPrimaryButtonPress={onPrimaryButtonPress}
         secondaryButtonText={t('Add more')}
         handleClose={() => {
@@ -456,8 +455,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         }}
       >
         {submittedAccountOp?.status === AccountOpStatus.BroadcastedButNotConfirmed && (
-          <InProgress title={isTopUp ? t('Confirming your top up') : t('Confirming your transfer')}>
-            {t('Almost there!')}
+          <InProgress title={isTopUp ? t('Confirming your top-up') : t('Confirming your transfer')}>
+            <Text fontSize={16} weight="medium" appearance="secondaryText">
+              {t('Almost there!')}
+            </Text>
           </InProgress>
         )}
         {(submittedAccountOp?.status === AccountOpStatus.Success ||
@@ -467,7 +468,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
             titleSecondary={
               isTopUp
                 ? t('You can now use your gas tank')
-                : t('{{symbol}} delivered - like magic.', {
+                : t('{{symbol}} delivered!', {
                     symbol: latestBroadcastedToken?.symbol || 'Token'
                   })
             }

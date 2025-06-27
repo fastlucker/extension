@@ -20,7 +20,7 @@ const handleProviderRequests = async (
   }
 
   if (method === 'contentScriptReady') {
-    await mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin', undefined, session.origin, true)
+    await mainCtrl.dapps.broadcastDappSessionEvent('tabCheckin', undefined, session.id, true)
     const providerController = new ProviderController(mainCtrl)
     const isUnlocked = mainCtrl.keystore.isUnlocked
     const chainId = await providerController.ethChainId(request)
@@ -40,18 +40,19 @@ const handleProviderRequests = async (
         accounts: isUnlocked ? await providerController.ethAccounts(request) : [],
         networkVersion
       },
-      session.origin
+      session.id
     )
     return
   }
 
   if (method === 'tabCheckin') {
     mainCtrl.dapps.setSessionProp(session.sessionId, {
-      origin: request.origin,
       name: params.name,
       icon: params.icon
     })
-    mainCtrl.dapps.updateDapp(params.origin, { name: params.name })
+    mainCtrl.dapps.updateDapp(mainCtrl.dapps.dappSessions[session.sessionId].id, {
+      name: params.name
+    })
     mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
     return
   }

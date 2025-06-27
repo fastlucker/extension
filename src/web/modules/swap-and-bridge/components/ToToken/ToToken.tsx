@@ -5,7 +5,6 @@ import { View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
@@ -98,7 +97,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
     tokens: tokensInToTokenSelect,
-    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
+    token: toSelectedToken ? getTokenId(toSelectedToken) : '',
     networks,
     supportedChainIds,
     isLoading: !toTokenShortList.length && updateToTokenListStatus !== 'INITIAL',
@@ -126,8 +125,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       networks.map((n) => {
         const tooltipId = `network-${n.chainId}-not-supported-tooltip`
         const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
-        const network = networks.find((net) => Number(net.chainId) === toChainId)
-        const isSelected = network && String(network.chainId) === String(n.chainId)
+
         return {
           value: String(n.chainId),
           extraSearchProps: [n.name],
@@ -148,24 +146,10 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
               )}
             </>
           ),
-          icon: (
-            <NetworkIcon
-              key={n.chainId.toString()}
-              id={n.chainId.toString()}
-              style={{
-                backgroundColor:
-                  themeType === THEME_TYPES.DARK
-                    ? isSelected
-                      ? theme.primaryBackground
-                      : theme.secondaryBackground
-                    : theme.primaryBackground
-              }}
-              size={28}
-            />
-          )
+          icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} size={28} />
         }
       }),
-    [networks, supportedChainIds, theme, themeType, toChainId]
+    [networks, supportedChainIds, toChainId]
   )
 
   const getToNetworkSelectValue = useMemo(() => {

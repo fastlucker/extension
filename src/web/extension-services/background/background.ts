@@ -15,7 +15,6 @@ import {
   ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL,
   ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
   ACTIVITY_REFRESH_INTERVAL,
-  INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL,
   INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
   UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
 } from '@ambire-common/consts/intervals'
@@ -60,7 +59,12 @@ import { controllersNestedInMainMapping } from '@web/extension-services/backgrou
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
-import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
+import {
+  initializeMessenger,
+  MessageMeta,
+  Port,
+  PortMessenger
+} from '@web/extension-services/messengers'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -112,12 +116,13 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   while (!mainCtrl) await wait(200)
 
   const tabId = meta.sender?.tab?.id
-  if (tabId === undefined || !meta.sender?.url) {
+  const windowId = meta.sender?.tab?.windowId
+  if (tabId === undefined || windowId === undefined || !meta.sender?.url) {
     return
   }
 
   const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, windowId, origin })
 
   await mainCtrl.dapps.initialLoadPromise
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
@@ -296,8 +301,25 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     } as any,
     windowManager: {
       ...windowManager,
-      remove: async (winId: number) => {
-        await windowManager.remove(winId, pm)
+      remove: async (winId: number | 'popup') => {
+        if (winId === 'popup') {
+          return new Promise((resolve) => {
+            const popupPort = pm.ports.find((p) => p.name === 'popup')
+            if (!popupPort) return resolve()
+
+            const timeout = setTimeout(() => {
+              resolve()
+            }, 1500)
+
+            popupPort.onDisconnect.addListener(() => {
+              clearTimeout(timeout)
+              resolve()
+            })
+            pm.send('> ui', { method: 'closePopup', params: {} })
+          })
+        } else {
+          await windowManager.remove(winId, pm)
+        }
       },
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
@@ -410,18 +432,22 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     if (backgroundState.updateDefiPositionsInterval)
       clearTimeout(backgroundState.updateDefiPositionsInterval)
 
-    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-    const updateInterval = isExtensionActive
-      ? ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
-      : INACTIVE_EXTENSION_DEFI_POSITION_UPDATE_INTERVAL
-
     async function updateDefiPositions() {
-      await mainCtrl.defiPositions.updatePositions()
+      const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
+      if (!isExtensionActive) return
+
+      const FIVE_MINUTES = 1000 * 60 * 5
+      await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: FIVE_MINUTES })
+
       // Schedule the next update only when the previous one completes
-      backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+      backgroundState.updateDefiPositionsInterval = setTimeout(
+        updateDefiPositions,
+        ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+      )
     }
 
-    backgroundState.updateDefiPositionsInterval = setTimeout(updateDefiPositions, updateInterval)
+    // this update will be triggered on window open (tab, popup or action-window)
+    await updateDefiPositions()
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -635,8 +661,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               false,
               mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
             )
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.defiPositions.updatePositions({ chainId: BigInt(chainId) })
           }
         })
       }
@@ -909,54 +933,59 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
+
       mainCtrl.phishing.updateIfNeeded()
 
-      // @ts-ignore
-      pm.addListener(port.id, async (messageType, action: Action) => {
-        const { type } = action
-        try {
-          if (messageType === '> background' && type) {
-            await handleActions(action, {
-              pm,
-              port,
-              mainCtrl,
-              walletStateCtrl,
-              autoLockCtrl,
-              extensionUpdateCtrl
+      pm.addListener(
+        port.id,
+        // @ts-ignore
+        async (messageType, action: Action, meta: MessageMeta = {}) => {
+          const { type } = action
+          const { windowId } = meta
+
+          try {
+            if (messageType === '> background' && type) {
+              await handleActions(action, {
+                pm,
+                port,
+                mainCtrl,
+                walletStateCtrl,
+                autoLockCtrl,
+                extensionUpdateCtrl,
+                windowId
+              })
+            }
+          } catch (err: any) {
+            console.error(`${type} action failed:`, err)
+            const shortenedError =
+              err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
+
+            let message = `Something went wrong! Please contact support. Error: ${shortenedError}`
+            // Emit the raw error only if it's a custom error
+            if (err instanceof EmittableError || err instanceof ExternalSignerError) {
+              message = err.message
+            }
+
+            pm.send('> ui-error', {
+              method: type,
+              params: {
+                errors: [
+                  {
+                    message,
+                    level: 'major',
+                    error: err
+                  }
+                ]
+              }
             })
           }
-        } catch (err: any) {
-          console.error(`${type} action failed:`, err)
-          const shortenedError =
-            err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
-
-          let message = `Something went wrong! Please contact support. Error: ${shortenedError}`
-          // Emit the raw error only if it's a custom error
-          if (err instanceof EmittableError || err instanceof ExternalSignerError) {
-            message = err.message
-          }
-
-          pm.send('> ui-error', {
-            method: type,
-            params: {
-              errors: [
-                {
-                  message,
-                  level: 'major',
-                  error: err
-                }
-              ]
-            }
-          })
         }
-      })
+      )
 
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
-        initDefiPositionsContinuousUpdate()
-
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup
@@ -978,7 +1007,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   })
 
   initPortfolioContinuousUpdate()
-  initDefiPositionsContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 

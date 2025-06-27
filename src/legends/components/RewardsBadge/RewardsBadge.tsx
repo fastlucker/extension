@@ -147,44 +147,63 @@ const RewardsBadge: React.FC = () => {
                 return <p>Error loading rewards</p>
               }
 
-              // Check eligibility first
-              if (
-                !isRewardsLoading &&
-                accountPortfolio?.isReady &&
-                season1LeaderboardData &&
-                !isEligible
-              ) {
+              // Extract level and balance eligibility
+              const userLevel = season1LeaderboardData?.currentUser?.level ?? 0
+              const hasMinBalance =
+                amountFormatted && Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) >= 500
+              const hasMinLevel = userLevel > 2
+
+              // Lvl reached, Usd < 500
+              if (hasMinLevel && !hasMinBalance) {
                 return (
                   <p className={styles.rewardsTitle}>
-                    You need to reach Level 3 and keep a minimum balance of
-                    <br />
-                    $500 on the supported networks to start accruing rewards.
+                    Keep your account balance over $500 to accumulate rewards.
                   </p>
                 )
               }
 
-              // If eligible but no rewards
-              if (!claimWalletCard || hasNoRewardsAvailable) {
+              // Lvl not reached, Usd > 500
+              if (!hasMinLevel && hasMinBalance) {
                 return (
                   <p className={styles.rewardsTitle}>
-                    You haven&apos;t accumulated $WALLET rewards yet.
+                    Reach level 3 to start accumulating rewards.
                   </p>
                 )
               }
 
-              // Active state with rewards
-              return (
-                <>
-                  <p className={styles.rewardsTitle}>$WALLET Rewards</p>
-                  <p className={styles.rewardsAmount}>
-                    {claimWalletCard?.meta?.availableToClaim
-                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
-                          .toLocaleString('en-US', { useGrouping: true })
-                          .replace(/,/g, ' ')
-                      : '0'}
+              // Lvl not reached, Usd < 500
+              if (!hasMinLevel && !hasMinBalance) {
+                return (
+                  <p className={styles.rewardsTitle}>
+                    Keep your account balance over $500 and reach level 3 to start accumulating rewards.
                   </p>
-                </>
-              )
+                )
+              }
+
+              // Lvl reached, Usd > 500
+              if (hasMinLevel && hasMinBalance) {
+                // If eligible but no rewards
+                if (!claimWalletCard || hasNoRewardsAvailable) {
+                  return (
+                    <p className={styles.rewardsTitle}>
+                      You are currently accumulating rewards for this season
+                    </p>
+                  )
+                }
+                // Active state with rewards
+                return (
+                  <>
+                    <p className={styles.rewardsTitle}>$WALLET Rewards</p>
+                    <p className={styles.rewardsAmount}>
+                      {claimWalletCard?.meta?.availableToClaim
+                        ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
+                            .toLocaleString('en-US', { useGrouping: true })
+                            .replace(/,/g, ' ')
+                        : '0'}
+                    </p>
+                  </>
+                )
+              }
             })()}
           </div>
         </div>
