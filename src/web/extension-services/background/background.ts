@@ -73,9 +73,9 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
-import { logInfoWithPrefix } from '@web/utils/logger'
+import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
-function stateDebug(event: string, stateToLog: object, ctrlName: string) {
+function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -92,7 +92,7 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   // causing the extension to slow down or freeze.
   // Instead of logging with `logInfoWithPrefix` in production, we rely on EventEmitter.emitError() to log individual errors
   // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
-  if (process.env.APP_ENV === 'production') return
+  if (logLevel === LOG_LEVELS.PROD) return
 
   const args = parse(stringify(stateToLog))
   const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
@@ -105,6 +105,7 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
+let walletStateCtrl: WalletStateController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
@@ -113,7 +114,7 @@ handleKeepAlive()
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
-  while (!mainCtrl) await wait(200)
+  while (!mainCtrl || !walletStateCtrl) await wait(200)
 
   const tabId = meta.sender?.tab?.id
   const windowId = meta.sender?.tab?.windowId
@@ -136,6 +137,7 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
         origin
       },
       mainCtrl,
+      walletStateCtrl,
       id
     )
     return { id, result: res }
@@ -331,7 +333,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     notificationManager
   })
 
-  const walletStateCtrl = new WalletStateController()
+  walletStateCtrl = new WalletStateController({
+    onLogLevelUpdateCallback: async (nextLogLevel: LOG_LEVELS) => {
+      await mainCtrl.dapps.broadcastDappSessionEvent('logLevelUpdate', nextLogLevel)
+    }
+  })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, walletStateCtrl)
   const autoLockCtrl = new AutoLockController(() => {
@@ -733,7 +739,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
 
       pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
-      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
+      stateDebug(walletStateCtrl.logLevel, `onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
     }
 
     /**
@@ -852,7 +858,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            stateDebug(walletStateCtrl.logLevel, `onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
             const controller = (mainCtrl as any)[ctrlName]
 
             // In case the controller was destroyed and an error was emitted
@@ -868,7 +874,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug('onError (main ctrl)', mainCtrl, 'main')
+    stateDebug(walletStateCtrl.logLevel, 'onError (main ctrl)', mainCtrl, 'main')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }

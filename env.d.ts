@@ -44,18 +44,6 @@ declare module '@env' {
   export const NFT_CDN_URL: EnvTypes['NFT_CDN_URL']
 
   /**
-   * Possible log level descriptors, may be string, lower or upper case, or number.
-   * There are 6 levels: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'.
-   * This disables all logging below the given level, so that after a
-   * log.setLevel("warn") call log.warn("something") or log.error("something")
-   * will output messages, but log.info("something") will not.
-   */
-  export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: log.LogLevelDesc
-
-  /** See `BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD` */
-  export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: log.LogLevelDesc
-
-  /**
    * This value can be used to control the state of the controller logs.
    * If set to "true", the logs will be displayed only for the controller which is updated.
    * Due to the high volume of logs causing memory leak on FF, it is recommended to use this only for debugging purposes.
