@@ -80,10 +80,12 @@ const LedgerConnectModal = ({
     () =>
       openInternalPageInTab({
         route: `${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`,
-        shouldCloseCurrentWindow: true,
+        // Don't close the action window if the current action is a sign message
+        // as that would reject the message automatically.
+        shouldCloseCurrentWindow: currentAction?.type === 'accountOp',
         windowId: actionWindow.windowProps?.createdFromWindowId
       }),
-    [currentAction?.id, actionWindow.windowProps?.createdFromWindowId]
+    [currentAction?.id, currentAction?.type, actionWindow.windowProps?.createdFromWindowId]
   )
 
   const isLoading =
