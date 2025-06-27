@@ -15,6 +15,7 @@ declare module '@env' {
     NFT_CDN_URL: string
     LEGENDS_NFT_ADDRESS: string
     USE_SWAP_KEY: string
+    SENTRY_DSN_LEGENDS?: string
   }
 
   /**
@@ -109,4 +110,9 @@ declare module '@env' {
    * Should we use the swap key for dev purposes to avoid the rate limit
    */
   export const USE_SWAP_KEY: EnvTypes['USE_SWAP_KEY']
+
+  /**
+   * Sentry is application monitoring and error tracking app
+   */
+  export const SENTRY_DSN_LEGENDS: EnvTypes['SENTRY_DSN_LEGENDS']
 }
