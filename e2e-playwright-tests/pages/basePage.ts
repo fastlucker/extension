@@ -1,7 +1,7 @@
 import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
-import { expect, Page, Locator } from '@playwright/test'
+import { expect, Locator, Page } from '@playwright/test'
 
 export abstract class BasePage {
   page: Page
@@ -69,16 +69,33 @@ export abstract class BasePage {
   }
 
   async handleNewPage(locator: Locator) {
-    const context = this.page.context()
-    const actionWindowPagePromise = new Promise<Page>((resolve) => {
-      context.once('page', (p) => {
-        resolve(p)
-      })
-    })
+    // const context = this.page.context()
+    // const actionWindowPagePromise = new Promise<Page>((resolve) => {
+    //   context.once('page', (p) => {
+    //     resolve(p)
+    //   })
+    // })
 
-    await locator.first().click({ timeout: 3000 })
+    // await locator.first().click({ timeout: 3000 })
 
-    return actionWindowPagePromise
+    // return actionWindowPagePromise
+
+
+    const context = this.page.context();
+
+    const [actionWindowPagePromise] = await Promise.all([
+      context.waitForEvent('page'),
+      locator.first().click({ timeout: 3000 })  // trigger opening
+    ]);
+
+    // Ensure the page has finished at least the initial load
+    await actionWindowPagePromise.waitForLoadState('domcontentloaded');
+
+    // Optional: wait for specific element on new page to appear
+    // E.g., wait for a "Connect Wallet" button or other key element
+    // await newPage.locator('your-button-selector').waitFor();
+
+    return actionWindowPagePromise;
   }
 
   async pause() {

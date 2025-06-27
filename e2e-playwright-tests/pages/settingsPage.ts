@@ -18,6 +18,14 @@ export class SettingsPage extends BasePage {
     await this.checkUrl('/settings/general')
   }
 
+  async openNetworkPage() {
+    await this.openSettingsGeneral()
+
+    // go to Network page and assert url
+    await this.page.locator('//div[contains(text(),"Network")]').first().click()
+    await this.checkUrl('/settings/networks')
+  }
+
   async lockKeystore(): Promise<void> {
     await this.openSettingsGeneral()
 
@@ -54,17 +62,14 @@ export class SettingsPage extends BasePage {
     await this.click(selectors.devicePassSuccessModal)
   }
 
-  async addNetworkManually(network_symbol) {
-    await this.openSettingsGeneral()
-
-    // go to Network page
-    await this.page.locator('//div[contains(text(),"Network")]').first().click()
-    await this.checkUrl('/settings/networks')
+  async addNetworkManually(networkSymbol: string) {
+    // go to network page
+    await this.openNetworkPage()
 
     // add network manually
     await this.click(selectors.settingsAddNetworkManually)
 
-    const network = networks[network_symbol]
+    const network = networks[networkSymbol]
     await this.typeNetworkField('Network name', network.networkName)
     await this.typeNetworkField('Currency Symbol', network.ccySymbol)
     await this.typeNetworkField('Currency Name', network.ccyName)
@@ -86,5 +91,48 @@ export class SettingsPage extends BasePage {
     const selector = `//div[text()="${field}"]/following-sibling::div//input`
     await this.page.waitForSelector(selector, { state: 'visible', timeout: 3000 })
     await this.page.locator(selector).fill(text)
+  }
+
+  async addNetworkFromChainlist(networkSymbol: string) {
+    await this.openNetworkPage()
+
+    const network = networks[networkSymbol]
+
+    await this.page.pause()
+    // open chainlist page
+    // TODO change once we have ID on FE
+    const addNetworkFromChainlist = this.page.getByTestId(selectors.settingsAddNetworkFromChainlist)
+    const chainlistTab = await this.handleNewPage(addNetworkFromChainlist)
+
+    // open connect page
+    const connectWalletButton = chainlistTab.locator('//button[contains(text(),"Connect Wallet")]') // there are multiple Connect wallet buttons on page
+    const connectPage = await this.handleNewPage(connectWalletButton)
+
+    // confirm conection request
+    await connectPage.getByTestId(selectors.dappConnectButton).click()
+
+    await chainlistTab.waitForSelector(selectors.chainlistSearchPlaceholder)
+    await chainlistTab.locator(selectors.chainlistSearchPlaceholder).fill(network.networkName)
+
+    // add to metamask
+    const addNetworkPage = await this.handleNewPage(chainlistTab.locator(selectors.addToMetamaskButton))
+    await addNetworkPage.locator(selectors.confirmaddNetworkOnChainlistButton).click()
+
+    // close chainlist tab
+    chainlistTab.waitForSelector(selectors.chainlistSearchPlaceholder)
+    chainlistTab.close()
+
+    // verify network added
+    await this.verifyNetworkAdded(networkSymbol)
+  }
+
+  async verifyNetworkAdded(networkSymbol: string) {
+    await this.entertext(selectors.searchInput, networkSymbol)
+
+    // select FLOW option
+    await this.page.locator('//div[contains(text(),"Flow EVM Mainnet")]').click()
+
+    // assert button is enabled
+    await this.page.getByTestId(selectors.disableNetworkButton).isDisabled()
   }
 }

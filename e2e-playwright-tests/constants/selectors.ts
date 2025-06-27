@@ -142,9 +142,15 @@ const selectors = {
   closeProgressModalButton: 'track-progress-primary-button',
   // Network Management
   // TODO: change once we have IDs on FE
+  disableNetworkButton: 'disable-network-btn',
   addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
   addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
   networkSuccessfullyAdded: '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  connectWalletButton:
+  "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
+  chainlistSearchPlaceholder: 'input[placeholder="ETH, Fantom, ..."]',
+  addToMetamaskButton: '//button[contains(text(),"Add to Metamask")]',
+  confirmaddNetworkOnChainlistButton: '//div[contains(text(),"Add network")]',
   // Sign
   dappConnectButton: 'dapp-connect-button',
   signMessageButton: 'button-sign'
