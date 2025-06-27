@@ -1,5 +1,6 @@
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { WindowManager } from '@ambire-common/interfaces/window'
 import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect, { TrezorConnect } from '@trezor/connect-webextension'
@@ -36,7 +37,11 @@ class TrezorController implements ExternalSignerController {
   // Holds the initial load promise, so that one can wait until it completes
   initialLoadPromise
 
-  constructor() {
+  #windowManager: WindowManager
+
+  constructor(windowManager: WindowManager) {
+    this.#windowManager = windowManager
+
     this.walletSDK.on('DEVICE_EVENT', (event: any) => {
       if (event?.payload?.name) {
         this.deviceModel = event.payload.name.replace(/^Trezor\s*/, '').trim()
@@ -62,6 +67,14 @@ class TrezorController implements ExternalSignerController {
   cleanUp() {
     this.unlockedPath = ''
     this.unlockedPathKeyAddr = ''
+  }
+
+  async signingCleanup() {
+    try {
+      await this.#windowManager.closePopupWithUrl('https://connect.trezor.io/9/popup.html')
+    } catch (e) {
+      console.error('Error while removing Trezor window', e)
+    }
   }
 
   isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
