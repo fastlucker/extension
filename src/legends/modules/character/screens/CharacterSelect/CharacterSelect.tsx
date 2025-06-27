@@ -57,25 +57,29 @@ const CharacterSelect = () => {
           Pick your profile avatar and mint a soulbound NFT for free
         </p>
       </div>
+    
+    <div>
+
       <CharacterSlider initialCharacterId={characterId} onCharacterChange={onCharacterChange} />
       {!isCheckingMintStatus && (
         <button
-          onClick={() => {
-            if (!isButtonDisabled) {
-              setHasStartedMinting(true)
-              mintCharacter(characterId).catch(() =>
-                setErrorMessage('We failed to fetch NFT info.')
-              )
-            }
-          }}
-          type="button"
-          disabled={isButtonDisabled}
-          className={styles.saveButton}
-        >
+        onClick={() => {
+          if (!isButtonDisabled) {
+            setHasStartedMinting(true)
+            mintCharacter(characterId).catch(() =>
+              setErrorMessage('We failed to fetch NFT info.')
+          )
+        }
+      }}
+      type="button"
+      disabled={isButtonDisabled}
+      className={styles.saveButton}
+      >
           {isMinting ? 'Please wait...' : 'Mint NFT'}
         </button>
       )}
       {isCheckingMintStatus && <Spinner />}
+      </div>
 
       <CharacterLoadingModal
         isOpen={
