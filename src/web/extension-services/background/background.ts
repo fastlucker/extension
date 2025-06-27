@@ -22,6 +22,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
+import { WindowManager } from '@ambire-common/interfaces/window'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -233,7 +234,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   const pm = new PortMessenger()
   const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController()
+  const trezorCtrl = new TrezorController(windowManager as WindowManager)
   const latticeCtrl = new LatticeController()
 
   // Extension-specific additional trackings
@@ -317,9 +318,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             })
             pm.send('> ui', { method: 'closePopup', params: {} })
           })
-        } else {
-          await windowManager.remove(winId, pm)
         }
+        await windowManager.remove(winId, pm)
       },
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
