@@ -11,9 +11,9 @@ test.describe('network management', () => {
     await settingsPage.addNetworkManually('FLR')
   })
 
-  test('adding network from Chainlist', async ({ settingsPage }) => {
+  test('add, edit and disable network from Chainlist', async ({ settingsPage }) => {
     await settingsPage.addNetworkFromChainlist('FLOW')
-    // await settingsPage.editNetwork('FLOW')
-    // await settingsPage.disableNetwork('FLOW')
+    await settingsPage.editNetwork('FLOW')
+    await settingsPage.disableNetwork()
   })
 })

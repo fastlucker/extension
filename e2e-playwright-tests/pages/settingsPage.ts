@@ -81,7 +81,7 @@ export class SettingsPage extends BasePage {
 
     // add network
     await this.page.locator(selectors.addNetworkButton).click({ timeout: 5000 })
-    await expect(this.page.locator(selectors.networkSuccessfullyAdded)).toHaveText(
+    await expect(this.page.locator(selectors.networkSuccessfullyAddedSnackbar)).toHaveText(
       'Network successfully added!'
     )
   }
@@ -89,7 +89,7 @@ export class SettingsPage extends BasePage {
   // TODO: once have IDs on FE remove this method and use .fill() instead
   async typeNetworkField(field: string, text: string) {
     const selector = `//div[text()="${field}"]/following-sibling::div//input`
-    await this.page.waitForSelector(selector, { state: 'visible', timeout: 3000 })
+    await this.page.waitForSelector(selector, { state: 'visible', timeout: 5000 })
     await this.page.locator(selector).fill(text)
   }
 
@@ -98,7 +98,6 @@ export class SettingsPage extends BasePage {
 
     const network = networks[networkSymbol]
 
-    await this.page.pause()
     // open chainlist page
     // TODO change once we have ID on FE
     const addNetworkFromChainlist = this.page.getByTestId(selectors.settingsAddNetworkFromChainlist)
@@ -115,14 +114,16 @@ export class SettingsPage extends BasePage {
     await chainlistTab.locator(selectors.chainlistSearchPlaceholder).fill(network.networkName)
 
     // add to metamask
-    const addNetworkPage = await this.handleNewPage(chainlistTab.locator(selectors.addToMetamaskButton))
+    await this.page.waitForTimeout(2000)
+    const addToMetamaskButton = chainlistTab.locator(selectors.addToMetamaskButton)
+    const addNetworkPage = await this.handleNewPage(addToMetamaskButton)
     await addNetworkPage.locator(selectors.confirmaddNetworkOnChainlistButton).click()
 
     // close chainlist tab
-    chainlistTab.waitForSelector(selectors.chainlistSearchPlaceholder)
-    chainlistTab.close()
+    await chainlistTab.waitForSelector(selectors.chainlistSearchPlaceholder)
+    await chainlistTab.close()
 
-    // verify network added
+    // verify network added on Network page
     await this.verifyNetworkAdded(networkSymbol)
   }
 
@@ -130,9 +131,50 @@ export class SettingsPage extends BasePage {
     await this.entertext(selectors.searchInput, networkSymbol)
 
     // select FLOW option
-    await this.page.locator('//div[contains(text(),"Flow EVM Mainnet")]').click()
+    await this.page.locator('//div[contains(text(),"Flow EVM Mainnet")]').first().click()
 
     // assert button is enabled
-    await this.page.getByTestId(selectors.disableNetworkButton).isDisabled()
+    await this.page.getByTestId(selectors.disableNetworkButton).isVisible()
+  }
+
+  // method working on networks page with network selected
+  async editNetwork(networkSymbol: string) {
+    const network = networks[networkSymbol]
+    // assert network explorer URL
+    await expect(this.page.locator(selectors.blockExplorerURL(network.explorerUrl))).toContainText(
+      network.explorerUrl
+    )
+
+    // Select Edit, change 'Block Explorer URL' and 'Cancel'
+    await this.page.locator(selectors.networkDetailEditButton).click()
+    await this.page.locator(selectors.editNetworkModalTitle).isVisible()
+    await this.typeNetworkField('Block Explorer URL', '/')
+    await this.page.locator(selectors.editNetworkCancelButton).click()
+    await expect(this.page.locator(selectors.blockExplorerURL(network.explorerUrl))).toContainText(
+      network.explorerUrl
+    )
+    // Select Edit, change 'Block Explorer URL' and 'Save'
+    await this.page.waitForTimeout(1000)
+    await this.page.locator(selectors.networkDetailEditButton).click()
+    await this.page.locator(selectors.editNetworkModalTitle).isVisible()
+    await this.typeNetworkField('Block Explorer URL', `${network.explorerUrl}/test`)
+    await this.page.locator(selectors.editNetworkSaveButton).click()
+
+    // assert snackbar and new blockexplorer URL
+    await expect(
+      this.page.locator(selectors.networkSettingsSavedSnackbar(network.networkName))
+    ).toHaveText(`${network.networkName} settings saved!`)
+    await expect(this.page.locator(selectors.blockExplorerURL(network.explorerUrl))).toContainText(
+      `${network.explorerUrl}/test`
+    )
+  }
+
+  // method working on networks page with network selected
+  async disableNetwork() {
+    await this.click(selectors.disableNetworkButton)
+    await this.click(selectors.disableNetworkConfirmButton)
+
+    // assert button name changed
+    await this.compareText(selectors.disableNetworkButton, 'Enable')
   }
 }

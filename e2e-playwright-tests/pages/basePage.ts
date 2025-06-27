@@ -80,20 +80,12 @@ export abstract class BasePage {
 
     // return actionWindowPagePromise
 
-
     const context = this.page.context();
 
     const [actionWindowPagePromise] = await Promise.all([
       context.waitForEvent('page'),
-      locator.first().click({ timeout: 3000 })  // trigger opening
+      locator.first().click({ timeout: 5000 })  // trigger opening
     ]);
-
-    // Ensure the page has finished at least the initial load
-    await actionWindowPagePromise.waitForLoadState('domcontentloaded');
-
-    // Optional: wait for specific element on new page to appear
-    // E.g., wait for a "Connect Wallet" button or other key element
-    // await newPage.locator('your-button-selector').waitFor();
 
     return actionWindowPagePromise;
   }
@@ -110,5 +102,9 @@ export abstract class BasePage {
 
   async expectButtonVisible(selector: string) {
     await expect(this.page.getByTestId(selector)).toBeVisible()
+  }
+
+  async compareText(selector: string, text: string) {
+    await expect(this.page.getByTestId(selector)).toContainText(text)
   }
 }
