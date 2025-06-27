@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import CONFIG, { APP_VERSION } from '@common/config/env'
 import { DEFAULT_THEME, ThemeType } from '@common/styles/themeConfig'
+import * as Sentry from '@sentry/browser'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
@@ -36,6 +38,19 @@ export class WalletStateController extends EventEmitter {
     this.themeType = await storage.get('themeType', DEFAULT_THEME)
     this.isPinned = await this.#checkIsPinned()
     if (!this.isPinned) this.#initContinuousCheckIsPinned()
+
+    // TODO: Move to a separate lib, figure out the best place.
+    if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
+      // TODO: Init only if permission is granted
+      Sentry.init({
+        dsn: CONFIG.SENTRY_DSN_BROWSER_EXTENSION,
+        environment: CONFIG.APP_ENV,
+        release: `extension-${process.env.WEB_ENGINE}@${APP_VERSION}`,
+        // Disables sending personally identifiable information
+        sendDefaultPii: false,
+        integrations: []
+      })
+    }
 
     this.isReady = true
     this.emitUpdate()
