@@ -147,7 +147,10 @@ const create = async (
   let baseWindow: chrome.windows.Window | undefined
 
   if (baseWindowId) {
-    const window = await chrome.windows.get(baseWindowId, { populate: true })
+    const window = await chrome.windows.get(baseWindowId, { populate: true }).catch((e) => {
+      console.error(e)
+      return undefined
+    })
     if (window && window.id) baseWindow = window
   }
 
@@ -195,7 +198,7 @@ const remove = async (winId: number, pm: PortMessenger) => {
   // As a workaround, we first unfocus the window, then change the route. On the next chrome.windows.create call,
   // if a blank window exists, we close it before opening a new one. This prevents stacking multiple blank windows in the background.
   if (IS_FIREFOX) {
-    const windows = await chrome.windows.getAll()
+    const windows = await chrome.windows.getAll({ populate: true })
     const windowToRemove = windows.find((w) => w.id === winId)
 
     if (
@@ -203,16 +206,19 @@ const remove = async (winId: number, pm: PortMessenger) => {
       windowToRemove.type === 'popup' && // if an action window is opened
       pm.ports.some((p) => p.name === 'popup') // if the extension popup is opened
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      chrome.windows.update(winId, { focused: false, top: 0, left: 0, width: 0, height: 0 })
-      const tabs = await chrome.tabs.query({ windowId: winId })
-      if (tabs[0].id) await chrome.tabs.update(tabs[0].id, { url: 'about:blank' })
+      chrome.windows
+        .update(winId, { focused: false, top: 0, left: 0, width: 0, height: 0 })
+        .catch((e) => console.error(e))
+      const firstTab = windowToRemove.tabs?.[0]
+      if (firstTab?.id)
+        await chrome.tabs.update(firstTab.id, { url: 'about:blank' }).catch((e) => console.error(e))
       event.emit('windowRemoved', winId)
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       return
     }
   }
 
-  await chrome.windows.remove(winId)
+  await chrome.windows.remove(winId).catch((e) => console.error(e))
 }
 
 const open = async (
@@ -235,7 +241,10 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
   let baseWindow: chrome.windows.Window | undefined
 
   if (createdFromWindowId) {
-    baseWindow = await chrome.windows.get(createdFromWindowId, { populate: true })
+    baseWindow = await chrome.windows.get(createdFromWindowId, { populate: true }).catch((e) => {
+      console.error(e)
+      return undefined
+    })
   }
 
   if (!baseWindow || !baseWindow.id) {
@@ -258,11 +267,14 @@ const focus = async (windowProps: WindowProps): Promise<WindowProps> => {
 
     const focusListener = async (winId: number) => {
       if (winId === id) {
-        const win = await chrome.windows.get(id)
+        const win = await chrome.windows.get(id).catch((e) => {
+          console.error(e)
+          return undefined
+        })
         // In some Arc browser instances, the window never gets focused
         // therefore we need a fallback logic that will open a new window
         // and close the unfocused one
-        if (win.focused) {
+        if (win && win.focused) {
           isFocused = true
           resolve({ id, createdFromWindowId, ...updatedProps })
           cleanup()
@@ -318,8 +330,8 @@ const closeCurrentWindow = async () => {
     try {
       const win = await chrome.windows.getCurrent()
       await chrome.windows.remove(win.id!)
-    } catch (error) {
-      // silent fail
+    } catch (e) {
+      console.error(e)
     }
   } else {
     windowObj.close()
