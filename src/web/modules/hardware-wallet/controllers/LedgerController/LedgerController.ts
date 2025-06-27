@@ -45,6 +45,8 @@ class LedgerController implements ExternalSignerController {
 
   static vendorId = LEDGER_VENDOR_ID
 
+  #rejectSigningSubscription: (() => void) | null = null
+
   constructor() {
     // TODO: Bluetooth support?
     this.isWebHID = true
@@ -89,6 +91,8 @@ class LedgerController implements ExternalSignerController {
     // the device is connected, the getDevices() method returns an empty array.
     // Workarounds I tried - find the device via DMK didn't click. So to be able
     // to use Ledger device with Vivaldi, we just assume it's connected.
+    // IMPORTANT: This is fixed in https://vivaldi.com/blog/desktop/customizable-tab-bar-vivaldi-browser-snapshot-3704-3/
+    // so once this version is released, we should remove this check.
     return isVivaldi()
   }
 
@@ -98,10 +102,6 @@ class LedgerController implements ExternalSignerController {
    * to open the device selection prompt (click on a button, etc.).
    */
   static grantDevicePermissionIfNeeded = async () => {
-    // If a device is already connected and permission is granted, no need to
-    // reselect it again. The service worker than can access the device.
-    if (await LedgerController.isConnected()) return
-
     const dmk = new DeviceManagementKitBuilder()
       // .addLogger(new ConsoleLogger()) // for debugging only
       .addTransport(webHidTransportFactory)
@@ -226,9 +226,11 @@ class LedgerController implements ExternalSignerController {
   #findDevice = () =>
     new Promise<DiscoveredDevice>((resolve, reject) => {
       let subscription: Subscription // so it is always defined inside the subscribe callback
+      let isCancelled = false
       // eslint-disable-next-line prefer-const
       subscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
         next: (devices) => {
+          if (isCancelled) return
           if (devices && devices.length) {
             subscription.unsubscribe()
             // TODO: Multiple devices found?
@@ -236,10 +238,17 @@ class LedgerController implements ExternalSignerController {
           }
         },
         error: (error) => {
+          if (isCancelled) return
           subscription.unsubscribe()
           reject(new Error(error?.message))
         }
       })
+
+      this.#rejectSigningSubscription = () => {
+        isCancelled = true
+        subscription.unsubscribe()
+        reject(new ExternalSignerError('Operation cancelled by user'))
+      }
     })
 
   /**
@@ -250,15 +259,19 @@ class LedgerController implements ExternalSignerController {
     options: {
       onCompleted: (output: any) => T
       errorMessage: string
+      isSign?: boolean
     }
   ): Promise<T> {
-    const { onCompleted, errorMessage } = options
+    const { onCompleted, errorMessage, isSign } = options
 
     const subscriptionPromise = new Promise<T>((resolve, reject) => {
       let subscription: Subscription // so it is always defined inside the subscribe callback
+      let isCancelled = false
+
       // eslint-disable-next-line prefer-const
       subscription = observable.subscribe({
         next: (response: any) => {
+          if (isCancelled) return
           // TODO: If we communicate this to the user in the UI better, we can
           // wait for the user to do all required interactions instead of rejecting.
           const missingRequiredUserInteraction =
@@ -301,6 +314,14 @@ class LedgerController implements ExternalSignerController {
           reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
         }
       })
+
+      if (isSign) {
+        this.#rejectSigningSubscription = () => {
+          isCancelled = true
+          subscription.unsubscribe()
+          reject(new ExternalSignerError('Operation cancelled by user'))
+        }
+      }
     })
 
     return this.withDisconnectProtection(() => subscriptionPromise)
@@ -400,7 +421,8 @@ class LedgerController implements ExternalSignerController {
       this.signerEth.signMessage(getHdPathWithoutRoot(derivationPath), messageBytes).observable,
       {
         onCompleted: (output) => output,
-        errorMessage: 'Failed to sign message with Ledger device'
+        errorMessage: 'Failed to sign message with Ledger device',
+        isSign: true
       }
     )
   }
@@ -412,7 +434,8 @@ class LedgerController implements ExternalSignerController {
       this.signerEth.signTransaction(getHdPathWithoutRoot(derivationPath), transaction).observable,
       {
         onCompleted: (output) => output,
-        errorMessage: 'Failed to sign transaction with Ledger device'
+        errorMessage: 'Failed to sign transaction with Ledger device',
+        isSign: true
       }
     )
   }
@@ -430,7 +453,6 @@ class LedgerController implements ExternalSignerController {
     signTypedData: TypedMessage
   }) => {
     if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
-
     // TODO: Slight mismatch between TypedMessage type and Ledger's TypedDataDomain
     // for the empty values (string | null | undefined vs string | undefined)
     const ledgerDomain = { ...domain } as TypedDataDomain
@@ -444,9 +466,17 @@ class LedgerController implements ExternalSignerController {
       }).observable,
       {
         onCompleted: (output) => output,
-        errorMessage: 'Failed to sign typed data with Ledger device'
+        errorMessage: 'Failed to sign typed data with Ledger device',
+        isSign: true
       }
     )
+  }
+
+  async signingCleanup() {
+    if (!this.#rejectSigningSubscription) return
+
+    this.#rejectSigningSubscription()
+    this.#rejectSigningSubscription = null
   }
 
   cleanUp = async () => {
