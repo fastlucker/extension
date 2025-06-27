@@ -20,6 +20,8 @@ export class WalletStateController extends EventEmitter {
 
   logLevel: LOG_LEVELS = DEFAULT_LOG_LEVEL
 
+  crashAnalyticsEnabled: boolean = false
+
   // Holds the initial load promise, so that one can wait until it completes
   initialLoadPromise: Promise<void>
 
@@ -55,18 +57,8 @@ export class WalletStateController extends EventEmitter {
     this.logLevel = await storage.get('logLevel', this.logLevel)
     if (this.logLevel !== DEFAULT_LOG_LEVEL) setLoggerInstanceLogLevel(this.logLevel)
 
-    // TODO: Move to a separate lib, figure out the best place.
-    if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
-      // TODO: Init only if permission is granted
-      Sentry.init({
-        dsn: CONFIG.SENTRY_DSN_BROWSER_EXTENSION,
-        environment: CONFIG.APP_ENV,
-        release: `extension-${process.env.WEB_ENGINE}@${APP_VERSION}`,
-        // Disables sending personally identifiable information
-        sendDefaultPii: false,
-        integrations: []
-      })
-    }
+    this.crashAnalyticsEnabled = await storage.get('crashAnalyticsEnabled', false)
+    if (this.crashAnalyticsEnabled) this.#initCrashAnalytics()
 
     this.isReady = true
     this.emitUpdate()
@@ -110,6 +102,37 @@ export class WalletStateController extends EventEmitter {
     await storage.set('logLevel', nextLogLevel)
     await this.#onLogLevelUpdateCallback(nextLogLevel)
 
+    this.emitUpdate()
+  }
+
+  // TODO: Move to a separate lib, figure out the best place?
+  #initCrashAnalytics() {
+    if (!CONFIG.SENTRY_DSN_BROWSER_EXTENSION) return
+
+    Sentry.init({
+      dsn: CONFIG.SENTRY_DSN_BROWSER_EXTENSION,
+      environment: CONFIG.APP_ENV,
+      release: `extension-${process.env.WEB_ENGINE}@${APP_VERSION}`,
+      // Disables sending personally identifiable information
+      sendDefaultPii: false,
+      integrations: []
+    })
+  }
+
+  #destroyCrashAnalytics() {
+    // TODO: Setting this to enabled: false doesn't prevent all overhead from Sentry instrumentation.
+    // To disable Sentry completely, depending on environment, call Sentry.init conditionally.
+    // Therefore - we might prompt user to restart the extension, just to be safe.
+    Sentry.init({ enabled: false })
+  }
+
+  async setCrashAnalytics(enabled: boolean) {
+    const justGotEnabled = enabled && !this.crashAnalyticsEnabled
+    if (justGotEnabled) this.#initCrashAnalytics()
+    else this.#destroyCrashAnalytics()
+
+    this.crashAnalyticsEnabled = enabled
+    await storage.set('crashAnalyticsEnabled', enabled)
     this.emitUpdate()
   }
 

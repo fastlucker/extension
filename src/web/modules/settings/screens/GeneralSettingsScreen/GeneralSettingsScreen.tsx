@@ -6,6 +6,7 @@ import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHea
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 import AutoLockDeviceControlOption from './components/AutoLockDeviceControlOption'
+import CrashAnalyticsControlOption from './components/CrashAnalyticsControlOption'
 import LockAmbireControlOption from './components/LockAmbireControlOption'
 import LogLevelControlOption from './components/LogLevelControlOption'
 import ThemeControlOption from './components/ThemeControlOption'
@@ -27,6 +28,7 @@ const GeneralSettingsScreen = () => {
       </View>
       <SettingsPageHeader title="Support tools" />
       <LogLevelControlOption />
+      <CrashAnalyticsControlOption />
     </>
   )
 }

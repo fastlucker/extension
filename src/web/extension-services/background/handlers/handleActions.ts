@@ -636,6 +636,10 @@ export const handleActions = async (
       await walletStateCtrl.setLogLevel(params.logLevel)
       break
     }
+    case 'SET_CRASH_ANALYTICS': {
+      await walletStateCtrl.setCrashAnalytics(params.enabled)
+      break
+    }
 
     default:
       // eslint-disable-next-line no-console
