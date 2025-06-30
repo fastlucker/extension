@@ -12,14 +12,13 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import GestureHandler from '@common/modules/app-init/screens/AppInit/GestureHandler'
 import spacings from '@common/styles/spacings'
-import { DEFAULT_THEME, THEME_TYPES } from '@common/styles/themeConfig'
+import { DEFAULT_THEME, THEME_TYPES, ThemeType } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { setStringAsync } from '@common/utils/clipboard'
 import { PortalHost } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
-import storage from '@web/extension-services/background/webapi/storage'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
@@ -34,24 +33,15 @@ interface Props {
 }
 
 const ErrorBoundary = ({ error }: Props) => {
-  const [themeType, setThemeType] = useState(DEFAULT_THEME)
-
-  useEffect(() => {
-    if (!isExtension) return
-
-    const loadTheme = async () => {
-      const storageThemeType = await storage.get('themeType', DEFAULT_THEME)
-      if (storageThemeType !== null) setThemeType(storageThemeType)
-    }
-
-    loadTheme()
-  }, [])
+  const [themeType] = useState(
+    (isExtension && localStorage.getItem('fallbackSelectedThemeType')) || DEFAULT_THEME
+  )
 
   return (
     // The global theme provider is rendered below the ErrorBoundary as it requires state from other contexts.
     // To ensure that the ErrorBoundary has access to the theme and wraps as many components as possible,
     // we render a ThemeProvider with a forced theme type.
-    <ThemeProvider forceThemeType={themeType}>
+    <ThemeProvider forceThemeType={themeType as ThemeType}>
       <ErrorBoundaryInner error={error} />
     </ThemeProvider>
   )

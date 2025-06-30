@@ -7,6 +7,7 @@ import ThemeColors, {
   ThemeProps,
   ThemeType
 } from '@common/styles/themeConfig'
+import { isExtension } from '@web/constants/browserapi'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
@@ -32,6 +33,16 @@ const ThemeProvider: React.FC<{
   const { dispatch } = useBackgroundService() || {}
 
   const { themeType: selectedThemeType } = useWalletStateController() || {}
+
+  useEffect(() => {
+    if (!isExtension) return
+
+    const storedFallbackSelectedThemeType = localStorage.getItem('fallbackSelectedThemeType')
+
+    if (!storedFallbackSelectedThemeType || storedFallbackSelectedThemeType !== selectedThemeType) {
+      localStorage.setItem('fallbackSelectedThemeType', selectedThemeType)
+    }
+  }, [selectedThemeType])
 
   const themeType = useMemo(() => {
     const type = forceThemeType || selectedThemeType
