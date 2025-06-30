@@ -969,6 +969,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             }
           } catch (err: any) {
             console.error(`${type} action failed:`, err)
+            Sentry.captureException(err, {
+              extra: {
+                type,
+                action,
+                portId: port.id,
+                windowId
+              }
+            })
             const shortenedError =
               err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
 
