@@ -525,6 +525,8 @@ type SwapAndBridgeControllerInitAction = {
   params: {
     sessionId: string
     preselectedFromToken?: Pick<TokenResult, 'address' | 'chainId'>
+    preselectedToToken?: Pick<TokenResult, 'address' | 'chainId'>
+    fromAmount?: string
   }
 }
 type SwapAndBridgeControllerUserProceededAction = {
