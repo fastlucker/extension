@@ -598,31 +598,33 @@ export class ProviderController {
     session: { id, origin, name }
   }: ProviderRequest) => {
     let chainId = chainParams.chainId
-    if (typeof chainId === 'string') {
-      chainId = Number(chainId)
-    }
+    if (typeof chainId === 'string') chainId = Number(chainId)
+
     const network = this.mainCtrl.networks.networks.find((n) => Number(n.chainId) === chainId)
+    if (!network) throw new Error('This chain is not supported by Ambire yet.')
 
-    if (!network) {
-      throw new Error('This chain is not supported by Ambire yet.')
+    const dapp = this.mainCtrl.dapps.getDapp(id)
+
+    if (!dapp) return null
+
+    if (dapp?.chainId !== chainId) {
+      this.mainCtrl.dapps.updateDapp(id, { chainId })
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      ;(async () => {
+        await notificationManager.create({
+          title: 'Successfully switched network',
+          message: `Network switched to ${network.name} for ${name || origin}.`
+        })
+      })()
+      await this.mainCtrl.dapps.broadcastDappSessionEvent(
+        'chainChanged',
+        {
+          chain: `0x${network.chainId.toString(16)}`,
+          networkVersion: `${network.chainId}`
+        },
+        id
+      )
     }
-
-    this.mainCtrl.dapps.updateDapp(id, { chainId })
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      await notificationManager.create({
-        title: 'Successfully switched network',
-        message: `Network switched to ${network.name} for ${name || origin}.`
-      })
-    })()
-    await this.mainCtrl.dapps.broadcastDappSessionEvent(
-      'chainChanged',
-      {
-        chain: `0x${network.chainId.toString(16)}`,
-        networkVersion: `${network.chainId}`
-      },
-      id
-    )
 
     return null
   }
