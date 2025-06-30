@@ -177,37 +177,41 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
     ]
   )
 
+  const dismissAction = actions.find((action: Action) => action.label === 'Dismiss')
+
   const renderButtons = useMemo(
     () =>
-      actions.map((action: Action) => {
-        const isReject =
-          ERROR_ACTIONS.includes(action.actionName) ||
-          ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
-        let actionText = action.label
-        let isDisabled = false
+      actions
+        .filter((action: Action) => action.label !== 'Dismiss')
+        .map((action: Action) => {
+          const isReject =
+            ERROR_ACTIONS.includes(action.actionName) ||
+            ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
+          let actionText = action.label
+          let isDisabled = false
 
-        if (action.actionName === 'proceed-bridge') {
-          if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
-            actionText = 'Preparing...'
+          if (action.actionName === 'proceed-bridge') {
+            if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
+              actionText = 'Preparing...'
+              isDisabled = true
+            }
+          } else if (action.actionName === 'reload-selected-account' && !portfolio.isAllReady) {
             isDisabled = true
+            actionText = 'Retrying...'
           }
-        } else if (action.actionName === 'reload-selected-account' && !portfolio.isAllReady) {
-          isDisabled = true
-          actionText = 'Retrying...'
-        }
 
-        return (
-          <BannerButton
-            testID={`banner-button-${actionText.toLowerCase()}`}
-            key={action.actionName}
-            isReject={isReject}
-            text={actionText}
-            disabled={isDisabled}
-            type={type}
-            onPress={() => handleActionPress(action)}
-          />
-        )
-      }),
+          return (
+            <BannerButton
+              testID={`banner-button-${actionText.toLowerCase()}`}
+              key={action.actionName}
+              isReject={isReject}
+              text={actionText}
+              disabled={isDisabled}
+              type={type}
+              onPress={() => handleActionPress(action)}
+            />
+          )
+        }),
     [actions, type, handleActionPress, portfolio.isAllReady, statuses.buildSwapAndBridgeUserRequest]
   )
 
@@ -219,6 +223,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
         type={type}
         text={text}
         renderButtons={renderButtons}
+        onClosePress={dismissAction ? () => handleActionPress(dismissAction) : undefined}
       />
       <DashboardBannerBottomSheet
         id={String(banner.id)}

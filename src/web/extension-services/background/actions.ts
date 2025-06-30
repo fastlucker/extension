@@ -35,6 +35,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 import { THEME_TYPES } from '@common/styles/themeConfig'
+import { LogLevelNames } from '@web/utils/logger'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -189,6 +190,7 @@ type MainControllerAddUserRequestAction = {
     actionPosition?: ActionPosition
     actionExecutionType?: ActionExecutionType
     allowAccountSwitch?: boolean
+    skipFocus?: boolean
   }
 }
 type MainControllerBuildTransferUserRequest = {
@@ -570,9 +572,7 @@ type SwapAndBridgeControllerResetForm = {
 }
 type SwapAndBridgeControllerBuildUserRequest = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
-  params: {
-    openActionWindow: boolean
-  }
+  params: { openActionWindow: boolean }
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
@@ -730,6 +730,10 @@ type SetThemeTypeAction = {
   type: 'SET_THEME_TYPE'
   params: { themeType: THEME_TYPES }
 }
+type SetLogLevelTypeAction = {
+  type: 'SET_LOG_LEVEL'
+  params: { logLevel: LogLevelNames }
+}
 
 export type Action =
   | UpdateNavigationUrl
@@ -867,3 +871,4 @@ export type Action =
   | TransferControllerUserProceededAction
   | TransferControllerShouldSkipTransactionQueuedModal
   | SetThemeTypeAction
+  | SetLogLevelTypeAction

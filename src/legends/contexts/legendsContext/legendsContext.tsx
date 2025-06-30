@@ -76,6 +76,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
       setLegends(sortedCards)
     } catch (e: any) {
       console.error(e)
+      setError('Internal error while fetching quests. Please reload the page or try again later.')
       throw e
     } finally {
       setIsLoading(false)
@@ -84,7 +85,7 @@ const LegendsContextProvider = ({ children }: { children: React.ReactNode }) => 
 
   useEffect(() => {
     getLegends().catch(() => {
-      setError('Internal error while fetching legends. Please reload the page or try again later.')
+      setError('Internal error while fetching quests. Please reload the page or try again later.')
     })
   }, [getLegends])
 
