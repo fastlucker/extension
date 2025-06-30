@@ -2,7 +2,6 @@ import React, { useMemo } from 'react'
 import { Image, View } from 'react-native'
 
 import ExtensionsIcon from '@common/assets/svg/ExtensionsIcon'
-import GreenPointingArrowIcon from '@common/assets/svg/GreenPointingArrowIcon'
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import Text from '@common/components/Text'
@@ -56,11 +55,10 @@ const PinExtension = () => {
       ) : (
         <View style={spacings.ph}>
           <Text fontSize={16} weight="medium" appearance="secondaryText">
-            {t('Open the Ambire extension here')}
+            {t('Open Ambire from your browser toolbar.')}
           </Text>
         </View>
       )}
-      <GreenPointingArrowIcon width={22} translateY={-8} style={spacings.mrXl} />
     </View>
   )
 }
