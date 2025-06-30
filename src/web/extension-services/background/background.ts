@@ -971,8 +971,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             console.error(`${type} action failed:`, err)
             Sentry.captureException(err, {
               extra: {
-                type,
-                action,
+                action: JSON.stringify(action),
                 portId: port.id,
                 windowId
               }
