@@ -6,7 +6,7 @@ import useTheme from '@common/hooks/useTheme'
 const DarkThemeIcon: React.FC<SvgProps> = ({ width = 21, height = 21, color, ...rest }) => {
   const { theme } = useTheme()
   return (
-    <Svg width={width} height={height} viewBox="0 0 20.759 20.752" {...rest}>
+    <Svg width={width} height={height} viewBox="0 0 21 21" {...rest}>
       <G transform="translate(-723.525 -571)">
         <Circle cx="10" cy="10" r="10" transform="translate(724.284 571)" fill="none" />
         <Path

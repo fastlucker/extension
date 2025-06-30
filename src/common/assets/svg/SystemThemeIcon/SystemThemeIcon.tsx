@@ -6,7 +6,7 @@ import useTheme from '@common/hooks/useTheme'
 const SystemThemeIcon: React.FC<SvgProps> = ({ width = 22, height = 22, color, ...rest }) => {
   const { theme } = useTheme()
   return (
-    <Svg width={width} height={height} viewBox="0 0 21.5 21.5" {...rest}>
+    <Svg width={width} height={height} viewBox="0 0 22 22" {...rest}>
       <G transform="translate(-1080.25 -575.25)">
         <G transform="translate(1081 576)">
           <Path
