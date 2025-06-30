@@ -153,6 +153,10 @@ class LedgerSigner implements KeystoreSignerInterface {
   signTransactionTypeFour(txnRequest: TxnRequest, eip7702Auth: EIP7702Auth): Hex {
     throw new Error('not supported', { cause: txnRequest })
   }
+
+  async signingCleanup() {
+    await this.controller?.signingCleanup()
+  }
 }
 
 export default LedgerSigner

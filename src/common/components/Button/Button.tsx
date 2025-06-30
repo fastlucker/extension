@@ -183,7 +183,21 @@ const Button = ({
           property: 'backgroundColor',
           from: theme.primary,
           to: theme.primaryLight
-        }
+        },
+        ...(themeType === THEME_TYPES.DARK
+          ? [
+              {
+                property: 'borderWidth',
+                from: 0,
+                to: 1
+              },
+              {
+                property: 'borderColor',
+                from: theme.primary,
+                to: theme.primary
+              }
+            ]
+          : [])
       ],
       secondary: [
         {
@@ -289,14 +303,14 @@ const Button = ({
         {
           property: 'color',
           from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#fff',
-          to: themeType === THEME_TYPES.DARK ? theme.primary : '#fff'
+          to: '#fff'
         }
       ],
       secondary: [
         {
           property: 'color',
           from: theme.primary,
-          to: theme.primary
+          to: themeType === THEME_TYPES.DARK ? '#fff' : theme.primary
         }
       ],
       danger: [
@@ -310,7 +324,7 @@ const Button = ({
         {
           property: 'color',
           from: themeType === THEME_TYPES.DARK ? theme.primary : theme.successDecorative,
-          to: themeType === THEME_TYPES.DARK ? theme.primary : theme.successDecorative
+          to: themeType === THEME_TYPES.DARK ? '#fff' : theme.successDecorative
         }
       ],
       ghost: [

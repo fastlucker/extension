@@ -20,8 +20,6 @@ jobs:
       SOCKET_API_KEY: ${{ vars.SOCKET_API_KEY }}
       LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
       REACT_APP_PIMLICO_API_KEY: ${{ vars.REACT_APP_PIMLICO_API_KEY }}
-      BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: ${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}
-      BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: ${{ vars.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}
       KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
       SEED: ${{ secrets.SEED }}
       BA_PRIVATE_KEY: ${{ secrets.BA_PRIVATE_KEY }}
@@ -54,7 +52,7 @@ jobs:
       DEFAULT_INVITATION_CODE_DEV: ${{ vars.DEFAULT_INVITATION_CODE_DEV }}
       SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
       SHOULD_RUN_TREZOR_TESTS: 'true'
-      PLAYWRIGHT_SKIP_GIT_METADATA: '1'  # Optional fix to avoid Git fetch timeout
+      PLAYWRIGHT_SKIP_GIT_METADATA: '1' # Optional fix to avoid Git fetch timeout
 
     steps:
       - name: Checkout full Git history
