@@ -69,17 +69,6 @@ export abstract class BasePage {
   }
 
   async handleNewPage(locator: Locator) {
-    // const context = this.page.context()
-    // const actionWindowPagePromise = new Promise<Page>((resolve) => {
-    //   context.once('page', (p) => {
-    //     resolve(p)
-    //   })
-    // })
-
-    // await locator.first().click({ timeout: 3000 })
-
-    // return actionWindowPagePromise
-
     const context = this.page.context();
 
     const [actionWindowPagePromise] = await Promise.all([
