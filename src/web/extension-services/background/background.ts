@@ -96,7 +96,13 @@ function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctr
   if (logLevel === LOG_LEVELS.PROD) return
 
   const args = parse(stringify(stateToLog))
-  const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
+  let ctrlState = args
+
+  if (ctrlName === 'main' || !Object.keys(controllersNestedInMainMapping).includes(ctrlName)) {
+    ctrlState = args
+  } else {
+    ctrlState = args[ctrlName] || {}
+  }
 
   const logData =
     BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
