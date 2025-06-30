@@ -33,14 +33,14 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
-import { isProd } from '@common/config/env'
+import CONFIG, { APP_VERSION, isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   LI_FI_API_KEY,
   RELAYER_URL,
-  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
+import * as Sentry from '@sentry/browser'
 import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -1014,6 +1014,28 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   initPortfolioContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+
+  // Init sentry
+  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
+    Sentry.init({
+      dsn: CONFIG.SENTRY_DSN_BROWSER_EXTENSION,
+      environment: CONFIG.APP_ENV,
+      release: `extension-${process.env.WEB_ENGINE}@${APP_VERSION}`,
+      // Disables sending personally identifiable information
+      sendDefaultPii: false,
+      integrations: [],
+      beforeSend(event) {
+        const isSentryEnabled = walletStateCtrl.crashAnalyticsEnabled
+
+        if (!isSentryEnabled) {
+          // If the Sentry is disabled, we don't send any events
+          return null
+        }
+
+        return event
+      }
+    })
+  }
 })()
 
 try {

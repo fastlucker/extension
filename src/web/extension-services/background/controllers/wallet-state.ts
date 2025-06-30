@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import CONFIG, { APP_VERSION } from '@common/config/env'
 import { DEFAULT_THEME, ThemeType } from '@common/styles/themeConfig'
-import * as Sentry from '@sentry/browser'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { DEFAULT_LOG_LEVEL, LOG_LEVELS, setLoggerInstanceLogLevel } from '@web/utils/logger'
@@ -58,7 +56,6 @@ export class WalletStateController extends EventEmitter {
     if (this.logLevel !== DEFAULT_LOG_LEVEL) setLoggerInstanceLogLevel(this.logLevel)
 
     this.crashAnalyticsEnabled = await storage.get('crashAnalyticsEnabled', false)
-    if (this.crashAnalyticsEnabled) this.#initCrashAnalytics()
 
     this.isReady = true
     this.emitUpdate()
@@ -105,35 +102,11 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  // TODO: Move to a separate lib, figure out the best place?
-  #initCrashAnalytics() {
-    if (!CONFIG.SENTRY_DSN_BROWSER_EXTENSION) return
-
-    Sentry.init({
-      dsn: CONFIG.SENTRY_DSN_BROWSER_EXTENSION,
-      environment: CONFIG.APP_ENV,
-      release: `extension-${process.env.WEB_ENGINE}@${APP_VERSION}`,
-      // Disables sending personally identifiable information
-      sendDefaultPii: false,
-      integrations: []
-    })
-  }
-
-  #destroyCrashAnalytics() {
-    // TODO: Setting this to enabled: false doesn't prevent all overhead from Sentry instrumentation.
-    // To disable Sentry completely, depending on environment, call Sentry.init conditionally.
-    // Therefore - we might prompt user to restart the extension, just to be safe.
-    Sentry.init({ enabled: false })
-  }
-
   async setCrashAnalytics(enabled: boolean) {
-    const justGotEnabled = enabled && !this.crashAnalyticsEnabled
-    if (justGotEnabled) this.#initCrashAnalytics()
-    else this.#destroyCrashAnalytics()
-
     this.crashAnalyticsEnabled = enabled
-    await storage.set('crashAnalyticsEnabled', enabled)
     this.emitUpdate()
+
+    await storage.set('crashAnalyticsEnabled', enabled)
   }
 
   toJSON() {
