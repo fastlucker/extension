@@ -57,10 +57,13 @@ const LedgerConnectModal = ({
   }, [open, close, isVisible])
 
   const onPressNext = async () => {
-    setIsGrantingPermission(true)
-
     try {
+      // Request Ledger access first, before any state updates to prevent error:
+      // "Failed to execute 'requestDevice' on 'HID': Must be handling a user
+      // gesture to show a permission request." on some browsers like Vivaldi.
       await requestLedgerDeviceAccess()
+
+      setIsGrantingPermission(true)
 
       if (handleOnConnect) handleOnConnect()
     } catch (error: any) {
@@ -77,10 +80,12 @@ const LedgerConnectModal = ({
     () =>
       openInternalPageInTab({
         route: `${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`,
-        shouldCloseCurrentWindow: true,
+        // Don't close the action window if the current action is a sign message
+        // as that would reject the message automatically.
+        shouldCloseCurrentWindow: currentAction?.type === 'accountOp',
         windowId: actionWindow.windowProps?.createdFromWindowId
       }),
-    [currentAction?.id, actionWindow.windowProps?.createdFromWindowId]
+    [currentAction?.id, currentAction?.type, actionWindow.windowProps?.createdFromWindowId]
   )
 
   const isLoading =
