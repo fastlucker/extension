@@ -189,7 +189,7 @@ const Account = ({
                   textProps={{
                     weight: 'medium'
                   }}
-                  minWidth={100}
+                  minWidth={120}
                   maxLength={40}
                 >
                   {!!withKeyType && (

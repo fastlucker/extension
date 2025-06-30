@@ -1,14 +1,14 @@
 import React, { FC, useCallback } from 'react'
 import { Pressable } from 'react-native'
-import CheckIcon2 from '@common/assets/svg/CheckIcon2'
+
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import SuccessAnimation from '@common/components/SuccessAnimation'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import BackgroundShapes from '../BackgroundShapes'
 
 type CompletedProps = {
   title: string
@@ -37,25 +37,14 @@ const Completed: FC<CompletedProps> = ({
 
   return (
     <>
-      <BackgroundShapes
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: -1
-        }}
-      />
-      <CheckIcon2 style={spacings.mb3Xl} />
-      <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
-        {title}
-      </Text>
-      <Text weight="medium" appearance="secondaryText" style={spacings.mb2Xl}>
-        {titleSecondary}
-      </Text>
+      <SuccessAnimation noBorder width={600}>
+        <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
+          {title}
+        </Text>
+        <Text weight="medium" appearance="secondaryText" style={spacings.mb2Xl}>
+          {titleSecondary}
+        </Text>
+      </SuccessAnimation>
       {!!explorerLink && (
         <Pressable
           onPress={handleOpenExplorer}
