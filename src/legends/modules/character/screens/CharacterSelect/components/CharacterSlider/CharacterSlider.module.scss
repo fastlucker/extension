@@ -13,7 +13,7 @@ $smallerSlideSize: 12rem;
     @include container;
     position: relative;
     display: flex;
-    height: 22rem;
+    height: 23rem;
 
     :global(.swiper-wrapper) {
       align-items: center;
@@ -49,7 +49,7 @@ $smallerSlideSize: 12rem;
 
         &.left {
           .image {
-            transform: translateX(-20%);
+            transform: translateX(-15%);
           }
         }
       }
