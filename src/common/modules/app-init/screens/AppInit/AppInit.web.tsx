@@ -1,4 +1,5 @@
 // @ts-nocheck TODO: fix provider types
+import '@web/utils/instrument'
 
 import React from 'react'
 import ErrorBoundary from 'react-native-error-boundary'

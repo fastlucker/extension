@@ -1030,6 +1030,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // Disables sending personally identifiable information
       sendDefaultPii: false,
       integrations: [],
+      initialScope: {
+        tags: {
+          content: 'background'
+        }
+      },
       beforeSend(event) {
         const isSentryEnabled = walletStateCtrl.crashAnalyticsEnabled
 
