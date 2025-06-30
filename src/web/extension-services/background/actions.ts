@@ -35,6 +35,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 import { THEME_TYPES } from '@common/styles/themeConfig'
+import { LogLevelNames } from '@web/utils/logger'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -729,6 +730,10 @@ type SetThemeTypeAction = {
   type: 'SET_THEME_TYPE'
   params: { themeType: THEME_TYPES }
 }
+type SetLogLevelTypeAction = {
+  type: 'SET_LOG_LEVEL'
+  params: { logLevel: LogLevelNames }
+}
 
 export type Action =
   | UpdateNavigationUrl
@@ -866,3 +871,4 @@ export type Action =
   | TransferControllerUserProceededAction
   | TransferControllerShouldSkipTransactionQueuedModal
   | SetThemeTypeAction
+  | SetLogLevelTypeAction

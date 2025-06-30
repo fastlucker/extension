@@ -31,7 +31,6 @@ const ThemeControlOption = () => {
 
   return (
     <ControlOption
-      style={spacings.mbTy}
       title={t('Theme mode')}
       description={t('Choose between light or dark mode')}
       renderIcon={
