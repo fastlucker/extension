@@ -53,6 +53,9 @@ jobs:
       SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
       SHOULD_RUN_TREZOR_TESTS: 'true'
       PLAYWRIGHT_SKIP_GIT_METADATA: '1' # Optional fix to avoid Git fetch timeout
+      # Enables Playwright to intercept network requests initiated by Service Workers.
+      # We use it to mock or block background requests that can't be intercepted via page.route().
+      PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS: '1'
 
     steps:
       - name: Checkout full Git history
