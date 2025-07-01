@@ -2,7 +2,6 @@
 import '@web/utils/instrument'
 
 import React from 'react'
-import ErrorBoundary from 'react-native-error-boundary'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
@@ -19,6 +18,7 @@ import GestureHandler from '@common/modules/app-init/screens/AppInit/GestureHand
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { OnboardingNavigationProvider } from '@common/modules/auth/contexts/onboardingNavigationContext'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
+import * as Sentry from '@sentry/react'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountPickerControllerStateProvider } from '@web/contexts/accountPickerControllerStateContext'
 import { AccountsControllerStateProvider } from '@web/contexts/accountsControllerStateContext'
@@ -49,6 +49,8 @@ import { WalletStateControllerProvider } from '@web/contexts/walletStateControll
 
 const Router = isExtension ? HashRouter : BrowserRouter
 
+const errorComponent = ({ error }: { error: Error }) => <ErrorComponent error={error} />
+
 const AppInit = () => {
   const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
@@ -59,7 +61,7 @@ const AppInit = () => {
       <PortalProvider>
         <SafeAreaProvider>
           <ToastProvider>
-            <ErrorBoundary FallbackComponent={ErrorComponent}>
+            <Sentry.ErrorBoundary fallback={errorComponent}>
               <BackgroundServiceProvider>
                 <MainControllerStateProvider>
                   <StorageControllerStateProvider>
@@ -132,7 +134,7 @@ const AppInit = () => {
                   </StorageControllerStateProvider>
                 </MainControllerStateProvider>
               </BackgroundServiceProvider>
-            </ErrorBoundary>
+            </Sentry.ErrorBoundary>
           </ToastProvider>
         </SafeAreaProvider>
       </PortalProvider>
