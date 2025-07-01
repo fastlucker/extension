@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, ColorValue, GestureResponderEvent, MouseEvent, ViewStyle } from 'react-native'
 
 import useDeepMemo from '@common/hooks/useDeepMemo'
-import { isExtension } from '@web/constants/browserapi'
 
 import DURATIONS from './durations'
 
@@ -180,38 +179,6 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
   const triggerHover = useCallback(() => {
     setIsHovered(true)
   }, [])
-
-  // In React Native for Web, there's a known issue where `onHoverOut` is not consistently triggered
-  // when scrolling a FlatList or ScrollView. As a result, items may remain in the hovered state
-  // even after the mouse has left them, leading to multiple items appearing hovered simultaneously.
-  useEffect(() => {
-    if (!isExtension) return
-
-    function handleScroll() {
-      if (!animatedValues || forceHoveredStyle) return
-
-      animatedValues.forEach(
-        ({ property, value, from, duration: valueDuration }: AnimationValuesExtended) => {
-          const toValue = !INTERPOLATE_PROPERTIES.includes(property) ? (from as number) : 0
-
-          // Stop any ongoing animation to prevent overlap.
-          // This ensures a clean transition and avoids conflicting animations
-          // that could leave the value in an unpredictable state
-          value.stopAnimation()
-          Animated.timing(value, {
-            toValue,
-            duration: valueDuration,
-            useNativeDriver: true
-          }).start()
-        }
-      )
-      // Defer state update to avoid interfering with hover event timing
-      requestAnimationFrame(() => setIsHovered(false))
-    }
-
-    window.addEventListener('scroll', handleScroll, true)
-    return () => window.removeEventListener('scroll', handleScroll, true)
-  }, [animatedValues, forceHoveredStyle])
 
   return [bind, style, isHovered, triggerHover, animatedValues] as [
     {
