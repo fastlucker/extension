@@ -28,6 +28,7 @@ import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTok
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
 
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
@@ -54,6 +55,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
   const handleSwitchFromAndToTokens = useCallback(
@@ -122,33 +124,41 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
-      networks.map((n) => {
-        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
-        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
+      networks
+        .sort((a, b) => {
+          const aIsSupported = getIsNetworkSupported(supportedChainIds, a)
+          const bIsSupported = getIsNetworkSupported(supportedChainIds, b)
+          if (aIsSupported && !bIsSupported) return -1
+          if (!aIsSupported && bIsSupported) return 1
+          return 0
+        })
+        .map((n) => {
+          const tooltipId = `network-${n.chainId}-not-supported-tooltip`
+          const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
-        return {
-          value: String(n.chainId),
-          extraSearchProps: [n.name],
-          disabled: !isNetworkSupported,
-          label: (
-            <>
-              <Text
-                fontSize={14}
-                weight="medium"
-                dataSet={{ tooltipId }}
-                style={flexbox.flex1}
-                numberOfLines={1}
-              >
-                {n.name}
-              </Text>
-              {!isNetworkSupported && (
-                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
-              )}
-            </>
-          ),
-          icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} size={28} />
-        }
-      }),
+          return {
+            value: String(n.chainId),
+            extraSearchProps: [n.name],
+            disabled: !isNetworkSupported,
+            label: (
+              <>
+                <Text
+                  fontSize={14}
+                  weight="medium"
+                  dataSet={{ tooltipId }}
+                  style={flexbox.flex1}
+                  numberOfLines={1}
+                >
+                  {n.name}
+                </Text>
+                {!isNetworkSupported && (
+                  <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} account={account} />
+                )}
+              </>
+            ),
+            icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} size={28} />
+          }
+        }),
     [networks, supportedChainIds, toChainId]
   )
 
