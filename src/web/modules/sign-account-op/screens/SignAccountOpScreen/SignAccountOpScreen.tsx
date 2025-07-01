@@ -137,10 +137,10 @@ const SignAccountOpScreen = () => {
       params: {
         err: 'User rejected the transaction request.',
         actionId: accountOpAction.id,
-        shouldOpenNextAction: true
+        shouldOpenNextAction: actionsState.visibleActionsQueue.length > 1
       }
     })
-  }, [dispatch, accountOpAction])
+  }, [dispatch, accountOpAction, actionsState.visibleActionsQueue.length])
 
   const handleAddToCart = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

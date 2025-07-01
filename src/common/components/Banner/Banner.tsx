@@ -1,7 +1,8 @@
 import React, { FC, useMemo } from 'react'
-import { View, ViewStyle } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 
 import { BannerType } from '@ambire-common/interfaces/banner'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
@@ -35,6 +36,7 @@ export interface Props {
   renderButtons?: React.ReactNode | React.ReactNode[]
   CustomIcon?: React.FC<any> | null
   style?: ViewStyle
+  onClosePress?: () => void
 }
 
 const BannerButton: FC<CommonButtonProps & { isReject?: boolean; testId?: string }> = ({
@@ -81,7 +83,7 @@ const BannerButton: FC<CommonButtonProps & { isReject?: boolean; testId?: string
 const { isTab } = getUiType()
 
 const Banner = React.memo(
-  ({ type, title, text, children, CustomIcon, renderButtons, style }: Props) => {
+  ({ type, title, text, children, CustomIcon, renderButtons, style, onClosePress }: Props) => {
     const { styles, theme, themeType } = useTheme(getStyles)
 
     const Icon = useMemo(() => {
@@ -94,6 +96,7 @@ const Banner = React.memo(
       <View
         style={[
           styles.container,
+          ...(!onClosePress ? [flexbox.alignCenter, spacings.prSm] : []),
           {
             backgroundColor:
               themeType === THEME_TYPES.DARK
@@ -136,7 +139,25 @@ const Banner = React.memo(
             </Text>
           </View>
         </View>
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>{renderButtons}</View>
+        {onClosePress ? (
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.justifySpaceBetween,
+              spacings.ptSm,
+              spacings.prSm
+            ]}
+          >
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>{renderButtons}</View>
+            <View style={[spacings.plTy]}>
+              <Pressable onPress={onClosePress} hitSlop={8}>
+                <CloseIcon width={12} />
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>{renderButtons}</View>
+        )}
         {children}
       </View>
     )
