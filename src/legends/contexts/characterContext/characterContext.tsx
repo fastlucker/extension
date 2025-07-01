@@ -6,7 +6,6 @@ import Spinner from '@legends/components/Spinner'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import { CURRENT_SEASON } from '@legends/modules/legends/constants'
 import { getDidEvolve } from '@legends/utils/character'
-import * as Sentry from '@sentry/react'
 
 type Character = {
   characterType: 'unknown' | 'slime' | 'sorceress' | 'necromancer' | 'penguin'
@@ -154,12 +153,7 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     if ((character && character.address === connectedAccount) || isConnectedAccountLoading) return
 
-    getCharacter().catch((e) => {
-      Sentry.captureException(e, {
-        extra: {
-          connectedAccount
-        }
-      })
+    getCharacter().catch(() => {
       setError(`Couldn't load the requested character: ${connectedAccount}`)
     })
   }, [character, connectedAccount, getCharacter, isConnectedAccountLoading])
