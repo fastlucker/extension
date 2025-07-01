@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { Key } from '@ambire-common/interfaces/keystore'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Spinner from '@common/components/Spinner'
@@ -25,7 +26,6 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
-import { Key } from '@ambire-common/interfaces/keystore'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -60,7 +60,8 @@ const SwapAndBridgeScreen = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -185,6 +186,7 @@ const SwapAndBridgeScreen = () => {
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
           networkUserRequests={networkUserRequests}
+          isLocalStateOutOfSync={isLocalStateOutOfSync}
         />
       </>
     )
@@ -194,7 +196,8 @@ const SwapAndBridgeScreen = () => {
     isBridge,
     isNotReadyToProceed,
     swapSignErrors,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   ])
 
   if (!sessionIds.includes(sessionId)) {
