@@ -23,6 +23,7 @@ import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgre
 import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
 import { getUiType } from '@web/utils/uiType'
 
+import { Hex } from '@ambire-common/interfaces/hex'
 import Refunded from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Refunded'
 import RouteStepsToken from '../RouteStepsToken'
 
@@ -98,7 +99,6 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
   return (
     <TrackProgressWrapper
-      title={t('Swap & Bridge')}
       onPrimaryButtonPress={onPrimaryButtonPress}
       secondaryButtonText={t('Start a new swap?')}
       handleClose={handleClose}
@@ -202,6 +202,23 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
         <Failed
           title={t(isSwap ? 'Swap failed' : 'Bridge failed')}
           errorMessage={`Error: ${lastCompletedRoute.error!}`}
+          toToken={
+            lastStep
+              ? {
+                  address: lastStep.toAsset.address as Hex,
+                  chainId: String(lastStep.toAsset.chainId)
+                }
+              : undefined
+          }
+          amount={
+            firstStep
+              ? formatDecimals(
+                  Number(formatUnits(firstStep.fromAmount, firstStep.fromAsset.decimals)),
+                  'precise'
+                )
+              : undefined
+          }
+          handleClose={handleClose}
         />
       )}
 

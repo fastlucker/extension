@@ -6,7 +6,7 @@
 }
 
 .wrapper {
-  @include breakpoint-down-from(medium-desktop) {
+  @include breakpoint-down-from(small-desktop) {
     margin-left: 3rem;
   }
 }
