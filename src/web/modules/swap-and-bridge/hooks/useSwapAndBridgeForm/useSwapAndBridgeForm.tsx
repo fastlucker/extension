@@ -10,7 +10,6 @@ import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndB
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useNavigation from '@common/hooks/useNavigation'
-import usePrevious from '@common/hooks/usePrevious'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -44,6 +43,7 @@ const useSwapAndBridgeForm = () => {
     sessionIds,
     toSelectedToken
   } = useSwapAndBridgeControllerState()
+  const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const controllerAmountFieldValue = fromAmountFieldMode === 'token' ? fromAmount : fromAmountInFiat
@@ -67,7 +67,6 @@ const useSwapAndBridgeForm = () => {
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
     useState<boolean>(false)
-  const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const currentRoute = useLocation()
   const { setSearchParams, navigate } = useNavigation()

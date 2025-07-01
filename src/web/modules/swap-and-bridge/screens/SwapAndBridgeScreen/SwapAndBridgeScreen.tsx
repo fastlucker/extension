@@ -110,15 +110,13 @@ const SwapAndBridgeScreen = () => {
       formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
       mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
       updateQuoteStatus === 'LOADING' ||
-      isEstimatingRoute ||
-      isLocalStateOutOfSync
+      isEstimatingRoute
     )
   }, [
     isEstimatingRoute,
     formStatus,
     mainCtrlStatuses.buildSwapAndBridgeUserRequest,
-    updateQuoteStatus,
-    isLocalStateOutOfSync
+    updateQuoteStatus
   ])
 
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
@@ -188,6 +186,7 @@ const SwapAndBridgeScreen = () => {
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
           networkUserRequests={networkUserRequests}
+          isLocalStateOutOfSync={isLocalStateOutOfSync}
         />
       </>
     )
@@ -197,7 +196,8 @@ const SwapAndBridgeScreen = () => {
     isBridge,
     isNotReadyToProceed,
     swapSignErrors,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   ])
 
   if (!sessionIds.includes(sessionId)) {

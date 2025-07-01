@@ -295,10 +295,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const submitButtonText = useMemo(() => (isTopUp ? t('Top Up') : t('Send')), [isTopUp, t])
 
   const isTransferFormValid = useMemo(
-    () =>
-      !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError) &&
-      !isLocalStateOutOfSync,
-    [addressInputState.validation.isError, isFormValid, isTopUp, isLocalStateOutOfSync]
+    () => !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
+    [addressInputState.validation.isError, isFormValid, isTopUp]
   )
 
   const onBack = useCallback(() => {
@@ -433,10 +431,18 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           isNotReadyToProceed={!isTransferFormValid}
           signAccountOpErrors={[]}
           networkUserRequests={networkUserRequests}
+          isLocalStateOutOfSync={isLocalStateOutOfSync}
         />
       </>
     )
-  }, [addTransaction, onBack, submitButtonText, isTransferFormValid, networkUserRequests])
+  }, [
+    addTransaction,
+    onBack,
+    submitButtonText,
+    isTransferFormValid,
+    networkUserRequests,
+    isLocalStateOutOfSync
+  ])
 
   const handleGoBackPress = useCallback(() => {
     dispatch({

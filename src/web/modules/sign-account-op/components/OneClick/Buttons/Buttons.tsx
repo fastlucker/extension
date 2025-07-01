@@ -17,6 +17,7 @@ type Props = {
   signAccountOpErrors: SignAccountOpError[]
   isNotReadyToProceed: boolean
   isBridge?: boolean
+  isLocalStateOutOfSync?: boolean
   networkUserRequests: UserRequest[]
 }
 
@@ -28,7 +29,12 @@ const Buttons: FC<Props> = ({
   handleSubmitForm,
   isNotReadyToProceed,
   isBridge,
-  networkUserRequests = []
+  networkUserRequests = [],
+  // Used to disable the actions of the buttons when the local state is out of sync.
+  // To prevent button flickering when the user is typing we just do nothing when the button is clicked.
+  // As it would be a rare case for a user to manage to click it in the 300-400ms that it takes to sync the state,
+  // but we still want to guard against it.
+  isLocalStateOutOfSync
 }) => {
   const { t } = useTranslation()
 
@@ -63,7 +69,11 @@ const Buttons: FC<Props> = ({
             disabled={isNotReadyToProceed || !!batchDisabledReason}
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
-            onPress={() => handleSubmitForm(false)}
+            onPress={() => {
+              if (isLocalStateOutOfSync) return
+
+              handleSubmitForm(false)
+            }}
             testID="batch-btn"
           >
             <BatchIcon style={spacings.mlTy} />
@@ -83,7 +93,11 @@ const Buttons: FC<Props> = ({
           disabled={isNotReadyToProceed || !!oneClickDisabledReason}
           style={{ minWidth: 160, ...spacings.mlLg }}
           hasBottomSpacing={false}
-          onPress={() => handleSubmitForm(true)}
+          onPress={() => {
+            if (isLocalStateOutOfSync) return
+
+            handleSubmitForm(true)
+          }}
           testID="proceed-btn"
         />
       </View>
