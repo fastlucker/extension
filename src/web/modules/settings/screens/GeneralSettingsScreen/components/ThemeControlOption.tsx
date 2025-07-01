@@ -44,7 +44,7 @@ const ThemeControlOption = () => {
   return (
     <ControlOption
       title={t('Theme mode')}
-      description={t('Choose between light or dark mode')}
+      description={t('Choose between light, dark or system mode.')}
       renderIcon={
         selectedThemeType === THEME_TYPES.SYSTEM ? (
           <SystemThemeIcon />
