@@ -15,14 +15,20 @@ const NotSupportedNetworkTooltip: React.FC<Props> = ({ tooltipId, network }) => 
   const { t } = useTranslation()
 
   const networkName = network?.name || t('This')
+  const message =
+    network && (!network.areContractsDeployed || (!network.hasRelayer && !network.erc4337.enabled))
+      ? t('{{networkName}} does not support smart accounts.', {
+          networkName
+        })
+      : t('{{networkName}} network is not supported by our service provider.', {
+          networkName
+        })
 
   return (
     <Tooltip id={tooltipId}>
       <View>
         <Text fontSize={14} appearance="secondaryText">
-          {t('{{networkName}} network is not supported by our service provider.', {
-            networkName
-          })}
+          {message}
         </Text>
       </View>
     </Tooltip>
