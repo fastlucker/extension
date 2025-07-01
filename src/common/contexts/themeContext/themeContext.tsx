@@ -7,29 +7,52 @@ import ThemeColors, {
   ThemeProps,
   ThemeType
 } from '@common/styles/themeConfig'
+import { isExtension } from '@web/constants/browserapi'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
 export interface ThemeContextReturnType {
   theme: ThemeProps
-  themeType: ThemeType
+  themeType: THEME_TYPES.DARK | THEME_TYPES.LIGHT
+  selectedThemeType: ThemeType
   setThemeType: (item: ThemeType) => void
 }
 
 const ThemeContext = createContext<ThemeContextReturnType>({
+  theme: {} as ThemeProps,
   themeType: DEFAULT_THEME,
-  setThemeType: () => {},
-  theme: {} as ThemeProps
+  selectedThemeType: DEFAULT_THEME,
+  setThemeType: () => {}
 })
 
-const ThemeProvider: React.FC<{ children: React.ReactNode; forceThemeType?: ThemeType }> = ({
-  children,
-  forceThemeType
-}) => {
+const ThemeProvider: React.FC<{
+  children: React.ReactNode
+  forceThemeType?: ThemeType
+}> = ({ children, forceThemeType }) => {
   const systemThemeType = useColorScheme()
   const { dispatch } = useBackgroundService() || {}
 
-  const { themeType } = useWalletStateController() || {}
+  const { themeType: selectedThemeType } = useWalletStateController() || {}
+
+  useEffect(() => {
+    if (!isExtension) return
+
+    const storedFallbackSelectedThemeType = localStorage.getItem('fallbackSelectedThemeType')
+
+    if (!storedFallbackSelectedThemeType || storedFallbackSelectedThemeType !== selectedThemeType) {
+      localStorage.setItem('fallbackSelectedThemeType', selectedThemeType)
+    }
+  }, [selectedThemeType])
+
+  const themeType = useMemo(() => {
+    const type = forceThemeType || selectedThemeType
+
+    if (type === THEME_TYPES.SYSTEM) {
+      return systemThemeType as THEME_TYPES.LIGHT | THEME_TYPES.DARK
+    }
+
+    return type
+  }, [selectedThemeType, systemThemeType, forceThemeType])
 
   useEffect(() => {
     if (themeType === THEME_TYPES.DARK) {
@@ -42,20 +65,15 @@ const ThemeProvider: React.FC<{ children: React.ReactNode; forceThemeType?: Them
   }, [themeType])
 
   const theme = useMemo(() => {
-    let type = themeType === THEME_TYPES.SYSTEM ? (systemThemeType as ThemeType) : themeType
-
-    if (forceThemeType) {
-      type = forceThemeType
-    }
-
-    const currentTheme: ThemeProps = Object.fromEntries(
+    const currentTheme = Object.fromEntries(
       Object.entries(ThemeColors).map(([key, value]) => [
         key,
-        value[type as 'dark' | 'light'] || value[DEFAULT_THEME]
+        value[themeType] || value[DEFAULT_THEME]
       ])
     ) as ThemeProps
+
     return currentTheme
-  }, [themeType, systemThemeType])
+  }, [themeType])
 
   const setThemeType = useCallback(
     (type: THEME_TYPES) => {
@@ -65,8 +83,8 @@ const ThemeProvider: React.FC<{ children: React.ReactNode; forceThemeType?: Them
   )
 
   const value = useMemo(
-    () => ({ theme, themeType, setThemeType }),
-    [theme, themeType, setThemeType]
+    () => ({ theme, selectedThemeType, themeType, setThemeType }),
+    [theme, selectedThemeType, themeType, setThemeType]
   )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

@@ -1,7 +1,7 @@
 import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
-import { expect, Page, Locator } from '@playwright/test'
+import { expect, Locator, Page } from '@playwright/test'
 
 export abstract class BasePage {
   page: Page
@@ -69,16 +69,14 @@ export abstract class BasePage {
   }
 
   async handleNewPage(locator: Locator) {
-    const context = this.page.context()
-    const actionWindowPagePromise = new Promise<Page>((resolve) => {
-      context.once('page', (p) => {
-        resolve(p)
-      })
-    })
+    const context = this.page.context();
 
-    await locator.first().click({ timeout: 3000 })
+    const [actionWindowPagePromise] = await Promise.all([
+      context.waitForEvent('page'),
+      locator.first().click({ timeout: 5000 })  // trigger opening
+    ]);
 
-    return actionWindowPagePromise
+    return actionWindowPagePromise;
   }
 
   async pause() {
@@ -93,5 +91,9 @@ export abstract class BasePage {
 
   async expectButtonVisible(selector: string) {
     await expect(this.page.getByTestId(selector)).toBeVisible()
+  }
+
+  async compareText(selector: string, text: string) {
+    await expect(this.page.getByTestId(selector)).toContainText(text)
   }
 }

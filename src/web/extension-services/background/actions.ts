@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
   ActionExecutionType,
+  Action as ActionFromActionsQueue,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/controllers/actions/actions'
@@ -525,6 +525,8 @@ type SwapAndBridgeControllerInitAction = {
   params: {
     sessionId: string
     preselectedFromToken?: Pick<TokenResult, 'address' | 'chainId'>
+    preselectedToToken?: Pick<TokenResult, 'address' | 'chainId'>
+    fromAmount?: string
   }
 }
 type SwapAndBridgeControllerUserProceededAction = {
@@ -545,6 +547,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromAmount?: string
     fromAmountInFiat?: string
     fromAmountFieldMode?: 'fiat' | 'token'
+    shouldSetMaxAmount?: boolean
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number

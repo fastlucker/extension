@@ -51,6 +51,9 @@ const AddChainScreen = () => {
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const [existingNetwork, setExistingNetwork] = useState<Network | null | undefined>(undefined)
   const actionButtonPressedRef = useRef(false)
+  const [successStateText, setSuccessStateText] = useState<string>(
+    t('already added to your wallet.')
+  )
 
   const dappAction = useMemo(() => {
     if (state.currentAction?.type !== 'dappRequest') return undefined
@@ -162,15 +165,14 @@ const AddChainScreen = () => {
 
   useEffect(() => {
     if (!dappAction) return
-    if (statuses.addNetwork === 'SUCCESS' || statuses.updateNetwork === 'SUCCESS') {
-      dispatch({
-        type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
-        params: { data: null, id: dappAction.id }
-      })
+    if (statuses.addNetwork === 'SUCCESS') {
+      setSuccessStateText(t('successfully added to your wallet.'))
+    } else if (statuses.updateNetwork === 'SUCCESS') {
+      setSuccessStateText(t('successfully enabled.'))
     } else if (statuses.addNetwork === 'ERROR' || statuses.updateNetwork === 'ERROR') {
       actionButtonPressedRef.current = false
     }
-  }, [dispatch, statuses.addNetwork, dappAction, statuses.updateNetwork])
+  }, [dispatch, t, statuses.addNetwork, dappAction, statuses.updateNetwork])
 
   const handleDenyButtonPress = useCallback(() => {
     if (!dappAction) return
@@ -281,10 +283,10 @@ const AddChainScreen = () => {
           <View style={[flexbox.flex1, flexbox.alignCenter, spacings.mt2Xl]}>
             <SuccessAnimation>
               <Text fontSize={20} weight="medium" style={spacings.mb}>
-                {networkAlreadyAdded.name} Network
+                {networkAlreadyAdded.name} {t('Network')}
               </Text>
               <Text fontSize={15} appearance="secondaryText">
-                {t('already added to your wallet.')}
+                {successStateText}
               </Text>
             </SuccessAnimation>
           </View>

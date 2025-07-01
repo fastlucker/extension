@@ -25,7 +25,6 @@ import {
   TabLayoutContainer,
   tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import ThemeToggle from '@web/components/ThemeToggle'
 import { DISCORD_URL, TELEGRAM_URL, TWITTER_URL } from '@web/constants/social'
 import { getAutoLockLabel } from '@web/extension-services/background/controllers/auto-lock'
 import { createTab, openInTab } from '@web/extension-services/background/webapi/tab'
@@ -136,7 +135,6 @@ const NavMenu = () => {
               <View>
                 {isPopup && (
                   <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                    <ThemeToggle />
                     <Button
                       type="ghost2"
                       size="small"

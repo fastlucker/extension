@@ -140,10 +140,28 @@ const selectors = {
   topUpButton: 'top-up-gas-tank-modal-button',
   topUpProceedButton: 'proceed-btn',
   closeProgressModalButton: 'track-progress-primary-button',
+  // Network Management
+  // TODO: change once we have IDs on FE
+  disableNetworkButton: 'disable-network-btn',
+  disableNetworkConfirmButton: 'disable-network-confirm-btn',
+  addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
+  addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
+  networkSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  connectWalletButton:
+  "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
+  chainlistSearchPlaceholder: 'input[placeholder="ETH, Fantom, ..."]',
+  addToMetamaskButton: '//button[contains(text(),"Add to Metamask")]',
+  confirmaddNetworkOnChainlistButton: '//div[contains(text(),"Add network")]',
+  blockExplorerURL: (url: string) => `//div[contains(text(),"${url}")]`,
+  networkDetailEditButton: '//div[.//div[text()="Network details"]]//div[text()="Edit"]',
+  // edit network modal
+  editNetworkModalTitle: '//div[text()="Edit network"]',
+  editNetworkCancelButton: '//div[contains(text(),"Cancel")]',
+  editNetworkSaveButton: '//div[contains(text(),"Save")]',
+  networkSettingsSavedSnackbar: (networkName: string) => `((//div[contains(normalize-space(), "${networkName} settings saved!")]))[4]`, // TODO: snackbar selector finding 8 elements; change once we have ID on FE
   // Sign
   dappConnectButton: 'dapp-connect-button',
   signMessageButton: 'button-sign'
-
 }
 
 type SelectorKey = keyof typeof selectors

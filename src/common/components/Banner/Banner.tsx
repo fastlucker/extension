@@ -140,20 +140,29 @@ const Banner = React.memo(
           </View>
         </View>
         {onClosePress ? (
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.justifySpaceBetween,
-              spacings.ptSm,
-              spacings.prSm
-            ]}
-          >
+          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>{renderButtons}</View>
-            <View style={[spacings.plTy]}>
-              <Pressable onPress={onClosePress} hitSlop={8}>
-                <CloseIcon width={12} />
-              </Pressable>
-            </View>
+            <Pressable
+              onPress={onClosePress}
+              hitSlop={8}
+              style={[
+                spacings.mhSm,
+                spacings.mvSm,
+                spacings.pvTy,
+                spacings.phTy,
+                {
+                  borderRadius: 50,
+                  backgroundColor: `${theme[`${type}Decorative`] as string}1F`
+                }
+              ]}
+            >
+              <CloseIcon
+                color={theme[`${type}Decorative`]}
+                strokeWidth="2"
+                width={10}
+                height={10}
+              />
+            </Pressable>
           </View>
         ) : (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>{renderButtons}</View>

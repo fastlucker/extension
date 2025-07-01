@@ -22,6 +22,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import useSyncedState from '@web/hooks/useSyncedState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
@@ -38,7 +39,11 @@ const SendForm = ({
   isSWWarningVisible,
   isRecipientHumanizerKnownTokenOrSmartContract,
   recipientMenuClosedAutomaticallyRef,
-  formTitle
+  formTitle,
+  amountFieldValue,
+  setAmountFieldValue,
+  addressStateFieldValue,
+  setAddressStateFieldValue
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
@@ -49,6 +54,10 @@ const SendForm = ({
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
   recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   formTitle: string | ReactNode
+  amountFieldValue: string
+  setAmountFieldValue: (value: string) => void
+  addressStateFieldValue: string
+  setAddressStateFieldValue: (value: string) => void
 }) => {
   const { validation } = addressInputState
   const { state, tokens } = useTransferControllerState()
@@ -64,7 +73,7 @@ const SendForm = ({
     isRecipientAddressUnknownAgreed,
     isTopUp,
     addressState,
-    amount
+    amount: controllerAmount
   } = state
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
@@ -102,21 +111,11 @@ const SendForm = ({
     [tokens, dispatch]
   )
 
-  const setAddressStateFieldValue = useCallback(
-    (value: string) => {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: { formValues: { addressState: { fieldValue: value } } }
-      })
-    },
-    [dispatch]
-  )
-
   const setMaxAmount = useCallback(() => {
     dispatch({
       type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
       params: {
-        formValues: { amount: maxAmount, amountFieldMode: 'token' }
+        formValues: { shouldSetMaxAmount: true }
       }
     })
   }, [maxAmount, dispatch])
@@ -129,18 +128,6 @@ const SendForm = ({
       }
     })
   }, [amountFieldMode, dispatch])
-
-  const setAmount = useCallback(
-    (value: string) => {
-      dispatch({
-        type: 'TRANSFER_CONTROLLER_UPDATE_FORM',
-        params: {
-          formValues: { amount: value }
-        }
-      })
-    },
-    [dispatch]
-  )
 
   const onRecipientCheckboxClick = useCallback(() => {
     dispatch({
@@ -294,16 +281,16 @@ const SendForm = ({
         <SendToken
           fromTokenOptions={options}
           fromTokenValue={tokenSelectValue}
-          fromAmountValue={amountFieldMode === 'token' ? amount : amountInFiat}
+          fromAmountValue={amountFieldValue}
           fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
           handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
           fromSelectedToken={selectedToken}
-          fromAmount={amount}
+          fromAmount={controllerAmount}
           fromAmountInFiat={amountInFiat}
           fromAmountFieldMode={amountFieldMode}
           maxFromAmount={maxAmount}
           validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
-          onFromAmountChange={setAmount}
+          onFromAmountChange={setAmountFieldValue}
           handleSwitchFromAmountFieldMode={switchAmountFieldMode}
           handleSetMaxFromAmount={setMaxAmount}
           inputTestId="amount-field"
@@ -316,7 +303,7 @@ const SendForm = ({
         {!isTopUp && (
           <Recipient
             disabled={disableForm}
-            address={addressState.fieldValue}
+            address={addressStateFieldValue}
             setAddress={setAddressStateFieldValue}
             validation={validation}
             ensAddress={addressState.ensAddress}

@@ -71,7 +71,7 @@ const FromToken: FC<Props> = ({
   const handleSetMaxFromAmount = useCallback(() => {
     dispatch({
       type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-      params: { fromAmount: maxFromAmount, fromAmountFieldMode: 'token' }
+      params: { shouldSetMaxAmount: true }
     })
   }, [maxFromAmount, dispatch])
 

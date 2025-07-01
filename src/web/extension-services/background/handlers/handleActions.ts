@@ -296,7 +296,9 @@ export const handleActions = async (
 
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId, {
-        preselectedFromToken: params.preselectedFromToken
+        preselectedFromToken: params.preselectedFromToken,
+        preselectedToToken: params.preselectedToToken ?? undefined,
+        fromAmount: params.fromAmount ?? undefined
       })
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
       return mainCtrl.swapAndBridge.unloadScreen(params.sessionId, params.forceUnload)
