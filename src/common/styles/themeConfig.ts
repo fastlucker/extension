@@ -25,7 +25,7 @@ const ThemeColors = {
     [THEME_TYPES.LIGHT]: '#6000FF20'
   },
   primaryLight: {
-    [THEME_TYPES.DARK]: '#6C38F7',
+    [THEME_TYPES.DARK]: '#0B3230',
     [THEME_TYPES.LIGHT]: '#8B3DFF'
   },
   primaryLight80: {
