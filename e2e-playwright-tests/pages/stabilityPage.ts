@@ -10,7 +10,7 @@ export class StabilityPage extends BasePage {
 
   context: any
 
-  async init(param) {
+  async initLocked(param) {
     const { page, serviceWorker, extensionURL, context } = await bootstrapWithStorage(
       'stability',
       param,
@@ -21,8 +21,10 @@ export class StabilityPage extends BasePage {
     this.context = context
     this.serviceWorker = serviceWorker
     this.extensionURL = extensionURL
+  }
 
-    await this.context.route('**/invictus.ambire.com/polygon', async (route) => {
+  async blockRouteAndUnlock(blockedRoute: string) {
+    await this.context.route(blockedRoute, async (route) => {
       await route.fulfill({
         status: 500,
         contentType: 'application/json',
@@ -42,7 +44,7 @@ export class StabilityPage extends BasePage {
       keystoreSecrets
     })
 
-    await this.page.goto(`${extensionURL}/tab.html#/`, { waitUntil: 'load' })
+    await this.page.goto(`${this.extensionURL}/tab.html#/`, { waitUntil: 'load' })
 
     await this.page.getByTestId(selectors.passphraseField).fill(KEYSTORE_PASS)
     await this.page.getByTestId(selectors.buttonUnlock).click()
