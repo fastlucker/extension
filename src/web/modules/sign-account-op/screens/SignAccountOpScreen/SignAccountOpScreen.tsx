@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { NativeScrollEvent, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -37,6 +37,11 @@ import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect
 
 import getStyles from './styles'
 
+const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
+  const paddingToBottom = 20
+  return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
+}
+
 const SignAccountOpScreen = () => {
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
@@ -45,6 +50,9 @@ const SignAccountOpScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { styles, theme, themeType } = useTheme(getStyles)
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
+  const [hasReachedBottom, setHasReachedBottom] = useState<boolean | null>(null)
 
   const handleUpdateStatus = useCallback(
     (status: SigningStatus) => {
@@ -153,6 +161,20 @@ const SignAccountOpScreen = () => {
     }
   }, [dispatch])
 
+  useEffect(() => {
+    if (isSignDisabled || !containerHeight || !contentHeight) return
+    const isScrollNotVisible = contentHeight <= containerHeight
+
+    if (setHasReachedBottom && !hasReachedBottom) setHasReachedBottom(isScrollNotVisible)
+  }, [
+    contentHeight,
+    containerHeight,
+    setHasReachedBottom,
+    hasReachedBottom,
+    hasEstimation,
+    isSignDisabled
+  ])
+
   const copySignAccountOpError = useCallback(async () => {
     if (!signAccountOpState?.errors?.length) return
 
@@ -249,7 +271,12 @@ const SignAccountOpScreen = () => {
                 signAccountOpState.accountOp.meta?.setDelegation === undefined
               }
               isSignLoading={isSignLoading}
-              isSignDisabled={isSignDisabled}
+              isSignDisabled={isSignDisabled || !hasReachedBottom}
+              buttonTooltipText={
+                typeof hasReachedBottom === 'boolean' && !hasReachedBottom
+                  ? t('Scroll to the bottom of the transaction overview to sign.')
+                  : undefined
+              }
               // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
               // because they can't sign it anyway
 
@@ -274,55 +301,70 @@ const SignAccountOpScreen = () => {
             account={signAccountOpState.account}
           />
         ) : null}
-        <TabLayoutWrapperMainContent>
-          <PendingTransactions
-            network={network}
-            setDelegation={signAccountOpState?.accountOp.meta?.setDelegation}
-            delegatedContract={signAccountOpState?.delegatedContract}
-          />
-          {/* Display errors only if the user is not in view-only mode */}
-          {signAccountOpState?.errors?.length && !isViewOnly ? (
-            <AlertVertical
-              type="warning"
-              title={signAccountOpState.errors[0].title}
-              text={
-                getErrorCodeStringFromReason(signAccountOpState.errors[0].code) ? (
-                  <AlertVertical.Text
-                    type="warning"
-                    size="md"
-                    style={{
-                      ...flexbox.flex1,
-                      ...flexbox.directionRow,
-                      ...flexbox.alignCenter,
-                      ...flexbox.wrap,
-                      maxWidth: '100%'
-                    }}
-                  >
-                    {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '', false)}
-                    <Pressable
-                      // @ts-ignore web style
-                      style={{ verticalAlign: 'middle', ...spacings.mlMi, ...spacings.mbMi }}
-                      onPress={copySignAccountOpError}
-                    >
-                      <CopyIcon
-                        strokeWidth={1.5}
-                        width={20}
-                        height={20}
-                        color={theme.warningText}
-                      />
-                    </Pressable>
-                  </AlertVertical.Text>
-                ) : undefined
-              }
-            />
-          ) : (
-            <Simulation
+        <TabLayoutWrapperMainContent withScroll={false}>
+          {/* TabLayoutWrapperMainContent supports scroll but the logic that determines the height
+          of the content doesn't work with it, so we use a ScrollView here */}
+          <ScrollView
+            onScroll={(e) => {
+              if (isCloseToBottom(e.nativeEvent) && setHasReachedBottom) setHasReachedBottom(true)
+            }}
+            onLayout={(e) => {
+              setContainerHeight(e.nativeEvent.layout.height)
+            }}
+            onContentSizeChange={(_, height) => {
+              setContentHeight(height)
+            }}
+            scrollEventThrottle={400}
+          >
+            <PendingTransactions
               network={network}
-              isViewOnly={isViewOnly}
-              isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+              setDelegation={signAccountOpState?.accountOp.meta?.setDelegation}
+              delegatedContract={signAccountOpState?.delegatedContract}
             />
-          )}
-          {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
+            {/* Display errors only if the user is not in view-only mode */}
+            {signAccountOpState?.errors?.length && !isViewOnly ? (
+              <AlertVertical
+                type="warning"
+                title={signAccountOpState.errors[0].title}
+                text={
+                  getErrorCodeStringFromReason(signAccountOpState.errors[0].code) ? (
+                    <AlertVertical.Text
+                      type="warning"
+                      size="md"
+                      style={{
+                        ...flexbox.flex1,
+                        ...flexbox.directionRow,
+                        ...flexbox.alignCenter,
+                        ...flexbox.wrap,
+                        maxWidth: '100%'
+                      }}
+                    >
+                      {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '', false)}
+                      <Pressable
+                        // @ts-ignore web style
+                        style={{ verticalAlign: 'middle', ...spacings.mlMi, ...spacings.mbMi }}
+                        onPress={copySignAccountOpError}
+                      >
+                        <CopyIcon
+                          strokeWidth={1.5}
+                          width={20}
+                          height={20}
+                          color={theme.warningText}
+                        />
+                      </Pressable>
+                    </AlertVertical.Text>
+                  ) : undefined
+                }
+              />
+            ) : (
+              <Simulation
+                network={network}
+                isViewOnly={isViewOnly}
+                isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
+              />
+            )}
+            {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
+          </ScrollView>
         </TabLayoutWrapperMainContent>
       </TabLayoutContainer>
     </SmallNotificationWindowWrapper>
