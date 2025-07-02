@@ -117,7 +117,7 @@ const SendForm = ({
         formValues: { shouldSetMaxAmount: true }
       }
     })
-  }, [maxAmount, dispatch])
+  }, [dispatch])
 
   const switchAmountFieldMode = useCallback(() => {
     dispatch({
