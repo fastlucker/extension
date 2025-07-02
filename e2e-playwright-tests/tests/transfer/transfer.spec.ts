@@ -6,8 +6,9 @@ import { test } from 'fixtures/pageObjects'
 import { expect, Page } from '@playwright/test'
 
 test.describe('transfer', () => {
-  test.beforeEach(async ({ transferPage }) => {
+  test.beforeEach(async ({ transferPage, settingsPage }) => {
     await transferPage.init(baParams)
+    // await settingsPage.init(baParams)
   })
 
   test('should send a transaction and pay with the current account gas tank', async ({
@@ -73,5 +74,40 @@ test.describe('transfer', () => {
 
     // Expect the txn to be Confirmed
     await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible()
+  })
+
+  test.only('add contact in address book', async ({ transferPage }) => {
+    const newContactName = 'First Address'
+    const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
+
+    await test.step('go to address book page', async () => {
+      await transferPage.openAddressBookPage()
+    })
+
+    await test.step('add new contact', async () => {
+      await transferPage.entertext(selectors.contactNameField, newContactName)
+      await transferPage.entertext(selectors.contactAddressField, newContactAddress)
+      await transferPage.click(selectors.addToAddressBookButton)
+    })
+
+    await test.step('newly added address should be visible in Address book section', async () => {
+      await transferPage.compareText(selectors.contactNameText, newContactName)
+      await transferPage.compareText(selectors.contactAddressText, newContactAddress)
+    })
+
+    await transferPage.pause()
+
+    await test.step('go to dashboard', async () => {
+      await transferPage.navigateToHome()
+    })
+
+    await test.step('send USCD to added contact', async () => {
+      const sendToken = tokens.usdc.optimism
+      const feeToken = tokens.usdc.optimism
+      const payWithGasTank = false
+
+      await transferPage.send(sendToken, newContactAddress, feeToken, payWithGasTank)
+    })
+
   })
 })

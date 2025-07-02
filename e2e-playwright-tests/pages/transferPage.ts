@@ -1,8 +1,8 @@
-import { expect } from '@playwright/test'
 import { bootstrapWithStorage } from 'common-helpers/bootstrap'
 import { baParams } from 'constants/env'
-import Token from 'interfaces/token'
 import selectors from 'constants/selectors'
+import Token from 'interfaces/token'
+
 import { BasePage } from './basePage'
 
 export class TransferPage extends BasePage {
@@ -12,15 +12,20 @@ export class TransferPage extends BasePage {
   }
 
   async navigateToTransfer() {
-    const sendButton = this.page.getByTestId(selectors.dashboardButtonSend)
-    await sendButton.click()
+    await this.click(selectors.dashboardButtonSend)
+  }
+
+  async openAddressBookPage() {
+    await this.click(selectors.dashboardHumburgerBtn)
+
+    // go to Address book page and assert url
+    await this.page.locator('//div[contains(text(),"Address Book")]').first().click()
+    await this.checkUrl('/settings/address-book')
   }
 
   async fillRecipient(address: string) {
-    const addressField = this.page.getByTestId(selectors.addressEnsField)
-    await addressField.fill(address)
-    const checkbox = this.page.getByTestId(selectors.recipientAddressUnknownCheckbox)
-    await checkbox.click()
+    await this.entertext(selectors.addressEnsField, address)
+    await this.click(selectors.recipientAddressUnknownCheckbox)
   }
 
   async fillForm(token: Token, recipientAddress: string) {
@@ -28,8 +33,7 @@ export class TransferPage extends BasePage {
     await this.clickOnMenuToken(token)
 
     // Amount
-    const amountField = this.page.getByTestId(selectors.amountField)
-    await amountField.fill('0.001')
+    await this.entertext(selectors.amountField, '0,001')
 
     // Address
     await this.fillRecipient(recipientAddress)
@@ -37,19 +41,16 @@ export class TransferPage extends BasePage {
 
   async signAndValidate(feeToken: Token, payWithGasTank?: boolean) {
     // Proceed
-    const proceedButton = this.page.getByTestId(selectors.proceedBtn)
-    await proceedButton.click()
+    await this.click(selectors.proceedBtn)
 
     // Select Fee token and payer
     await this.clickOnMenuFeeToken(baParams.envSelectedAccount, feeToken, payWithGasTank)
 
     // Sign & Broadcast
-    const sign = this.page.getByTestId(selectors.signButton)
-    await sign.click()
+    await this.click(selectors.signButton)
 
     // Validate
-    const txnStatus = await this.page.getByTestId(selectors.txnStatus).textContent()
-    expect(txnStatus).toEqual('Transfer done!')
+    await this.compareText(selectors.txnStatus, 'Transfer done!')
   }
 
   async send(token: Token, recipientAddress: string, feeToken: Token, payWithGasTank?: boolean) {
@@ -59,10 +60,8 @@ export class TransferPage extends BasePage {
   }
 
   async addToBatch() {
-    const batchButton = this.page.getByTestId(selectors.batchBtn)
-    await batchButton.click()
+    await this.click(selectors.batchBtn)
+    await this.click(selectors.batchModalGotIt)
 
-    const gotIt = this.page.getByTestId(selectors.batchModalGotIt)
-    await gotIt.click()
   }
 }
