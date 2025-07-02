@@ -63,16 +63,16 @@ const useSyncedState = <T>({
     }, DEBOUNCE_MS)
   }
 
-  const handleTabVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      setState(backgroundState)
-    }
-  }
-
   // Update the local state with the background state when the
   // tab is focused
   // Background state --> Local state
   useEffect(() => {
+    const handleTabVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setState(backgroundState)
+      }
+    }
+
     window.addEventListener('focus', handleTabVisibilityChange)
 
     return () => {
@@ -92,7 +92,7 @@ const useSyncedState = <T>({
       setState(backgroundState)
       clearDebounceTimeout()
     }
-  }, [forceUpdateOnChangeList])
+  }, [backgroundState, forceUpdateOnChangeList])
 
   return [state, updateLocalStateWithDebounce]
 }
