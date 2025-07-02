@@ -10,6 +10,7 @@ import {
   View,
   ViewStyle
 } from 'react-native'
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -26,7 +27,8 @@ export enum WRAPPER_TYPES {
   KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
   SECTION_LIST = 'sectionlist',
-  VIEW = 'view'
+  VIEW = 'view',
+  DRAGGABLE_FLAT_LIST = 'draggable-flatlist' // <-- new type
 }
 
 // @ts-ignore ignored because SectionList and FlatList receive props with same names
@@ -38,6 +40,12 @@ export interface WrapperProps
   hasBottomTabNav?: boolean
   wrapperRef?: any
   extraHeight?: number
+
+  // For draggable flatlist
+  // data?: any[]
+  onDragEnd?: (params: { data: any[] }) => void
+  renderItem?: (params: RenderItemParams<any>) => React.ReactElement | null
+  // keyExtractor?: (item: any, index: number) => string
 }
 
 const ScrollableWrapper = ({
@@ -50,6 +58,10 @@ const ScrollableWrapper = ({
   hasBottomTabNav: _hasBottomTabNav,
   extraHeight,
   wrapperRef,
+  data = [],
+  onDragEnd,
+  renderItem,
+  keyExtractor,
   ...rest
 }: WrapperProps) => {
   const { styles } = useTheme(createStyles)
@@ -71,6 +83,28 @@ const ScrollableWrapper = ({
     ...(Array.isArray(contentContainerStyle) ? contentContainerStyle : [contentContainerStyle]),
     isWeb ? ({ overflowY: 'auto' } as any) : null // missing type for overflowY
   ]
+
+  if (type === WRAPPER_TYPES.DRAGGABLE_FLAT_LIST) {
+    if (!renderItem) {
+      console.warn('ScrollableWrapper: renderItem is required for DRAGGABLE_FLAT_LIST')
+      return null
+    }
+
+    return (
+      <DraggableFlatList
+        ref={wrapperRef}
+        data={data}
+        onDragEnd={onDragEnd}
+        keyExtractor={keyExtractor || ((item, index) => item.key ?? index.toString())}
+        renderItem={renderItem}
+        style={scrollableWrapperStyles}
+        contentContainerStyle={scrollableWrapperContentContainerStyles}
+        keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
+        keyboardDismissMode={keyboardDismissMode || 'none'}
+        {...rest}
+      />
+    )
+  }
 
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (

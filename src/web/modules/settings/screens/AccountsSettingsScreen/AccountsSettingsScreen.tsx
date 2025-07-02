@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
+import { RenderItemParams } from 'react-native-draggable-flatlist'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
@@ -59,6 +60,9 @@ const AccountsSettingsScreen = () => {
     setCurrentSettingsPage('accounts')
   }, [setCurrentSettingsPage])
 
+  // TODO: Remove this when the accounts list
+  const [data, setData] = useState(accounts)
+
   const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
   const [accountToRemove, setAccountToRemove] = useState<AccountInterface | null>(null)
   const [smartSettingsAccount, setSmartSettingsAccount] = useState<AccountInterface | null>(null)
@@ -93,8 +97,13 @@ const AccountsSettingsScreen = () => {
   )
 
   const renderItem = useCallback(
-    ({ item: account }: any) => {
-      return (
+    ({ item: account, drag, isActive }: RenderItemParams<typeof accounts[0]>) => (
+      <TouchableOpacity
+        onLongPress={drag}
+        style={{
+          backgroundColor: isActive ? '#ddd' : '#fff'
+        }}
+      >
         <Account
           onSelect={onSelectAccount}
           key={account.addr}
@@ -108,8 +117,8 @@ const AccountsSettingsScreen = () => {
           }}
           isSelectable={false}
         />
-      )
-    },
+      </TouchableOpacity>
+    ),
     [onSelectAccount, shortenAccountAddr]
   )
 
@@ -130,9 +139,10 @@ const AccountsSettingsScreen = () => {
       </SettingsPageHeader>
       <View style={flexbox.flex1} ref={accountsContainerRef}>
         <ScrollableWrapper
-          type={WRAPPER_TYPES.FLAT_LIST}
+          type={WRAPPER_TYPES.DRAGGABLE_FLAT_LIST}
           style={[spacings.mb]}
-          data={accounts}
+          data={data}
+          onDragEnd={({ data }) => setData(data)}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
           keyExtractor={keyExtractor}
