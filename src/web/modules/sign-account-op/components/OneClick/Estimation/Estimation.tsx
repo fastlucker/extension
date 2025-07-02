@@ -126,7 +126,7 @@ const OneClickEstimation = ({
                 </Text>
               </View>
             )}
-            {signingErrors.length === 0 && bundlerNonceDiscrepancy && (
+            {bundlerNonceDiscrepancy && (
               <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
                 <Text fontSize={12} appearance="warningText">
                   {t(bundlerNonceDiscrepancy.title)}
