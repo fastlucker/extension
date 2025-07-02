@@ -13,5 +13,6 @@ if (SENTRY_DSN_LEGENDS)
     // https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/#sendDefaultPii
     sendDefaultPii: false,
     release: `legends@${version}`,
-    integrations: []
+    integrations: [],
+    environment: process.env.APP_ENV || 'unknown'
   })
