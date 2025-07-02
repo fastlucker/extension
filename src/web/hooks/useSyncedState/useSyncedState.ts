@@ -77,7 +77,6 @@ const useSyncedState = <T>({
 
     return () => {
       window.removeEventListener('focus', handleTabVisibilityChange)
-      clearDebounceTimeout()
     }
   }, [backgroundState])
 
