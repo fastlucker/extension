@@ -6,9 +6,8 @@ import { test } from 'fixtures/pageObjects'
 import { expect, Page } from '@playwright/test'
 
 test.describe('transfer', () => {
-  test.beforeEach(async ({ transferPage, settingsPage }) => {
+  test.beforeEach(async ({ transferPage }) => {
     await transferPage.init(baParams)
-    // await settingsPage.init(baParams)
   })
 
   test('should send a transaction and pay with the current account gas tank', async ({
@@ -76,7 +75,9 @@ test.describe('transfer', () => {
     await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible()
   })
 
-  test('add contact in address book', async ({ transferPage }) => {
+  test('add contact in address book and send transaction to newly added contact', async ({
+    transferPage
+  }) => {
     const newContactName = 'First Address'
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
@@ -105,7 +106,41 @@ test.describe('transfer', () => {
       const payWithGasTank = false
       const isUnknownAddress = false
 
-      await transferPage.send(sendToken, newContactAddress, feeToken, payWithGasTank, isUnknownAddress)
+      await transferPage.send(
+        sendToken,
+        newContactAddress,
+        feeToken,
+        payWithGasTank,
+        isUnknownAddress
+      )
+    })
+  })
+
+  test.only('Start transfer, add contact, send transaction to newly added contact', async ({
+    transferPage
+  }) => {
+    const newContactName = 'First Address'
+    const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
+
+    await test.step('start send transfer', async () => {
+      await transferPage.navigateToTransfer()
+    })
+
+    await test.step('add transfer amount', async () => {
+      const feeToken = tokens.usdc.optimism
+
+      await transferPage.fillAmount(feeToken)
+    })
+
+    await test.step('add unknown recepient to address book', async () => {
+      await transferPage.addUnknownRecepientToAddressBook(newContactAddress, newContactName)
+    })
+
+    await test.step('send USCD to added contact', async () => {
+      const feeToken = tokens.usdc.optimism
+      const payWithGasTank = false
+
+      await transferPage.signAndValidate(feeToken, payWithGasTank)
     })
   })
 })

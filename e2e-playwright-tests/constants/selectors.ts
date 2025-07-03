@@ -26,6 +26,9 @@ const selectors = {
   contactNameField: 'contact-name-field',
   contactNameText: 'contact-name-text', // TODO: selector could be more precise
   contactAddressText: 'address',
+  sendFormAddToAddresBook: 'send-form-add-to-address-book-button',
+  formAddContactNameField: 'form-contact-name-field',
+  formAddToContactsButton: 'form-add-to-contacts-button',
   buttonAddAccount: 'button-add-account',
   watchAddress: 'watch-address',
   checkbox: 'checkbox',
@@ -149,7 +152,6 @@ const selectors = {
   disableNetworkConfirmButton: 'disable-network-confirm-btn',
   addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
   addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
-  networkSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
   connectWalletButton:
   "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
   chainlistSearchPlaceholder: 'input[placeholder="ETH, Fantom, ..."]',
@@ -164,7 +166,10 @@ const selectors = {
   networkSettingsSavedSnackbar: (networkName: string) => `((//div[contains(normalize-space(), "${networkName} settings saved!")]))[4]`, // TODO: snackbar selector finding 8 elements; change once we have ID on FE
   // Sign
   dappConnectButton: 'dapp-connect-button',
-  signMessageButton: 'button-sign'
+  signMessageButton: 'button-sign',
+  // Notifications
+  networkSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  contactSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Contact added to Address Book")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
 }
 
 type SelectorKey = keyof typeof selectors

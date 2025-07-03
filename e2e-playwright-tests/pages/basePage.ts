@@ -101,4 +101,8 @@ export abstract class BasePage {
   async compareText(selector: string, text: string) {
     await expect(this.page.getByTestId(selector)).toContainText(text)
   }
+
+  async isVisible(selector: string): Promise<boolean> {
+    return this.page.getByTestId(selector).isVisible()
+  }
 }
