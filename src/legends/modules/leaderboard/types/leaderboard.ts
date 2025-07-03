@@ -2,23 +2,24 @@ type LeaderboardEntry = {
   entries: Array<{
     rank: number
     account: string
-    level: number
+    level?: number
     xp: number
-    weight: number
+    weight?: number
     image: string
     image_avatar: string
   }>
   currentUser: {
     rank: number
     account: string
-    level: number
+    level?: number
     xp: number
-    weight: number
+    weight?: number
     image: string
     image_avatar: string
   }
 }
 
+// @TODO change there types to not include 'leaderboard' and 'currentUser'
 interface LeaderboardResponse {
   leaderboard: Array<LeaderboardEntry>
   currentUser: LeaderboardEntry
