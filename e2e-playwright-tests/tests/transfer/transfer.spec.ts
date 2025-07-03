@@ -116,7 +116,7 @@ test.describe('transfer', () => {
     })
   })
 
-  test.only('Start transfer, add contact, send transaction to newly added contact', async ({
+  test('Start transfer, add contact, send transaction to newly added contact', async ({
     transferPage
   }) => {
     const newContactName = 'First Address'
