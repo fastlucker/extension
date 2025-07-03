@@ -19,10 +19,7 @@ type LeaderboardEntry = {
   }
 }
 
-// @TODO change there types to not include 'leaderboard' and 'currentUser'
 interface LeaderboardResponse {
-  leaderboard: Array<LeaderboardEntry>
-  currentUser: LeaderboardEntry
   fullLeaderboard: LeaderboardEntry
   season0Leaderboard: LeaderboardEntry
   season1Leaderboard: LeaderboardEntry
