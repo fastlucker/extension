@@ -35,6 +35,7 @@ import SafetyChecksOverlay from '@web/modules/sign-account-op/components/SafetyC
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
+import { Key } from '@ambire-common/interfaces/keystore'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -58,7 +59,7 @@ const SignAccountOpScreen = () => {
     [dispatch]
   )
   const updateController = useCallback(
-    (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+    (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params
@@ -97,7 +98,8 @@ const SignAccountOpScreen = () => {
     network,
     initDispatchedForId,
     setInitDispatchedForId,
-    isSignDisabled
+    isSignDisabled,
+    bundlerNonceDiscrepancy
   } = useSign({
     handleUpdateStatus,
     signAccountOpState,
@@ -227,6 +229,7 @@ const SignAccountOpScreen = () => {
                   isSponsored={signAccountOpState ? signAccountOpState.isSponsored : false}
                   sponsor={signAccountOpState ? signAccountOpState.sponsor : undefined}
                   updateType="Main"
+                  bundlerNonceDiscrepancy={bundlerNonceDiscrepancy}
                 />
 
                 <View
