@@ -1,7 +1,6 @@
 import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
-import { getExtensionURL } from '@helpers/bootstrap'
 import { expect, Locator, Page } from '@playwright/test'
 
 export abstract class BasePage {
@@ -9,9 +8,8 @@ export abstract class BasePage {
 
   abstract init(param?): Promise<void> // ⛔ Must be implemented in subclasses
 
-  async navigateToHome() {
-    const extensionURL = getExtensionURL()
-    await this.page.goto(`${extensionURL}/tab.html#/`)
+  async navigateToURL(url: string) {
+    await this.page.goto(`${url}`)
   }
 
   async click(selector: string, index?: number): Promise<void> {
@@ -59,6 +57,10 @@ export abstract class BasePage {
   async typeTextInInputField(locator: string, text: string): Promise<void> {
     await this.page.locator(locator).clear()
     await this.page.locator(locator).pressSequentially(text)
+  }
+
+  async clearFieldInput(selector: string): Promise<void> {
+    await this.page.getByTestId(selector).fill('')
   }
 
   async getText(selector: string): Promise<string> {

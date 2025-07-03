@@ -8,13 +8,21 @@ import { expect } from '@playwright/test'
 import { BasePage } from './basePage'
 
 export class TransferPage extends BasePage {
+  extensionURL: string
+
   async init(param) {
-    const { page } = await bootstrapWithStorage('transfer', param)
+    const { page, extensionURL } = await bootstrapWithStorage('transfer', param)
     this.page = page
+
+    this.extensionURL = extensionURL
   }
 
   async navigateToTransfer() {
     await this.click(selectors.dashboardButtonSend)
+  }
+
+  async navigateToDashboard() {
+    await this.navigateToURL(`${this.extensionURL}/tab.html#/`)
   }
 
   async openAddressBookPage() {
@@ -32,8 +40,15 @@ export class TransferPage extends BasePage {
     await this.entertext(selectors.amountField, '0.001')
   }
 
-  async fillRecipient(address: string) {
+  async fillRecipient(address: string, isUnknownAddress: boolean = true) {
+    // clear input if any
+    await this.clearFieldInput(selectors.addressEnsField)
     await this.entertext(selectors.addressEnsField, address)
+
+    // if address is unknown checkbox has to be checked
+    if (isUnknownAddress) {
+      await this.click(selectors.recipientAddressUnknownCheckbox)
+    }
   }
 
   async fillForm(token: Token, recipientAddress: string) {
@@ -55,24 +70,6 @@ export class TransferPage extends BasePage {
 
     // Validate
     await this.compareText(selectors.txnStatus, 'Transfer done!')
-  }
-
-  async send(
-    token: Token,
-    recipientAddress: string,
-    feeToken: Token,
-    payWithGasTank?: boolean,
-    isUnknownAddress: boolean = true
-  ) {
-    await this.navigateToTransfer()
-    await this.fillForm(token, recipientAddress)
-
-    // if address is unknown checkbox has to be checked
-    if (isUnknownAddress) {
-      await this.click(selectors.recipientAddressUnknownCheckbox)
-    }
-
-    await this.signAndValidate(feeToken, payWithGasTank)
   }
 
   async addToBatch() {
@@ -99,10 +96,5 @@ export class TransferPage extends BasePage {
     await expect(this.page.locator(selectors.contactSuccessfullyAddedSnackbar)).toHaveText(
       'Contact added to Address Book'
     )
-
-    // confirm new contact as recepient
-    const newContactAddressOption = 'option-0xc254b41be9582e45a2ace62d5add3f8092d4ea6c'
-    await this.click(newContactAddressOption)
-    await this.page.waitForTimeout(1000) // waiting animation
   }
 }
