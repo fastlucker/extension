@@ -76,7 +76,7 @@ test.describe('transfer', () => {
     await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible()
   })
 
-  test.only('add contact in address book', async ({ transferPage }) => {
+  test('add contact in address book', async ({ transferPage }) => {
     const newContactName = 'First Address'
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
