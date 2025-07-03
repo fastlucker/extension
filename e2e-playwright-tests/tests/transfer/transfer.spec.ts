@@ -86,7 +86,7 @@ test.describe('transfer', () => {
 
     await test.step('add new contact', async () => {
       await transferPage.entertext(selectors.contactNameField, newContactName)
-      await transferPage.entertext(selectors.contactAddressField, newContactAddress)
+      await transferPage.entertext(selectors.addressEnsField, newContactAddress)
       await transferPage.click(selectors.addToAddressBookButton)
     })
 
@@ -94,8 +94,6 @@ test.describe('transfer', () => {
       await transferPage.compareText(selectors.contactNameText, newContactName)
       await transferPage.compareText(selectors.contactAddressText, newContactAddress)
     })
-
-    await transferPage.pause()
 
     await test.step('go to dashboard', async () => {
       await transferPage.navigateToHome()
@@ -105,9 +103,9 @@ test.describe('transfer', () => {
       const sendToken = tokens.usdc.optimism
       const feeToken = tokens.usdc.optimism
       const payWithGasTank = false
+      const isUnknownAddress = false
 
-      await transferPage.send(sendToken, newContactAddress, feeToken, payWithGasTank)
+      await transferPage.send(sendToken, newContactAddress, feeToken, payWithGasTank, isUnknownAddress)
     })
-
   })
 })

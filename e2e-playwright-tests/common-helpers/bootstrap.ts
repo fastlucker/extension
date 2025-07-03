@@ -8,6 +8,7 @@ const buildPath = `build/${process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod
 const USER_DATA_DIR = '' // you can set a temp dir if needed
 
 let currentContext: BrowserContext | null = null
+let currentExtensionURL: string | null = null
 
 const playwrightArgs = [
   `--disable-extensions-except=${__dirname}/../../${buildPath}/`,
@@ -78,6 +79,7 @@ async function initBrowser(namespace: string): Promise<{
 
   const extensionId = serviceWorker.url().split('/')[2]
   const extensionURL = `chrome-extension://${extensionId}`
+  currentExtensionURL = extensionURL
 
   // 3. Open extension page
   const page = await context.newPage()
@@ -202,4 +204,13 @@ export async function bootstrapWithStorage(
   }
 
   return { page, context }
+}
+
+export function getExtensionURL(): string {
+  if (!currentExtensionURL) {
+    throw new Error(
+      'Extension URL is not set. Did you forget to call bootstrap or bootstrapWithStorage?'
+    )
+  }
+  return currentExtensionURL
 }

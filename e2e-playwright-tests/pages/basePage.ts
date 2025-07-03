@@ -1,6 +1,7 @@
 import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
+import { getExtensionURL } from '@helpers/bootstrap'
 import { expect, Locator, Page } from '@playwright/test'
 
 export abstract class BasePage {
@@ -9,11 +10,15 @@ export abstract class BasePage {
   abstract init(param?): Promise<void> // ⛔ Must be implemented in subclasses
 
   async navigateToHome() {
-    await this.page.goto('/')
+    const extensionURL = getExtensionURL()
+    await this.page.goto(`${extensionURL}/tab.html#/`)
   }
 
   async click(selector: string, index?: number): Promise<void> {
-    await this.page.getByTestId(selector).nth(index ?? 0).click()
+    await this.page
+      .getByTestId(selector)
+      .nth(index ?? 0)
+      .click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
@@ -69,14 +74,14 @@ export abstract class BasePage {
   }
 
   async handleNewPage(locator: Locator) {
-    const context = this.page.context();
+    const context = this.page.context()
 
     const [actionWindowPagePromise] = await Promise.all([
       context.waitForEvent('page'),
-      locator.first().click({ timeout: 5000 })  // trigger opening
-    ]);
+      locator.first().click({ timeout: 5000 }) // trigger opening
+    ])
 
-    return actionWindowPagePromise;
+    return actionWindowPagePromise
   }
 
   async pause() {

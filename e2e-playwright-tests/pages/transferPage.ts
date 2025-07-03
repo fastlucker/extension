@@ -25,15 +25,14 @@ export class TransferPage extends BasePage {
 
   async fillRecipient(address: string) {
     await this.entertext(selectors.addressEnsField, address)
-    await this.click(selectors.recipientAddressUnknownCheckbox)
   }
 
   async fillForm(token: Token, recipientAddress: string) {
     // Choose token
     await this.clickOnMenuToken(token)
-
     // Amount
-    await this.entertext(selectors.amountField, '0,001')
+    await this.page.waitForTimeout(1000) // without pause it misses the amount field and continues on
+    await this.entertext(selectors.amountField, '0.001')
 
     // Address
     await this.fillRecipient(recipientAddress)
@@ -53,15 +52,26 @@ export class TransferPage extends BasePage {
     await this.compareText(selectors.txnStatus, 'Transfer done!')
   }
 
-  async send(token: Token, recipientAddress: string, feeToken: Token, payWithGasTank?: boolean) {
+  async send(
+    token: Token,
+    recipientAddress: string,
+    feeToken: Token,
+    payWithGasTank?: boolean,
+    isUnknownAddress: boolean = true
+  ) {
     await this.navigateToTransfer()
     await this.fillForm(token, recipientAddress)
+
+    // if address is unknown checkbox has to be checked
+    if (isUnknownAddress) {
+      await this.click(selectors.recipientAddressUnknownCheckbox)
+    }
+
     await this.signAndValidate(feeToken, payWithGasTank)
   }
 
   async addToBatch() {
     await this.click(selectors.batchBtn)
     await this.click(selectors.batchModalGotIt)
-
   }
 }

@@ -25,7 +25,6 @@ const selectors = {
   addOneMoreAddress: 'add-one-more-address',
   contactNameField: 'contact-name-field',
   contactNameText: 'contact-name-text', // TODO: selector could be more precise
-  contactAddressField: 'contact-address-field',
   contactAddressText: 'address',
   buttonAddAccount: 'button-add-account',
   watchAddress: 'watch-address',
