@@ -166,6 +166,35 @@ const SignAccountOpScreen = () => {
     addToast(t('Error code copied to clipboard'))
   }, [addToast, signAccountOpState?.errors, t])
 
+  const errorText = useMemo(() => {
+    const { code, text } = signAccountOpState?.errors?.[0] || {}
+
+    if (code) {
+      return (
+        <AlertVertical.Text type="warning" size="md" style={styles.alertText}>
+          {getErrorCodeStringFromReason(code || '', false)}
+          <Pressable
+            // @ts-ignore web style
+            style={{ verticalAlign: 'middle', ...spacings.mlMi, ...spacings.mbMi }}
+            onPress={copySignAccountOpError}
+          >
+            <CopyIcon strokeWidth={1.5} width={20} height={20} color={theme.warningText} />
+          </Pressable>
+        </AlertVertical.Text>
+      )
+    }
+
+    if (text) {
+      return (
+        <AlertVertical.Text type="warning" size="md" style={styles.alertText}>
+          {text}
+        </AlertVertical.Text>
+      )
+    }
+
+    return undefined
+  }, [copySignAccountOpError, signAccountOpState?.errors, styles.alertText, theme.warningText])
+
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -288,35 +317,7 @@ const SignAccountOpScreen = () => {
             <AlertVertical
               type="warning"
               title={signAccountOpState.errors[0].title}
-              text={
-                getErrorCodeStringFromReason(signAccountOpState.errors[0].code) ? (
-                  <AlertVertical.Text
-                    type="warning"
-                    size="md"
-                    style={{
-                      ...flexbox.flex1,
-                      ...flexbox.directionRow,
-                      ...flexbox.alignCenter,
-                      ...flexbox.wrap,
-                      maxWidth: '100%'
-                    }}
-                  >
-                    {getErrorCodeStringFromReason(signAccountOpState.errors[0].code || '', false)}
-                    <Pressable
-                      // @ts-ignore web style
-                      style={{ verticalAlign: 'middle', ...spacings.mlMi, ...spacings.mbMi }}
-                      onPress={copySignAccountOpError}
-                    >
-                      <CopyIcon
-                        strokeWidth={1.5}
-                        width={20}
-                        height={20}
-                        color={theme.warningText}
-                      />
-                    </Pressable>
-                  </AlertVertical.Text>
-                ) : undefined
-              }
+              text={errorText}
             />
           ) : (
             <Simulation
