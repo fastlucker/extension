@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import CheckIcon2 from '@common/assets/svg/CheckIcon2'
 import useTheme from '@common/hooks/useTheme'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 import animation from './animation.json'
@@ -42,7 +43,11 @@ const SuccessAnimation = ({
       <View style={[styles.animationContainer, animationContainerStyle]}>
         <LottieView
           animationData={animation}
-          style={{ ...styles.lottieView, ...animationContainerStyle, opacity: 0.12 }}
+          style={{
+            ...(styles.lottieView as React.CSSProperties),
+            ...(animationContainerStyle as React.CSSProperties),
+            opacity: themeType === THEME_TYPES.DARK ? 0.12 : 1
+          }}
           loop
         />
         <CheckIcon2
