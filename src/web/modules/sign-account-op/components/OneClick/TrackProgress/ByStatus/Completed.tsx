@@ -41,7 +41,7 @@ const Completed: FC<CompletedProps> = ({
         <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
           {title}
         </Text>
-        <Text weight="medium" appearance="secondaryText" style={spacings.mb2Xl}>
+        <Text weight="medium" appearance="secondaryText" style={spacings.mbXl}>
           {titleSecondary}
         </Text>
         {!!explorerLink && (
