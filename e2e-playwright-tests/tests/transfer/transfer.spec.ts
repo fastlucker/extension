@@ -134,8 +134,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('newly added address should be visible in Address book section', async () => {
-      await transferPage.compareText(selectors.contactNameText, newContactName)
-      await transferPage.compareText(selectors.contactAddressText, newContactAddress)
+      await transferPage.assertAddedContact(newContactName, newContactAddress)
     })
 
     await test.step('go to dashboard', async () => {

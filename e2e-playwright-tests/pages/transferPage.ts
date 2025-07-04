@@ -97,4 +97,19 @@ export class TransferPage extends BasePage {
       'Contact added to Address Book'
     )
   }
+
+  async assertAddedContact(contactName: string, contactAddress: string) {
+    // in CI one more acc is imported from storage and newly added Contact is on second place
+    const myWalletsTitleVisible = await this.page
+      .locator('//div[contains(text(),"My wallets")]')
+      .isVisible()
+
+    if (myWalletsTitleVisible) {
+      await this.compareText(selectors.contactNameText, contactName, 1)
+      await this.compareText(selectors.contactAddressText, contactAddress, 1)
+    } else {
+      await this.compareText(selectors.contactNameText, contactName)
+      await this.compareText(selectors.contactAddressText, contactAddress)
+    }
+  }
 }
