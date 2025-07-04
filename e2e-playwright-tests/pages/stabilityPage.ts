@@ -23,15 +23,7 @@ export class StabilityPage extends BasePage {
     this.extensionURL = extensionURL
   }
 
-  async blockRouteAndUnlock(blockedRoute: string) {
-    await this.context.route(blockedRoute, async (route) => {
-      await route.fulfill({
-        status: 500,
-        contentType: 'application/json',
-        body: JSON.stringify({ error: 'mocked' })
-      })
-    })
-
+  async unlock() {
     const {
       parsedKeystoreUID: keyStoreUid,
       parsedKeystoreKeys: keystoreKeys,
@@ -48,5 +40,17 @@ export class StabilityPage extends BasePage {
 
     await this.page.getByTestId(selectors.passphraseField).fill(KEYSTORE_PASS)
     await this.page.getByTestId(selectors.buttonUnlock).click()
+  }
+
+  async blockRouteAndUnlock(blockedRoute: string) {
+    await this.context.route(blockedRoute, async (route) => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'mocked' })
+      })
+    })
+
+    await this.unload()
   }
 }

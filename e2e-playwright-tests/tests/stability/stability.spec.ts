@@ -1,6 +1,7 @@
 import { baParams } from 'constants/env'
 import { expect } from '@playwright/test'
 import { test } from '../../fixtures/pageObjects'
+import { categorizeRequests } from '../../utils/requests'
 
 test.describe('stability', () => {
   test.beforeEach(async ({ stabilityPage }) => {
@@ -47,5 +48,44 @@ test.describe('stability', () => {
     await expect(velcroErrorBanner).toContainText(
       'Automatic asset discovery is temporarily unavailable'
     )
+  })
+
+  test('monitor fetch requests on Dashboard', async ({ stabilityPage }) => {
+    const context = stabilityPage.context
+    const page = stabilityPage.page
+    const collectedRequests: string[] = []
+
+    await context.route('**/*', async (route, request) => {
+      if (request.resourceType() === 'fetch' && request.method() !== 'OPTIONS') {
+        collectedRequests.push(request.url())
+      }
+      await route.continue()
+    })
+
+    await stabilityPage.unlock()
+
+    await page.waitForTimeout(5000)
+
+    const categorized = categorizeRequests(collectedRequests)
+
+    // ⚠️ Note: It's difficult to accurately track the exact number of requests being made,
+    // as even minor changes (e.g. adding a new default network, cache misses, retries) can shift totals.
+    // The expectations below are based on rough estimates and include some tolerance.
+    // If any of them are exceeded significantly, it may signal a regression.
+    // ---
+    // Note on RPC requests:
+    // Each network typically triggers 2 RPC calls.
+    // So the total number of RPC requests scales linearly with the number of networks configured.
+    // This is why the threshold here is intentionally higher to account for all supported networks.
+    expect(categorized.rpc.length).toBeLessThanOrEqual(30)
+    expect(categorized.hints.length).toBeLessThanOrEqual(1)
+    expect(categorized.nativePrices.length).toBeLessThanOrEqual(10)
+    expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
+    expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
+    expect(categorized.allowedUncategorized.length).toBeLessThanOrEqual(5)
+
+    // ☢️ Critical: there should be no truly uncategorized requests.
+    // Anything uncategorized is likely unexpected or suspicious.
+    expect(categorized.uncategorized.length).toBeLessThanOrEqual(0)
   })
 })
