@@ -11,6 +11,7 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { getDoesNetworkMatch } from '@common/utils/search'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -45,7 +46,7 @@ const DeFiPositions: FC<Props> = ({
 }) => {
   const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const searchValue = watch('search')
   const { networks } = useNetworksControllerState()
   const { defiPositions, areDefiPositionsLoading, dashboardNetworkFilter } =
@@ -140,6 +141,7 @@ const DeFiPositions: FC<Props> = ({
               <Text
                 fontSize={14}
                 appearance="primary"
+                color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
                 onPress={() => {
                   // eslint-disable-next-line @typescript-eslint/no-floating-promises
                   openInTab({ url: 'https://help.ambire.com/hc/en-us' })

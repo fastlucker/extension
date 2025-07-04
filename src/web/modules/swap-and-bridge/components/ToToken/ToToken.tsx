@@ -22,6 +22,7 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTokenSelect'
@@ -54,6 +55,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
+  const { account } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
   const handleSwitchFromAndToTokens = useCallback(
@@ -122,34 +124,42 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
-      networks.map((n) => {
-        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
-        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
+      networks
+        .sort((a, b) => {
+          const aIsSupported = getIsNetworkSupported(supportedChainIds, a)
+          const bIsSupported = getIsNetworkSupported(supportedChainIds, b)
+          if (aIsSupported && !bIsSupported) return -1
+          if (!aIsSupported && bIsSupported) return 1
+          return 0
+        })
+        .map((n) => {
+          const tooltipId = `network-${n.chainId}-not-supported-tooltip`
+          const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
-        return {
-          value: String(n.chainId),
-          extraSearchProps: [n.name],
-          disabled: !isNetworkSupported,
-          label: (
-            <>
-              <Text
-                fontSize={14}
-                weight="medium"
-                dataSet={{ tooltipId }}
-                style={flexbox.flex1}
-                numberOfLines={1}
-              >
-                {n.name}
-              </Text>
-              {!isNetworkSupported && (
-                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
-              )}
-            </>
-          ),
-          icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} size={28} />
-        }
-      }),
-    [networks, supportedChainIds, toChainId]
+          return {
+            value: String(n.chainId),
+            extraSearchProps: [n.name],
+            disabled: !isNetworkSupported,
+            label: (
+              <>
+                <Text
+                  fontSize={14}
+                  weight="medium"
+                  dataSet={{ tooltipId }}
+                  style={flexbox.flex1}
+                  numberOfLines={1}
+                >
+                  {n.name}
+                </Text>
+                {!isNetworkSupported && (
+                  <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} account={account} />
+                )}
+              </>
+            ),
+            icon: <NetworkIcon key={n.chainId.toString()} id={n.chainId.toString()} size={28} />
+          }
+        }),
+    [account, networks, supportedChainIds]
   )
 
   const getToNetworkSelectValue = useMemo(() => {
