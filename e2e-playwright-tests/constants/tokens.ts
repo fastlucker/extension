@@ -1,7 +1,7 @@
 import Token from '../interfaces/token'
 
 type TokenSymbol = 'dai' | 'usdc' | 'usdce' | 'wallet' | 'eth' | 'link' | 'wcres' | 'xwallet'
-type Network = 'optimism' | 'base' | 'ethereum'
+type Network = 'optimism' | 'base' | 'ethereum' | 'arbitrum'
 
 type Tokens = Record<TokenSymbol, Partial<Record<Network, Token>>>
 
@@ -37,6 +37,11 @@ const tokens: Tokens = {
       address: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
       chainId: '10',
       symbol: 'DAI'
+    },
+    arbitrum: {
+      address: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+      chainId: '42161',
+      symbol: 'DAI'
     }
   },
   usdc: {
@@ -64,6 +69,11 @@ const tokens: Tokens = {
     }
   },
   wallet: {
+    ethereum: {
+      address: '0x88800092ff476844f74dc2fc427974bbee2794ae',
+      chainId: '1',
+      symbol: 'WALLET'
+    },
     base: {
       address: '0x0bbbead62f7647ae8323d2cb243a0db74b7c2b80',
       chainId: '8453',
