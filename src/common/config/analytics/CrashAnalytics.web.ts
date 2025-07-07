@@ -12,4 +12,6 @@ export const CRASH_ANALYTICS_WEB_CONFIG = {
 
 export const captureException = Sentry.captureException
 export const captureMessage = Sentry.captureMessage
+export const setExtraContext = Sentry.setExtra
+export const setUserContext = Sentry.setUser
 export const ErrorBoundary = Sentry.ErrorBoundary

@@ -35,7 +35,8 @@ import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
 import {
   captureException,
-  CRASH_ANALYTICS_WEB_CONFIG
+  CRASH_ANALYTICS_WEB_CONFIG,
+  setExtraContext
 } from '@common/config/analytics/CrashAnalytics.web'
 import CONFIG, { isProd } from '@common/config/env'
 import {
@@ -859,6 +860,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               initSwapAndBridgeQuoteContinuousUpdate()
               backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
             }
+            if (ctrlName === 'selectedAccount') {
+              if (controller.selectedAccount?.account?.addr) {
+                setExtraContext('account', controller.selectedAccount.account.addr)
+              }
+            }
           }, 'background')
         }
       }
@@ -1037,6 +1043,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     Sentry.init({
       ...CRASH_ANALYTICS_WEB_CONFIG,
       initialScope: {
+        user: {
+          id: getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
+        },
         tags: {
           content: 'background'
         }
