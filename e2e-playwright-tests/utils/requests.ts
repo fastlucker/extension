@@ -1,17 +1,19 @@
 function categorizeRequests(requests: string[]) {
-  const thirdPartyAllowlist = [
+  const thirdPartyExactMatchAllowlist = [
     'https://api.github.com/repos/MetaMask/eth-phishing-detect/contents/src/config.json?ref=main',
     'https://api.github.com/repos/phantom/blocklist/contents/blocklist.yaml?ref=master',
     'https://raw.githubusercontent.com/phantom/blocklist/master/blocklist.yaml',
-    'https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/main/src/config.json',
-    'https://li.quest/v1/tokens?chains=8453&chainTypes=EVM'
+    'https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/main/src/config.json'
   ]
+  const thirdPartyHostsAllowList = ['api.pimlico.io', 'li.quest']
 
   return requests.reduce(
     (acc, urlStr) => {
       const url = new URL(urlStr)
       const isAmbire = url.hostname.endsWith('.ambire.com')
-      const isThirdPartyAllowed = thirdPartyAllowlist.includes(urlStr)
+      const isThirdPartyAllowed =
+        thirdPartyExactMatchAllowlist.includes(urlStr) ||
+        thirdPartyHostsAllowList.includes(url.hostname)
 
       if (url.hostname === 'relayer.ambire.com' && url.pathname.includes('/multi-hints')) {
         acc.hints.push(urlStr)
