@@ -184,7 +184,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // Init sentry
-  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION && isProd) {
+  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
     Sentry.init({
       ...CRASH_ANALYTICS_WEB_CONFIG,
       initialScope: {
