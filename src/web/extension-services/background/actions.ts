@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
+  ActionExecutionType,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/controllers/actions/actions'
@@ -144,6 +144,11 @@ type MainControllerAddNetwork = {
 type AccountsControllerUpdateAccountPreferences = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES'
   params: { addr: string; preferences: AccountPreferences }[]
+}
+
+type AccountsControllerReorderAccountsAction = {
+  type: 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS'
+  params: Account[]
 }
 
 type AccountsControllerUpdateAccountState = {
@@ -753,6 +758,7 @@ export type Action =
   | MainControllerAccountPickerInitAction
   | ResetAccountAddingOnPageErrorAction
   | MainControllerAccountPickerResetAccountsSelectionAction
+  | AccountsControllerReorderAccountsAction
   | AccountsControllerUpdateAccountPreferences
   | AccountsControllerUpdateAccountState
   | AccountsControllerResetAccountsNewlyAddedStateAction

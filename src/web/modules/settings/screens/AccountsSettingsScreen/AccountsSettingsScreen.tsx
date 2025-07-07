@@ -43,13 +43,11 @@ const AccountsSettingsScreen = () => {
     open: openExportImportKey,
     close: closeExportImportKey
   } = useModalize()
-
   const {
     ref: sheetRefRemoveAccount,
     open: openRemoveAccount,
     close: closeRemoveAccount
   } = useModalize()
-
   const {
     ref: sheetRefAccountSmartSettings,
     open: openAccountSmartSettings,
@@ -60,12 +58,19 @@ const AccountsSettingsScreen = () => {
     setCurrentSettingsPage('accounts')
   }, [setCurrentSettingsPage])
 
-  // TODO: Remove this when the accounts list
-  const [data, setData] = useState(accounts)
-
   const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
   const [accountToRemove, setAccountToRemove] = useState<AccountInterface | null>(null)
   const [smartSettingsAccount, setSmartSettingsAccount] = useState<AccountInterface | null>(null)
+
+  const handleAccDragEnd = useCallback(
+    (newData: AccountInterface[]) => {
+      dispatch({
+        type: 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS',
+        params: newData
+      })
+    },
+    [addToast, dispatch]
+  )
 
   useEffect(() => {
     if (exportImportAccount) openExportImportKey()
@@ -84,7 +89,6 @@ const AccountsSettingsScreen = () => {
     if (maxElementWidthSize(700) && minElementWidthSize(800)) return 32
     if (maxElementWidthSize(600) && minElementWidthSize(700)) return 24
     if (maxElementWidthSize(500) && minElementWidthSize(600)) return 16
-
     return 10
   }, [maxElementWidthSize, minElementWidthSize])
 
@@ -97,34 +101,31 @@ const AccountsSettingsScreen = () => {
   )
 
   const renderItem = useCallback(
-    ({ item: account, drag, isActive }: RenderItemParams<typeof accounts[0]>) => (
-      <TouchableOpacity
-        onLongPress={drag}
-        style={{
-          backgroundColor: isActive ? '#ddd' : '#fff'
-        }}
-      >
-        <Account
-          onSelect={onSelectAccount}
-          key={account.addr}
-          account={account}
-          maxAccountAddrLength={shortenAccountAddr()}
-          options={{
-            withOptionsButton: true,
-            setAccountToImportOrExport: setExportImportAccount,
-            setSmartSettingsAccount,
-            setAccountToRemove
-          }}
-          isSelectable={false}
-        />
-      </TouchableOpacity>
-    ),
+    ({ item: account, drag, isActive, getIndex }: RenderItemParams<AccountInterface>) => {
+      const index = getIndex()
+
+      return (
+        <TouchableOpacity disabled={isActive} onPressIn={drag} key={index}>
+          <Account
+            onSelect={onSelectAccount}
+            account={account}
+            maxAccountAddrLength={shortenAccountAddr()}
+            options={{
+              withOptionsButton: true,
+              setAccountToImportOrExport: setExportImportAccount,
+              setSmartSettingsAccount,
+              setAccountToRemove
+            }}
+            isSelectable={false}
+          />
+        </TouchableOpacity>
+      )
+    },
     [onSelectAccount, shortenAccountAddr]
   )
 
   const removeAccount = useCallback(() => {
     if (!accountToRemove) return
-
     dispatch({
       type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT',
       params: { accountAddr: accountToRemove.addr }
@@ -132,17 +133,45 @@ const AccountsSettingsScreen = () => {
     closeRemoveAccount()
   }, [accountToRemove, dispatch, closeRemoveAccount])
 
+  const [dragKey, setDragKey] = useState(Date.now())
+
+  useEffect(() => {
+    const handlePointerUp = (e: PointerEvent) => {
+      const listEl = accountsContainerRef.current as HTMLDivElement | null
+      if (!listEl || !listEl.getBoundingClientRect) return
+
+      const rect = listEl.getBoundingClientRect()
+      const { clientX, clientY } = e
+
+      const isInside =
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+
+      if (!isInside) {
+        // only reset if released outside
+        setDragKey(Date.now())
+      }
+    }
+
+    document.addEventListener('pointerup', handlePointerUp)
+    return () => {
+      document.removeEventListener('pointerup', handlePointerUp)
+    }
+  }, [])
+
   return (
     <>
       <SettingsPageHeader title="Accounts">
         <Search autoFocus placeholder="Search for account" control={control} />
       </SettingsPageHeader>
-      <View style={flexbox.flex1} ref={accountsContainerRef}>
+      <View style={[flexbox.flex1]} ref={accountsContainerRef}>
         <ScrollableWrapper
+          key={dragKey}
           type={WRAPPER_TYPES.DRAGGABLE_FLAT_LIST}
-          style={[spacings.mb]}
-          data={data}
-          onDragEnd={({ data }) => setData(data)}
+          data={accounts}
+          onDragEnd={({ data }) => handleAccDragEnd(data)}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
           keyExtractor={keyExtractor}
@@ -212,7 +241,6 @@ const AccountsSettingsScreen = () => {
             {t('Are you sure you want to remove this account?')}
           </Text>
         </View>
-
         <View style={flexbox.alignCenter}>
           <Button
             type="danger"

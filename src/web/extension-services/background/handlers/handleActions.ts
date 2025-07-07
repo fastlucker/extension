@@ -110,6 +110,9 @@ export const handleActions = async (
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
     }
+    case 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS': {
+      return await mainCtrl.accounts.reorderAccounts(params)
+    }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
       return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
     }

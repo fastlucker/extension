@@ -21,32 +21,37 @@ import spacings from '@common/styles/spacings'
 
 import createStyles from './styles'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export enum WRAPPER_TYPES {
   SCROLL_VIEW = 'scrollview',
   KEYBOARD_AWARE_SCROLL_VIEW = 'keyboard-aware-scrollview',
   FLAT_LIST = 'flatlist',
   SECTION_LIST = 'sectionlist',
   VIEW = 'view',
-  DRAGGABLE_FLAT_LIST = 'draggable-flatlist' // <-- new type
+  DRAGGABLE_FLAT_LIST = 'draggable-flatlist'
 }
 
-// @ts-ignore ignored because SectionList and FlatList receive props with same names
-export interface WrapperProps
-  extends ScrollViewProps,
-    Partial<FlatListProps<any>>,
-    Partial<SectionListProps<any, any>> {
+type BaseProps = {
   type?: WRAPPER_TYPES
   hasBottomTabNav?: boolean
   wrapperRef?: any
   extraHeight?: number
-
-  // For draggable flatlist
-  // data?: any[]
-  onDragEnd?: (params: { data: any[] }) => void
-  renderItem?: (params: RenderItemParams<any>) => React.ReactElement | null
-  // keyExtractor?: (item: any, index: number) => string
+  style?: StyleProp<ViewStyle>
+  contentContainerStyle?: StyleProp<ViewStyle>
 }
+
+type FlatListCompatibleProps<T = any> = Partial<FlatListProps<T>>
+type SectionListCompatibleProps<T = any> = Partial<SectionListProps<T, any>>
+
+export type WrapperProps<T = any> = BaseProps &
+  ScrollViewProps &
+  FlatListCompatibleProps<T> &
+  SectionListCompatibleProps<T> & {
+    children?: React.ReactNode
+    onDragEnd?: (params: { data: T[] }) => void
+    renderItem?: (params: RenderItemParams<T>) => React.ReactElement | null
+    keyExtractor?: (item: T, index: number) => string
+    data?: T[]
+  }
 
 const ScrollableWrapper = ({
   style = {},
@@ -58,17 +63,16 @@ const ScrollableWrapper = ({
   hasBottomTabNav: _hasBottomTabNav,
   extraHeight,
   wrapperRef,
-  data = [],
   onDragEnd,
   renderItem,
   keyExtractor,
+  data,
   ...rest
 }: WrapperProps) => {
   const { styles } = useTheme(createStyles)
   const insets = useSafeAreaInsets()
 
   const horizontalSpacing = isWeb ? spacings.ph0 : spacings.ph
-
   const hasBottomTabNav = isWeb ? false : _hasBottomTabNav
 
   const scrollableWrapperStyles = [
@@ -81,26 +85,26 @@ const ScrollableWrapper = ({
     styles.contentContainerStyle,
     !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
     ...(Array.isArray(contentContainerStyle) ? contentContainerStyle : [contentContainerStyle]),
-    isWeb ? ({ overflowY: 'auto' } as any) : null // missing type for overflowY
+    isWeb ? ({ overflowY: 'auto' } as any) : null
   ]
 
   if (type === WRAPPER_TYPES.DRAGGABLE_FLAT_LIST) {
-    if (!renderItem) {
-      console.warn('ScrollableWrapper: renderItem is required for DRAGGABLE_FLAT_LIST')
-      return null
-    }
-
     return (
       <DraggableFlatList
         ref={wrapperRef}
         data={data}
         onDragEnd={onDragEnd}
         keyExtractor={keyExtractor || ((item, index) => item.key ?? index.toString())}
-        renderItem={renderItem}
-        style={scrollableWrapperStyles}
+        renderItem={renderItem as (params: RenderItemParams<any>) => React.ReactElement | null}
+        containerStyle={scrollableWrapperStyles}
         contentContainerStyle={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
+        alwaysBounceVertical={false}
+        activationDistance={1}
+        autoscrollThreshold={30}
+        autoscrollSpeed={30}
+        scrollEnabled={true}
         {...rest}
       />
     )
@@ -108,9 +112,11 @@ const ScrollableWrapper = ({
 
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
-      // @ts-ignore
       <FlatList
         ref={wrapperRef}
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor || ((item, index) => item.key ?? index.toString())}
         style={scrollableWrapperStyles}
         contentContainerStyle={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
@@ -123,9 +129,11 @@ const ScrollableWrapper = ({
 
   if (type === WRAPPER_TYPES.SECTION_LIST) {
     return (
-      // @ts-ignore
       <SectionList
         ref={wrapperRef}
+        sections={data}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor || ((item, index) => item.key ?? index.toString())}
         style={scrollableWrapperStyles}
         contentContainerStyle={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
