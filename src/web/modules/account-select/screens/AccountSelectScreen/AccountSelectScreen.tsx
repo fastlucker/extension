@@ -95,6 +95,8 @@ const AccountSelectScreen = () => {
     }
   }, [account, navigate, pendingToBeSetSelectedAccount])
 
+  // throw new Error('Test: dev build error')
+
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer
       header={<Header withAmbireLogo />}

@@ -129,6 +129,7 @@ export const handleActions = async (
       return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
+      throw new Error(`Test: dev build background handleActions error ${Math.random() * 100}`)
       return await mainCtrl.selectAccount(params.accountAddr)
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SELECT_ACCOUNT': {
