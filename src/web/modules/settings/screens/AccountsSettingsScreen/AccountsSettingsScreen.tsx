@@ -171,8 +171,8 @@ const AccountsSettingsScreen = () => {
           key={dragKey}
           type={WRAPPER_TYPES.DRAGGABLE_FLAT_LIST}
           data={accounts}
-          onDragEnd={({ data }) => handleAccDragEnd(data)}
-          renderItem={renderItem}
+          onDragEnd={({ data }: { data: AccountInterface[] }) => handleAccDragEnd(data)}
+          renderItem={renderItem as any}
           getItemLayout={getItemLayout}
           keyExtractor={keyExtractor}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
