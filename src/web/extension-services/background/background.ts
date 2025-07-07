@@ -1042,14 +1042,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         }
       },
       beforeSend(event) {
-        const isSentryEnabled = walletStateCtrl.crashAnalyticsEnabled
-
-        if (!isSentryEnabled) {
-          // If the Sentry is disabled, we don't send any events
-          return null
-        }
-
-        return event
+        // If the Sentry is disabled, we don't send any events
+        return walletStateCtrl.crashAnalyticsEnabled ? event : null
       }
     })
   }
