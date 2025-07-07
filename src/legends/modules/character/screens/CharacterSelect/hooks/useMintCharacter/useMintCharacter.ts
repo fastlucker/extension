@@ -2,9 +2,10 @@
 import { ethers, JsonRpcProvider } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import CONFIG from '@common/config/env'
 import { REWARDS_NFT_ADDRESS } from '@legends/constants/addresses'
 import { RETRY_OR_SUPPORT_MESSAGE } from '@legends/constants/errors/messages'
-import { BASE_CHAIN_ID } from '@legends/constants/networks'
+import { BASE_CHAIN_ID, ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -56,8 +57,11 @@ const useMintCharacter = () => {
       return {
         isMinted: false
       }
-    // @TODO this should be switched to base
-    const provider = new JsonRpcProvider('https://invictus.ambire.com/base')
+    const provider = new JsonRpcProvider(
+      CONFIG.APP_ENV === 'production'
+        ? 'https://invictus.ambire.com/ethereum'
+        : 'https://invictus.ambire.com/base'
+    )
 
     const nftContract = new ethers.Contract(REWARDS_NFT_ADDRESS, REWARDS_NFT_ABI, provider)
 
@@ -103,8 +107,7 @@ const useMintCharacter = () => {
   const mintCharacter = useCallback(
     async (type: number) => {
       try {
-        // @TODO this should be ethereum eventually
-        await switchNetwork(BASE_CHAIN_ID)
+        await switchNetwork(CONFIG.APP_ENV === 'production' ? ETHEREUM_CHAIN_ID : BASE_CHAIN_ID)
         setIsMinting(true)
         setLoadingMessage(CharacterLoadingMessage.Signing)
 

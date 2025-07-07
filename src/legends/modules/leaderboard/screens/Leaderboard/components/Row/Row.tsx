@@ -10,7 +10,6 @@ import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 type Props = LeaderboardEntry['currentUser'] & {
   stickyPosition: string | null
   currentUserRef: React.RefObject<HTMLDivElement>
-  activeTab: number
 }
 
 const calculateRowStyle = (isConnectedAccountRow: boolean, stickyPosition: string | null) => {
@@ -52,8 +51,7 @@ const Row: FC<Props> = ({
   weight,
   level,
   stickyPosition,
-  currentUserRef,
-  activeTab
+  currentUserRef
 }) => {
   const { connectedAccount } = useAccountContext()
   const isConnectedAccountRow = account === connectedAccount
@@ -112,7 +110,7 @@ const Row: FC<Props> = ({
         )}
       </div>
       <h5 className={styles.cell}>{level}</h5>
-      {activeTab === 1 && (
+      {typeof weight !== 'undefined' && (
         <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight || 0)}</h5>
       )}
       <h5 className={styles.cell}>{formattedXp}</h5>
