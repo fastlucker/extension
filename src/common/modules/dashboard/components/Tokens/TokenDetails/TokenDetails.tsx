@@ -281,6 +281,8 @@ const TokenDetails = ({
   const { priceUSDFormatted, balanceUSDFormatted, isRewards, isVesting, networkData, balance } =
     getAndFormatTokenDetails(token, networks)
 
+  throw new Error(`Test: TokenDetails error ${Math.random() * 100}`)
+
   return (
     <View>
       <View style={styles.tokenInfoAndIcon}>
