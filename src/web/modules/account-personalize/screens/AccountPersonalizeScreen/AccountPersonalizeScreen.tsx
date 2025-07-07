@@ -111,7 +111,7 @@ const AccountPersonalizeScreen = () => {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      await wait(1100)
+      // await wait(1100)
 
       if (
         accountPickerState.isInitialized &&
@@ -119,6 +119,7 @@ const AccountPersonalizeScreen = () => {
         !accountPickerState.selectedAccountsFromCurrentSession.length &&
         accountPickerState.addAccountsStatus === 'INITIAL'
       ) {
+        console.log('1')
         setIsLoading(false)
       }
 
@@ -127,6 +128,7 @@ const AccountPersonalizeScreen = () => {
         !accountPickerState.isInitialized &&
         accountsToPersonalize.length
       ) {
+        console.log('2')
         setIsLoading(false)
       }
 
@@ -138,6 +140,7 @@ const AccountPersonalizeScreen = () => {
         !accountPickerState.isInitialized &&
         accountsState.statuses.addAccounts === 'INITIAL'
       ) {
+        console.log('3')
         setIsLoading(false)
       }
     })()
@@ -158,13 +161,18 @@ const AccountPersonalizeScreen = () => {
 
     let state: Account[] = []
     if (accountPickerState.isInitialized) {
+      console.log(
+        'state addedAccountsFromCurrentSession',
+        accountPickerState.addedAccountsFromCurrentSession
+      )
       state = accountPickerState.addedAccountsFromCurrentSession
     }
 
     if (!accountPickerState.isInitialized && newlyAddedAccounts.length) {
+      console.log('state newlyAddedAccounts', newlyAddedAccounts)
       state = newlyAddedAccounts
     }
-
+    console.log('state.length', state.length)
     if (state.length) {
       setAccountsToPersonalize(state)
     } else {
