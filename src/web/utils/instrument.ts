@@ -1,4 +1,4 @@
-import CONFIG, { APP_VERSION } from '@common/config/env'
+import { CRASH_ANALYTICS_WEB_CONFIG } from '@common/config/analytics/CrashAnalytics.web'
 import { SENTRY_DSN_BROWSER_EXTENSION } from '@env'
 import * as Sentry from '@sentry/react'
 import { isExtension } from '@web/constants/browserapi'
@@ -24,12 +24,7 @@ const initializeSentry = async () => {
   if (!isEnabled) return
 
   Sentry.init({
-    dsn: SENTRY_DSN_BROWSER_EXTENSION,
-    environment: CONFIG.APP_ENV,
-    release: `extension-${process.env.WEB_ENGINE}@${APP_VERSION}`,
-    // Disables sending personally identifiable information
-    sendDefaultPii: false,
-    integrations: [],
+    ...CRASH_ANALYTICS_WEB_CONFIG,
     initialScope: {
       tags: {
         content: 'ui',

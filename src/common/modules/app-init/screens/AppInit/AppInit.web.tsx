@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
+import { ErrorBoundary } from '@common/config/analytics/CrashAnalytics.web'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
 import { PrivateModeProvider } from '@common/contexts/privateModeContext'
@@ -18,7 +19,6 @@ import GestureHandler from '@common/modules/app-init/screens/AppInit/GestureHand
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { OnboardingNavigationProvider } from '@common/modules/auth/contexts/onboardingNavigationContext'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
-import * as Sentry from '@sentry/react'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountPickerControllerStateProvider } from '@web/contexts/accountPickerControllerStateContext'
 import { AccountsControllerStateProvider } from '@web/contexts/accountsControllerStateContext'
@@ -61,7 +61,7 @@ const AppInit = () => {
       <PortalProvider>
         <SafeAreaProvider>
           <ToastProvider>
-            <Sentry.ErrorBoundary fallback={errorComponent}>
+            <ErrorBoundary fallback={errorComponent}>
               <BackgroundServiceProvider>
                 <MainControllerStateProvider>
                   <StorageControllerStateProvider>
@@ -134,7 +134,7 @@ const AppInit = () => {
                   </StorageControllerStateProvider>
                 </MainControllerStateProvider>
               </BackgroundServiceProvider>
-            </Sentry.ErrorBoundary>
+            </ErrorBoundary>
           </ToastProvider>
         </SafeAreaProvider>
       </PortalProvider>

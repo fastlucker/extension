@@ -33,7 +33,11 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
-import CONFIG, { APP_VERSION, isProd } from '@common/config/env'
+import {
+  captureException,
+  CRASH_ANALYTICS_WEB_CONFIG
+} from '@common/config/analytics/CrashAnalytics.web'
+import CONFIG, { isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   LI_FI_API_KEY,
@@ -969,7 +973,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             }
           } catch (err: any) {
             console.error(`${type} action failed:`, err)
-            Sentry.captureException(err, {
+            captureException(err, {
               extra: {
                 action: JSON.stringify(action),
                 portId: port.id,
@@ -1031,12 +1035,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   // Init sentry
   if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
     Sentry.init({
-      dsn: CONFIG.SENTRY_DSN_BROWSER_EXTENSION,
-      environment: CONFIG.APP_ENV,
-      release: `extension-${process.env.WEB_ENGINE}@${APP_VERSION}`,
-      // Disables sending personally identifiable information
-      sendDefaultPii: false,
-      integrations: [],
+      ...CRASH_ANALYTICS_WEB_CONFIG,
       initialScope: {
         tags: {
           content: 'background'
