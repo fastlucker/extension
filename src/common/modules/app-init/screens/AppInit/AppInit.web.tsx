@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
-import { ErrorBoundary } from '@common/config/analytics/CrashAnalytics.web'
+import { ErrorBoundary } from '@common/config/analytics/CrashAnalytics'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
 import { PrivateModeProvider } from '@common/contexts/privateModeContext'

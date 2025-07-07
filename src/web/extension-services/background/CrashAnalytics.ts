@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser'
 
-export { CRASH_ANALYTICS_WEB_CONFIG } from '@common/config/analytics/CrashAnalytics.web'
+export { CRASH_ANALYTICS_WEB_CONFIG } from '@common/config/analytics/CrashAnalytics'
 
 export const captureException = Sentry.captureException
 export const captureMessage = Sentry.captureMessage

@@ -1,4 +1,4 @@
-import { CRASH_ANALYTICS_WEB_CONFIG } from '@common/config/analytics/CrashAnalytics.web'
+import { CRASH_ANALYTICS_WEB_CONFIG } from '@common/config/analytics/CrashAnalytics'
 import { SENTRY_DSN_BROWSER_EXTENSION } from '@env'
 import * as Sentry from '@sentry/react'
 import { isExtension } from '@web/constants/browserapi'

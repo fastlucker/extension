@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
-import { setExtraContext } from '@common/config/analytics/CrashAnalytics.web'
+import { setExtraContext } from '@common/config/analytics/CrashAnalytics'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'

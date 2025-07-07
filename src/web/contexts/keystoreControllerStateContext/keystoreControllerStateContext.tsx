@@ -2,7 +2,7 @@
 import React, { createContext, useEffect } from 'react'
 
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
-import { setUserContext } from '@common/config/analytics/CrashAnalytics.web'
+import { setUserContext } from '@common/config/analytics/CrashAnalytics'
 import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
