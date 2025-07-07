@@ -283,7 +283,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     if (mainCtrl?.keystore?.keyStoreUid) {
       const instanceId = getExtensionInstanceId(
         mainCtrl.keystore.keyStoreUid,
-        mainCtrl.invite.verifiedCode
+        mainCtrl.invite?.verifiedCode || ''
       )
 
       initWithCustomHeaders.headers['x-app-source'] = instanceId

@@ -481,6 +481,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     })
   }, [dispatch, navigate])
 
+  throw new Error(`Test: TransferScreen error ${Math.random() * 100}`)
+
   if (displayedView === 'track') {
     return (
       <TrackProgress

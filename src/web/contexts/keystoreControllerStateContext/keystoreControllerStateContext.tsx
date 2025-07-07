@@ -30,9 +30,9 @@ const KeystoreControllerStateProvider: React.FC<any> = ({ children }) => {
     if (!state.keyStoreUid) return
 
     setUserContext({
-      id: getExtensionInstanceId(state.keyStoreUid, mainState.invite.verifiedCode)
+      id: getExtensionInstanceId(state.keyStoreUid, mainState?.invite?.verifiedCode || '')
     })
-  }, [mainState.invite.verifiedCode, state.keyStoreUid])
+  }, [mainState?.invite?.verifiedCode, state.keyStoreUid])
 
   const memoizedState = useDeepMemo(state, controller)
 
