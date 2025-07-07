@@ -5,7 +5,7 @@ import { categorizeRequests } from '../../utils/requests'
 
 test.describe('stability', () => {
   test.beforeEach(async ({ stabilityPage }) => {
-    await stabilityPage.initLocked(baParams)
+    await stabilityPage.init(baParams)
   })
 
   test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async ({
@@ -51,22 +51,16 @@ test.describe('stability', () => {
   })
 
   test('monitor fetch requests on Dashboard', async ({ stabilityPage }) => {
-    const context = stabilityPage.context
     const page = stabilityPage.page
-    const collectedRequests: string[] = []
 
-    await context.route('**/*', async (route, request) => {
-      if (request.resourceType() === 'fetch' && request.method() !== 'OPTIONS') {
-        collectedRequests.push(request.url())
-      }
-      await route.continue()
-    })
+    await stabilityPage.monitorRequests()
 
     await stabilityPage.unlock()
 
-    await page.waitForTimeout(5000)
+    // Wait for all requests to be triggered
+    await page.waitForTimeout(10000)
 
-    const categorized = categorizeRequests(collectedRequests)
+    const categorized = stabilityPage.getCategorizedRequests()
 
     // ⚠️ Note: It's difficult to accurately track the exact number of requests being made,
     // as even minor changes (e.g. adding a new default network, cache misses, retries) can shift totals.

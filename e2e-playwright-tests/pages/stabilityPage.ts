@@ -8,9 +8,7 @@ export class StabilityPage extends BasePage {
 
   extensionURL: string
 
-  context: any
-
-  async initLocked(param) {
+  async init(param) {
     const { page, serviceWorker, extensionURL, context } = await bootstrapWithStorage(
       'stability',
       param,
@@ -51,6 +49,6 @@ export class StabilityPage extends BasePage {
       })
     })
 
-    await this.unload()
+    await this.unlock()
   }
 }
