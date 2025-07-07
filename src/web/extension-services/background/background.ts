@@ -196,7 +196,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         // We don't want to miss errors that occur before the controllers are initialized
         if (!walletStateCtrl) return event
 
-        console.log('Debug: new event', event, walletStateCtrl.crashAnalyticsEnabled)
         // If the Sentry is disabled, we don't send any events
         return walletStateCtrl.crashAnalyticsEnabled ? event : null
       }
@@ -853,7 +852,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
-                console.log('Debug: keystore onUpdate', controller.keyStoreUid)
                 setBackgroundUserContext({
                   id: getExtensionInstanceId(controller.keyStoreUid, mainCtrl.invite.verifiedCode)
                 })
@@ -891,7 +889,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             }
             if (ctrlName === 'selectedAccount') {
               if (controller?.account?.addr) {
-                console.log('Debug: selectedAccount onUpdate', controller.account.addr)
                 setBackgroundExtraContext('account', controller.account.addr)
               }
             }
