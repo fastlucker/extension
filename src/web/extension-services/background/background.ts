@@ -77,10 +77,10 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
 import {
-  captureException,
+  captureBackgroundException,
   CRASH_ANALYTICS_WEB_CONFIG,
-  setExtraContext,
-  setUserContext
+  setBackgroundExtraContext,
+  setBackgroundUserContext
 } from './CrashAnalytics'
 
 function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
@@ -854,7 +854,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
                 console.log('Debug: keystore onUpdate', controller.keyStoreUid)
-                setUserContext({
+                setBackgroundUserContext({
                   id: getExtensionInstanceId(controller.keyStoreUid, mainCtrl.invite.verifiedCode)
                 })
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
@@ -892,7 +892,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             if (ctrlName === 'selectedAccount') {
               if (controller?.account?.addr) {
                 console.log('Debug: selectedAccount onUpdate', controller.account.addr)
-                setExtraContext('account', controller.account.addr)
+                setBackgroundExtraContext('account', controller.account.addr)
               }
             }
           }, 'background')
@@ -1009,7 +1009,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             }
           } catch (err: any) {
             console.error(`${type} action failed:`, err)
-            captureException(err, {
+            captureBackgroundException(err, {
               extra: {
                 action: JSON.stringify(action),
                 portId: port.id,
