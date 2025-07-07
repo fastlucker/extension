@@ -88,7 +88,7 @@ jobs:
 
       - name: Upload source maps to Sentry
         env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}
         run: |
           curl -sL https://sentry.io/get-cli/ | bash
           ENGINE=gecko
