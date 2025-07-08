@@ -83,6 +83,10 @@ jobs:
             node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
             -c "apk add --no-cache git openssh zip python3 make g++ linux-headers eudev-dev && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions:gecko"
 
+          # Give full permissions to the build directory for the GitHub Actions user
+          sudo chown -R $(whoami):$(whoami) ./build
+          sudo chmod -R 755 ./build
+
           # Create source code zip outside of Docker
           zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
 
