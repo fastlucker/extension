@@ -69,7 +69,7 @@ const AccountsSettingsScreen = () => {
         params: newData
       })
     },
-    [addToast, dispatch]
+    [dispatch]
   )
 
   useEffect(() => {
