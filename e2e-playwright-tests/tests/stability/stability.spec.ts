@@ -1,0 +1,105 @@
+import { baParams } from 'constants/env'
+import { expect } from '@playwright/test'
+import { test } from '../../fixtures/pageObjects'
+import selectors from '../../constants/selectors'
+import tokens from '../../constants/tokens'
+
+test.describe('stability', () => {
+  test.beforeEach(async ({ stabilityPage }) => {
+    await stabilityPage.init(baParams)
+  })
+
+  test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async ({
+    stabilityPage
+  }) => {
+    await test.step('block Polygon RPC requests', async () => {
+      await stabilityPage.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
+    })
+
+    await test.step(
+      'click on the error indicator and appropriate message is expected to be shown',
+      async () => {
+        const page = stabilityPage.page
+        await page.getByTestId(selectors.balanceErrorIcon).click()
+
+        const rpcErrorBanner = page.getByTestId(selectors.portfolioErrorAlert)
+
+        await expect(rpcErrorBanner).toBeVisible()
+        await expect(rpcErrorBanner).toContainText('Failed to retrieve network data for Polygon')
+      }
+    )
+  })
+
+  test('Velcro fail: Should find tokens using previous hints; Should not display an error banner as there are cached hints', async ({
+    stabilityPage
+  }) => {
+    const page = stabilityPage.page
+
+    await test.step('block Velcro tokens request and unlock the extension', async () => {
+      await stabilityPage.blockRouteAndUnlock('**/relayer.ambire.com/velcro-v3/*')
+    })
+
+    await test.step('tokens are found using previous hints', async () => {
+      const daiToken = stabilityPage.getDashboardTokenSelector(tokens.dai.arbitrum)
+      await expect(daiToken).toBeVisible()
+
+      const usdcToken = stabilityPage.getDashboardTokenSelector(tokens.usdc.optimism)
+      await expect(usdcToken).toBeVisible()
+
+      const walletToken = stabilityPage.getDashboardTokenSelector(tokens.wallet.ethereum)
+      await expect(walletToken).toBeVisible()
+    })
+
+    await test.step(
+      'click on the error indicator and appropriate message is expected to be shown',
+      async () => {
+        await page.getByTestId(selectors.balanceErrorIcon).click()
+        const velcroErrorBanner = page.getByTestId(selectors.portfolioErrorAlert)
+
+        await expect(velcroErrorBanner).toBeVisible()
+        await expect(velcroErrorBanner).toContainText(
+          'Automatic asset discovery is temporarily unavailable'
+        )
+      }
+    )
+  })
+
+  test('Monitor fetch requests on Dashboard', async ({ stabilityPage }) => {
+    const page = stabilityPage.page
+
+    await test.step('start monitoring requests and unlock the extension', async () => {
+      await stabilityPage.monitorRequests()
+      await stabilityPage.unlock()
+    })
+
+    await test.step(
+      'wait for the dashboard to fully load and validate the requests being made',
+      async () => {
+        // Wait for all requests to be triggered
+        await page.waitForTimeout(10000)
+
+        const categorized = stabilityPage.getCategorizedRequests()
+
+        // ⚠️ Note: It's difficult to accurately track the exact number of requests being made,
+        // as even minor changes (e.g. adding a new default network, cache misses, retries) can shift totals.
+        // The expectations below are based on rough estimates and include some tolerance.
+        // If any of them are exceeded significantly, it may signal a regression.
+        // ---
+        // Note on RPC requests:
+        // Each network typically triggers 2 RPC calls.
+        // So the total number of RPC requests scales linearly with the number of networks configured.
+        // This is why the threshold here is intentionally higher to account for all supported networks.
+        expect(categorized.rpc.length).toBeLessThanOrEqual(30)
+        expect(categorized.hints.length).toBeLessThanOrEqual(1)
+        expect(categorized.nativePrices.length).toBeLessThanOrEqual(10)
+        expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
+        expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
+        expect(categorized.allowedUncategorized.length).toBeLessThanOrEqual(5)
+
+        // ☢️ Critical: there should be no truly uncategorized requests.
+        // Anything uncategorized is likely unexpected or suspicious.
+        expect(categorized.uncategorized.length).toBeLessThanOrEqual(0)
+      }
+    )
+  })
+})

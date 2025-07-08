@@ -64,9 +64,12 @@ test.describe('transfer', () => {
 
   test('should batch multiple transfer transactions', async ({ transferPage }) => {
     const page = transferPage.page
-    // await transferPage.navigateToTransfer()
     const sendToken = tokens.usdc.optimism
     const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
+
+    await test.step('start monitoring requests', async () => {
+      await transferPage.monitorRequests()
+    })
 
     await test.step('start send transfer', async () => {
       await transferPage.navigateToTransfer()
@@ -111,6 +114,14 @@ test.describe('transfer', () => {
       // Expect the txn to be Confirmed
       await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible()
     })
+
+    await test.step(
+      'stop monitoring requests and expect no uncategorized requests to be made',
+      async () => {
+        const { uncategorized } = transferPage.getCategorizedRequests()
+        expect(uncategorized.length).toBeLessThanOrEqual(0)
+      }
+    )
   })
 
   test('add contact in address book and send transaction to newly added contact', async ({
