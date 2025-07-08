@@ -15,32 +15,31 @@ runs:
       with:
         node-version-file: '.nvmrc'
 
-    # FIXME: Temporarily disable caching, it causes STRANGE troubles resulting
-    # service worker failing to start and all E2E tests failing.
-    # - name: Get Yarn Cache Directory Path
-    #   id: yarn-cache-dir-path
-    #   run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-    #   shell: bash
-
-    # - name: Restore Dependencies Cache
-    #   uses: actions/cache/restore@v3
-    #   id: restore-cache
-    #   with:
-    #     path: |
-    #       node_modules
-    #       ${{ steps.yarn-cache-dir-path.outputs.dir }}
-    #     key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-    #     restore-keys: ${{ runner.os }}-
-
-    - name: Install Dependencies
-      run: yarn
+    - name: Get Yarn Cache Directory Path
+      id: yarn-cache-dir-path
+      run: |
+        echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+        echo "version=$(yarn --version)" >> $GITHUB_OUTPUT
       shell: bash
 
-    # - name: Cache Dependencies
-    #   uses: actions/cache/save@v3
-    #   if: steps.restore-cache.outputs.cache-hit != 'true'
-    #   with:
-    #     path: |
-    #       node_modules
-    #       ${{ steps.yarn-cache-dir-path.outputs.dir }}
-    #     key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+    - name: Restore Dependencies Cache
+      uses: actions/cache/restore@v3
+      id: restore-cache
+      with:
+        path: |
+          node_modules
+          ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('yarn.lock') }}
+
+    - name: Install Dependencies
+      run: yarn install --frozen-lockfile --verbose
+      shell: bash
+
+    - name: Cache Dependencies
+      uses: actions/cache/save@v3
+      if: steps.restore-cache.outputs.cache-hit != 'true'
+      with:
+        path: |
+          node_modules
+          ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('yarn.lock') }}
