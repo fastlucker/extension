@@ -106,7 +106,7 @@ const AccountsSettingsScreen = () => {
       const index = getIndex()
 
       return (
-        <TouchableOpacity disabled={isActive} onPressIn={drag} key={index}>
+        <TouchableOpacity disabled={isActive} onLongPress={drag} key={index}>
           <Account
             onSelect={onSelectAccount}
             account={account}
