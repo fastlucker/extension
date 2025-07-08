@@ -19,10 +19,16 @@ const selectors = {
   editFieldNameField: 'edit-name-field',
   getStartedBtnAdd: 'get-started-button-add',
   addressEnsField: 'address-ens-field',
+  addToAddressBookButton: 'add-to-address-book-button',
   viewOnlyAddressField: 'view-only-address-field',
   viewOnlyBtnImport: 'view-only-button-import',
   addOneMoreAddress: 'add-one-more-address',
-  address: 'address',
+  contactNameField: 'contact-name-field',
+  contactNameText: 'contact-name-text', // TODO: selector could be more precise
+  contactAddressText: 'address',
+  sendFormAddToAddresBook: 'send-form-add-to-address-book-button',
+  formAddContactNameField: 'form-contact-name-field',
+  formAddToContactsButton: 'form-add-to-contacts-button',
   buttonAddAccount: 'button-add-account',
   watchAddress: 'watch-address',
   checkbox: 'checkbox',
@@ -70,6 +76,8 @@ const selectors = {
   dashboardButtonSend: 'dashboard-button-send',
   dashboardButtonSwapAndBridge: 'dashboard-button-swap-and-bridge',
   dashboardHumburgerBtn: 'dashboard-hamburger-btn',
+  balanceErrorIcon: 'balance-affecting-error-icon',
+  portfolioErrorAlert: 'portfolio-error-alert',
   continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
@@ -140,10 +148,30 @@ const selectors = {
   topUpButton: 'top-up-gas-tank-modal-button',
   topUpProceedButton: 'proceed-btn',
   closeProgressModalButton: 'track-progress-primary-button',
+  // Network Management
+  // TODO: change once we have IDs on FE
+  disableNetworkButton: 'disable-network-btn',
+  disableNetworkConfirmButton: 'disable-network-confirm-btn',
+  addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
+  addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
+  connectWalletButton:
+  "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
+  chainlistSearchPlaceholder: 'input[placeholder="ETH, Fantom, ..."]',
+  addToMetamaskButton: '//button[contains(text(),"Add to Metamask")]',
+  confirmaddNetworkOnChainlistButton: '//div[contains(text(),"Add network")]',
+  blockExplorerURL: (url: string) => `//div[contains(text(),"${url}")]`,
+  networkDetailEditButton: '//div[.//div[text()="Network details"]]//div[text()="Edit"]',
+  // edit network modal
+  editNetworkModalTitle: '//div[text()="Edit network"]',
+  editNetworkCancelButton: '//div[contains(text(),"Cancel")]',
+  editNetworkSaveButton: '//div[contains(text(),"Save")]',
+  networkSettingsSavedSnackbar: (networkName: string) => `((//div[contains(normalize-space(), "${networkName} settings saved!")]))[4]`, // TODO: snackbar selector finding 8 elements; change once we have ID on FE
   // Sign
   dappConnectButton: 'dapp-connect-button',
-  signMessageButton: 'button-sign'
-
+  signMessageButton: 'button-sign',
+  // Notifications
+  networkSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  contactSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Contact added to Address Book")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
 }
 
 type SelectorKey = keyof typeof selectors

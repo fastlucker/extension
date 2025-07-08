@@ -547,6 +547,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromAmount?: string
     fromAmountInFiat?: string
     fromAmountFieldMode?: 'fiat' | 'token'
+    shouldSetMaxAmount?: boolean
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
@@ -736,6 +737,10 @@ type SetLogLevelTypeAction = {
   type: 'SET_LOG_LEVEL'
   params: { logLevel: LogLevelNames }
 }
+type SetCrashAnalyticsAction = {
+  type: 'SET_CRASH_ANALYTICS'
+  params: { enabled: boolean }
+}
 
 export type Action =
   | UpdateNavigationUrl
@@ -874,3 +879,4 @@ export type Action =
   | TransferControllerShouldSkipTransactionQueuedModal
   | SetThemeTypeAction
   | SetLogLevelTypeAction
+  | SetCrashAnalyticsAction

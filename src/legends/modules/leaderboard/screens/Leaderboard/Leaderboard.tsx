@@ -103,7 +103,7 @@ const LeaderboardContainer: React.FC = () => {
         </div>
         {error && <Alert className={styles.leaderboardError} type="error" title={error} />}
         {loading && <Spinner />}
-      
+
         {leaderboardData && leaderboardData.length ? (
           <>
             <div className={styles.tabs}>
@@ -137,8 +137,8 @@ const LeaderboardContainer: React.FC = () => {
                   <h5>#</h5>
                   <h5 className={styles.playerCell}>player</h5>
                 </div>
-                <h5 className={styles.cell}>Level</h5>
-                {activeTab === 1 && (
+                {leaderboardData.some((i) => i.level) && <h5 className={styles.cell}>Level</h5>}
+                {leaderboardData.some((i) => i.weight) && (
                   <div className={styles.cell}>
                     <h5 className={styles.weightText}>Weight</h5>
                     <InfoIcon
@@ -173,7 +173,6 @@ const LeaderboardContainer: React.FC = () => {
                   {...item}
                   stickyPosition={stickyPosition}
                   currentUserRef={currentUserRef}
-                  activeTab={activeTab}
                 />
               ))}
               {userLeaderboardData &&
@@ -185,7 +184,6 @@ const LeaderboardContainer: React.FC = () => {
                     {...userLeaderboardData}
                     stickyPosition={stickyPosition}
                     currentUserRef={currentUserRef}
-                    activeTab={activeTab}
                   />
                 )}
             </div>

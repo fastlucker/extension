@@ -1,10 +1,10 @@
-import { KEYSTORE_PASS, saParams } from 'constants/env'
+import { KEYSTORE_PASS, baParams } from 'constants/env'
 
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('keystore', () => {
   test.beforeEach(async ({ settingsPage }) => {
-    await settingsPage.init(saParams)
+    await settingsPage.init(baParams)
   })
 
   test('should lock keystore', async ({ settingsPage }) => {
