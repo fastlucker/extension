@@ -742,6 +742,10 @@ type SetLogLevelTypeAction = {
   type: 'SET_LOG_LEVEL'
   params: { logLevel: LogLevelNames }
 }
+type SetCrashAnalyticsAction = {
+  type: 'SET_CRASH_ANALYTICS'
+  params: { enabled: boolean }
+}
 
 export type Action =
   | UpdateNavigationUrl
@@ -881,3 +885,4 @@ export type Action =
   | TransferControllerShouldSkipTransactionQueuedModal
   | SetThemeTypeAction
   | SetLogLevelTypeAction
+  | SetCrashAnalyticsAction

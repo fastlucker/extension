@@ -18,6 +18,8 @@ export class WalletStateController extends EventEmitter {
 
   logLevel: LOG_LEVELS = DEFAULT_LOG_LEVEL
 
+  crashAnalyticsEnabled: boolean = false
+
   // Holds the initial load promise, so that one can wait until it completes
   initialLoadPromise: Promise<void>
 
@@ -52,6 +54,8 @@ export class WalletStateController extends EventEmitter {
 
     this.logLevel = await storage.get('logLevel', this.logLevel)
     if (this.logLevel !== DEFAULT_LOG_LEVEL) setLoggerInstanceLogLevel(this.logLevel)
+
+    this.crashAnalyticsEnabled = await storage.get('crashAnalyticsEnabled', false)
 
     this.isReady = true
     this.emitUpdate()
@@ -96,6 +100,13 @@ export class WalletStateController extends EventEmitter {
     await this.#onLogLevelUpdateCallback(nextLogLevel)
 
     this.emitUpdate()
+  }
+
+  async setCrashAnalytics(enabled: boolean) {
+    this.crashAnalyticsEnabled = enabled
+    this.emitUpdate()
+
+    await storage.set('crashAnalyticsEnabled', enabled)
   }
 
   toJSON() {

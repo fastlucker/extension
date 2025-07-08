@@ -33,14 +33,14 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
-import { isProd } from '@common/config/env'
+import CONFIG, { isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   LI_FI_API_KEY,
   RELAYER_URL,
-  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
+import * as Sentry from '@sentry/browser'
 import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -76,6 +76,13 @@ import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
+import {
+  captureBackgroundException,
+  CRASH_ANALYTICS_WEB_CONFIG,
+  setBackgroundExtraContext,
+  setBackgroundUserContext
+} from './CrashAnalytics'
+
 function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
@@ -96,7 +103,13 @@ function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctr
   if (logLevel === LOG_LEVELS.PROD) return
 
   const args = parse(stringify(stateToLog))
-  const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
+  let ctrlState = args
+
+  if (ctrlName === 'main' || !Object.keys(controllersNestedInMainMapping).includes(ctrlName)) {
+    ctrlState = args
+  } else {
+    ctrlState = args[ctrlName] || {}
+  }
 
   const logData =
     BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
@@ -170,6 +183,25 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
+  // Init sentry
+  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
+    Sentry.init({
+      ...CRASH_ANALYTICS_WEB_CONFIG,
+      initialScope: {
+        tags: {
+          content: 'background'
+        }
+      },
+      beforeSend(event) {
+        // We don't want to miss errors that occur before the controllers are initialized
+        if (!walletStateCtrl) return event
+
+        // If the Sentry is disabled, we don't send any events
+        return walletStateCtrl.crashAnalyticsEnabled ? event : null
+      }
+    })
+  }
+
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
   // ensuring that the Controllers are initialized with the storage correctly.
@@ -248,9 +280,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // if the fetch method is called while the keystore is constructing the keyStoreUid won't be defined yet
     // in that case we can still fetch but without our custom header
     if (mainCtrl?.keystore?.keyStoreUid) {
-      const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
-      const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-      initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
+      const instanceId = getExtensionInstanceId(
+        mainCtrl.keystore.keyStoreUid,
+        mainCtrl.invite?.verifiedCode || ''
+      )
+
+      initWithCustomHeaders.headers['x-app-source'] = instanceId
     }
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
@@ -817,6 +852,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
+                setBackgroundUserContext({
+                  id: getExtensionInstanceId(controller.keyStoreUid, mainCtrl.invite.verifiedCode)
+                })
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
@@ -848,6 +886,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
               initSwapAndBridgeQuoteContinuousUpdate()
               backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
+            }
+            if (ctrlName === 'selectedAccount') {
+              if (controller?.account?.addr) {
+                setBackgroundExtraContext('account', controller.account.addr)
+              }
             }
           }, 'background')
         }
@@ -963,6 +1006,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             }
           } catch (err: any) {
             console.error(`${type} action failed:`, err)
+            captureBackgroundException(err, {
+              extra: {
+                action: JSON.stringify(action),
+                portId: port.id,
+                windowId
+              }
+            })
             const shortenedError =
               err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
 
