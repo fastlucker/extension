@@ -663,10 +663,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
           if (!failedChainIds.includes(chainId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.updateSelectedAccountPortfolio(
-              false,
-              mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
-            )
+            mainCtrl.updateSelectedAccountPortfolio({
+              network: mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
+            })
           }
         })
       }
