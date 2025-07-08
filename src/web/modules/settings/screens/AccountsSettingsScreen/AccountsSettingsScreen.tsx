@@ -5,6 +5,7 @@ import { RenderItemParams } from 'react-native-draggable-flatlist'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+import DragIndicatorIcon from '@common/assets/svg/DragIndicatorIcon'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -37,7 +38,7 @@ const AccountsSettingsScreen = () => {
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { dispatch } = useBackgroundService()
-  const { themeType } = useTheme()
+  const { themeType, theme } = useTheme()
   const {
     ref: sheetRefExportImportKey,
     open: openExportImportKey,
@@ -110,6 +111,11 @@ const AccountsSettingsScreen = () => {
             onSelect={onSelectAccount}
             account={account}
             maxAccountAddrLength={shortenAccountAddr()}
+            renderLeftChildren={() => (
+              <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}>
+                <DragIndicatorIcon color={theme.secondaryBorder} />
+              </View>
+            )}
             options={{
               withOptionsButton: true,
               setAccountToImportOrExport: setExportImportAccount,
