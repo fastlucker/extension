@@ -59,7 +59,6 @@ jobs:
           echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
           echo "REACT_APP_PIMLICO_API_KEY=\"${{ vars.REACT_APP_PIMLICO_API_KEY }}\"" >> .env
           echo "REACT_APP_ETHERSPOT_API_KEY=\"${{ vars.REACT_APP_ETHERSPOT_API_KEY }}\"" >> .env
-          echo "REACT_APP_JIFFYSCAN_API_KEY=\"${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}\"" >> .env
           echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
           echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
           echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
@@ -74,7 +73,6 @@ jobs:
             -e BROWSER_EXTENSION_PUBLIC_KEY="${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}" \
             -e REACT_APP_PIMLICO_API_KEY="${{ vars.REACT_APP_PIMLICO_API_KEY }}" \
             -e REACT_APP_ETHERSPOT_API_KEY="${{ vars.REACT_APP_ETHERSPOT_API_KEY }}" \
-            -e REACT_APP_JIFFYSCAN_API_KEY="${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}" \
             -e NFT_CDN_URL="${{ vars.NFT_CDN_URL }}" \
             -e LEGENDS_NFT_ADDRESS="${{ vars.LEGENDS_NFT_ADDRESS }}" \
             -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
