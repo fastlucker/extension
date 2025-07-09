@@ -19,15 +19,8 @@ const AddressBookSettingsScreen = () => {
 
   return (
     <View style={[flexbox.flex1, flexbox.directionRow]}>
-      <AddContactForm />
-      <View
-        style={{
-          width: 1,
-          height: '100%',
-          backgroundColor: theme.secondaryBorder,
-          ...spacings.mhXl
-        }}
-      />
+      {/* <AddContactForm /> */}
+
       <ContactsList />
     </View>
   )
