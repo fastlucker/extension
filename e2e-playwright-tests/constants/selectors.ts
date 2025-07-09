@@ -76,6 +76,8 @@ const selectors = {
   dashboardButtonSend: 'dashboard-button-send',
   dashboardButtonSwapAndBridge: 'dashboard-button-swap-and-bridge',
   dashboardHumburgerBtn: 'dashboard-hamburger-btn',
+  balanceErrorIcon: 'balance-affecting-error-icon',
+  portfolioErrorAlert: 'portfolio-error-alert',
   continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',

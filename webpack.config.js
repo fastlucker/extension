@@ -432,9 +432,6 @@ module.exports = async function (env, argv) {
           // The drawback is larger bundle size.
           terserRealOptions.mangle = false
         }
-
-        // Disable parallel to avoid nondeterminism in some environments
-        terserPlugin.options.parallel = false
       }
     }
 
