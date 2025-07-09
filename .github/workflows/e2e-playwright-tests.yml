@@ -101,6 +101,10 @@ jobs:
       #     Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
       #   shell: bash
 
+      - name: Run Balance Check test for SA and BA
+        working-directory: ./e2e-playwright-tests
+        run: npm run balance:test
+
       - name: Run Playwright tests
         working-directory: ./e2e-playwright-tests
         run: npm run test
