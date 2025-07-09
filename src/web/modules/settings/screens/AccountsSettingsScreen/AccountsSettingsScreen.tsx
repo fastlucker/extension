@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { RenderItemParams } from 'react-native-draggable-flatlist'
 import { useModalize } from 'react-native-modalize'
 
@@ -106,28 +106,31 @@ const AccountsSettingsScreen = () => {
       const index = getIndex()
 
       return (
-        <TouchableOpacity disabled={isActive} onLongPress={drag} key={index}>
-          <Account
-            onSelect={onSelectAccount}
-            account={account}
-            maxAccountAddrLength={shortenAccountAddr()}
-            renderLeftChildren={() => (
-              <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}>
-                <DragIndicatorIcon color={theme.secondaryBorder} />
-              </View>
-            )}
-            options={{
-              withOptionsButton: true,
-              setAccountToImportOrExport: setExportImportAccount,
-              setSmartSettingsAccount,
-              setAccountToRemove
-            }}
-            isSelectable={false}
-          />
-        </TouchableOpacity>
+        <Account
+          key={index}
+          onSelect={onSelectAccount}
+          account={account}
+          maxAccountAddrLength={shortenAccountAddr()}
+          renderLeftChildren={() => (
+            <Pressable
+              onPressIn={drag}
+              disabled={isActive}
+              style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}
+            >
+              <DragIndicatorIcon color={isActive ? theme.primary : theme.secondaryBorder} />
+            </Pressable>
+          )}
+          options={{
+            withOptionsButton: true,
+            setAccountToImportOrExport: setExportImportAccount,
+            setSmartSettingsAccount,
+            setAccountToRemove
+          }}
+          isSelectable={false}
+        />
       )
     },
-    [onSelectAccount, shortenAccountAddr]
+    [onSelectAccount, shortenAccountAddr, theme.primary, theme.secondaryBorder]
   )
 
   const removeAccount = useCallback(() => {
