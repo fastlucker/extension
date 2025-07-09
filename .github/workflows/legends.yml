@@ -1,7 +1,7 @@
 name: Legends 👾
 env:
   APP_ENV: production
-
+ 
 on:
   push:
     branches:
@@ -22,10 +22,24 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Checkout code 🛎️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Environment
-        uses: ./.github/composite-actions/setup
+      - name: Git submodules init
+        run: git submodule init
+        shell: bash
+
+      - name: Git submodules update
+        run: git submodule update
+        shell: bash
+
+      - name: Install Node.js ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install Dependencies
+        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
+        shell: bash
 
       - name: Build project 🛠️
         env:
@@ -39,7 +53,8 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.LEGENDS_DEPLOY_KEY }}
-
+      
+      
       - name: Upload source maps to Sentry
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -49,6 +64,7 @@ jobs:
           sentry-cli releases new legends@$VERSION --project legends
           sentry-cli releases files legends@$VERSION upload-sourcemaps ./build/legends-prod/ --ext .js --ext .map --rewrite --project legends
           sentry-cli releases finalize legends@$VERSION --project legends
+
       - name: Deploy to Legends Repo gh-pages 🚀🌕
         run: |
           git config --global user.name "github-actions[bot]"
