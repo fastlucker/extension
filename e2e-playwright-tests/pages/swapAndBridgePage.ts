@@ -397,4 +397,40 @@ export class SwapAndBridgePage extends BasePage {
     await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.002/)
     await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
   }
+
+  async getCurrentBalance() {
+    const amountText = await this.page.getByTestId(selectors.dashboardGasTankBalance).innerText()
+    const amountNumber = parseFloat(amountText.replace(/[^\d.]/g, ''))
+
+    return amountNumber
+  }
+
+  async checkTokenBalance(token: Token) {
+    // balance min amount threshold
+    const balanceThresholds: Record<string, number> = {
+      'WALLET-8453': 400, // WALLET on Base
+      'USDC-8453': 5, // USDC on Base
+      'USDC-10': 5, // USDC on Optimism
+      'USDCe-10': 2,
+      'dai-10': 2,
+      'xwallet-1': 2
+    }
+
+    // select token
+    await this.clickOnMenuToken(token, selectors.sendTokenSab)
+
+    // get token balance
+    const tokenBalance = parseFloat(await this.getText(selectors.maxAvailableAmount))
+    const key = `${token.symbol}-${token.chainId}`
+    const minBalance = balanceThresholds[key] ?? 0
+
+    let error: string | undefined
+
+    try {
+      expect(tokenBalance).toBeGreaterThanOrEqual(minBalance)
+    } catch (e) {
+      error = `${token.symbol} balance is only: ${tokenBalance}.`
+    }
+    return { token, error }
+  }
 }

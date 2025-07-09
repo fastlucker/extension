@@ -64,7 +64,7 @@ export abstract class BasePage {
   }
 
   async getText(selector: string): Promise<string> {
-    return await this.page.getByTestId(selector).innerText()
+    return this.page.getByTestId(selector).innerText()
   }
 
   async entertext(selector: string, text: string): Promise<void> {
@@ -72,7 +72,7 @@ export abstract class BasePage {
   }
 
   async getValue(selector: string): Promise<string> {
-    return await this.page.getByTestId(selector).inputValue()
+    return this.page.getByTestId(selector).inputValue()
   }
 
   async handleNewPage(locator: Locator) {
