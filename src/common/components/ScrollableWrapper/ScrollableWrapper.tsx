@@ -104,7 +104,7 @@ const ScrollableWrapper = ({
         activationDistance={1}
         autoscrollThreshold={30}
         autoscrollSpeed={30}
-        scrollEnabled={true}
+        scrollEnabled
         {...rest}
       />
     )

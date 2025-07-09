@@ -102,34 +102,30 @@ const AccountsSettingsScreen = () => {
   )
 
   const renderItem = useCallback(
-    ({ item: account, drag, isActive, getIndex }: RenderItemParams<AccountInterface>) => {
-      const index = getIndex()
-
-      return (
-        <Account
-          key={index}
-          onSelect={onSelectAccount}
-          account={account}
-          maxAccountAddrLength={shortenAccountAddr()}
-          renderLeftChildren={() => (
-            <Pressable
-              onPressIn={drag}
-              disabled={isActive}
-              style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}
-            >
-              <DragIndicatorIcon color={isActive ? theme.primary : theme.secondaryBorder} />
-            </Pressable>
-          )}
-          options={{
-            withOptionsButton: true,
-            setAccountToImportOrExport: setExportImportAccount,
-            setSmartSettingsAccount,
-            setAccountToRemove
-          }}
-          isSelectable={false}
-        />
-      )
-    },
+    ({ item: account, drag, isActive }: RenderItemParams<AccountInterface>) => (
+      <Account
+        key={account.addr}
+        onSelect={onSelectAccount}
+        account={account}
+        maxAccountAddrLength={shortenAccountAddr()}
+        renderLeftChildren={() => (
+          <Pressable
+            onPressIn={drag}
+            disabled={isActive}
+            style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}
+          >
+            <DragIndicatorIcon color={isActive ? theme.primary : theme.secondaryBorder} />
+          </Pressable>
+        )}
+        options={{
+          withOptionsButton: true,
+          setAccountToImportOrExport: setExportImportAccount,
+          setSmartSettingsAccount,
+          setAccountToRemove
+        }}
+        isSelectable={false}
+      />
+    ),
     [onSelectAccount, shortenAccountAddr, theme.primary, theme.secondaryBorder]
   )
 
@@ -143,6 +139,12 @@ const AccountsSettingsScreen = () => {
   }, [accountToRemove, dispatch, closeRemoveAccount])
 
   const [dragKey, setDragKey] = useState(Date.now())
+
+  // Reset drag key on pointer up outside the accounts list
+  // This is to ensure that the list re-renders correctly after dragging
+  // and to avoid any potential issues with stale state.
+  // This is a workaround for the issue where the list does not re-render
+  // correctly after dragging, especially when the drag is released outside the list.
 
   useEffect(() => {
     const handlePointerUp = (e: PointerEvent) => {
