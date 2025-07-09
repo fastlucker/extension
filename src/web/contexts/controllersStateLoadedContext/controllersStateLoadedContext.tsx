@@ -37,6 +37,7 @@ const { isPopup } = getUiType()
 
 const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const [areControllerStatesLoaded, setAreControllerStatesLoaded] = useState(false)
+  const [isReady, setIsReady] = useState(false)
   const [isStatesLoadingTakingTooLong, setIsStatesLoadingTakingTooLong] = useState(false)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
@@ -178,8 +179,12 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasFeatureFlagsControllerState
     ) {
       clearTimeout(timeout)
-      if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
-      setAreControllerStatesLoaded(true)
+      if (isPopup) {
+        dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
+        setAreControllerStatesLoaded(true)
+      } else {
+        setIsReady(true)
+      }
     }
 
     return () => clearTimeout(timeout)
@@ -210,11 +215,17 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     dispatch
   ])
 
+  useEffect(() => {
+    if (areControllerStatesLoaded && mainState.onPopupOpenStatus === 'SUCCESS') {
+      setIsReady(true)
+    }
+  }, [areControllerStatesLoaded, mainState.onPopupOpenStatus])
+
   return (
     <ControllersStateLoadedContext.Provider
       value={useMemo(
-        () => ({ areControllerStatesLoaded, isStatesLoadingTakingTooLong }),
-        [areControllerStatesLoaded, isStatesLoadingTakingTooLong]
+        () => ({ areControllerStatesLoaded: isReady, isStatesLoadingTakingTooLong }),
+        [isReady, isStatesLoadingTakingTooLong]
       )}
     >
       {children}

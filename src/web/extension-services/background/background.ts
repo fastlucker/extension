@@ -435,12 +435,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   async function initDefiPositionsContinuousUpdate() {
-    if (backgroundState.updateDefiPositionsInterval)
-      clearTimeout(backgroundState.updateDefiPositionsInterval)
-
     async function updateDefiPositions() {
       const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-      if (!isExtensionActive) return
+
+      if (!isExtensionActive) {
+        if (backgroundState.updateDefiPositionsInterval) {
+          clearTimeout(backgroundState.updateDefiPositionsInterval)
+        }
+
+        return
+      }
 
       const FIVE_MINUTES = 1000 * 60 * 5
       await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: FIVE_MINUTES })
@@ -452,8 +456,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       )
     }
 
-    // this update will be triggered on window open (tab, popup or action-window)
-    await updateDefiPositions()
+    // The onPopupOpen func in the MainController will update the defi positions on port init.
+    // Here, we only need to schedule the next update to avoid duplicate updates
+    backgroundState.updateDefiPositionsInterval = setTimeout(
+      updateDefiPositions,
+      ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+    )
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -929,12 +937,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-
-      // Reset the selected account portfolio when the extension is opened
-      // in a popup as the portfolio isn't updated in other cases
-      if (port.name === 'popup' && !mainCtrl.activity.broadcastedButNotConfirmed.length) {
-        mainCtrl.selectedAccount.resetSelectedAccountPortfolio()
-      }
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
