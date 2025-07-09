@@ -57,7 +57,7 @@ jobs:
 
     steps:
       - name: Checkout full Git history
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fixes GitCommitInfo timeout
 
@@ -66,14 +66,19 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Setup Environment
-        uses: ./.github/composite-actions/setup
+      - name: Git submodules init
+        run: git submodule init
+        shell: bash
+
+      - name: Git submodules update
+        run: git submodule update
+        shell: bash
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22.12.0
 
