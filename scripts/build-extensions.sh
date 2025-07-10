@@ -17,7 +17,7 @@ fi
 # Read the build target
 TARGET="$1"
 
-inject_debug_ids_for_build() {
+upload_source_maps_for_build() {
   local ENGINE='$1'
   echo "Uploading source maps for $engine build"
   
@@ -50,14 +50,17 @@ inject_debug_ids() {
   # Decide what to build
   case "$TARGET" in
     --webkit)
-      inject_debug_ids_for_build webkit
+      upload_source_maps_for_build webkit
       ;;
     --gecko)
-      inject_debug_ids_for_build gecko
+      upload_source_maps_for_build gecko
       ;;
     *)
-      inject_debug_ids_for_build webkit
-      inject_debug_ids_for_build gecko
+    ## Don't upload gecko source maps if the target isn't specified
+    ## That is because build-extensions.yml will run this script for both targets
+    ## but should only upload the source maps for the webkit build
+    ## as there is a separate workflow for gecko (build-extensions-gecko.yml)
+      upload_source_maps_for_build webkit
       ;;
   esac
 }
