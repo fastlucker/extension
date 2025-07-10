@@ -24,9 +24,6 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - name: Checkout code 🛎️
-        uses: actions/checkout@v3
-
       - name: Add SSH key to checkout a private repo
         uses: webfactory/ssh-agent@v0.5.4
         with:
@@ -41,6 +38,15 @@ jobs:
 
       - name: Git submodules update
         run: git submodule update
+        shell: bash
+
+      - name: Install Node.js ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install Dependencies
+        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
         shell: bash
 
       - name: Cache Chrome

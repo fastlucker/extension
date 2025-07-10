@@ -46,7 +46,6 @@ jobs:
           RELAYER_URL: 'https://relayer.ambire.com'
           LEGENDS_NFT_ADDRESS: ${{ vars.LEGENDS_NFT_ADDRESS }}
           SENTRY_DSN_LEGENDS: ${{ vars.SENTRY_DSN_LEGENDS }}
-
         run: yarn build:web:legends
 
       - name: Setup SSH agent
