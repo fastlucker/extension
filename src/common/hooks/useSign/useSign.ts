@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import {
   SignAccountOpController,
   SigningStatus
@@ -263,9 +264,10 @@ const useSign = ({
       isViewOnly ||
       isSignLoading ||
       notReadyToSignButAlsoNotDone ||
-      !signAccountOpState?.readyToSign
+      !signAccountOpState?.readyToSign ||
+      (signAccountOpState && signAccountOpState.estimation.status === EstimationStatus.Loading)
     )
-  }, [isViewOnly, isSignLoading, notReadyToSignButAlsoNotDone, signAccountOpState?.readyToSign])
+  }, [isViewOnly, isSignLoading, notReadyToSignButAlsoNotDone, signAccountOpState])
 
   const bundlerNonceDiscrepancy = useMemo(
     () =>
