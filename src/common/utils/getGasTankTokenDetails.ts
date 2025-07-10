@@ -17,7 +17,6 @@ const parseGasTankToken = (token: GasTankTokenResult, type: keyof GasTankTokenRe
 export const getGasTankTokenDetails = (
   portfolio: SelectedAccountPortfolio,
   account: Account | null,
-  hasGasTank: boolean,
   networks: Network[],
   key: 'amount' | 'cashback' | 'saved'
 ) => {
@@ -32,9 +31,8 @@ export const getGasTankTokenDetails = (
     noGasTankResult ||
     !Array.isArray(gasTankResult.gasTankTokens) ||
     gasTankResult.gasTankTokens.length === 0
-  const noGasTank = !hasGasTank
 
-  if (noAccount || noPortfolio || noGasTankResult || noGasTankTokens || noGasTank) {
+  if (noAccount || noPortfolio || noGasTankResult || noGasTankTokens) {
     return { token: null, balanceFormatted: null }
   }
 
