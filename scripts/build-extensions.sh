@@ -17,15 +17,24 @@ fi
 # Read the build target
 TARGET="$1"
 
+inject_debug_ids_for_build() {
+  local ENGINE='$1'
+  echo "Injecting debug ids and uploading source maps for $engine build"
+  
+  # Skip if SENTRY_AUTH_TOKEN is not defined
+  if [ -z "$SENTRY_AUTH_TOKEN" ]; then
+    echo "SENTRY_AUTH_TOKEN not defined, skipping Sentry debug id injection and source map upload"
+    return
+  fi
+
+  # sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  # sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
+  # sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+}
+
 # Injects debug ids and uploads source maps to Sentry
 # Must be done before separating the source maps from the build directories
 inject_debug_ids() {
-  # Skip if SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS is not defined
-  if [ -z "$SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS" ]; then
-    echo "SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS not defined, skipping Sentry debug id injection and source map upload"
-    return
-  fi
-  
   # Check if sentry-cli is installed, if not install it
   if ! command -v sentry-cli &> /dev/null; then
     echo "sentry-cli not found, installing..."
@@ -33,11 +42,24 @@ inject_debug_ids() {
   fi
   
   SENTRY_PROJECT=extension
+  
   sentry-cli --version
-  # sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
   sentry-cli sourcemaps inject build/
-  # sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
-  # sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+
+
+  # Decide what to build
+  case "$TARGET" in
+    --webkit)
+      inject_debug_ids_for_build webkit
+      ;;
+    --gecko)
+      inject_debug_ids_for_build gecko
+      ;;
+    *)
+      inject_debug_ids_for_build webkit
+      inject_debug_ids_for_build gecko
+      ;;
+  esac
 }
 
 # Function to build and zip Webkit
