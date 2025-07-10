@@ -51,7 +51,7 @@ jobs:
         run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Build in ARM64 Docker container
+      - name: Build in ARM64 Docker container and upload source maps to Sentry
         run: |
           # Create .env file
           echo "RELAYER_URL=\"${{ vars.RELAYER_URL }}\"" >> .env

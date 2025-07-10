@@ -53,7 +53,7 @@ jobs:
           echo "SENTRY_DSN_BROWSER_EXTENSION=\"${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}\"" >> .env
         shell: bash
 
-      - name: Build extensions
+      - name: Build extensions and upload source maps to Sentry
         env:
           RELAYER_URL: ${{ vars.RELAYER_URL }}
           VELCRO_URL: ${{ vars.VELCRO_URL }}

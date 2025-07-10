@@ -4,6 +4,7 @@
 set -e
 
 echo "This script automates the process of building the browser extension and their source maps"
+echo "It will also inject debug ids and upload source maps to Sentry"
 
 # Get version from app.json
 VERSION=$(grep '"version"' ./app.json | head -n1 | cut -d':' -f2 | tr -d ' ",')
@@ -19,18 +20,23 @@ TARGET="$1"
 # Injects debug ids and uploads source maps to Sentry
 # Must be done before separating the source maps from the build directories
 inject_debug_ids() {
-  echo "Step 2: Injecting debug ids and uploading source maps to Sentry"
+  # Skip if SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS is not defined
+  if [ -z "$SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS" ]; then
+    echo "SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS not defined, skipping Sentry debug id injection and source map upload"
+    return
+  fi
+  
   # Check if sentry-cli is installed, if not install it
   if ! command -v sentry-cli &> /dev/null; then
     echo "sentry-cli not found, installing..."
-    curl -sL https://sentry.io/get-cli/ | bash
+    curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION="2.46.0" sh
   fi
   
   SENTRY_PROJECT=extension
   sentry-cli --version
   # sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
   sentry-cli sourcemaps inject build/
-  # sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
+  # sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
   # sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 }
 
@@ -61,10 +67,9 @@ case "$TARGET" in
     ;;
 esac
 
-## Step 2: Inject debug ids and upload source maps to Sentry
+echo "Step 2: Injecting debug ids and uploading source maps to Sentry"
 inject_debug_ids
 
-## Step 3: Separate source maps from the build directories
 echo "Step 3: Separating source maps from the build directories"
 case "$TARGET" in
   --webkit)
@@ -80,7 +85,7 @@ case "$TARGET" in
 esac
 
 
-# Create .zip files
+echo "Step 4: Creating .zip files"
 cd build
 for dir in */; do
   if [ -d "$dir" ]; then
