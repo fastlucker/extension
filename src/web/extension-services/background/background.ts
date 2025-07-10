@@ -717,6 +717,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       const updateTime = recentlyFailedNetworks.length ? 8000 : 20000
 
       await mainCtrl.accounts.updateAccountStates(
+        mainCtrl.selectedAccount.account?.addr,
         'latest',
         failedChainIds.map((id) => BigInt(id))
       )
