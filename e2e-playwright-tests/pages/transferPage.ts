@@ -11,8 +11,9 @@ export class TransferPage extends BasePage {
   extensionURL: string
 
   async init(param) {
-    const { page, extensionURL } = await bootstrapWithStorage('transfer', param)
+    const { page, extensionURL, context } = await bootstrapWithStorage('transfer', param)
     this.page = page
+    this.context = context
 
     this.extensionURL = extensionURL
   }

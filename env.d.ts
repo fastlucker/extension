@@ -16,6 +16,7 @@ declare module '@env' {
     LEGENDS_NFT_ADDRESS: string
     USE_SWAP_KEY: string
     SENTRY_DSN_LEGENDS?: string
+    SENTRY_DSN_BROWSER_EXTENSION?: string
   }
 
   /**
@@ -103,4 +104,9 @@ declare module '@env' {
    * Sentry is application monitoring and error tracking app
    */
   export const SENTRY_DSN_LEGENDS: EnvTypes['SENTRY_DSN_LEGENDS']
+
+  /**
+   * Sentry is application monitoring and error tracking app
+   */
+  export const SENTRY_DSN_BROWSER_EXTENSION: EnvTypes['SENTRY_DSN_BROWSER_EXTENSION']
 }
