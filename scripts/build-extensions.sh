@@ -37,9 +37,9 @@ upload_source_maps_for_build() {
     return
   fi
 
-  # $SENTRY_CLI_PATH releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
-  # $SENTRY_CLI_PATH sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
-  # $SENTRY_CLI_PATH releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  $SENTRY_CLI_PATH releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  $SENTRY_CLI_PATH sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
+  $SENTRY_CLI_PATH releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 }
 
 # Injects debug ids and uploads source maps to Sentry
