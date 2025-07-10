@@ -226,6 +226,10 @@ const useSign = ({
     [signAccountOpState?.accountKeyStoreKeys]
   )
 
+  const isAtLeastOneOfTheKeysInvolvedExternal =
+    (!!signingKeyType && signingKeyType !== 'internal') ||
+    (!!feePayerKeyType && feePayerKeyType !== 'internal')
+
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
       // Prioritize warning(s) modals over all others
@@ -240,30 +244,21 @@ const useSign = ({
 
       if (shouldDisplayLedgerConnectModal) return 'ledger-connect'
 
-      const isAtLeastOneOfTheKeysInvolvedExternal =
-        (!!signingKeyType && signingKeyType !== 'internal') ||
-        (!!feePayerKeyType && feePayerKeyType !== 'internal')
-
       if (isAtLeastOneOfTheKeysInvolvedExternal) return 'hw-sign'
 
       return null
     }, [
-      feePayerKeyType,
+      isAtLeastOneOfTheKeysInvolvedExternal,
       shouldDisplayLedgerConnectModal,
       signAccountOpState?.status?.type,
-      signingKeyType,
       warningToPromptBeforeSign
     ])
 
   const primaryButtonText = useMemo(() => {
-    if (
-      renderedButNotNecessarilyVisibleModal === 'hw-sign' ||
-      renderedButNotNecessarilyVisibleModal === 'ledger-connect'
-    )
-      return t('Begin signing')
+    if (isAtLeastOneOfTheKeysInvolvedExternal) return t('Begin signing')
 
     return isSignLoading ? t('Signing...') : t('Sign')
-  }, [isSignLoading, renderedButNotNecessarilyVisibleModal, t])
+  }, [isAtLeastOneOfTheKeysInvolvedExternal, isSignLoading, t])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
