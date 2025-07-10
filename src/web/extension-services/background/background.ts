@@ -83,6 +83,7 @@ import {
   setBackgroundUserContext
 } from './CrashAnalytics'
 
+const debugLogsBuffer: string[] = []
 function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
@@ -111,10 +112,15 @@ function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctr
     ctrlState = args[ctrlName] || {}
   }
 
-  const logData =
+  debugLogsBuffer.unshift(
     BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+  )
 
-  logInfoWithPrefix(event, logData)
+  if (debugLogsBuffer.length > 5) {
+    debugLogsBuffer.pop() // Remove last item if array exceeds maxLength
+  }
+
+  logInfoWithPrefix(event, debugLogsBuffer[0])
 }
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
