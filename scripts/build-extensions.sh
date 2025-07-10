@@ -8,7 +8,15 @@ echo "It will also inject debug ids and upload source maps to Sentry"
 
 # Get version from app.json
 VERSION=$(grep '"version"' ./app.json | head -n1 | cut -d':' -f2 | tr -d ' ",')
-# Todo: comment
+
+# For some unknown reason, we install a specific version of sentry-cli,
+# the output of the installation is that we have installed the correct version,
+# but the command `sentry-cli --version` returns an older version.
+# Example:
+# Sucessfully installed sentry-cli 2.46.0
+# Done!
+# sentry-cli 2.10.0
+# error: Found argument 'inject' which wasn't expected, or isn't valid in this context
 SENTRY_CLI_PATH="/usr/local/bin/sentry-cli"
 
 if [ -z "$VERSION" ]; then
@@ -43,9 +51,7 @@ inject_debug_ids() {
     curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION="2.46.0" sh
   fi
 
-  # TODO: Comment
-  SENTRY_PROJECT=extension
-  
+  SENTRY_PROJECT=extension  
   $SENTRY_CLI_PATH --version
   $SENTRY_CLI_PATH sourcemaps inject build/
 
@@ -82,23 +88,18 @@ build_gecko() {
 }
 
 # Decide what to build
-# case "$TARGET" in
-#   --webkit)
-#     build_webkit
-#     ;;
-#   --gecko)
-#     build_gecko
-#     ;;
-#   *)
-#     build_webkit
-#     build_gecko
-#     ;;
-# esac
-mkdir build
-mkdir build/webkit-prod
-mkdir build/gecko-prod
-touch build/webkit-prod/test.js
-touch build/gecko-prod/test.js
+case "$TARGET" in
+  --webkit)
+    build_webkit
+    ;;
+  --gecko)
+    build_gecko
+    ;;
+  *)
+    build_webkit
+    build_gecko
+    ;;
+esac
 
 echo "Step 2: Injecting debug ids and uploading source maps to Sentry"
 inject_debug_ids
