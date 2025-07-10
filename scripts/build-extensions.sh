@@ -19,11 +19,11 @@ TARGET="$1"
 
 inject_debug_ids_for_build() {
   local ENGINE='$1'
-  echo "Injecting debug ids and uploading source maps for $engine build"
+  echo "Uploading source maps for $engine build"
   
   # Skip if SENTRY_AUTH_TOKEN is not defined
   if [ -z "$SENTRY_AUTH_TOKEN" ]; then
-    echo "SENTRY_AUTH_TOKEN not defined, skipping Sentry debug id injection and source map upload"
+    echo "SENTRY_AUTH_TOKEN not defined, skipping Sentry source map upload"
     return
   fi
 
