@@ -101,6 +101,16 @@ jobs:
           sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
           sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 
+      - name: Create .zip files with the extension build
+        run: |
+          cd build
+          for dir in */; do
+            if [ -d "$dir" ]; then
+              zip -r "${dir%/}.zip" "$dir"
+            fi
+          done
+        shell: bash
+
       - name: Upload source code 📦
         uses: actions/upload-artifact@v4
         with:

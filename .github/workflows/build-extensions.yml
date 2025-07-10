@@ -66,7 +66,7 @@ jobs:
           SENTRY_DSN_BROWSER_EXTENSION: ${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}
         run: yarn build:extensions
 
-      - name: Upload source maps to Sentry
+      - name: Inject debug ids and upload source maps to Sentry
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}
         run: |
@@ -78,6 +78,16 @@ jobs:
           sentry-cli sourcemaps inject build/
           sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
           sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+
+      - name: Create .zip files with the extension builds
+        run: |
+          cd build
+          for dir in */; do
+            if [ -d "$dir" ]; then
+              zip -r "${dir%/}.zip" "$dir"
+            fi
+          done
+        shell: bash
 
       - name: Generate .zip with the full source code (including .env)
         run: |
