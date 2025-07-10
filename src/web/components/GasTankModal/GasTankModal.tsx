@@ -72,17 +72,17 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
 
   // Note: total balance Gas Tank details
   const { token, balanceFormatted } = useMemo(
-    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'amount'),
-    [account, hasGasTank, networks, portfolio]
+    () => getGasTankTokenDetails(portfolio, account, networks, 'amount'),
+    [account, networks, portfolio]
   )
 
   const savedGasTankDetails = useMemo(
-    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'saved'),
-    [account, hasGasTank, networks, portfolio]
+    () => getGasTankTokenDetails(portfolio, account, networks, 'saved'),
+    [account, networks, portfolio]
   )
   const cashbackGasTankDetails = useMemo(
-    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'cashback'),
-    [account, hasGasTank, networks, portfolio]
+    () => getGasTankTokenDetails(portfolio, account, networks, 'cashback'),
+    [account, networks, portfolio]
   )
 
   const [visibleCount, setVisibleCount] = useState(0)
