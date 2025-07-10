@@ -82,18 +82,23 @@ build_gecko() {
 }
 
 # Decide what to build
-case "$TARGET" in
-  --webkit)
-    build_webkit
-    ;;
-  --gecko)
-    build_gecko
-    ;;
-  *)
-    build_webkit
-    build_gecko
-    ;;
-esac
+# case "$TARGET" in
+#   --webkit)
+#     build_webkit
+#     ;;
+#   --gecko)
+#     build_gecko
+#     ;;
+#   *)
+#     build_webkit
+#     build_gecko
+#     ;;
+# esac
+mkdir build
+mkdir build/webkit-prod
+mkdir build/gecko-prod
+touch build/webkit-prod/test.js
+touch build/gecko-prod/test.js
 
 echo "Step 2: Injecting debug ids and uploading source maps to Sentry"
 inject_debug_ids
