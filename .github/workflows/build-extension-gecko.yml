@@ -96,16 +96,19 @@ jobs:
           ENGINE=gecko
           VERSION=$(node -p "require('./build/$ENGINE-prod/manifest.json').version")
           SENTRY_PROJECT=extension
+          sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
           sentry-cli sourcemaps inject build/
+          sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
+          sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 
-      - name: Create .zip files with the extension builds
+      - name: Create .zip files with the extension build
         run: |
           VERSION=$(node -p "require('./build/webkit-prod/manifest.json').version")
           cd build
           for dir in */; do
             if [ -d "$dir" ]; then
               # Remove -prod suffix and add prefix with version
-              clean_name=$(echo "${dir%/}" | sed 's/-prod$//')
+                clean_name=$(echo "${dir%/}" | sed 's/-prod//g')
               zip -r "ambire-extension-v${VERSION}-${clean_name}.zip" "$dir"
             fi
           done
