@@ -74,10 +74,7 @@ jobs:
           ENGINE=webkit
           VERSION=$(node -p "require('./build/$ENGINE-prod/manifest.json').version")
           SENTRY_PROJECT=extension
-          sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
           sentry-cli sourcemaps inject build/
-          sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
-          sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 
       - name: Create .zip files with the extension builds
         run: |
