@@ -138,11 +138,12 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
 
   const showOpenExplorerBtn = useMemo(() => {
     if (!network) return false
-    if (relayerId && !stepsState.txnId) return false
+    // do not show the button until a txId is confirmed
+    if (!stepsState.txnId) return false
 
     const isRejected = stepsState.finalizedStatus?.status === 'rejected'
     return !isRejected
-  }, [network, stepsState.finalizedStatus?.status, relayerId, stepsState.txnId])
+  }, [network, stepsState.finalizedStatus?.status, stepsState.txnId])
 
   if (!chainId || (!txnId && !userOpHash && !relayerId)) return null
 
