@@ -8,6 +8,8 @@ echo "It will also inject debug ids and upload source maps to Sentry"
 
 # Get version from app.json
 VERSION=$(grep '"version"' ./app.json | head -n1 | cut -d':' -f2 | tr -d ' ",')
+# Todo: comment
+SENTRY_CLI_PATH="/usr/local/bin/sentry-cli"
 
 if [ -z "$VERSION" ]; then
   echo "Version not found in app.json. Make sure the 'expo.version' key exists."
@@ -27,9 +29,9 @@ upload_source_maps_for_build() {
     return
   fi
 
-  # sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
-  # sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
-  # sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  # $SENTRY_CLI_PATH releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  # $SENTRY_CLI_PATH sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
+  # $SENTRY_CLI_PATH releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 }
 
 # Injects debug ids and uploads source maps to Sentry
@@ -40,11 +42,12 @@ inject_debug_ids() {
     echo "sentry-cli not found, installing..."
     curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION="2.46.0" sh
   fi
-  
+
+  # TODO: Comment
   SENTRY_PROJECT=extension
   
-  sentry-cli --version
-  sentry-cli sourcemaps inject build/
+  $SENTRY_CLI_PATH --version
+  $SENTRY_CLI_PATH sourcemaps inject build/
 
 
   # Decide what to build
@@ -56,10 +59,10 @@ inject_debug_ids() {
       upload_source_maps_for_build gecko
       ;;
     *)
-    ## Don't upload gecko source maps if the target isn't specified
-    ## That is because build-extensions.yml will run this script for both targets
-    ## but should only upload the source maps for the webkit build
-    ## as there is a separate workflow for gecko (build-extensions-gecko.yml)
+    # Don't upload gecko source maps if the target isn't specified
+    # That is because build-extensions.yml will run this script for both targets
+    # but should only upload the source maps for the webkit build
+    # as there is a separate workflow for gecko (build-extensions-gecko.yml)
       upload_source_maps_for_build webkit
       ;;
   esac
