@@ -10,6 +10,7 @@ import { Key } from '@ambire-common/interfaces/keystore'
 import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
 import Text from '@common/components/Text'
 import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
@@ -73,6 +74,7 @@ const OneClickEstimation = ({
     dismissWarning,
     acknowledgeWarning,
     slowPaymasterRequest,
+    primaryButtonText,
     bundlerNonceDiscrepancy
   } = useSign({
     signAccountOpState: signAccountOpController,
@@ -150,13 +152,12 @@ const OneClickEstimation = ({
                 disabled={isSignLoading}
                 style={{ width: 98 }}
               />
-              <Button
+              <ButtonWithLoader
                 testID="sign-button"
-                text={isSignLoading ? t('Signing...') : t('Sign')}
-                hasBottomSpacing={false}
+                text={primaryButtonText}
+                isLoading={isSignLoading}
                 disabled={isSignDisabled || signingErrors.length > 0}
                 onPress={onSignButtonClick}
-                style={{ minWidth: 160 }}
               />
             </View>
           </View>

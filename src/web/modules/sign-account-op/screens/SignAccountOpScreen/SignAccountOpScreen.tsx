@@ -107,7 +107,8 @@ const SignAccountOpScreen = () => {
     initDispatchedForId,
     setInitDispatchedForId,
     isSignDisabled,
-    bundlerNonceDiscrepancy
+    bundlerNonceDiscrepancy,
+    primaryButtonText
   } = useSign({
     handleUpdateStatus,
     signAccountOpState,
@@ -311,7 +312,6 @@ const SignAccountOpScreen = () => {
               }
               // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
               // because they can't sign it anyway
-
               isAddToCartDisabled={isAddToCartDisabled}
               onSign={onSignButtonClick}
               inProgressButtonText={
@@ -319,6 +319,7 @@ const SignAccountOpScreen = () => {
                   ? t('Sending...')
                   : t('Signing...')
               }
+              buttonText={primaryButtonText}
             />
           </View>
         )}

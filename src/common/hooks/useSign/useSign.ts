@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useModalize } from 'react-native-modalize'
 
 import {
@@ -27,6 +28,7 @@ const useSign = ({
   handleUpdate,
   isOneClickSign
 }: Props) => {
+  const { t } = useTranslation()
   const mainState = useMainControllerState()
   const { networks } = useNetworksControllerState()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -253,6 +255,16 @@ const useSign = ({
       warningToPromptBeforeSign
     ])
 
+  const primaryButtonText = useMemo(() => {
+    if (
+      renderedButNotNecessarilyVisibleModal === 'hw-sign' ||
+      renderedButNotNecessarilyVisibleModal === 'ledger-connect'
+    )
+      return t('Begin signing')
+
+    return isSignLoading ? t('Signing...') : t('Sign')
+  }, [isSignLoading, renderedButNotNecessarilyVisibleModal, t])
+
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
   const notReadyToSignButAlsoNotDone =
@@ -297,6 +309,7 @@ const useSign = ({
     initDispatchedForId,
     setInitDispatchedForId,
     isSignDisabled,
+    primaryButtonText,
     bundlerNonceDiscrepancy
   }
 }
