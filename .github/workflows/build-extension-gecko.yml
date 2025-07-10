@@ -63,6 +63,7 @@ jobs:
           echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
           echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
           echo "SENTRY_DSN_BROWSER_EXTENSION=\"${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}\"" >> .env
+          echo "SENTRY_AUTH_TOKEN=\"${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}\"" >> .env
 
           # Run build in docker container with ARM64 architecture
           docker run --platform linux/arm64 --rm \
@@ -77,6 +78,7 @@ jobs:
             -e LEGENDS_NFT_ADDRESS="${{ vars.LEGENDS_NFT_ADDRESS }}" \
             -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
             -e SENTRY_DSN_BROWSER_EXTENSION="${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}" \
+            -e SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}" \
             --entrypoint /bin/sh \
             node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
             -c "apk add --no-cache git openssh zip python3 make g++ linux-headers eudev-dev && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions:gecko"
@@ -87,33 +89,6 @@ jobs:
 
           # Create source code zip outside of Docker
           zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
-
-      - name: Upload source maps to Sentry
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}
-        run: |
-          curl -sL https://sentry.io/get-cli/ | bash
-          ENGINE=gecko
-          VERSION=$(node -p "require('./build/$ENGINE-prod/manifest.json').version")
-          SENTRY_PROJECT=extension
-          sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
-          sentry-cli sourcemaps inject build/
-          sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
-          sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
-
-      - name: Create .zip files with the extension builds
-        run: |
-          VERSION=$(node -p "require('./build/webkit-prod/manifest.json').version")
-          cd build
-          for dir in */; do
-            if [ -d "$dir" ]; then
-              # Remove -prod suffix and add prefix with version
-              clean_name=$(echo "${dir%/}" | sed 's/-prod//g')
-              # Create zip with contents of directory, not the directory itself
-              (cd "$dir" && zip -r "../ambire-extension-v${VERSION}-${clean_name}.zip" .)
-            fi
-          done
-        shell: bash
 
       - name: Upload source code 📦
         uses: actions/upload-artifact@v4
