@@ -98,12 +98,15 @@ jobs:
           SENTRY_PROJECT=extension
           sentry-cli sourcemaps inject build/
 
-      - name: Create .zip files with the extension build
+      - name: Create .zip files with the extension builds
         run: |
+          VERSION=$(node -p "require('./build/webkit-prod/manifest.json').version")
           cd build
           for dir in */; do
             if [ -d "$dir" ]; then
-              zip -r "${dir%/}.zip" "$dir"
+              # Remove -prod suffix and add prefix with version
+              clean_name=$(echo "${dir%/}" | sed 's/-prod$//')
+              zip -r "ambire-extension-v${VERSION}-${clean_name}.zip" "$dir"
             fi
           done
         shell: bash
