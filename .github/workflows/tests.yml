@@ -16,19 +16,7 @@ jobs:
     steps:
       - name: Unit Tests Disabled
         run: echo "Unit tests are currently disabled. Please update tests.yml to enable them when unit tests are available."
-      # - name: Checkout code 🛎️
-      #   uses: actions/checkout@v3
-
-      # - name: Add SSH key to checkout a private repo
-      #   uses: webfactory/ssh-agent@v0.5.4
-      #   with:
-      #     ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      # - name: Setup Environment
-      #   uses: ./.github/composite-actions/setup
-
-      # - name: Run Unit Tests
-      #   run: yarn test
+  
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -36,16 +24,30 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - name: Checkout code 🛎️
-        uses: actions/checkout@v3
-
       - name: Add SSH key to checkout a private repo
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Setup Environment
-        uses: ./.github/composite-actions/setup
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v4
+
+      - name: Git submodules init
+        run: git submodule init
+        shell: bash
+
+      - name: Git submodules update
+        run: git submodule update
+        shell: bash
+
+      - name: Install Node.js ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install Dependencies
+        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
+        shell: bash
 
       - name: Cache Chrome
         id: cache-chrome
@@ -83,6 +85,7 @@ jobs:
           SOCKET_API_KEY: ${{ vars.SOCKET_API_KEY }}
           LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
           REACT_APP_PIMLICO_API_KEY: ${{ vars.REACT_APP_PIMLICO_API_KEY }}
+          REACT_APP_ETHERSPOT_API_KEY: ${{ vars.REACT_APP_ETHERSPOT_API_KEY }}
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
           SEED: ${{ secrets.SEED }}
           BA_PRIVATE_KEY: ${{ secrets.BA_PRIVATE_KEY }}

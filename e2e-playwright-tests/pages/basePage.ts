@@ -1,19 +1,27 @@
 import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
-import { expect, Locator, Page } from '@playwright/test'
+import { BrowserContext, expect, Locator, Page } from '@playwright/test'
+import { categorizeRequests } from '../utils/requests'
 
 export abstract class BasePage {
   page: Page
 
+  context: BrowserContext
+
+  collectedRequests: string[] = []
+
   abstract init(param?): Promise<void> // ⛔ Must be implemented in subclasses
 
-  async navigateToHome() {
-    await this.page.goto('/')
+  async navigateToURL(url: string) {
+    await this.page.goto(`${url}`)
   }
 
   async click(selector: string, index?: number): Promise<void> {
-    await this.page.getByTestId(selector).nth(index ?? 0).click()
+    await this.page
+      .getByTestId(selector)
+      .nth(index ?? 0)
+      .click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
@@ -56,8 +64,12 @@ export abstract class BasePage {
     await this.page.locator(locator).pressSequentially(text)
   }
 
+  async clearFieldInput(selector: string): Promise<void> {
+    await this.page.getByTestId(selector).fill('')
+  }
+
   async getText(selector: string): Promise<string> {
-    return await this.page.getByTestId(selector).innerText()
+    return this.page.getByTestId(selector).innerText()
   }
 
   async entertext(selector: string, text: string): Promise<void> {
@@ -65,18 +77,18 @@ export abstract class BasePage {
   }
 
   async getValue(selector: string): Promise<string> {
-    return await this.page.getByTestId(selector).inputValue()
+    return this.page.getByTestId(selector).inputValue()
   }
 
   async handleNewPage(locator: Locator) {
-    const context = this.page.context();
+    const context = this.page.context()
 
     const [actionWindowPagePromise] = await Promise.all([
       context.waitForEvent('page'),
-      locator.first().click({ timeout: 5000 })  // trigger opening
-    ]);
+      locator.first().click({ timeout: 5000 }) // trigger opening
+    ])
 
-    return actionWindowPagePromise;
+    return actionWindowPagePromise
   }
 
   async pause() {
@@ -95,5 +107,22 @@ export abstract class BasePage {
 
   async compareText(selector: string, text: string) {
     await expect(this.page.getByTestId(selector)).toContainText(text)
+  }
+
+  async isVisible(selector: string): Promise<boolean> {
+    return this.page.getByTestId(selector).isVisible()
+  }
+
+  async monitorRequests() {
+    await this.context.route('**/*', async (route, request) => {
+      if (request.resourceType() === 'fetch' && request.method() !== 'OPTIONS') {
+        this.collectedRequests.push(request.url())
+      }
+      await route.continue()
+    })
+  }
+
+  getCategorizedRequests() {
+    return categorizeRequests(this.collectedRequests)
   }
 }

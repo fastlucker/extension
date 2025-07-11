@@ -1,6 +1,7 @@
 import { saParams } from 'constants/env'
 import tokens from 'constants/tokens'
-import { test } from 'fixtures/pageObjects' // your extended test with authPage
+import { test } from 'fixtures/pageObjects'
+import { expect } from '@playwright/test' // your extended test with authPage
 
 test.describe('swapAndBridgePage Smart Account', () => {
   test.beforeEach(async ({ swapAndBridgePage }) => {
@@ -107,7 +108,7 @@ test.describe('swapAndBridgePage Smart Account', () => {
 
     await swapAndBridgePage.switchUSDValueOnSwapAndBridge(usdce, 0.34)
     await swapAndBridgePage.switchUSDValueOnSwapAndBridge(dai, 0.2)
-    await swapAndBridgePage.switchUSDValueOnSwapAndBridge(usdc, 0.012)
+    await swapAndBridgePage.switchUSDValueOnSwapAndBridge(usdc, 0.02)
     await swapAndBridgePage.switchUSDValueOnSwapAndBridge(xwallet, 1)
     await swapAndBridgePage.switchUSDValueOnSwapAndBridge(dai, 0.51)
     await swapAndBridgePage.switchUSDValueOnSwapAndBridge(xwallet, 0.9)
@@ -147,9 +148,29 @@ test.describe('swapAndBridgePage Smart Account', () => {
     const wallet = tokens.wallet.base
     const eth = tokens.eth.base
 
-    await swapAndBridgePage.prepareSwapAndBridge(0.003, wallet, usdc)
-    await swapAndBridgePage.batchAction()
-    await swapAndBridgePage.prepareSwapAndBridge(0.002, usdc, eth)
-    await swapAndBridgePage.batchActionWithSign()
+    await test.step('start monitoring requests', async () => {
+      await swapAndBridgePage.monitorRequests()
+    })
+
+    await test.step('add a transaction swapping WALLET for USDC to the batch', async () => {
+      await swapAndBridgePage.prepareSwapAndBridge(0.003, wallet, usdc)
+      await swapAndBridgePage.batchAction()
+    })
+
+    await test.step(
+      'add a transaction swapping USDC for WALLET to the existing batch and sign',
+      async () => {
+        await swapAndBridgePage.prepareSwapAndBridge(0.002, usdc, eth)
+        await swapAndBridgePage.batchActionWithSign()
+      }
+    )
+
+    await test.step(
+      'stop monitoring requests and expect no uncategorized requests to be made',
+      async () => {
+        const { uncategorized } = swapAndBridgePage.getCategorizedRequests()
+        expect(uncategorized.length).toBeLessThanOrEqual(0)
+      }
+    )
   })
 })
