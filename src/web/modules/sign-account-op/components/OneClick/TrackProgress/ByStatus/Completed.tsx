@@ -37,33 +37,33 @@ const Completed: FC<CompletedProps> = ({
 
   return (
     <>
-      <SuccessAnimation noBorder width={600}>
+      <SuccessAnimation width={600}>
         <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
           {title}
         </Text>
-        <Text weight="medium" appearance="secondaryText" style={spacings.mb2Xl}>
+        <Text weight="medium" appearance="secondaryText" style={spacings.mbXl}>
           {titleSecondary}
         </Text>
-      </SuccessAnimation>
-      {!!explorerLink && (
-        <Pressable
-          onPress={handleOpenExplorer}
-          style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
-        >
-          <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
-          <Text
-            weight="medium"
-            style={{
-              textDecorationLine: 'underline',
-              textDecorationColor: theme.primary,
-              textDecorationStyle: 'solid'
-            }}
-            appearance="primary"
+        {!!explorerLink && (
+          <Pressable
+            onPress={handleOpenExplorer}
+            style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
           >
-            {openExplorerText}
-          </Text>
-        </Pressable>
-      )}
+            <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
+            <Text
+              weight="medium"
+              style={{
+                textDecorationLine: 'underline',
+                textDecorationColor: theme.primary,
+                textDecorationStyle: 'solid'
+              }}
+              appearance="primary"
+            >
+              {openExplorerText}
+            </Text>
+          </Pressable>
+        )}
+      </SuccessAnimation>
     </>
   )
 }

@@ -57,7 +57,7 @@ const TrackProgressWrapper: FC<TrackProgressProps> = ({
               flexbox.alignCenter,
               flexbox.justifyCenter,
               isActionWindow ? {} : flexbox.flex1,
-              isActionWindow ? spacings.pt0 : spacings.pt2Xl
+              spacings.pt0
             ]}
           >
             {children}
