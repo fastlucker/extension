@@ -23,7 +23,6 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
     await test.step('Check balance of Gas tank', async () => {
       const gasTankBalance = await swapAndBridgePage.getCurrentBalance()
 
-      await swapAndBridgePage.pause()
       if (gasTankBalance < 5) {
         const msg = `⚠️ Gas Tank balance is only ${gasTankBalance} USDC. Top it up.`
         errors.push(msg)
@@ -47,14 +46,17 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
 
       if (failed.length > 0) {
         console.warn('\n⚠️ Some tokens are underfunded.')
-        failed.forEach(({ error }) => console.warn(` - ${error}`))
+        failed.forEach(({ error }) => {
+          console.warn(` - ${error}`)
+          errors.push(error)
+        })
       }
     })
 
     if (errors.length > 0) {
       throw new Error(`Test failed with ${errors.length} issues:\n${errors.join('\n')}`)
     } else {
-      console.log('✅ Tokens and gas tank have sufficient balance.')
+      console.log('✅ SA Tokens and gas tank have sufficient balance.')
     }
   })
 })

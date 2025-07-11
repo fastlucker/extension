@@ -46,14 +46,17 @@ test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async 
 
       if (failed.length > 0) {
         console.warn('\n⚠️ Some tokens are underfunded.')
-        failed.forEach(({ error }) => console.warn(` - ${error}`))
+        failed.forEach(({ error }) => {
+          console.warn(` - ${error}`)
+          errors.push(error)
+        })
       }
     })
 
     if (errors.length > 0) {
       throw new Error(`Test failed with ${errors.length} issues:\n${errors.join('\n')}`)
     } else {
-      console.log('✅ Tokens and gas tank have sufficient balance.')
+      console.log('✅ BA Tokens and gas tank have sufficient balance.')
     }
   })
 })
