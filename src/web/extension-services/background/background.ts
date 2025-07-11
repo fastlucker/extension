@@ -140,7 +140,8 @@ function stateDebug(
   }
 
   while (debugLogsMap.size > 200) {
-    const oldestKey = debugLogsMap.keys().next().value
+    const keysArray = Array.from(debugLogsMap.keys())
+    const oldestKey = keysArray[keysArray.length - 1]
     if (oldestKey) debugLogsMap.delete(oldestKey)
   }
 
