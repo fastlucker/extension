@@ -1,11 +1,12 @@
 // @ts-nocheck TODO: fix provider types
+import '@web/utils/instrument'
 
 import React from 'react'
-import ErrorBoundary from 'react-native-error-boundary'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
+import { ErrorBoundary } from '@common/config/analytics/CrashAnalytics.web'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
 import { PrivateModeProvider } from '@common/contexts/privateModeContext'
@@ -48,6 +49,8 @@ import { WalletStateControllerProvider } from '@web/contexts/walletStateControll
 
 const Router = isExtension ? HashRouter : BrowserRouter
 
+const errorComponent = ({ error }: { error: Error }) => <ErrorComponent error={error} />
+
 const AppInit = () => {
   const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
@@ -58,7 +61,7 @@ const AppInit = () => {
       <PortalProvider>
         <SafeAreaProvider>
           <ToastProvider>
-            <ErrorBoundary FallbackComponent={ErrorComponent}>
+            <ErrorBoundary fallback={errorComponent}>
               <BackgroundServiceProvider>
                 <MainControllerStateProvider>
                   <StorageControllerStateProvider>

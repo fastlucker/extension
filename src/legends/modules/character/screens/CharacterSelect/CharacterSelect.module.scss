@@ -35,6 +35,7 @@
     max-width: 44.5rem;
     margin: 0 auto 1rem;
     color: $mainText;
+    margin-bottom: 6rem;
   }
 }
 .saveButton {
@@ -46,5 +47,30 @@
 @media screen and (max-height: 900px) {
   .wrapper {
     padding-top: 4rem;
+    .description {
+      margin-bottom: 3rem;
+    }
   }
+}
+
+.button {
+  @include primary-button;
+  font-size: 1rem;
+}
+
+.modal {
+  min-width: 40rem;
+}
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modalText {
+  text-align: center;
+  font-size: 1rem;
+  padding: 1.25rem;
+}
+.modalHeading {
+  font-size: 1.3rem;
 }

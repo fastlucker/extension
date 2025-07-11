@@ -81,13 +81,15 @@ export class BadgesController {
   }
 
   setBadges = (badgesCount: number) => {
-    if (badgesCount <= 0) {
-      browser.action.setBadgeText({ text: '' })
-    } else {
-      browser.action.setBadgeText({ text: `${badgesCount}` })
-      browser.action.setBadgeBackgroundColor({
-        color: ThemeColors.successDecorative[this.#walletStateCtrl.themeType as 'dark' | 'light']
-      })
+    try {
+      if (badgesCount <= 0) {
+        browser.action.setBadgeText({ text: '' })
+      } else {
+        browser.action.setBadgeText({ text: `${badgesCount}` })
+        browser.action.setBadgeBackgroundColor({ color: ThemeColors.successDecorative.light })
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 

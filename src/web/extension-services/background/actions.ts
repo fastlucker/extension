@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
   ActionExecutionType,
+  Action as ActionFromActionsQueue,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/controllers/actions/actions'
@@ -35,6 +35,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 import { THEME_TYPES } from '@common/styles/themeConfig'
+import { LogLevelNames } from '@web/utils/logger'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -189,6 +190,7 @@ type MainControllerAddUserRequestAction = {
     actionPosition?: ActionPosition
     actionExecutionType?: ActionExecutionType
     allowAccountSwitch?: boolean
+    skipFocus?: boolean
   }
 }
 type MainControllerBuildTransferUserRequest = {
@@ -523,6 +525,8 @@ type SwapAndBridgeControllerInitAction = {
   params: {
     sessionId: string
     preselectedFromToken?: Pick<TokenResult, 'address' | 'chainId'>
+    preselectedToToken?: Pick<TokenResult, 'address' | 'chainId'>
+    fromAmount?: string
   }
 }
 type SwapAndBridgeControllerUserProceededAction = {
@@ -543,6 +547,7 @@ type SwapAndBridgeControllerUpdateFormAction = {
     fromAmount?: string
     fromAmountInFiat?: string
     fromAmountFieldMode?: 'fiat' | 'token'
+    shouldSetMaxAmount?: boolean
     fromChainId?: bigint | number
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
@@ -570,9 +575,7 @@ type SwapAndBridgeControllerResetForm = {
 }
 type SwapAndBridgeControllerBuildUserRequest = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
-  params: {
-    openActionWindow: boolean
-  }
+  params: { openActionWindow: boolean }
 }
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
@@ -730,6 +733,14 @@ type SetThemeTypeAction = {
   type: 'SET_THEME_TYPE'
   params: { themeType: THEME_TYPES }
 }
+type SetLogLevelTypeAction = {
+  type: 'SET_LOG_LEVEL'
+  params: { logLevel: LogLevelNames }
+}
+type SetCrashAnalyticsAction = {
+  type: 'SET_CRASH_ANALYTICS'
+  params: { enabled: boolean }
+}
 
 export type Action =
   | UpdateNavigationUrl
@@ -867,3 +878,5 @@ export type Action =
   | TransferControllerUserProceededAction
   | TransferControllerShouldSkipTransactionQueuedModal
   | SetThemeTypeAction
+  | SetLogLevelTypeAction
+  | SetCrashAnalyticsAction

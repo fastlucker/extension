@@ -10,7 +10,6 @@ import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndB
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useNavigation from '@common/hooks/useNavigation'
-import usePrevious from '@common/hooks/usePrevious'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -18,6 +17,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import useSyncedState from '@web/hooks/useSyncedState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -36,15 +36,29 @@ const useSwapAndBridgeForm = () => {
     fromAmountInFiat,
     activeRoutes,
     signAccountOpController,
+    fromAmountUpdateCounter,
     formStatus,
     supportedChainIds,
     updateQuoteStatus,
     sessionIds,
     toSelectedToken
   } = useSwapAndBridgeControllerState()
+  const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
-  const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+  const controllerAmountFieldValue = fromAmountFieldMode === 'token' ? fromAmount : fromAmountInFiat
+  const [fromAmountValue, setFromAmountValue] = useSyncedState<string>({
+    backgroundState: controllerAmountFieldValue,
+    updateBackgroundState: (newAmount) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+        params: { fromAmount: newAmount }
+      })
+    },
+    forceUpdateOnChangeList: [fromAmountUpdateCounter, fromAmountFieldMode]
+  })
+
+  const isLocalStateOutOfSync = controllerAmountFieldValue !== fromAmountValue
   /**
    * @deprecated - the settings menu is not used anymore
    */
@@ -53,12 +67,9 @@ const useSwapAndBridgeForm = () => {
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
     useState<boolean>(false)
-  const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const currentRoute = useLocation()
   const { setSearchParams, navigate } = useNavigation()
-  const prevFromAmount = usePrevious(fromAmount)
-  const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
   const {
     ref: estimationModalRef,
@@ -207,48 +218,6 @@ const useSwapAndBridgeForm = () => {
       dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
     }
   }, [dispatch, sessionId])
-
-  useEffect(() => {
-    if (
-      fromAmountFieldMode === 'fiat' &&
-      prevFromAmountInFiat !== fromAmountInFiat &&
-      fromAmountInFiat !== fromAmountValue
-    ) {
-      handleSetFromAmount(fromAmountInFiat)
-    }
-  }, [
-    fromAmountInFiat,
-    fromAmountValue,
-    prevFromAmountInFiat,
-    fromAmountFieldMode,
-    handleSetFromAmount
-  ])
-
-  useEffect(() => {
-    if (fromAmountFieldMode === 'token') handleSetFromAmount(fromAmount)
-    if (fromAmountFieldMode === 'fiat') handleSetFromAmount(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, handleSetFromAmount])
-
-  useEffect(() => {
-    if (
-      fromAmountFieldMode === 'token' &&
-      prevFromAmount !== fromAmount &&
-      fromAmount !== fromAmountValue
-    ) {
-      handleSetFromAmount(fromAmount)
-    }
-  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode, handleSetFromAmount])
-
-  const onFromAmountChange = useCallback(
-    (value: string) => {
-      handleSetFromAmount(value)
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { fromAmount: value }
-      })
-    },
-    [dispatch, handleSetFromAmount]
-  )
 
   const {
     options: fromTokenOptions,
@@ -481,7 +450,7 @@ const useSwapAndBridgeForm = () => {
   return {
     sessionId,
     fromAmountValue,
-    onFromAmountChange,
+    onFromAmountChange: handleSetFromAmount,
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
     fromTokenValue,
@@ -504,7 +473,8 @@ const useSwapAndBridgeForm = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   }
 }
 

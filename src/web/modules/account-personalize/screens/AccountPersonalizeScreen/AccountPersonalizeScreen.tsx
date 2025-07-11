@@ -5,10 +5,10 @@ import { Pressable, ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import wait from '@ambire-common/utils/wait'
-import CheckIcon from '@common/assets/svg/CheckIcon'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import SuccessAnimation from '@common/components/SuccessAnimation'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -41,7 +41,7 @@ const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { goToNextRoute, goToPrevRoute, setAccountsToPersonalize, accountsToPersonalize } =
     useOnboardingNavigation()
-  const { styles, theme } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
   const accountsState = useAccountsControllerState()
@@ -280,16 +280,17 @@ const AccountPersonalizeScreen = () => {
               </View>
             ) : (
               <>
-                <View style={[flexbox.alignCenter, spacings.mbXl]}>
-                  <View style={styles.checkIconOuterWrapper}>
-                    <View style={styles.checkIconInnerWrapper}>
-                      <CheckIcon color={theme.successDecorative} width={28} height={28} />
-                    </View>
-                  </View>
-                  <Text weight="semiBold" fontSize={20}>
+                <SuccessAnimation
+                  noBackgroundShapes
+                  width={352}
+                  height={156}
+                  style={{ ...spacings.pv0, ...spacings.ph0, ...spacings.mbXl }}
+                  animationContainerStyle={{ width: 200, height: 140 }}
+                >
+                  <Text weight="semiBold" fontSize={20} style={spacings.mtSm}>
                     {t('Added successfully')}
                   </Text>
-                </View>
+                </SuccessAnimation>
                 <ScrollView style={spacings.mbLg}>
                   {accountsToPersonalize.map((acc, index) => (
                     <AccountPersonalizeCard

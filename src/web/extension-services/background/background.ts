@@ -22,6 +22,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
+import { WindowManager } from '@ambire-common/interfaces/window'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -32,14 +33,14 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
-import { isProd } from '@common/config/env'
+import CONFIG, { isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   LI_FI_API_KEY,
   RELAYER_URL,
-  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
+import * as Sentry from '@sentry/browser'
 import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -59,7 +60,12 @@ import { controllersNestedInMainMapping } from '@web/extension-services/backgrou
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
-import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
+import {
+  initializeMessenger,
+  MessageMeta,
+  Port,
+  PortMessenger
+} from '@web/extension-services/messengers'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -68,9 +74,16 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
-import { logInfoWithPrefix } from '@web/utils/logger'
+import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
-function stateDebug(event: string, stateToLog: object, ctrlName: string) {
+import {
+  captureBackgroundException,
+  CRASH_ANALYTICS_WEB_CONFIG,
+  setBackgroundExtraContext,
+  setBackgroundUserContext
+} from './CrashAnalytics'
+
+function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -87,10 +100,16 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
   // causing the extension to slow down or freeze.
   // Instead of logging with `logInfoWithPrefix` in production, we rely on EventEmitter.emitError() to log individual errors
   // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
-  if (process.env.APP_ENV === 'production') return
+  if (logLevel === LOG_LEVELS.PROD) return
 
   const args = parse(stringify(stateToLog))
-  const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
+  let ctrlState = args
+
+  if (ctrlName === 'main' || !Object.keys(controllersNestedInMainMapping).includes(ctrlName)) {
+    ctrlState = args
+  } else {
+    ctrlState = args[ctrlName] || {}
+  }
 
   const logData =
     BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
@@ -100,6 +119,7 @@ function stateDebug(event: string, stateToLog: object, ctrlName: string) {
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
+let walletStateCtrl: WalletStateController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
@@ -108,15 +128,16 @@ handleKeepAlive()
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
-  while (!mainCtrl) await wait(200)
+  while (!mainCtrl || !walletStateCtrl) await wait(200)
 
   const tabId = meta.sender?.tab?.id
-  if (tabId === undefined || !meta.sender?.url) {
+  const windowId = meta.sender?.tab?.windowId
+  if (tabId === undefined || windowId === undefined || !meta.sender?.url) {
     return
   }
 
   const origin = getOriginFromUrl(meta.sender.url)
-  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, origin })
+  const session = mainCtrl.dapps.getOrCreateDappSession({ tabId, windowId, origin })
 
   await mainCtrl.dapps.initialLoadPromise
   mainCtrl.dapps.setSessionMessenger(session.sessionId, bridgeMessenger)
@@ -130,6 +151,7 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
         origin
       },
       mainCtrl,
+      walletStateCtrl,
       id
     )
     return { id, result: res }
@@ -161,6 +183,25 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
+  // Init sentry
+  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
+    Sentry.init({
+      ...CRASH_ANALYTICS_WEB_CONFIG,
+      initialScope: {
+        tags: {
+          content: 'background'
+        }
+      },
+      beforeSend(event) {
+        // We don't want to miss errors that occur before the controllers are initialized
+        if (!walletStateCtrl) return event
+
+        // If the Sentry is disabled, we don't send any events
+        return walletStateCtrl.crashAnalyticsEnabled ? event : null
+      }
+    })
+  }
+
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
   // ensuring that the Controllers are initialized with the storage correctly.
@@ -227,7 +268,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   const pm = new PortMessenger()
   const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController()
+  const trezorCtrl = new TrezorController(windowManager as WindowManager)
   const latticeCtrl = new LatticeController()
 
   // Extension-specific additional trackings
@@ -239,9 +280,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // if the fetch method is called while the keystore is constructing the keyStoreUid won't be defined yet
     // in that case we can still fetch but without our custom header
     if (mainCtrl?.keystore?.keyStoreUid) {
-      const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
-      const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-      initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
+      const instanceId = getExtensionInstanceId(
+        mainCtrl.keystore.keyStoreUid,
+        mainCtrl.invite?.verifiedCode || ''
+      )
+
+      initWithCustomHeaders.headers['x-app-source'] = instanceId
     }
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
@@ -295,7 +339,23 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     } as any,
     windowManager: {
       ...windowManager,
-      remove: async (winId: number) => {
+      remove: async (winId: number | 'popup') => {
+        if (winId === 'popup') {
+          return new Promise((resolve) => {
+            const popupPort = pm.ports.find((p) => p.name === 'popup')
+            if (!popupPort) return resolve()
+
+            const timeout = setTimeout(() => {
+              resolve()
+            }, 1500)
+
+            popupPort.onDisconnect.addListener(() => {
+              clearTimeout(timeout)
+              resolve()
+            })
+            pm.send('> ui', { method: 'closePopup', params: {} })
+          })
+        }
         await windowManager.remove(winId, pm)
       },
       sendWindowToastMessage: (text, options) => {
@@ -308,7 +368,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     notificationManager
   })
 
-  const walletStateCtrl = new WalletStateController()
+  walletStateCtrl = new WalletStateController({
+    onLogLevelUpdateCallback: async (nextLogLevel: LOG_LEVELS) => {
+      await mainCtrl.dapps.broadcastDappSessionEvent('logLevelUpdate', nextLogLevel)
+    }
+  })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, walletStateCtrl)
   const autoLockCtrl = new AutoLockController(() => {
@@ -653,6 +717,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       const updateTime = recentlyFailedNetworks.length ? 8000 : 20000
 
       await mainCtrl.accounts.updateAccountStates(
+        mainCtrl.selectedAccount.account?.addr,
         'latest',
         failedChainIds.map((id) => BigInt(id))
       )
@@ -710,7 +775,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
 
       pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
-      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
+      stateDebug(walletStateCtrl.logLevel, `onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
     }
 
     /**
@@ -788,6 +853,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
+                setBackgroundUserContext({
+                  id: getExtensionInstanceId(controller.keyStoreUid, mainCtrl.invite.verifiedCode)
+                })
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
@@ -820,6 +888,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               initSwapAndBridgeQuoteContinuousUpdate()
               backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
             }
+            if (ctrlName === 'selectedAccount') {
+              if (controller?.account?.addr) {
+                setBackgroundExtraContext('account', controller.account.addr)
+              }
+            }
           }, 'background')
         }
       }
@@ -829,7 +902,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            stateDebug(walletStateCtrl.logLevel, `onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
             const controller = (mainCtrl as any)[ctrlName]
 
             // In case the controller was destroyed and an error was emitted
@@ -845,7 +918,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug('onError (main ctrl)', mainCtrl, 'main')
+    stateDebug(walletStateCtrl.logLevel, 'onError (main ctrl)', mainCtrl, 'main')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
@@ -913,45 +986,58 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
       mainCtrl.phishing.updateIfNeeded()
 
-      // @ts-ignore
-      pm.addListener(port.id, async (messageType, action: Action) => {
-        const { type } = action
-        try {
-          if (messageType === '> background' && type) {
-            await handleActions(action, {
-              pm,
-              port,
-              mainCtrl,
-              walletStateCtrl,
-              autoLockCtrl,
-              extensionUpdateCtrl
+      pm.addListener(
+        port.id,
+        // @ts-ignore
+        async (messageType, action: Action, meta: MessageMeta = {}) => {
+          const { type } = action
+          const { windowId } = meta
+
+          try {
+            if (messageType === '> background' && type) {
+              await handleActions(action, {
+                pm,
+                port,
+                mainCtrl,
+                walletStateCtrl,
+                autoLockCtrl,
+                extensionUpdateCtrl,
+                windowId
+              })
+            }
+          } catch (err: any) {
+            console.error(`${type} action failed:`, err)
+            captureBackgroundException(err, {
+              extra: {
+                action: JSON.stringify(action),
+                portId: port.id,
+                windowId
+              }
+            })
+            const shortenedError =
+              err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
+
+            let message = `Something went wrong! Please contact support. Error: ${shortenedError}`
+            // Emit the raw error only if it's a custom error
+            if (err instanceof EmittableError || err instanceof ExternalSignerError) {
+              message = err.message
+            }
+
+            pm.send('> ui-error', {
+              method: type,
+              params: {
+                errors: [
+                  {
+                    message,
+                    level: 'major',
+                    error: err
+                  }
+                ]
+              }
             })
           }
-        } catch (err: any) {
-          console.error(`${type} action failed:`, err)
-          const shortenedError =
-            err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
-
-          let message = `Something went wrong! Please contact support. Error: ${shortenedError}`
-          // Emit the raw error only if it's a custom error
-          if (err instanceof EmittableError || err instanceof ExternalSignerError) {
-            message = err.message
-          }
-
-          pm.send('> ui-error', {
-            method: type,
-            params: {
-              errors: [
-                {
-                  message,
-                  level: 'major',
-                  error: err
-                }
-              ]
-            }
-          })
         }
-      })
+      )
 
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)

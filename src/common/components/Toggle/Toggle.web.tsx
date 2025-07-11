@@ -6,14 +6,7 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 
 import { ToggleProps } from './types'
 
-interface Props extends ToggleProps {
-  labelProps?: TextProps
-  toggleStyle?: React.CSSProperties
-  trackStyle?: React.CSSProperties
-  children?: ReactNode
-}
-
-const Toggle: React.FC<Props> = ({
+const Toggle: React.FC<ToggleProps> = ({
   id,
   isOn,
   onToggle,
