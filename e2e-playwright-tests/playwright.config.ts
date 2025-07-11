@@ -25,7 +25,7 @@ const config: PlaywrightTestConfig = {
   use: {
     viewport: { width: 1920, height: 1080 },
     baseURL: process.env.APP_URL || '',
-    headless: true,
+    headless: false,
     video: 'on',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
