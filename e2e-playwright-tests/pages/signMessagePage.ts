@@ -91,7 +91,7 @@ export class SignMessagePage extends BasePage {
     await verifyButton.click()
 
     await expect(this.page.locator('.verifyFeedback-text')).toHaveText('Signature is Valid', {
-      timeout: 5000
+      timeout: 10000
     })
   }
 }

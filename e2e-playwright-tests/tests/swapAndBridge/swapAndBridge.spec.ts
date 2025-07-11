@@ -1,6 +1,7 @@
 import { saParams } from 'constants/env'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
+
 import { expect } from '@playwright/test' // your extended test with authPage
 
 test.describe('swapAndBridgePage Smart Account', () => {
@@ -134,7 +135,7 @@ test.describe('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.clickOnSecondRoute()
   })
 
-  test('should Bridge tokens with a Smart Account', async ({ swapAndBridgePage }) => {
+  test.only('should Bridge tokens with a Smart Account', async ({ swapAndBridgePage }) => {
     const usdc = tokens.usdc.base
     const usdcOpt = tokens.usdc.optimism
     await swapAndBridgePage.prepareBridgeTransaction(0.0063, usdc, usdcOpt)

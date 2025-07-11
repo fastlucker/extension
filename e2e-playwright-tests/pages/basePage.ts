@@ -2,6 +2,7 @@ import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
 import { BrowserContext, expect, Locator, Page } from '@playwright/test'
+
 import { categorizeRequests } from '../utils/requests'
 
 export abstract class BasePage {

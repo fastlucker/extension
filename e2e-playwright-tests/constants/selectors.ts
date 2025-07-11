@@ -79,6 +79,7 @@ const selectors = {
   balanceErrorIcon: 'balance-affecting-error-icon',
   portfolioErrorAlert: 'portfolio-error-alert',
   continueAnywayCheckboxSaB: 'checkbox',
+  continueAnywayButton: '//div[contains(text(),"Continue anyway")]',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
   transferButtonConfirm: 'transfer-button-confirm',
@@ -126,7 +127,7 @@ const selectors = {
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
-  highPriceImpactSab: 'high-price-impact-sab',
+  highPriceImpactSab: '//div[contains(text(),"Ouch! Very high price impact")]', // TODO: change with ID when we add it
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',

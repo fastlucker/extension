@@ -1,8 +1,10 @@
 import { baParams } from 'constants/env'
+
 import { expect } from '@playwright/test'
-import { test } from '../../fixtures/pageObjects'
+
 import selectors from '../../constants/selectors'
 import tokens from '../../constants/tokens'
+import { test } from '../../fixtures/pageObjects'
 
 test.describe('stability', () => {
   test.beforeEach(async ({ stabilityPage }) => {
@@ -22,7 +24,7 @@ test.describe('stability', () => {
         const page = stabilityPage.page
         await page.getByTestId(selectors.balanceErrorIcon).click()
 
-        const rpcErrorBanner = page.getByTestId(selectors.portfolioErrorAlert)
+        const rpcErrorBanner = page.getByTestId(selectors.portfolioErrorAlert).first()
 
         await expect(rpcErrorBanner).toBeVisible()
         await expect(rpcErrorBanner).toContainText('Failed to retrieve network data for Polygon')

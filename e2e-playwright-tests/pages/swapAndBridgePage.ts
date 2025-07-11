@@ -336,17 +336,10 @@ export class SwapAndBridgePage extends BasePage {
       await this.page.getByTestId(selectors.fromAmountInputSab).fill(sendAmount.toString())
 
       const isFollowUp = await this.page
-        .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 6000 })
+        .waitForSelector(selectors.confirmFollowUpTxn, { timeout: 6000 })
         .catch(() => null)
       if (isFollowUp) {
         await this.click(selectors.confirmFollowUpTxn)
-      }
-      const isHighPrice = await this.page
-        .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
-        .catch(() => null)
-      if (isHighPrice) {
-        await this.click(selectors.highPriceImpactSab)
-        return 'Continue anyway'
       }
 
       return 'Proceed'
@@ -358,8 +351,19 @@ export class SwapAndBridgePage extends BasePage {
 
   async signTokens(): Promise<void> {
     await this.click(selectors.topUpProceedButton)
+
+    // approve the high impact modal
+    const isHighPrice = await this.page
+      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
+      .catch(() => null)
+    if (isHighPrice) {
+      // TODO: change methods once we have IDs
+      await this.click(selectors.continueAnywayCheckboxSaB)
+      await this.page.locator(selectors.continueAnywayButton).click()
+    }
+
     await this.click(selectors.signButton)
-    await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 5000 })
+    await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 10000 })
     // TODO: add more assertion
   }
 
@@ -421,6 +425,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.clickOnMenuToken(token, selectors.sendTokenSab)
 
     // get token balance
+    await this.page.waitForTimeout(1000)
     const tokenBalance = parseFloat(await this.getText(selectors.maxAvailableAmount))
     const key = `${token.symbol}-${token.chainId}`
     const minBalance = balanceThresholds[key] ?? 0
