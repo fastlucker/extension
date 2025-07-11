@@ -148,7 +148,7 @@ type AccountsControllerUpdateAccountPreferences = {
 
 type AccountsControllerReorderAccountsAction = {
   type: 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS'
-  params: Account[]
+  params: { fromIndex: number; toIndex: number }
 }
 
 type AccountsControllerUpdateAccountState = {

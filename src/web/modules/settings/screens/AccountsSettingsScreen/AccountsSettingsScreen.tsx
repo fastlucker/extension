@@ -1,4 +1,5 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import isEqual from 'react-fast-compare'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { RenderItemParams } from 'react-native-draggable-flatlist'
@@ -16,7 +17,6 @@ import Text from '@common/components/Text'
 import useAccountsList from '@common/hooks/useAccountsList'
 import useElementSize from '@common/hooks/useElementSize'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -30,7 +30,6 @@ import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRo
 import { getUiType } from '@web/utils/uiType'
 
 const AccountsSettingsScreen = () => {
-  const { addToast } = useToast()
   const { t } = useTranslation()
   const { accounts, control, keyExtractor, getItemLayout } = useAccountsList()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -62,12 +61,33 @@ const AccountsSettingsScreen = () => {
   const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
   const [accountToRemove, setAccountToRemove] = useState<AccountInterface | null>(null)
   const [smartSettingsAccount, setSmartSettingsAccount] = useState<AccountInterface | null>(null)
+  const [localAccounts, setLocalAccounts] = useState<AccountInterface[]>([...accounts])
+
+  useEffect(() => {
+    setLocalAccounts((prev) => {
+      if (!isEqual(prev, accounts)) {
+        return accounts
+      }
+      return prev
+    })
+  }, [accounts])
 
   const handleAccDragEnd = useCallback(
-    (newData: AccountInterface[]) => {
-      dispatch({
-        type: 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS',
-        params: newData
+    (data: any) => {
+      const { from: fromIndex, to: toIndex } = data
+      if (fromIndex === toIndex) return // No-op
+
+      setLocalAccounts((prev) => {
+        const updated = [...prev]
+        const [moved] = updated.splice(fromIndex, 1)
+        updated.splice(toIndex, 0, moved)
+
+        dispatch({
+          type: 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS',
+          params: { fromIndex, toIndex }
+        })
+
+        return updated
       })
     },
     [dispatch]
@@ -93,40 +113,40 @@ const AccountsSettingsScreen = () => {
     return 10
   }, [maxElementWidthSize, minElementWidthSize])
 
-  const onSelectAccount = useCallback(
-    (addr: string) => {
-      const acc = accounts.find((a) => a.addr === addr)
-      addToast(t('Selected account {{label}}', { label: acc?.preferences?.label || addr }))
-    },
-    [accounts, addToast, t]
+  const getRenderLeftChildren = useCallback(
+    (drag: () => void, isActive: boolean) => (
+      <Pressable
+        onPressIn={drag}
+        disabled={isActive}
+        style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}
+      >
+        <DragIndicatorIcon color={isActive ? theme.primary : theme.secondaryBorder} />
+      </Pressable>
+    ),
+    [theme]
+  )
+
+  const accountOptions = useMemo(
+    () => ({
+      withOptionsButton: true,
+      setAccountToImportOrExport: setExportImportAccount,
+      setSmartSettingsAccount,
+      setAccountToRemove
+    }),
+    [setExportImportAccount, setSmartSettingsAccount, setAccountToRemove]
   )
 
   const renderItem = useCallback(
-    ({ item: account, drag, isActive }: RenderItemParams<AccountInterface>) => (
+    ({ item, drag, isActive }: RenderItemParams<AccountInterface>) => (
       <Account
-        key={account.addr}
-        onSelect={onSelectAccount}
-        account={account}
+        account={item}
         maxAccountAddrLength={shortenAccountAddr()}
-        renderLeftChildren={() => (
-          <Pressable
-            onPressIn={drag}
-            disabled={isActive}
-            style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}
-          >
-            <DragIndicatorIcon color={isActive ? theme.primary : theme.secondaryBorder} />
-          </Pressable>
-        )}
-        options={{
-          withOptionsButton: true,
-          setAccountToImportOrExport: setExportImportAccount,
-          setSmartSettingsAccount,
-          setAccountToRemove
-        }}
+        renderLeftChildren={getRenderLeftChildren(drag, isActive)}
+        options={accountOptions}
         isSelectable={false}
       />
     ),
-    [onSelectAccount, shortenAccountAddr, theme.primary, theme.secondaryBorder]
+    [getRenderLeftChildren, shortenAccountAddr, accountOptions]
   )
 
   const removeAccount = useCallback(() => {
@@ -181,8 +201,8 @@ const AccountsSettingsScreen = () => {
         <ScrollableWrapper
           key={dragKey}
           type={WRAPPER_TYPES.DRAGGABLE_FLAT_LIST}
-          data={accounts}
-          onDragEnd={({ data }: { data: AccountInterface[] }) => handleAccDragEnd(data)}
+          data={localAccounts}
+          onDragEnd={handleAccDragEnd}
           renderItem={renderItem as any}
           getItemLayout={getItemLayout}
           keyExtractor={keyExtractor}
