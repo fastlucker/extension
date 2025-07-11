@@ -3,10 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { LEGENDS_NFT_ADDRESS } from '@env'
+import Modal from '@legends/components/Modal'
 import Spinner from '@legends/components/Spinner'
 import { REWARDS_NFT_ADDRESS } from '@legends/constants/addresses'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import { CURRENT_SEASON } from '@legends/modules/legends/constants'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import blurredLights from './blurred-lights-wide.png'
@@ -20,9 +22,7 @@ const CharacterSelect = () => {
   const [characterId, setCharacterId] = useState(1)
   const { connectedAccount, v1Account } = useAccountContext()
   const [errorMessage, setErrorMessage] = useState('')
-  const [participatedInPreviousSeason, setParticipatedInPreviousSeason] = useState<boolean | null>(
-    null
-  )
+  const [isOpenNewNftAlert, setIsOpenNewNftAlert] = useState(false)
   const [hasStartedMinting, setHasStartedMinting] = useState(false)
 
   const { character, isLoading } = useCharacterContext()
@@ -69,7 +69,7 @@ const CharacterSelect = () => {
         // since the user will see this screen only if he does not have
         // the nft from the current season, it is ok to not exclude the
         // current season's nft from the balanceOf() call from the new contract
-        setParticipatedInPreviousSeason(!!hasOldNft || !!hasNewNft)
+        setIsOpenNewNftAlert(!!hasOldNft || !!hasNewNft)
       )
       .catch((e) => console.log('Failed to get info about NFT balance', e))
   }, [connectedAccount])
@@ -82,9 +82,7 @@ const CharacterSelect = () => {
       <div>
         <h1 className={styles.title}>Mint Your NFT</h1>
         <p className={styles.description}>
-          {participatedInPreviousSeason
-            ? "We are introducing new Ambire Rewards characters. Please pick one to replace your current character. This doesn't affect your XP or position on the Leaderboard."
-            : 'Pick your profile avatar and mint a soulbound NFT for free'}
+          Pick your profile avatar and mint a soulbound NFT for free
         </p>
       </div>
 
@@ -109,6 +107,27 @@ const CharacterSelect = () => {
         )}
         {isCheckingMintStatus && <Spinner />}
       </div>
+
+      <Modal isOpen={isOpenNewNftAlert} isClosable={false} className={styles.modal}>
+        <div className={styles.modalContent}>
+          <Modal.Heading className={styles.modalHeading}>
+            Creating Your New Character NFT
+          </Modal.Heading>
+          <Modal.Text className={styles.modalText}>
+            Ambire Rewards is introducing new characters to celebrate each new season! Please pick a
+            character for Season {CURRENT_SEASON} and continue earning XP for rewards. This
+            doesn&#39;t affect your XP count or position on the Leaderboard.
+          </Modal.Text>
+
+          <button
+            onClick={() => setIsOpenNewNftAlert(false)}
+            type="button"
+            className={styles.button}
+          >
+            Continue
+          </button>
+        </div>
+      </Modal>
 
       <CharacterLoadingModal
         isOpen={
