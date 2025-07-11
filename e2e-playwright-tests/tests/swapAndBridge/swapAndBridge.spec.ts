@@ -135,7 +135,7 @@ test.describe('swapAndBridgePage Smart Account', () => {
     await swapAndBridgePage.clickOnSecondRoute()
   })
 
-  test.only('should Bridge tokens with a Smart Account', async ({ swapAndBridgePage }) => {
+  test('should Bridge tokens with a Smart Account', async ({ swapAndBridgePage }) => {
     const usdc = tokens.usdc.base
     const usdcOpt = tokens.usdc.optimism
     await swapAndBridgePage.prepareBridgeTransaction(0.0063, usdc, usdcOpt)
