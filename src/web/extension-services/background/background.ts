@@ -83,8 +83,14 @@ import {
   setBackgroundUserContext
 } from './CrashAnalytics'
 
-const debugLogsBuffer: string[] = []
-function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
+const debugLogsMap = new Map<string, object>()
+
+function stateDebug(
+  logLevel: LOG_LEVELS,
+  stateToLog: object,
+  ctrlName: string,
+  type: 'update' | 'error'
+) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -112,15 +118,33 @@ function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctr
     ctrlState = args[ctrlName] || {}
   }
 
-  debugLogsBuffer.unshift(
-    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
-  )
+  const now = new Date()
+  const timeWithMs = `${now.toLocaleTimeString('en-US', { hour12: false })}.${now
+    .getMilliseconds()
+    .toString()
+    .padStart(3, '0')}`
 
-  if (debugLogsBuffer.length > 5) {
-    debugLogsBuffer.pop() // Remove last item if array exceeds maxLength
+  const key =
+    type === 'error'
+      ? `${ctrlName} ctrl emitted an error at ${timeWithMs}`
+      : `${ctrlName} ctrl emitted an update at ${timeWithMs}`
+  const newEntry = new Map([
+    [key, BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }]
+  ])
+  for (const [k, v] of debugLogsMap) {
+    newEntry.set(k, v)
+  }
+  debugLogsMap.clear()
+  for (const [k, v] of newEntry) {
+    debugLogsMap.set(k, v)
   }
 
-  logInfoWithPrefix(event, debugLogsBuffer[0])
+  while (debugLogsMap.size > 200) {
+    const oldestKey = debugLogsMap.keys().next().value
+    if (oldestKey) debugLogsMap.delete(oldestKey)
+  }
+
+  logInfoWithPrefix(key, debugLogsMap)
 }
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
@@ -781,7 +805,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
 
       pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
-      stateDebug(walletStateCtrl.logLevel, `onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
+      stateDebug(walletStateCtrl.logLevel, stateToLog, ctrlName, 'update')
     }
 
     /**
@@ -908,7 +932,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(walletStateCtrl.logLevel, `onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            stateDebug(walletStateCtrl.logLevel, mainCtrl, ctrlName, 'error')
             const controller = (mainCtrl as any)[ctrlName]
 
             // In case the controller was destroyed and an error was emitted
@@ -924,7 +948,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug(walletStateCtrl.logLevel, 'onError (main ctrl)', mainCtrl, 'main')
+    stateDebug(walletStateCtrl.logLevel, mainCtrl, 'main', 'error')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
