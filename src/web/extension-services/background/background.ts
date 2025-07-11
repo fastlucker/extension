@@ -83,7 +83,10 @@ import {
   setBackgroundUserContext
 } from './CrashAnalytics'
 
-const debugLogsMap = new Map<string, object>()
+const debugLogs: {
+  key: string
+  value: object
+}[] = []
 
 function stateDebug(
   logLevel: LOG_LEVELS,
@@ -128,24 +131,17 @@ function stateDebug(
     type === 'error'
       ? `${ctrlName} ctrl emitted an error at ${timeWithMs}`
       : `${ctrlName} ctrl emitted an update at ${timeWithMs}`
-  const newEntry = new Map([
-    [key, BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }]
-  ])
-  for (const [k, v] of debugLogsMap) {
-    newEntry.set(k, v)
-  }
-  debugLogsMap.clear()
-  for (const [k, v] of newEntry) {
-    debugLogsMap.set(k, v)
+
+  debugLogs.unshift({
+    key,
+    value: BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+  })
+
+  if (debugLogs.length > 200) {
+    debugLogs.pop()
   }
 
-  while (debugLogsMap.size > 200) {
-    const keysArray = Array.from(debugLogsMap.keys())
-    const oldestKey = keysArray[keysArray.length - 1]
-    if (oldestKey) debugLogsMap.delete(oldestKey)
-  }
-
-  logInfoWithPrefix(key, debugLogsMap)
+  logInfoWithPrefix(key, debugLogs)
 }
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
