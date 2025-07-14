@@ -323,8 +323,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    // Temporarily use NO API key in production, until we have a middleware to handle the API key
-    swapApiKey: isProd ? undefined : LI_FI_API_KEY,
+    swapApiKey: LI_FI_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
