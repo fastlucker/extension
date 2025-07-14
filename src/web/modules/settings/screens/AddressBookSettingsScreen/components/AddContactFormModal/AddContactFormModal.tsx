@@ -37,6 +37,7 @@ const AddContactFormModal = ({ id, sheetRef, closeBottomSheet }: Props) => {
     formState: { isValid, isSubmitting, errors }
   } = useForm({
     mode: 'all',
+    criteriaMode: 'all',
     defaultValues: {
       name: '',
       addressState: {
@@ -168,7 +169,10 @@ const AddContactFormModal = ({ id, sheetRef, closeBottomSheet }: Props) => {
               render={({ field: { onChange, onBlur } }) => (
                 <AddressInput
                   label={t('Address / ENS')}
-                  onChangeText={onChange}
+                  onChangeText={(text) => {
+                    onChange(text)
+                    trigger('addressState.fieldValue')
+                  }}
                   onBlur={onBlur}
                   validation={validation}
                   ensAddress={addressState.ensAddress}

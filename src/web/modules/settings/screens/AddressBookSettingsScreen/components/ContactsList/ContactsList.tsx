@@ -28,7 +28,7 @@ const ContactsList = () => {
     close: closeAddContactForm
   } = useModalize()
   const { contacts } = useAddressBookControllerState()
-  const { control, watch, setValue } = useForm({
+  const { control, watch } = useForm({
     defaultValues: {
       search: ''
     }
@@ -50,7 +50,7 @@ const ContactsList = () => {
   const headerChildren = (
     <View style={[flexbox.flex1, flexbox.directionRow, flexbox.justifyEnd]}>
       <Button
-        testID="add-contact-button"
+        testID="add-contact-form-modal"
         text={t('+ Add a contact')}
         type="primary"
         style={[spacings.mrTy, { width: 180, height: 48, marginTop: 2 }]}
@@ -61,7 +61,6 @@ const ContactsList = () => {
         testID="search-contacts-input"
         placeholder={t('Search contacts')}
         control={control}
-        setValue={setValue}
         height={48}
         containerStyle={{ width: '50%' }}
       />
@@ -108,6 +107,9 @@ const ContactsList = () => {
               {t('Why not add addresses you often interact with to your Address Book?')}
             </Text>
           </>
+        ) : null}
+        {!filteredContacts.length ? (
+          <Text fontSize={14}>{t('No accounts found in your Address Book.')}</Text>
         ) : null}
       </ScrollableWrapper>
       <AddContactFormModal

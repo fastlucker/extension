@@ -162,8 +162,11 @@ const useAddressInput = ({
   useEffect(() => {
     if (!handleRevalidate) return
 
-    handleRevalidate()
-  }, [handleRevalidate, debouncedValidation])
+    // Only trigger if debounced message has caught up to validation
+    if (validation.message === debouncedValidation.message) {
+      handleRevalidate()
+    }
+  }, [handleRevalidate, debouncedValidation, validation.message])
 
   const reset = useCallback(() => {
     setAddressState({
@@ -178,7 +181,7 @@ const useAddressInput = ({
     // This disables the submit button in the delay window
     if (validation.message !== debouncedValidation?.message) return false
     // Disable the form if there is an error
-    if (debouncedValidation?.isError) return debouncedValidation.message
+    if (debouncedValidation?.isError) return debouncedValidation.message === ''
 
     if (addressState.isDomainResolving) return false
 
