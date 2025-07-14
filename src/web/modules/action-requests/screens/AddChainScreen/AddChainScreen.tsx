@@ -346,25 +346,27 @@ const AddChainScreen = () => {
             )}
             {!!areParamsValid && !!networkDetails && (
               <View style={[flexbox.directionRow, flexbox.flex1]}>
-                <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
-                  <NetworkDetails
-                    name={networkDetails.name || userRequest?.action?.params?.[0]?.chainName}
-                    iconUrls={networkDetails?.iconUrls || []}
-                    chainId={networkDetails.chainId}
-                    rpcUrls={networkDetails.rpcUrls}
-                    selectedRpcUrl={rpcUrls[rpcUrlIndex]}
-                    nativeAssetSymbol={networkDetails.nativeAssetSymbol}
-                    nativeAssetName={networkDetails.nativeAssetName}
-                    explorerUrl={networkDetails.explorerUrl}
-                    style={{
-                      backgroundColor:
-                        themeType === THEME_TYPES.DARK
-                          ? theme.secondaryBackground
-                          : theme.primaryBackground
-                    }}
-                    type="vertical"
-                  />
-                </ScrollableWrapper>
+                <View style={styles.boxWrapper}>
+                  <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
+                    <NetworkDetails
+                      name={networkDetails.name || userRequest?.action?.params?.[0]?.chainName}
+                      iconUrls={networkDetails?.iconUrls || []}
+                      chainId={networkDetails.chainId}
+                      rpcUrls={networkDetails.rpcUrls}
+                      selectedRpcUrl={rpcUrls[rpcUrlIndex]}
+                      nativeAssetSymbol={networkDetails.nativeAssetSymbol}
+                      nativeAssetName={networkDetails.nativeAssetName}
+                      explorerUrl={networkDetails.explorerUrl}
+                      style={{
+                        backgroundColor:
+                          themeType === THEME_TYPES.DARK
+                            ? theme.secondaryBackground
+                            : theme.primaryBackground
+                      }}
+                      type="vertical"
+                    />
+                  </ScrollableWrapper>
+                </View>
                 <View style={styles.separator} />
                 <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
                   {!!networkDetails && (
