@@ -19,18 +19,18 @@ logger.setDefaultLevel(DEFAULT_LOG_LEVEL)
 
 export const setLoggerInstanceLogLevel = (level: LOG_LEVELS) => logger.setLevel(level)
 
-export const logInfoWithPrefix = (event: any, ...args: any) => {
+export const logInfoWithPrefix = (event: string, ...args: any) => {
   logger.info(
-    `%c [Ambire] (${new Date().toLocaleTimeString()}) ${event}`,
-    `font-weight: bold; background-color: ${'#A36AF8'}; color: white;`,
+    `%c[Ambire ${event}]`,
+    `font-weight: bold; background-color: ${'#A36AF8'}; color: white; padding: 2px 4px; border-radius: 4px;`,
     ...args
   )
 }
 
 export const logWarnWithPrefix = (event: any, ...args: any) => {
   logger.warn(
-    `%c [Ambire] (${new Date().toLocaleTimeString()}) ${event}`,
-    `font-weight: bold; background-color: ${'#A36AF8'}; color: white;`,
+    `%c[Ambire ${event}]`,
+    `font-weight: bold; background-color: ${'#FFD970'}; color: white; padding: 2px 4px; border-radius: 4px;`,
     ...args
   )
 }
