@@ -101,13 +101,7 @@ const TransferControllerStateProvider = ({ children }: { children: any }) => {
     <TransferControllerStateContext.Provider
       value={useMemo(() => ({ state: memoizedState, tokens }), [memoizedState, tokens])}
     >
-      {Object.keys(memoizedState).length ? (
-        children
-      ) : (
-        <View style={[flexbox.flex1, flexbox.center]}>
-          <Spinner />
-        </View>
-      )}
+      {children}
     </TransferControllerStateContext.Provider>
   )
 }

@@ -36,7 +36,10 @@ const ControllersStateLoadedContext = createContext<{
 const { isPopup } = getUiType()
 
 const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
+  const [startTime] = useState(() => Date.now())
+
   const [areControllerStatesLoaded, setAreControllerStatesLoaded] = useState(false)
+  const [shouldWaitForMainCtrlStatus, setShouldWaitForMainCtrlStatus] = useState(false)
   const [isStatesLoadingTakingTooLong, setIsStatesLoadingTakingTooLong] = useState(false)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
@@ -178,8 +181,12 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasFeatureFlagsControllerState
     ) {
       clearTimeout(timeout)
-      if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
-      setAreControllerStatesLoaded(true)
+      if (isPopup) {
+        dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
+        setShouldWaitForMainCtrlStatus(true)
+      } else {
+        setAreControllerStatesLoaded(true)
+      }
     }
 
     return () => clearTimeout(timeout)
@@ -209,6 +216,14 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasFeatureFlagsControllerState,
     dispatch
   ])
+
+  useEffect(() => {
+    if (shouldWaitForMainCtrlStatus && mainState.onPopupOpenStatus === 'SUCCESS') {
+      const elapsed = Date.now() - startTime
+      const wait = Math.max(0, 400 - elapsed)
+      setTimeout(() => setAreControllerStatesLoaded(true), wait)
+    }
+  }, [shouldWaitForMainCtrlStatus, mainState.onPopupOpenStatus, startTime])
 
   return (
     <ControllersStateLoadedContext.Provider
