@@ -82,7 +82,7 @@ const useMintCharacter = () => {
   // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
   const pollForCharacterAfterMint = useCallback(async () => {
     const checkCharacter = async () => {
-      if (pollAttempts > 10) {
+      if (pollAttempts > 20) {
         addToast(
           'We are unable to retrieve your character at this time. Please reload the page or contact support.',
           { type: 'error' }
@@ -98,7 +98,7 @@ const useMintCharacter = () => {
         return
       }
 
-      setTimeout(checkCharacter, 500)
+      setTimeout(checkCharacter, 1000)
     }
 
     await checkCharacter()
