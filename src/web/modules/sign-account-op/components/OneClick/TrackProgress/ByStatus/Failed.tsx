@@ -1,12 +1,17 @@
-import { Hex } from '@ambire-common/interfaces/hex'
-import AlertVertical from '@common/components/AlertVertical'
-import Button from '@common/components/Button'
-import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+
+import { Hex } from '@ambire-common/interfaces/hex'
+import RetryIcon from '@common/assets/svg/RetryIcon'
+import AlertVertical from '@common/components/AlertVertical'
+import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
+import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 type FailedProps = {
   title: string
@@ -21,32 +26,54 @@ type FailedProps = {
 
 const Failed: FC<FailedProps> = ({ title, errorMessage, toToken, amount, handleClose }) => {
   const { t } = useTranslation()
+  const { theme, themeType } = useTheme()
   const { dispatch } = useBackgroundService()
+  const [bindAnim, animStyle] = useCustomHover({
+    property: 'backgroundColor',
+    values: {
+      from: themeType === THEME_TYPES.DARK ? `${theme.primary as string}14` : '#6000FF14',
+      to: themeType === THEME_TYPES.DARK ? theme.primary20 : theme.infoBackground
+    }
+  })
 
   return (
     <View>
       <View
         style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter, spacings.mbLg]}
       >
-        <AlertVertical title={title} text={errorMessage} />
+        <AlertVertical size="md" title={title} text={errorMessage}>
+          {toToken && (
+            <AnimatedPressable
+              style={{
+                borderRadius: 50,
+                ...flexbox.directionRow,
+                ...flexbox.alignCenter,
+                ...spacings.pvSm,
+                ...spacings.ph,
+                ...spacings.mt,
+                ...animStyle
+              }}
+              onPress={() => {
+                dispatch({
+                  type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+                  params: {
+                    toSelectedTokenAddr: toToken?.address,
+                    toChainId: BigInt(toToken?.chainId),
+                    fromAmount: amount
+                  }
+                })
+                handleClose()
+              }}
+              {...bindAnim}
+            >
+              <Text fontSize={12} weight="medium" color={theme.primary} style={spacings.mrTy}>
+                {t('Retry')}
+              </Text>
+              <RetryIcon color={theme.primary} />
+            </AnimatedPressable>
+          )}
+        </AlertVertical>
       </View>
-      {toToken && amount && (
-        <Button
-          onPress={() => {
-            dispatch({
-              type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-              params: {
-                toSelectedTokenAddr: toToken.address,
-                toChainId: BigInt(toToken.chainId),
-                fromAmount: amount
-              }
-            })
-            handleClose()
-          }}
-          type="primary"
-          text={t('Retry')}
-        />
-      )}
     </View>
   )
 }
