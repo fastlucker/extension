@@ -118,22 +118,22 @@ const AddressBookContact: FC<Props> = ({
       testID={testID}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <Avatar pfp={address} size={32} isSmart={isSmart} displayTypeBadge={displayTypeBadge} />
+        <Avatar pfp={address} isSmart={isSmart} displayTypeBadge={displayTypeBadge} />
         <View>
           {isEditable ? (
             <Editable
-              fontSize={14}
+              fontSize={16}
               textProps={{
                 weight: 'medium'
               }}
-              height={20}
+              height={24}
               minWidth={80}
               maxLength={32}
               initialValue={name}
               onSave={onSave}
             />
           ) : (
-            <Text fontSize={14} weight="medium">
+            <Text fontSize={16} weight="medium">
               {name}
             </Text>
           )}
