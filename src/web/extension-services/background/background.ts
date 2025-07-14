@@ -83,7 +83,17 @@ import {
   setBackgroundUserContext
 } from './CrashAnalytics'
 
-function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
+const debugLogs: {
+  key: string
+  value: object
+}[] = []
+
+function stateDebug(
+  logLevel: LOG_LEVELS,
+  stateToLog: object,
+  ctrlName: string,
+  type: 'update' | 'error'
+) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -111,10 +121,27 @@ function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctr
     ctrlState = args[ctrlName] || {}
   }
 
-  const logData =
-    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+  const now = new Date()
+  const timeWithMs = `${now.toLocaleTimeString('en-US', { hour12: false })}.${now
+    .getMilliseconds()
+    .toString()
+    .padStart(3, '0')}`
 
-  logInfoWithPrefix(event, logData)
+  const key =
+    type === 'error'
+      ? `${ctrlName} ctrl emitted an error at ${timeWithMs}`
+      : `${ctrlName} ctrl emitted an update at ${timeWithMs}`
+
+  debugLogs.unshift({
+    key,
+    value: BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+  })
+
+  if (debugLogs.length > 200) {
+    debugLogs.pop()
+  }
+
+  logInfoWithPrefix(key, debugLogs)
 }
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
@@ -323,8 +350,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    // Temporarily use NO API key in production, until we have a middleware to handle the API key
-    swapApiKey: isProd ? undefined : LI_FI_API_KEY,
+    swapApiKey: LI_FI_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -470,12 +496,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   async function initDefiPositionsContinuousUpdate() {
-    if (backgroundState.updateDefiPositionsInterval)
-      clearTimeout(backgroundState.updateDefiPositionsInterval)
-
     async function updateDefiPositions() {
       const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-      if (!isExtensionActive) return
+
+      if (!isExtensionActive) {
+        if (backgroundState.updateDefiPositionsInterval) {
+          clearTimeout(backgroundState.updateDefiPositionsInterval)
+        }
+
+        return
+      }
 
       const FIVE_MINUTES = 1000 * 60 * 5
       await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: FIVE_MINUTES })
@@ -487,8 +517,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       )
     }
 
-    // this update will be triggered on window open (tab, popup or action-window)
-    await updateDefiPositions()
+    // The onPopupOpen func in the MainController will update the defi positions on port init.
+    // Here, we only need to schedule the next update to avoid duplicate updates
+    backgroundState.updateDefiPositionsInterval = setTimeout(
+      updateDefiPositions,
+      ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+    )
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -698,10 +732,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
           if (!failedChainIds.includes(chainId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.updateSelectedAccountPortfolio(
-              false,
-              mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
-            )
+            mainCtrl.updateSelectedAccountPortfolio({
+              network: mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
+            })
           }
         })
       }
@@ -775,7 +808,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
 
       pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
-      stateDebug(walletStateCtrl.logLevel, `onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
+      stateDebug(walletStateCtrl.logLevel, stateToLog, ctrlName, 'update')
     }
 
     /**
@@ -902,7 +935,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(walletStateCtrl.logLevel, `onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            stateDebug(walletStateCtrl.logLevel, mainCtrl, ctrlName, 'error')
             const controller = (mainCtrl as any)[ctrlName]
 
             // In case the controller was destroyed and an error was emitted
@@ -918,7 +951,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug(walletStateCtrl.logLevel, 'onError (main ctrl)', mainCtrl, 'main')
+    stateDebug(walletStateCtrl.logLevel, mainCtrl, 'main', 'error')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
@@ -974,12 +1007,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-
-      // Reset the selected account portfolio when the extension is opened
-      // in a popup as the portfolio isn't updated in other cases
-      if (port.name === 'popup' && !mainCtrl.activity.broadcastedButNotConfirmed.length) {
-        mainCtrl.selectedAccount.resetSelectedAccountPortfolio()
-      }
 
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
