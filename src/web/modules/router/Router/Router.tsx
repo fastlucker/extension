@@ -11,6 +11,7 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import DashboardScreen from '@common/modules/dashboard/screens'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import Splash from '@web/components/Splash'
 import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
 import AuthenticatedRoute from '@web/modules/router/components/AuthenticatedRoute'
@@ -44,11 +45,7 @@ const Router = () => {
   }
 
   if (authStatus === AUTH_STATUS.LOADING || !areControllerStatesLoaded) {
-    return (
-      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
-        <Spinner />
-      </View>
-    )
+    return <Splash />
   }
 
   return (
