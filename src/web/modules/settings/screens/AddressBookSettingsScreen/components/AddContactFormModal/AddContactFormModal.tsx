@@ -1,20 +1,28 @@
 import React, { useCallback, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
+import { Modalize } from 'react-native-modalize'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import AddressInput from '@common/components/AddressInput'
-import Button from '@common/components/Button'
+import BottomSheet from '@common/components/BottomSheet'
+import DualChoiceModal from '@common/components/DualChoiceModal'
 import Input from '@common/components/Input'
 import useAddressInput from '@common/hooks/useAddressInput'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import Section from '../Section'
+type Props = {
+  id: string
+  sheetRef: React.RefObject<Modalize>
+  closeBottomSheet: () => void
+}
 
-const AddContactForm = () => {
+const AddContactFormModal = ({ id, sheetRef, closeBottomSheet }: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { contacts } = useAddressBookControllerState()
@@ -108,61 +116,82 @@ const AddContactForm = () => {
     })
 
     reset()
+    closeBottomSheet()
   })
 
-  return (
-    <Section title="Add new contact">
-      <Controller
-        name="name"
-        control={control}
-        rules={{
-          required: true,
-          maxLength: 32
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            testID="contact-name-field"
-            label={t('Name')}
-            placeholder={t('Contact name')}
-            maxLength={32}
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.name?.message}
-            isValid={!!name && !errors.name}
-          />
-        )}
-      />
-      <Controller
-        name="addressState.fieldValue"
-        control={control}
-        rules={{
-          validate: RHFValidate,
-          required: true
-        }}
-        render={({ field: { onChange, onBlur } }) => (
-          <AddressInput
-            label={t('Address / ENS')}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            validation={validation}
-            ensAddress={addressState.ensAddress}
-            value={addressState.fieldValue}
-            isRecipientDomainResolving={addressState.isDomainResolving}
-            containerStyle={spacings.mbLg}
-            onSubmitEditing={submitForm}
-          />
-        )}
-      />
+  const handleClose = useCallback(() => {
+    reset()
+    closeBottomSheet()
+  }, [closeBottomSheet, reset])
 
-      <Button
-        testID="add-to-address-book-button"
-        text={t('Add to Address Book')}
-        disabled={!isValid || isSubmitting}
-        onPress={submitForm}
+  return (
+    <BottomSheet
+      id={id}
+      sheetRef={sheetRef}
+      closeBottomSheet={closeBottomSheet}
+      backgroundColor="secondaryBackground"
+      style={{ overflow: 'hidden', maxWidth: 496, ...spacings.ph0, ...spacings.pv0 }}
+      type="modal"
+    >
+      <DualChoiceModal
+        title={t('Add new contact')}
+        description={
+          <View style={[{ width: 440 }]}>
+            <Controller
+              name="name"
+              control={control}
+              rules={{
+                required: true,
+                maxLength: 32
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  testID="contact-name-field"
+                  label={t('Name')}
+                  placeholder={t('Contact name')}
+                  maxLength={32}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.name?.message}
+                  isValid={!!name && !errors.name}
+                />
+              )}
+            />
+            <Controller
+              name="addressState.fieldValue"
+              control={control}
+              rules={{
+                validate: RHFValidate,
+                required: true
+              }}
+              render={({ field: { onChange, onBlur } }) => (
+                <AddressInput
+                  label={t('Address / ENS')}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  validation={validation}
+                  ensAddress={addressState.ensAddress}
+                  value={addressState.fieldValue}
+                  isRecipientDomainResolving={addressState.isDomainResolving}
+                  containerStyle={spacings.mbLg}
+                  onSubmitEditing={submitForm}
+                />
+              )}
+            />
+          </View>
+        }
+        primaryButtonText={t('+ Add to Address Book')}
+        primaryButtonTestID="add-to-address-book-button"
+        onPrimaryButtonPress={submitForm}
+        secondaryButtonTestID="cancel-add-to-address-book-button"
+        secondaryButtonText={t('Cancel')}
+        onSecondaryButtonPress={handleClose}
+        buttonsContainerStyle={flexbox.justifySpaceBetween}
+        primaryButtonDisabled={!isValid || isSubmitting}
       />
-    </Section>
+    </BottomSheet>
   )
 }
 
-export default AddContactForm
+export default AddContactFormModal

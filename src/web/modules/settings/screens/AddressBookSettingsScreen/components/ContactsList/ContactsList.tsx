@@ -2,6 +2,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
@@ -16,10 +17,16 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 
+import AddContactFormModal from '../AddContactFormModal'
 import Section from '../Section'
 
 const ContactsList = () => {
   const { t } = useTranslation()
+  const {
+    ref: addContactFormRef,
+    open: openAddContactForm,
+    close: closeAddContactForm
+  } = useModalize()
   const { contacts } = useAddressBookControllerState()
   const { control, watch, setValue } = useForm({
     defaultValues: {
@@ -44,14 +51,11 @@ const ContactsList = () => {
     <View style={[flexbox.flex1, flexbox.directionRow, flexbox.justifyEnd]}>
       <Button
         testID="add-contact-button"
-        text={t('Add contact')}
+        text={t('+ Add a contact')}
         type="primary"
-        style={[spacings.mrTy, { width: 180, height: 48 }]}
+        style={[spacings.mrTy, { width: 180, height: 48, marginTop: 2 }]}
         hasBottomSpacing={false}
-        onPress={() => {
-          console.log('Add contact pressed')
-        }}
-        // style={[flexbox.alignSelfCenter, flexbox.center, spacings.mtXs, spacings.mbXs]}
+        onPress={() => openAddContactForm()}
       />
       <Search
         testID="search-contacts-input"
@@ -59,8 +63,7 @@ const ContactsList = () => {
         control={control}
         setValue={setValue}
         height={48}
-        // TODO: it should be responsive
-        containerStyle={{ width: '50%', height: 48 }}
+        containerStyle={{ width: '50%' }}
       />
     </View>
   )
@@ -88,7 +91,7 @@ const ContactsList = () => {
             <TitleAndIcon title={t('Contacts')} icon={AccountsFilledIcon} />
             {manuallyAddedContacts.map((contact) => (
               <AddressBookContact
-                testID={`contact-name-text`}
+                testID="contact-name-text"
                 key={`${contact.address}-${!contact.isWalletAccount ? 'wallet' : 'address'}`}
                 name={contact.name}
                 address={contact.address}
@@ -107,6 +110,11 @@ const ContactsList = () => {
           </>
         ) : null}
       </ScrollableWrapper>
+      <AddContactFormModal
+        id="add-contact-form"
+        sheetRef={addContactFormRef}
+        closeBottomSheet={closeAddContactForm}
+      />
     </Section>
   )
 }
