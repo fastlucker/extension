@@ -45,10 +45,6 @@ const CharacterSelect = () => {
     document.title = 'Ambire Rewards'
   }, [])
 
-  if (!!v1Account || !connectedAccount) {
-    return <Navigate to="/" />
-  }
-
   const isButtonDisabled = isMinting || isLoading || isMinted
 
   useEffect(() => {
@@ -73,6 +69,11 @@ const CharacterSelect = () => {
       )
       .catch((e) => console.log('Failed to get info about NFT balance', e))
   }, [connectedAccount])
+
+  if (!!v1Account || !connectedAccount) {
+    return <Navigate to="/" />
+  }
+
   return (
     <div className={styles.wrapper}>
       <div
@@ -81,9 +82,7 @@ const CharacterSelect = () => {
       />
       <div>
         <h1 className={styles.title}>Mint Your NFT</h1>
-        <p className={styles.description}>
-          Pick your profile avatar and mint a soulbound NFT for free
-        </p>
+        <p className={styles.description}>Pick your profile avatar and mint a soulbound NFT</p>
       </div>
 
       <div>

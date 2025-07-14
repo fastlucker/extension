@@ -102,6 +102,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const isFocused = useIsScreenFocused()
   const { navigate } = useNavigation()
   const [windowId, setWindowId] = useState<number | undefined>()
+  const hasConnectedToTheBackground = useRef(false)
 
   useEffect(() => {
     if (!isExtension) return
@@ -126,11 +127,12 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
 
     const keepAlive = async () => {
       try {
-        await chrome.runtime.sendMessage('ping')
+        const res = await chrome.runtime.sendMessage('ping')
+        if (res === 'pong') hasConnectedToTheBackground.current = true
       } catch (error) {
         console.error(error)
       }
-      timer.current = setTimeout(keepAlive, 1000)
+      timer.current = setTimeout(keepAlive, 2000)
     }
 
     if (isFocused) {
@@ -150,6 +152,8 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
 
     try {
       chrome.runtime.onMessage.addListener(async (message: any) => {
+        if (!hasConnectedToTheBackground.current) return
+
         if (message.action === 'sw-started') {
           // if the sw restarts and the current window is an action window then close it
           // because the actions state has been lost after the sw restart
@@ -178,7 +182,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
       )
       sessionStorage.removeItem('backgroundState')
     }
-  })
+  }, [addToast])
 
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
