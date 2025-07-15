@@ -93,7 +93,9 @@ jobs:
         run: yarn build:web:webkit
 
       - name: Start trezor-emulator container
-        run: docker pull ghcr.io/trezor/trezor-user-env && docker-compose -f ./docker-compose-mac.yml up --force-recreate -d
+        run: |
+          docker pull ghcr.io/trezor/trezor-user-env
+          docker compose -f ./docker-compose-mac.yml up --force-recreate -d
 
       - name: Install e2e test dependencies
         working-directory: ./e2e-playwright-tests
