@@ -302,12 +302,7 @@ const Tokens = ({
       )
         return null
 
-      return (
-        <TokenItem
-          token={item}
-          testID={`token-${item.address}-${item.chainId}${item.flags.onGasTank ? '-gastank' : ''}`}
-        />
-      )
+      return <TokenItem token={item} />
     },
     [
       initTab?.tokens,
