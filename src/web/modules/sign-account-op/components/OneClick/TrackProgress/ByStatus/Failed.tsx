@@ -8,7 +8,6 @@ import AlertVertical from '@common/components/AlertVertical'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
@@ -26,13 +25,13 @@ type FailedProps = {
 
 const Failed: FC<FailedProps> = ({ title, errorMessage, toToken, amount, handleClose }) => {
   const { t } = useTranslation()
-  const { theme, themeType } = useTheme()
+  const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
-      from: themeType === THEME_TYPES.DARK ? `${theme.primary as string}14` : '#6000FF14',
-      to: themeType === THEME_TYPES.DARK ? theme.primary20 : theme.infoBackground
+      from: `${theme.primary as string}14`,
+      to: theme.primary20
     }
   })
 
@@ -42,7 +41,7 @@ const Failed: FC<FailedProps> = ({ title, errorMessage, toToken, amount, handleC
         style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter, spacings.mbLg]}
       >
         <AlertVertical size="md" title={title} text={errorMessage}>
-          {toToken && (
+          {!!toToken && (
             <AnimatedPressable
               style={{
                 borderRadius: 50,
