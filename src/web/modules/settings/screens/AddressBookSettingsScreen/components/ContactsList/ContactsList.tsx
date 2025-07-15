@@ -1,7 +1,7 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { useWindowDimensions, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
@@ -13,9 +13,11 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import TitleAndIcon from '@common/components/TitleAndIcon'
 import useDebounce from '@common/hooks/useDebounce'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
+import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 import AddContactFormModal from '../AddContactFormModal'
 import Section from '../Section'
@@ -47,28 +49,44 @@ const ContactsList = () => {
   )
   const manuallyAddedContacts = filteredContacts.filter((contact) => !contact.isWalletAccount)
 
+  const { maxWidthSize } = useWindowSize()
+  const isWidthS = maxWidthSize('s')
+
   const headerChildren = (
-    <View style={[flexbox.flex1, flexbox.directionRow, flexbox.justifyEnd]}>
+    <View
+      style={[
+        flexbox.flex1,
+        isWidthS && flexbox.directionRow,
+        flexbox.justifyEnd,
+        flexbox.alignCenter
+      ]}
+    >
       <Button
         testID="add-contact-form-modal"
         text={t('+ Add a contact')}
         type="primary"
-        style={[spacings.mrTy, { width: 180, height: 48, marginTop: 2 }]}
+        style={[
+          spacings.mrTy,
+          spacings.phXl,
+          { height: 48, width: isWidthS ? undefined : '100%', marginTop: 2 }
+        ]}
         hasBottomSpacing={false}
         onPress={() => openAddContactForm()}
       />
       <Search
+        autoFocus
         testID="search-contacts-input"
         placeholder={t('Search contacts')}
         control={control}
         height={48}
-        containerStyle={{ width: '50%' }}
+        containerStyle={{ width: isWidthS ? '50%' : '100%' }}
       />
     </View>
   )
 
   return (
-    <Section title="Address Book" headerChildren={headerChildren}>
+    <>
+      <SettingsPageHeader title="Address Book">{headerChildren}</SettingsPageHeader>
       <ScrollableWrapper style={flexbox.flex1}>
         {walletAccountsSourcedContacts.length > 0 ? (
           <>
@@ -117,7 +135,7 @@ const ContactsList = () => {
         sheetRef={addContactFormRef}
         closeBottomSheet={closeAddContactForm}
       />
-    </Section>
+    </>
   )
 }
 
