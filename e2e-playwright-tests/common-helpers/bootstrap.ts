@@ -104,7 +104,7 @@ export async function bootstrap(namespace: string) {
     (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
     JSON.stringify(mainConstants.inviteStorageItem)
   )
-  return { page }
+  return { page, extensionURL }
 }
 
 //----------------------------------------------------------------------------------------------

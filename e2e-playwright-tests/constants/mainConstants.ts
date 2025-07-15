@@ -5,6 +5,7 @@ const mainConstants = {
     verifiedCode: 'dummy-test-code'
   },
   urls: {
+    dashboard: '/tab.html#/dashboard',
     getStarted: '/tab.html#/get-started',
     accountSelect: '/tab.html#/account-select'
   },
