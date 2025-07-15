@@ -2,9 +2,10 @@
 import { ethers, JsonRpcProvider } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import CONFIG from '@common/config/env'
 import { REWARDS_NFT_ADDRESS } from '@legends/constants/addresses'
 import { RETRY_OR_SUPPORT_MESSAGE } from '@legends/constants/errors/messages'
-import { BASE_CHAIN_ID } from '@legends/constants/networks'
+import { BASE_CHAIN_ID, ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -56,8 +57,7 @@ const useMintCharacter = () => {
       return {
         isMinted: false
       }
-    // @TODO this should be switched to base
-    const provider = new JsonRpcProvider('https://invictus.ambire.com/base')
+    const provider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
 
     const nftContract = new ethers.Contract(REWARDS_NFT_ADDRESS, REWARDS_NFT_ABI, provider)
 
@@ -78,7 +78,7 @@ const useMintCharacter = () => {
   // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
   const pollForCharacterAfterMint = useCallback(async () => {
     const checkCharacter = async () => {
-      if (pollAttempts > 10) {
+      if (pollAttempts > 20) {
         addToast(
           'We are unable to retrieve your character at this time. Please reload the page or contact support.',
           { type: 'error' }
@@ -94,7 +94,7 @@ const useMintCharacter = () => {
         return
       }
 
-      setTimeout(checkCharacter, 500)
+      setTimeout(checkCharacter, 1000)
     }
 
     await checkCharacter()
@@ -103,8 +103,7 @@ const useMintCharacter = () => {
   const mintCharacter = useCallback(
     async (type: number) => {
       try {
-        // @TODO this should be ethereum eventually
-        await switchNetwork(BASE_CHAIN_ID)
+        await switchNetwork(ETHEREUM_CHAIN_ID)
         setIsMinting(true)
         setLoadingMessage(CharacterLoadingMessage.Signing)
 

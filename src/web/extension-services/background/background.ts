@@ -33,14 +33,14 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
-import { isProd } from '@common/config/env'
+import CONFIG, { isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   LI_FI_API_KEY,
   RELAYER_URL,
-  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
+import * as Sentry from '@sentry/browser'
 import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -76,7 +76,24 @@ import { getExtensionInstanceId } from '@web/utils/analytics'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
-function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctrlName: string) {
+import {
+  captureBackgroundException,
+  CRASH_ANALYTICS_WEB_CONFIG,
+  setBackgroundExtraContext,
+  setBackgroundUserContext
+} from './CrashAnalytics'
+
+const debugLogs: {
+  key: string
+  value: object
+}[] = []
+
+function stateDebug(
+  logLevel: LOG_LEVELS,
+  stateToLog: object,
+  ctrlName: string,
+  type: 'update' | 'error'
+) {
   // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
   // Puppeteer listens for console.log events and will output the message to the CI console.
   // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
@@ -96,12 +113,35 @@ function stateDebug(logLevel: LOG_LEVELS, event: string, stateToLog: object, ctr
   if (logLevel === LOG_LEVELS.PROD) return
 
   const args = parse(stringify(stateToLog))
-  const ctrlState = ctrlName === 'main' ? args : args[ctrlName]
+  let ctrlState = args
 
-  const logData =
-    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+  if (ctrlName === 'main' || !Object.keys(controllersNestedInMainMapping).includes(ctrlName)) {
+    ctrlState = args
+  } else {
+    ctrlState = args[ctrlName] || {}
+  }
 
-  logInfoWithPrefix(event, logData)
+  const now = new Date()
+  const timeWithMs = `${now.toLocaleTimeString('en-US', { hour12: false })}.${now
+    .getMilliseconds()
+    .toString()
+    .padStart(3, '0')}`
+
+  const key =
+    type === 'error'
+      ? `${ctrlName} ctrl emitted an error at ${timeWithMs}`
+      : `${ctrlName} ctrl emitted an update at ${timeWithMs}`
+
+  debugLogs.unshift({
+    key,
+    value: BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+  })
+
+  if (debugLogs.length > 200) {
+    debugLogs.pop()
+  }
+
+  logInfoWithPrefix(key, debugLogs)
 }
 
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
@@ -170,6 +210,25 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
+  // Init sentry
+  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
+    Sentry.init({
+      ...CRASH_ANALYTICS_WEB_CONFIG,
+      initialScope: {
+        tags: {
+          content: 'background'
+        }
+      },
+      beforeSend(event) {
+        // We don't want to miss errors that occur before the controllers are initialized
+        if (!walletStateCtrl) return event
+
+        // If the Sentry is disabled, we don't send any events
+        return walletStateCtrl.crashAnalyticsEnabled ? event : null
+      }
+    })
+  }
+
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
   // ensuring that the Controllers are initialized with the storage correctly.
@@ -248,9 +307,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // if the fetch method is called while the keystore is constructing the keyStoreUid won't be defined yet
     // in that case we can still fetch but without our custom header
     if (mainCtrl?.keystore?.keyStoreUid) {
-      const instanceId = getExtensionInstanceId(mainCtrl.keystore.keyStoreUid)
-      const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
-      initWithCustomHeaders.headers['x-app-source'] = instanceId + inviteVerifiedCode
+      const instanceId = getExtensionInstanceId(
+        mainCtrl.keystore.keyStoreUid,
+        mainCtrl.invite?.verifiedCode || ''
+      )
+
+      initWithCustomHeaders.headers['x-app-source'] = instanceId
     }
 
     // As of v4.36.0, for metric purposes, pass the account keys count as an
@@ -288,8 +350,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    // Temporarily use NO API key in production, until we have a middleware to handle the API key
-    swapApiKey: isProd ? undefined : LI_FI_API_KEY,
+    swapApiKey: LI_FI_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -435,12 +496,16 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   async function initDefiPositionsContinuousUpdate() {
-    if (backgroundState.updateDefiPositionsInterval)
-      clearTimeout(backgroundState.updateDefiPositionsInterval)
-
     async function updateDefiPositions() {
       const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-      if (!isExtensionActive) return
+
+      if (!isExtensionActive) {
+        if (backgroundState.updateDefiPositionsInterval) {
+          clearTimeout(backgroundState.updateDefiPositionsInterval)
+        }
+
+        return
+      }
 
       const FIVE_MINUTES = 1000 * 60 * 5
       await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: FIVE_MINUTES })
@@ -452,8 +517,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       )
     }
 
-    // this update will be triggered on window open (tab, popup or action-window)
-    await updateDefiPositions()
+    // The onPopupOpen func in the MainController will update the defi positions on port init.
+    // Here, we only need to schedule the next update to avoid duplicate updates
+    backgroundState.updateDefiPositionsInterval = setTimeout(
+      updateDefiPositions,
+      ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
+    )
   }
 
   function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
@@ -663,10 +732,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
           if (!failedChainIds.includes(chainId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.updateSelectedAccountPortfolio(
-              false,
-              mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
-            )
+            mainCtrl.updateSelectedAccountPortfolio({
+              network: mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
+            })
           }
         })
       }
@@ -682,6 +750,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       const updateTime = recentlyFailedNetworks.length ? 8000 : 20000
 
       await mainCtrl.accounts.updateAccountStates(
+        mainCtrl.selectedAccount.account?.addr,
         'latest',
         failedChainIds.map((id) => BigInt(id))
       )
@@ -739,7 +808,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
 
       pm.send('> ui', { method: ctrlName, params: stateToSendToFE, forceEmit })
-      stateDebug(walletStateCtrl.logLevel, `onUpdate (${ctrlName} ctrl)`, stateToLog, ctrlName)
+      stateDebug(walletStateCtrl.logLevel, stateToLog, ctrlName, 'update')
     }
 
     /**
@@ -817,6 +886,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
+                setBackgroundUserContext({
+                  id: getExtensionInstanceId(controller.keyStoreUid, mainCtrl.invite.verifiedCode)
+                })
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
@@ -849,6 +921,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               initSwapAndBridgeQuoteContinuousUpdate()
               backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
             }
+            if (ctrlName === 'selectedAccount') {
+              if (controller?.account?.addr) {
+                setBackgroundExtraContext('account', controller.account.addr)
+              }
+            }
           }, 'background')
         }
       }
@@ -858,7 +935,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(walletStateCtrl.logLevel, `onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            stateDebug(walletStateCtrl.logLevel, mainCtrl, ctrlName, 'error')
             const controller = (mainCtrl as any)[ctrlName]
 
             // In case the controller was destroyed and an error was emitted
@@ -874,7 +951,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     })
   }, 'background')
   mainCtrl.onError(() => {
-    stateDebug(walletStateCtrl.logLevel, 'onError (main ctrl)', mainCtrl, 'main')
+    stateDebug(walletStateCtrl.logLevel, mainCtrl, 'main', 'error')
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
@@ -931,12 +1008,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       port.id = nanoid()
       pm.addPort(port)
 
-      // Reset the selected account portfolio when the extension is opened
-      // in a popup as the portfolio isn't updated in other cases
-      if (port.name === 'popup' && !mainCtrl.activity.broadcastedButNotConfirmed.length) {
-        mainCtrl.selectedAccount.resetSelectedAccountPortfolio()
-      }
-
       initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
 
@@ -963,6 +1034,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             }
           } catch (err: any) {
             console.error(`${type} action failed:`, err)
+            captureBackgroundException(err, {
+              extra: {
+                action: JSON.stringify(action),
+                portId: port.id,
+                windowId
+              }
+            })
             const shortenedError =
               err.message.length > 150 ? `${err.message.slice(0, 150)}...` : err.message
 

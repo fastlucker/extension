@@ -193,7 +193,7 @@ const SignAccountOpScreen = () => {
 
     if (code) {
       return (
-        <AlertVertical.Text type="warning" size="md" style={styles.alertText}>
+        <AlertVertical.Text type="warning" size="sm" style={styles.alertText}>
           {getErrorCodeStringFromReason(code || '', false)}
           <Pressable
             // @ts-ignore web style
@@ -208,7 +208,7 @@ const SignAccountOpScreen = () => {
 
     if (text) {
       return (
-        <AlertVertical.Text type="warning" size="md" style={styles.alertText}>
+        <AlertVertical.Text type="warning" size="sm" style={styles.alertText}>
           {text}
         </AlertVertical.Text>
       )
@@ -357,6 +357,7 @@ const SignAccountOpScreen = () => {
             {signAccountOpState?.errors?.length && !isViewOnly ? (
               <AlertVertical
                 type="warning"
+                size="sm"
                 title={signAccountOpState.errors[0].title}
                 text={errorText}
               />

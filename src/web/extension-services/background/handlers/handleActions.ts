@@ -418,7 +418,7 @@ export const handleActions = async (
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
-      return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
+      return await mainCtrl.updateSelectedAccountPortfolio(params)
     }
 
     case 'DEFI_CONTOLLER_ADD_SESSION': {
@@ -636,6 +636,10 @@ export const handleActions = async (
     }
     case 'SET_LOG_LEVEL': {
       await walletStateCtrl.setLogLevel(params.logLevel)
+      break
+    }
+    case 'SET_CRASH_ANALYTICS': {
+      await walletStateCtrl.setCrashAnalytics(params.enabled)
       break
     }
 

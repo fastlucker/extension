@@ -41,7 +41,7 @@ const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { goToNextRoute, goToPrevRoute, setAccountsToPersonalize, accountsToPersonalize } =
     useOnboardingNavigation()
-  const { styles, theme } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
   const accountsState = useAccountsControllerState()
@@ -281,14 +281,13 @@ const AccountPersonalizeScreen = () => {
             ) : (
               <>
                 <SuccessAnimation
-                  noBorder
                   noBackgroundShapes
                   width={352}
-                  height={170}
+                  height={156}
                   style={{ ...spacings.pv0, ...spacings.ph0, ...spacings.mbXl }}
                   animationContainerStyle={{ width: 200, height: 140 }}
                 >
-                  <Text weight="semiBold" fontSize={20}>
+                  <Text weight="semiBold" fontSize={20} style={spacings.mtSm}>
                     {t('Added successfully')}
                   </Text>
                 </SuccessAnimation>

@@ -11,8 +11,9 @@ import { BasePage } from './basePage'
 
 export class SwapAndBridgePage extends BasePage {
   async init(param) {
-    const { page } = await bootstrapWithStorage('swapAndBridgeBA', param)
+    const { page, context } = await bootstrapWithStorage('swapAndBridgeBA', param)
     this.page = page // Initialize the POM page property with the Playwright page instance
+    this.context = context
   }
 
   // General function
