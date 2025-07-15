@@ -57,11 +57,7 @@ const useMintCharacter = () => {
       return {
         isMinted: false
       }
-    const provider = new JsonRpcProvider(
-      CONFIG.APP_ENV === 'production'
-        ? 'https://invictus.ambire.com/ethereum'
-        : 'https://invictus.ambire.com/base'
-    )
+    const provider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
 
     const nftContract = new ethers.Contract(REWARDS_NFT_ADDRESS, REWARDS_NFT_ABI, provider)
 
@@ -107,7 +103,7 @@ const useMintCharacter = () => {
   const mintCharacter = useCallback(
     async (type: number) => {
       try {
-        await switchNetwork(CONFIG.APP_ENV === 'production' ? ETHEREUM_CHAIN_ID : BASE_CHAIN_ID)
+        await switchNetwork(ETHEREUM_CHAIN_ID)
         setIsMinting(true)
         setLoadingMessage(CharacterLoadingMessage.Signing)
 
