@@ -41,7 +41,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
   return (
     <Pressable
       key={routeItem.label}
-      style={[flexbox.alignCenter, index !== routeItemsLength - 1 && spacings.mr]}
+      style={[flexbox.alignCenter, index !== routeItemsLength - 1 && spacings.mrSm]}
       disabled={routeItem.disabled}
       onPress={async () => {
         if (routeItem?.onPress) {
@@ -104,7 +104,6 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
                 routeItem.route === WEB_ROUTES.swapAndBridge && { width: 70, height: 24 }
               ]}
             >
-             
               <routeItem.icon
                 color={
                   themeType === THEME_TYPES.DARK

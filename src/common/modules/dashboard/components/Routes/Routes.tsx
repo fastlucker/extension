@@ -56,12 +56,12 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
     {
       testID: 'dashboard-button-quests',
       icon: BadgeIcon,
-      label: t('Quests'),
+      label: t('Rewards'),
       route: 'https://rewards.ambire.com',
       isExternal: true,
       scale: 0.95,
-      scaleOnHover: 1.20,
-      backgroundImage: rewardsBg,
+      scaleOnHover: 1.2,
+      backgroundImage: rewardsBg
     }
   ]
 
