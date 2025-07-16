@@ -11,7 +11,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import CloseIcon from '@legends/components/CloseIcon'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
