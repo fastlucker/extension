@@ -6,6 +6,7 @@ import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
+import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
 import Tooltip from '@common/components/Tooltip'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -17,6 +18,7 @@ type Props = {
   signAccountOpErrors: SignAccountOpError[]
   isNotReadyToProceed: boolean
   isBridge?: boolean
+  isLoading?: boolean
   isLocalStateOutOfSync?: boolean
   networkUserRequests: UserRequest[]
 }
@@ -28,6 +30,7 @@ const Buttons: FC<Props> = ({
   proceedBtnText = 'Proceed',
   handleSubmitForm,
   isNotReadyToProceed,
+  isLoading,
   isBridge,
   networkUserRequests = [],
   // Used to disable the actions of the buttons when the local state is out of sync.
@@ -82,7 +85,7 @@ const Buttons: FC<Props> = ({
       )}
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
-        <Button
+        <ButtonWithLoader
           text={
             networkUserRequests.length > 0
               ? `${proceedBtnText} ${t('({{count}})', {
@@ -90,9 +93,8 @@ const Buttons: FC<Props> = ({
                 })}`
               : proceedBtnText
           }
-          disabled={isNotReadyToProceed || !!oneClickDisabledReason}
-          style={{ minWidth: 160, ...spacings.mlLg }}
-          hasBottomSpacing={false}
+          disabled={isNotReadyToProceed || isLoading || !!oneClickDisabledReason}
+          isLoading={isLoading}
           onPress={() => {
             if (isLocalStateOutOfSync) return
 
