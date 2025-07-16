@@ -421,7 +421,7 @@ export const handleActions = async (
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
-      return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
+      return await mainCtrl.updateSelectedAccountPortfolio(params)
     }
 
     case 'DEFI_CONTOLLER_ADD_SESSION': {

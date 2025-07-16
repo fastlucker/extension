@@ -3,6 +3,7 @@ import { View } from 'react-native'
 
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
+import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -24,6 +25,7 @@ type Props = {
   isAddToCartDisplayed: boolean
   isAddToCartDisabled: boolean
   inProgressButtonText: string
+  buttonText: string
   buttonTooltipText?: string
 }
 
@@ -36,7 +38,8 @@ const Footer = ({
   buttonTooltipText,
   isAddToCartDisplayed,
   isAddToCartDisabled,
-  inProgressButtonText
+  inProgressButtonText,
+  buttonText
 }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -96,14 +99,13 @@ const Footer = ({
         )}
         {/* @ts-ignore */}
         <View dataSet={{ tooltipId: 'sign-button-tooltip' }}>
-          <Button
+          <ButtonWithLoader
             testID="transaction-button-sign"
             type="primary"
             disabled={isSignDisabled}
-            text={isSignLoading ? inProgressButtonText : t('Sign')}
+            isLoading={isSignLoading}
+            text={isSignLoading ? inProgressButtonText : buttonText}
             onPress={onSign}
-            hasBottomSpacing={false}
-            style={{ width: 160 }}
             size="large"
           />
         </View>

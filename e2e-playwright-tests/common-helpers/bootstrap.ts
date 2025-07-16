@@ -201,5 +201,5 @@ export async function bootstrapWithStorage(
     }
   }
 
-  return { page, context, extensionURL }
+  return { page, context, serviceWorker, extensionURL }
 }

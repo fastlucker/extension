@@ -3,8 +3,8 @@
 # Exit the script immediately if any command fails.
 set -e
 
-echo "This script automates the process of building the browser extension and their"
-echo "source maps, then packages them into .zip files ready for store submissions 💪"
+echo "This script automates the process of building the browser extension and their source maps"
+echo "It will also inject debug ids and upload source maps to Sentry"
 
 # Get version from app.json
 VERSION=$(grep '"version"' ./app.json | head -n1 | cut -d':' -f2 | tr -d ' ",')
@@ -17,68 +17,68 @@ fi
 # Read the build target
 TARGET="$1"
 
-# Define filenames
-WEBKIT_FILENAME="ambire-extension-v${VERSION}-webkit.zip"
-GECKO_FILENAME="ambire-extension-v${VERSION}-gecko.zip"
-WEBKIT_SOURCEMAPS_FILENAME="ambire-extension-v${VERSION}-webkit-sourcemaps.zip"
-GECKO_SOURCEMAPS_FILENAME="ambire-extension-v${VERSION}-gecko-sourcemaps.zip"
+upload_source_maps_for_build() {
+  local ENGINE="$1"
+  
+  echo "Uploading source maps for $ENGINE build"
 
-# Define build directories
-WEBKIT_BUILD_DIR="./build/webkit-prod"
-GECKO_BUILD_DIR="./build/gecko-prod"
-WEBKIT_SOURCEMAPS_BUILD_DIR="./build/webkit-prod-source-maps"
-GECKO_SOURCEMAPS_BUILD_DIR="./build/gecko-prod-source-maps"
+  sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  sentry-cli sourcemaps inject build/$ENGINE-prod/ --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
+  sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+}
+
+# Injects debug ids and uploads source maps to Sentry
+# Must be done before separating the source maps from the build directories
+prepare_and_upload_sourcemaps() {
+  # Skip if SENTRY_AUTH_TOKEN is not defined
+  if [ -z "$SENTRY_AUTH_TOKEN" ]; then
+    echo "SENTRY_AUTH_TOKEN not defined, skipping Sentry source map upload"
+    return
+  fi
+
+  # Check if sentry-cli is installed, if not install it
+  if command -v sentry-cli &> /dev/null; then
+    echo "sentry-cli found, uninstalling..."
+    EXISTING_SENTRY_PATH=$(command -v sentry-cli)
+    rm -f "$EXISTING_SENTRY_PATH"
+  fi
+
+  echo "Installing sentry-cli..."
+  curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION="2.46.0" sh
+
+  SENTRY_PROJECT=extension  
+  sentry-cli --version
+
+  # Decide what to build
+  case "$TARGET" in
+    --webkit)
+      upload_source_maps_for_build webkit
+      ;;
+    --gecko)
+      upload_source_maps_for_build gecko
+      ;;
+    *)
+    # Don't upload gecko source maps if the target isn't specified
+    # That is because build-extensions.yml will run this script for both targets
+    # but should only upload the source maps for the webkit build
+    # as there is a separate workflow for gecko (build-extensions-gecko.yml)
+      upload_source_maps_for_build webkit
+      ;;
+  esac
+}
 
 # Function to build and zip Webkit
 build_webkit() {
   echo "Step 1: Building the webkit extension"
   yarn build:web:webkit
-
-  echo "Step 2: Exporting webkit extension sourcemaps"
-  yarn export:web:webkit:sourcemaps
-
-  echo "Creating Webkit zip files..."
-  if [ -d "$WEBKIT_BUILD_DIR" ]; then
-    (cd "$WEBKIT_BUILD_DIR" && zip -r "../${WEBKIT_FILENAME}" .)
-    echo "Created $WEBKIT_FILENAME"
-  else
-    echo "Error: Directory $WEBKIT_BUILD_DIR does not exist."
-    exit 1
-  fi
-
-  if [ -d "$WEBKIT_SOURCEMAPS_BUILD_DIR" ]; then
-    (cd "$WEBKIT_SOURCEMAPS_BUILD_DIR" && zip -r "../${WEBKIT_SOURCEMAPS_FILENAME}" .)
-    echo "Created $WEBKIT_SOURCEMAPS_FILENAME"
-  else
-    echo "Error: Directory $WEBKIT_SOURCEMAPS_BUILD_DIR does not exist."
-    exit 1
-  fi
+  
 }
 
 # Function to build and zip Gecko
 build_gecko() {
   echo "Step 1: Building the gecko extension"
-  yarn build:web:gecko
-
-  echo "Step 2: Exporting gecko extension sourcemaps"
-  yarn export:web:gecko:sourcemaps
-
-  echo "Creating Gecko zip files..."
-  if [ -d "$GECKO_BUILD_DIR" ]; then
-    (cd "$GECKO_BUILD_DIR" && zip -r "../${GECKO_FILENAME}" .)
-    echo "Created $GECKO_FILENAME"
-  else
-    echo "Error: Directory $GECKO_BUILD_DIR does not exist."
-    exit 1
-  fi
-
-  if [ -d "$GECKO_SOURCEMAPS_BUILD_DIR" ]; then
-    (cd "$GECKO_SOURCEMAPS_BUILD_DIR" && zip -r "../${GECKO_SOURCEMAPS_FILENAME}" .)
-    echo "Created $GECKO_SOURCEMAPS_FILENAME"
-  else
-    echo "Error: Directory $GECKO_SOURCEMAPS_BUILD_DIR does not exist."
-    exit 1
-  fi
+  yarn build:web:gecko  
 }
 
 # Decide what to build
@@ -94,5 +94,34 @@ case "$TARGET" in
     build_gecko
     ;;
 esac
+
+echo "Step 2: Injecting debug ids and uploading source maps to Sentry"
+prepare_and_upload_sourcemaps
+
+echo "Step 3: Separating source maps from the build directories"
+case "$TARGET" in
+  --webkit)
+    yarn export:web:webkit:sourcemaps
+    ;;
+  --gecko)
+    yarn export:web:gecko:sourcemaps
+    ;;
+  *)
+    yarn export:web:webkit:sourcemaps
+    yarn export:web:gecko:sourcemaps
+    ;;
+esac
+
+
+echo "Step 4: Creating .zip files"
+cd build
+for dir in */; do
+  if [ -d "$dir" ]; then
+    # Remove -prod suffix and add prefix with version
+    clean_name=$(echo "${dir%/}" | sed 's/-prod//g')
+    # Create zip with contents of directory, not the directory itself
+    (cd "$dir" && zip -r "../ambire-extension-v${VERSION}-${clean_name}.zip" .)
+  fi
+done
 
 echo -e "\nAll ready! Good luck with the build reviews 🤞"
