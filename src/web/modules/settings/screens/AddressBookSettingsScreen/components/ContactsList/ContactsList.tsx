@@ -93,6 +93,8 @@ const ContactsList = () => {
             <TitleAndIcon title={t('My wallets')} icon={WalletFilledIcon} />
             {walletAccountsSourcedContacts.map((contact) => (
               <AddressBookContact
+                fontSize={16}
+                height={24}
                 testID={`name-${contact.name.toLowerCase().replace(/\s+/g, '-')}`}
                 key={`${contact.address}-${!contact.isWalletAccount ? 'wallet' : 'address'}`}
                 name={contact.name}
