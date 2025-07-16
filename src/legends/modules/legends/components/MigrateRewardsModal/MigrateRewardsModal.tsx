@@ -60,7 +60,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   const switchNetwork = useSwitchNetwork()
   const disabledButton = Boolean(!connectedAccount || v1Account)
 
-  const [migratableXWalletBalance, xWigratableXWalletBalance] = useState<bigint | null>(null)
+  const [migratableXWalletBalance, setMigratableXWalletBalance] = useState<bigint | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSigning, setIsSigning] = useState(false)
   const closeModal = async () => {
@@ -76,7 +76,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
       walletContract.lockedShares(connectedAccount)
     ])
       .then(([xWalletBalance, lockedShares]: [bigint, bigint]) =>
-        xWigratableXWalletBalance(xWalletBalance - lockedShares)
+        setMigratableXWalletBalance(xWalletBalance - lockedShares)
       )
       .catch((e) => {
         console.error(e)
