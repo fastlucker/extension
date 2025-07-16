@@ -1,5 +1,5 @@
-import React from 'react'
-import { ScrollView } from 'react-native'
+import React, { forwardRef } from 'react'
+import { ScrollView, ScrollViewProps, StyleProp, ViewStyle } from 'react-native'
 
 import flexbox from '@common/styles/utils/flexbox'
 import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -18,49 +18,65 @@ type SortableFlatListProps<T> = {
     attributes: any
   ) => React.ReactNode
   onDragEnd: (fromIndex: number, toIndex: number) => void
-  style?: any
-  contentContainerStyle?: any
-}
 
-function SortableFlatList<T>({
-  data,
-  keyExtractor,
-  renderItem,
-  onDragEnd,
-  style,
-  contentContainerStyle
-}: SortableFlatListProps<T>) {
-  const sensors = useSensors(useSensor(PointerSensor))
+  scrollableWrapperStyles?: ViewStyle
+  contentContainerStyle?: StyleProp<ViewStyle>
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
+  keyboardShouldPersistTaps?: ScrollViewProps['keyboardShouldPersistTaps']
+  keyboardDismissMode?: ScrollViewProps['keyboardDismissMode']
+} & Omit<ScrollViewProps, 'children'>
 
-    const oldIndex = data.findIndex((item) => keyExtractor(item) === active.id)
-    const newIndex = data.findIndex((item) => keyExtractor(item) === over.id)
+const SortableFlatList = forwardRef<ScrollView, SortableFlatListProps<any>>(
+  (
+    {
+      data,
+      keyExtractor,
+      renderItem,
+      onDragEnd,
+      scrollableWrapperStyles,
+      contentContainerStyle,
+      keyboardShouldPersistTaps = 'handled',
+      keyboardDismissMode = 'none',
+      ...rest
+    },
+    ref
+  ) => {
+    const sensors = useSensors(useSensor(PointerSensor))
 
-    onDragEnd(oldIndex, newIndex)
+    const handleDragEnd = (event: any) => {
+      const { active, over } = event
+      if (!over || active.id === over.id) return
+
+      const oldIndex = data.findIndex((item) => keyExtractor(item) === active.id)
+      const newIndex = data.findIndex((item) => keyExtractor(item) === over.id)
+
+      onDragEnd(oldIndex, newIndex)
+    }
+
+    return (
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={data.map(keyExtractor)} strategy={verticalListSortingStrategy}>
+          <ScrollView
+            ref={ref}
+            style={[{ flex: 1 }, scrollableWrapperStyles]}
+            contentContainerStyle={[flexbox.flex1, contentContainerStyle]}
+            keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+            keyboardDismissMode={keyboardDismissMode}
+            scrollEnabled
+            {...rest}
+          >
+            {data.map((item, index) => (
+              <DraggableItem key={keyExtractor(item)} id={keyExtractor(item)}>
+                {(isDragging, listeners, attributes) =>
+                  renderItem(item, index, isDragging, listeners, attributes)
+                }
+              </DraggableItem>
+            ))}
+          </ScrollView>
+        </SortableContext>
+      </DndContext>
+    )
   }
-
-  return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={data.map(keyExtractor)} strategy={verticalListSortingStrategy}>
-        <ScrollView
-          style={[{ flex: 1 }, style]}
-          contentContainerStyle={[flexbox.flex1, contentContainerStyle]}
-          scrollEnabled
-        >
-          {data.map((item, index) => (
-            <DraggableItem key={keyExtractor(item)} id={keyExtractor(item)}>
-              {(isDragging, listeners, attributes) =>
-                renderItem(item, index, isDragging, listeners, attributes)
-              }
-            </DraggableItem>
-          ))}
-        </ScrollView>
-      </SortableContext>
-    </DndContext>
-  )
-}
+)
 
 export default SortableFlatList

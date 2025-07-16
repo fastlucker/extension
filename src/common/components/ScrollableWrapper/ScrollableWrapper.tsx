@@ -99,14 +99,15 @@ const ScrollableWrapper = ({
       <DraggableFlatList
         ref={wrapperRef}
         data={data}
-        keyExtractor={keyExtractor}
-        onDragEnd={onDragEnd}
-        renderItem={renderItem}
-        scrollableWrapperStyles={scrollableWrapperStyles}
-        scrollableWrapperContentContainerStyles={scrollableWrapperContentContainerStyles}
+        keyExtractor={
+          keyExtractor ? (item: any) => keyExtractor(item, 0) : (item: any) => item.key ?? ''
+        }
+        onDragEnd={onDragEnd ?? (() => {})}
+        renderItem={renderItem ?? (() => null)}
+        style={scrollableWrapperStyles}
+        contentContainerStyle={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
-        extraHeight={extraHeight}
         {...rest}
       />
     )
