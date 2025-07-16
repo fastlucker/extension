@@ -8,7 +8,8 @@
     "test": "playwright test",
     "test:auth": "playwright test --workers=3 --retries=1 --grep auth",
     "show-trace": "playwright show-trace",
-    "prepare": "patch-package"
+    "prepare": "patch-package",
+    "postinstall": "postinstall-postinstall"
   },
   "author": "Filip",
   "devDependencies": {
