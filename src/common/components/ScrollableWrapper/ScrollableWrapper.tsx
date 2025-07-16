@@ -10,7 +10,6 @@ import {
   View,
   ViewStyle
 } from 'react-native'
-import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -18,6 +17,7 @@ import { isWeb } from '@common/config/env'
 import { TAB_BAR_HEIGHT } from '@common/constants/router'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import SortableFlatList from '@web/modules/settings/components/Accounts/SortableFlatList'
 
 import createStyles from './styles'
 
@@ -47,8 +47,14 @@ export type WrapperProps<T = any> = BaseProps &
   FlatListCompatibleProps<T> &
   SectionListCompatibleProps<T> & {
     children?: React.ReactNode
-    onDragEnd?: (params: { data: T[] }) => void
-    renderItem?: (params: RenderItemParams<T>) => React.ReactElement | null
+    onDragEnd?: (fromIndex: number, toIndex: number) => void
+    renderItem?: (
+      item: T,
+      index: number,
+      isDragging: boolean,
+      listeners: any,
+      attributes: any
+    ) => React.ReactElement | null
     keyExtractor?: (item: T, index: number) => string
     data?: T[]
   }
@@ -90,21 +96,17 @@ const ScrollableWrapper = ({
 
   if (type === WRAPPER_TYPES.DRAGGABLE_FLAT_LIST) {
     return (
-      <DraggableFlatList
+      <SortableFlatList
         ref={wrapperRef}
         data={data}
+        keyExtractor={keyExtractor}
         onDragEnd={onDragEnd}
-        keyExtractor={keyExtractor || ((item, index) => item.key ?? index.toString())}
-        renderItem={renderItem as (params: RenderItemParams<any>) => React.ReactElement | null}
-        containerStyle={scrollableWrapperStyles}
-        contentContainerStyle={scrollableWrapperContentContainerStyles}
+        renderItem={renderItem}
+        scrollableWrapperStyles={scrollableWrapperStyles}
+        scrollableWrapperContentContainerStyles={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
-        alwaysBounceVertical={false}
-        activationDistance={1}
-        autoscrollThreshold={30}
-        autoscrollSpeed={30}
-        scrollEnabled
+        extraHeight={extraHeight}
         {...rest}
       />
     )

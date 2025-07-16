@@ -2,7 +2,6 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import isEqual from 'react-fast-compare'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
-import { RenderItemParams } from 'react-native-draggable-flatlist'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
@@ -73,20 +72,16 @@ const AccountsSettingsScreen = () => {
   }, [accounts])
 
   const handleAccDragEnd = useCallback(
-    (data: any) => {
-      const { from: fromIndex, to: toIndex } = data
-      if (fromIndex === toIndex) return // No-op
-
+    (fromIndex: number, toIndex: number) => {
+      if (fromIndex === toIndex) return
       setLocalAccounts((prev) => {
         const updated = [...prev]
         const [moved] = updated.splice(fromIndex, 1)
         updated.splice(toIndex, 0, moved)
-
         dispatch({
           type: 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS',
           params: { fromIndex, toIndex }
         })
-
         return updated
       })
     },
@@ -113,19 +108,6 @@ const AccountsSettingsScreen = () => {
     return 10
   }, [maxElementWidthSize, minElementWidthSize])
 
-  const getRenderLeftChildren = useCallback(
-    (drag: () => void, isActive: boolean) => (
-      <Pressable
-        onPressIn={drag}
-        disabled={isActive}
-        style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mhTy]}
-      >
-        <DragIndicatorIcon color={isActive ? theme.primary : theme.secondaryBorder} />
-      </Pressable>
-    ),
-    [theme]
-  )
-
   const accountOptions = useMemo(
     () => ({
       withOptionsButton: true,
@@ -134,19 +116,6 @@ const AccountsSettingsScreen = () => {
       setAccountToRemove
     }),
     [setExportImportAccount, setSmartSettingsAccount, setAccountToRemove]
-  )
-
-  const renderItem = useCallback(
-    ({ item, drag, isActive }: RenderItemParams<AccountInterface>) => (
-      <Account
-        account={item}
-        maxAccountAddrLength={shortenAccountAddr()}
-        renderLeftChildren={getRenderLeftChildren(drag, isActive)}
-        options={accountOptions}
-        isSelectable={false}
-      />
-    ),
-    [getRenderLeftChildren, shortenAccountAddr, accountOptions]
   )
 
   const removeAccount = useCallback(() => {
@@ -158,39 +127,40 @@ const AccountsSettingsScreen = () => {
     closeRemoveAccount()
   }, [accountToRemove, dispatch, closeRemoveAccount])
 
-  const [dragKey, setDragKey] = useState(Date.now())
-
-  // Reset drag key on pointer up outside the accounts list
-  // This is to ensure that the list re-renders correctly after dragging
-  // and to avoid any potential issues with stale state.
-  // This is a workaround for the issue where the list does not re-render
-  // correctly after dragging, especially when the drag is released outside the list.
-
-  useEffect(() => {
-    const handlePointerUp = (e: PointerEvent) => {
-      const listEl = accountsContainerRef.current as HTMLDivElement | null
-      if (!listEl || !listEl.getBoundingClientRect) return
-
-      const rect = listEl.getBoundingClientRect()
-      const { clientX, clientY } = e
-
-      const isInside =
-        clientX >= rect.left &&
-        clientX <= rect.right &&
-        clientY >= rect.top &&
-        clientY <= rect.bottom
-
-      if (!isInside) {
-        // only reset if released outside
-        setDragKey(Date.now())
-      }
-    }
-
-    document.addEventListener('pointerup', handlePointerUp)
-    return () => {
-      document.removeEventListener('pointerup', handlePointerUp)
-    }
-  }, [])
+  const renderItem = useCallback(
+    (
+      item: AccountInterface,
+      index: number,
+      isDragging: boolean,
+      listeners: any,
+      attributes: any
+    ) => {
+      return (
+        <Account
+          account={item}
+          maxAccountAddrLength={shortenAccountAddr()}
+          renderLeftChildren={
+            <div {...listeners} {...attributes}>
+              <Pressable
+                style={[
+                  flexbox.alignCenter,
+                  flexbox.justifyCenter,
+                  spacings.pvSm,
+                  spacings.phSm,
+                  { cursor: 'grab', touchAction: 'manipulation' }
+                ]}
+              >
+                <DragIndicatorIcon color={isDragging ? theme.primary : theme.secondaryBorder} />
+              </Pressable>
+            </div>
+          }
+          options={accountOptions}
+          isSelectable={false}
+        />
+      )
+    },
+    [shortenAccountAddr, theme, accountOptions]
+  )
 
   return (
     <>
@@ -199,13 +169,13 @@ const AccountsSettingsScreen = () => {
       </SettingsPageHeader>
       <View style={[flexbox.flex1]} ref={accountsContainerRef}>
         <ScrollableWrapper
-          key={dragKey}
+          wrapperRef={accountsContainerRef}
           type={WRAPPER_TYPES.DRAGGABLE_FLAT_LIST}
           data={localAccounts}
-          onDragEnd={handleAccDragEnd}
-          renderItem={renderItem as any}
-          getItemLayout={getItemLayout}
           keyExtractor={keyExtractor}
+          onDragEnd={handleAccDragEnd}
+          renderItem={renderItem}
+          getItemLayout={getItemLayout}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
       </View>
