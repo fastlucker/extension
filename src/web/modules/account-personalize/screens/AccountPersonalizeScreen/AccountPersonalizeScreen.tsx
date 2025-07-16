@@ -281,14 +281,13 @@ const AccountPersonalizeScreen = () => {
             ) : (
               <>
                 <SuccessAnimation
-                  noBorder
                   noBackgroundShapes
                   width={352}
                   height={156}
                   style={{ ...spacings.pv0, ...spacings.ph0, ...spacings.mbXl }}
                   animationContainerStyle={{ width: 200, height: 140 }}
                 >
-                  <Text weight="semiBold" fontSize={20}>
+                  <Text weight="semiBold" fontSize={20} style={spacings.mtSm}>
                     {t('Added successfully')}
                   </Text>
                 </SuccessAnimation>

@@ -3,6 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { Hex } from '@ambire-common/interfaces/hex'
 import { getIsBridgeRoute } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -21,10 +22,9 @@ import TrackProgressWrapper from '@web/modules/sign-account-op/components/OneCli
 import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
 import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
 import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
+import Refunded from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Refunded'
 import { getUiType } from '@web/utils/uiType'
 
-import { Hex } from '@ambire-common/interfaces/hex'
-import Refunded from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Refunded'
 import RouteStepsToken from '../RouteStepsToken'
 
 const { isActionWindow } = getUiType()
@@ -51,8 +51,8 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const isSwap = lastCompletedRoute.route && !getIsBridgeRoute(lastCompletedRoute.route)
 
   const refunded = useMemo(() => {
-    if (!steps || steps.length === 0) return null
-    const firstStep = steps[0]
+    if (!steps || steps.length === 0 || !firstStep) return null
+
     if (steps.length === 1) {
       return {
         amount: firstStep.fromAmount,
@@ -64,7 +64,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
       amount: firstStep.toAmount,
       asset: lastCompletedStep.fromAsset
     }
-  }, [steps])
+  }, [firstStep, steps])
 
   const onPrimaryButtonPress = useCallback(() => {
     if (isActionWindow) {
@@ -102,6 +102,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
       onPrimaryButtonPress={onPrimaryButtonPress}
       secondaryButtonText={t('Start a new swap?')}
       handleClose={handleClose}
+      routeStatus={lastCompletedRoute?.routeStatus}
     >
       {(!lastCompletedRoute || lastCompletedRoute?.routeStatus === 'in-progress') && (
         <InProgress title={t('Confirming your trade')}>

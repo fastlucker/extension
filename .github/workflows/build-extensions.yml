@@ -53,7 +53,7 @@ jobs:
           echo "SENTRY_DSN_BROWSER_EXTENSION=\"${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}\"" >> .env
         shell: bash
 
-      - name: Build extensions
+      - name: Build extensions and upload source maps to Sentry
         env:
           RELAYER_URL: ${{ vars.RELAYER_URL }}
           VELCRO_URL: ${{ vars.VELCRO_URL }}
@@ -64,20 +64,8 @@ jobs:
           LEGENDS_NFT_ADDRESS: ${{ vars.LEGENDS_NFT_ADDRESS }}
           LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
           SENTRY_DSN_BROWSER_EXTENSION: ${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}
-        run: yarn build:extensions
-
-      - name: Upload source maps to Sentry
-        env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}
-        run: |
-          curl -sL https://sentry.io/get-cli/ | bash
-          ENGINE=webkit
-          VERSION=$(node -p "require('./build/$ENGINE-prod/manifest.json').version")
-          SENTRY_PROJECT=extension
-          sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
-          sentry-cli sourcemaps inject build/
-          sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
-          sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+        run: yarn build:extensions
 
       - name: Generate .zip with the full source code (including .env)
         run: |

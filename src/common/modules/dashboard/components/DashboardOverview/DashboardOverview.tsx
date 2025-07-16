@@ -17,7 +17,6 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useHasGasTank from '@web/hooks/useHasGasTank'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -61,7 +60,6 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles, themeType } = useTheme(getStyles)
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
-  const { hasGasTank } = useHasGasTank({ account })
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -242,17 +240,12 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady && hasGasTank ? (
-                    <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
-                  ) : (
-                    <GasTankButton
-                      onPress={openGasTankModal}
-                      onPosition={onGasTankButtonPositionWrapped}
-                      portfolio={portfolio}
-                      account={account}
-                      hasGasTank={hasGasTank}
-                    />
-                  )}
+                  <GasTankButton
+                    onPress={openGasTankModal}
+                    onPosition={onGasTankButtonPositionWrapped}
+                    portfolio={portfolio}
+                    account={account}
+                  />
                   <BalanceAffectingErrors
                     reloadAccount={reloadAccount}
                     networksWithErrors={networksWithErrors}
