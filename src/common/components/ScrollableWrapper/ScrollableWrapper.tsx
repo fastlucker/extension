@@ -17,8 +17,8 @@ import { isWeb } from '@common/config/env'
 import { TAB_BAR_HEIGHT } from '@common/constants/router'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import SortableFlatList from '@web/modules/settings/components/Accounts/SortableFlatList'
 
+import DraggableFlatList from './DraggableFlatList'
 import createStyles from './styles'
 
 export enum WRAPPER_TYPES {
@@ -96,7 +96,7 @@ const ScrollableWrapper = ({
 
   if (type === WRAPPER_TYPES.DRAGGABLE_FLAT_LIST) {
     return (
-      <SortableFlatList
+      <DraggableFlatList
         ref={wrapperRef}
         data={data}
         keyExtractor={keyExtractor}

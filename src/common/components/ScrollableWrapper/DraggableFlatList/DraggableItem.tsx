@@ -12,7 +12,7 @@ type Props = {
 const animateLayoutChanges: AnimateLayoutChanges = (args) =>
   defaultAnimateLayoutChanges({ ...args, wasDragging: true })
 
-const SortableItem = ({ id, children }: Props) => {
+const DraggableItem = ({ id, children }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
     animateLayoutChanges
@@ -31,4 +31,4 @@ const SortableItem = ({ id, children }: Props) => {
   )
 }
 
-export default SortableItem
+export default DraggableItem

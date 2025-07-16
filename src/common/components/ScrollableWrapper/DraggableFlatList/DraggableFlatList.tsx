@@ -1,11 +1,11 @@
 import React from 'react'
-import { Platform, ScrollView, View } from 'react-native'
+import { ScrollView } from 'react-native'
 
 import flexbox from '@common/styles/utils/flexbox'
 import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
-import SortableItem from './SortableItem'
+import DraggableItem from './DraggableItem'
 
 type SortableFlatListProps<T> = {
   data: T[]
@@ -51,11 +51,11 @@ function SortableFlatList<T>({
           scrollEnabled
         >
           {data.map((item, index) => (
-            <SortableItem key={keyExtractor(item)} id={keyExtractor(item)}>
+            <DraggableItem key={keyExtractor(item)} id={keyExtractor(item)}>
               {(isDragging, listeners, attributes) =>
                 renderItem(item, index, isDragging, listeners, attributes)
               }
-            </SortableItem>
+            </DraggableItem>
           ))}
         </ScrollView>
       </SortableContext>
