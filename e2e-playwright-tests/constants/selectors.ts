@@ -2,6 +2,13 @@ import { buildSelector } from '@helpers/buildSelector'
 
 // TODO: this should be refactored; we should have single file with selector IDs
 const selectors = {
+  // dashboard
+  walletBaseTokenBalance: 'token-balance-0x0BbbEad62f7647AE8323d2cb243A0DB74B7C2b80.8453',
+  usdcBaseTokenBalance: 'token-balance-0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913.8453',
+  usdcOPBaseTokenBalance: 'token-balance-0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85.10',
+  usdcEOPBaseTokenBalance: 'token-balance-0x7F5c764cBc14f9669B88837ca1490cCa17c31607.10',
+  daiOPBaseTokenBalance: 'token-balance-0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1.10',
+  xWalletETHBaseTokenBalance: 'token-balance-0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935.1',
   account: 'account',
   importBtn: 'import-button',
   importPrivateBtn: 'button-import-private-key',
