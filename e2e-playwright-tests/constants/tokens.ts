@@ -34,7 +34,7 @@ const tokens: Tokens = {
   },
   dai: {
     optimism: {
-      address: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       chainId: '10',
       symbol: 'DAI'
     },
@@ -46,12 +46,12 @@ const tokens: Tokens = {
   },
   usdc: {
     optimism: {
-      address: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+      address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
       chainId: '10',
       symbol: 'USDC'
     },
     base: {
-      address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
       chainId: '8453',
       symbol: 'USDC'
     },
@@ -63,7 +63,7 @@ const tokens: Tokens = {
   },
   usdce: {
     optimism: {
-      address: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       chainId: '10',
       symbol: 'USDC.E'
     }
@@ -75,14 +75,14 @@ const tokens: Tokens = {
       symbol: 'WALLET'
     },
     base: {
-      address: '0x0bbbead62f7647ae8323d2cb243a0db74b7c2b80',
+      address: '0x0BbbEad62f7647AE8323d2cb243A0DB74B7C2b80',
       chainId: '8453',
       symbol: 'WALLET'
     }
   },
   xwallet: {
     ethereum: {
-      address: '0x47cd7e91c3cbaaf266369fe8518345fc4fc12935',
+      address: '0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935',
       chainId: '1',
       symbol: 'xWALLET'
     }

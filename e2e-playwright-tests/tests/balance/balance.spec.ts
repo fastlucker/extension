@@ -62,7 +62,7 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
     await dashboardPage.init(saParams)
   })
 
-  test.only('check balance of test tokens', async ({ dashboardPage }) => {
+  test('check balance of test tokens', async ({ dashboardPage }) => {
     const walletBase = tokens.wallet.base
     const usdcBase = tokens.usdc.base
     const usdcOP = tokens.usdc.optimism

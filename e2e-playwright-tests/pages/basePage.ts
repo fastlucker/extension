@@ -126,4 +126,11 @@ export abstract class BasePage {
   getCategorizedRequests() {
     return categorizeRequests(this.collectedRequests)
   }
+
+  async getDashboardTokenBalance(token: Token) {
+    const balanceText = await this.getText(`token-balance-${token.address}.${token.chainId}`)
+    const tokenBalance = parseFloat(balanceText)
+
+    return tokenBalance
+  }
 }

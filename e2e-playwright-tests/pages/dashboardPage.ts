@@ -77,20 +77,10 @@ export class DashboardPage extends BasePage {
       'xWALLET-1': 2
     }
 
-    const tokenSelectors: Record<string, string> = {
-      'WALLET-8453': selectors.walletBaseTokenBalance,
-      'USDC-8453': selectors.usdcBaseTokenBalance,
-      'USDC-10': selectors.usdcOPBaseTokenBalance,
-      'USDC.E-10': selectors.usdcEOPBaseTokenBalance,
-      'DAI-10': selectors.daiOPBaseTokenBalance,
-      'xWALLET-1': selectors.xWalletETHBaseTokenBalance
-    }
-
-    const selector = tokenSelectors[key]
     const minBalance = balanceThresholds[key] ?? 0
 
-    const balanceText = await this.getText(selector)
-    const tokenBalance = parseFloat(balanceText)
+    const tokenBalance = await this.getDashboardTokenBalance(token)
+
     let error: string | undefined
 
     try {
