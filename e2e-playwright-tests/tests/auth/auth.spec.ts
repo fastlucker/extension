@@ -2,21 +2,9 @@ import { BA_PASSPHRASE, KEYSTORE_PASS, SA_PASSPHRASE } from 'constants/env'
 import mainConstants from 'constants/mainConstants'
 import { test } from 'fixtures/pageObjects' // your extended test with authPage
 import { expect } from '@playwright/test'
+import selectors from 'constants/selectors'
 import { getController, setup, initTrezorConnect } from '../../utils/trezorEmulator'
-import selectors from '../../constants/selectors'
-
-export const TREZOR_EMULATOR_OPTIONS = {
-  version: '1-main',
-  model: 'T1B1',
-  mnemonic: 'mnemonic_12',
-  pin: '1234',
-  passphrase_protection: false,
-  label: 'Test Trezor Device',
-  settings: {
-    use_passphrase: false,
-    experimental_features: true
-  }
-}
+import { emulatorOptions } from '../../constants/trezor'
 
 test.describe.parallel('auth', () => {
   test.beforeEach(async ({ authPage }) => {
@@ -75,11 +63,11 @@ test.describe.parallel('auth', () => {
   })
 })
 
-test.describe('Trezor', () => {
+test.describe('trezor', () => {
   const controller = getController()
 
   test.beforeAll(async () => {
-    await setup(controller, TREZOR_EMULATOR_OPTIONS)
+    await setup(controller, emulatorOptions)
     await initTrezorConnect(controller)
   })
 
@@ -99,46 +87,59 @@ test.describe('Trezor', () => {
     }
   })
 
-  test('should successfully authenticate using Trezor', async ({ authPage }) => {
+  test('should successfully authenticate using Trezor and import existing accounts', async ({
+    authPage
+  }) => {
     const page = authPage.page
 
-    await page.getByTestId('create-existing-account-btn').click()
-    await page.getByTestId('import-method-trezor').click()
+    await test.step('start importing existing Trezor accounts in our Onboarding flow', async () => {
+      await page.getByTestId(selectors.importExistingAccBtn).click()
+      await page.getByTestId(selectors.importMethodTrezor).click()
 
-    await page.getByTestId(selectors.enterPassField).fill(KEYSTORE_PASS)
-    await page.getByTestId(selectors.repeatPassField).fill(KEYSTORE_PASS)
+      await page.getByTestId(selectors.enterPassField).fill(KEYSTORE_PASS)
+      await page.getByTestId(selectors.repeatPassField).fill(KEYSTORE_PASS)
+    })
 
-    const trezorPage = await authPage.handleNewPage(
-      page.getByTestId(selectors.createKeystorePassBtn)
-    )
+    await test.step('allow importing accounts from Trezor Connect', async () => {
+      const trezorPage = await authPage.handleNewPage(
+        page.getByTestId(selectors.createKeystorePassBtn)
+      )
 
-    await trezorPage.content()
+      await trezorPage.content()
 
-    const locator = trezorPage.getByRole('button', { name: /I acknowledge and wish to/i })
-    await locator.waitFor({ timeout: 5000 })
-    if (await locator.isVisible()) {
-      await locator.click()
-    }
+      // When the test is run in Chromium (in CI),
+      // the Trezor page shows a "browser not supported" warning, which we need to explicitly confirm.
+      // When running in headed mode (--ui or --debug flags enabled in Playwright),
+      // this dialog doesn't appear, so we conditionally click it.
+      const locator = trezorPage.getByRole('button', { name: /I acknowledge and wish to/i })
+      await locator.waitFor({ timeout: 5000 })
+      if (await locator.isVisible()) {
+        await locator.click()
+      }
 
-    await trezorPage.getByTestId('@analytics/continue-button').click()
+      // Confirm Trezor Terms dialog
+      await trezorPage.getByTestId(selectors.trezorConnectConfirmTerms).click()
 
-    // Click on the device name
-    await trezorPage.locator('button.list .wrapper .device-name').click()
+      await trezorPage.locator('button.list .wrapper .device-name').click()
+      await trezorPage.getByRole('button', { name: 'Allow once for this session' }).click()
+      await trezorPage.getByRole('button', { name: 'Export' }).click()
+    })
 
-    await trezorPage.getByRole('button', { name: 'Allow once for this session' }).click()
-    await trezorPage.getByRole('button', { name: 'Export' }).click()
+    await test.step('import first 2 accounts', async () => {
+      await page.getByTestId(`add-account-${mainConstants.addresses.trezorAccount1}`).click()
+      await page.getByTestId(`add-account-${mainConstants.addresses.trezorAccount2}`).click()
 
-    await page.getByTestId('add-account-0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8').click()
-    await page.getByTestId('add-account-0x4f4F1488ACB1Ae1b46146CEfF804f591dFe660ac').click()
+      await page.getByTestId(selectors.buttonImportAccount).click()
+      await page.getByTestId(selectors.saveAndContinueBtn).click()
+    })
 
-    await page.getByTestId('button-import-account').click()
-    await page.getByTestId('button-save-and-continue').click()
+    await test.step('make sure accounts are imported', async () => {
+      await authPage.goToDashboard()
 
-    await authPage.goToDashboard()
+      await page.getByTestId(selectors.accountSelectBtn).click()
 
-    await page.getByTestId('account-select-btn').click()
-
-    await expect(page.getByText('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')).toBeVisible()
-    await expect(page.getByText('0x4f4F1488ACB1Ae1b46146CEfF804f591dFe660ac')).toBeVisible()
+      await expect(page.getByText(mainConstants.addresses.trezorAccount1)).toBeVisible()
+      await expect(page.getByText(mainConstants.addresses.trezorAccount2)).toBeVisible()
+    })
   })
 })

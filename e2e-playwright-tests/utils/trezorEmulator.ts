@@ -121,7 +121,7 @@ export const setup = async (trezorUserEnvLink, options) => {
   await trezorUserEnvLink.api.startBridge()
 }
 
-export const initTrezorConnect = async (trezorUserEnvLink, options) => {
+export const initTrezorConnect = async (trezorUserEnvLink, options?) => {
   TrezorConnect.removeAllListeners()
 
   TrezorConnect.on('device-connect', (device) => {
