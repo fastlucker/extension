@@ -55,7 +55,7 @@ const Footer: FC<Props> = ({
   const iconSize = 26 * sizeMultiplier[size]
   const iconSizeSm = 14 * sizeMultiplier[size]
 
-  const canViewFeeAndTransaction =
+  const canViewFee =
     status !== AccountOpStatus.Rejected &&
     status !== AccountOpStatus.BroadcastButStuck &&
     status !== AccountOpStatus.UnknownButPastNonce
@@ -63,8 +63,15 @@ const Footer: FC<Props> = ({
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
-  const handleOpenBenzina = useCallback(async () => {
-    if (!chainId || !txnId) throw new Error('Invalid chainId or txnId')
+  const handleViewTransaction = useCallback(async () => {
+    if (!chainId) {
+      const message = t(
+        "Can't open the transaction details because the network information is missing."
+      )
+      addToast(message, { type: 'error' })
+
+      return
+    }
 
     const link = `https://explorer.ambire.com/${getBenzinUrlParams({
       txnId,
@@ -77,7 +84,7 @@ const Footer: FC<Props> = ({
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [txnId, identifiedBy, addToast, chainId])
+  }, [txnId, identifiedBy, addToast, chainId, t])
 
   useEffect((): void => {
     const feeTokenAddress = gasFeePayment?.inToken
@@ -119,7 +126,7 @@ const Footer: FC<Props> = ({
     <View style={spacings.phMd}>
       <View style={styles.footer}>
         <StatusBadge status={status} textSize={textSize} />
-        {canViewFeeAndTransaction && (
+        {canViewFee && (
           <View style={spacings.mrMd}>
             <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
               {t('Fee')}:
@@ -143,36 +150,34 @@ const Footer: FC<Props> = ({
           timestamp={timestamp}
           numberOfLines={2}
         />
-        {canViewFeeAndTransaction && (
-          <View style={[flexbox.alignEnd]}>
-            <TouchableOpacity
-              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
-              onPress={handleOpenBenzina}
+        <View style={[flexbox.alignEnd]}>
+          <TouchableOpacity
+            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
+            onPress={handleViewTransaction}
+          >
+            <Text
+              fontSize={textSize}
+              appearance="secondaryText"
+              weight="medium"
+              style={spacings.mrMi}
+              underline
             >
-              <Text
-                fontSize={textSize}
-                appearance="secondaryText"
-                weight="medium"
-                style={spacings.mrMi}
-                underline
-              >
-                {t('View transaction')}
-              </Text>
-              <LinkIcon width={iconSizeSm} height={iconSizeSm} />
-            </TouchableOpacity>
-            {rawCalls?.length ? (
-              <RepeatTransaction
-                accountAddr={accountAddr}
-                chainId={network.chainId}
-                rawCalls={rawCalls}
-                textSize={textSize}
-                iconSize={iconSizeSm}
-              />
-            ) : (
-              <View />
-            )}
-          </View>
-        )}
+              {t('View transaction')}
+            </Text>
+            <LinkIcon width={iconSizeSm} height={iconSizeSm} />
+          </TouchableOpacity>
+          {rawCalls?.length ? (
+            <RepeatTransaction
+              accountAddr={accountAddr}
+              chainId={network.chainId}
+              rawCalls={rawCalls}
+              textSize={textSize}
+              iconSize={iconSizeSm}
+            />
+          ) : (
+            <View />
+          )}
+        </View>
       </View>
     </View>
   )

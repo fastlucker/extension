@@ -1,6 +1,7 @@
 import { saParams } from 'constants/env'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
+
 import { expect } from '@playwright/test' // your extended test with authPage
 
 test.describe('swapAndBridgePage Smart Account', () => {

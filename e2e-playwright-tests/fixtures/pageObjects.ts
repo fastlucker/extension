@@ -3,9 +3,9 @@ import { DashboardPage } from 'pages/dashboardPage'
 import { GasTankPage } from 'pages/gasTankPage'
 import { SettingsPage } from 'pages/settingsPage'
 import { SignMessagePage } from 'pages/signMessagePage'
+import { StabilityPage } from 'pages/stabilityPage'
 import { SwapAndBridgePage } from 'pages/swapAndBridgePage'
 import { TransferPage } from 'pages/transferPage'
-import { StabilityPage } from 'pages/stabilityPage'
 
 import { test as testBase } from '@playwright/test'
 
