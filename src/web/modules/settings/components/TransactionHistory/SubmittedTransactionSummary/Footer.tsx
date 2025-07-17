@@ -63,8 +63,17 @@ const Footer: FC<Props> = ({
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
-  const handleOpenBenzina = useCallback(async () => {
-    if (!chainId || !txnId) throw new Error('Invalid chainId or txnId')
+  const handleViewTransaction = useCallback(async () => {
+    if (!chainId || !txnId) {
+      let errorMsg = t("Can't open the transaction details because ")
+      const reasons = []
+      if (!chainId) reasons.push(t('the network information is missing'))
+      if (!txnId) reasons.push(t('the transaction ID is missing'))
+      errorMsg += `${reasons.join(t(' and '))}.`
+
+      addToast(errorMsg, { type: 'error' })
+      return
+    }
 
     const link = `https://explorer.ambire.com/${getBenzinUrlParams({
       txnId,
@@ -77,7 +86,7 @@ const Footer: FC<Props> = ({
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [txnId, identifiedBy, addToast, chainId])
+  }, [txnId, identifiedBy, addToast, chainId, t])
 
   useEffect((): void => {
     const feeTokenAddress = gasFeePayment?.inToken
@@ -147,7 +156,7 @@ const Footer: FC<Props> = ({
           <View style={[flexbox.alignEnd]}>
             <TouchableOpacity
               style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
-              onPress={handleOpenBenzina}
+              onPress={handleViewTransaction}
             >
               <Text
                 fontSize={textSize}
