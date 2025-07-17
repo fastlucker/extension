@@ -51,7 +51,7 @@ async function initBrowser(namespace: string): Promise<{
     channel: 'chromium',
     slowMo: 10,
     ignoreHTTPSErrors: true,
-    args: playwrightArgs, // make sure puppeteerArgs is defined/imported
+    args: playwrightArgs, // make sure playwrightArgs is defined/imported
     env: process.env.DISPLAY ? { DISPLAY: process.env.DISPLAY } : undefined,
     viewport: null // explicitly set if not using default
   })

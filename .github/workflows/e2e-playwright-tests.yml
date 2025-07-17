@@ -86,7 +86,7 @@ jobs:
           node-version: 22.12.0
 
       - name: Install root dependencies
-        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
         shell: bash
 
       - name: Build webkit extension
