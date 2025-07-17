@@ -35,6 +35,8 @@ export default function useBanners(): BannerInterface[] {
   const { isOffline, banners: mainCtrlBanners } = useMainControllerState()
   const { account, portfolio, deprecatedSmartAccountBanner, firstCashbackBanner } =
     useSelectedAccountControllerState()
+
+  const relayerBanners = (portfolio?.banners || []) as RelayerBanner[]
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
