@@ -50,8 +50,8 @@ jobs:
         id: node-version
         run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
         shell: bash
-
-      - name: Build in ARM64 Docker container
+      
+      - name: Build in ARM64 Docker container and upload source maps to Sentry
         run: |
           # Create .env file
           echo "RELAYER_URL=\"${{ vars.RELAYER_URL }}\"" >> .env
@@ -59,7 +59,6 @@ jobs:
           echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
           echo "REACT_APP_PIMLICO_API_KEY=\"${{ vars.REACT_APP_PIMLICO_API_KEY }}\"" >> .env
           echo "REACT_APP_ETHERSPOT_API_KEY=\"${{ vars.REACT_APP_ETHERSPOT_API_KEY }}\"" >> .env
-          echo "REACT_APP_JIFFYSCAN_API_KEY=\"${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}\"" >> .env
           echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
           echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
           echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
@@ -74,14 +73,14 @@ jobs:
             -e BROWSER_EXTENSION_PUBLIC_KEY="${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}" \
             -e REACT_APP_PIMLICO_API_KEY="${{ vars.REACT_APP_PIMLICO_API_KEY }}" \
             -e REACT_APP_ETHERSPOT_API_KEY="${{ vars.REACT_APP_ETHERSPOT_API_KEY }}" \
-            -e REACT_APP_JIFFYSCAN_API_KEY="${{ vars.REACT_APP_JIFFYSCAN_API_KEY }}" \
             -e NFT_CDN_URL="${{ vars.NFT_CDN_URL }}" \
             -e LEGENDS_NFT_ADDRESS="${{ vars.LEGENDS_NFT_ADDRESS }}" \
             -e LI_FI_API_KEY="${{ vars.LI_FI_API_KEY }}" \
             -e SENTRY_DSN_BROWSER_EXTENSION="${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}" \
+            -e SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}" \
             --entrypoint /bin/sh \
             node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
-            -c "apk add --no-cache git openssh zip python3 make g++ linux-headers eudev-dev && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions:gecko"
+            -c "apk add --no-cache curl git openssh zip python3 make g++ linux-headers eudev-dev && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions:gecko"
 
           # Give full permissions to the build directory for the GitHub Actions user
           sudo chown -R $(whoami):$(whoami) ./build
@@ -89,19 +88,6 @@ jobs:
 
           # Create source code zip outside of Docker
           zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
-
-      - name: Upload source maps to Sentry
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}
-        run: |
-          curl -sL https://sentry.io/get-cli/ | bash
-          ENGINE=gecko
-          VERSION=$(node -p "require('./build/$ENGINE-prod/manifest.json').version")
-          SENTRY_PROJECT=extension
-          sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
-          sentry-cli sourcemaps inject build/
-          sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod-source-maps/
-          sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 
       - name: Upload source code 📦
         uses: actions/upload-artifact@v4

@@ -107,7 +107,8 @@ const SignAccountOpScreen = () => {
     initDispatchedForId,
     setInitDispatchedForId,
     isSignDisabled,
-    bundlerNonceDiscrepancy
+    bundlerNonceDiscrepancy,
+    primaryButtonText
   } = useSign({
     handleUpdateStatus,
     signAccountOpState,
@@ -193,7 +194,7 @@ const SignAccountOpScreen = () => {
 
     if (code) {
       return (
-        <AlertVertical.Text type="warning" size="md" style={styles.alertText}>
+        <AlertVertical.Text type="warning" size="sm" style={styles.alertText}>
           {getErrorCodeStringFromReason(code || '', false)}
           <Pressable
             // @ts-ignore web style
@@ -208,7 +209,7 @@ const SignAccountOpScreen = () => {
 
     if (text) {
       return (
-        <AlertVertical.Text type="warning" size="md" style={styles.alertText}>
+        <AlertVertical.Text type="warning" size="sm" style={styles.alertText}>
           {text}
         </AlertVertical.Text>
       )
@@ -311,7 +312,6 @@ const SignAccountOpScreen = () => {
               }
               // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
               // because they can't sign it anyway
-
               isAddToCartDisabled={isAddToCartDisabled}
               onSign={onSignButtonClick}
               inProgressButtonText={
@@ -319,6 +319,7 @@ const SignAccountOpScreen = () => {
                   ? t('Sending...')
                   : t('Signing...')
               }
+              buttonText={primaryButtonText}
             />
           </View>
         )}
@@ -357,6 +358,7 @@ const SignAccountOpScreen = () => {
             {signAccountOpState?.errors?.length && !isViewOnly ? (
               <AlertVertical
                 type="warning"
+                size="sm"
                 title={signAccountOpState.errors[0].title}
                 text={errorText}
               />

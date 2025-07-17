@@ -57,11 +57,7 @@ const useMintCharacter = () => {
       return {
         isMinted: false
       }
-    const provider = new JsonRpcProvider(
-      CONFIG.APP_ENV === 'production'
-        ? 'https://invictus.ambire.com/ethereum'
-        : 'https://invictus.ambire.com/base'
-    )
+    const provider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
 
     const nftContract = new ethers.Contract(REWARDS_NFT_ADDRESS, REWARDS_NFT_ABI, provider)
 
@@ -82,7 +78,7 @@ const useMintCharacter = () => {
   // The transaction may be confirmed but the relayer may not have updated the character's metadata yet.
   const pollForCharacterAfterMint = useCallback(async () => {
     const checkCharacter = async () => {
-      if (pollAttempts > 10) {
+      if (pollAttempts > 20) {
         addToast(
           'We are unable to retrieve your character at this time. Please reload the page or contact support.',
           { type: 'error' }
@@ -98,7 +94,7 @@ const useMintCharacter = () => {
         return
       }
 
-      setTimeout(checkCharacter, 500)
+      setTimeout(checkCharacter, 1000)
     }
 
     await checkCharacter()
@@ -107,7 +103,7 @@ const useMintCharacter = () => {
   const mintCharacter = useCallback(
     async (type: number) => {
       try {
-        await switchNetwork(CONFIG.APP_ENV === 'production' ? ETHEREUM_CHAIN_ID : BASE_CHAIN_ID)
+        await switchNetwork(ETHEREUM_CHAIN_ID)
         setIsMinting(true)
         setLoadingMessage(CharacterLoadingMessage.Signing)
 
