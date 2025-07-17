@@ -37,7 +37,6 @@ const AddContactFormModal = ({ id, sheetRef, closeBottomSheet }: Props) => {
     formState: { isValid, isSubmitting, errors }
   } = useForm({
     mode: 'all',
-    criteriaMode: 'all',
     defaultValues: {
       name: '',
       addressState: {
@@ -66,7 +65,7 @@ const AddContactFormModal = ({ id, sheetRef, closeBottomSheet }: Props) => {
   )
 
   const handleRevalidate = useCallback(() => {
-    trigger('addressState.fieldValue')
+    trigger(['addressState.fieldValue', 'addressState.ensAddress'])
   }, [trigger])
 
   const customValidation = useMemo(() => {

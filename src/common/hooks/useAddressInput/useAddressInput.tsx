@@ -162,10 +162,7 @@ const useAddressInput = ({
   useEffect(() => {
     if (!handleRevalidate) return
 
-    // Only trigger if debounced message has caught up to validation
-    if (validation.message === debouncedValidation.message) {
-      handleRevalidate()
-    }
+    handleRevalidate()
   }, [handleRevalidate, debouncedValidation, validation.message])
 
   const reset = useCallback(() => {
