@@ -65,7 +65,8 @@ const AddContactFormModal = ({ id, sheetRef, closeBottomSheet }: Props) => {
   )
 
   const handleRevalidate = useCallback(() => {
-    trigger(['addressState.fieldValue', 'addressState.ensAddress'])
+    trigger('addressState.fieldValue')
+    trigger('addressState.ensAddress')
   }, [trigger])
 
   const customValidation = useMemo(() => {
