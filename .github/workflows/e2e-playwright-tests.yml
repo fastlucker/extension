@@ -86,11 +86,16 @@ jobs:
           node-version: 22.12.0
 
       - name: Install root dependencies
-        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
         shell: bash
-    
+
       - name: Build webkit extension
         run: yarn build:web:webkit
+
+      - name: Start trezor-emulator container
+        run: |
+          docker pull ghcr.io/trezor/trezor-user-env
+          docker compose -f ./docker-compose-mac.yml up --force-recreate -d
 
       - name: Install e2e test dependencies
         working-directory: ./e2e-playwright-tests
@@ -99,13 +104,6 @@ jobs:
       - name: Install Playwright browsers
         working-directory: ./e2e-playwright-tests
         run: npx playwright install --with-deps chromium
-
-      # Test if CI pipeline can work in headless mode
-      # - name: Start virtual display (Xvfb)
-      #   run: |
-      #     sudo apt-get install -y xvfb
-      #     Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
-      #   shell: bash
 
       - name: Run Balance Check test for SA and BA
         working-directory: ./e2e-playwright-tests

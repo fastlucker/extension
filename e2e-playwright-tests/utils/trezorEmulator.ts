@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import TrezorConnect from '@trezor/connect'
-import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link/libDev/src/websocket-client'
+import { TrezorUserEnvLink } from '@trezor/trezor-user-env-link/libDev/src/websocket-client.js'
 
 const UI = {
   RECEIVE_PERMISSION: 'ui-receive_permission',
@@ -121,7 +121,7 @@ export const setup = async (trezorUserEnvLink, options) => {
   await trezorUserEnvLink.api.startBridge()
 }
 
-export const initTrezorConnect = async (trezorUserEnvLink, options) => {
+export const initTrezorConnect = async (trezorUserEnvLink, options?) => {
   TrezorConnect.removeAllListeners()
 
   TrezorConnect.on('device-connect', (device) => {
