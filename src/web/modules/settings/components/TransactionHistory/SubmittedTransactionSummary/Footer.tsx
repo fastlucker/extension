@@ -55,7 +55,7 @@ const Footer: FC<Props> = ({
   const iconSize = 26 * sizeMultiplier[size]
   const iconSizeSm = 14 * sizeMultiplier[size]
 
-  const canViewFeeAndRepeatTransaction =
+  const canViewFee =
     status !== AccountOpStatus.Rejected &&
     status !== AccountOpStatus.BroadcastButStuck &&
     status !== AccountOpStatus.UnknownButPastNonce
@@ -126,7 +126,7 @@ const Footer: FC<Props> = ({
     <View style={spacings.phMd}>
       <View style={styles.footer}>
         <StatusBadge status={status} textSize={textSize} />
-        {canViewFeeAndRepeatTransaction && (
+        {canViewFee && (
           <View style={spacings.mrMd}>
             <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
               {t('Fee')}:
@@ -166,7 +166,7 @@ const Footer: FC<Props> = ({
             </Text>
             <LinkIcon width={iconSizeSm} height={iconSizeSm} />
           </TouchableOpacity>
-          {rawCalls?.length && canViewFeeAndRepeatTransaction ? (
+          {rawCalls?.length ? (
             <RepeatTransaction
               accountAddr={accountAddr}
               chainId={network.chainId}
