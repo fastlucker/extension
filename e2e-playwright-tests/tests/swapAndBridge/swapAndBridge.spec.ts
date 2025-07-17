@@ -64,10 +64,10 @@ test.describe('swapAndBridgePage Smart Account', () => {
   }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
-    const link = tokens.link.base
+    const eth = tokens.eth.base
 
     await swapAndBridgePage.verifyDefaultReceiveToken(usdc, wallet)
-    await swapAndBridgePage.verifyDefaultReceiveToken(wallet, link)
+    await swapAndBridgePage.verifyDefaultReceiveToken(eth, wallet)
   })
 
   test('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async ({
