@@ -2,6 +2,7 @@ import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
 import { BrowserContext, expect, Locator, Page } from '@playwright/test'
+
 import { categorizeRequests } from '../utils/requests'
 
 export abstract class BasePage {
@@ -124,5 +125,12 @@ export abstract class BasePage {
 
   getCategorizedRequests() {
     return categorizeRequests(this.collectedRequests)
+  }
+
+  async getDashboardTokenBalance(token: Token) {
+    const balanceText = await this.getText(`token-balance-${token.address}.${token.chainId}`)
+    const tokenBalance = parseFloat(balanceText)
+
+    return tokenBalance
   }
 }
