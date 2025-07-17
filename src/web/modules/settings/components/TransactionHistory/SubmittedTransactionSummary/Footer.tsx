@@ -55,7 +55,7 @@ const Footer: FC<Props> = ({
   const iconSize = 26 * sizeMultiplier[size]
   const iconSizeSm = 14 * sizeMultiplier[size]
 
-  const canViewFeeAndTransaction =
+  const canViewFeeAndRepeatTransaction =
     status !== AccountOpStatus.Rejected &&
     status !== AccountOpStatus.BroadcastButStuck &&
     status !== AccountOpStatus.UnknownButPastNonce
@@ -64,14 +64,12 @@ const Footer: FC<Props> = ({
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
 
   const handleViewTransaction = useCallback(async () => {
-    if (!chainId || !txnId) {
-      let errorMsg = t("Can't open the transaction details because ")
-      const reasons = []
-      if (!chainId) reasons.push(t('the network information is missing'))
-      if (!txnId) reasons.push(t('the transaction ID is missing'))
-      errorMsg += `${reasons.join(t(' and '))}.`
+    if (!chainId) {
+      const message = t(
+        "Can't open the transaction details because the network information is missing."
+      )
+      addToast(message, { type: 'error' })
 
-      addToast(errorMsg, { type: 'error' })
       return
     }
 
@@ -128,7 +126,7 @@ const Footer: FC<Props> = ({
     <View style={spacings.phMd}>
       <View style={styles.footer}>
         <StatusBadge status={status} textSize={textSize} />
-        {canViewFeeAndTransaction && (
+        {canViewFeeAndRepeatTransaction && (
           <View style={spacings.mrMd}>
             <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
               {t('Fee')}:
@@ -152,36 +150,34 @@ const Footer: FC<Props> = ({
           timestamp={timestamp}
           numberOfLines={2}
         />
-        {canViewFeeAndTransaction && (
-          <View style={[flexbox.alignEnd]}>
-            <TouchableOpacity
-              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
-              onPress={handleViewTransaction}
+        <View style={[flexbox.alignEnd]}>
+          <TouchableOpacity
+            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
+            onPress={handleViewTransaction}
+          >
+            <Text
+              fontSize={textSize}
+              appearance="secondaryText"
+              weight="medium"
+              style={spacings.mrMi}
+              underline
             >
-              <Text
-                fontSize={textSize}
-                appearance="secondaryText"
-                weight="medium"
-                style={spacings.mrMi}
-                underline
-              >
-                {t('View transaction')}
-              </Text>
-              <LinkIcon width={iconSizeSm} height={iconSizeSm} />
-            </TouchableOpacity>
-            {rawCalls?.length ? (
-              <RepeatTransaction
-                accountAddr={accountAddr}
-                chainId={network.chainId}
-                rawCalls={rawCalls}
-                textSize={textSize}
-                iconSize={iconSizeSm}
-              />
-            ) : (
-              <View />
-            )}
-          </View>
-        )}
+              {t('View transaction')}
+            </Text>
+            <LinkIcon width={iconSizeSm} height={iconSizeSm} />
+          </TouchableOpacity>
+          {rawCalls?.length && canViewFeeAndRepeatTransaction ? (
+            <RepeatTransaction
+              accountAddr={accountAddr}
+              chainId={network.chainId}
+              rawCalls={rawCalls}
+              textSize={textSize}
+              iconSize={iconSizeSm}
+            />
+          ) : (
+            <View />
+          )}
+        </View>
       </View>
     </View>
   )
