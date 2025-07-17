@@ -105,19 +105,17 @@ const SwapAndBridgeScreen = () => {
     (!signAccountOpController ||
       signAccountOpController.estimation.status === EstimationStatus.Loading)
 
-  const isNotReadyToProceed = useMemo(() => {
+  const isLoading = useMemo(() => {
     return (
-      formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
       mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
       updateQuoteStatus === 'LOADING' ||
       isEstimatingRoute
     )
-  }, [
-    isEstimatingRoute,
-    formStatus,
-    mainCtrlStatuses.buildSwapAndBridgeUserRequest,
-    updateQuoteStatus
-  ])
+  }, [isEstimatingRoute, mainCtrlStatuses.buildSwapAndBridgeUserRequest, updateQuoteStatus])
+
+  const isNotReadyToProceed = useMemo(() => {
+    return formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || isLoading
+  }, [formStatus, isLoading])
 
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
@@ -183,6 +181,7 @@ const SwapAndBridgeScreen = () => {
         <Buttons
           signAccountOpErrors={swapSignErrors}
           isNotReadyToProceed={isNotReadyToProceed}
+          isLoading={isLoading}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
           networkUserRequests={networkUserRequests}
@@ -192,10 +191,11 @@ const SwapAndBridgeScreen = () => {
     )
   }, [
     handleBackButtonPress,
+    swapSignErrors,
+    isNotReadyToProceed,
+    isLoading,
     handleSubmitForm,
     isBridge,
-    isNotReadyToProceed,
-    swapSignErrors,
     networkUserRequests,
     isLocalStateOutOfSync
   ])

@@ -105,6 +105,10 @@ jobs:
         working-directory: ./e2e-playwright-tests
         run: npx playwright install --with-deps chromium
 
+      - name: Run Balance Check test for SA and BA
+        working-directory: ./e2e-playwright-tests
+        run: npm run balance:test
+
       - name: Run Playwright tests
         working-directory: ./e2e-playwright-tests
         run: npm run test
