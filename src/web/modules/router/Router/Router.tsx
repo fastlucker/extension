@@ -36,7 +36,7 @@ const Router = () => {
         <Alert
           type="warning"
           title={t(
-            "The initial loading is taking longer than expected. This might be due to a connection issue on your side — or a glitch on ours. If it doesn't resolve soon, please try disabling and re-enabling the extension, or restarting your browser."
+            "The initial loading is taking longer than expected. This might be due to a connection issue on your side - or a glitch on ours. If it doesn't resolve soon, please try disabling and re-enabling the extension, or restarting your browser."
           )}
           style={{ maxWidth: 500 }}
         />
