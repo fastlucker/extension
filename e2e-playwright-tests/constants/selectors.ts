@@ -181,6 +181,7 @@ const selectors = {
     `((//div[contains(normalize-space(), "${networkName} settings saved!")]))[4]`, // TODO: snackbar selector finding 8 elements; change once we have ID on FE
   // Sign
   dappConnectButton: 'dapp-connect-button',
+  dappSecurityCheckPassed: 'dapp-security-check-passed',
   signMessageButton: 'button-sign',
   // Notifications
   networkSuccessfullyAddedSnackbar:
