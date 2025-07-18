@@ -1,7 +1,7 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useWindowDimensions, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
@@ -20,7 +20,6 @@ import useAddressBookControllerState from '@web/hooks/useAddressBookControllerSt
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 import AddContactFormModal from '../AddContactFormModal'
-import Section from '../Section'
 
 const ContactsList = () => {
   const { t } = useTranslation()
@@ -65,11 +64,7 @@ const ContactsList = () => {
         testID="add-contact-form-modal"
         text={t('+ Add a contact')}
         type="primary"
-        style={[
-          spacings.mrTy,
-          spacings.phXl,
-          { height: 48, width: isWidthS ? undefined : '100%', marginTop: 2 }
-        ]}
+        style={[spacings.mrTy, spacings.phXl, { height: 48, width: isWidthS ? undefined : '100%' }]}
         hasBottomSpacing={false}
         onPress={() => openAddContactForm()}
       />

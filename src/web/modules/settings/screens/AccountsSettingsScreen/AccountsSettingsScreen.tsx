@@ -145,7 +145,7 @@ const AccountsSettingsScreen = () => {
             style={[
               spacings.mrTy,
               spacings.phXl,
-              { height: 48, width: isWidthS ? undefined : '100%', marginTop: 2 }
+              { height: 48, width: isWidthS ? undefined : '100%' }
             ]}
             hasBottomSpacing={false}
             onPress={openBottomSheet as any}
