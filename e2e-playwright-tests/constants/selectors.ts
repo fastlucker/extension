@@ -34,6 +34,7 @@ const selectors = {
   viewOnlyAddressField: 'view-only-address-field',
   viewOnlyBtnImport: 'view-only-button-import',
   addOneMoreAddress: 'add-one-more-address',
+  addContactFormButton: 'add-contact-form-modal',
   contactNameField: 'contact-name-field',
   contactNameText: 'contact-name-text', // TODO: selector could be more precise
   contactAddressText: 'address',
