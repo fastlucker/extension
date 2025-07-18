@@ -78,6 +78,12 @@ test.describe('trezor', () => {
   test.afterAll(async () => {
     // Cleanup emulator and dispose of resources
     try {
+      // Skip cleanup if WS is disconnected
+      if (!controller.ws || controller.ws.readyState !== WebSocket.OPEN) {
+        console.warn('TrezorUserEnvLink WS already disconnected. Skipping cleanup.')
+        return
+      }
+
       await controller.api.wipeEmu()
       await controller.api.stopBridge()
       await controller.api.stopEmu()
