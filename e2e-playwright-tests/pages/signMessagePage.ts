@@ -90,8 +90,10 @@ export class SignMessagePage extends BasePage {
     const verifyButton = this.page.getByRole('button', { name: 'Verify' })
     await verifyButton.click()
 
+    // Here we added a slightly higher timeout as a hotfix, since the public RPCs used in SigTool are sometimes slow to respond.
+    // As a better solution, we plan to replace the RPCs with Invictus.
     await expect(this.page.locator('.verifyFeedback-text')).toHaveText('Signature is Valid', {
-      timeout: 15000
+      timeout: 60000
     })
   }
 }
