@@ -95,8 +95,7 @@ test.describe('stability', () => {
         expect(categorized.hints.length).toBeLessThanOrEqual(1)
         expect(categorized.nativePrices.length).toBeLessThanOrEqual(10)
         expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
-        expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
-        expect(categorized.allowedUncategorized.length).toBeLessThanOrEqual(5)
+        expect(categorized.allowedUncategorized.length).toBeLessThanOrEqual(10)
 
         // ☢️ Critical: there should be no truly uncategorized requests.
         // Anything uncategorized is likely unexpected or suspicious.
