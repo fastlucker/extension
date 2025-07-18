@@ -16,6 +16,7 @@ import Text from '@common/components/Text'
 import useAccountsList from '@common/hooks/useAccountsList'
 import useElementSize from '@common/hooks/useElementSize'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -161,11 +162,40 @@ const AccountsSettingsScreen = () => {
     },
     [shortenAccountAddr, theme, accountOptions]
   )
+  const { maxWidthSize } = useWindowSize()
+  const isWidthS = maxWidthSize('s')
 
   return (
     <>
       <SettingsPageHeader title="Accounts">
-        <Search autoFocus placeholder="Search for account" control={control} />
+        <View
+          style={[
+            flexbox.flex1,
+            isWidthS && flexbox.directionRow,
+            flexbox.justifyEnd,
+            flexbox.alignCenter
+          ]}
+        >
+          <Button
+            testID="add-account-modal"
+            text={t('+ Add account')}
+            type="primary"
+            style={[
+              spacings.mrTy,
+              spacings.phXl,
+              { height: 48, width: isWidthS ? undefined : '100%' }
+            ]}
+            hasBottomSpacing={false}
+            onPress={openBottomSheet as any}
+          />
+          <Search
+            autoFocus
+            placeholder={t('Search for account')}
+            control={control}
+            height={48}
+            containerStyle={{ width: isWidthS ? '50%' : '100%' }}
+          />
+        </View>
       </SettingsPageHeader>
       <View style={[flexbox.flex1]} ref={accountsContainerRef}>
         <ScrollableWrapper
@@ -178,12 +208,6 @@ const AccountsSettingsScreen = () => {
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
       </View>
-      <Button
-        type="secondary"
-        onPress={openBottomSheet as any}
-        text="+ Add account"
-        hasBottomSpacing={false}
-      />
       <AccountSmartSettingsBottomSheet
         sheetRef={sheetRefAccountSmartSettings}
         closeBottomSheet={() => {

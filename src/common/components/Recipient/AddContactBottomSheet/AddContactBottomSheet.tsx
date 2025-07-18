@@ -92,7 +92,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
       </View>
       <View style={[spacings.phXl, spacings.ptXl, spacings.pb4Xl]}>
         <Input
-          testID='form-contact-name-field'
+          testID="form-contact-name-field"
           label={t('Name')}
           placeholder={t('Contact name')}
           onChangeText={setName}
@@ -104,6 +104,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
           {t('Preview')}
         </Text>
         <AddressBookContact
+          avatarSize={32}
           name={name || t('Give your contact a name')}
           address={address}
           isEditable={false}
@@ -132,7 +133,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
           }}
         />
         <Button
-          testID='form-add-to-contacts-button'
+          testID="form-add-to-contacts-button"
           style={{
             minWidth: 240
           }}

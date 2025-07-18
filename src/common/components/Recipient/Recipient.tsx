@@ -222,6 +222,7 @@ const Recipient: React.FC<Props> = ({
           value: contact.address,
           label: (
             <AddressBookContact
+              avatarSize={32}
               testID={`address-book-my-wallet-contact-${index + 1}`}
               key={contact.address}
               style={{
@@ -245,6 +246,7 @@ const Recipient: React.FC<Props> = ({
           value: contact.address,
           label: (
             <AddressBookContact
+              avatarSize={32}
               key={contact.address}
               style={{
                 borderRadius: 0,
