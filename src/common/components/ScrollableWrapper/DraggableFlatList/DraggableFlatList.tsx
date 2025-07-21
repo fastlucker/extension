@@ -7,7 +7,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 import DraggableItem from './DraggableItem'
 
-type SortableFlatListProps<T> = {
+type DraggableFlatListProps<T> = {
   data: T[]
   keyExtractor: (item: T) => string
   renderItem: (
@@ -26,7 +26,7 @@ type SortableFlatListProps<T> = {
   keyboardDismissMode?: ScrollViewProps['keyboardDismissMode']
 } & Omit<ScrollViewProps, 'children'>
 
-const SortableFlatList = forwardRef<ScrollView, SortableFlatListProps<any>>(
+const DraggableFlatList = forwardRef<ScrollView, DraggableFlatListProps<any>>(
   (
     {
       data,
@@ -79,4 +79,4 @@ const SortableFlatList = forwardRef<ScrollView, SortableFlatListProps<any>>(
   }
 )
 
-export default React.memo(SortableFlatList)
+export default React.memo(DraggableFlatList)
