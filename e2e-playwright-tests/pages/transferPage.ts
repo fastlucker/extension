@@ -19,7 +19,7 @@ export class TransferPage extends BasePage {
   }
 
   async navigateToTransfer() {
-    await this.click(selectors.dashboardButtonSend)
+    await this.click(selectors.dashboard.sendButton)
   }
 
   async navigateToDashboard() {
@@ -27,7 +27,7 @@ export class TransferPage extends BasePage {
   }
 
   async openAddressBookPage() {
-    await this.click(selectors.dashboardHumburgerBtn)
+    await this.click(selectors.dashboard.hamburgerButton)
 
     // go to Address book page and assert url
     await this.page.locator('//div[contains(text(),"Address Book")]').first().click()

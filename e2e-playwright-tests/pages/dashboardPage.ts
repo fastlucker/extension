@@ -81,12 +81,12 @@ export class DashboardPage extends BasePage {
 
     // TODO: remove this once we have unified token address on swap and bridge and dashboard pages
     const tokenSelectors: Record<string, string> = {
-      'WALLET-8453': selectors.walletBaseTokenBalance,
-      'USDC-8453': selectors.usdcBaseTokenBalance,
-      'USDC-10': selectors.usdcOPBaseTokenBalance,
-      'USDC.E-10': selectors.usdcEOPBaseTokenBalance,
-      'DAI-10': selectors.daiOPBaseTokenBalance,
-      'xWALLET-1': selectors.xWalletETHBaseTokenBalance
+      'WALLET-8453': selectors.dashboard.walletBaseTokenBalance,
+      'USDC-8453': selectors.dashboard.usdcBaseTokenBalance,
+      'USDC-10': selectors.dashboard.usdcOPBaseTokenBalance,
+      'USDC.E-10': selectors.dashboard.usdcEOPBaseTokenBalance,
+      'DAI-10': selectors.dashboard.daiOPBaseTokenBalance,
+      'xWALLET-1': selectors.dashboard.xWalletETHBaseTokenBalance
     }
 
     const selector = tokenSelectors[key]
@@ -104,5 +104,19 @@ export class DashboardPage extends BasePage {
       error = `${token.symbol} balance is only: ${tokenBalance}.`
     }
     return { token, error }
+  }
+
+  async checkNoTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(
+      selectors.dashboard.noTransactionOnActivityTab,
+      'No transactions history for Account '
+    )
+  }
+
+  async checkSendTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(selectors.dashboard.confirmedTransactionPill, 'Send')
+    await this.compareText(selectors.dashboard.confirmedTransactionPill, 'Confirmed')
   }
 }

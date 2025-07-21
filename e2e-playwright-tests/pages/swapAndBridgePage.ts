@@ -67,7 +67,7 @@ export class SwapAndBridgePage extends BasePage {
 
   async openSwapAndBridge() {
     if (!this.page.url().includes('/swap-and-bridge')) {
-      await this.click(selectors.dashboardButtonSwapAndBridge)
+      await this.click(selectors.dashboard.swapAndBridgeButton)
       await this.verifyIfOnSwapAndBridgePage()
     } else {
       await this.page.reload()

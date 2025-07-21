@@ -14,7 +14,7 @@ export class SettingsPage extends BasePage {
   }
 
   async openSettingsGeneral() {
-    await this.click(selectors.dashboardHumburgerBtn)
+    await this.click(selectors.dashboard.hamburgerButton)
     await this.checkUrl('/settings/general')
   }
 

@@ -2,7 +2,7 @@ import { bootstrapWithStorage } from 'common-helpers/bootstrap'
 import { BA_ADDRESS } from 'constants/env'
 import selectors from 'constants/selectors'
 
-import { expect, Page } from '@playwright/test'
+import { expect } from '@playwright/test'
 
 import { BasePage } from './basePage'
 

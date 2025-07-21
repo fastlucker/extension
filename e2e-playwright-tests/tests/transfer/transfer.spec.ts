@@ -20,6 +20,7 @@ test.describe('transfer', () => {
     const payWithGasTank = true
 
     await test.step('start send transfer', async () => {
+      // await transferPage.pause()
       await transferPage.navigateToTransfer()
     })
 
@@ -33,6 +34,8 @@ test.describe('transfer', () => {
 
     await test.step('send transaction', async () => {
       await transferPage.signAndValidate(feeToken, payWithGasTank)
+      await transferPage.pause()
+
     })
   })
 
