@@ -20,7 +20,8 @@ const selectors = {
     balanceErrorIcon: 'balance-affecting-error-icon',
     portfolioErrorAlert: 'portfolio-error-alert',
     noTransactionOnActivityTab: 'no-transaction-history-text',
-    confirmedTransactionPill: '//div[contains(text(),"Confirmed")]'
+    transactionSendText: '(//div[contains(text(),"Send")])[2]', // TODO: change once we have id on FE
+    confirmedTransactionPill: '//div[contains(text(),"Confirmed")]' // TODO: chage once we have id on FE
   },
   account: 'account',
   importBtn: 'import-button',

@@ -5,7 +5,7 @@ import { test } from 'fixtures/pageObjects'
 
 import { expect, Page } from '@playwright/test'
 
-test.describe('transfer', () => {
+test.describe.only('transfer', () => {
   test.beforeEach(async ({ transferPage }) => {
     await transferPage.init(baParams)
   })
@@ -19,8 +19,11 @@ test.describe('transfer', () => {
     const feeToken = tokens.usdc.ethereum
     const payWithGasTank = true
 
+    await test.step('assert no transaction on Activity tab', async () => {
+      await transferPage.checkNoTransactionOnActivityTab()
+    })
+
     await test.step('start send transfer', async () => {
-      // await transferPage.pause()
       await transferPage.navigateToTransfer()
     })
 
@@ -34,8 +37,10 @@ test.describe('transfer', () => {
 
     await test.step('send transaction', async () => {
       await transferPage.signAndValidate(feeToken, payWithGasTank)
-      await transferPage.pause()
+    })
 
+    await test.step('assert new transaction on Activity tab', async () => {
+      await transferPage.checkSendTransactionOnActivityTab()
     })
   })
 
@@ -48,6 +53,10 @@ test.describe('transfer', () => {
     const feeToken = tokens.usdc.optimism
     const payWithGasTank = false
 
+    await test.step('assert no transaction on Activity tab', async () => {
+      await transferPage.checkNoTransactionOnActivityTab()
+    })
+
     await test.step('start send transfer', async () => {
       await transferPage.navigateToTransfer()
     })
@@ -62,6 +71,10 @@ test.describe('transfer', () => {
 
     await test.step('send transaction', async () => {
       await transferPage.signAndValidate(feeToken, payWithGasTank)
+    })
+
+    await test.step('assert new transaction on Activity tab', async () => {
+      await transferPage.checkSendTransactionOnActivityTab()
     })
   })
 
@@ -118,13 +131,10 @@ test.describe('transfer', () => {
       await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible()
     })
 
-    await test.step(
-      'stop monitoring requests and expect no uncategorized requests to be made',
-      async () => {
-        const { uncategorized } = transferPage.getCategorizedRequests()
-        expect(uncategorized.length).toBeLessThanOrEqual(0)
-      }
-    )
+    await test.step('stop monitoring requests and expect no uncategorized requests to be made', async () => {
+      const { uncategorized } = transferPage.getCategorizedRequests()
+      expect(uncategorized.length).toBeLessThanOrEqual(0)
+    })
   })
 
   test('add contact in address book and send transaction to newly added contact', async ({
@@ -136,6 +146,10 @@ test.describe('transfer', () => {
     const feeToken = tokens.usdc.optimism
     const payWithGasTank = false
     const isUnknownAddress = false
+
+    await test.step('assert no transaction on Activity tab', async () => {
+      await transferPage.checkNoTransactionOnActivityTab()
+    })
 
     await test.step('go to address book page', async () => {
       await transferPage.openAddressBookPage()
@@ -171,6 +185,10 @@ test.describe('transfer', () => {
     await test.step('send transaction', async () => {
       await transferPage.signAndValidate(feeToken, payWithGasTank)
     })
+
+    await test.step('assert new transaction on Activity tab', async () => {
+      await transferPage.checkSendTransactionOnActivityTab()
+    })
   })
 
   test('Start transfer, add contact, send transaction to newly added contact', async ({
@@ -178,6 +196,10 @@ test.describe('transfer', () => {
   }) => {
     const newContactName = 'First Address'
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
+
+    await test.step('assert no transaction on Activity tab', async () => {
+      await transferPage.checkNoTransactionOnActivityTab()
+    })
 
     await test.step('start send transfer', async () => {
       await transferPage.navigateToTransfer()
@@ -198,6 +220,10 @@ test.describe('transfer', () => {
       const payWithGasTank = false
 
       await transferPage.signAndValidate(feeToken, payWithGasTank)
+    })
+
+    await test.step('assert new transaction on Activity tab', async () => {
+      await transferPage.checkSendTransactionOnActivityTab()
     })
   })
 })

@@ -66,4 +66,20 @@ export class GasTankPage extends BasePage {
     }
     return newBalance
   }
+
+  // TODO: move to dashboard page once POM is refactored
+  async checkNoTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(
+      selectors.dashboard.noTransactionOnActivityTab,
+      'No transactions history for Account '
+    )
+  }
+
+  // TODO: move to dashboard page once POM is refactored
+  async checkSendTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(selectors.dashboard.confirmedTransactionPill, 'Send')
+    await this.compareText(selectors.dashboard.confirmedTransactionPill, 'Confirmed')
+  }
 }

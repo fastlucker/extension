@@ -106,6 +106,7 @@ export class DashboardPage extends BasePage {
     return { token, error }
   }
 
+  // TODO: use this method to check activity tab after POM refactor
   async checkNoTransactionOnActivityTab() {
     await this.click(selectors.dashboard.activityTabButton)
     await this.compareText(
@@ -114,9 +115,12 @@ export class DashboardPage extends BasePage {
     )
   }
 
+  // TODO: use this method to check activity tab after POM refactor
   async checkSendTransactionOnActivityTab() {
     await this.click(selectors.dashboard.activityTabButton)
-    await this.compareText(selectors.dashboard.confirmedTransactionPill, 'Send')
-    await this.compareText(selectors.dashboard.confirmedTransactionPill, 'Confirmed')
+    await expect(this.page.locator(selectors.dashboard.transactionSendText)).toContainText('Send')
+    await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
+      'Confirmed'
+    )
   }
 }

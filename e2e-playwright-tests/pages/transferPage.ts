@@ -71,6 +71,9 @@ export class TransferPage extends BasePage {
 
     // Validate
     await this.compareText(selectors.txnStatus, 'Transfer done!')
+
+    // Close page
+    await this.click(selectors.closeProgressModalButton)
   }
 
   async addToBatch() {
@@ -89,7 +92,7 @@ export class TransferPage extends BasePage {
     }
 
     // add new contact
-    await this.page.waitForTimeout(500)
+    await this.page.waitForTimeout(1000)
     await this.entertext(selectors.formAddContactNameField, contactName)
     await this.click(selectors.formAddToContactsButton)
 
@@ -105,5 +108,23 @@ export class TransferPage extends BasePage {
 
     await expect(addedContactName).toContainText(contactName)
     await expect(addedContactAddress).toContainText(contactAddress)
+  }
+
+  // TODO: move to dashboard page once POM is refactored
+  async checkNoTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(
+      selectors.dashboard.noTransactionOnActivityTab,
+      'No transactions history for Account '
+    )
+  }
+
+  // TODO: move to dashboard page once POM is refactored
+  async checkSendTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await expect(this.page.locator(selectors.dashboard.transactionSendText)).toContainText('Send')
+    await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
+      'Confirmed'
+    )
   }
 }

@@ -22,9 +22,9 @@ test.describe('stability', () => {
       'click on the error indicator and appropriate message is expected to be shown',
       async () => {
         const page = stabilityPage.page
-        await page.getByTestId(selectors.balanceErrorIcon).click()
+        await page.getByTestId(selectors.dashboard.balanceErrorIcon).click()
 
-        const rpcErrorBanner = page.getByTestId(selectors.portfolioErrorAlert).first()
+        const rpcErrorBanner = page.getByTestId(selectors.dashboard.portfolioErrorAlert).first()
 
         await expect(rpcErrorBanner).toBeVisible()
         await expect(rpcErrorBanner).toContainText('Failed to retrieve network data for Polygon')
@@ -55,8 +55,8 @@ test.describe('stability', () => {
     await test.step(
       'click on the error indicator and appropriate message is expected to be shown',
       async () => {
-        await page.getByTestId(selectors.balanceErrorIcon).click()
-        const velcroErrorBanner = page.getByTestId(selectors.portfolioErrorAlert)
+        await page.getByTestId(selectors.dashboard.balanceErrorIcon).click()
+        const velcroErrorBanner = page.getByTestId(selectors.dashboard.portfolioErrorAlert)
 
         await expect(velcroErrorBanner).toBeVisible()
         await expect(velcroErrorBanner).toContainText(
