@@ -205,6 +205,14 @@ const AccountPersonalizeScreen = () => {
     [dispatch, getValues]
   )
 
+  useEffect(() => {
+    const handleBeforeUnload = () => handleSave()
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [handleSave])
+
   const handleComplete = useCallback(async () => {
     await handleSubmit(handleSave)()
     dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
