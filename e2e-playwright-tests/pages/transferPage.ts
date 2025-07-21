@@ -61,12 +61,14 @@ export class TransferPage extends BasePage {
 
   async signAndValidate(feeToken: Token, payWithGasTank?: boolean) {
     // Proceed
+    await this.expectButtonEnabled(selectors.proceedBtn)
     await this.click(selectors.proceedBtn)
 
     // Select Fee token and payer
     await this.clickOnMenuFeeToken(baParams.envSelectedAccount, feeToken, payWithGasTank)
 
     // Sign & Broadcast
+    await this.expectButtonEnabled(selectors.signButton)
     await this.click(selectors.signButton)
 
     // Validate

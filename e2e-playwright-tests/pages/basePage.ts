@@ -106,6 +106,10 @@ export abstract class BasePage {
     await expect(this.page.getByTestId(selector)).toBeVisible()
   }
 
+  async expectButtonEnabled(selector: string) {
+    await expect(this.page.getByTestId(selector)).toBeEnabled()
+  }
+
   async compareText(selector: string, text: string) {
     await expect(this.page.getByTestId(selector)).toContainText(text)
   }
