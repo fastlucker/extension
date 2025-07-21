@@ -31,4 +31,4 @@ const DraggableItem = ({ id, children }: Props) => {
   )
 }
 
-export default DraggableItem
+export default React.memo(DraggableItem)

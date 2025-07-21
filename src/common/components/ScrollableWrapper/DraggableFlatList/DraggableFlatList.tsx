@@ -79,4 +79,4 @@ const SortableFlatList = forwardRef<ScrollView, SortableFlatListProps<any>>(
   }
 )
 
-export default SortableFlatList
+export default React.memo(SortableFlatList)
