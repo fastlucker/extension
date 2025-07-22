@@ -5,7 +5,7 @@ function categorizeRequests(requests: string[]) {
     'https://raw.githubusercontent.com/phantom/blocklist/master/blocklist.yaml',
     'https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/main/src/config.json'
   ]
-  const thirdPartyHostsAllowList = ['api.pimlico.io', 'li.quest']
+  const thirdPartyHostsAllowList = ['api.pimlico.io', 'li.quest', 'bundler.biconomy.io']
 
   const reqs = requests.reduce(
     (acc, urlStr) => {
