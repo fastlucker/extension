@@ -35,9 +35,10 @@ export class TransferPage extends BasePage {
   }
 
   async fillAmount(token: Token) {
+    await this.page.waitForTimeout(2000) // script misses click due to modal animation sometimes
     await this.clickOnMenuToken(token)
     // Amount
-    await this.page.waitForTimeout(1000) // without pause it misses the amount field and continues on
+    await this.page.waitForTimeout(2000) // script misses input due to modal animation sometimes
     await this.entertext(selectors.amountField, '0.001')
   }
 

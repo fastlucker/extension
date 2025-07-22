@@ -21,7 +21,8 @@ const selectors = {
     portfolioErrorAlert: 'portfolio-error-alert',
     noTransactionOnActivityTab: 'no-transaction-history-text',
     transactionSendText: '(//div[contains(text(),"Send")])[2]', // TODO: change once we have id on FE
-    confirmedTransactionPill: '//div[contains(text(),"Confirmed")]' // TODO: chage once we have id on FE
+    confirmedTransactionPill: '//div[contains(text(),"Confirmed")]', // TODO: chage once we have id on FE
+    fuelGasTankTransactionPill: '//div[contains(text(),"Fuel gas tank with")]' // TODO: chage once we have id on FE
   },
   account: 'account',
   importBtn: 'import-button',

@@ -19,6 +19,7 @@ export abstract class BasePage {
   }
 
   async click(selector: string, index?: number): Promise<void> {
+    await this.page.waitForSelector(selector)
     await this.page
       .getByTestId(selector)
       .nth(index ?? 0)
