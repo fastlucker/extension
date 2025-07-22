@@ -17,6 +17,7 @@ type Props = {
   children?: React.ReactNode
   size?: 'sm' | 'md' | 'lg'
   specialType?: SpecialBadgeType
+  testId?: string
 }
 
 export type { BadgeType, Props, SpecialBadgeType }

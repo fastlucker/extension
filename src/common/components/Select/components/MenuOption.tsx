@@ -11,13 +11,10 @@ import getStyles from '../styles'
 import { SelectProps, SelectValue } from '../types'
 
 const formatOptionString = (optionString: string): string => {
-  const formattedString = optionString
-    .toLowerCase()
+  return optionString
     .replace(/[()]/g, '')
     .replace(/\s*,\s*/g, '-')
     .replace(/\s+/g, '-')
-
-  return formattedString
 }
 
 const Option = React.memo(({ item, ...rest }: { item: SelectValue }) => {
