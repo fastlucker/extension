@@ -1,7 +1,22 @@
-import React, { forwardRef, useCallback } from 'react'
-import { FlatList, FlatListProps, ScrollViewProps, StyleProp, ViewStyle } from 'react-native'
+import React, { forwardRef, useCallback, useRef } from 'react'
+import {
+  FlatList,
+  FlatListProps,
+  Platform,
+  ScrollViewProps,
+  StyleProp,
+  View,
+  ViewStyle
+} from 'react-native'
 
-import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
@@ -35,12 +50,15 @@ const DraggableFlatList = forwardRef(
       onDragEnd,
       getItemLayout,
       scrollableWrapperStyles,
+      contentContainerStyle,
       keyboardShouldPersistTaps,
       keyboardDismissMode,
       ...rest
     }: DraggableFlatListProps<T>,
     ref: any
   ) => {
+    const flatListRef = useRef<any>(null)
+
     const sensors = useSensors(useSensor(PointerSensor))
 
     const handleDragEnd = useCallback(
@@ -57,33 +75,46 @@ const DraggableFlatList = forwardRef(
     )
 
     return (
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        modifiers={[restrictToVerticalAxis]}
+      <View
+        style={[
+          { flex: 1, overflow: Platform.OS === 'web' ? 'hidden' : undefined },
+          scrollableWrapperStyles
+        ]}
       >
-        <SortableContext items={data.map(keyExtractor)} strategy={verticalListSortingStrategy}>
-          <FlatList
-            ref={ref}
-            data={data}
-            keyExtractor={keyExtractor}
-            getItemLayout={getItemLayout}
-            style={scrollableWrapperStyles}
-            keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
-            keyboardDismissMode={keyboardDismissMode || 'none'}
-            alwaysBounceVertical={false}
-            renderItem={({ item, index }) => (
-              <DraggableItem key={keyExtractor(item)} id={keyExtractor(item)}>
-                {(isDragging, listeners, attributes) =>
-                  renderItem(item, index, isDragging, listeners, attributes)
-                }
-              </DraggableItem>
-            )}
-            {...rest}
-          />
-        </SortableContext>
-      </DndContext>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <SortableContext items={data.map(keyExtractor)} strategy={verticalListSortingStrategy}>
+            <FlatList
+              ref={(r) => {
+                flatListRef.current = r
+                if (typeof ref === 'function') ref(r)
+                else if (ref) ref.current = r
+              }}
+              data={data}
+              keyExtractor={keyExtractor}
+              getItemLayout={getItemLayout}
+              contentContainerStyle={contentContainerStyle}
+              keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
+              keyboardDismissMode={keyboardDismissMode || 'none'}
+              alwaysBounceVertical={false}
+              renderItem={({ item, index }) => (
+                <DraggableItem key={keyExtractor(item)} id={keyExtractor(item)}>
+                  {(isDragging, listeners, attributes) =>
+                    renderItem(item, index, isDragging, listeners, attributes)
+                  }
+                </DraggableItem>
+              )}
+              scrollEnabled
+              {...rest}
+            />
+          </SortableContext>
+          <DragOverlay dropAnimation={null} />
+        </DndContext>
+      </View>
     )
   }
 )
