@@ -62,7 +62,8 @@ const Badge = ({
   nativeID,
   children,
   size = 'sm',
-  specialType
+  specialType,
+  testId
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
@@ -89,6 +90,7 @@ const Badge = ({
         style
       ]}
       nativeID={nativeID}
+      testID={testId}
     >
       {text && (
         <Text
