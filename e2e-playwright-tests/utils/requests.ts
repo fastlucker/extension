@@ -7,7 +7,7 @@ function categorizeRequests(requests: string[]) {
   ]
   const thirdPartyHostsAllowList = ['api.pimlico.io', 'li.quest']
 
-  return requests.reduce(
+  const reqs = requests.reduce(
     (acc, urlStr) => {
       const url = new URL(urlStr)
       const isAmbire = url.hostname.endsWith('.ambire.com')
@@ -49,6 +49,17 @@ function categorizeRequests(requests: string[]) {
       uncategorized: []
     }
   )
+
+  if (reqs.uncategorized.length) {
+    // eslint-disable-next-line no-console
+    console.log(
+      "⚠️ We've detected some uncategorized requests. Please review them carefully!" +
+        ' If any are known and expected, make sure to include them in the appropriate categories above.',
+      reqs.uncategorized
+    )
+  }
+
+  return reqs
 }
 
 export { categorizeRequests }
