@@ -127,8 +127,11 @@ test.describe('transfer', () => {
       const actionWindowPage = await actionWindowPagePromise
       await actionWindowPage.getByTestId(selectors.signTransactionButton).click()
 
-      // Expect the txn to be Confirmed
-      await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible()
+      // Expect the txn to be Confirmed.
+      // Sometimes it takes a bit more time to be confirmed, that's why we increase the timeout.
+      await expect(actionWindowPage.getByTestId(selectors.txnConfirmed)).toBeVisible({
+        timeout: 20000
+      })
     })
 
     await test.step('stop monitoring requests and expect no uncategorized requests to be made', async () => {
