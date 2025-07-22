@@ -20,6 +20,7 @@ type Props = {
   isBridge?: boolean
   isLoading?: boolean
   isLocalStateOutOfSync?: boolean
+  isBatchDisabled?: boolean
   networkUserRequests: UserRequest[]
 }
 
@@ -31,6 +32,7 @@ const Buttons: FC<Props> = ({
   handleSubmitForm,
   isNotReadyToProceed,
   isLoading,
+  isBatchDisabled,
   isBridge,
   networkUserRequests = [],
   // Used to disable the actions of the buttons when the local state is out of sync.
@@ -55,6 +57,18 @@ const Buttons: FC<Props> = ({
     return ''
   }, [isBridge, t])
 
+  const primaryButtonText = useMemo(() => {
+    if (proceedBtnText !== 'Proceed') {
+      return proceedBtnText
+    }
+
+    return networkUserRequests.length > 0
+      ? `${proceedBtnText} ${t('({{count}})', {
+          count: networkUserRequests.length
+        })}`
+      : proceedBtnText
+  }, [proceedBtnText, networkUserRequests.length, t])
+
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
       {!isActionWindow && (
@@ -69,7 +83,7 @@ const Buttons: FC<Props> = ({
                   })
                 : t('Start a batch')
             }
-            disabled={isNotReadyToProceed || !!batchDisabledReason}
+            disabled={isNotReadyToProceed || isBatchDisabled || !!batchDisabledReason}
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
             onPress={() => {
@@ -86,13 +100,7 @@ const Buttons: FC<Props> = ({
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <ButtonWithLoader
-          text={
-            networkUserRequests.length > 0
-              ? `${proceedBtnText} ${t('({{count}})', {
-                  count: networkUserRequests.length
-                })}`
-              : proceedBtnText
-          }
+          text={primaryButtonText}
           disabled={isNotReadyToProceed || isLoading || !!oneClickDisabledReason}
           isLoading={isLoading}
           onPress={() => {
