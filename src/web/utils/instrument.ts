@@ -1,4 +1,7 @@
-import { CRASH_ANALYTICS_WEB_CONFIG } from '@common/config/analytics/CrashAnalytics.web'
+import {
+  CRASH_ANALYTICS_ENABLED_DEFAULT,
+  CRASH_ANALYTICS_WEB_CONFIG
+} from '@common/config/analytics/CrashAnalytics.web'
 import { SENTRY_DSN_BROWSER_EXTENSION } from '@env'
 import * as Sentry from '@sentry/react'
 import { isExtension } from '@web/constants/browserapi'
@@ -35,7 +38,7 @@ const initializeSentry = async () => {
     return
   }
 
-  const isEnabled = await storage.get('crashAnalyticsEnabled', false)
+  const isEnabled = await storage.get('crashAnalyticsEnabled', CRASH_ANALYTICS_ENABLED_DEFAULT)
 
   if (!isEnabled) return
 
