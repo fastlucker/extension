@@ -3,6 +3,7 @@ import { ScrollView, ScrollViewProps, StyleProp, ViewStyle } from 'react-native'
 
 import flexbox from '@common/styles/utils/flexbox'
 import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 import DraggableItem from './DraggableItem'
@@ -54,7 +55,12 @@ const DraggableFlatList = forwardRef<ScrollView, DraggableFlatListProps<any>>(
     }
 
     return (
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToVerticalAxis]}
+      >
         <SortableContext items={data.map(keyExtractor)} strategy={verticalListSortingStrategy}>
           <ScrollView
             ref={ref}
