@@ -78,23 +78,7 @@ export class DashboardPage extends BasePage {
     }
 
     const minBalance = balanceThresholds[key] ?? 0
-
-    // TODO: remove this once we have unified token address on swap and bridge and dashboard pages
-    const tokenSelectors: Record<string, string> = {
-      'WALLET-8453': selectors.dashboard.walletBaseTokenBalance,
-      'USDC-8453': selectors.dashboard.usdcBaseTokenBalance,
-      'USDC-10': selectors.dashboard.usdcOPBaseTokenBalance,
-      'USDC.E-10': selectors.dashboard.usdcEOPBaseTokenBalance,
-      'DAI-10': selectors.dashboard.daiOPBaseTokenBalance,
-      'xWALLET-1': selectors.dashboard.xWalletETHBaseTokenBalance
-    }
-
-    const selector = tokenSelectors[key]
-
-    const balanceText = await this.getText(selector)
-    const tokenBalance = parseFloat(balanceText)
-    // TODO: uncomment once we have unified token address on swap and bridge and dashboard pages
-    // const tokenBalance = await this.getDashboardTokenBalance(token)
+    const tokenBalance = await this.getDashboardTokenBalance(token)
 
     let error: string | undefined
 

@@ -1,5 +1,4 @@
 import { bootstrapWithStorage } from 'common-helpers/bootstrap'
-import { getAddress } from 'ethers'
 
 import { baParams, KEYSTORE_PASS } from '../constants/env'
 import selectors from '../constants/selectors'
@@ -56,6 +55,6 @@ export class StabilityPage extends BasePage {
   }
 
   getDashboardTokenSelector(token: Token) {
-    return this.page.getByTestId(`token-${getAddress(token.address)}-${token.chainId}`)
+    return this.page.getByTestId(`token-balance-${token.address}.${token.chainId}`)
   }
 }

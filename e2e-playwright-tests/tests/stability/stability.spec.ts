@@ -32,7 +32,7 @@ test.describe('stability', () => {
     )
   })
 
-  test.skip('Velcro fail: Should find tokens using previous hints; Should not display an error banner as there are cached hints', async ({
+  test('Velcro fail: Should find tokens using previous hints; Should not display an error banner as there are cached hints', async ({
     stabilityPage
   }) => {
     const page = stabilityPage.page
