@@ -74,7 +74,7 @@ const HumanizerAddressInner: FC<Props> = ({
   // highestPriorityAlias and account labels are of higher priority than domains
   if (localAddressLabel || fetchedAddressLabel)
     return (
-      <BaseAddress address={checksummedAddress} hideLinks={hideLinks} {...rest}>
+      <BaseAddress address={checksummedAddress} hideLinks={hideLinks} chainId={chainId} {...rest}>
         {localAddressLabel || fetchedAddressLabel}
       </BaseAddress>
     )
