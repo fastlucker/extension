@@ -6,30 +6,32 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  content: ViewStyle
+  backgroundLogo: ViewStyle
+  button: ViewStyle
 }
 
 const getStyles = () =>
   StyleSheet.create<Style>({
     container: {
+      position: 'relative',
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
-      ...spacings.pvTy,
-      ...spacings.phTy,
+
       marginBottom: SPACING_TY,
       ...commonStyles.borderRadiusPrimary,
       overflow: 'hidden',
-      minHeight: 56
+      minHeight: 56,
+      borderWidth: 1,
+      borderColor: 'transparent'
     },
-    content: {
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter,
-      ...flexbox.flex1,
-      ...spacings.plSm,
-      borderLeftWidth: 6,
-      ...spacings.pvTy,
-      minHeight: 56
+    backgroundLogo: {
+      position: 'absolute',
+      right: 0,
+      bottom: '-188px'
+    },
+    button: {
+      backgroundColor: 'black'
     }
   })
 

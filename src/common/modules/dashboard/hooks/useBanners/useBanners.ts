@@ -4,6 +4,7 @@ import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useBannersControllerState from '@web/hooks/useBannersControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -33,20 +34,20 @@ const OFFLINE_BANNER: BannerInterface = {
 
 export default function useBanners(): BannerInterface[] {
   const { isOffline, banners: mainCtrlBanners } = useMainControllerState()
-  const { account, portfolio, marketingBanner, deprecatedSmartAccountBanner, firstCashbackBanner } =
+  const { banners: marketingBanners } = useBannersControllerState()
+  const { account, portfolio, deprecatedSmartAccountBanner, firstCashbackBanner } =
     useSelectedAccountControllerState()
 
-  const MarketingBanners = [marketingBanner || {}] as MarketingBanner[]
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
   const { banners: keystoreBanners = [] } = useKeystoreControllerState()
   const { extensionUpdateBanner } = useExtensionUpdateControllerState()
-  console.log('marketingBanner', marketingBanner)
+
   const allBanners = useMemo(() => {
     return [
-      marketingBanner,
+      ...marketingBanners,
       ...deprecatedSmartAccountBanner,
       ...mainCtrlBanners,
       ...actionBanners,
@@ -59,7 +60,7 @@ export default function useBanners(): BannerInterface[] {
       ...firstCashbackBanner
     ]
   }, [
-    marketingBanner,
+    marketingBanners,
     deprecatedSmartAccountBanner,
     mainCtrlBanners,
     actionBanners,

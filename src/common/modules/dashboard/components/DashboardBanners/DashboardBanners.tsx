@@ -1,14 +1,14 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import { MarketingBanner as MarketingBannerType } from '@ambire-common/interfaces/banner'
+import { Banner, MarketingBanner as MarketingBannerType } from '@ambire-common/interfaces/banner'
 import DashboardBanner from '@common/modules/dashboard/components/DashboardBanners/DashboardBanner/DashboardBanner'
 import MarketingBanner from '@common/modules/dashboard/components/DashboardBanners/MarketingBanner/MarketingBanner'
 import useBanners from '@common/modules/dashboard/hooks/useBanners'
 
 const RELAYER_BANNER_TYPES = ['updates', 'rewards', 'new', 'vote', 'tips', 'alert'] as const
 
-function isMarketingBanner(banner: { type?: string }): banner is { type?: string } {
+function isMarketingBanner(banner: MarketingBannerType | Banner): banner is MarketingBannerType {
   return (
     !!banner &&
     !!banner.type &&
@@ -18,7 +18,7 @@ function isMarketingBanner(banner: { type?: string }): banner is { type?: string
 
 const DashboardBanners = () => {
   const allBanners = useBanners()
-  // console.log('allBanners', allBanners)
+
   return (
     <View>
       {allBanners.map((banner) =>
