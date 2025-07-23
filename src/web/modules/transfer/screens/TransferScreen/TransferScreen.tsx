@@ -43,6 +43,7 @@ import TrackProgress from '@web/modules/sign-account-op/components/OneClick/Trac
 import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
 import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
 import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
+import useTrackAccountOp from '@web/modules/sign-account-op/hooks/OneClick/useTrackAccountOp'
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 import { getUiType } from '@web/utils/uiType'
@@ -132,6 +133,31 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     )
   }, [accountsOps.transfer, latestBroadcastedAccountOp?.signature])
 
+  const navigateOut = useCallback(() => {
+    if (isActionWindow) {
+      dispatch({
+        type: 'CLOSE_SIGNING_ACTION_WINDOW',
+        params: {
+          type: 'transfer'
+        }
+      })
+    } else {
+      navigate(WEB_ROUTES.dashboard)
+    }
+
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_RESET_FORM'
+    })
+  }, [dispatch, navigate])
+
+  const { sessionHandler, onPrimaryButtonPress } = useTrackAccountOp({
+    address: latestBroadcastedAccountOp?.accountAddr,
+    chainId: latestBroadcastedAccountOp?.chainId,
+    sessionId: 'transfer',
+    submittedAccountOp,
+    navigateOut
+  })
+
   const explorerLink = useMemo(() => {
     if (!submittedAccountOp) return
 
@@ -146,34 +172,12 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     // Optimization: Don't apply filtration if we don't have a recent broadcasted account op
     if (!latestBroadcastedAccountOp?.accountAddr || !latestBroadcastedAccountOp?.chainId) return
 
-    const sessionId = 'transfer'
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACC_OPS_FILTERS',
-      params: {
-        sessionId,
-        filters: {
-          account: latestBroadcastedAccountOp.accountAddr,
-          chainId: latestBroadcastedAccountOp.chainId
-        },
-        pagination: {
-          itemsPerPage: 10,
-          fromPage: 0
-        }
-      }
-    })
-
-    const killSession = () => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS',
-        params: { sessionId }
-      })
-    }
+    sessionHandler.initSession()
 
     return () => {
-      killSession()
+      sessionHandler.killSession()
     }
-  }, [dispatch, latestBroadcastedAccountOp?.accountAddr, latestBroadcastedAccountOp?.chainId])
+  }, [latestBroadcastedAccountOp?.accountAddr, latestBroadcastedAccountOp?.chainId, sessionHandler])
 
   const displayedView: 'transfer' | 'batch' | 'track' = useMemo(() => {
     if (showAddedToBatch) return 'batch'
@@ -453,23 +457,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     })
     setShowAddedToBatch(false)
   }, [dispatch, setShowAddedToBatch])
-
-  const onPrimaryButtonPress = useCallback(() => {
-    if (isActionWindow) {
-      dispatch({
-        type: 'CLOSE_SIGNING_ACTION_WINDOW',
-        params: {
-          type: 'transfer'
-        }
-      })
-    } else {
-      navigate(WEB_ROUTES.dashboard)
-    }
-
-    dispatch({
-      type: 'TRANSFER_CONTROLLER_RESET_FORM'
-    })
-  }, [dispatch, navigate])
 
   if (displayedView === 'track') {
     return (
