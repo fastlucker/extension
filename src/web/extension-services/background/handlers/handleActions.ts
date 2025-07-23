@@ -131,6 +131,9 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
       return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
     }
+    case 'MAIN_CONTROLLER_UPDATE_NETWORKS': {
+      return await mainCtrl.networks.updateNetworks(params.network, params.chainIds)
+    }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
     }
@@ -294,6 +297,11 @@ export const handleActions = async (
 
     case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
       mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
+      break
+    }
+
+    case 'DISMISS_DEFI_POSITIONS_BANNER': {
+      await mainCtrl.selectedAccount.dismissDefiPositionsBannerForTheSelectedAccount()
       break
     }
 
