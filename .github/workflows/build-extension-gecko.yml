@@ -63,7 +63,6 @@ jobs:
           echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
           echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
           echo "SENTRY_DSN_BROWSER_EXTENSION=\"${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}\"" >> .env
-          echo "SENTRY_AUTH_TOKEN=\"${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}\"" >> .env
 
           # Run build in docker container with ARM64 architecture
           docker run --platform linux/arm64 --rm \
@@ -81,7 +80,7 @@ jobs:
             -e SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}" \
             --entrypoint /bin/sh \
             node:${{ steps.node-version.outputs.NODE_VERSION }}-alpine \
-            -c "apk add --no-cache git openssh zip python3 make g++ linux-headers eudev-dev && PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile && yarn build:extensions:gecko"
+            -c "apk add --no-cache curl git openssh zip python3 make g++ linux-headers eudev-dev && yarn install --frozen-lockfile && yarn build:extensions:gecko"
 
           # Give full permissions to the build directory for the GitHub Actions user
           sudo chown -R $(whoami):$(whoami) ./build

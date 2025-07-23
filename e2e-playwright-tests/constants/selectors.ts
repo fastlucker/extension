@@ -2,9 +2,13 @@ import { buildSelector } from '@helpers/buildSelector'
 
 // TODO: this should be refactored; we should have single file with selector IDs
 const selectors = {
+  // dashboard
   account: 'account',
   importBtn: 'import-button',
   importPrivateBtn: 'button-import-private-key',
+  importExistingAccBtn: 'create-existing-account-btn',
+  importMethodTrezor: 'import-method-trezor',
+  trezorConnectConfirmTerms: '@analytics/continue-button',
   saveAndContinueBtn: 'button-save-and-continue',
   enterSeedPhraseField: 'enter-seed-phrase-field',
   buttonProceedSeedPhrase: 'button-proceed-seed-phrase',
@@ -23,6 +27,7 @@ const selectors = {
   viewOnlyAddressField: 'view-only-address-field',
   viewOnlyBtnImport: 'view-only-button-import',
   addOneMoreAddress: 'add-one-more-address',
+  addContactFormButton: 'add-contact-form-modal',
   contactNameField: 'contact-name-field',
   contactNameText: 'contact-name-text', // TODO: selector could be more precise
   contactAddressText: 'address',
@@ -79,6 +84,7 @@ const selectors = {
   balanceErrorIcon: 'balance-affecting-error-icon',
   portfolioErrorAlert: 'portfolio-error-alert',
   continueAnywayCheckboxSaB: 'checkbox',
+  continueAnywayButton: '//div[contains(text(),"Continue anyway")]',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
   transferButtonConfirm: 'transfer-button-confirm',
@@ -126,7 +132,7 @@ const selectors = {
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
-  highPriceImpactSab: 'high-price-impact-sab',
+  highPriceImpactSab: '//div[contains(text(),"Ouch! Very high price impact")]', // TODO: change with ID when we add it
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
@@ -155,7 +161,7 @@ const selectors = {
   addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
   addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
   connectWalletButton:
-  "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
+    "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
   chainlistSearchPlaceholder: 'input[placeholder="ETH, Fantom, ..."]',
   addToMetamaskButton: '//button[contains(text(),"Add to Metamask")]',
   confirmaddNetworkOnChainlistButton: '//div[contains(text(),"Add network")]',
@@ -165,13 +171,17 @@ const selectors = {
   editNetworkModalTitle: '//div[text()="Edit network"]',
   editNetworkCancelButton: '//div[contains(text(),"Cancel")]',
   editNetworkSaveButton: '//div[contains(text(),"Save")]',
-  networkSettingsSavedSnackbar: (networkName: string) => `((//div[contains(normalize-space(), "${networkName} settings saved!")]))[4]`, // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  networkSettingsSavedSnackbar: (networkName: string) =>
+    `((//div[contains(normalize-space(), "${networkName} settings saved!")]))[4]`, // TODO: snackbar selector finding 8 elements; change once we have ID on FE
   // Sign
   dappConnectButton: 'dapp-connect-button',
+  dappSecurityCheckPassed: 'dapp-security-check-passed',
   signMessageButton: 'button-sign',
   // Notifications
-  networkSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
-  contactSuccessfullyAddedSnackbar: '(//div[contains(normalize-space(), "Contact added to Address Book")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  networkSuccessfullyAddedSnackbar:
+    '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  contactSuccessfullyAddedSnackbar:
+    '(//div[contains(normalize-space(), "Contact added to Address Book")])[4]' // TODO: snackbar selector finding 8 elements; change once we have ID on FE
 }
 
 type SelectorKey = keyof typeof selectors

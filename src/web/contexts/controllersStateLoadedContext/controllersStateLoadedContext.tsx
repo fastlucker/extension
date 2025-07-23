@@ -185,7 +185,13 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
         dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
         setShouldWaitForMainCtrlStatus(true)
       } else {
-        setAreControllerStatesLoaded(true)
+        const elapsed = Date.now() - startTime
+        const wait = Math.max(0, 400 - elapsed)
+
+        // Don't clear this timeout to ensure that the state will be set
+        setTimeout(() => {
+          setAreControllerStatesLoaded(true)
+        }, wait)
       }
     }
 
@@ -214,16 +220,29 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasSwapAndBridgeState,
     hasExtensionUpdateState,
     hasFeatureFlagsControllerState,
-    dispatch
+    dispatch,
+    startTime
   ])
 
   useEffect(() => {
-    if (shouldWaitForMainCtrlStatus && mainState.onPopupOpenStatus === 'SUCCESS') {
-      const elapsed = Date.now() - startTime
-      const wait = Math.max(0, 400 - elapsed)
-      setTimeout(() => setAreControllerStatesLoaded(true), wait)
-    }
-  }, [shouldWaitForMainCtrlStatus, mainState.onPopupOpenStatus, startTime])
+    if (areControllerStatesLoaded || !shouldWaitForMainCtrlStatus) return
+
+    if (mainState.onPopupOpenStatus !== 'SUCCESS') return
+
+    const elapsed = Date.now() - startTime
+    const wait = Math.max(0, 400 - elapsed)
+
+    // Don't clear this timeout to ensure that the state will be set
+    setTimeout(() => {
+      setAreControllerStatesLoaded(true)
+      setShouldWaitForMainCtrlStatus(false)
+    }, wait)
+  }, [
+    shouldWaitForMainCtrlStatus,
+    mainState.onPopupOpenStatus,
+    startTime,
+    areControllerStatesLoaded
+  ])
 
   return (
     <ControllersStateLoadedContext.Provider
