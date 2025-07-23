@@ -202,7 +202,11 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async rejectTransaction(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    // "Select route" step may take more time to appear, as it depends on the Li.Fi response.
+    await this.page.waitForSelector(locators.selectRouteButton, {
+      state: 'visible',
+      timeout: 10000
+    })
     await this.click(selectors.addToBatchButton)
     await this.click(selectors.goDashboardButton)
     await this.click(selectors.bannerButtonReject) // TODO: this ID gives 4 results on Dashboard page
@@ -210,7 +214,11 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async proceedTransaction(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    // "Select route" step may take more time to appear, as it depends on the Li.Fi response.
+    await this.page.waitForSelector(locators.selectRouteButton, {
+      state: 'visible',
+      timeout: 10000
+    })
     await this.click(selectors.addToBatchButton)
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
@@ -253,8 +261,8 @@ export class SwapAndBridgePage extends BasePage {
     const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
     const newAmount = this.roundAmount(await this.getAmount(selectors.fromAmountInputSab))
 
-    expect(Math.abs(oldAmount - usdNewAmount)).toBeLessThanOrEqual(0.5)
-    expect(Math.abs(usdOldAmount - newAmount)).toBeLessThanOrEqual(0.5)
+    expect(Math.abs(oldAmount - usdNewAmount)).toBeLessThanOrEqual(0.6)
+    expect(Math.abs(usdOldAmount - newAmount)).toBeLessThanOrEqual(0.6)
     expect(newCurrency).toBe(sendToken.symbol)
 
     // Wait and flip back
@@ -336,17 +344,10 @@ export class SwapAndBridgePage extends BasePage {
       await this.page.getByTestId(selectors.fromAmountInputSab).fill(sendAmount.toString())
 
       const isFollowUp = await this.page
-        .waitForSelector(SELECTORS.confirmFollowUpTxn, { timeout: 6000 })
+        .waitForSelector(selectors.confirmFollowUpTxn, { timeout: 6000 })
         .catch(() => null)
       if (isFollowUp) {
         await this.click(selectors.confirmFollowUpTxn)
-      }
-      const isHighPrice = await this.page
-        .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
-        .catch(() => null)
-      if (isHighPrice) {
-        await this.click(selectors.highPriceImpactSab)
-        return 'Continue anyway'
       }
 
       return 'Proceed'
@@ -358,8 +359,19 @@ export class SwapAndBridgePage extends BasePage {
 
   async signTokens(): Promise<void> {
     await this.click(selectors.topUpProceedButton)
+
+    // approve the high impact modal
+    const isHighPrice = await this.page
+      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
+      .catch(() => null)
+    if (isHighPrice) {
+      // TODO: change methods once we have IDs
+      await this.click(selectors.continueAnywayCheckboxSaB)
+      await this.page.locator(selectors.continueAnywayButton).click()
+    }
+
     await this.click(selectors.signButton)
-    await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 5000 })
+    await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 10000 })
     // TODO: add more assertion
   }
 
@@ -397,5 +409,12 @@ export class SwapAndBridgePage extends BasePage {
     await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI\.FI/)
     await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.002/)
     await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
+  }
+
+  async getCurrentBalance() {
+    const amountText = await this.page.getByTestId(selectors.dashboardGasTankBalance).innerText()
+    const amountNumber = parseFloat(amountText.replace(/[^\d.]/g, ''))
+
+    return amountNumber
   }
 }

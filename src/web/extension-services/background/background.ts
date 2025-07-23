@@ -94,15 +94,6 @@ function stateDebug(
   ctrlName: string,
   type: 'update' | 'error'
 ) {
-  // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
-  // Puppeteer listens for console.log events and will output the message to the CI console.
-  // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
-  // 💡 `logInfoWithPrefix` wraps console.log, and we can't add a listener to it from the Puppeteer configuration.
-  // That's why we use the native `console.log` method here to send the state to Puppeteer.
-  if (process.env.E2E_DEBUG === 'true') {
-    console.log(stringify(stateToLog))
-  }
-
   // In production, we avoid logging the complete state because `parse(stringify(stateToLog))` can be CPU-intensive.
   // This is especially true for the main controller, which includes all sub-controller states.
   // For example, the portfolio state for a single account can exceed 2.0MB, and `parse(stringify(portfolio))`
@@ -230,9 +221,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   // In the testing environment, we need to slow down app initialization.
-  // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
+  // This is necessary to predefine the chrome.storage testing values in our Playwright tests,
   // ensuring that the Controllers are initialized with the storage correctly.
-  // Once the storage is configured in Puppeteer, we set the `isE2EStorageSet` flag to true.
+  // Once the storage is configured in Playwright, we set the `isE2EStorageSet` flag to true.
   // Here, we are waiting for its value to be set.
   if (process.env.IS_TESTING === 'true') {
     const checkE2EStorage = async (): Promise<void> => {
@@ -1113,7 +1104,7 @@ try {
 
 // Open the get-started screen in a new tab right after the extension is installed.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
-  // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
+  // It makes Playwright tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
   if (process.env.IS_TESTING === 'true') return
   if (isProd) {

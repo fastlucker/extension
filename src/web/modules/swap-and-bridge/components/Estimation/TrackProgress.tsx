@@ -1,8 +1,9 @@
 import { formatUnits } from 'ethers'
-import React, { FC, useCallback, useMemo } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { Hex } from '@ambire-common/interfaces/hex'
 import { getIsBridgeRoute } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -15,16 +16,17 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import formatTime from '@common/utils/formatTime'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import TrackProgressWrapper from '@web/modules/sign-account-op/components/OneClick/TrackProgress'
 import Completed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Completed'
 import Failed from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Failed'
 import InProgress from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/InProgress'
+import Refunded from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Refunded'
+import useTrackAccountOp from '@web/modules/sign-account-op/hooks/OneClick/useTrackAccountOp'
 import { getUiType } from '@web/utils/uiType'
 
-import { Hex } from '@ambire-common/interfaces/hex'
-import Refunded from '@web/modules/sign-account-op/components/OneClick/TrackProgress/ByStatus/Refunded'
 import RouteStepsToken from '../RouteStepsToken'
 
 const { isActionWindow } = getUiType()
@@ -41,6 +43,8 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const { activeRoutes } = useSwapAndBridgeControllerState()
+  const { accountsOps } = useActivityControllerState()
+
   const lastCompletedRoute = activeRoutes[activeRoutes.length - 1]
   const steps = lastCompletedRoute?.route?.steps
   const firstStep = steps ? steps[0] : null
@@ -51,8 +55,8 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const isSwap = lastCompletedRoute.route && !getIsBridgeRoute(lastCompletedRoute.route)
 
   const refunded = useMemo(() => {
-    if (!steps || steps.length === 0) return null
-    const firstStep = steps[0]
+    if (!steps || steps.length === 0 || !firstStep) return null
+
     if (steps.length === 1) {
       return {
         amount: firstStep.fromAmount,
@@ -64,9 +68,17 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
       amount: firstStep.toAmount,
       asset: lastCompletedStep.fromAsset
     }
-  }, [steps])
+  }, [firstStep, steps])
 
-  const onPrimaryButtonPress = useCallback(() => {
+  const submittedAccountOp = useMemo(() => {
+    if (!accountsOps.swapAndBridge || !accountsOps.swapAndBridge.result) return null
+
+    return accountsOps.swapAndBridge.result.items.find(
+      (accOp) => accOp.txnId === lastCompletedRoute.userTxHash
+    )
+  }, [accountsOps.swapAndBridge, lastCompletedRoute.userTxHash])
+
+  const navigateOut = useCallback(() => {
     if (isActionWindow) {
       dispatch({
         type: 'CLOSE_SIGNING_ACTION_WINDOW',
@@ -78,6 +90,38 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
       navigate(WEB_ROUTES.dashboard)
     }
   }, [dispatch, navigate])
+
+  const { onPrimaryButtonPress, sessionHandler } = useTrackAccountOp({
+    address: lastCompletedRoute.route?.userAddress,
+    chainId: lastCompletedRoute.route?.fromChainId
+      ? BigInt(lastCompletedRoute.route.fromChainId)
+      : undefined,
+    sessionId: 'swapAndBridge',
+    submittedAccountOp,
+    navigateOut
+  })
+
+  useEffect(() => {
+    // Optimization: Don't apply filtration if we don't have a completed route.
+    if (
+      !lastCompletedRoute?.userTxHash ||
+      !lastCompletedRoute.route?.fromChainId ||
+      !lastCompletedRoute.route.userAddress
+    )
+      return
+
+    sessionHandler.initSession()
+
+    return () => {
+      sessionHandler.killSession()
+    }
+  }, [
+    dispatch,
+    lastCompletedRoute.route?.fromChainId,
+    lastCompletedRoute.route?.userAddress,
+    lastCompletedRoute?.userTxHash,
+    sessionHandler
+  ])
 
   const explorerLink = useMemo(() => {
     if (!isSwap) {
@@ -102,6 +146,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
       onPrimaryButtonPress={onPrimaryButtonPress}
       secondaryButtonText={t('Start a new swap?')}
       handleClose={handleClose}
+      routeStatus={lastCompletedRoute?.routeStatus}
     >
       {(!lastCompletedRoute || lastCompletedRoute?.routeStatus === 'in-progress') && (
         <InProgress title={t('Confirming your trade')}>

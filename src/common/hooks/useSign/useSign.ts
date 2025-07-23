@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useModalize } from 'react-native-modalize'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import {
   SignAccountOpController,
   SigningStatus
@@ -27,6 +29,7 @@ const useSign = ({
   handleUpdate,
   isOneClickSign
 }: Props) => {
+  const { t } = useTranslation()
   const mainState = useMainControllerState()
   const { networks } = useNetworksControllerState()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -224,6 +227,10 @@ const useSign = ({
     [signAccountOpState?.accountKeyStoreKeys]
   )
 
+  const isAtLeastOneOfTheKeysInvolvedExternal =
+    (!!signingKeyType && signingKeyType !== 'internal') ||
+    (!!feePayerKeyType && feePayerKeyType !== 'internal')
+
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
       // Prioritize warning(s) modals over all others
@@ -238,20 +245,21 @@ const useSign = ({
 
       if (shouldDisplayLedgerConnectModal) return 'ledger-connect'
 
-      const isAtLeastOneOfTheKeysInvolvedExternal =
-        (!!signingKeyType && signingKeyType !== 'internal') ||
-        (!!feePayerKeyType && feePayerKeyType !== 'internal')
-
       if (isAtLeastOneOfTheKeysInvolvedExternal) return 'hw-sign'
 
       return null
     }, [
-      feePayerKeyType,
+      isAtLeastOneOfTheKeysInvolvedExternal,
       shouldDisplayLedgerConnectModal,
       signAccountOpState?.status?.type,
-      signingKeyType,
       warningToPromptBeforeSign
     ])
+
+  const primaryButtonText = useMemo(() => {
+    if (isAtLeastOneOfTheKeysInvolvedExternal) return t('Begin signing')
+
+    return isSignLoading ? t('Signing...') : t('Sign')
+  }, [isAtLeastOneOfTheKeysInvolvedExternal, isSignLoading, t])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
@@ -263,9 +271,10 @@ const useSign = ({
       isViewOnly ||
       isSignLoading ||
       notReadyToSignButAlsoNotDone ||
-      !signAccountOpState?.readyToSign
+      !signAccountOpState?.readyToSign ||
+      (signAccountOpState && signAccountOpState.estimation.status === EstimationStatus.Loading)
     )
-  }, [isViewOnly, isSignLoading, notReadyToSignButAlsoNotDone, signAccountOpState?.readyToSign])
+  }, [isViewOnly, isSignLoading, notReadyToSignButAlsoNotDone, signAccountOpState])
 
   const bundlerNonceDiscrepancy = useMemo(
     () =>
@@ -297,6 +306,7 @@ const useSign = ({
     initDispatchedForId,
     setInitDispatchedForId,
     isSignDisabled,
+    primaryButtonText,
     bundlerNonceDiscrepancy
   }
 }

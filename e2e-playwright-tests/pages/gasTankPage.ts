@@ -28,6 +28,10 @@ export class GasTankPage extends BasePage {
     // Switch to dollar
     await this.page.getByTestId(selectors.flipIcon).click()
 
+    // Switching to dollars takes a few milliseconds for the controller to update,
+    // and if the amount is filled at the same time, sometimes the amount is not set in the UI or in the controller.
+    await this.page.waitForTimeout(1000)
+
     // Amount
     const amountField = this.page.getByTestId(selectors.amountField)
     await amountField.fill(amount)
@@ -53,7 +57,7 @@ export class GasTankPage extends BasePage {
 
   async refreshUntilNewBalanceIsVisible(balance: number) {
     let retries = 10
-    let oldBalance = balance
+    const oldBalance = balance
     let newBalance = await this.getCurrentBalance()
 
     while (newBalance <= oldBalance && retries > 0) {

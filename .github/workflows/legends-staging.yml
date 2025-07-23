@@ -36,7 +36,7 @@ jobs:
         run: git submodule update
 
       - name: Install Dependencies
-        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
         shell: bash
 
       - name: Build project 🛠️
@@ -50,16 +50,6 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.LEGENDS_STAGING_DEPLOY_KEY }}
-
-      - name: Upload source maps to Sentry
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: |
-          curl -sL https://sentry.io/get-cli/ | bash
-          VERSION=$(node -p "require('./src/ambire-common/package.json').version")
-          sentry-cli releases new legends@$VERSION --project legends
-          sentry-cli releases files legends@$VERSION upload-sourcemaps ./build/legends-prod/ --ext .js --ext .map --rewrite --project legends
-          sentry-cli releases finalize legends@$VERSION --project legends
 
       - name: Deploy to Legends Staging Repo gh-pages 🚀🌕
         run: |
