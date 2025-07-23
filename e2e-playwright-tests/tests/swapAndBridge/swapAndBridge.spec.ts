@@ -64,10 +64,10 @@ test.describe('swapAndBridgePage Smart Account', () => {
   }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
-    const link = tokens.link.base
+    const eth = tokens.eth.base
 
     await swapAndBridgePage.verifyDefaultReceiveToken(usdc, wallet)
-    await swapAndBridgePage.verifyDefaultReceiveToken(wallet, link)
+    await swapAndBridgePage.verifyDefaultReceiveToken(eth, wallet)
   })
 
   test('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async ({
@@ -147,7 +147,6 @@ test.describe('swapAndBridgePage Smart Account', () => {
   }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
-    const eth = tokens.eth.base
 
     await test.step('start monitoring requests', async () => {
       await swapAndBridgePage.monitorRequests()
@@ -161,7 +160,7 @@ test.describe('swapAndBridgePage Smart Account', () => {
     await test.step(
       'add a transaction swapping USDC for WALLET to the existing batch and sign',
       async () => {
-        await swapAndBridgePage.prepareSwapAndBridge(0.002, usdc, eth)
+        await swapAndBridgePage.prepareSwapAndBridge(0.002, usdc, wallet)
         await swapAndBridgePage.batchActionWithSign()
       }
     )

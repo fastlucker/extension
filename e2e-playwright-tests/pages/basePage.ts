@@ -46,10 +46,10 @@ export abstract class BasePage {
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
     await this.entertext(selectors.searchInput, token.symbol)
 
-    const paidBy = paidByAddress.toLowerCase()
-    const tokenAddress = token.address.toLowerCase()
+    const paidBy = paidByAddress
+    const tokenAddress = token.address
     const tokenSymbol = token.symbol.toLowerCase()
-    const gasTank = onGasTank ? 'gastank' : ''
+    const gasTank = onGasTank ? 'gasTank' : ''
 
     // Ensure we click the token inside the SelectMenu,
     // not the one rendered as the default value.

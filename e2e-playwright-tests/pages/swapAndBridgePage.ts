@@ -202,7 +202,11 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async rejectTransaction(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    // "Select route" step may take more time to appear, as it depends on the Li.Fi response.
+    await this.page.waitForSelector(locators.selectRouteButton, {
+      state: 'visible',
+      timeout: 10000
+    })
     await this.click(selectors.addToBatchButton)
     await this.click(selectors.goDashboardButton)
     await this.click(selectors.bannerButtonReject) // TODO: this ID gives 4 results on Dashboard page
@@ -210,7 +214,11 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async proceedTransaction(): Promise<void> {
-    await this.page.waitForSelector(locators.selectRouteButton, { state: 'visible', timeout: 5000 })
+    // "Select route" step may take more time to appear, as it depends on the Li.Fi response.
+    await this.page.waitForSelector(locators.selectRouteButton, {
+      state: 'visible',
+      timeout: 10000
+    })
     await this.click(selectors.addToBatchButton)
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
