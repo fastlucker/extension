@@ -410,7 +410,7 @@ export class SwapAndBridgePage extends BasePage {
       await expect(signButton).toBeVisible({ timeout: 5000 })
       await expect(signButton).toBeEnabled()
       await this.verifyBatchTransactionDetails(page)
-      await clickOnElement(page, SELECTORS.signTransactionButton)
+      await clickOnElement(page, selectors.signTransactionButton)
       await page.waitForTimeout(1500)
     } catch (error) {
       console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
