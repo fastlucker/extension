@@ -202,7 +202,6 @@ const AccountsSettingsScreen = () => {
       </SettingsPageHeader>
       <View style={[flexbox.flex1]} ref={accountsContainerRef}>
         <ScrollableWrapper
-          wrapperRef={accountsContainerRef}
           type={WRAPPER_TYPES.DRAGGABLE_FLAT_LIST}
           data={localAccounts}
           keyExtractor={keyExtractor}
