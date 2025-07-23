@@ -20,10 +20,10 @@ type FailedProps = {
     address: Hex
   }
   amount?: string
-  handleClose: () => void
+  handleClose?: () => void
 }
 
-const Failed: FC<FailedProps> = ({ title, errorMessage, toToken, amount, handleClose }) => {
+const Failed: FC<FailedProps> = ({ title, errorMessage, handleClose, toToken, amount }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
@@ -61,7 +61,7 @@ const Failed: FC<FailedProps> = ({ title, errorMessage, toToken, amount, handleC
                     fromAmount: amount
                   }
                 })
-                handleClose()
+                if (handleClose) handleClose()
               }}
               {...bindAnim}
             >
