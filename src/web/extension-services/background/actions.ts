@@ -1,8 +1,8 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
+  ActionExecutionType,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/controllers/actions/actions'
@@ -742,6 +742,13 @@ type SetCrashAnalyticsAction = {
   params: { enabled: boolean }
 }
 
+type DismissBanner = {
+  type: 'DISMISS_BANNER'
+  params: {
+    bannerId: string
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -880,3 +887,4 @@ export type Action =
   | SetThemeTypeAction
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
+  | DismissBanner

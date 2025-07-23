@@ -64,8 +64,7 @@ const typeBannerColorsMap: Record<string, BannerColors> = {
 const MarketingBanner: React.FC<Props> = ({ banner }) => {
   const { isTab } = getUiType()
   const { styles } = useTheme(getStyles)
-  const state = useBannersControllerState()
-  // console.log('banners contrroller state', state)
+  const { dismissBanner } = useBannersControllerState()
   const { text, type = 'updates', url } = banner
   const colors = typeBannerColorsMap[type]
 
@@ -134,7 +133,7 @@ const MarketingBanner: React.FC<Props> = ({ banner }) => {
         <View>
           <Pressable
             onPress={() => {
-              // dismissBanner(banner.id)
+              dismissBanner(banner.id)
             }}
             hitSlop={8}
             style={[
