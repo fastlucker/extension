@@ -67,7 +67,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
     await openBlockExplorer(networkData?.explorerUrl)
   }, [networkData, openBlockExplorer, isBlockExplorerMissing])
 
-  const networkBalance = portfolio.latest?.[chainId.toString()]?.result?.total
+  const networkBalance = portfolio.balancePerNetwork[chainId.toString()] || 0
   let networkName = networkData?.name
 
   if (chainId === 'rewards') {
@@ -115,7 +115,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
         <Text fontSize={dashboardNetworkFilter === chainId ? 20 : 16} weight="semiBold">
-          {`${formatDecimals(Number(networkBalance?.usd || 0), 'value')}` || '$-'}
+          {`${formatDecimals(networkBalance, 'value')}` || '$-'}
         </Text>
         {!isInternalNetwork && (
           <Pressable

@@ -79,7 +79,7 @@ const DashboardOverview: FC<Props> = ({
 
     if (!account) return 0
 
-    return Number(portfolio?.latest?.[dashboardNetworkFilter.toString()]?.result?.total?.usd) || 0
+    return Number(portfolio.balancePerNetwork[dashboardNetworkFilter.toString()]) || 0
   }, [portfolio, dashboardNetworkFilter, account])
 
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
