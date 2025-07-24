@@ -94,9 +94,22 @@ test.describe('swapAndBridgePage Smart Account', () => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
-    await swapAndBridgePage.openSwapAndBridge()
-    await swapAndBridgePage.prepareSwapAndBridge(0.005, usdc, wallet)
-    await swapAndBridgePage.proceedTransaction()
+    await test.step('assert no transaction on Activity tab', async () => {
+      await swapAndBridgePage.checkNoTransactionOnActivityTab()
+    })
+
+    await test.step('prepare swap and bridge transaction', async () => {
+      await swapAndBridgePage.openSwapAndBridge()
+      await swapAndBridgePage.prepareSwapAndBridge(0.005, usdc, wallet)
+    })
+
+    await test.step('proceed and sign the transaction', async () => {
+      await swapAndBridgePage.proceedTransaction()
+    })
+
+    await test.step('assert new transaction on Activity tab', async () => {
+      await swapAndBridgePage.checkSendTransactionOnActivityTab()
+    })
   })
 
   test('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async ({
@@ -138,8 +151,22 @@ test.describe('swapAndBridgePage Smart Account', () => {
   test('should Bridge tokens with a Smart Account', async ({ swapAndBridgePage }) => {
     const usdc = tokens.usdc.base
     const usdcOpt = tokens.usdc.optimism
-    await swapAndBridgePage.prepareBridgeTransaction(0.0063, usdc, usdcOpt)
-    await swapAndBridgePage.signTokens()
+
+    await test.step('assert no transaction on Activity tab', async () => {
+      await swapAndBridgePage.checkNoTransactionOnActivityTab()
+    })
+
+    await test.step('prepare bridge transaction', async () => {
+      await swapAndBridgePage.prepareBridgeTransaction(0.0063, usdc, usdcOpt)
+    })
+
+    await test.step('sign transaction', async () => {
+      await swapAndBridgePage.signTokens()
+    })
+
+    await test.step('assert new transaction on Activity tab', async () => {
+      await swapAndBridgePage.checkSendTransactionOnActivityTab()
+    })
   })
 
   test('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({
@@ -157,20 +184,14 @@ test.describe('swapAndBridgePage Smart Account', () => {
       await swapAndBridgePage.batchAction()
     })
 
-    await test.step(
-      'add a transaction swapping USDC for WALLET to the existing batch and sign',
-      async () => {
-        await swapAndBridgePage.prepareSwapAndBridge(0.002, usdc, wallet)
-        await swapAndBridgePage.batchActionWithSign()
-      }
-    )
+    await test.step('add a transaction swapping USDC for WALLET to the existing batch and sign', async () => {
+      await swapAndBridgePage.prepareSwapAndBridge(0.002, usdc, wallet)
+      await swapAndBridgePage.batchActionWithSign()
+    })
 
-    await test.step(
-      'stop monitoring requests and expect no uncategorized requests to be made',
-      async () => {
-        const { uncategorized } = swapAndBridgePage.getCategorizedRequests()
-        expect(uncategorized.length).toBeLessThanOrEqual(0)
-      }
-    )
+    await test.step('stop monitoring requests and expect no uncategorized requests to be made', async () => {
+      const { uncategorized } = swapAndBridgePage.getCategorizedRequests()
+      expect(uncategorized.length).toBeLessThanOrEqual(0)
+    })
   })
 })
