@@ -1,14 +1,19 @@
 import { baParams } from 'constants/env'
 import { test } from 'fixtures/pageObjects'
+import { pages } from 'pages/utils/page_instances'
 
 test.describe.parallel('signMessage', () => {
-  test.beforeEach(async ({ signMessagePage }) => {
-    await signMessagePage.init(baParams)
+  test.beforeEach(async () => {
+    await pages.initWithStorage(baParams)
   })
 
-  test('should sign plain message', async ({ signMessagePage }) => {
+  test.afterEach(async ({ context }) => {
+    await context.close()
+  })
+
+  test('should sign plain message', async () => {
     const message = 'Hello, Ambire!'
-    await signMessagePage.signMessage(message, 'plain')
+    await pages.signMessagePage.signMessage(message, 'plain')
   })
 
   test('should sign hex message', async ({ signMessagePage }) => {

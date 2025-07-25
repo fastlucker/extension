@@ -1,10 +1,15 @@
 import { saParams } from 'constants/env'
+import { pages } from 'pages/utils/page_instances'
 
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('network management', () => {
-  test.beforeEach(async ({ settingsPage }) => {
-    await settingsPage.init(saParams)
+  test.beforeEach(async () => {
+    await pages.initWithStorage(saParams)
+  })
+
+  test.afterEach(async ({ context }) => {
+    await context.close()
   })
 
   test('adding network manually', async ({ settingsPage }) => {
