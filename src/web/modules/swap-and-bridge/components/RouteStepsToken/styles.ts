@@ -1,6 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   tokenContainer: ViewStyle
@@ -18,6 +19,7 @@ const styles = StyleSheet.create<Style>({
     width: WIDTH
   },
   textContainer: {
+    ...flexbox.center,
     // Gets centered when text is short, but grows left (or right) if long, based on the flex model
     minWidth: '100%'
   },
@@ -27,7 +29,7 @@ const styles = StyleSheet.create<Style>({
     whiteSpace: 'nowrap'
   },
   tokenContainer: {
-    alignSelf: 'center',
+    ...flexbox.alignSelfCenter,
     ...spacings.mbMi,
     ...spacings.mtSm
   }
