@@ -1,14 +1,14 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import { Banner, MarketingBanner as MarketingBannerType } from '@ambire-common/interfaces/banner'
+import { Banner } from '@ambire-common/interfaces/banner'
 import DashboardBanner from '@common/modules/dashboard/components/DashboardBanners/DashboardBanner/DashboardBanner'
 import MarketingBanner from '@common/modules/dashboard/components/DashboardBanners/MarketingBanner/MarketingBanner'
 import useBanners from '@common/modules/dashboard/hooks/useBanners'
 
 const RELAYER_BANNER_TYPES = ['updates', 'rewards', 'new', 'vote', 'tips', 'alert'] as const
 
-function isMarketingBanner(banner: MarketingBannerType | Banner): banner is MarketingBannerType {
+function isMarketingBanner(banner: Banner) {
   return (
     !!banner &&
     !!banner.type &&

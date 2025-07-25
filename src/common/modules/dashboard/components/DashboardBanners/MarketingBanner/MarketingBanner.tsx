@@ -1,14 +1,13 @@
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
-import { MarketingBanner as MarketingBannerType } from '@ambire-common/interfaces/banner'
+import { Banner } from '@ambire-common/interfaces/banner'
 import AmbireBackgroundLogo from '@common/assets/svg/AmbireBackgroundLogo'
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import ThemeColors, { THEME_TYPES, ThemeProps, ThemeType } from '@common/styles/themeConfig'
+import ThemeColors, { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBannersControllerState from '@web/hooks/useBannersControllerState'
@@ -17,7 +16,7 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 interface Props {
-  banner: MarketingBannerType
+  banner: Banner
 }
 
 const typeEmojiMap: Record<string, string> = {
@@ -65,7 +64,8 @@ const MarketingBanner: React.FC<Props> = ({ banner }) => {
   const { isTab } = getUiType()
   const { styles } = useTheme(getStyles)
   const { dismissBanner } = useBannersControllerState()
-  const { text, type = 'updates', url } = banner
+  const { text, type = 'updates', actions } = banner
+  const url = actions?.find((action) => action.actionName === 'open-link')?.meta?.url || ''
   const colors = typeBannerColorsMap[type]
 
   return (
@@ -104,31 +104,39 @@ const MarketingBanner: React.FC<Props> = ({ banner }) => {
       </View>
 
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <View
-          style={[
-            common.borderRadiusPrimary,
-            { minWidth: 80, backgroundColor: ThemeColors.primaryBackground[THEME_TYPES.DARK] }
-          ]}
+        <Pressable
+          testID="marketing-banner-button"
+          onPress={() => {
+            window.open(url, '_blank', 'noopener,noreferrer')
+          }}
         >
-          <Button
-            testID="marketing-banner-button"
-            size="small"
-            type="secondary"
-            hasBottomSpacing={false}
-            submitOnEnter={false}
-            style={{
-              minWidth: 80,
-              borderColor: ThemeColors.primary[THEME_TYPES.DARK]
-            }}
-            textStyle={{ color: ThemeColors.primary[THEME_TYPES.DARK] }}
-            text="Open"
-            onPress={() => {
-              if (url) {
-                window.open(url, '_blank', 'noopener,noreferrer')
-              }
-            }}
-          />
-        </View>
+          {({ hovered }: any) => (
+            <View
+              style={[
+                flexbox.alignCenter,
+                flexbox.justifyCenter,
+                common.borderRadiusPrimary,
+                {
+                  minWidth: 80,
+                  backgroundColor: hovered
+                    ? '#1b2b2c'
+                    : ThemeColors.primaryBackground[THEME_TYPES.DARK],
+                  borderWidth: 1,
+                  borderColor: ThemeColors.primary[THEME_TYPES.DARK],
+                  padding: 8
+                }
+              ]}
+            >
+              <Text
+                style={{ color: hovered ? '#FFFFFF' : ThemeColors.primary[THEME_TYPES.DARK] }}
+                weight="medium"
+                fontSize={14}
+              >
+                Open
+              </Text>
+            </View>
+          )}
+        </Pressable>
 
         <View>
           <Pressable
@@ -136,23 +144,30 @@ const MarketingBanner: React.FC<Props> = ({ banner }) => {
               dismissBanner(banner.id)
             }}
             hitSlop={8}
-            style={[
-              spacings.mhSm,
-              spacings.mvSm,
-              spacings.pvTy,
-              spacings.phTy,
-              {
-                borderRadius: 50,
-                backgroundColor: ThemeColors.primaryBackground[THEME_TYPES.DARK]
-              }
-            ]}
           >
-            <CloseIcon
-              strokeWidth="2"
-              width={10}
-              height={10}
-              color={ThemeColors.primary[THEME_TYPES.DARK]}
-            />
+            {({ hovered }: any) => (
+              <View
+                style={[
+                  spacings.mhSm,
+                  spacings.mvSm,
+                  spacings.pvTy,
+                  spacings.phTy,
+                  {
+                    borderRadius: 50,
+                    backgroundColor: hovered
+                      ? '#1b2b2c'
+                      : ThemeColors.primaryBackground[THEME_TYPES.DARK]
+                  }
+                ]}
+              >
+                <CloseIcon
+                  strokeWidth="2"
+                  width={10}
+                  height={10}
+                  color={hovered ? '#FFFFFF' : ThemeColors.primary[THEME_TYPES.DARK]}
+                />
+              </View>
+            )}
           </Pressable>
         </View>
       </View>

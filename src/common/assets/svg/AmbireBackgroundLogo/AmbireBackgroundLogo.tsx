@@ -1,7 +1,7 @@
 import React from 'react'
-import Svg, { G, Path } from 'react-native-svg'
+import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
-const AmbireBackgroundLogo: React.FC<any> = ({ color = '#2d2467', ...props }) => {
+const AmbireBackgroundLogo: React.FC<SvgProps> = ({ color = '#2d2467', ...props }) => {
   return (
     <Svg width="100%" height="100%" viewBox="0 0 334.865 503.036" {...props}>
       <G

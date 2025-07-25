@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect } from 'react'
+import React, { createContext, useCallback, useEffect } from 'react'
 
 import { BannerController } from '@ambire-common/controllers/banner/banner'
 import useDeepMemo from '@common/hooks/useDeepMemo'
@@ -24,12 +24,16 @@ const BannerControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
-  const dismissBanner = (bannerId: string) => {
-    dispatch({
-      type: 'DISMISS_BANNER',
-      params: { bannerId }
-    })
-  }
+  const dismissBanner = useCallback(
+    (bannerId: string) => {
+      dispatch({
+        type: 'DISMISS_BANNER',
+        params: { bannerId }
+      })
+    },
+    [dispatch]
+  )
+
   const memoizedState = useDeepMemo(
     {
       ...state,
