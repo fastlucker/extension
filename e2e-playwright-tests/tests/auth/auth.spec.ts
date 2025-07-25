@@ -1,65 +1,64 @@
 import { BA_PASSPHRASE, KEYSTORE_PASS, SA_PASSPHRASE } from 'constants/env'
 import mainConstants from 'constants/mainConstants'
-import { test } from 'fixtures/pageObjects' // your extended test with authPage
-import { expect } from '@playwright/test'
 import selectors from 'constants/selectors'
-import { getController, setup, initTrezorConnect } from '../../utils/trezorEmulator'
+import { test } from 'fixtures/pageObjects' // your extended test with authPage
+import { pages } from 'pages/utils/page_instances'
+
+import { expect } from '@playwright/test'
+
 import { emulatorOptions } from '../../constants/trezor'
+import { getController, initTrezorConnect, setup } from '../../utils/trezorEmulator'
 
-test.describe.parallel('auth', () => {
-  test.beforeEach(async ({ authPage }) => {
-    await authPage.init()
+test.describe('auth', () => {
+  test.beforeEach(async () => {
+    await pages.initWithoutStorage()
   })
 
-  test('should import view-only Basic account', async ({ authPage }) => {
-    await authPage.importViewOnlyAccount(mainConstants.addresses.basicAccount)
+  test.afterEach(async ({ context }) => {
+    await context.close()
   })
 
-  test('should import view-only Smart account', async ({ authPage }) => {
-    await authPage.importViewOnlyAccount(mainConstants.addresses.smartAccount)
+  test('should import view-only Basic account', async () => {
+    await pages.authPage.importViewOnlyAccount(mainConstants.addresses.basicAccount)
   })
 
-  test('create new basic account', async ({ authPage }) => {
-    await authPage.createNewAccount()
+  test('should import view-only Smart account', async () => {
+    await pages.authPage.importViewOnlyAccount(mainConstants.addresses.smartAccount)
   })
 
-  test('import basic account from private key', async ({ authPage }) => {
-    await authPage.importExistingAccount()
+  test('create new basic account', async () => {
+    await pages.authPage.createNewAccount()
   })
 
-  test('import one Basic Account from a 12 words seed phrase and personalize them', async ({
-    authPage
-  }) => {
-    await authPage.importExistingAccountByRecoveryPhrase(BA_PASSPHRASE)
+  test('import basic account from private key', async () => {
+    await pages.authPage.importExistingAccount()
   })
 
-  test('import one Smart Account from a 12 words seed phrase and personalize them', async ({
-    authPage
-  }) => {
-    await authPage.importExistingAccountByRecoveryPhrase(SA_PASSPHRASE)
+  test('import one Basic Account from a 12 words seed phrase and personalize them', async () => {
+    await pages.authPage.importExistingAccountByRecoveryPhrase(BA_PASSPHRASE)
   })
 
-  test('import a couple of view-only accounts (at once) and personalize some of them', async ({
-    authPage
-  }) => {
-    await authPage.importCoupleOfViewOnlyAccount(
+  test('import one Smart Account from a 12 words seed phrase and personalize them', async () => {
+    await pages.authPage.importExistingAccountByRecoveryPhrase(SA_PASSPHRASE)
+  })
+
+  test('import a couple of view-only accounts (at once) and personalize some of them', async () => {
+    await pages.authPage.importCoupleOfViewOnlyAccount(
       mainConstants.addresses.basicAccount,
       mainConstants.addresses.smartAccount
     )
   })
 
-  test('create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async ({
-    authPage
-  }) => {
-    await authPage.createNewHotWalletAndPersonalizeName()
+  test('create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
+    await pages.authPage.createNewHotWalletAndPersonalizeName()
   })
 
-  test('import account from different HD paths', async ({ authPage }) => {
-    await authPage.createAccountAndImportFromDifferentHDPath()
+  test('import account from different HD paths', async () => {
+    await pages.authPage.createAccountAndImportFromDifferentHDPath()
   })
 
-  test('import account from JSON file', async ({ authPage }) => {
-    await authPage.importAccountFromJSONFile()
+  test('import account from JSON file', async () => {
+    await pages.authPage.importAccountFromJSONFile()
   })
 })
 
@@ -71,8 +70,12 @@ test.describe('trezor', () => {
     await initTrezorConnect(controller)
   })
 
-  test.beforeEach(async ({ authPage }) => {
-    await authPage.init()
+  test.beforeEach(async () => {
+    await pages.initWithoutStorage()
+  })
+
+  test.afterEach(async ({ context }) => {
+    await context.close()
   })
 
   test.afterAll(async () => {
@@ -93,10 +96,8 @@ test.describe('trezor', () => {
     }
   })
 
-  test('should successfully authenticate using Trezor and import existing accounts', async ({
-    authPage
-  }) => {
-    const page = authPage.page
+  test('should successfully authenticate using Trezor and import existing accounts', async () => {
+    const page = pages.authPage.page
 
     await test.step('start importing existing Trezor accounts in our Onboarding flow', async () => {
       await page.getByTestId(selectors.importExistingAccBtn).click()
@@ -107,7 +108,7 @@ test.describe('trezor', () => {
     })
 
     await test.step('allow importing accounts from Trezor Connect', async () => {
-      const trezorPage = await authPage.handleNewPage(
+      const trezorPage = await pages.authPage.handleNewPage(
         page.getByTestId(selectors.createKeystorePassBtn)
       )
 
@@ -140,7 +141,7 @@ test.describe('trezor', () => {
     })
 
     await test.step('make sure accounts are imported', async () => {
-      await authPage.goToDashboard()
+      await pages.authPage.goToDashboard()
 
       await page.getByTestId(selectors.accountSelectBtn).click()
 

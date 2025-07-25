@@ -5,14 +5,16 @@ import { BrowserContext, expect, Locator, Page } from '@playwright/test'
 
 import { categorizeRequests } from '../utils/requests'
 
-export abstract class BasePage {
+export class BasePage {
   page: Page
 
   context: BrowserContext
 
   collectedRequests: string[] = []
 
-  abstract init(param?): Promise<void> // ⛔ Must be implemented in subclasses
+  constructor(page: Page) {
+    this.page = page
+  }
 
   async navigateToURL(url: string) {
     await this.page.goto(`${url}`)
