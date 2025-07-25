@@ -261,10 +261,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     [dispatch]
   )
 
-  const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
-    return portfolio.totalBalance >= 10
-  }, [portfolio.totalBalance])
-
   // Used to resolve ENS, not to update the field value
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -648,13 +644,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
                 <Alert
                   type="warning"
                   title={t('Gas Tank deposits cannot be withdrawn')}
-                  text={
-                    !doesUserMeetMinimumBalanceForGasTank
-                      ? t(
-                          'Note: A minimum overall balance of $10 is required to pay for gas via the Gas Tank'
-                        )
-                      : false
-                  }
                   isTypeLabelHidden
                 />
               </View>
