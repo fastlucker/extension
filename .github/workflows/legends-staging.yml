@@ -1,6 +1,6 @@
 name: Legends 👾
 env:
-  APP_ENV: production
+  APP_ENV: staging
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
         run: git submodule update
 
       - name: Install Dependencies
-        run: PUPPETEER_SKIP_DOWNLOAD='true' yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
         shell: bash
 
       - name: Build project 🛠️

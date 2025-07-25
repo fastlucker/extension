@@ -147,6 +147,11 @@ type AccountsControllerUpdateAccountPreferences = {
   params: { addr: string; preferences: AccountPreferences }[]
 }
 
+type AccountsControllerReorderAccountsAction = {
+  type: 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS'
+  params: { fromIndex: number; toIndex: number }
+}
+
 type AccountsControllerUpdateAccountState = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE'
   params: { addr: string; chainIds: bigint[] }
@@ -765,6 +770,7 @@ export type Action =
   | MainControllerAccountPickerInitAction
   | ResetAccountAddingOnPageErrorAction
   | MainControllerAccountPickerResetAccountsSelectionAction
+  | AccountsControllerReorderAccountsAction
   | AccountsControllerUpdateAccountPreferences
   | AccountsControllerUpdateAccountState
   | AccountsControllerResetAccountsNewlyAddedStateAction

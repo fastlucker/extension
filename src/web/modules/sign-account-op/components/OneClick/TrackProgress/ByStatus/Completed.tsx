@@ -36,35 +36,33 @@ const Completed: FC<CompletedProps> = ({
   }, [addToast, explorerLink])
 
   return (
-    <>
-      <SuccessAnimation width={600}>
-        <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
-          {title}
-        </Text>
-        <Text weight="medium" appearance="secondaryText" style={spacings.mbXl}>
-          {titleSecondary}
-        </Text>
-        {!!explorerLink && (
-          <Pressable
-            onPress={handleOpenExplorer}
-            style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
+    <SuccessAnimation width={600}>
+      <Text fontSize={20} weight="medium" style={spacings.mbTy} testID="txn-status">
+        {title}
+      </Text>
+      <Text weight="medium" appearance="secondaryText" style={spacings.mbXl}>
+        {titleSecondary}
+      </Text>
+      {!!explorerLink && (
+        <Pressable
+          onPress={handleOpenExplorer}
+          style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyCenter]}
+        >
+          <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
+          <Text
+            weight="medium"
+            style={{
+              textDecorationLine: 'underline',
+              textDecorationColor: theme.primary,
+              textDecorationStyle: 'solid'
+            }}
+            appearance="primary"
           >
-            <OpenIcon color={theme.primary} width={16} height={16} style={spacings.mrTy} />
-            <Text
-              weight="medium"
-              style={{
-                textDecorationLine: 'underline',
-                textDecorationColor: theme.primary,
-                textDecorationStyle: 'solid'
-              }}
-              appearance="primary"
-            >
-              {openExplorerText}
-            </Text>
-          </Pressable>
-        )}
-      </SuccessAnimation>
-    </>
+            {openExplorerText}
+          </Text>
+        </Pressable>
+      )}
+    </SuccessAnimation>
   )
 }
 

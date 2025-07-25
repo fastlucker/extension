@@ -31,7 +31,7 @@ import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
-const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) => {
+const TokenItem = ({ token }: { token: TokenResult }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const {
     symbol,
@@ -124,7 +124,6 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
       onPress={() => openBottomSheet()}
       style={[styles.container, animStyle]}
       {...bindAnim}
-      testID={testID}
     >
       <BottomSheet
         id={`token-details-${address}`}
@@ -168,6 +167,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
                     dataSet={{
                       tooltipId: `${tokenId}-balance`
                     }}
+                    testID={`token-balance-${tokenId}`}
                   >
                     {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
                   </Text>

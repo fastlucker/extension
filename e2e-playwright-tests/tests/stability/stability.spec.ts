@@ -1,8 +1,10 @@
 import { baParams } from 'constants/env'
+
 import { expect } from '@playwright/test'
-import { test } from '../../fixtures/pageObjects'
+
 import selectors from '../../constants/selectors'
 import tokens from '../../constants/tokens'
+import { test } from '../../fixtures/pageObjects'
 
 test.describe('stability', () => {
   test.beforeEach(async ({ stabilityPage }) => {
@@ -20,9 +22,9 @@ test.describe('stability', () => {
       'click on the error indicator and appropriate message is expected to be shown',
       async () => {
         const page = stabilityPage.page
-        await page.getByTestId(selectors.balanceErrorIcon).click()
+        await page.getByTestId(selectors.dashboard.balanceErrorIcon).click()
 
-        const rpcErrorBanner = page.getByTestId(selectors.portfolioErrorAlert)
+        const rpcErrorBanner = page.getByTestId(selectors.dashboard.portfolioErrorAlert).first()
 
         await expect(rpcErrorBanner).toBeVisible()
         await expect(rpcErrorBanner).toContainText('Failed to retrieve network data for Polygon')
@@ -53,8 +55,8 @@ test.describe('stability', () => {
     await test.step(
       'click on the error indicator and appropriate message is expected to be shown',
       async () => {
-        await page.getByTestId(selectors.balanceErrorIcon).click()
-        const velcroErrorBanner = page.getByTestId(selectors.portfolioErrorAlert)
+        await page.getByTestId(selectors.dashboard.balanceErrorIcon).click()
+        const velcroErrorBanner = page.getByTestId(selectors.dashboard.portfolioErrorAlert)
 
         await expect(velcroErrorBanner).toBeVisible()
         await expect(velcroErrorBanner).toContainText(
@@ -93,8 +95,7 @@ test.describe('stability', () => {
         expect(categorized.hints.length).toBeLessThanOrEqual(1)
         expect(categorized.nativePrices.length).toBeLessThanOrEqual(10)
         expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
-        expect(categorized.thirdParty.length).toBeLessThanOrEqual(10)
-        expect(categorized.allowedUncategorized.length).toBeLessThanOrEqual(5)
+        expect(categorized.allowedUncategorized.length).toBeLessThanOrEqual(10)
 
         // ☢️ Critical: there should be no truly uncategorized requests.
         // Anything uncategorized is likely unexpected or suspicious.

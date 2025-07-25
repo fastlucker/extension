@@ -28,7 +28,12 @@ export class GasTankPage extends BasePage {
     // Switch to dollar
     await this.page.getByTestId(selectors.flipIcon).click()
 
+    // Switching to dollars takes a few milliseconds for the controller to update,
+    // and if the amount is filled at the same time, sometimes the amount is not set in the UI or in the controller.
+    await this.page.waitForTimeout(1000)
+
     // Amount
+    await this.page.waitForTimeout(1000) // script misses input due to modal animation sometimes
     const amountField = this.page.getByTestId(selectors.amountField)
     await amountField.fill(amount)
 
@@ -38,6 +43,7 @@ export class GasTankPage extends BasePage {
   async signAndValidate() {
     // Proceed
     const proceedButton = this.page.getByTestId(selectors.proceedBtn)
+    await this.expectButtonEnabled(selectors.proceedBtn)
     await proceedButton.click()
 
     // Sign & Broadcast
@@ -53,7 +59,7 @@ export class GasTankPage extends BasePage {
 
   async refreshUntilNewBalanceIsVisible(balance: number) {
     let retries = 10
-    let oldBalance = balance
+    const oldBalance = balance
     let newBalance = await this.getCurrentBalance()
 
     while (newBalance <= oldBalance && retries > 0) {
@@ -65,5 +71,25 @@ export class GasTankPage extends BasePage {
       retries--
     }
     return newBalance
+  }
+
+  // TODO: move to dashboard page once POM is refactored
+  async checkNoTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(
+      selectors.dashboard.noTransactionOnActivityTab,
+      'No transactions history for Account '
+    )
+  }
+
+  // TODO: move to dashboard page once POM is refactored
+  async checkSendTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await expect(this.page.locator(selectors.dashboard.fuelGasTankTransactionPill)).toContainText(
+      'Fuel gas tank with'
+    )
+    await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
+      'Confirmed'
+    )
   }
 }

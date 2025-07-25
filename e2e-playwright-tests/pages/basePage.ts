@@ -2,6 +2,7 @@ import selectors from 'constants/selectors'
 import Token from 'interfaces/token'
 
 import { BrowserContext, expect, Locator, Page } from '@playwright/test'
+
 import { categorizeRequests } from '../utils/requests'
 
 export abstract class BasePage {
@@ -45,10 +46,10 @@ export abstract class BasePage {
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
     await this.entertext(selectors.searchInput, token.symbol)
 
-    const paidBy = paidByAddress.toLowerCase()
-    const tokenAddress = token.address.toLowerCase()
+    const paidBy = paidByAddress
+    const tokenAddress = token.address
     const tokenSymbol = token.symbol.toLowerCase()
-    const gasTank = onGasTank ? 'gastank' : ''
+    const gasTank = onGasTank ? 'gasTank' : ''
 
     // Ensure we click the token inside the SelectMenu,
     // not the one rendered as the default value.
@@ -105,6 +106,10 @@ export abstract class BasePage {
     await expect(this.page.getByTestId(selector)).toBeVisible()
   }
 
+  async expectButtonEnabled(selector: string) {
+    await expect(this.page.getByTestId(selector)).toBeEnabled()
+  }
+
   async compareText(selector: string, text: string) {
     await expect(this.page.getByTestId(selector)).toContainText(text)
   }
@@ -124,5 +129,12 @@ export abstract class BasePage {
 
   getCategorizedRequests() {
     return categorizeRequests(this.collectedRequests)
+  }
+
+  async getDashboardTokenBalance(token: Token) {
+    const balanceText = await this.getText(`token-balance-${token.address}.${token.chainId}`)
+    const tokenBalance = parseFloat(balanceText)
+
+    return tokenBalance
   }
 }

@@ -14,7 +14,7 @@ export class SettingsPage extends BasePage {
   }
 
   async openSettingsGeneral() {
-    await this.click(selectors.dashboardHumburgerBtn)
+    await this.click(selectors.dashboard.hamburgerButton)
     await this.checkUrl('/settings/general')
   }
 
@@ -109,6 +109,12 @@ export class SettingsPage extends BasePage {
 
     // confirm conection request
     await connectPage.getByTestId(selectors.dappConnectButton).click()
+
+    // Sometimes dApp security checks take more time, and if we don't wait for them to complete,
+    // the `addToMetamaskButton` won't be available in the next step and the test will fail.
+    await expect(connectPage.getByTestId(selectors.dappSecurityCheckPassed)).toBeVisible({
+      timeout: 10000
+    })
 
     await chainlistTab.waitForSelector(selectors.chainlistSearchPlaceholder)
     await chainlistTab.locator(selectors.chainlistSearchPlaceholder).fill(network.networkName)

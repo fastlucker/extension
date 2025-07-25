@@ -1,7 +1,10 @@
+import { bootstrapWithStorage } from 'common-helpers/bootstrap'
 import locators from 'constants/locators'
+import selectors from 'constants/selectors'
+
 import { expect } from '@playwright/test'
 
-import { bootstrapWithStorage } from 'common-helpers/bootstrap'
+import Token from '../interfaces/token'
 import { BasePage } from './basePage'
 
 export class DashboardPage extends BasePage {
@@ -54,5 +57,54 @@ export class DashboardPage extends BasePage {
     } else {
       throw new Error('Modal text not found')
     }
+  }
+
+  async getCurrentBalance() {
+    const amountText = await this.page.getByTestId(selectors.dashboardGasTankBalance).innerText()
+    const amountNumber = parseFloat(amountText.replace(/[^\d.]/g, ''))
+
+    return amountNumber
+  }
+
+  async checkTokenBalance(token: Token) {
+    const key = `${token.symbol}-${token.chainId}`
+    const balanceThresholds: Record<string, number> = {
+      'WALLET-8453': 400,
+      'USDC-8453': 5,
+      'USDC-10': 5,
+      'USDC.E-10': 2,
+      'DAI-10': 2,
+      'xWALLET-1': 2
+    }
+
+    const minBalance = balanceThresholds[key] ?? 0
+    const tokenBalance = await this.getDashboardTokenBalance(token)
+
+    let error: string | undefined
+
+    try {
+      expect(tokenBalance).toBeGreaterThanOrEqual(minBalance)
+    } catch (e) {
+      error = `${token.symbol} balance is only: ${tokenBalance}.`
+    }
+    return { token, error }
+  }
+
+  // TODO: use this method to check activity tab after POM refactor
+  async checkNoTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(
+      selectors.dashboard.noTransactionOnActivityTab,
+      'No transactions history for Account '
+    )
+  }
+
+  // TODO: use this method to check activity tab after POM refactor
+  async checkSendTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await expect(this.page.locator(selectors.dashboard.transactionSendText)).toContainText('Send')
+    await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
+      'Confirmed'
+    )
   }
 }

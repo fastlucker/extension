@@ -1,10 +1,9 @@
 import { bootstrapWithStorage } from 'common-helpers/bootstrap'
-import { expect } from '@playwright/test'
-import { getAddress } from 'ethers'
-import { BasePage } from './basePage'
+
+import { baParams, KEYSTORE_PASS } from '../constants/env'
 import selectors from '../constants/selectors'
-import { KEYSTORE_PASS, baParams } from '../constants/env'
 import Token from '../interfaces/token'
+import { BasePage } from './basePage'
 
 export class StabilityPage extends BasePage {
   serviceWorker: any
@@ -56,6 +55,6 @@ export class StabilityPage extends BasePage {
   }
 
   getDashboardTokenSelector(token: Token) {
-    return this.page.getByTestId(`token-${getAddress(token.address)}-${token.chainId}`)
+    return this.page.getByTestId(`token-balance-${token.address}.${token.chainId}`)
   }
 }
