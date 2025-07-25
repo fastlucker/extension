@@ -1,4 +1,4 @@
-import { KEYSTORE_PASS, baParams } from 'constants/env'
+import { baParams, KEYSTORE_PASS } from 'constants/env'
 
 import { test } from '../../fixtures/pageObjects'
 
