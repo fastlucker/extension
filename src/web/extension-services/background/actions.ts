@@ -21,6 +21,7 @@ import {
   ReadyToAddKeys
 } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, ChainId, Network } from '@ambire-common/interfaces/network'
+import { BuildRequest } from '@ambire-common/interfaces/requests'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
 import {
   SwapAndBridgeActiveRoute,
@@ -198,24 +199,9 @@ type MainControllerAddUserRequestAction = {
     skipFocus?: boolean
   }
 }
-type MainControllerBuildTransferUserRequest = {
-  type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST'
-  params: {
-    amount: string
-    selectedToken: TokenResult
-    recipientAddress: string
-    actionExecutionType: ActionExecutionType
-  }
-}
-type MainControllerBuildClaimWalletUserRequest = {
-  type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST'
-  params: { token: TokenResult }
-}
-type MainControllerBuildMintVestingUserRequest = {
-  type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST'
-  params: {
-    token: TokenResult
-  }
+type RequestsControllerBuildRequestAction = {
+  type: 'REQUESTS_CONTROLLER_BUILD_REQUEST'
+  params: BuildRequest
 }
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
@@ -578,10 +564,6 @@ type SwapAndBridgeControllerSelectRouteAction = {
 type SwapAndBridgeControllerResetForm = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM'
 }
-type SwapAndBridgeControllerBuildUserRequest = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
-  params: { openActionWindow: boolean }
-}
 type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
   params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
@@ -779,9 +761,7 @@ export type Action =
   | MainControllerAddUserRequestAction
   | MainControllerLockAction
   | MainControllerOnPopupOpenAction
-  | MainControllerBuildTransferUserRequest
-  | MainControllerBuildClaimWalletUserRequest
-  | MainControllerBuildMintVestingUserRequest
+  | RequestsControllerBuildRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
@@ -840,7 +820,6 @@ export type Action =
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerResetForm
-  | SwapAndBridgeControllerBuildUserRequest
   | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction

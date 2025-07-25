@@ -196,19 +196,6 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
       return await mainCtrl.removeAccount(params.accountAddr)
     }
-    case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
-      return await mainCtrl.buildTransferUserRequest(
-        params.amount,
-        params.recipientAddress,
-        params.selectedToken,
-        params.actionExecutionType,
-        windowId
-      )
-
-    case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
-      return await mainCtrl.buildClaimWalletUserRequest(params.token, windowId)
-    case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
-      return await mainCtrl.buildMintVestingUserRequest(params.token, windowId)
     case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
       return await mainCtrl.addUserRequests([params.userRequest], {
         actionPosition: params.actionPosition,
@@ -280,6 +267,10 @@ export const handleActions = async (
       return mainCtrl.initSignAccOp(params.actionId)
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
+
+    case 'REQUESTS_CONTROLLER_BUILD_REQUEST':
+      return await mainCtrl.requests.build(params)
+
     case 'SIGN_ACCOUNT_OP_UPDATE': {
       if (params.updateType === 'Main') {
         return mainCtrl?.signAccountOp?.update(params)
@@ -315,13 +306,6 @@ export const handleActions = async (
       return await mainCtrl.swapAndBridge.searchToToken(params.searchTerm)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
-      return await mainCtrl.buildSwapAndBridgeUserRequest(
-        params.openActionWindow,
-        undefined,
-        windowId
-      )
-    }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId, windowId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {

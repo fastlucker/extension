@@ -1,6 +1,5 @@
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import { AccountsController } from '@ambire-common/controllers/accounts/accounts'
-import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
@@ -15,6 +14,7 @@ import { NetworksController } from '@ambire-common/controllers/networks/networks
 import { PhishingController } from '@ambire-common/controllers/phishing/phishing'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
+import { RequestsController } from '@ambire-common/controllers/requests/requests'
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
@@ -41,7 +41,7 @@ export const controllersNestedInMainMapping = {
   transfer: TransferController,
   phishing: PhishingController,
   dapps: DappsController,
-  actions: ActionsController,
+  requests: RequestsController,
   addressBook: AddressBookController,
   domains: DomainsController,
   invite: InviteController,

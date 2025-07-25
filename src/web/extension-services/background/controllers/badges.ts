@@ -39,7 +39,7 @@ export class BadgesController {
     this.#walletStateCtrl = walletStateCtrl
 
     this.#mainCtrl.onUpdate(() => {
-      this.badgesCount = this.#mainCtrl.actions.visibleActionsQueue.filter(
+      this.badgesCount = this.#mainCtrl.requests.actions.visibleActionsQueue.filter(
         (a) => a.type !== 'benzin' && a.type !== 'swapAndBridge'
       ).length
       const swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
