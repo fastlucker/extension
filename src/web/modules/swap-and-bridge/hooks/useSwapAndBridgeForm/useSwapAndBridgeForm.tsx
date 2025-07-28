@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 import { useLocation } from 'react-router-dom'
 
-import { getUsdAmount } from '@ambire-common/controllers/signAccountOp/helper'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
+import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -284,10 +284,10 @@ const useSwapAndBridgeForm = () => {
       const minAmountOutInWei = BigInt(
         quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
       )
-      const minInUsd = getUsdAmount(
-        Number(quote.selectedRoute.toToken.priceUSD),
+      const minInUsd = safeTokenAmountAndNumberMultiplication(
+        minAmountOutInWei,
         quote.selectedRoute.toToken.decimals,
-        minAmountOutInWei
+        Number(quote.selectedRoute.toToken.priceUSD)
       )
       const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
       const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100

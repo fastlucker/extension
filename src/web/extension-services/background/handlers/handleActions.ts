@@ -637,6 +637,11 @@ export const handleActions = async (
       break
     }
 
+    case 'DISMISS_BANNER': {
+      await mainCtrl.banner.dismissBanner(params.bannerId)
+      break
+    }
+
     default:
       // eslint-disable-next-line no-console
       return console.error(

@@ -4,6 +4,7 @@ import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useBannersControllerState from '@web/hooks/useBannersControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -12,9 +13,9 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 
 const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount?: AccountId) =>
   banners.filter((banner) => {
-    if (!banner.accountAddr) return true
+    if (!banner.meta?.accountAddr) return true
 
-    return banner.accountAddr === selectedAccount
+    return banner.meta.accountAddr === selectedAccount
   })
 
 const OFFLINE_BANNER: BannerInterface = {
@@ -32,8 +33,10 @@ const OFFLINE_BANNER: BannerInterface = {
 
 export default function useBanners(): BannerInterface[] {
   const { isOffline, banners: mainCtrlBanners } = useMainControllerState()
+  const { banners: marketingBanners } = useBannersControllerState()
   const { account, portfolio, deprecatedSmartAccountBanner, firstCashbackBanner } =
     useSelectedAccountControllerState()
+
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
@@ -42,6 +45,7 @@ export default function useBanners(): BannerInterface[] {
 
   const allBanners = useMemo(() => {
     return [
+      ...marketingBanners,
       ...deprecatedSmartAccountBanner,
       ...mainCtrlBanners,
       ...actionBanners,
@@ -53,6 +57,7 @@ export default function useBanners(): BannerInterface[] {
       ...firstCashbackBanner
     ]
   }, [
+    marketingBanners,
     deprecatedSmartAccountBanner,
     mainCtrlBanners,
     actionBanners,
