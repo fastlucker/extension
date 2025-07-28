@@ -196,19 +196,6 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
       return await mainCtrl.removeAccount(params.accountAddr)
     }
-    case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-      return await mainCtrl.addUserRequests([params.userRequest], {
-        actionPosition: params.actionPosition,
-        actionExecutionType: params.actionExecutionType,
-        allowAccountSwitch: params.allowAccountSwitch,
-        skipFocus: params.skipFocus
-      })
-    case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-      return mainCtrl.removeUserRequests([params.id])
-    case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
-      return mainCtrl.resolveUserRequest(params.data, params.id)
-    case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-      return mainCtrl.rejectUserRequests(params.err, [params.id])
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
@@ -270,6 +257,19 @@ export const handleActions = async (
 
     case 'REQUESTS_CONTROLLER_BUILD_REQUEST':
       return await mainCtrl.requests.build(params)
+    case 'REQUESTS_CONTROLLER_ADD_USER_REQUEST':
+      return await mainCtrl.requests.addUserRequests([params.userRequest], {
+        actionPosition: params.actionPosition,
+        actionExecutionType: params.actionExecutionType,
+        allowAccountSwitch: params.allowAccountSwitch,
+        skipFocus: params.skipFocus
+      })
+    case 'REQUESTS_CONTROLLER_REMOVE_USER_REQUEST':
+      return mainCtrl.requests.removeUserRequests([params.id])
+    case 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST':
+      return mainCtrl.requests.resolveUserRequest(params.data, params.id)
+    case 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST':
+      return mainCtrl.requests.rejectUserRequests(params.err, [params.id])
 
     case 'SIGN_ACCOUNT_OP_UPDATE': {
       if (params.updateType === 'Main') {
@@ -306,8 +306,15 @@ export const handleActions = async (
       return await mainCtrl.swapAndBridge.searchToToken(params.searchTerm)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
-      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId, windowId)
+    case 'REQUESTS_CONTROLLER_SWAP_AND_BRIDGE_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
+      return await mainCtrl.requests.build({
+        type: 'swapAndBridgeRequest',
+        params: {
+          openActionWindow: true,
+          activeRouteId: params.activeRouteId,
+          windowId
+        }
+      })
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
       await mainCtrl.swapAndBridge.updateQuote({
         skipPreviousQuoteRemoval: true,
@@ -335,7 +342,7 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.addOrUpdateActions(
+      return mainCtrl.requests.actions.addOrUpdateActions(
         [
           {
             id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
@@ -359,7 +366,7 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.removeActions([
+      return mainCtrl.requests.actions.removeActions([
         `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`
       ])
     }
@@ -384,20 +391,20 @@ export const handleActions = async (
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
     case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-      return mainCtrl.actions.removeActions([params.id], params.shouldOpenNextAction)
+      return mainCtrl.requests.actions.removeActions([params.id], params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
-      return mainCtrl.actions.focusActionWindow()
+      return mainCtrl.requests.actions.focusActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
-      return mainCtrl.actions.setCurrentActionById(params.actionId, {
+      return mainCtrl.requests.actions.setCurrentActionById(params.actionId, {
         baseWindowId: windowId
       })
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-      return mainCtrl.actions.setCurrentActionByIndex(params.index, {
+      return mainCtrl.requests.actions.setCurrentActionByIndex(params.index, {
         ...params.params,
         baseWindowId: windowId
       })
     case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
-      return mainCtrl.actions.setWindowLoaded()
+      return mainCtrl.requests.actions.setWindowLoaded()
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({

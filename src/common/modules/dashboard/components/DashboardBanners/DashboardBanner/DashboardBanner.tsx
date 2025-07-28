@@ -108,7 +108,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
 
         case 'proceed-bridge':
           dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_SWAP_AND_BRIDGE_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
             params: { activeRouteId: action.meta.activeRouteId }
           })
           break

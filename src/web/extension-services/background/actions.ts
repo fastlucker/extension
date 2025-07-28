@@ -188,33 +188,6 @@ type MainControllerUpdateNetworkAction = {
     chainId: ChainId
   }
 }
-
-type MainControllerAddUserRequestAction = {
-  type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
-  params: {
-    userRequest: UserRequest
-    actionPosition?: ActionPosition
-    actionExecutionType?: ActionExecutionType
-    allowAccountSwitch?: boolean
-    skipFocus?: boolean
-  }
-}
-type RequestsControllerBuildRequestAction = {
-  type: 'REQUESTS_CONTROLLER_BUILD_REQUEST'
-  params: BuildRequest
-}
-type MainControllerRemoveUserRequestAction = {
-  type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
-  params: { id: UserRequest['id'] }
-}
-type MainControllerResolveUserRequestAction = {
-  type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST'
-  params: { data: any; id: UserRequest['id'] }
-}
-type MainControllerRejectUserRequestAction = {
-  type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
-  params: { err: string; id: UserRequest['id'] }
-}
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
   params: { callId: string }
@@ -272,6 +245,37 @@ type MainControllerUpdateSelectedAccountPortfolio = {
     forceUpdate?: boolean
     network?: Network
   }
+}
+
+type RequestsControllerAddUserRequestAction = {
+  type: 'REQUESTS_CONTROLLER_ADD_USER_REQUEST'
+  params: {
+    userRequest: UserRequest
+    actionPosition?: ActionPosition
+    actionExecutionType?: ActionExecutionType
+    allowAccountSwitch?: boolean
+    skipFocus?: boolean
+  }
+}
+type RequestsControllerBuildRequestAction = {
+  type: 'REQUESTS_CONTROLLER_BUILD_REQUEST'
+  params: BuildRequest
+}
+type RequestsControllerRemoveUserRequestAction = {
+  type: 'REQUESTS_CONTROLLER_REMOVE_USER_REQUEST'
+  params: { id: UserRequest['id'] }
+}
+type RequestsControllerResolveUserRequestAction = {
+  type: 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST'
+  params: { data: any; id: UserRequest['id'] }
+}
+type RequestsControllerRejectUserRequestAction = {
+  type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST'
+  params: { err: string; id: UserRequest['id'] }
+}
+type RequestsControllerSwapAndBridgeActiveRouteBuildNextUserRequestAction = {
+  type: 'REQUESTS_CONTROLLER_SWAP_AND_BRIDGE_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
+  params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
 }
 
 type DefiControllerAddSessionAction = {
@@ -564,10 +568,6 @@ type SwapAndBridgeControllerSelectRouteAction = {
 type SwapAndBridgeControllerResetForm = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM'
 }
-type SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction = {
-  type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST'
-  params: { activeRouteId: SwapAndBridgeActiveRoute['activeRouteId'] }
-}
 type SwapAndBridgeControllerUpdateQuoteAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
 }
@@ -758,13 +758,13 @@ export type Action =
   | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
   | MainControllerRemoveAccount
-  | MainControllerAddUserRequestAction
+  | RequestsControllerAddUserRequestAction
   | MainControllerLockAction
   | MainControllerOnPopupOpenAction
   | RequestsControllerBuildRequestAction
-  | MainControllerRemoveUserRequestAction
-  | MainControllerResolveUserRequestAction
-  | MainControllerRejectUserRequestAction
+  | RequestsControllerRemoveUserRequestAction
+  | RequestsControllerResolveUserRequestAction
+  | RequestsControllerRejectUserRequestAction
   | MainControllerRejectSignAccountOpCall
   | MainControllerRejectAccountOpAction
   | MainControllerSignMessageInitAction
@@ -820,7 +820,7 @@ export type Action =
   | SwapAndBridgeControllerSwitchFromAndToTokensAction
   | SwapAndBridgeControllerSelectRouteAction
   | SwapAndBridgeControllerResetForm
-  | SwapAndBridgeControllerActiveRouteBuildNextUserRequestAction
+  | RequestsControllerSwapAndBridgeActiveRouteBuildNextUserRequestAction
   | SwapAndBridgeControllerUpdateQuoteAction
   | SwapAndBridgeControllerRemoveActiveRouteAction
   | ActionsControllerRemoveFromActionsQueue

@@ -11,5 +11,5 @@ export default function useActionsControllerState() {
     )
   }
 
-  return context.actions
+  return context.actions || {}
 }
