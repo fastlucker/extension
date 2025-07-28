@@ -137,30 +137,33 @@ const AccountsSettingsScreen = () => {
       attributes: any
     ) => {
       return (
-        <Account
-          account={item}
-          maxAccountAddrLength={shortenAccountAddr()}
-          renderLeftChildren={
-            <div {...listeners} {...attributes}>
-              <Pressable
-                style={[
-                  flexbox.alignCenter,
-                  flexbox.justifyCenter,
-                  spacings.pvSm,
-                  spacings.phSm,
-                  { cursor: 'grab', touchAction: 'manipulation' }
-                ]}
-              >
-                <DragIndicatorIcon color={isDragging ? theme.primary : theme.secondaryBorder} />
-              </Pressable>
-            </div>
-          }
-          options={accountOptions}
-          isSelectable={false}
-        />
+        <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+          <div {...listeners} {...attributes}>
+            <Pressable
+              style={[
+                flexbox.alignCenter,
+                flexbox.justifyCenter,
+                spacings.pvMi,
+                spacings.phSm,
+                spacings.mbMi,
+                { cursor: 'grab', touchAction: 'manipulation' }
+              ]}
+            >
+              <DragIndicatorIcon color={isDragging ? theme.primary : theme.secondaryBorder} />
+            </Pressable>
+          </div>
+          <View style={flexbox.flex1}>
+            <Account
+              account={item}
+              maxAccountAddrLength={shortenAccountAddr()}
+              options={accountOptions}
+              isSelectable={false}
+            />
+          </View>
+        </View>
       )
     },
-    [shortenAccountAddr, theme, accountOptions]
+    [theme.primary, theme.secondaryBorder, shortenAccountAddr, accountOptions]
   )
   const { maxWidthSize } = useWindowSize()
   const isWidthS = maxWidthSize('s')

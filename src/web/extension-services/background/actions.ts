@@ -10,6 +10,7 @@ import { Filters, Pagination } from '@ambire-common/controllers/activity/activit
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
+import { Banner } from '@ambire-common/interfaces/banner'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import {
@@ -758,6 +759,13 @@ type SetCrashAnalyticsAction = {
   params: { enabled: boolean }
 }
 
+type DismissBanner = {
+  type: 'DISMISS_BANNER'
+  params: {
+    bannerId: Banner['id']
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -899,3 +907,4 @@ export type Action =
   | SetThemeTypeAction
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
+  | DismissBanner

@@ -29,6 +29,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
@@ -75,19 +76,11 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { visibleActionsQueue } = useActionsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { userRequests } = useMainControllerState()
-  const networkUserRequests = useMemo(() => {
-    if (!selectedToken || !account || !userRequests.length) return []
-    return userRequests.filter(
-      (r) =>
-        r.action.kind === 'calls' &&
-        r.meta.accountAddr === account.addr &&
-        r.meta.chainId === selectedToken.chainId
-    )
-  }, [selectedToken, userRequests, account])
   const {
     ref: gasTankSheetRef,
     open: openGasTankInfoBottomSheet,
@@ -132,6 +125,20 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       (accOp) => accOp.signature === latestBroadcastedAccountOp.signature
     )
   }, [accountsOps.transfer, latestBroadcastedAccountOp?.signature])
+
+  const accountUserRequests = useMemo(() => {
+    if (!account || !userRequests.length) return []
+
+    return userRequests.filter(
+      (r) => r.action.kind === 'calls' && r.meta.accountAddr === account.addr
+    )
+  }, [userRequests, account])
+
+  const networkUserRequests = useMemo(() => {
+    if (!selectedToken || !account || !userRequests.length) return []
+
+    return accountUserRequests.filter((r) => r.meta.chainId === selectedToken.chainId)
+  }, [selectedToken, account, userRequests.length, accountUserRequests])
 
   const navigateOut = useCallback(() => {
     if (isActionWindow) {
@@ -254,10 +261,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     [dispatch]
   )
 
-  const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
-    return portfolio.totalBalance >= 10
-  }, [portfolio.totalBalance])
-
   // Used to resolve ENS, not to update the field value
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -296,10 +299,30 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     handleCacheResolvedDomain
   })
 
-  const isTransferFormValid = useMemo(
-    () => !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError),
-    [addressInputState.validation.isError, isFormValid, isTopUp]
-  )
+  /**
+   * True if the user has pending user requests and there is no amount set in the form.
+   * Used to allow the user to open the SignAccountOp window to sign the requests.
+   */
+  const isSendingBatch =
+    accountUserRequests.length > 0 && !state.amount && visibleActionsQueue.length > 0
+
+  const submitButtonText = useMemo(() => {
+    const count = isSendingBatch ? accountUserRequests.length : networkUserRequests.length
+
+    if (!count) {
+      return t('Send')
+    }
+
+    return t('Send ({{count}})', {
+      count: isSendingBatch ? accountUserRequests.length : networkUserRequests.length
+    })
+  }, [accountUserRequests.length, isSendingBatch, networkUserRequests.length, t])
+
+  const isTransferFormValid = useMemo(() => {
+    if (isSendingBatch) return true
+
+    return !!(isTopUp ? isFormValid : isFormValid && !addressInputState.validation.isError)
+  }, [addressInputState.validation.isError, isFormValid, isSendingBatch, isTopUp])
 
   const onBack = useCallback(() => {
     dispatch({
@@ -317,6 +340,26 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
   const addTransaction = useCallback(
     (actionExecutionType: ActionExecutionType) => {
+      if (isSendingBatch) {
+        const action = visibleActionsQueue.find((a) => a.type === 'accountOp')
+
+        if (!action) {
+          addToast(
+            t('Failed to open batch. If this error persists please reject it from the dashboard.'),
+            { type: 'error' }
+          )
+          return
+        }
+
+        dispatch({
+          type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
+          params: {
+            actionId: action.id
+          }
+        })
+        return
+      }
+
       if (isFormValid && state.selectedToken) {
         // In the case of a Batch, we show an info modal explaining what Batching is.
         // We provide an option to skip this modal next time.
@@ -366,15 +409,21 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       }
     },
     [
-      state,
-      addressState,
-      isTopUp,
+      isSendingBatch,
       isFormValid,
+      state.selectedToken,
+      state.shouldSkipTransactionQueuedModal,
+      state.amount,
+      visibleActionsQueue,
       dispatch,
-      openBottomSheet,
+      addToast,
+      t,
+      isTopUp,
+      addressState,
       resetTransferForm,
-      openEstimationModalAndDispatch,
-      networkUserRequests
+      openBottomSheet,
+      networkUserRequests.length,
+      openEstimationModalAndDispatch
     ]
   )
 
@@ -429,6 +478,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           handleSubmitForm={(isOneClickMode) =>
             addTransaction(isOneClickMode ? 'open-action-window' : 'queue')
           }
+          proceedBtnText={submitButtonText}
+          isBatchDisabled={isSendingBatch}
           isNotReadyToProceed={!isTransferFormValid}
           signAccountOpErrors={[]}
           networkUserRequests={networkUserRequests}
@@ -436,7 +487,15 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         />
       </>
     )
-  }, [addTransaction, onBack, isTransferFormValid, networkUserRequests, isLocalStateOutOfSync])
+  }, [
+    onBack,
+    submitButtonText,
+    isSendingBatch,
+    isTransferFormValid,
+    networkUserRequests,
+    isLocalStateOutOfSync,
+    addTransaction
+  ])
 
   const handleGoBackPress = useCallback(() => {
     dispatch({
@@ -585,13 +644,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
                 <Alert
                   type="warning"
                   title={t('Gas Tank deposits cannot be withdrawn')}
-                  text={
-                    !doesUserMeetMinimumBalanceForGasTank
-                      ? t(
-                          'Note: A minimum overall balance of $10 is required to pay for gas via the Gas Tank'
-                        )
-                      : false
-                  }
                   isTypeLabelHidden
                 />
               </View>

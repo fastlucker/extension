@@ -35,7 +35,6 @@ const Account = ({
   withSettings = true,
   isSelectable = true,
   withKeyType = true,
-  renderLeftChildren,
   renderRightChildren,
   options = {
     withOptionsButton: false
@@ -48,7 +47,6 @@ const Account = ({
   withSettings?: boolean
   isSelectable?: boolean
   withKeyType?: boolean
-  renderLeftChildren?: React.ReactNode
   renderRightChildren?: () => React.ReactNode
   options?: {
     withOptionsButton: boolean
@@ -165,7 +163,6 @@ const Account = ({
   return (
     <Container>
       <Animated.View style={[styles.accountContainer, containerStyle, isSelectable && animStyle]}>
-        {renderLeftChildren && renderLeftChildren}
         <View style={[flexbox.flex1, flexbox.directionRow]}>
           <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} showTooltip />
           <View style={flexbox.flex1}>

@@ -10,7 +10,7 @@ import { CardFromResponse } from '@legends/modules/legends/types'
 
 import styles from './Rewards.module.scss'
 
-type Props = Pick<CardFromResponse, 'xp'> & {
+type Props = Pick<CardFromResponse, 'xp' | 'id'> & {
   size: 'sm' | 'lg'
   reverse?: boolean
 }
@@ -24,7 +24,7 @@ const NETWORK_ICONS: { [networkId: string]: React.ReactNode } = {
   'binance-smart-chain': <BinanceSmartChainLogo />
 }
 
-const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
+const Rewards: FC<Props> = ({ xp, size = 'lg', reverse, id }) => {
   return (
     <div className={`${styles.wrapper} ${styles[size]} ${reverse ? styles.reverse : ''}`}>
       {xp?.map(({ from, to, type, chains }) => (
@@ -37,8 +37,14 @@ const Rewards: FC<Props> = ({ xp, size = 'lg', reverse }) => {
             </div>
           )}
           <div className={styles.itemText}>
-            {from}
-            {to !== from ? ` - ${to}` : ''} XP
+            {id !== 'cant-get-enough' ? (
+              `${from} ${to !== from ? ` - ${to}` : ''} XP`
+            ) : (
+              <>
+                <p>50 - 500 XP (daily)</p>
+                <p>100 - 500 XP (weekly)</p>
+              </>
+            )}
           </div>
         </div>
       ))}

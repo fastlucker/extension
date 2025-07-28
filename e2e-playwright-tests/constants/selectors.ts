@@ -2,7 +2,22 @@ import { buildSelector } from '@helpers/buildSelector'
 
 // TODO: this should be refactored; we should have single file with selector IDs
 const selectors = {
-  // dashboard
+  dashboard: {
+    tokensTabButton: 'tokens-defi',
+    nftTabButton: 'tab-nft',
+    defiTabButton: 'tab-defi',
+    activityTabButton: 'tab-activity',
+    sendButton: 'dashboard-button-send',
+    swapAndBridgeButton: 'dashboard-button-swap-and-bridge',
+    hamburgerButton: 'dashboard-hamburger-btn',
+    balanceErrorIcon: 'balance-affecting-error-icon',
+    portfolioErrorAlert: 'portfolio-error-alert',
+    noTransactionOnActivityTab: 'no-transaction-history-text',
+    transactionSendText: '(//div[contains(text(),"Send")])[2]', // TODO: change once we have id on FE
+    confirmedTransactionPill: '//div[contains(text(),"Confirmed")]', // TODO: chage once we have id on FE
+    fuelGasTankTransactionPill: '//div[contains(text(),"Fuel gas tank with")]', // TODO: chage once we have id on FE,
+    grantApprovalText: '//div[contains(text(),"Grant approval")]' // TODO: change once we have id on FE
+  },
   account: 'account',
   importBtn: 'import-button',
   importPrivateBtn: 'button-import-private-key',
@@ -78,11 +93,6 @@ const selectors = {
   collectiblePicture: 'collectible-picture',
   collectibleRow: 'collectible-row',
   addressBookMyWalletContactDyn: 'address-book-my-wallet-contact',
-  dashboardButtonSend: 'dashboard-button-send',
-  dashboardButtonSwapAndBridge: 'dashboard-button-swap-and-bridge',
-  dashboardHumburgerBtn: 'dashboard-hamburger-btn',
-  balanceErrorIcon: 'balance-affecting-error-icon',
-  portfolioErrorAlert: 'portfolio-error-alert',
   continueAnywayCheckboxSaB: 'checkbox',
   continueAnywayButton: '//div[contains(text(),"Continue anyway")]',
   amountField: 'amount-field',
@@ -132,7 +142,8 @@ const selectors = {
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
-  highPriceImpactSab: '//div[contains(text(),"Ouch! Very high price impact")]', // TODO: change with ID when we add it
+  highPriceImpactSab: '//div[contains(text(), "Very high price impact")]', // TODO: change with ID when we add it
+  highSlippageModal: '//div[contains(text(), "higher slippage")]', // TODO: change with ID when we add it
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',

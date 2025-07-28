@@ -85,7 +85,12 @@ const ActivityPositions: FC<Props> = ({
 
       if (item === 'empty') {
         return (
-          <Text fontSize={16} weight="medium" style={styles.noPositions}>
+          <Text
+            testID="no-transaction-history-text"
+            fontSize={16}
+            weight="medium"
+            style={styles.noPositions}
+          >
             {t('No transactions history for {{account}}', {
               account: `${account!.preferences.label} (${shortenAddress(account!.addr, 10)})`
             })}

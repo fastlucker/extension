@@ -348,6 +348,7 @@ const SignAccountOpScreen = () => {
               setContentHeight(height)
             }}
             scrollEventThrottle={400}
+            style={contentHeight > containerHeight ? spacings.prMi : {}}
           >
             <PendingTransactions
               network={network}

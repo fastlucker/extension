@@ -20,7 +20,7 @@ type TrackProgressProps = {
   onPrimaryButtonPress: () => void
   secondaryButtonText: string
   children: React.ReactNode
-  routeStatus: SwapAndBridgeActiveRoute['routeStatus']
+  routeStatus?: SwapAndBridgeActiveRoute['routeStatus']
 }
 
 const TrackProgressWrapper: FC<TrackProgressProps> = ({
