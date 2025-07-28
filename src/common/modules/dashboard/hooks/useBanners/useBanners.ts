@@ -14,9 +14,9 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 
 const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount?: AccountId) =>
   banners.filter((banner) => {
-    if (!banner.accountAddr) return true
+    if (!banner.meta?.accountAddr) return true
 
-    return banner.accountAddr === selectedAccount
+    return banner.meta.accountAddr === selectedAccount
   })
 
 const OFFLINE_BANNER: BannerInterface = {

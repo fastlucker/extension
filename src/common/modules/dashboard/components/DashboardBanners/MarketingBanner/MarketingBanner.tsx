@@ -10,7 +10,7 @@ import spacings from '@common/styles/spacings'
 import ThemeColors, { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import useBannersControllerState from '@web/hooks/useBannersControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -62,8 +62,8 @@ const typeBannerColorsMap: Record<string, BannerColors> = {
 
 const MarketingBanner: React.FC<Props> = ({ banner }) => {
   const { isTab } = getUiType()
+  const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
-  const { dismissBanner } = useBannersControllerState()
   const { text, type = 'updates', actions } = banner
   const url = actions?.find((action) => action.actionName === 'open-link')?.meta?.url || ''
   const colors = typeBannerColorsMap[type]
@@ -141,7 +141,10 @@ const MarketingBanner: React.FC<Props> = ({ banner }) => {
         <View>
           <Pressable
             onPress={() => {
-              dismissBanner(banner.id)
+              dispatch({
+                type: 'DISMISS_BANNER',
+                params: { bannerId: banner.id }
+              })
             }}
             hitSlop={8}
           >

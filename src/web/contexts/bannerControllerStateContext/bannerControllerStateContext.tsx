@@ -24,23 +24,7 @@ const BannerControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [dispatch, mainState.isReady, state])
 
-  const dismissBanner = useCallback(
-    (bannerId: string) => {
-      dispatch({
-        type: 'DISMISS_BANNER',
-        params: { bannerId }
-      })
-    },
-    [dispatch]
-  )
-
-  const memoizedState = useDeepMemo(
-    {
-      ...state,
-      dismissBanner
-    },
-    controller
-  )
+  const memoizedState = useDeepMemo(state, controller)
 
   return (
     <BannerControllerStateContext.Provider value={memoizedState}>
