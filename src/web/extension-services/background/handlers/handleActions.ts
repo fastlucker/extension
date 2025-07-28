@@ -425,7 +425,7 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        chainId: params?.chainId ? BigInt(params?.chainId) : undefined
+        chainIds: params?.chainId ? [BigInt(params?.chainId)] : undefined
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {

@@ -293,7 +293,7 @@ type MainControllerUpdateSelectedAccountPortfolio = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params?: {
     forceUpdate?: boolean
-    network?: Network
+    networks?: Network[]
   }
 }
 
