@@ -2,7 +2,7 @@ import { saParams } from 'constants/env'
 import { test } from 'fixtures/pageObjects'
 import { pages } from 'pages/utils/page_instances'
 
-test.describe.only('dashboard', () => {
+test.describe('dashboard', () => {
   test.beforeEach(async () => {
     await pages.initWithStorage(saParams)
   })
