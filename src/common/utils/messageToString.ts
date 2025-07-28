@@ -1,7 +1,9 @@
-import { getBytes, toUtf8String } from 'ethers'
+import { BytesLike, getBytes, isBytesLike, toUtf8Bytes, toUtf8String } from 'ethers'
 
-const getMessageAsText = (msg: any) => {
-  const bytes = getBytes(msg)
+const getMessageAsText = (msg: BytesLike | string): string => {
+  // FIXME: This can also throw, if it throws, what should we do?
+  const bytes = getBytes(isBytesLike(msg) ? msg : toUtf8Bytes(msg))
+
   const expectedPortionOfValidChars = 0.9
   const numberOfValidCharacters = bytes.filter((x) => x >= 0x20 && x <= 0x7e).length
 
@@ -9,9 +11,12 @@ const getMessageAsText = (msg: any) => {
     try {
       return toUtf8String(msg)
     } catch (_) {
-      return msg
+      // What should we return if it's BytesLike, but toUtf8String still throws?
+      return isBytesLike(msg) ? 'TODO: fallback?' : msg
     }
   }
+
+  // TODO: Is this fallback to everything?
   return `Hex message:\n${msg}`
 }
 interface TypedMessageVisualization {
