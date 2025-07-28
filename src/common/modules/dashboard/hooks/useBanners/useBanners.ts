@@ -7,7 +7,6 @@ import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBannersControllerState from '@web/hooks/useBannersControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -42,7 +41,6 @@ export default function useBanners(): BannerInterface[] {
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
-  const { banners: keystoreBanners = [] } = useKeystoreControllerState()
   const { extensionUpdateBanner } = useExtensionUpdateControllerState()
 
   const allBanners = useMemo(() => {
@@ -55,7 +53,6 @@ export default function useBanners(): BannerInterface[] {
       ...(isOffline ? [] : [...swapAndBridgeBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
-      ...keystoreBanners,
       ...extensionUpdateBanner,
       ...firstCashbackBanner
     ]
@@ -70,7 +67,6 @@ export default function useBanners(): BannerInterface[] {
     activityBanners,
     emailVaultBanners,
     account?.addr,
-    keystoreBanners,
     extensionUpdateBanner,
     firstCashbackBanner
   ])
