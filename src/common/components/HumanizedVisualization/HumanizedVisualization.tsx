@@ -21,6 +21,8 @@ export const visualizeContent = (kind: string, content?: string | Uint8Array) =>
   if ((kind === 'message' && !content) || content === '0x') {
     return 'Empty message '
   }
+
+  // TODO: Should the content be Uint8Array<ArrayBufferLike> | undefined ?
   return `${getMessageAsText(content).replace('\n', '')} `
 }
 function stopPropagation(e: React.MouseEvent) {
