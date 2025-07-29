@@ -1,7 +1,6 @@
-import { getBytes, isBytesLike, toUtf8Bytes, toUtf8String } from 'ethers'
+import { getBytes, toUtf8String } from 'ethers'
 
 import { Hex } from '@ambire-common/interfaces/hex'
-import { captureException } from '@common/config/analytics/CrashAnalytics.web'
 
 const getMessageAsText = (msg: Hex): string => {
   const bytes = getBytes(msg)
@@ -12,16 +11,10 @@ const getMessageAsText = (msg: Hex): string => {
   if (bytes.length * expectedPortionOfValidChars < numberOfValidCharacters) {
     try {
       return toUtf8String(msg)
-    } catch (e) {
-      captureException(e, {
-        extra: {
-          context: 'Failed to convert incoming hex string to utf8 string',
-          incomingHex: msg
-        }
-      })
-
-      // Attempt to sign the message anyways
-      return msg
+    } catch {
+      // The conversion failing is not something problematic, bad or unexpected.
+      // This function works on 'best effort' and is not critical,
+      // therefore we do not really care about the exception.
     }
   }
 
