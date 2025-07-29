@@ -928,7 +928,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     if (!ctrl || typeof ctrl !== 'object') return
 
     if (ctrl instanceof EventEmitter) {
-      const ctrlName = ctrlNamePath.join('.')
+      const ctrlName = ctrlNamePath.join(' -> ')
       const hasOnErrorInitialized = ctrl.onErrorIds.includes('background')
 
       if (!hasOnErrorInitialized) {
@@ -961,7 +961,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     }
   }
 
-  setupMainControllerErrorListeners(mainCtrl, [])
+  setupMainControllerErrorListeners(mainCtrl, ['main'])
 
   // Broadcast onUpdate for the wallet state controller
   walletStateCtrl.onUpdate((forceEmit) => {
