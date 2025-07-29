@@ -533,6 +533,7 @@ type SwapAndBridgeControllerInitAction = {
     preselectedFromToken?: Pick<TokenResult, 'address' | 'chainId'>
     preselectedToToken?: Pick<TokenResult, 'address' | 'chainId'>
     fromAmount?: string
+    activeRouteIdToDelete?: string
   }
 }
 type SwapAndBridgeControllerUserProceededAction = {

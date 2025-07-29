@@ -223,7 +223,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
                             Number(formatUnits(steps[0].fromAmount, steps[0].fromAsset.decimals)),
                             'precise'
                           ),
-                          sessionId: isPopup ? 'popup' : nanoid()
+                          sessionId: isPopup ? 'popup' : nanoid(),
+                          activeRouteIdToDelete: activeRoute.activeRouteId
                         }
                       })
                     }
