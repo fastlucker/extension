@@ -3,7 +3,6 @@ import { getBytes, isBytesLike, toUtf8Bytes, toUtf8String } from 'ethers'
 import { Hex } from '@ambire-common/interfaces/hex'
 import { captureException } from '@common/config/analytics/CrashAnalytics.web'
 
-// TODO: Check everywhere where we use this function, if we pass a hex string
 const getMessageAsText = (msg: Hex): string => {
   const bytes = getBytes(msg)
 
