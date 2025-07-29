@@ -189,6 +189,14 @@ type MainControllerUpdateNetworkAction = {
   }
 }
 
+type MainControllerUpdateNetworksAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORKS'
+  params: {
+    network: Partial<Network>
+    chainIds: ChainId[]
+  }
+}
+
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: {
@@ -285,7 +293,7 @@ type MainControllerUpdateSelectedAccountPortfolio = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params?: {
     forceUpdate?: boolean
-    network?: Network
+    networks?: Network[]
   }
 }
 
@@ -302,6 +310,9 @@ type DefiControllerRemoveSessionAction = {
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
   params: { dashboardNetworkFilter: bigint | string | null }
+}
+type SelectedAccountDismissDefiPositionsBannerAction = {
+  type: 'DISMISS_DEFI_POSITIONS_BANNER'
 }
 
 type PortfolioControllerGetTemporaryToken = {
@@ -779,6 +790,7 @@ export type Action =
   | MainControllerAddNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
+  | MainControllerUpdateNetworksAction
   | MainControllerAccountPickerSetPageAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
@@ -813,6 +825,7 @@ export type Action =
   | DefiControllerAddSessionAction
   | DefiControllerRemoveSessionAction
   | SelectedAccountSetDashboardNetworkFilter
+  | SelectedAccountDismissDefiPositionsBannerAction
   | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerToggleHideToken

@@ -103,10 +103,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
       dispatch({
         type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
-        params: {
-          network,
-          forceUpdate: true
-        }
+        params: { networks: [network], forceUpdate: true }
       })
     }
     closeBottomSheet()
