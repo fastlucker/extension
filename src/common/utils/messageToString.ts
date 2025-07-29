@@ -1,6 +1,9 @@
-import { BytesLike, getBytes, isBytesLike, toUtf8Bytes, toUtf8String } from 'ethers'
+import { getBytes, isBytesLike, toUtf8Bytes, toUtf8String } from 'ethers'
 
-const getMessageAsText = (msg: BytesLike | string): string => {
+import { Hex } from '@ambire-common/interfaces/hex'
+
+// TODO: Check everywhere where we use this function, if we pass a hex string
+const getMessageAsText = (msg: Hex): string => {
   // FIXME: This can also throw, if it throws, what should we do?
   const bytes = getBytes(isBytesLike(msg) ? msg : toUtf8Bytes(msg))
 
