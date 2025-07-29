@@ -190,7 +190,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
                 </View>
                 {isRewards && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"
@@ -201,7 +201,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
                 {isVesting && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"
