@@ -51,7 +51,7 @@ export class BadgesController {
 
     this.#mainCtrl.requests.onUpdate(() => {
       this.badgesCount = this.#mainCtrl.requests.actions.visibleActionsQueue.filter(
-        (a) => a.type !== 'benzin' && a.type !== 'swapAndBridge'
+        (a) => a.type !== 'benzin' && a.type !== 'swapAndBridge' && a.type !== 'transfer'
       ).length
     })
 
