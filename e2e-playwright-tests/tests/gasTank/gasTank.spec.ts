@@ -1,5 +1,4 @@
 import { baParams } from 'constants/env'
-import { pages } from 'pages/utils/page_instances'
 
 import { expect } from '@playwright/test'
 
@@ -7,7 +6,7 @@ import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('gasTank - Basic Account', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams)
   })
 
@@ -15,7 +14,7 @@ test.describe('gasTank - Basic Account', () => {
     await context.close()
   })
 
-  test('top up Gas Tank with 0.05$ on Base', async () => {
+  test('top up Gas Tank with 0.05$ on Base', async ({ pages }) => {
     const sendToken = tokens.usdc.base
     let oldBalance: number
 

@@ -2,12 +2,11 @@ import { baParams } from 'constants/env'
 import selectors from 'constants/selectors'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
-import { pages } from 'pages/utils/page_instances'
 
 import { expect, Page } from '@playwright/test'
 
 test.describe('transfer', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams)
   })
 
@@ -15,7 +14,7 @@ test.describe('transfer', () => {
     await context.close()
   })
 
-  test('should send a transaction and pay with the current account gas tank', async () => {
+  test('should send a transaction and pay with the current account gas tank', async ({ pages }) => {
     const sendToken = tokens.usdc.optimism
     // This address is derived from SA testing account seed phrase
     const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
@@ -47,7 +46,9 @@ test.describe('transfer', () => {
     })
   })
 
-  test("should send a transaction and pay with the current account's ERC-20 token", async () => {
+  test("should send a transaction and pay with the current account's ERC-20 token", async ({
+    pages
+  }) => {
     const sendToken = tokens.usdc.optimism
     // This address is derived from SA testing account seed phrase
     const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
@@ -79,7 +80,7 @@ test.describe('transfer', () => {
     })
   })
 
-  test('should batch multiple transfer transactions', async () => {
+  test('should batch multiple transfer transactions', async ({ pages }) => {
     const page = pages.transferPage.page
     const sendToken = tokens.usdc.optimism
     const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
@@ -141,7 +142,9 @@ test.describe('transfer', () => {
     })
   })
 
-  test('add contact in address book and send transaction to newly added contact', async () => {
+  test('add contact in address book and send transaction to newly added contact', async ({
+    pages
+  }) => {
     const newContactName = 'First Address'
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
     const sendToken = tokens.usdc.optimism
@@ -193,7 +196,9 @@ test.describe('transfer', () => {
     })
   })
 
-  test('Start transfer, add contact, send transaction to newly added contact', async () => {
+  test('Start transfer, add contact, send transaction to newly added contact', async ({
+    pages
+  }) => {
     const newContactName = 'First Address'
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 

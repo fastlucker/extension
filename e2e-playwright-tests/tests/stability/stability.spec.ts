@@ -1,5 +1,4 @@
 import { baParams } from 'constants/env'
-import { pages } from 'pages/utils/page_instances'
 
 import { expect } from '@playwright/test'
 
@@ -8,15 +7,15 @@ import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('stability', () => {
-  test.beforeEach(async () => {
-    await pages.initWithStorage(baParams)
-  })
+  // test.beforeEach(async ({ pages }) => {
+  //   await pages.initWithStorage(baParams)
+  // })
 
   test.afterEach(async ({ context }) => {
     await context.close()
   })
 
-  test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async () => {
+  test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async ({ pages }) => {
     await test.step('block Polygon RPC requests', async () => {
       await pages.stabilityPage.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
     })
@@ -32,7 +31,9 @@ test.describe('stability', () => {
     })
   })
 
-  test('Velcro fail: Should find tokens using previous hints; Should not display an error banner as there are cached hints', async () => {
+  test('Velcro fail: Should find tokens using previous hints; Should not display an error banner as there are cached hints', async ({
+    pages
+  }) => {
     const page = pages.stabilityPage.page
 
     await test.step('block Velcro tokens request and unlock the extension', async () => {
@@ -61,7 +62,7 @@ test.describe('stability', () => {
     })
   })
 
-  test('Monitor fetch requests on Dashboard', async () => {
+  test('Monitor fetch requests on Dashboard', async ({ pages }) => {
     const page = pages.stabilityPage.page
 
     await test.step('start monitoring requests and unlock the extension', async () => {

@@ -1,10 +1,9 @@
 import { baParams, KEYSTORE_PASS } from 'constants/env'
-import { pages } from 'pages/utils/page_instances'
 
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('keystore', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams)
   })
 
@@ -12,15 +11,15 @@ test.describe('keystore', () => {
     await context.close()
   })
 
-  test('should lock keystore', async () => {
+  test('should lock keystore', async ({ pages }) => {
     await pages.settingsPage.lockKeystore()
   })
 
-  test('should unlock keystore', async () => {
+  test('should unlock keystore', async ({ pages }) => {
     await pages.settingsPage.unlockKeystore()
   })
 
-  test('should change keystore password', async () => {
+  test('should change keystore password', async ({ pages }) => {
     const newPass = 'B1234566'
 
     await test.step('go to Extension pass page', async () => {

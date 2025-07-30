@@ -1,9 +1,8 @@
 import { saParams } from 'constants/env'
 import { test } from 'fixtures/pageObjects'
-import { pages } from 'pages/utils/page_instances'
 
 test.describe('dashboard', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(saParams)
   })
 
@@ -11,15 +10,15 @@ test.describe('dashboard', () => {
     await context.close()
   })
 
-  test('should have balance on the dashboard', async () => {
+  test('should have balance on the dashboard', async ({ pages }) => {
     await pages.dashboardPage.checkBalanceInAccount()
   })
 
-  test('should test if expected tokens are visible on the dashboard', async () => {
+  test('should test if expected tokens are visible on the dashboard', async ({ pages }) => {
     await pages.dashboardPage.checkIfTokensExist()
   })
 
-  test('should test if expected NFTs are visible on the dashboard', async () => {
+  test('should test if expected NFTs are visible on the dashboard', async ({ pages }) => {
     await pages.dashboardPage.checkCollectibleItem()
   })
 })

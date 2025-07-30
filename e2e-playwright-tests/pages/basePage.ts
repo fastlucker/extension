@@ -1,4 +1,5 @@
 import selectors from 'constants/selectors'
+import BootstrapContext from 'interfaces/bootstrapContext'
 import Token from 'interfaces/token'
 
 import { BrowserContext, expect, Locator, Page } from '@playwright/test'
@@ -12,8 +13,9 @@ export class BasePage {
 
   collectedRequests: string[] = []
 
-  constructor(page: Page) {
+  constructor({ page, context }: BootstrapContext) {
     this.page = page
+    this.context = context
   }
 
   async navigateToURL(url: string) {

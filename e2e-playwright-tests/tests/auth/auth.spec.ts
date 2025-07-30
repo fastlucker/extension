@@ -2,7 +2,6 @@ import { BA_PASSPHRASE, KEYSTORE_PASS, SA_PASSPHRASE } from 'constants/env'
 import mainConstants from 'constants/mainConstants'
 import selectors from 'constants/selectors'
 import { test } from 'fixtures/pageObjects' // your extended test with authPage
-import { pages } from 'pages/utils/page_instances'
 
 import { expect } from '@playwright/test'
 
@@ -10,7 +9,7 @@ import { emulatorOptions } from '../../constants/trezor'
 import { getController, initTrezorConnect, setup } from '../../utils/trezorEmulator'
 
 test.describe('auth', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithoutStorage()
   })
 
@@ -18,46 +17,54 @@ test.describe('auth', () => {
     await context.close()
   })
 
-  test('should import view-only Basic account', async () => {
+  test('should import view-only Basic account', async ({ pages }) => {
     await pages.authPage.importViewOnlyAccount(mainConstants.addresses.basicAccount)
   })
 
-  test('should import view-only Smart account', async () => {
+  test('should import view-only Smart account', async ({ pages }) => {
     await pages.authPage.importViewOnlyAccount(mainConstants.addresses.smartAccount)
   })
 
-  test('create new basic account', async () => {
+  test('create new basic account', async ({ pages }) => {
     await pages.authPage.createNewAccount()
   })
 
-  test('import basic account from private key', async () => {
+  test('import basic account from private key', async ({ pages }) => {
     await pages.authPage.importExistingAccount()
   })
 
-  test('import one Basic Account from a 12 words seed phrase and personalize them', async () => {
+  test('import one Basic Account from a 12 words seed phrase and personalize them', async ({
+    pages
+  }) => {
     await pages.authPage.importExistingAccountByRecoveryPhrase(BA_PASSPHRASE)
   })
 
-  test('import one Smart Account from a 12 words seed phrase and personalize them', async () => {
+  test('import one Smart Account from a 12 words seed phrase and personalize them', async ({
+    pages
+  }) => {
     await pages.authPage.importExistingAccountByRecoveryPhrase(SA_PASSPHRASE)
   })
 
-  test('import a couple of view-only accounts (at once) and personalize some of them', async () => {
+  test('import a couple of view-only accounts (at once) and personalize some of them', async ({
+    pages
+  }) => {
     await pages.authPage.importCoupleOfViewOnlyAccount(
       mainConstants.addresses.basicAccount,
       mainConstants.addresses.smartAccount
     )
   })
 
-  test('create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async () => {
+  test('create a new hot wallet (Smart Account) by setting up a default seed phrase first, and afterward create a couple of more hot wallets (Smart Accounts) out of the stored seed phrase and personalize some of them', async ({
+    pages
+  }) => {
     await pages.authPage.createNewHotWalletAndPersonalizeName()
   })
 
-  test('import account from different HD paths', async () => {
+  test('import account from different HD paths', async ({ pages }) => {
     await pages.authPage.createAccountAndImportFromDifferentHDPath()
   })
 
-  test('import account from JSON file', async () => {
+  test('import account from JSON file', async ({ pages }) => {
     await pages.authPage.importAccountFromJSONFile()
   })
 })
@@ -70,7 +77,7 @@ test.describe('trezor', () => {
     await initTrezorConnect(controller)
   })
 
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithoutStorage()
   })
 
@@ -96,7 +103,9 @@ test.describe('trezor', () => {
     }
   })
 
-  test('should successfully authenticate using Trezor and import existing accounts', async () => {
+  test('should successfully authenticate using Trezor and import existing accounts', async ({
+    pages
+  }) => {
     const page = pages.authPage.page
 
     await test.step('start importing existing Trezor accounts in our Onboarding flow', async () => {

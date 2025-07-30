@@ -1,9 +1,8 @@
 import { baParams } from 'constants/env'
 import { test } from 'fixtures/pageObjects'
-import { pages } from 'pages/utils/page_instances'
 
-test.describe.parallel('signMessage', () => {
-  test.beforeEach(async () => {
+test.describe('signMessage', () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams)
   })
 
@@ -11,18 +10,18 @@ test.describe.parallel('signMessage', () => {
     await context.close()
   })
 
-  test('should sign plain message', async () => {
+  test('should sign plain message', async ({ pages }) => {
     const message = 'Hello, Ambire!'
     await pages.signMessagePage.signMessage(message, 'plain')
   })
 
-  test('should sign hex message', async ({ signMessagePage }) => {
+  test('should sign hex message', async ({ pages }) => {
     // "Hello, Ambire!" as hex
     const message = '0x48656c6c6f2c20416d6269726521'
-    await signMessagePage.signMessage(message, 'hex')
+    await pages.signMessagePage.signMessage(message, 'hex')
   })
 
-  test('should sign typed message', async ({ signMessagePage }) => {
+  test('should sign typed message', async ({ pages }) => {
     const message = {
       domain: {
         name: 'Ambire Wallet News',
@@ -58,6 +57,6 @@ test.describe.parallel('signMessage', () => {
       }
     }
 
-    await signMessagePage.signMessage(JSON.stringify(message), 'typed')
+    await pages.signMessagePage.signMessage(JSON.stringify(message), 'typed')
   })
 })

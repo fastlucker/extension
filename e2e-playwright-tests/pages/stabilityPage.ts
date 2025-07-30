@@ -1,4 +1,4 @@
-import { bootstrapWithStorage } from 'common-helpers/bootstrap'
+import BootstrapContext from 'interfaces/bootstrapContext'
 
 import { baParams, KEYSTORE_PASS } from '../constants/env'
 import selectors from '../constants/selectors'
@@ -10,17 +10,10 @@ export class StabilityPage extends BasePage {
 
   extensionURL: string
 
-  async init(param) {
-    const { page, serviceWorker, extensionURL, context } = await bootstrapWithStorage(
-      'stability',
-      param,
-      true
-    )
-
-    this.page = page
-    this.context = context
-    this.serviceWorker = serviceWorker
-    this.extensionURL = extensionURL
+  constructor(opts: BootstrapContext) {
+    super(opts)
+    this.serviceWorker = opts.serviceWorker
+    this.extensionURL = opts.extensionURL ?? ''
   }
 
   async unlock() {

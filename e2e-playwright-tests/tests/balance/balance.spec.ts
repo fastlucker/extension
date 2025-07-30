@@ -1,10 +1,9 @@
 import { baParams, saParams } from 'constants/env'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
-import { pages } from 'pages/utils/page_instances'
 
 test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams)
   })
 
@@ -12,7 +11,7 @@ test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async 
     await context.close()
   })
 
-  test('check balance of test tokens', async () => {
+  test('check balance of test tokens', async ({ pages }) => {
     const walletBase = tokens.wallet.base
     const usdcBase = tokens.usdc.base
     const usdcOP = tokens.usdc.optimism
@@ -63,7 +62,7 @@ test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async 
 })
 
 test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(saParams)
   })
 
@@ -72,7 +71,7 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
   })
 
 
-  test('check balance of test tokens', async () => {
+  test('check balance of test tokens', async ({ pages }) => {
     const walletBase = tokens.wallet.base
     const usdcBase = tokens.usdc.base
     const usdcOP = tokens.usdc.optimism
