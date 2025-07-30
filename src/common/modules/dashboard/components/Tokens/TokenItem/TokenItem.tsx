@@ -103,10 +103,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
       dispatch({
         type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
-        params: {
-          network,
-          forceUpdate: true
-        }
+        params: { networks: [network], forceUpdate: true }
       })
     }
     closeBottomSheet()
@@ -190,7 +187,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
                 </View>
                 {isRewards && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"
@@ -201,7 +198,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
                 {isVesting && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"

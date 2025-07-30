@@ -163,6 +163,17 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           )
           break
 
+        case 'enable-networks':
+          dispatch({
+            type: 'MAIN_CONTROLLER_UPDATE_NETWORKS',
+            params: { network: { disabled: false }, chainIds: action.meta.networkChainIds }
+          })
+          break
+
+        case 'dismiss-defi-positions-banner':
+          dispatch({ type: 'DISMISS_DEFI_POSITIONS_BANNER' })
+          break
+
         default:
           break
       }

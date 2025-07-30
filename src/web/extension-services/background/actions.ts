@@ -10,6 +10,7 @@ import { Filters, Pagination } from '@ambire-common/controllers/activity/activit
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
+import { Banner } from '@ambire-common/interfaces/banner'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
 import {
@@ -188,6 +189,14 @@ type MainControllerUpdateNetworkAction = {
   }
 }
 
+type MainControllerUpdateNetworksAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORKS'
+  params: {
+    network: Partial<Network>
+    chainIds: ChainId[]
+  }
+}
+
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: {
@@ -284,7 +293,7 @@ type MainControllerUpdateSelectedAccountPortfolio = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params?: {
     forceUpdate?: boolean
-    network?: Network
+    networks?: Network[]
   }
 }
 
@@ -301,6 +310,9 @@ type DefiControllerRemoveSessionAction = {
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
   params: { dashboardNetworkFilter: bigint | string | null }
+}
+type SelectedAccountDismissDefiPositionsBannerAction = {
+  type: 'DISMISS_DEFI_POSITIONS_BANNER'
 }
 
 type PortfolioControllerGetTemporaryToken = {
@@ -747,6 +759,13 @@ type SetCrashAnalyticsAction = {
   params: { enabled: boolean }
 }
 
+type DismissBanner = {
+  type: 'DISMISS_BANNER'
+  params: {
+    bannerId: Banner['id']
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -771,6 +790,7 @@ export type Action =
   | MainControllerAddNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
+  | MainControllerUpdateNetworksAction
   | MainControllerAccountPickerSetPageAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
@@ -805,6 +825,7 @@ export type Action =
   | DefiControllerAddSessionAction
   | DefiControllerRemoveSessionAction
   | SelectedAccountSetDashboardNetworkFilter
+  | SelectedAccountDismissDefiPositionsBannerAction
   | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerToggleHideToken
@@ -886,3 +907,4 @@ export type Action =
   | SetThemeTypeAction
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
+  | DismissBanner

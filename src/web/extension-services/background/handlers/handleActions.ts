@@ -131,6 +131,9 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
       return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
     }
+    case 'MAIN_CONTROLLER_UPDATE_NETWORKS': {
+      return await mainCtrl.networks.updateNetworks(params.network, params.chainIds)
+    }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
     }
@@ -297,6 +300,11 @@ export const handleActions = async (
       break
     }
 
+    case 'DISMISS_DEFI_POSITIONS_BANNER': {
+      await mainCtrl.selectedAccount.dismissDefiPositionsBannerForTheSelectedAccount()
+      break
+    }
+
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId, {
         preselectedFromToken: params.preselectedFromToken,
@@ -417,7 +425,7 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        chainId: params?.chainId ? BigInt(params?.chainId) : undefined
+        chainIds: params?.chainId ? [BigInt(params?.chainId)] : undefined
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
@@ -643,6 +651,11 @@ export const handleActions = async (
     }
     case 'SET_CRASH_ANALYTICS': {
       await walletStateCtrl.setCrashAnalytics(params.enabled)
+      break
+    }
+
+    case 'DISMISS_BANNER': {
+      await mainCtrl.banner.dismissBanner(params.bannerId)
       break
     }
 
