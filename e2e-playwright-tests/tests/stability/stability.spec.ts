@@ -1,5 +1,7 @@
 import { baParams } from 'constants/env'
+import { StabilityPage } from 'pages/stabilityPage'
 
+import { bootstrapWithStorage } from '@helpers/bootstrap'
 import { expect } from '@playwright/test'
 
 import selectors from '../../constants/selectors'
@@ -7,21 +9,24 @@ import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('stability', () => {
-  // test.beforeEach(async ({ pages }) => {
-  //   await pages.initWithStorage(baParams)
-  // })
+  let stabilityPage: StabilityPage
+
+  test.beforeEach(async () => {
+    const bootstrapContext = await bootstrapWithStorage('', baParams)
+    stabilityPage = new StabilityPage(bootstrapContext)
+  })
 
   test.afterEach(async ({ context }) => {
     await context.close()
   })
 
-  test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async ({ pages }) => {
+  test.only('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async () => {
     await test.step('block Polygon RPC requests', async () => {
-      await pages.stabilityPage.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
+      await stabilityPage.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
     })
 
     await test.step('click on the error indicator and appropriate message is expected to be shown', async () => {
-      const page = pages.stabilityPage.page
+      const page = stabilityPage.page
       await page.getByTestId(selectors.dashboard.balanceErrorIcon).click()
 
       const rpcErrorBanner = page.getByTestId(selectors.dashboard.portfolioErrorAlert).first()
