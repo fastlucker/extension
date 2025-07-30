@@ -37,7 +37,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 import { THEME_TYPES } from '@common/styles/themeConfig'
-import { LogLevelNames } from '@web/utils/logger'
+import { LOG_LEVELS } from '@web/utils/logger'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -244,7 +244,7 @@ type MainControllerUpdateSelectedAccountPortfolio = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params?: {
     forceUpdate?: boolean
-    network?: Network
+    networks?: Network[]
   }
 }
 
@@ -292,6 +292,9 @@ type DefiControllerRemoveSessionAction = {
 type SelectedAccountSetDashboardNetworkFilter = {
   type: 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER'
   params: { dashboardNetworkFilter: bigint | string | null }
+}
+type SelectedAccountDismissDefiPositionsBannerAction = {
+  type: 'DISMISS_DEFI_POSITIONS_BANNER'
 }
 
 type PortfolioControllerGetTemporaryToken = {
@@ -723,7 +726,7 @@ type SetThemeTypeAction = {
 }
 type SetLogLevelTypeAction = {
   type: 'SET_LOG_LEVEL'
-  params: { logLevel: LogLevelNames }
+  params: { logLevel: LOG_LEVELS }
 }
 type SetCrashAnalyticsAction = {
   type: 'SET_CRASH_ANALYTICS'
@@ -761,6 +764,7 @@ export type Action =
   | MainControllerAddNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
+  | MainControllerUpdateNetworksAction
   | MainControllerAccountPickerSetPageAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
@@ -793,6 +797,7 @@ export type Action =
   | DefiControllerAddSessionAction
   | DefiControllerRemoveSessionAction
   | SelectedAccountSetDashboardNetworkFilter
+  | SelectedAccountDismissDefiPositionsBannerAction
   | PortfolioControllerAddCustomToken
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerToggleHideToken

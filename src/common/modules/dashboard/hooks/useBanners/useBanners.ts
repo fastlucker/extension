@@ -44,6 +44,7 @@ export default function useBanners(): BannerInterface[] {
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
   const { extensionUpdateBanner } = useExtensionUpdateControllerState()
+  const { banners: selectedAccountBanners } = useSelectedAccountControllerState()
 
   const allBanners = useMemo(() => {
     return [
@@ -55,6 +56,7 @@ export default function useBanners(): BannerInterface[] {
       ...(isOffline ? [] : [...swapAndBridgeBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
+      ...selectedAccountBanners,
       ...extensionUpdateBanner,
       ...firstCashbackBanner
     ]
@@ -69,6 +71,7 @@ export default function useBanners(): BannerInterface[] {
     activityBanners,
     emailVaultBanners,
     account?.addr,
+    selectedAccountBanners,
     extensionUpdateBanner,
     firstCashbackBanner
   ])
