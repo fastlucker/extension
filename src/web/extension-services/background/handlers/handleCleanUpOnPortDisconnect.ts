@@ -66,10 +66,9 @@ export const handleCleanUpOnPortDisconnect = async ({
     // In that window, we have dedicated logic for clearing the form completely (e.g., if (isActionWindow) mainCtrl.onOneClickTransferClose()).
     // If we reset the form state here while opening the Trezor action window, the form will be re-initialized
     // and the current `signAccountOp` will be destroyed, which will break the Trezor signing process.
-
     const shouldTrack =
       mainCtrl.transfer.signAccountOpController?.status?.type === SigningStatus.ReadyToSign ||
-      mainCtrl.transfer.signAccountOpController?.signedAccountOp?.signingKeyType === 'trezor'
+      mainCtrl.transfer.signAccountOpController?.accountOp?.signingKeyType === 'trezor'
     // eslint-disable-next-line no-param-reassign
     mainCtrl.transfer.shouldTrackLatestBroadcastedAccountOp = shouldTrack
 
