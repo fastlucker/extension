@@ -58,7 +58,7 @@ const createTab = async (url: string, windowId?: number): Promise<number | undef
   }
 }
 
-const getCurrentTab = async (): Promise<chrome.tabs.Tab | null> => {
+const getCurrentTab = async (): Promise<chrome.tabs.Tab | undefined> => {
   try {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
     return tabs[0]
