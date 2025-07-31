@@ -229,8 +229,11 @@ const open = async (
   const url = `action-window.html${route ? `#/${route}` : ''}`
   return create(url, customSize, baseWindowId)
 }
-
-// Focuses an existing window.
+/**
+ * Focuses an existing window. In some cases, the passed window
+ * cannot be focused (e.g., on Arc browser). If the window cannot be focused
+ * within 1 second, a new window is created and the old one is removed.
+ */
 const focus = async (windowProps: WindowProps, params: FocusWindowParams): Promise<WindowProps> => {
   if (!windowProps) throw new Error('windowProps is undefined')
 
