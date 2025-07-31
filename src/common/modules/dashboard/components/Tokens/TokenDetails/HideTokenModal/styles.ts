@@ -17,7 +17,8 @@ const getStyles = (theme: ThemeProps) =>
       borderRadius: BORDER_RADIUS_SECONDARY,
       paddingTop: SPACING_XL,
       paddingHorizontal: SPACING,
-      paddingBottom: SPACING
+      paddingBottom: SPACING,
+      width: 400
     },
     button: {
       borderRadius: BORDER_RADIUS_PRIMARY,
