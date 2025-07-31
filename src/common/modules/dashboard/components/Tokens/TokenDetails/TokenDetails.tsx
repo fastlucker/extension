@@ -1,7 +1,8 @@
 import { getAddress } from 'ethers'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { getCoinGeckoTokenApiUrl, getCoinGeckoTokenUrl } from '@ambire-common/consts/coingecko'
 import { TokenResult } from '@ambire-common/libs/portfolio'
@@ -25,6 +26,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
+import storage from '@web/extension-services/background/webapi/storage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
@@ -36,6 +38,7 @@ import { getTokenId } from '@web/utils/token'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
+import HideTokenModal from './HideTokenModal'
 import getStyles from './styles'
 
 const TokenDetails = ({
@@ -47,6 +50,11 @@ const TokenDetails = ({
 }) => {
   const { styles, theme } = useTheme(getStyles)
   const { navigate } = useNavigation()
+  const {
+    ref: hideTokenModalRef,
+    open: openHideTokenModal,
+    close: closeHideTokenModal
+  } = useModalize()
   const { addToast } = useToast()
   const { t } = useTranslation()
   const { tokenPreferences } = usePortfolioControllerState()
@@ -56,9 +64,7 @@ const TokenDetails = ({
   const { networks } = useNetworksControllerState()
   const [coinGeckoTokenSlug, setCoinGeckoTokenSlug] = useState('')
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
-  const { isHidden } = tokenPreferences.find(
-    ({ address, chainId }) => address === token?.address && chainId === token?.chainId
-  ) || { isHidden: false }
+  const [doNotDisplayHideTokenModal, setDoNotDisplayHideTokenModal] = useState(false)
   const network = useMemo(
     () => networks.find((n) => n.chainId === token?.chainId),
     [networks, token?.chainId]
@@ -87,6 +93,13 @@ const TokenDetails = ({
   const notImplementedYetTooltipText = t('Coming sometime in {{year}}.', {
     year: new Date().getFullYear()
   })
+
+  useEffect(() => {
+    storage
+      .get('doNotShowAgainModalHideToken', false)
+      .then(setDoNotDisplayHideTokenModal)
+      .catch(() => console.error('Failed to load storage value for doNotShowAgainModalHideToken'))
+  }, [setDoNotDisplayHideTokenModal])
 
   const actions = useMemo(
     () => [
@@ -256,19 +269,6 @@ const TokenDetails = ({
       .finally(() => setIsTokenInfoLoading(false))
   }, [t, token?.address, token?.chainId, networks, addToast, network])
 
-  const handleHideToken = () => {
-    if (!token) return
-
-    dispatch({
-      type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
-      params: {
-        token: {
-          address: token.address,
-          chainId: token.chainId
-        }
-      }
-    })
-  }
   if (!token) return null
 
   const {
@@ -281,8 +281,43 @@ const TokenDetails = ({
   const { priceUSDFormatted, balanceUSDFormatted, isRewards, isVesting, networkData, balance } =
     getAndFormatTokenDetails(token, networks)
 
+  const hideToken = useCallback(() => {
+    if (!token) return
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_TOGGLE_HIDE_TOKEN',
+      params: {
+        token: {
+          address: token.address,
+          chainId: token.chainId
+        },
+        shouldUpdatePortfolio: true
+      }
+    })
+  }, [dispatch, token])
+
+  const handleHideTokenFromButton = useCallback(async () => {
+    if (doNotDisplayHideTokenModal) hideToken()
+    else openHideTokenModal()
+  }, [hideToken, openHideTokenModal, doNotDisplayHideTokenModal])
+
+  const handleHideTokenFromModal = useCallback(
+    async (doNotShowModalAnymore: boolean) => {
+      storage
+        .set('doNotShowAgainModalHideToken', doNotShowModalAnymore)
+        .catch(() => console.error('Failed to record value for doNotShowAgainModalHideToken'))
+      hideToken()
+      closeHideTokenModal()
+      handleClose()
+    },
+    [hideToken, closeHideTokenModal, handleClose]
+  )
   return (
     <View>
+      <HideTokenModal
+        modalRef={hideTokenModalRef}
+        handleClose={closeHideTokenModal}
+        handleHideToken={handleHideTokenFromModal}
+      />
       <View style={styles.tokenInfoAndIcon}>
         <TokenIcon
           containerHeight={48}
@@ -314,18 +349,10 @@ const TokenDetails = ({
             </View>
             {!onGasTank && !isRewards && !isVesting && !token.flags.defiTokenType && (
               <View style={[flexbox.alignSelfEnd]}>
-                <Pressable
-                  style={[flexbox.directionRow, flexbox.alignCenter]}
-                  onPress={handleHideToken}
-                >
-                  <Text weight="medium" fontSize={12}>
-                    {t(isHidden ? 'Show' : 'Hide')}
+                <Pressable onPress={handleHideTokenFromButton}>
+                  <Text style={styles.hideTokenButton} weight="medium" fontSize={12}>
+                    {t('Hide token')}
                   </Text>
-                  {isHidden ? (
-                    <InvisibilityIcon color={theme.errorDecorative} style={styles.visibilityIcon} />
-                  ) : (
-                    <VisibilityIcon color={theme.successDecorative} style={styles.visibilityIcon} />
-                  )}
                 </Pressable>
               </View>
             )}
