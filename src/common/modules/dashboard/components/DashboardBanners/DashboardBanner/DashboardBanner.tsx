@@ -1,7 +1,11 @@
 import React, { useCallback, useMemo } from 'react'
 import { useModalize } from 'react-native-modalize'
 
-import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
+import {
+  Action,
+  Banner as BannerType,
+  BannerType as NonMarketingBannerType
+} from '@ambire-common/interfaces/banner'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
@@ -22,7 +26,11 @@ const ERROR_ACTIONS = [
   'dismiss-7702-banner'
 ]
 
-const DashboardBanner = ({ banner }: { banner: BannerType }) => {
+const DashboardBanner = ({
+  banner
+}: {
+  banner: Omit<BannerType, 'type'> & { type: NonMarketingBannerType }
+}) => {
   const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
