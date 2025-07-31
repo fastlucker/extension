@@ -29,8 +29,8 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1
     },
     balance: {
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter,
+      ...flexbox.flex1,
+      ...flexbox.alignSelfStart,
       ...flexbox.wrap
     },
     networkIcon: {

@@ -334,7 +334,7 @@ const TokenDetails = ({
             <Text
               selectable
               style={spacings.mrMi}
-              fontSize={16}
+              fontSize={12}
               weight="number_bold"
               numberOfLines={1}
               dataSet={{ tooltipId: `${tokenId}-details-balance` }}
@@ -345,13 +345,13 @@ const TokenDetails = ({
               <Text
                 selectable
                 style={spacings.mrMi}
-                fontSize={16}
+                fontSize={12}
                 weight="number_bold"
-                appearance="infoText"
+                appearance="secondaryText"
               >
-                ≈ {balanceUSDFormatted}
+                {balanceUSDFormatted}
               </Text>
-              <Text selectable fontSize={16} weight="number_regular" appearance="secondaryText">
+              <Text selectable fontSize={12} weight="number_regular" appearance="secondaryText">
                 (1 ${symbol} ≈ {priceUSDFormatted})
               </Text>
             </View>
