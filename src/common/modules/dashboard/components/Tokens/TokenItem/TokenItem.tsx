@@ -84,15 +84,15 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
   const sendClaimTransaction = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST',
-      params: { token }
+      type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
+      params: { type: 'claimWalletRequest', params: { token } }
     })
   }, [token, dispatch])
 
   const sendVestingTransaction = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST',
-      params: { token }
+      type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
+      params: { type: 'mintVestingRequest', params: { token } }
     })
   }, [token, dispatch])
 
