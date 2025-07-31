@@ -33,7 +33,7 @@ const HideTokenModal = ({
       to: theme.infoDecorative
     }
   })
-  // @TODO
+
   const [bindAnimCancel, animStyleCancel] = useCustomHover({
     property: 'backgroundColor',
     values: {

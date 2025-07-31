@@ -30,6 +30,7 @@ import storage from '@web/extension-services/background/webapi/storage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
@@ -69,6 +70,13 @@ const TokenDetails = ({
     () => networks.find((n) => n.chainId === token?.chainId),
     [networks, token?.chainId]
   )
+  const [bindAnimHide, animStyleHide] = useCustomHover({
+    property: 'backgroundColor',
+    values: {
+      from: theme.secondaryBackground,
+      to: theme.tertiaryBackground
+    }
+  })
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
@@ -349,11 +357,15 @@ const TokenDetails = ({
             </View>
             {!onGasTank && !isRewards && !isVesting && !token.flags.defiTokenType && (
               <View style={[flexbox.alignSelfEnd]}>
-                <Pressable onPress={handleHideTokenFromButton}>
+                <AnimatedPressable
+                  {...bindAnimHide}
+                  onPress={handleHideTokenFromButton}
+                  style={animStyleHide}
+                >
                   <Text style={styles.hideTokenButton} weight="medium" fontSize={12}>
                     {t('Hide token')}
                   </Text>
-                </Pressable>
+                </AnimatedPressable>
               </View>
             )}
           </View>
