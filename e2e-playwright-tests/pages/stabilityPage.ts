@@ -1,19 +1,34 @@
-import BootstrapContext from 'interfaces/bootstrapContext'
+import { bootstrapWithStorage } from 'common-helpers/bootstrap'
+
+import { BrowserContext, Page } from '@playwright/test'
 
 import { baParams, KEYSTORE_PASS } from '../constants/env'
 import selectors from '../constants/selectors'
 import Token from '../interfaces/token'
-import { BasePage } from './basePage'
+import { categorizeRequests } from '../utils/requests'
 
-export class StabilityPage extends BasePage {
+export class StabilityPage {
+  page: Page
+
+  context: BrowserContext
+
   serviceWorker: any
 
   extensionURL: string
 
-  constructor(opts: BootstrapContext) {
-    super(opts)
-    this.serviceWorker = opts.serviceWorker
-    this.extensionURL = opts.extensionURL ?? ''
+  collectedRequests: string[] = []
+
+  async init(param) {
+    const { page, serviceWorker, extensionURL, context } = await bootstrapWithStorage(
+      'stability',
+      param,
+      true
+    )
+
+    this.page = page
+    this.context = context
+    this.serviceWorker = serviceWorker
+    this.extensionURL = extensionURL
   }
 
   async unlock() {
@@ -49,5 +64,18 @@ export class StabilityPage extends BasePage {
 
   getDashboardTokenSelector(token: Token) {
     return this.page.getByTestId(`token-balance-${token.address}.${token.chainId}`)
+  }
+
+  async monitorRequests() {
+    await this.context.route('**/*', async (route, request) => {
+      if (request.resourceType() === 'fetch' && request.method() !== 'OPTIONS') {
+        this.collectedRequests.push(request.url())
+      }
+      await route.continue()
+    })
+  }
+
+  getCategorizedRequests() {
+    return categorizeRequests(this.collectedRequests)
   }
 }

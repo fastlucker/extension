@@ -1,7 +1,5 @@
 import { baParams } from 'constants/env'
-import { StabilityPage } from 'pages/stabilityPage'
 
-import { bootstrapWithStorage } from '@helpers/bootstrap'
 import { expect } from '@playwright/test'
 
 import selectors from '../../constants/selectors'
@@ -9,18 +7,17 @@ import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
 test.describe('stability', () => {
-  let stabilityPage: StabilityPage
-
-  test.beforeEach(async () => {
-    const bootstrapContext = await bootstrapWithStorage('', baParams)
-    stabilityPage = new StabilityPage(bootstrapContext)
+  test.beforeEach(async ({ stabilityPage }) => {
+    await stabilityPage.init(baParams)
   })
 
   test.afterEach(async ({ context }) => {
     await context.close()
   })
 
-  test.only('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async () => {
+  test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async ({
+    stabilityPage
+  }) => {
     await test.step('block Polygon RPC requests', async () => {
       await stabilityPage.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
     })
@@ -37,22 +34,22 @@ test.describe('stability', () => {
   })
 
   test('Velcro fail: Should find tokens using previous hints; Should not display an error banner as there are cached hints', async ({
-    pages
+    stabilityPage
   }) => {
-    const page = pages.stabilityPage.page
+    const page = stabilityPage.page
 
     await test.step('block Velcro tokens request and unlock the extension', async () => {
-      await pages.stabilityPage.blockRouteAndUnlock('**/relayer.ambire.com/velcro-v3/*')
+      await stabilityPage.blockRouteAndUnlock('**/relayer.ambire.com/velcro-v3/*')
     })
 
     await test.step('tokens are found using previous hints', async () => {
-      const daiToken = pages.stabilityPage.getDashboardTokenSelector(tokens.dai.arbitrum)
+      const daiToken = stabilityPage.getDashboardTokenSelector(tokens.dai.arbitrum)
       await expect(daiToken).toBeVisible()
 
-      const usdcToken = pages.stabilityPage.getDashboardTokenSelector(tokens.usdc.optimism)
+      const usdcToken = stabilityPage.getDashboardTokenSelector(tokens.usdc.optimism)
       await expect(usdcToken).toBeVisible()
 
-      const walletToken = pages.stabilityPage.getDashboardTokenSelector(tokens.wallet.ethereum)
+      const walletToken = stabilityPage.getDashboardTokenSelector(tokens.wallet.ethereum)
       await expect(walletToken).toBeVisible()
     })
 
@@ -67,19 +64,19 @@ test.describe('stability', () => {
     })
   })
 
-  test('Monitor fetch requests on Dashboard', async ({ pages }) => {
-    const page = pages.stabilityPage.page
+  test('Monitor fetch requests on Dashboard', async ({ stabilityPage }) => {
+    const page = stabilityPage.page
 
     await test.step('start monitoring requests and unlock the extension', async () => {
-      await pages.stabilityPage.monitorRequests()
-      await pages.stabilityPage.unlock()
+      await stabilityPage.monitorRequests()
+      await stabilityPage.unlock()
     })
 
     await test.step('wait for the dashboard to fully load and validate the requests being made', async () => {
       // Wait for all requests to be triggered
       await page.waitForTimeout(10000)
 
-      const categorized = pages.stabilityPage.getCategorizedRequests()
+      const categorized = stabilityPage.getCategorizedRequests()
 
       // ⚠️ Note: It's difficult to accurately track the exact number of requests being made,
       // as even minor changes (e.g. adding a new default network, cache misses, retries) can shift totals.
