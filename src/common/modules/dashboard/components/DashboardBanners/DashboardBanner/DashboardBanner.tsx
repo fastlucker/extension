@@ -129,21 +129,24 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           })
           break
 
-        case 'update-extension-version': {
-          const shouldPrompt =
-            actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0
+        // The "Reload" handler was removed since v5.16.1, because `browser.runtime.reload()`
+        // was causing some funky Chrome glitches, see the deprecation notes in
+        // ExtensionUpdateController.applyUpdate() for more details.
+        // case 'update-extension-version': {
+        //   const shouldPrompt =
+        //     actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0
 
-          if (shouldPrompt) {
-            openBottomSheet()
-            break
-          }
+        //   if (shouldPrompt) {
+        //     openBottomSheet()
+        //     break
+        //   }
 
-          dispatch({
-            type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
-          })
+        //   dispatch({
+        //     type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+        //   })
 
-          break
-        }
+        //   break
+        // }
 
         case 'reload-selected-account':
           dispatch({
