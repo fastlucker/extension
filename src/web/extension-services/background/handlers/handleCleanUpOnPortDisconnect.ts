@@ -58,10 +58,18 @@ export const handleCleanUpOnPortDisconnect = async ({
     }
 
     // If the Transfer popup is closed during signing or broadcasting, we don't want to show the tracking screen next time.
-    // Previously, the last account op was kept and shown, even after closing mid-process (mainCtrl.#broadcastSignedAccountOp).
-    // With `shouldTrackLatestBroadcastedAccountOp`, we can now prevent this and show a fresh form instead.
+    // Previously, the last account operation was kept and shown even after the popup was closed while broadcasting (mainCtrl.#broadcastSignedAccountOp).
+    // With `shouldTrackLatestBroadcastedAccountOp`, we can now prevent this and display a fresh form instead.
+    //
+    // Note: For Trezor, we always enable tracking and do not reset the form, because with the Trezor signer,
+    // the Transfer popup is closed and all logic is handled in a new action window.
+    // In that window, we have dedicated logic for clearing the form completely (e.g., if (isActionWindow) mainCtrl.onOneClickTransferClose()).
+    // If we reset the form state here while opening the Trezor action window, the form will be re-initialized
+    // and the current `signAccountOp` will be destroyed, which will break the Trezor signing process.
+
     const shouldTrack =
-      mainCtrl.transfer.signAccountOpController?.status?.type === SigningStatus.ReadyToSign
+      mainCtrl.transfer.signAccountOpController?.status?.type === SigningStatus.ReadyToSign ||
+      mainCtrl.transfer.signAccountOpController?.signedAccountOp?.signingKeyType === 'trezor'
     // eslint-disable-next-line no-param-reassign
     mainCtrl.transfer.shouldTrackLatestBroadcastedAccountOp = shouldTrack
 
