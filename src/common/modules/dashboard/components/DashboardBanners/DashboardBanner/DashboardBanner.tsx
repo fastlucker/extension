@@ -12,7 +12,7 @@ import DashboardBannerBottomSheet from '@common/modules/dashboard/components/Das
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 const ERROR_ACTIONS = [
@@ -28,7 +28,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue, actionsQueue } = useActionsControllerState()
-  const { statuses } = useMainControllerState()
+  const { statuses } = useRequestsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
@@ -108,7 +108,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
 
         case 'proceed-bridge':
           dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_SWAP_AND_BRIDGE_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
             params: { activeRouteId: action.meta.activeRouteId }
           })
           break

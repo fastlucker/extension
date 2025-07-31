@@ -153,7 +153,7 @@ const SignMessageScreen = () => {
     if (!signMessageAction || !userRequest) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST',
       params: {
         err: t('User rejected the request.'),
         id: userRequest.id

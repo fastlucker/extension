@@ -22,7 +22,6 @@ import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountPickerControllerStateProvider } from '@web/contexts/accountPickerControllerStateContext'
 import { AccountsControllerStateProvider } from '@web/contexts/accountsControllerStateContext'
-import { ActionsControllerStateProvider } from '@web/contexts/actionsControllerStateContext'
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
 import { AddressBookControllerStateProvider } from '@web/contexts/addressBookControllerStateContext'
 import { AutoLockControllerStateProvider } from '@web/contexts/autoLockControllerStateContext'
@@ -41,6 +40,7 @@ import { NetworksControllerStateProvider } from '@web/contexts/networksControlle
 import { PhishingControllerStateProvider } from '@web/contexts/phishingControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
 import { ProvidersControllerStateProvider } from '@web/contexts/providersControllerStateContext'
+import { RequestsControllerStateProvider } from '@web/contexts/requestsControllerStateContext'
 import { SelectedAccountControllerStateProvider } from '@web/contexts/selectedAccountControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { StorageControllerStateProvider } from '@web/contexts/storageControllerStateContext'
@@ -81,7 +81,7 @@ const AppInit = () => {
                                             <KeystoreControllerStateProvider>
                                               <SignMessageControllerStateProvider>
                                                 <ActivityControllerStateProvider>
-                                                  <ActionsControllerStateProvider>
+                                                  <RequestsControllerStateProvider>
                                                     <PortfolioControllerStateProvider>
                                                       <BannerControllerStateProvider>
                                                         <EmailVaultControllerStateProvider>
@@ -118,7 +118,7 @@ const AppInit = () => {
                                                         </EmailVaultControllerStateProvider>
                                                       </BannerControllerStateProvider>
                                                     </PortfolioControllerStateProvider>
-                                                  </ActionsControllerStateProvider>
+                                                  </RequestsControllerStateProvider>
                                                 </ActivityControllerStateProvider>
                                               </SignMessageControllerStateProvider>
                                             </KeystoreControllerStateProvider>
