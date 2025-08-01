@@ -1,12 +1,18 @@
 import { BA_PRIVATE_KEY, KEYSTORE_PASS } from 'constants/env'
 import locators from 'constants/locators'
 import selectors from 'constants/selectors'
+import BootstrapContext from 'interfaces/bootstrapContext'
 
 import mainConstants from '../constants/mainConstants'
 import { BasePage } from './basePage'
 
 export class AuthPage extends BasePage {
   extensionURL: string
+
+  constructor(opts: BootstrapContext) {
+    super(opts)
+    this.extensionURL = opts.extensionURL
+  }
 
   async goToDashboard() {
     await this.page.goto(`${this.extensionURL}${mainConstants.urls.dashboard}`)
