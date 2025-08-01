@@ -205,29 +205,23 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
               {activeRoute.route && steps?.length && (
                 <Button
                   onPress={() => {
-                    navigate(WEB_ROUTES.swapAndBridge)
-                    if (activeRoute.route && steps?.length) {
-                      const { isPopup } = getUiType()
-                      dispatch({
-                        type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM',
-                        params: {
-                          preselectedFromToken: {
-                            address: steps[0].fromAsset.address,
-                            chainId: BigInt(steps[0].fromAsset.chainId)
-                          },
-                          preselectedToToken: {
-                            address: steps[steps.length - 1].toAsset.address,
-                            chainId: BigInt(steps[steps.length - 1].toAsset.chainId)
-                          },
-                          fromAmount: formatDecimals(
-                            Number(formatUnits(steps[0].fromAmount, steps[0].fromAsset.decimals)),
-                            'precise'
-                          ),
-                          sessionId: isPopup ? 'popup' : nanoid(),
-                          activeRouteIdToDelete: activeRoute.activeRouteId
-                        }
-                      })
-                    }
+                    navigate(WEB_ROUTES.swapAndBridge, {
+                      state: {
+                        preselectedFromToken: {
+                          address: steps[0].fromAsset.address,
+                          chainId: BigInt(steps[0].fromAsset.chainId)
+                        },
+                        preselectedToToken: {
+                          address: steps[steps.length - 1].toAsset.address,
+                          chainId: BigInt(steps[steps.length - 1].toAsset.chainId)
+                        },
+                        fromAmount: formatDecimals(
+                          Number(formatUnits(steps[0].fromAmount, steps[0].fromAsset.decimals)),
+                          'precise'
+                        ),
+                        activeRouteIdToDelete: activeRoute.activeRouteId
+                      }
+                    })
                   }}
                   type="primary"
                   size="small"

@@ -111,8 +111,10 @@ const TokenDetails = ({
         onPress: ({ chainId, address }: TokenResult) =>
           navigate(WEB_ROUTES.swapAndBridge, {
             state: {
-              chainId: String(chainId),
-              address
+              preselectedFromToken: {
+                address,
+                chainId
+              }
             }
           }),
         isDisabled: shouldDisableSwapAndBridge,
