@@ -14,32 +14,32 @@ import { bootstrap, bootstrapWithStorage } from '@helpers/bootstrap'
 export class PageManager {
   basePage: BasePage
 
-  authPage: AuthPage
+  auth: AuthPage
 
-  gasTankPage: GasTankPage
+  gasTank: GasTankPage
 
-  dashboardPage: DashboardPage
+  dashboard: DashboardPage
 
-  settingsPage: SettingsPage
+  settings: SettingsPage
 
-  signMessagePage: SignMessagePage
+  signMessage: SignMessagePage
 
-  swapAndBridgePage: SwapAndBridgePage
+  swapAndBridge: SwapAndBridgePage
 
-  stabilityPage: StabilityPage
+  stability: StabilityPage
 
-  transferPage: TransferPage
+  transfer: TransferPage
 
   private initializePages(bootstrapContext: BootstrapContext): void {
     this.basePage = new BasePage(bootstrapContext)
-    this.authPage = new AuthPage(bootstrapContext)
-    this.settingsPage = new SettingsPage(bootstrapContext)
-    this.gasTankPage = new GasTankPage(bootstrapContext)
-    this.signMessagePage = new SignMessagePage(bootstrapContext)
-    this.dashboardPage = new DashboardPage(bootstrapContext)
-    this.swapAndBridgePage = new SwapAndBridgePage(bootstrapContext)
-    this.transferPage = new TransferPage(bootstrapContext)
-    this.stabilityPage = new StabilityPage(bootstrapContext)
+    this.auth = new AuthPage(bootstrapContext)
+    this.settings = new SettingsPage(bootstrapContext)
+    this.gasTank = new GasTankPage(bootstrapContext)
+    this.signMessage = new SignMessagePage(bootstrapContext)
+    this.dashboard = new DashboardPage(bootstrapContext)
+    this.swapAndBridge = new SwapAndBridgePage(bootstrapContext)
+    this.transfer = new TransferPage(bootstrapContext)
+    this.stability   = new StabilityPage(bootstrapContext)
   }
 
   async initWithStorage(param: any): Promise<void> {

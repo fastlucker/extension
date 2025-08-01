@@ -12,12 +12,12 @@ test.describe('network management', () => {
   })
 
   test('adding network manually', async ({ pages }) => {
-    await pages.settingsPage.addNetworkManually('FLR')
+    await pages.settings.addNetworkManually('FLR')
   })
 
   test('add, edit and disable network from Chainlist', async ({ pages }) => {
-    await pages.settingsPage.addNetworkFromChainlist('FLOW')
-    await pages.settingsPage.editNetwork('FLOW')
-    await pages.settingsPage.disableNetwork()
+    await pages.settings.addNetworkFromChainlist('FLOW')
+    await pages.settings.editNetwork('FLOW')
+    await pages.settings.disableNetwork()
   })
 })

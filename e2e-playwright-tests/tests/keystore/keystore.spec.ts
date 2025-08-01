@@ -12,21 +12,21 @@ test.describe('keystore', () => {
   })
 
   test('should lock keystore', async ({ pages }) => {
-    await pages.settingsPage.lockKeystore()
+    await pages.settings.lockKeystore()
   })
 
   test('should unlock keystore', async ({ pages }) => {
-    await pages.settingsPage.unlockKeystore()
+    await pages.settings.unlockKeystore()
   })
 
   test('should change keystore password', async ({ pages }) => {
     const newPass = 'B1234566'
 
     await test.step('go to Extension pass page', async () => {
-      await pages.settingsPage.openExtensionPassword()
+      await pages.settings.openExtensionPassword()
     })
     await test.step('change current password', async () => {
-      await pages.settingsPage.changeKeystorePassword(KEYSTORE_PASS, newPass)
+      await pages.settings.changeKeystorePassword(KEYSTORE_PASS, newPass)
     })
   })
 })

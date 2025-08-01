@@ -22,27 +22,27 @@ test.describe('transfer', () => {
     const payWithGasTank = true
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transferPage.checkNoTransactionOnActivityTab()
+      await pages.transfer.checkNoTransactionOnActivityTab()
     })
 
     await test.step('start send transfer', async () => {
-      await pages.transferPage.navigateToTransfer()
+      await pages.transfer.navigateToTransfer()
     })
 
     await test.step('add transfer amount', async () => {
-      await pages.transferPage.fillAmount(sendToken)
+      await pages.transfer.fillAmount(sendToken)
     })
 
     await test.step('add recepient address', async () => {
-      await pages.transferPage.fillRecipient(recipientAddress)
+      await pages.transfer.fillRecipient(recipientAddress)
     })
 
     await test.step('send transaction', async () => {
-      await pages.transferPage.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
-      await pages.transferPage.checkSendTransactionOnActivityTab()
+      await pages.transfer.checkSendTransactionOnActivityTab()
     })
   })
 
@@ -56,61 +56,61 @@ test.describe('transfer', () => {
     const payWithGasTank = false
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transferPage.checkNoTransactionOnActivityTab()
+      await pages.transfer.checkNoTransactionOnActivityTab()
     })
 
     await test.step('start send transfer', async () => {
-      await pages.transferPage.navigateToTransfer()
+      await pages.transfer.navigateToTransfer()
     })
 
     await test.step('add transfer amount', async () => {
-      await pages.transferPage.fillAmount(sendToken)
+      await pages.transfer.fillAmount(sendToken)
     })
 
     await test.step('add recepient address', async () => {
-      await pages.transferPage.fillRecipient(recipientAddress)
+      await pages.transfer.fillRecipient(recipientAddress)
     })
 
     await test.step('send transaction', async () => {
-      await pages.transferPage.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
-      await pages.transferPage.checkSendTransactionOnActivityTab()
+      await pages.transfer.checkSendTransactionOnActivityTab()
     })
   })
 
   test('should batch multiple transfer transactions', async ({ pages }) => {
-    const page = pages.transferPage.page
+    const page = pages.transfer.page
     const sendToken = tokens.usdc.optimism
     const recipientAddress = '0xc162b2F9f06143Cf063606d814C7F38ED4471F44'
 
     await test.step('start monitoring requests', async () => {
-      await pages.transferPage.monitorRequests()
+      await pages.transfer.monitorRequests()
     })
 
     await test.step('start send transfer', async () => {
-      await pages.transferPage.navigateToTransfer()
+      await pages.transfer.navigateToTransfer()
     })
 
     await test.step('add first transaction', async () => {
-      await pages.transferPage.fillAmount(sendToken)
-      await pages.transferPage.fillRecipient(recipientAddress)
-      await pages.transferPage.addToBatch()
+      await pages.transfer.fillAmount(sendToken)
+      await pages.transfer.fillRecipient(recipientAddress)
+      await pages.transfer.addToBatch()
     })
 
     await test.step('add more transaction', async () => {
-      await pages.transferPage.click(selectors.addMoreButton)
+      await pages.transfer.click(selectors.addMoreButton)
     })
 
     await test.step('add second transaction', async () => {
-      await pages.transferPage.fillAmount(sendToken)
-      await pages.transferPage.fillRecipient(recipientAddress)
-      await pages.transferPage.addToBatch()
+      await pages.transfer.fillAmount(sendToken)
+      await pages.transfer.fillRecipient(recipientAddress)
+      await pages.transfer.addToBatch()
     })
 
     await test.step('go to dashboard', async () => {
-      await pages.transferPage.click(selectors.goDashboardButton)
+      await pages.transfer.click(selectors.goDashboardButton)
     })
 
     await test.step('open AccountOp screen and sign', async () => {
@@ -137,7 +137,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('stop monitoring requests and expect no uncategorized requests to be made', async () => {
-      const { uncategorized } = pages.transferPage.getCategorizedRequests()
+      const { uncategorized } = pages.transfer.getCategorizedRequests()
       expect(uncategorized.length).toBeLessThanOrEqual(0)
     })
   })
@@ -153,46 +153,46 @@ test.describe('transfer', () => {
     const isUnknownAddress = false
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transferPage.checkNoTransactionOnActivityTab()
+      await pages.transfer.checkNoTransactionOnActivityTab()
     })
 
     await test.step('go to address book page', async () => {
-      await pages.transferPage.openAddressBookPage()
+      await pages.transfer.openAddressBookPage()
     })
 
     await test.step('add new contact', async () => {
-      await pages.transferPage.click(selectors.addContactFormButton)
-      await pages.transferPage.entertext(selectors.contactNameField, newContactName)
-      await pages.transferPage.entertext(selectors.addressEnsField, newContactAddress)
-      await pages.transferPage.click(selectors.addToAddressBookButton)
+      await pages.transfer.click(selectors.addContactFormButton)
+      await pages.transfer.entertext(selectors.contactNameField, newContactName)
+      await pages.transfer.entertext(selectors.addressEnsField, newContactAddress)
+      await pages.transfer.click(selectors.addToAddressBookButton)
     })
 
     await test.step('newly added address should be visible in Address book section', async () => {
-      await pages.transferPage.assertAddedContact(newContactName, newContactAddress)
+      await pages.transfer.assertAddedContact(newContactName, newContactAddress)
     })
 
     await test.step('go to dashboard', async () => {
-      await pages.transferPage.navigateToDashboard()
+      await pages.transfer.navigateToDashboard()
     })
 
     await test.step('start send transfer', async () => {
-      await pages.transferPage.navigateToTransfer()
+      await pages.transfer.navigateToTransfer()
     })
 
     await test.step('add transfer amount', async () => {
-      await pages.transferPage.fillAmount(sendToken)
+      await pages.transfer.fillAmount(sendToken)
     })
 
     await test.step('add recepient address', async () => {
-      await pages.transferPage.fillRecipient(newContactAddress, isUnknownAddress)
+      await pages.transfer.fillRecipient(newContactAddress, isUnknownAddress)
     })
 
     await test.step('send transaction', async () => {
-      await pages.transferPage.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
-      await pages.transferPage.checkSendTransactionOnActivityTab()
+      await pages.transfer.checkSendTransactionOnActivityTab()
     })
   })
 
@@ -203,32 +203,32 @@ test.describe('transfer', () => {
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transferPage.checkNoTransactionOnActivityTab()
+      await pages.transfer.checkNoTransactionOnActivityTab()
     })
 
     await test.step('start send transfer', async () => {
-      await pages.transferPage.navigateToTransfer()
+      await pages.transfer.navigateToTransfer()
     })
 
     await test.step('add transfer amount', async () => {
       const feeToken = tokens.usdc.optimism
 
-      await pages.transferPage.fillAmount(feeToken)
+      await pages.transfer.fillAmount(feeToken)
     })
 
     await test.step('add unknown recepient to address book', async () => {
-      await pages.transferPage.addUnknownRecepientToAddressBook(newContactAddress, newContactName)
+      await pages.transfer.addUnknownRecepientToAddressBook(newContactAddress, newContactName)
     })
 
     await test.step('send USCD to added contact', async () => {
       const feeToken = tokens.usdc.optimism
       const payWithGasTank = false
 
-      await pages.transferPage.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
-      await pages.transferPage.checkSendTransactionOnActivityTab()
+      await pages.transfer.checkSendTransactionOnActivityTab()
     })
   })
 })

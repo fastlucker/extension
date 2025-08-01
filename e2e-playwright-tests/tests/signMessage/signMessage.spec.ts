@@ -12,13 +12,13 @@ test.describe('signMessage', () => {
 
   test('should sign plain message', async ({ pages }) => {
     const message = 'Hello, Ambire!'
-    await pages.signMessagePage.signMessage(message, 'plain')
+    await pages.signMessage.signMessage(message, 'plain')
   })
 
   test('should sign hex message', async ({ pages }) => {
     // "Hello, Ambire!" as hex
     const message = '0x48656c6c6f2c20416d6269726521'
-    await pages.signMessagePage.signMessage(message, 'hex')
+    await pages.signMessage.signMessage(message, 'hex')
   })
 
   test('should sign typed message', async ({ pages }) => {
@@ -57,6 +57,6 @@ test.describe('signMessage', () => {
       }
     }
 
-    await pages.signMessagePage.signMessage(JSON.stringify(message), 'typed')
+    await pages.signMessage.signMessage(JSON.stringify(message), 'typed')
   })
 })

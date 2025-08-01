@@ -11,14 +11,14 @@ test.describe('dashboard', () => {
   })
 
   test('should have balance on the dashboard', async ({ pages }) => {
-    await pages.dashboardPage.checkBalanceInAccount()
+    await pages.dashboard.checkBalanceInAccount()
   })
 
   test('should test if expected tokens are visible on the dashboard', async ({ pages }) => {
-    await pages.dashboardPage.checkIfTokensExist()
+    await pages.dashboard.checkIfTokensExist()
   })
 
   test('should test if expected NFTs are visible on the dashboard', async ({ pages }) => {
-    await pages.dashboardPage.checkCollectibleItem()
+    await pages.dashboard.checkCollectibleItem()
   })
 })

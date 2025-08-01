@@ -25,7 +25,7 @@ test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async 
     const errors: string[] = []
 
     await test.step('Check balance of Gas tank', async () => {
-      const gasTankBalance = await pages.dashboardPage.getCurrentBalance()
+      const gasTankBalance = await pages.dashboard.getCurrentBalance()
 
       if (gasTankBalance < 15) {
         const msg = `⚠️ Gas Tank balance is only ${gasTankBalance} USDC. Top it up.`
@@ -38,7 +38,7 @@ test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async 
 
       for (let i = 0; i < tokensList.length; i++) {
         const token = tokensList[i]
-        const result = await pages.dashboardPage.checkTokenBalance(token)
+        const result = await pages.dashboard.checkTokenBalance(token)
         results.push(result)
       }
 
@@ -85,7 +85,7 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
     const errors: string[] = []
 
     await test.step('Check balance of Gas tank', async () => {
-      const gasTankBalance = await pages.dashboardPage.getCurrentBalance()
+      const gasTankBalance = await pages.dashboard.getCurrentBalance()
 
       if (gasTankBalance < 5) {
         const msg = `⚠️ Gas Tank balance is only ${gasTankBalance} USDC. Top it up.`
@@ -98,7 +98,7 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
 
       for (let i = 0; i < tokensList.length; i++) {
         const token = tokensList[i]
-        const result = await pages.dashboardPage.checkTokenBalance(token)
+        const result = await pages.dashboard.checkTokenBalance(token)
         results.push(result)
       }
 
