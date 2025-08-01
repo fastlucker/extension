@@ -8,6 +8,7 @@ import useBannersControllerState from '@web/hooks/useBannersControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useExtensionUpdateControllerState from '@web/hooks/useExtensionUpdateControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 
@@ -32,34 +33,37 @@ const OFFLINE_BANNER: BannerInterface = {
 }
 
 export default function useBanners(): BannerInterface[] {
-  const { isOffline, banners: mainCtrlBanners } = useMainControllerState()
+  const { isOffline } = useMainControllerState()
   const { banners: marketingBanners } = useBannersControllerState()
   const { account, portfolio, deprecatedSmartAccountBanner, firstCashbackBanner } =
     useSelectedAccountControllerState()
 
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
+  const { banners: requestBanners = [] } = useRequestsControllerState()
   const { banners: actionBanners = [] } = useActionsControllerState()
   const { banners: swapAndBridgeBanners = [] } = useSwapAndBridgeControllerState()
   const { extensionUpdateBanner } = useExtensionUpdateControllerState()
+  const { banners: selectedAccountBanners } = useSelectedAccountControllerState()
 
   const allBanners = useMemo(() => {
     return [
       ...marketingBanners,
       ...deprecatedSmartAccountBanner,
-      ...mainCtrlBanners,
+      ...requestBanners,
       ...actionBanners,
       ...(isOffline && portfolio.isAllReady ? [OFFLINE_BANNER] : []),
       ...(isOffline ? [] : [...swapAndBridgeBanners]),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
+      ...selectedAccountBanners,
       ...extensionUpdateBanner,
       ...firstCashbackBanner
     ]
   }, [
     marketingBanners,
     deprecatedSmartAccountBanner,
-    mainCtrlBanners,
+    requestBanners,
     actionBanners,
     isOffline,
     portfolio.isAllReady,
@@ -67,6 +71,7 @@ export default function useBanners(): BannerInterface[] {
     activityBanners,
     emailVaultBanners,
     account?.addr,
+    selectedAccountBanners,
     extensionUpdateBanner,
     firstCashbackBanner
   ])
