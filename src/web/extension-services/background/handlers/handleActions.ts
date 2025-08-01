@@ -621,6 +621,15 @@ export const handleActions = async (
     }
 
     case 'OPEN_EXTENSION_POPUP': {
+      // eslint-disable-next-line no-inner-declarations
+      async function waitForPopupOpen(timeout = 10000, interval = 100) {
+        const startTime = Date.now()
+        while (!pm.ports.some((p) => p.name === 'popup')) {
+          if (Date.now() - startTime > timeout) break
+          await wait(interval)
+        }
+      }
+
       try {
         const isLoading = await sessionStorage.get('isOpenExtensionPopupLoading', false)
         const isPopupAlreadyOpened = pm.ports.some((p) => p.name === 'popup')
@@ -628,11 +637,11 @@ export const handleActions = async (
 
         await sessionStorage.set('isOpenExtensionPopupLoading', true)
         await browser.action.openPopup()
-        while (!pm.ports.some((p) => p.name === 'popup')) await wait(100)
+        await waitForPopupOpen()
       } catch (error) {
         try {
           await chrome.action.openPopup()
-          while (!pm.ports.some((p) => p.name === 'popup')) await wait(100)
+          await waitForPopupOpen()
         } catch (e) {
           pm.send('> ui', { method: 'navigate', params: { route: '/' } })
         }
