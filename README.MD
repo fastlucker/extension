@@ -226,7 +226,9 @@ And find the resulting build in the "build/legends-prod" folder.
 
 We've migrated from Puppeteer to Playwright (./e2e-playwright-tests/). Documentation will follow soon.
 
-### Translations (Beta)
+### Translations (Alpha)
+
+**Never used, implemented or maintained. Just wired up at the beginning of the project.**
 
 To scan the project for translation labels and to update translations JSON files, run:
 
