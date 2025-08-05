@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import BottomSheet from '@common/components/BottomSheet'
+import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
-import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
@@ -26,21 +26,7 @@ const HideTokenModal = ({
   const [doNotShowModalAgain, setDoNotShowModalAgain] = useState(false)
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const [bindAnimHide, animStyleHide] = useCustomHover({
-    property: 'backgroundColor',
-    values: {
-      from: theme.primary,
-      to: theme.infoDecorative
-    }
-  })
 
-  const [bindAnimCancel, animStyleCancel] = useCustomHover({
-    property: 'backgroundColor',
-    values: {
-      from: theme.secondaryBackground,
-      to: theme.tertiaryBackground
-    }
-  })
   return (
     <BottomSheet
       sheetRef={modalRef}
@@ -74,28 +60,16 @@ const HideTokenModal = ({
           }
         ]}
       >
-        <AnimatedPressable
-          style={[styles.button, animStyleCancel, styles.cancelButton]}
-          onPress={handleClose}
-          {...bindAnimCancel}
-        >
-          <Text weight="medium" color={theme.primary}>
-            {t('Cancel')}
-          </Text>
-        </AnimatedPressable>
-        <AnimatedPressable
-          style={[styles.button, animStyleHide]}
-          {...bindAnimHide}
+        <Button text={t('Cancel')} type="secondary" onPress={handleClose} />
+        <Button
+          type="primary"
+          text={t('Yes, hide it!')}
           onPress={() => {
             handleHideToken(doNotShowModalAgain).catch(() =>
               addToast('Failed to hide token. Please refresh and try again.', { type: 'error' })
             )
           }}
-        >
-          <Text weight="medium" color={theme.primaryBackground}>
-            {t('Yes, hide it!')}
-          </Text>
-        </AnimatedPressable>
+        />
       </View>
     </BottomSheet>
   )

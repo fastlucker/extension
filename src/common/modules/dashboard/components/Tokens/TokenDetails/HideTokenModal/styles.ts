@@ -7,13 +7,12 @@ import { BORDER_RADIUS_PRIMARY, BORDER_RADIUS_SECONDARY } from '@common/styles/u
 interface Style {
   modal: ViewStyle
   button: ViewStyle
-  cancelButton: ViewStyle
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     modal: {
-      backgroundColor: theme.secondaryBackground,
       borderRadius: BORDER_RADIUS_SECONDARY,
       paddingTop: SPACING_XL,
       paddingHorizontal: SPACING,
@@ -24,10 +23,6 @@ const getStyles = (theme: ThemeProps) =>
       borderRadius: BORDER_RADIUS_PRIMARY,
       paddingVertical: SPACING,
       paddingHorizontal: SPACING_XL
-    },
-    cancelButton: {
-      borderWidth: 1,
-      borderColor: theme.primary
     }
   })
 
