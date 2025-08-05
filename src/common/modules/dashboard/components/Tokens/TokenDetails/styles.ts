@@ -13,7 +13,6 @@ interface Style {
   networkIcon: ViewStyle
   actionsContainer: ViewStyle
   action: ViewStyle
-  visibilityIcon: ViewStyle
   hideTokenButton: ViewStyle
 }
 
@@ -61,7 +60,6 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary
     },
     // @ts-ignore web style
-    visibilityIcon: { ...spacings.phMi, cursor: 'pointer' },
     hideTokenButton: {
       color: theme.primary,
       padding: SPACING_MI,
