@@ -1,7 +1,11 @@
 import React, { useCallback, useMemo } from 'react'
 import { useModalize } from 'react-native-modalize'
 
-import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
+import {
+  Action,
+  Banner as BannerType,
+  BannerType as NonMarketingBannerType
+} from '@ambire-common/interfaces/banner'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
@@ -12,7 +16,7 @@ import DashboardBannerBottomSheet from '@common/modules/dashboard/components/Das
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 const ERROR_ACTIONS = [
@@ -22,13 +26,17 @@ const ERROR_ACTIONS = [
   'dismiss-7702-banner'
 ]
 
-const DashboardBanner = ({ banner }: { banner: BannerType }) => {
+const DashboardBanner = ({
+  banner
+}: {
+  banner: Omit<BannerType, 'type'> & { type: NonMarketingBannerType }
+}) => {
   const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue, actionsQueue } = useActionsControllerState()
-  const { statuses } = useMainControllerState()
+  const { statuses } = useRequestsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
@@ -108,7 +116,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
 
         case 'proceed-bridge':
           dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_SWAP_AND_BRIDGE_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
             params: { activeRouteId: action.meta.activeRouteId }
           })
           break
