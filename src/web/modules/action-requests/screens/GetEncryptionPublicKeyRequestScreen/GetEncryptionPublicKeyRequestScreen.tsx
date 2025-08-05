@@ -26,19 +26,24 @@ const GetEncryptionPublicKeyRequestScreen = () => {
   const state = useActionsControllerState()
   const { theme } = useTheme()
   const dappAction = useMemo(() => {
-    return state.currentAction as DappRequestAction
+    return state.currentAction
   }, [state.currentAction])
 
-  const userRequest = useMemo(() => {
+  const userRequest = useMemo<DappRequestAction | null>(() => {
+    if (!dappAction) return null
+
+    // TODO: Fix type inconsistency
     return dappAction?.userRequest
-  }, [dappAction?.userRequest])
+  }, [dappAction])
 
   const handleDeny = useCallback(() => {
+    if (!dappAction) return
+
     dispatch({
       type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: dappAction.id }
     })
-  }, [dappAction.id, t, dispatch])
+  }, [dappAction, t, dispatch])
 
   return (
     <>
