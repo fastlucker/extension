@@ -311,6 +311,7 @@ const TokenDetails = ({
       storage
         .set('doNotShowAgainModalHideToken', doNotShowModalAnymore)
         .catch(() => console.error('Failed to record value for doNotShowAgainModalHideToken'))
+      setDoNotDisplayHideTokenModal(doNotShowModalAnymore)
       hideToken()
       closeHideTokenModal()
       handleClose()
