@@ -351,12 +351,10 @@
     .cancelButton {
       @include gray-button;
       font-size: 1.25rem;
-      // flex: 1;
     }
     .confirmButton {
       @include primary-button;
       font-size: 1.25rem;
-      // flex: 1;
     }
   }
 }
