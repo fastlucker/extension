@@ -10,6 +10,7 @@ import spacings from '@common/styles/spacings'
 import ThemeColors, { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
@@ -61,7 +62,7 @@ const typeBannerColorsMap: Record<string, BannerColors> = {
 }
 
 const MarketingBanner: React.FC<Props> = ({ banner }) => {
-  const { isTab } = getUiType()
+  const { isTab, isPopup } = getUiType()
   const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
   const { text, type = 'updates', actions } = banner
@@ -106,8 +107,8 @@ const MarketingBanner: React.FC<Props> = ({ banner }) => {
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         <Pressable
           testID="marketing-banner-button"
-          onPress={() => {
-            window.open(url, '_blank', 'noopener,noreferrer')
+          onPress={async () => {
+            await openInTab({ url, shouldCloseCurrentWindow: isPopup })
           }}
         >
           {({ hovered }: any) => (
