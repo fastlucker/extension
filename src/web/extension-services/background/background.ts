@@ -922,6 +922,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         }
       }
     })
+    setupMainControllerErrorListeners(mainCtrl, ['main'])
   }, 'background')
 
   function setupMainControllerErrorListeners(ctrl: any, ctrlNamePath: any[] = []) {
@@ -960,8 +961,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
     }
   }
-
-  setupMainControllerErrorListeners(mainCtrl, ['main'])
 
   // Broadcast onUpdate for the wallet state controller
   walletStateCtrl.onUpdate((forceEmit) => {
