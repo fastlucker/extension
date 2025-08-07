@@ -84,7 +84,13 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   const switchNetwork = useSwitchNetwork()
   const { addToast } = useToast()
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false)
-  useEscModal(isOpen, () => handleClose)
+
+  const handleEsc = useCallback(() => {
+    if (isWarningModalOpen) setIsWarningModalOpen(false)
+    else handleClose()
+  }, [handleClose, isWarningModalOpen, setIsWarningModalOpen])
+
+  useEscModal(isOpen, handleEsc)
 
   const isConnected = useMemo(() => !!connectedAccount && !v1Account, [connectedAccount, v1Account])
 
