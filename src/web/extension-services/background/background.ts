@@ -922,7 +922,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         }
       }
     })
-    setupMainControllerErrorListeners(mainCtrl, ['main'])
+    try {
+      setupMainControllerErrorListeners(mainCtrl, ['main'])
+    } catch (error) {
+      console.error('Failed to setup mainControllerErrorListeners')
+    }
   }, 'background')
 
   function setupMainControllerErrorListeners(ctrl: any, ctrlNamePath: any[] = []) {
