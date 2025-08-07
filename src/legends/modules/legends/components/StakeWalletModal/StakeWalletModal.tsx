@@ -16,10 +16,12 @@ import { createPortal } from 'react-dom'
 
 import { STK_WALLET, WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import { RELAYER_URL } from '@env'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import CloseIcon from '@legends/components/CloseIcon'
 import Input from '@legends/components/Input'
+import Modal from '@legends/components/Modal'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -81,7 +83,8 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const switchNetwork = useSwitchNetwork()
   const { addToast } = useToast()
-  useEscModal(isOpen, handleClose)
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState(false)
+  useEscModal(isOpen, () => handleClose)
 
   const isConnected = useMemo(() => !!connectedAccount && !v1Account, [connectedAccount, v1Account])
 
@@ -350,7 +353,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       return onchainData?.stkWalletBalance
         ? {
             text: 'Unstake',
-            action: inputAmount ? () => requestWithdrawAction(inputAmount) : undefined
+            action: inputAmount ? () => setIsWarningModalOpen(true) : undefined
           }
         : { text: 'No $WALLET staked to withdraw' }
     }
@@ -614,6 +617,37 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
           </button>
         </div>
       </div>
+      <Modal
+        isOpen={isWarningModalOpen}
+        handleClose={() => setIsWarningModalOpen(false)}
+        className={styles.warningModal}
+      >
+        <Modal.Heading className={styles.heading}>Confirm Unstake</Modal.Heading>
+        <WarningIcon height={45} width={45} strokeWidth={1} color="#E7AA27" />
+        <p className={styles.infoText}>
+          If you confirm unstaking a significant amount of your stkWALLET, you won’t be earning XP
+          for the unstake period.
+        </p>
+        <div className={styles.buttonWrapper}>
+          <button
+            type="button"
+            className={styles.cancelButton}
+            onClick={() => setIsWarningModalOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={styles.confirmButton}
+            onClick={() => {
+              setIsWarningModalOpen(false)
+              requestWithdrawAction(inputAmount)
+            }}
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
     </div>,
     document.getElementById('modal-root') as HTMLElement
   )
