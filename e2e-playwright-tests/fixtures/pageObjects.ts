@@ -14,9 +14,9 @@ export const test = base.extend<PageFixtures>({
     const pageManager = new PageManager()
 
     await use(pageManager)
-  },
-  // stability page is defined separatelly because it is used to monitor requests and should have browsers initialization separate from other pages
-  stabilityPage: async ({}, use) => {
-    await use(new StabilityPage())
   }
+  // // stability page is defined separatelly because it is used to monitor requests and should have browsers initialization separate from other pages
+  // stabilityPage: async ({}, use) => {
+  //   await use(new StabilityPage())
+  // }
 })
