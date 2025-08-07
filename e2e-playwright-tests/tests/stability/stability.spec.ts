@@ -19,18 +19,7 @@ test.describe('stability', () => {
     pages
   }) => {
     await test.step('block Polygon RPC requests', async () => {
-      // await pages.stability.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
-      await pages.stability.page.route('**/invictus.ambire.com/polygon', async (route) => {
-        console.log('Intercepted request:', route.request().url())
-        await route.fulfill({
-          status: 500,
-          contentType: 'application/json',
-          body: JSON.stringify({ error: 'mocked' })
-        })
-      })
-
-      // Unlock manually after route is set
-      await pages.stability.unlock()
+      await pages.stability.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
     })
 
     await test.step('click on the error indicator and appropriate message is expected to be shown', async () => {
