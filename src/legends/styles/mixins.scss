@@ -49,8 +49,7 @@
   &:not(:disabled) {
     &:hover {
       border-radius: 8px;
-      background: linear-gradient(0deg, rgba(244, 244, 247, 0.1) 0%, rgba(244, 244, 247, 0.1) 100%),
-        linear-gradient(100deg, #00bb92 7.82%, #1b709b 49.79%, #350586 92.28%);
+      background: rgba(244, 244, 247, 0.1);
     }
   }
 }
