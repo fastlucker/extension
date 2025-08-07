@@ -242,7 +242,7 @@ const RouteStepsPreview = ({
               color={
                 !isDisabled
                   ? themeType === THEME_TYPES.DARK
-                    ? theme.primaryLight
+                    ? theme.successDecorative
                     : theme.primary
                   : theme.warningText
               }
@@ -250,7 +250,9 @@ const RouteStepsPreview = ({
                 spacings.phTy,
                 {
                   paddingVertical: 1,
-                  backgroundColor: !isDisabled ? '#6000FF14' : theme.warningBackground,
+                  backgroundColor: !isDisabled
+                    ? `${String(theme.successDecorative)}20`
+                    : theme.warningBackground,
                   borderRadius: 12
                 }
               ]}
