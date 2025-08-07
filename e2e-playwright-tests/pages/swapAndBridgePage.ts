@@ -1,4 +1,3 @@
-import { bootstrapWithStorage } from 'common-helpers/bootstrap'
 import { clickOnElement } from 'common-helpers/clickOnElement'
 import { typeText } from 'common-helpers/typeText'
 import locators from 'constants/locators'
@@ -10,12 +9,6 @@ import Token from '../interfaces/token'
 import { BasePage } from './basePage'
 
 export class SwapAndBridgePage extends BasePage {
-  async init(param) {
-    const { page, context } = await bootstrapWithStorage('swapAndBridgeBA', param)
-    this.page = page // Initialize the POM page property with the Playwright page instance
-    this.context = context
-  }
-
   // General function
   roundAmount(amount, place = 2) {
     // ToDo: Check if values should be int-ed or rounded. Values are currently int-ed
@@ -67,7 +60,7 @@ export class SwapAndBridgePage extends BasePage {
 
   async openSwapAndBridge() {
     if (!this.page.url().includes('/swap-and-bridge')) {
-      await this.click(selectors.dashboardButtonSwapAndBridge)
+      await this.click(selectors.dashboard.swapAndBridgeButton)
       await this.verifyIfOnSwapAndBridgePage()
     } else {
       await this.page.reload()
@@ -97,16 +90,6 @@ export class SwapAndBridgePage extends BasePage {
 
       // TODO: Implement verifyRouteFound
       // await verifyRouteFound()
-
-      // If Warning: The price impact is too high
-      const isHighPrice = await this.page
-        .waitForSelector(SELECTORS.highPriceImpactSab, { timeout: 1000 })
-        .catch(() => null)
-      if (isHighPrice) {
-        await this.click(selectors.highPriceImpactSab)
-        return 'Continue anyway'
-      }
-      return 'Proceed'
     } catch (error) {
       console.error(`[ERROR] Prepare Swap & Bridge Page Failed: ${error.message}`)
       throw error
@@ -220,6 +203,23 @@ export class SwapAndBridgePage extends BasePage {
       timeout: 10000
     })
     await this.click(selectors.addToBatchButton)
+
+    // approve the high impact modal
+    const isHighPrice = await this.page
+      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
+      .catch(() => null)
+
+    // approve the high impact modal
+    const isHighSlippage = await this.page
+      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
+      .catch(() => null)
+
+    if (isHighPrice || isHighSlippage) {
+      // TODO: change methods once we have IDs
+      await this.click(selectors.continueAnywayCheckboxSaB)
+      await this.page.locator(selectors.continueAnywayButton).click()
+    }
+
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
     await this.signTransactionPage(newPage)
@@ -364,7 +364,13 @@ export class SwapAndBridgePage extends BasePage {
     const isHighPrice = await this.page
       .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
       .catch(() => null)
-    if (isHighPrice) {
+
+    // approve the high impact modal
+    const isHighSlippage = await this.page
+      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
+      .catch(() => null)
+
+    if (isHighPrice || isHighSlippage) {
       // TODO: change methods once we have IDs
       await this.click(selectors.continueAnywayCheckboxSaB)
       await this.page.locator(selectors.continueAnywayButton).click()
@@ -397,7 +403,7 @@ export class SwapAndBridgePage extends BasePage {
       await expect(signButton).toBeVisible({ timeout: 5000 })
       await expect(signButton).toBeEnabled()
       await this.verifyBatchTransactionDetails(page)
-      await clickOnElement(page, SELECTORS.signTransactionButton)
+      await clickOnElement(page, selectors.signTransactionButton)
       await page.waitForTimeout(1500)
     } catch (error) {
       console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
@@ -416,5 +422,25 @@ export class SwapAndBridgePage extends BasePage {
     const amountNumber = parseFloat(amountText.replace(/[^\d.]/g, ''))
 
     return amountNumber
+  }
+
+  // TODO: use this method to check activity tab after POM refactor
+  async checkNoTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(
+      selectors.dashboard.noTransactionOnActivityTab,
+      'No transactions history for Account '
+    )
+  }
+
+  // TODO: use this method to check activity tab after POM refactor
+  async checkSendTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await expect(this.page.locator(selectors.dashboard.grantApprovalText)).toContainText(
+      'Grant approval'
+    )
+    await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
+      'Confirmed'
+    )
   }
 }

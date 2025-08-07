@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 import { useLocation } from 'react-router-dom'
 
-import { getUsdAmount } from '@ambire-common/controllers/signAccountOp/helper'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
+import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -15,6 +15,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useSyncedState from '@web/hooks/useSyncedState'
@@ -44,7 +45,8 @@ const useSwapAndBridgeForm = () => {
     toSelectedToken
   } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
-  const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
+  const { userRequests } = useRequestsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const controllerAmountFieldValue = fromAmountFieldMode === 'token' ? fromAmount : fromAmountInFiat
   const [fromAmountValue, setFromAmountValue] = useSyncedState<string>({
@@ -282,10 +284,10 @@ const useSwapAndBridgeForm = () => {
       const minAmountOutInWei = BigInt(
         quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
       )
-      const minInUsd = getUsdAmount(
-        Number(quote.selectedRoute.toToken.priceUSD),
+      const minInUsd = safeTokenAmountAndNumberMultiplication(
+        minAmountOutInWei,
         quote.selectedRoute.toToken.decimals,
-        minAmountOutInWei
+        Number(quote.selectedRoute.toToken.priceUSD)
       )
       const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
       const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
@@ -321,9 +323,12 @@ const useSwapAndBridgeForm = () => {
     if (isOneClickModeDuringPriceImpact) {
       if (networkUserRequests.length > 0) {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
           params: {
-            openActionWindow: true
+            type: 'swapAndBridgeRequest',
+            params: {
+              openActionWindow: true
+            }
           }
         })
         window.close()
@@ -332,9 +337,12 @@ const useSwapAndBridgeForm = () => {
       }
     } else {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+        type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
         params: {
-          openActionWindow: false
+          type: 'swapAndBridgeRequest',
+          params: {
+            openActionWindow: false
+          }
         }
       })
       setShowAddedToBatch(true)
@@ -362,9 +370,12 @@ const useSwapAndBridgeForm = () => {
       if (isOneClickMode) {
         if (networkUserRequests.length > 0) {
           dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
             params: {
-              openActionWindow: true
+              type: 'swapAndBridgeRequest',
+              params: {
+                openActionWindow: true
+              }
             }
           })
           window.close()
@@ -373,9 +384,12 @@ const useSwapAndBridgeForm = () => {
         }
       } else {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
           params: {
-            openActionWindow: false
+            type: 'swapAndBridgeRequest',
+            params: {
+              openActionWindow: false
+            }
           }
         })
         setShowAddedToBatch(true)

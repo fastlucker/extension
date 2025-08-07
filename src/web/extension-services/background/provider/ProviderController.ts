@@ -153,11 +153,8 @@ export class ProviderController {
         )
         if (!network) return
 
-        const portfolioNetwork =
-          this.mainCtrl.selectedAccount.portfolio.pending[network.chainId.toString()]
-        if (!portfolioNetwork) return
-
-        totalBalance += portfolioNetwork.result?.total.usd || 0
+        totalBalance +=
+          this.mainCtrl.selectedAccount.portfolio.balancePerNetwork[network.chainId.toString()] || 0
       })
     } else {
       totalBalance = this.mainCtrl.selectedAccount.portfolio.totalBalance
@@ -513,7 +510,9 @@ export class ProviderController {
       atomic: !isMultipleTxn,
       status: getSuccessStatus(version),
       receipts: receipts.map((receipt) => {
-        const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
+        const txnStatus = isUserOp
+          ? toBeHex(receipt.receipt.status as number, 1)
+          : toBeHex(receipt.status as number, 1)
         const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
         return {
           logs: receipt.logs,

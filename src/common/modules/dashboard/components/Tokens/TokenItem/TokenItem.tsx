@@ -20,7 +20,6 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
@@ -42,10 +41,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { tokenPreferences } = usePortfolioControllerState()
-  const { isHidden } = tokenPreferences.find(
-    ({ address: addr, chainId: nChainId }) => addr === address && nChainId === chainId
-  ) || { isHidden: false }
+
   const { styles, theme, themeType } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [bindAnim, animStyle] = useCustomHover({
@@ -84,33 +80,17 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
   const sendClaimTransaction = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST',
-      params: { token }
+      type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
+      params: { type: 'claimWalletRequest', params: { token } }
     })
   }, [token, dispatch])
 
   const sendVestingTransaction = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST',
-      params: { token }
+      type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
+      params: { type: 'mintVestingRequest', params: { token } }
     })
   }, [token, dispatch])
-
-  const closeBottomSheetWrapped = useCallback(() => {
-    if (isHidden) {
-      const network = networks.find(({ chainId: nChainId }) => nChainId === token.chainId)
-      if (!network) return
-
-      dispatch({
-        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
-        params: {
-          network,
-          forceUpdate: true
-        }
-      })
-    }
-    closeBottomSheet()
-  }, [closeBottomSheet, dispatch, isHidden, networks, token.chainId])
 
   const textColor = useMemo(() => {
     if (!isPending) return theme.primaryText
@@ -128,9 +108,9 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
       <BottomSheet
         id={`token-details-${address}`}
         sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheetWrapped}
+        closeBottomSheet={closeBottomSheet}
       >
-        <TokenDetails token={token} handleClose={closeBottomSheetWrapped} />
+        <TokenDetails token={token} handleClose={closeBottomSheet} />
       </BottomSheet>
       <View style={flexboxStyles.flex1}>
         <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
@@ -190,7 +170,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
                 </View>
                 {isRewards && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"
@@ -201,7 +181,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
                 {isVesting && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"

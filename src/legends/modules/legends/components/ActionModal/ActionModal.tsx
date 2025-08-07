@@ -61,10 +61,12 @@ type ActionModalProps = {
     | 'contentVideoV2'
     | 'title'
     | 'action'
+    | 'id'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
+  id,
   title,
   xp,
   contentImageV2,
@@ -158,7 +160,7 @@ const ActionModal: FC<ActionModalProps> = ({
     <Modal isOpen={isOpen} handleClose={closeActionModalWrapped} className={styles.modal}>
       <Modal.Heading className={styles.modalHeading}>
         <div className={styles.modalHeadingTitle}>{title}</div>
-        {xp && <Rewards xp={xp} size="lg" />}
+        {xp && <Rewards xp={xp} size="lg" id={id} />}
       </Modal.Heading>
 
       {contentSteps && (

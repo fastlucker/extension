@@ -1,4 +1,3 @@
-import { bootstrapWithStorage } from 'common-helpers/bootstrap'
 import locators from 'constants/locators'
 import selectors from 'constants/selectors'
 
@@ -8,11 +7,6 @@ import Token from '../interfaces/token'
 import { BasePage } from './basePage'
 
 export class DashboardPage extends BasePage {
-  async init(param) {
-    const { page } = await bootstrapWithStorage('dashboard', param)
-    this.page = page
-  }
-
   // TODO: should be refactored
   async checkBalanceInAccount(): Promise<void> {
     await this.page.waitForSelector(locators.fullAmountDashboard)
@@ -88,5 +82,23 @@ export class DashboardPage extends BasePage {
       error = `${token.symbol} balance is only: ${tokenBalance}.`
     }
     return { token, error }
+  }
+
+  // TODO: use this method to check activity tab after POM refactor
+  async checkNoTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await this.compareText(
+      selectors.dashboard.noTransactionOnActivityTab,
+      'No transactions history for Account '
+    )
+  }
+
+  // TODO: use this method to check activity tab after POM refactor
+  async checkSendTransactionOnActivityTab() {
+    await this.click(selectors.dashboard.activityTabButton)
+    await expect(this.page.locator(selectors.dashboard.transactionSendText)).toContainText('Send')
+    await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
+      'Confirmed'
+    )
   }
 }
