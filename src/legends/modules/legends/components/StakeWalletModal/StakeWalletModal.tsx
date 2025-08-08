@@ -84,7 +84,13 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   const switchNetwork = useSwitchNetwork()
   const { addToast } = useToast()
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false)
-  useEscModal(isOpen, () => handleClose)
+
+  const handleEsc = useCallback(() => {
+    if (isWarningModalOpen) setIsWarningModalOpen(false)
+    else handleClose()
+  }, [handleClose, isWarningModalOpen, setIsWarningModalOpen])
+
+  useEscModal(isOpen, handleEsc)
 
   const isConnected = useMemo(() => !!connectedAccount && !v1Account, [connectedAccount, v1Account])
 
@@ -338,7 +344,15 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     const minutes = totalMinutes % 60
     return `${days}d ${hours}h ${minutes}m`
   }
+  const displayWarningOrUnstake = useCallback(() => {
+    if (!onchainData || !inputAmount) return
+    const walletsInXwallet = +formatUnits(onchainData.shareValue * onchainData.xWalletBalance, 36)
+    const walletsInStkWallet = +formatUnits(onchainData.stkWalletBalance)
+    const totalStakedWallets = walletsInStkWallet + walletsInXwallet
 
+    if (Number(inputAmount) > totalStakedWallets * 0.65) setIsWarningModalOpen(true)
+    else requestWithdrawAction(inputAmount)
+  }, [onchainData, inputAmount, setIsWarningModalOpen, requestWithdrawAction])
   const buttonState = useMemo((): { text: string; action?: () => any } => {
     if (!isConnected) return { text: 'Connect a new account' }
     if (isLoadingLogs || isLoadingOnchainData) return { text: 'Loading...' }
@@ -353,7 +367,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       return onchainData?.stkWalletBalance
         ? {
             text: 'Unstake',
-            action: inputAmount ? () => setIsWarningModalOpen(true) : undefined
+            action: inputAmount ? displayWarningOrUnstake : undefined
           }
         : { text: 'No $WALLET staked to withdraw' }
     }
