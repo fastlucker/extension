@@ -251,7 +251,9 @@ const RouteStepsPreview = ({
                 {
                   paddingVertical: 1,
                   backgroundColor: !isDisabled
-                    ? `${String(theme.successDecorative)}20`
+                    ? themeType === THEME_TYPES.DARK
+                      ? `${String(theme.successDecorative)}20`
+                      : '#6000FF14'
                     : theme.warningBackground,
                   borderRadius: 12
                 }
