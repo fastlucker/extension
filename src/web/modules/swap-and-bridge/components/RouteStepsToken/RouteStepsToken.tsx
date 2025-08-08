@@ -51,13 +51,19 @@ const RouteStepsToken: React.FC<Props> = ({
         />
       </View>
 
-      <View style={styles.textContainer}>
+      <View
+        style={[
+          styles.textContainer,
+          { alignItems: amount.length > 5 ? (isLast ? 'flex-end' : 'flex-start') : 'center' }
+        ]}
+      >
         <Text fontSize={14} weight="medium" style={styles.text}>
           {amount ? `${amount} ` : ''}
           {symbol}
         </Text>
         {!!amountInUsd && (
           <Text
+            style={styles.text}
             fontSize={12}
             color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
             weight="medium"

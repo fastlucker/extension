@@ -19,7 +19,6 @@ const styles = StyleSheet.create<Style>({
     width: WIDTH
   },
   textContainer: {
-    ...flexbox.center,
     // Gets centered when text is short, but grows left (or right) if long, based on the flex model
     minWidth: '100%'
   },
