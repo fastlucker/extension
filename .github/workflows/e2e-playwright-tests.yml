@@ -111,11 +111,11 @@ jobs:
 
       - name: Run Balance Check test for SA and BA
         working-directory: ./e2e-playwright-tests
-        run: xvfb-run --auto-servernum npm run balance:test
+        run: npm run balance:test
 
       - name: Run Playwright tests
         working-directory: ./e2e-playwright-tests
-        run: xvfb-run --auto-servernum npm run test
+        run: npm run test
 
       - name: Upload HTML report
         if: always()
