@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/return-await */
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
@@ -9,6 +10,7 @@ import {
   SignAccountOpType
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import wait from '@ambire-common/utils/wait'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -19,6 +21,8 @@ import { Port, PortMessenger } from '@web/extension-services/messengers'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
+
+import sessionStorage from '../webapi/sessionStorage'
 
 export const handleActions = async (
   action: Action,
@@ -618,18 +622,32 @@ export const handleActions = async (
     }
 
     case 'OPEN_EXTENSION_POPUP': {
+      // eslint-disable-next-line no-inner-declarations
+      async function waitForPopupOpen(timeout = 10000, interval = 100) {
+        const startTime = Date.now()
+        while (!pm.ports.some((p) => p.name === 'popup')) {
+          if (Date.now() - startTime > timeout) break
+          await wait(interval)
+        }
+      }
+
       try {
+        const isLoading = await sessionStorage.get('isOpenExtensionPopupLoading', false)
+        const isPopupAlreadyOpened = pm.ports.some((p) => p.name === 'popup')
+        if (isLoading || isPopupAlreadyOpened) return
+
+        await sessionStorage.set('isOpenExtensionPopupLoading', true)
         await browser.action.openPopup()
+        await waitForPopupOpen()
       } catch (error) {
         try {
           await chrome.action.openPopup()
+          await waitForPopupOpen()
         } catch (e) {
-          pm.send('> ui', {
-            method: 'navigate',
-            params: { route: '/' }
-          })
+          pm.send('> ui', { method: 'navigate', params: { route: '/' } })
         }
       }
+      await sessionStorage.set('isOpenExtensionPopupLoading', false)
       break
     }
 
