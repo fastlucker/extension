@@ -343,6 +343,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
     swapApiKey: LI_FI_API_KEY,
+    featureFlags: {},
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
