@@ -6,7 +6,7 @@ import selectors from '../../constants/selectors'
 import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
-test.describe('stability', () => {
+test.describe.only('stability', () => {
   test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams, { shouldUnlockManually: true })
   })
@@ -15,9 +15,7 @@ test.describe('stability', () => {
     await context.close()
   })
 
-  test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async ({
-    pages
-  }) => {
+  test('RPC fail: Should load and refresh portfolio with a bad Polygon RPC', async ({ pages }) => {
     await test.step('block Polygon RPC requests', async () => {
       await pages.stability.blockRouteAndUnlock('**/invictus.ambire.com/polygon')
     })

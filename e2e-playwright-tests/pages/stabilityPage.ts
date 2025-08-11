@@ -11,17 +11,9 @@ import { categorizeRequests } from '../utils/requests'
 import { BasePage } from './basePage'
 
 export class StabilityPage extends BasePage {
-  // page: Page
-
   serviceWorker: any
 
-  // extensionURL: string
-
-
-
   extensionURL: string
-
-  context: BrowserContext
 
   constructor(opts: BootstrapContext) {
     super(opts)
@@ -31,19 +23,6 @@ export class StabilityPage extends BasePage {
   }
 
   collectedRequests: string[] = []
-
-  // async init(param) {
-  //   const { page, serviceWorker, extensionURL, context } = await bootstrapWithStorage(
-  //     'stability',
-  //     param,
-  //     true
-  //   )
-
-  //   this.page = page
-  //   this.context = context
-  //   this.serviceWorker = serviceWorker
-  //   this.extensionURL = extensionURL
-  // }
 
   async unlock() {
     const {
@@ -58,10 +37,6 @@ export class StabilityPage extends BasePage {
       keystoreSecrets
     })
 
-    // await this.page.goto(`${this.extensionURL}/tab.html#/`, { waitUntil: 'load' })
-
-    // await this.page.getByTestId(selectors.passphraseField).fill(KEYSTORE_PASS)
-    // await this.page.getByTestId(selectors.buttonUnlock).click()
     await this.navigateToURL(`${this.extensionURL}/tab.html#/`)
     await this.entertext(selectors.passphraseField, KEYSTORE_PASS)
     await this.click(selectors.buttonUnlock)
