@@ -31,7 +31,12 @@ class LedgerSigner implements KeystoreSignerInterface {
   // @ts-ignore
   init(externalDeviceController?: LedgerController) {
     if (!externalDeviceController) {
-      throw new ExternalSignerError('ledgerSigner: externalDeviceController not initialized')
+      throw (
+        (new ExternalSignerError('ledgerSigner: externalDeviceController not initialized'),
+        {
+          sendCrashReport: true
+        })
+      )
     }
 
     this.controller = externalDeviceController
@@ -40,7 +45,10 @@ class LedgerSigner implements KeystoreSignerInterface {
   #prepareForSigning = async () => {
     if (!this.controller) {
       throw new ExternalSignerError(
-        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
+        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.',
+        {
+          sendCrashReport: true
+        }
       )
     }
 
@@ -50,7 +58,10 @@ class LedgerSigner implements KeystoreSignerInterface {
     // After unlocking, SDK instance should always be present, double-check here
     if (!this.controller.walletSDK) {
       throw new ExternalSignerError(
-        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
+        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.',
+        {
+          sendCrashReport: true
+        }
       )
     }
 
@@ -98,7 +109,12 @@ class LedgerSigner implements KeystoreSignerInterface {
 
       return signedSerializedTxn
     } catch (e: any) {
-      throw new ExternalSignerError(e?.message || 'ledgerSigner: singing failed for unknown reason')
+      throw new ExternalSignerError(
+        e?.message || 'ledgerSigner: singing failed for unknown reason',
+        {
+          sendCrashReport: true
+        }
+      )
     }
   }
 
@@ -116,7 +132,10 @@ class LedgerSigner implements KeystoreSignerInterface {
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
-          'Signing the typed data message failed. Please try again or contact Ambire support if issue persists.'
+          'Signing the typed data message failed. Please try again or contact Ambire support if issue persists.',
+        {
+          sendCrashReport: true
+        }
       )
     }
   }
@@ -138,7 +157,10 @@ class LedgerSigner implements KeystoreSignerInterface {
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
-          'Signing the message failed. Please try again or contact Ambire support if issue persists.'
+          'Signing the message failed. Please try again or contact Ambire support if issue persists.',
+        {
+          sendCrashReport: true
+        }
       )
     }
   }
