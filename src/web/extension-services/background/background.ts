@@ -343,6 +343,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
     swapApiKey: LI_FI_API_KEY,
+    featureFlags: {},
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -922,6 +923,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         }
       }
     })
+    try {
+      setupMainControllerErrorListeners(mainCtrl, ['main'])
+    } catch (error) {
+      console.error('Failed to setup mainControllerErrorListeners')
+    }
   }, 'background')
 
   function setupMainControllerErrorListeners(ctrl: any, ctrlNamePath: any[] = []) {
@@ -960,8 +966,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       }
     }
   }
-
-  setupMainControllerErrorListeners(mainCtrl, ['main'])
 
   // Broadcast onUpdate for the wallet state controller
   walletStateCtrl.onUpdate((forceEmit) => {

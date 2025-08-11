@@ -234,7 +234,10 @@ const open = async (
  * cannot be focused (e.g., on Arc browser). If the window cannot be focused
  * within 1 second, a new window is created and the old one is removed.
  */
-const focus = async (windowProps: WindowProps, params: FocusWindowParams): Promise<WindowProps> => {
+const focus = async (
+  windowProps: WindowProps,
+  params?: FocusWindowParams
+): Promise<WindowProps> => {
   if (!windowProps) throw new Error('windowProps is undefined')
 
   const { id, width, height, createdFromWindowId } = windowProps
