@@ -3,11 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { useModalize } from 'react-native-modalize'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import {
-  SignAccountOpController,
-  SigningStatus
-} from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Key } from '@ambire-common/interfaces/keystore'
+import { ISignAccountOpController } from '@ambire-common/interfaces/signAccountOp'
 import usePrevious from '@common/hooks/usePrevious'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -18,7 +16,7 @@ type Props = {
   handleUpdateStatus: (status: SigningStatus) => void
   handleBroadcast: () => void
   handleUpdate: (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => void
-  signAccountOpState: SignAccountOpController | null
+  signAccountOpState: ISignAccountOpController | null
   isOneClickSign?: boolean
 }
 

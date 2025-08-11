@@ -2,7 +2,7 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
-import { Dapp } from '@ambire-common/interfaces/dapp'
+import { Dapp, IDappsController } from '@ambire-common/interfaces/dapp'
 import { getDappIdFromUrl } from '@ambire-common/libs/dapps/helpers'
 import { isValidURL } from '@ambire-common/services/validations'
 import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
@@ -11,7 +11,7 @@ import useControllerState from '@web/hooks/useControllerState'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 const DappsControllerStateContext = createContext<{
-  state: DappsController
+  state: IDappsController
   currentDapp: Dapp | null
 }>({
   state: {} as DappsController,
@@ -22,7 +22,7 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
   const [currentDapp, setCurrentDapp] = useState<Dapp | null>(null)
   const { dispatch } = useBackgroundService()
   const controller = 'dapps'
-  const state = useControllerState(controller, async (newState: DappsController) => {
+  const state = useControllerState(controller, async (newState: IDappsController) => {
     const tab = await getCurrentTab()
     if (!tab || !tab.id || !tab.url) return
 
