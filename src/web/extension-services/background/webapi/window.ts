@@ -82,7 +82,7 @@ const calculateWindowSizeAndPosition = async (
   if (isSafari()) {
     screenWidth = formatScreenWidth(NOTIFICATION_WINDOW_WIDTH)
     screenHeight = formatScreenHeight(NOTIFICATION_WINDOW_HEIGHT)
-  } else if (browser?.system?.display?.getInfo) {
+  } else if (engine === 'webkit' && browser?.system?.display?.getInfo) {
     const displayInfo = await browser.system.display.getInfo()
     screenWidth = formatScreenWidth(displayInfo?.[0]?.workArea?.width)
     screenHeight = formatScreenHeight(displayInfo?.[0]?.workArea?.height)
