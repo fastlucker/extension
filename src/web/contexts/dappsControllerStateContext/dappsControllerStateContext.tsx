@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { Dapp, IDappsController } from '@ambire-common/interfaces/dapp'
 import { getDappIdFromUrl } from '@ambire-common/libs/dapps/helpers'
 import { isValidURL } from '@ambire-common/services/validations'
@@ -14,7 +13,7 @@ const DappsControllerStateContext = createContext<{
   state: IDappsController
   currentDapp: Dapp | null
 }>({
-  state: {} as DappsController,
+  state: {} as IDappsController,
   currentDapp: null
 })
 
