@@ -46,7 +46,7 @@ export default function useBanners(): [BannerInterface[], BannerInterface[]] {
   const { extensionUpdateBanner } = useExtensionUpdateControllerState()
   const { banners: selectedAccountBanners } = useSelectedAccountControllerState()
 
-  const allBanners = useMemo(() => {
+  const controllerBanners = useMemo(() => {
     return [
       ...deprecatedSmartAccountBanner,
       ...requestBanners,
@@ -74,5 +74,5 @@ export default function useBanners(): [BannerInterface[], BannerInterface[]] {
     firstCashbackBanner
   ])
 
-  return [allBanners, marketingBanners]
+  return [controllerBanners, marketingBanners]
 }
