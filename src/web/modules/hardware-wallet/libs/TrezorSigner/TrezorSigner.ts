@@ -182,10 +182,8 @@ class TrezorSigner implements KeystoreSignerInterface {
 
     if (!res.success)
       throw new ExternalSignerError(
-        getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error),
-        {
-          sendCrashReport: true
-        }
+        // @TODO: Implement a mechanism that reports the error if it's not humanized
+        getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error)
       )
 
     try {
@@ -264,10 +262,8 @@ class TrezorSigner implements KeystoreSignerInterface {
 
     if (!res.success)
       throw new ExternalSignerError(
-        getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error),
-        {
-          sendCrashReport: true
-        }
+        // @TODO: Implement a mechanism that reports the error if it's not humanized
+        getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error)
       )
 
     this.#validateSigningKey(res.payload.address)

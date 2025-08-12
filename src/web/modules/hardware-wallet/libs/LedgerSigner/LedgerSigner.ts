@@ -31,12 +31,9 @@ class LedgerSigner implements KeystoreSignerInterface {
   // @ts-ignore
   init(externalDeviceController?: LedgerController) {
     if (!externalDeviceController) {
-      throw (
-        (new ExternalSignerError('ledgerSigner: externalDeviceController not initialized'),
-        {
-          sendCrashReport: true
-        })
-      )
+      throw new ExternalSignerError('ledgerSigner: externalDeviceController not initialized', {
+        sendCrashReport: true
+      })
     }
 
     this.controller = externalDeviceController
@@ -112,7 +109,9 @@ class LedgerSigner implements KeystoreSignerInterface {
       throw new ExternalSignerError(
         e?.message || 'ledgerSigner: singing failed for unknown reason',
         {
-          sendCrashReport: true
+          // We don't want to send crash reports of expect errors. If the errors is
+          // TypeError, RuntimeError, etc. - we want to send it.
+          sendCrashReport: e instanceof ExternalSignerError ? e.sendCrashReport : true
         }
       )
     }
@@ -134,7 +133,9 @@ class LedgerSigner implements KeystoreSignerInterface {
         e?.message ||
           'Signing the typed data message failed. Please try again or contact Ambire support if issue persists.',
         {
-          sendCrashReport: true
+          // We don't want to send crash reports of expect errors. If the errors is
+          // TypeError, RuntimeError, etc. - we want to send it.
+          sendCrashReport: e instanceof ExternalSignerError ? e.sendCrashReport : true
         }
       )
     }
@@ -159,7 +160,9 @@ class LedgerSigner implements KeystoreSignerInterface {
         e?.message ||
           'Signing the message failed. Please try again or contact Ambire support if issue persists.',
         {
-          sendCrashReport: true
+          // We don't want to send crash reports of expect errors. If the errors is
+          // TypeError, RuntimeError, etc. - we want to send it.
+          sendCrashReport: e instanceof ExternalSignerError ? e.sendCrashReport : true
         }
       )
     }

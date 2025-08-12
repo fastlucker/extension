@@ -30,12 +30,9 @@ class LatticeSigner implements KeystoreSignerInterface {
   // @ts-ignore
   init(externalSignerController?: LatticeController) {
     if (!externalSignerController) {
-      throw (
-        (new ExternalSignerError('latticeSigner: externalSignerController not initialized'),
-        {
-          sendCrashReport: true
-        })
-      )
+      throw new ExternalSignerError('latticeSigner: externalSignerController not initialized', {
+        sendCrashReport: true
+      })
     }
 
     this.controller = externalSignerController
@@ -174,11 +171,13 @@ class LatticeSigner implements KeystoreSignerInterface {
 
       return signedTxn.serialized
     } catch (error: any) {
+      const errorMessage = error?.message || error?.err
+
       throw new ExternalSignerError(
         // An `error.err` message might come from the Lattice .sign() failure
-        error?.message || error?.err || 'latticeSigner: singing failed for unknown reason',
+        errorMessage || 'latticeSigner: singing failed for unknown reason',
         {
-          sendCrashReport: true
+          sendCrashReport: !errorMessage
         }
       )
     }

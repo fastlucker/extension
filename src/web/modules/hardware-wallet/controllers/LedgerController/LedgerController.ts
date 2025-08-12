@@ -413,10 +413,7 @@ class LedgerController implements ExternalSignerController {
   }
 
   async signPersonalMessage(derivationPath: string, messageHex: string) {
-    if (!this.signerEth)
-      throw new ExternalSignerError(normalizeLedgerMessage(), {
-        sendCrashReport: true
-      })
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
     const messageBytes = hexStringToUint8Array(messageHex)
 
@@ -431,10 +428,7 @@ class LedgerController implements ExternalSignerController {
   }
 
   async signTransaction(derivationPath: string, transaction: Uint8Array) {
-    if (!this.signerEth)
-      throw new ExternalSignerError(normalizeLedgerMessage(), {
-        sendCrashReport: true
-      })
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
 
     return this.#handleLedgerSubscription<LedgerSignature>(
       this.signerEth.signTransaction(getHdPathWithoutRoot(derivationPath), transaction).observable,
@@ -458,10 +452,7 @@ class LedgerController implements ExternalSignerController {
     path: string
     signTypedData: TypedMessage
   }) => {
-    if (!this.signerEth)
-      throw new ExternalSignerError(normalizeLedgerMessage(), {
-        sendCrashReport: true
-      })
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
     // TODO: Slight mismatch between TypedMessage type and Ledger's TypedDataDomain
     // for the empty values (string | null | undefined vs string | undefined)
     const ledgerDomain = { ...domain } as TypedDataDomain

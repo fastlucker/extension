@@ -34,7 +34,7 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
-import CONFIG, { isProd } from '@common/config/env'
+import CONFIG, { isDev, isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   LI_FI_API_KEY,
@@ -137,7 +137,10 @@ function stateDebug(
 }
 
 function captureBackgroundExceptionFromControllerError(error: ErrorRef, controllerName: string) {
-  if (!error.sendCrashReport || error.level === 'expected') {
+  if (
+    (typeof error.sendCrashReport === 'boolean' && !error.sendCrashReport) ||
+    error.level === 'expected'
+  ) {
     return
   }
 
@@ -226,6 +229,10 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       beforeSend(event) {
         // We don't want to miss errors that occur before the controllers are initialized
         if (!walletStateCtrl) return event
+
+        if (isDev) {
+          console.log(`Sentry event captured in background: ${event.event_id}`, event)
+        }
 
         // If the Sentry is disabled, we don't send any events
         return walletStateCtrl.crashAnalyticsEnabled ? event : null
