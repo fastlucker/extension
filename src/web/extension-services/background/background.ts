@@ -16,7 +16,7 @@ import {
   ACTIVITY_REFRESH_INTERVAL,
   UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
 } from '@ambire-common/consts/intervals'
-import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
@@ -32,7 +32,7 @@ import {
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
-import CONFIG, { isProd } from '@common/config/env'
+import CONFIG, { isDev, isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   LI_FI_API_KEY,
@@ -134,6 +134,21 @@ function stateDebug(
   logInfoWithPrefix(key, debugLogs)
 }
 
+function captureBackgroundExceptionFromControllerError(error: ErrorRef, controllerName: string) {
+  if (
+    (typeof error.sendCrashReport === 'boolean' && !error.sendCrashReport) ||
+    error.level === 'expected'
+  ) {
+    return
+  }
+
+  captureBackgroundException(error.error, {
+    extra: {
+      controllerName
+    }
+  })
+}
+
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 let walletStateCtrl: WalletStateController
@@ -213,6 +228,10 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         // We don't want to miss errors that occur before the controllers are initialized
         if (!walletStateCtrl) return event
 
+        if (isDev) {
+          console.log(`Sentry event captured in background: ${event.event_id}`, event)
+        }
+
         // If the Sentry is disabled, we don't send any events
         return walletStateCtrl.crashAnalyticsEnabled ? event : null
       }
@@ -289,6 +308,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   const latticeCtrl = new LatticeController()
 
   // Extension-specific additional trackings
+  // @ts-ignore
   const fetchWithAnalytics: Fetch = (url, init) => {
     // As of v4.26.0, custom extension-specific headers. TBD for the other apps.
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
@@ -331,6 +351,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
     // which already provides a native and well-optimized fetch API.
+    // @ts-ignore
     return fetch(url, initWithCustomHeaders)
   }
 
@@ -360,7 +381,10 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         if (winId === 'popup') {
           return new Promise((resolve) => {
             const popupPort = pm.ports.find((p) => p.name === 'popup')
-            if (!popupPort) return resolve()
+            if (!popupPort) {
+              resolve()
+              return
+            }
 
             const timeout = setTimeout(() => {
               resolve()
@@ -889,12 +913,13 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       const hasOnErrorInitialized = ctrl.onErrorIds.includes('background')
 
       if (!hasOnErrorInitialized) {
-        ctrl.onError(() => {
+        ctrl.onError((error) => {
           stateDebug(walletStateCtrl.logLevel, ctrl, ctrlName, 'error')
           pm.send('> ui-error', {
             method: ctrlName,
             params: { errors: ctrl.emittedErrors, controller: ctrlName }
           })
+          captureBackgroundExceptionFromControllerError(error, ctrlName)
         }, 'background')
       }
     }
@@ -927,22 +952,24 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       forceEmit
     )
   })
-  walletStateCtrl.onError(() => {
+  walletStateCtrl.onError((error) => {
     pm.send('> ui-error', {
       method: 'walletState',
       params: { errors: walletStateCtrl.emittedErrors, controller: 'walletState' }
     })
+    captureBackgroundExceptionFromControllerError(error, 'walletState')
   })
 
   // Broadcast onUpdate for the auto-lock controller
   autoLockCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick('autoLock', autoLockCtrl, autoLockCtrl, forceEmit)
   })
-  autoLockCtrl.onError(() => {
+  autoLockCtrl.onError((error) => {
     pm.send('> ui-error', {
       method: 'autoLock',
       params: { errors: autoLockCtrl.emittedErrors, controller: 'autoLock' }
     })
+    captureBackgroundExceptionFromControllerError(error, 'autoLock')
   })
 
   // Broadcast onUpdate for the extension-update controller
@@ -954,11 +981,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       forceEmit
     )
   })
-  extensionUpdateCtrl.onError(() => {
+  extensionUpdateCtrl.onError((error) => {
     pm.send('> ui-error', {
       method: 'extensionUpdate',
       params: { errors: extensionUpdateCtrl.emittedErrors, controller: 'extensionUpdate' }
     })
+    captureBackgroundExceptionFromControllerError(error, 'extensionUpdate')
   })
 
   // listen for messages from UI
