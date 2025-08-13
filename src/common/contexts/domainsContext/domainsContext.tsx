@@ -2,14 +2,15 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
+import { IDomainsController } from '@ambire-common/interfaces/domains'
 import { getRpcProvider } from '@ambire-common/services/provider'
 
 const DomainsContext = createContext<{
-  state: DomainsController
-  domainsCtrl: DomainsController
+  state: IDomainsController
+  domainsCtrl: IDomainsController
 }>({
-  state: {} as DomainsController,
-  domainsCtrl: {} as DomainsController
+  state: {} as IDomainsController,
+  domainsCtrl: {} as IDomainsController
 })
 
 const providers = networks.reduce(
@@ -23,7 +24,7 @@ const providers = networks.reduce(
 const domainsCtrl = new DomainsController(providers)
 
 const DomainsContextProvider: React.FC<any> = ({ children }) => {
-  const [state, setState] = useState<DomainsController>(domainsCtrl)
+  const [state, setState] = useState<IDomainsController>(domainsCtrl)
 
   useEffect(() => {
     if (!domainsCtrl) return

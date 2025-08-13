@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect } from 'react'
 
-import { RequestsController } from '@ambire-common/controllers/requests/requests'
+import { IRequestsController } from '@ambire-common/interfaces/requests'
 import useDeepMemo from '@common/hooks/useDeepMemo'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
@@ -9,7 +9,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-const RequestsControllerStateContext = createContext<RequestsController>({} as RequestsController)
+const RequestsControllerStateContext = createContext<IRequestsController>({} as IRequestsController)
 
 const RequestsControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'requests'
