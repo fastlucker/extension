@@ -3,25 +3,28 @@
 //
 import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
 
-setupBridgeMessengerRelay()
+// Run the bridge + reactivation only in the top frame (skip iframes)
+if (window.top === window) {
+  setupBridgeMessengerRelay()
 
-let lastMoveTime = 0
-const MOVE_INTERVAL = 1000
+  let lastMoveTime = 0
+  const MOVE_INTERVAL = 1000
 
-// when the background is inactive this mechanism will reactivate it
-const reactivateBackground = () => {
-  const now = Date.now()
+  // when the background is inactive this mechanism will reactivate it
+  const reactivateBackground = () => {
+    const now = Date.now()
 
-  if (now - lastMoveTime > MOVE_INTERVAL) {
-    lastMoveTime = now
-    if (!chrome?.runtime?.id) {
-      document.removeEventListener('mousemove', reactivateBackground)
-      return
+    if (now - lastMoveTime > MOVE_INTERVAL) {
+      lastMoveTime = now
+      if (!chrome?.runtime?.id) {
+        document.removeEventListener('mousemove', reactivateBackground)
+        return
+      }
+
+      chrome.runtime.sendMessage('mouseMoved').catch(() => {
+        // Service worker might be inactive; this error is expected.
+      })
     }
-
-    chrome.runtime.sendMessage('mouseMoved').catch(() => {
-      // Service worker might be inactive; this error is expected.
-    })
   }
+  document.addEventListener('mousemove', reactivateBackground)
 }
-document.addEventListener('mousemove', reactivateBackground)
