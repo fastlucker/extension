@@ -13,9 +13,7 @@ import {
   ACCOUNT_STATE_PENDING_INTERVAL,
   ACCOUNT_STATE_STAND_BY_INTERVAL,
   ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL,
-  ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
   ACTIVITY_REFRESH_INTERVAL,
-  INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
   UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
 } from '@ambire-common/consts/intervals'
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
@@ -382,7 +380,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       },
       sendWindowUiMessage: (params) => {
         pm.send('> ui', { method: 'receiveOneTimeData', params })
-      }
+      },
+      getNumberOfOpenedWindows: () => pm.ports.length
     },
     notificationManager
   })
@@ -439,54 +438,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   scheduleNetworkSync()
-
-  async function initPortfolioContinuousUpdate() {
-    if (backgroundState.updatePortfolioInterval)
-      clearTimeout(backgroundState.updatePortfolioInterval)
-
-    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-    const updateInterval = isExtensionActive
-      ? ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
-      : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
-
-    async function updatePortfolio() {
-      // Postpone the portfolio update for the next interval
-      // if we have broadcasted but not yet confirmed acc op.
-      // Here's why:
-      // 1. On the Dashboard, we show a pending-to-be-confirmed token badge
-      //    if an acc op has been broadcasted but is still unconfirmed.
-      // 2. To display the expected balance change, we calculate it from the portfolio's pending simulation state.
-      // 3. When we sign and broadcast the acc op, we remove it from the Main controller.
-      // 4. If we trigger a portfolio update at this point, we will lose the pending simulation state.
-      // 5. Therefore, to ensure the badge is displayed, we pause the portfolio update temporarily.
-      //    Once the acc op is confirmed or failed, the portfolio interval will resume as normal.
-      // 6. Gotcha: If the user forcefully updates the portfolio, we will also lose the simulation.
-      //    However, this is not a frequent case, and we can make a compromise here.
-      if (mainCtrl.activity.broadcastedButNotConfirmed.length) {
-        backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
-        return
-      }
-
-      await mainCtrl.updateSelectedAccountPortfolio()
-
-      backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
-      // Schedule the next update only when the previous one completes
-      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
-    }
-
-    const isAtLeastOnePortfolioUpdateMissed =
-      Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
-      INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
-
-    // If the extension is inactive and the last update was missed, update the portfolio immediately
-    if (isAtLeastOnePortfolioUpdateMissed) {
-      clearTimeout(backgroundState.updatePortfolioInterval)
-      await updatePortfolio()
-    } else {
-      // Start the first update
-      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
-    }
-  }
 
   async function initDefiPositionsContinuousUpdate() {
     async function updateDefiPositions() {
@@ -1016,8 +967,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
+      mainCtrl.windowManager.addView({ id: port.id, type: port.name })
 
-      initPortfolioContinuousUpdate()
       initDefiPositionsContinuousUpdate()
 
       mainCtrl.phishing.updateIfNeeded()
@@ -1078,7 +1029,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)
         pm.removePort(port.id)
-        initPortfolioContinuousUpdate()
+        mainCtrl.windowManager.removeView(port.id)
+
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup
@@ -1099,7 +1051,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     }
   })
 
-  initPortfolioContinuousUpdate()
   await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
