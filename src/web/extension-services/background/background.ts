@@ -21,7 +21,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { WindowManager } from '@ambire-common/interfaces/window'
+import { UiManager } from '@ambire-common/interfaces/ui'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -304,7 +304,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   const pm = new PortMessenger()
   const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController(windowManager as WindowManager)
+  const trezorCtrl = new TrezorController(windowManager as UiManager['window'])
   const latticeCtrl = new LatticeController()
 
   // Extension-specific additional trackings
@@ -375,39 +375,46 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       trezor: trezorCtrl,
       lattice: latticeCtrl
     } as any,
-    windowManager: {
-      ...windowManager,
-      remove: async (winId: number | 'popup') => {
-        if (winId === 'popup') {
-          return new Promise((resolve) => {
-            const popupPort = pm.ports.find((p) => p.name === 'popup')
-            if (!popupPort) {
-              resolve()
-              return
-            }
+    uiManager: {
+      window: {
+        ...windowManager,
+        remove: async (winId: number | 'popup') => {
+          if (winId === 'popup') {
+            return new Promise((resolve) => {
+              const popupPort = pm.ports.find((p) => p.name === 'popup')
+              if (!popupPort) {
+                resolve()
+                return
+              }
 
-            const timeout = setTimeout(() => {
-              resolve()
-            }, 1500)
+              const timeout = setTimeout(() => {
+                resolve()
+              }, 1500)
 
-            popupPort.onDisconnect.addListener(() => {
-              clearTimeout(timeout)
-              resolve()
+              popupPort.onDisconnect.addListener(() => {
+                clearTimeout(timeout)
+                resolve()
+              })
+              pm.send('> ui', { method: 'closePopup', params: {} })
             })
-            pm.send('> ui', { method: 'closePopup', params: {} })
-          })
+          }
+          await windowManager.remove(winId, pm)
         }
-        await windowManager.remove(winId, pm)
       },
-      sendWindowToastMessage: (text, options) => {
-        pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
-      },
-      sendWindowUiMessage: (params) => {
-        pm.send('> ui', { method: 'receiveOneTimeData', params })
-      },
-      getNumberOfOpenedWindows: () => pm.ports.length
-    },
-    notificationManager
+      notification: notificationManager,
+      message: {
+        sendToastMessage: (text, options) => {
+          pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
+        },
+        sendUiMessage: (params) => {
+          pm.send('> ui', { method: 'receiveOneTimeData', params })
+        },
+        sendNavigateMessage: () => {
+          // TODO:
+          // pm.send('> ui-navigate', ...)
+        }
+      }
+    }
   })
 
   walletStateCtrl = new WalletStateController({
