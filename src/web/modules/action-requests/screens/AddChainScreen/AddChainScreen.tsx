@@ -193,6 +193,29 @@ const AddChainScreen = () => {
     })
   }, [dappAction, dispatch])
 
+  const handleUpdateNetwork = useCallback(() => {
+    if (!networkDetails) return
+    actionButtonPressedRef.current = true
+
+    const matchedNetwork = networks.find((n) => n.chainId === networkDetails.chainId)
+    if (!matchedNetwork?.rpcUrls) return
+
+    const updatedRpcUrls = matchedNetwork.rpcUrls.filter(
+      (url) => url !== networkDetails.selectedRpcUrl
+    )
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+      params: {
+        network: {
+          rpcUrls: Array.from(new Set([...networkDetails.rpcUrls, ...updatedRpcUrls])),
+          selectedRpcUrl: networkDetails.selectedRpcUrl
+        },
+        chainId: networkDetails.chainId
+      }
+    })
+  }, [dispatch, networkDetails, networks])
+
   const handlePrimaryButtonPress = useCallback(() => {
     if (!networkDetails) return
     actionButtonPressedRef.current = true
@@ -246,18 +269,21 @@ const AddChainScreen = () => {
       }
       footer={
         networkAlreadyAdded ? (
-          <View style={flexbox.flex1}>
-            <Button
-              testID="added-network-close-button"
-              style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
-              size="large"
-              hasBottomSpacing={false}
-              onPress={handleCloseOnAlreadyAdded}
-              text={t('Close')}
-              type="primary"
-              disabled={statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'}
-            />
-          </View>
+          <ActionFooter
+            onReject={handleCloseOnAlreadyAdded}
+            onResolve={handleUpdateNetwork}
+            resolveButtonText={t('Update network RPC')}
+            rejectButtonText={t('Reject')}
+            resolveDisabled={
+              !areParamsValid ||
+              statuses.addNetwork === 'LOADING' ||
+              statuses.updateNetwork === 'LOADING' ||
+              (features &&
+                (features.some((f) => f.level === 'loading') ||
+                  !!features.filter((f) => f.id === 'flagged')[0])) ||
+              actionButtonPressedRef.current
+            }
+          />
         ) : (
           <ActionFooter
             onReject={handleDenyButtonPress}
