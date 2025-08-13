@@ -967,7 +967,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-      mainCtrl.windowManager.addView({ id: port.id, type: port.name })
+      mainCtrl.ui.addView({ id: port.id, type: port.name })
 
       initDefiPositionsContinuousUpdate()
 
@@ -1029,7 +1029,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)
         pm.removePort(port.id)
-        mainCtrl.windowManager.removeView(port.id)
+        mainCtrl.ui.removeView(port.id)
 
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
