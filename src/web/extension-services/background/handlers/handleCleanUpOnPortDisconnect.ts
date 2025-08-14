@@ -1,8 +1,8 @@
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ONBOARDING_WEB_ROUTES } from '@common/modules/router/constants/common'
 import { IS_FIREFOX } from '@web/constants/common'
 import { Port } from '@web/extension-services/messengers'
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 
 export const handleCleanUpOnPortDisconnect = async ({
   port,
@@ -83,9 +83,16 @@ export const handleCleanUpOnPortDisconnect = async ({
     // eslint-disable-next-line no-param-reassign
     mainCtrl.transfer.shouldTrackLatestBroadcastedAccountOp = shouldTrack
 
-    // We reset the form state without destroying the signAccountOp,
-    // since it's still needed for broadcasting. Once broadcasting completes, we destroy the signAccountOp.
-    if (!shouldTrack) {
+    // Reset the form only if the transfer is being signed/broadcasted OR
+    // it has already been broadcasted and the user closed the popup.
+    // This is done to prevent the form from being reset when the user closes the popup
+    if (
+      (mainCtrl.transfer.latestBroadcastedAccountOp ||
+        mainCtrl.statuses.signAndBroadcastAccountOp !== 'INITIAL') &&
+      !shouldTrack
+    ) {
+      // We reset the form state without destroying the signAccountOp,
+      // since it's still needed for broadcasting. Once broadcasting completes, we destroy the signAccountOp.
       mainCtrl.transfer.resetForm(false)
     }
 
