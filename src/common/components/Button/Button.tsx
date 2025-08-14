@@ -24,7 +24,7 @@ type ButtonTypes =
   | 'warning'
   | 'info'
   | 'info2'
-  | 'infoWarning'
+  | 'info3'
   | 'success'
   | 'gray'
 
@@ -99,7 +99,7 @@ const ButtonInnerContainer = ({
       info2: [],
       success: [],
       gray: [],
-      infoWarning: []
+      info3: []
     }),
     [themeType, theme]
   )
@@ -225,11 +225,11 @@ const Button = ({
       warning: [OPACITY_ANIMATION],
       info: [OPACITY_ANIMATION],
       info2: [OPACITY_ANIMATION],
-      infoWarning: [
+      info3: [
         {
           property: 'backgroundColor',
-          from: `${String(theme.infoWarningButton)}`,
-          to: theme.infoWarningButtonHover
+          from: `${String(theme.info3Button)}`,
+          to: theme.info3ButtonHover
         }
       ],
       success: [OPACITY_ANIMATION],
@@ -286,8 +286,8 @@ const Button = ({
       backgroundColor: theme.info2Text,
       borderWidth: 0
     },
-    infoWarning: {
-      backgroundColor: theme.infoWarningButton,
+    info3: {
+      backgroundColor: theme.info3Button,
       borderWidth: 0
     },
     success: {
@@ -382,14 +382,7 @@ const Button = ({
           to: theme.primaryBackground
         }
       ],
-      infoWarning: [
-        {
-          property: 'color',
-          from: theme.primaryBackground,
-          to: theme.primaryBackground
-        }
-      ],
-      infoWarning2: [
+      info3: [
         {
           property: 'color',
           from: theme.primaryBackground,

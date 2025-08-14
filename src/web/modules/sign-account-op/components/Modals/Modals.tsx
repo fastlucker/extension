@@ -74,7 +74,6 @@ const Modals: FC<Props> = ({
             secondaryButtonText={t('Cancel')}
             onPrimaryButtonPress={acknowledgeWarning}
             onSecondaryButtonPress={dismissWarning}
-            reverse={warningToPromptBeforeSign?.reverse}
             type={warningToPromptBeforeSign?.type}
           />
         )}

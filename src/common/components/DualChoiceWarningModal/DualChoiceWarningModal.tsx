@@ -13,7 +13,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
 
-type Type = 'error' | 'warning' | 'infoWarning'
+type Type = 'error' | 'warning' | 'info3'
 
 const DEFAULT_TYPE = 'warning'
 
@@ -33,7 +33,7 @@ const TitleAndIcon = ({
   style?: ViewStyle
 }) => {
   const { styles, theme } = useTheme(getStyles)
-  const Icon = type === 'error' ? ErrorIcon : type === 'infoWarning' ? InfoIcon : WarningIcon
+  const Icon = type === 'error' ? ErrorIcon : type === 'info3' ? InfoIcon : WarningIcon
 
   return (
     <View style={[styles.titleAndIcon, style]}>
@@ -66,7 +66,7 @@ const ButtonWrapper = ({
   reverse = false
 }: {
   children: React.ReactNode
-  reverse?: boolean
+  reverse: boolean
 }) => {
   const { styles } = useTheme(getStyles)
 
@@ -83,8 +83,7 @@ const DualChoiceWarningModal = ({
   secondaryButtonText,
   primaryButtonProps,
   secondaryButtonProps,
-  type = DEFAULT_TYPE,
-  reverse = false
+  type = DEFAULT_TYPE
 }: Omit<DualChoiceModalProps, 'description' | 'primaryButtonTestID' | 'secondaryButtonTestID'> & {
   title: string
   description?: string
@@ -92,7 +91,6 @@ const DualChoiceWarningModal = ({
   primaryButtonProps?: ButtonProps
   secondaryButtonProps?: ButtonProps
   type?: Type
-  reverse?: boolean
 }) => {
   const { theme } = useTheme()
 
@@ -103,7 +101,7 @@ const DualChoiceWarningModal = ({
         {!!description && <Text text={description} />}
         {children}
       </ContentWrapper>
-      <ButtonWrapper reverse={reverse}>
+      <ButtonWrapper reverse={type === 'info3'}>
         <Button
           text={primaryButtonText}
           onPress={onPrimaryButtonPress}

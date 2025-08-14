@@ -131,6 +131,27 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: '#70B4FF1F',
     [THEME_TYPES.LIGHT]: '#0079FF14'
   },
+  // Info 3
+  info3Text: {
+    [THEME_TYPES.DARK]: '#ffffff',
+    [THEME_TYPES.LIGHT]: '#54597A'
+  },
+  info3Decorative: {
+    [THEME_TYPES.DARK]: '#70B4FF',
+    [THEME_TYPES.LIGHT]: '#0079ff'
+  },
+  info3Background: {
+    [THEME_TYPES.DARK]: '#2A323D',
+    [THEME_TYPES.LIGHT]: '#EBF4FF'
+  },
+  info3Button: {
+    [THEME_TYPES.DARK]: '#70B4FF',
+    [THEME_TYPES.LIGHT]: '#0750A1'
+  },
+  info3ButtonHover: {
+    [THEME_TYPES.DARK]: '#7CB5F2',
+    [THEME_TYPES.LIGHT]: '#0F6DD2'
+  },
   // Warning
   warningText: {
     [THEME_TYPES.DARK]: '#FFD970',
@@ -147,27 +168,6 @@ const ThemeColors = {
   warningBackground: {
     [THEME_TYPES.DARK]: '#29251c',
     [THEME_TYPES.LIGHT]: '#FBF5EB'
-  },
-  // Info Warning
-  infoWarningText: {
-    [THEME_TYPES.DARK]: '#ffffff',
-    [THEME_TYPES.LIGHT]: '#54597A'
-  },
-  infoWarningDecorative: {
-    [THEME_TYPES.DARK]: '#70B4FF',
-    [THEME_TYPES.LIGHT]: '#0079ff'
-  },
-  infoWarningBackground: {
-    [THEME_TYPES.DARK]: '#2A323D',
-    [THEME_TYPES.LIGHT]: '#EBF4FF'
-  },
-  infoWarningButton: {
-    [THEME_TYPES.DARK]: '#70B4FF',
-    [THEME_TYPES.LIGHT]: '#0750A1'
-  },
-  infoWarningButtonHover: {
-    [THEME_TYPES.DARK]: '#7CB5F2',
-    [THEME_TYPES.LIGHT]: '#0F6DD2'
   },
   // Error
   errorText: {
