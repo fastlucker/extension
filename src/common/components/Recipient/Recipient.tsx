@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { ITransferController } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { findAccountDomainFromPartialDomain } from '@ambire-common/utils/domains'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
@@ -41,7 +41,7 @@ interface Props extends InputProps {
   addressValidationMsg: string
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
   isRecipientAddressUnknown: boolean
-  isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
+  isRecipientAddressUnknownAgreed: ITransferController['isRecipientAddressUnknownAgreed']
   onRecipientCheckboxClick: () => void
   validation: AddressValidation
   isRecipientDomainResolving: boolean

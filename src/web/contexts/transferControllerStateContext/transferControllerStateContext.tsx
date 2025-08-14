@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { ITransferController } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { sortPortfolioTokenList } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
@@ -12,7 +12,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 type ContextReturn = {
-  state: TransferController
+  state: ITransferController
   tokens: TokenResult[]
 }
 
