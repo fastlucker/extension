@@ -119,7 +119,10 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
-    globalDispatch({ type: 'UPDATE_PORT_URL', params: { url } })
+    globalDispatch({
+      type: 'UPDATE_PORT_URL',
+      params: { url, route: route.pathname?.substring(1) || '/' }
+    })
   }, [route])
 
   useEffect(() => {
