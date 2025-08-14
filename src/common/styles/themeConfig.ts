@@ -148,6 +148,27 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: '#29251c',
     [THEME_TYPES.LIGHT]: '#FBF5EB'
   },
+  // Info Warning
+  infoWarningText: {
+    [THEME_TYPES.DARK]: '#ffffff',
+    [THEME_TYPES.LIGHT]: '#54597A'
+  },
+  infoWarningDecorative: {
+    [THEME_TYPES.DARK]: '#70B4FF',
+    [THEME_TYPES.LIGHT]: '#0079ff'
+  },
+  infoWarningBackground: {
+    [THEME_TYPES.DARK]: '#2A323D',
+    [THEME_TYPES.LIGHT]: '#EBF4FF'
+  },
+  infoWarningButton: {
+    [THEME_TYPES.DARK]: '#70B4FF',
+    [THEME_TYPES.LIGHT]: '#0750A1'
+  },
+  infoWarningButtonHover: {
+    [THEME_TYPES.DARK]: '#7CB5F2',
+    [THEME_TYPES.LIGHT]: '#0F6DD2'
+  },
   // Error
   errorText: {
     [THEME_TYPES.DARK]: '#FF7089',
