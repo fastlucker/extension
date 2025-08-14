@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { ErrorRef } from '@ambire-common/interfaces/eventEmitter'
 import { ToastOptions } from '@common/contexts/toastContext'
 import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
 import useNavigation from '@common/hooks/useNavigation'
