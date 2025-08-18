@@ -199,7 +199,8 @@ export const handleActions = async (
         params.secret,
         params.key,
         params.salt,
-        params.iv
+        params.iv,
+        params.associatedKeys
       )
     }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {

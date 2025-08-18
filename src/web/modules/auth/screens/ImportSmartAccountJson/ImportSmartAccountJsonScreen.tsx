@@ -291,7 +291,7 @@ const SmartAccountImportScreen = () => {
 
   const onPasswordSubmitted = (password?: string) => {
     // shouldn't happen
-    if (!encryptedKey) return
+    if (!encryptedKey || !accountToImport) return
 
     dispatch({
       type: 'KEYSTORE_CONTROLLER_SEND_JSON_DECRYPTED_PRIVATE_KEY_TO_UI',
@@ -299,7 +299,8 @@ const SmartAccountImportScreen = () => {
         secret: password,
         key: encryptedKey.key,
         salt: encryptedKey.salt,
-        iv: encryptedKey.iv
+        iv: encryptedKey.iv,
+        associatedKeys: accountToImport.associatedKeys
       }
     })
   }

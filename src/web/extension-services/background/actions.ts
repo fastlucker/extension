@@ -455,7 +455,7 @@ type KeystoreControllerSendEncryptedPrivateKeyToUiAction = {
 }
 type KeystoreControllerSendJsonDecryptedPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_JSON_DECRYPTED_PRIVATE_KEY_TO_UI'
-  params: { secret: string; key: string; salt: string; iv: string }
+  params: { secret: string; key: string; salt: string; iv: string; associatedKeys: string[] }
 }
 type KeystoreControllerDeleteSeedAction = {
   type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
