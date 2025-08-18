@@ -287,7 +287,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   )
 
   const addressInputState = useAddressInput({
-    addressState,
+    addressState: {
+      ...addressState,
+      fieldValue: addressStateFieldValue
+    },
     setAddressState,
     overwriteError:
       state?.isInitialized && !validationFormMsgs.recipientAddress.success

@@ -1,15 +1,15 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
+import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
+import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import {
   AccountOpAction,
   ActionExecutionType,
   Action as ActionFromActionsQueue,
   ActionPosition,
   OpenActionWindowParams
-} from '@ambire-common/controllers/actions/actions'
-import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
-import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
-import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
+} from '@ambire-common/interfaces/actions'
 import { Banner } from '@ambire-common/interfaces/banner'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
