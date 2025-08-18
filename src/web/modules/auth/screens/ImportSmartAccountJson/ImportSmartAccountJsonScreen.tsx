@@ -145,16 +145,16 @@ const validateJson = (json: ImportedJson): { error?: string; success: boolean } 
     }
   }
 
-  if (!json.encryptedKey) {
+  if (!json.encryptedKey || !isHexString(json.encryptedKey)) {
     return {
-      error: 'Key missing in provided json.',
+      error: 'Invalid key in provided json.',
       success: false
     }
   }
 
-  if (!json.salt || !json.iv) {
+  if (!json.salt || !json.iv || !isHexString(json.salt) || !isHexString(json.encryptedKey)) {
     return {
-      error: 'Encryption information missing in provided json.',
+      error: 'Invalid encryption information in provided json.',
       success: false
     }
   }
@@ -289,7 +289,7 @@ const SmartAccountImportScreen = () => {
     []
   )
 
-  const onPasswordSubmitted = (password?: string) => {
+  const onPasswordSubmitted = (password: string) => {
     // shouldn't happen
     if (!encryptedKey || !accountToImport) return
 
@@ -398,7 +398,10 @@ const SmartAccountImportScreen = () => {
             )}
             onPasswordConfirmed={() => closeConfirmKeyPassword()}
             onSubmit={onPasswordSubmitted}
-            onBackButtonPress={closeConfirmKeyPassword}
+            onBackButtonPress={() => {
+              closeConfirmKeyPassword()
+              setIsLoading(false)
+            }}
           />
         </BottomSheet>
       </TabLayoutWrapperMainContent>
