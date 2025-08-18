@@ -17,7 +17,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 interface Props {
-  onPasswordConfirmed: () => void
+  onPasswordConfirmed: (password?: string) => void
   onBackButtonPress: () => void
   text: string
 }
@@ -65,17 +65,20 @@ const PasswordConfirmation: React.FC<Props> = ({
     }
   })
 
+  const passwordFieldValue = watch('password')
+
   useEffect(() => {
     if (keystoreState.errorMessage) setError('password', { message: keystoreState.errorMessage })
     else if (keystoreState.statuses.unlockWithSecret === 'SUCCESS') {
-      onPasswordConfirmed()
+      onPasswordConfirmed(passwordFieldValue)
     }
   }, [
     keystoreState.errorMessage,
     keystoreState.statuses.unlockWithSecret,
     setError,
     dispatch,
-    onPasswordConfirmed
+    onPasswordConfirmed,
+    passwordFieldValue
   ])
 
   const handleUnlock = useCallback(
@@ -87,8 +90,6 @@ const PasswordConfirmation: React.FC<Props> = ({
     },
     [dispatch]
   )
-
-  const passwordFieldValue = watch('password')
 
   const passwordFieldError: string | undefined = useMemo(() => {
     if (!errors.password) return undefined

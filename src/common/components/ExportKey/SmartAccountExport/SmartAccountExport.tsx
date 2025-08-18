@@ -12,11 +12,20 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Props {
   account: Account
   privateKey: string | null
+  salt: string | null
+  iv: string | null
   openConfirmPassword: () => void
   goBack: () => void
 }
 
-const SmartAccountExport: FC<Props> = ({ account, privateKey, openConfirmPassword, goBack }) => {
+const SmartAccountExport: FC<Props> = ({
+  account,
+  privateKey,
+  openConfirmPassword,
+  goBack,
+  salt,
+  iv
+}) => {
   const { t } = useTranslation()
   const [downloadButtonPressed, setDownloadButtonPressed] = useState(false)
 
@@ -27,9 +36,11 @@ const SmartAccountExport: FC<Props> = ({ account, privateKey, openConfirmPasswor
       creation: account.creation,
       initialPrivileges: account.initialPrivileges,
       preferences: account.preferences,
-      privateKey
+      encryptedKey: privateKey,
+      salt,
+      iv
     }),
-    [account, privateKey]
+    [account, privateKey, salt, iv]
   )
 
   useEffect(() => {
