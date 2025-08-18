@@ -20,12 +20,16 @@ interface Props {
   onPasswordConfirmed: (password?: string) => void
   onBackButtonPress: () => void
   text: string
+  title?: string
+  onSubmit?: (password: string) => void
 }
 
 const PasswordConfirmation: React.FC<Props> = ({
   onPasswordConfirmed,
   onBackButtonPress,
-  text
+  text,
+  title = 'Confirm extension password',
+  onSubmit
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -83,12 +87,17 @@ const PasswordConfirmation: React.FC<Props> = ({
 
   const handleUnlock = useCallback(
     (data: { password: string }) => {
+      if (onSubmit) {
+        onSubmit(data.password)
+        return
+      }
+
       dispatch({
         type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET',
         params: { secretId: 'password', secret: data.password }
       })
     },
-    [dispatch]
+    [dispatch, onSubmit]
   )
 
   const passwordFieldError: string | undefined = useMemo(() => {
@@ -105,7 +114,7 @@ const PasswordConfirmation: React.FC<Props> = ({
     <View style={flexbox.flex1}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
         <PanelBackButton onPress={onBackButtonPress} style={spacings.mrSm} />
-        <PanelTitle title={t('Confirm extension password')} style={textStyles.left} />
+        <PanelTitle title={t(title)} style={textStyles.left} />
       </View>
       <Controller
         control={control}

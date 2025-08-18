@@ -25,9 +25,21 @@ import {
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
+import BottomSheet from '@common/components/BottomSheet'
+import { THEME_TYPES } from '@common/styles/themeConfig'
+import eventBus from '@web/extension-services/event/eventBus'
+import PasswordConfirmation from '@web/modules/settings/components/PasswordConfirmation'
+import { useModalize } from 'react-native-modalize'
 import getStyles from './styles'
 
-type ImportedJson = Account & { privateKey: string; creation: AccountCreation; id?: string }
+type ImportedJson = Account & {
+  privateKey?: string
+  creation: AccountCreation
+  id?: string
+  encryptedKey?: string
+  salt?: string
+  iv?: string
+}
 
 const validateJson = (json: ImportedJson): { error?: string; success: boolean } => {
   if ('id' in json && isAddress(json.id)) {
@@ -110,17 +122,39 @@ const validateJson = (json: ImportedJson): { error?: string; success: boolean } 
     }
   }
 
-  if (!('privateKey' in json) || !isValidPrivateKey(json.privateKey)) {
+  // @backwards-compatibility
+  // for old jsons that have an unencrypted private key in them
+  if (json.privateKey) {
+    if (!isValidPrivateKey(json.privateKey)) {
+      return {
+        error: 'Invalid privateKey in provided json.',
+        success: false
+      }
+    }
+
+    if (computeAddress(json.privateKey) !== getAddress(json.associatedKeys[0])) {
+      return {
+        error:
+          'PrivateKey and associatedKey address mismatch. Are you providing the correct private key?',
+        success: false
+      }
+    }
+
     return {
-      error: 'Invalid privateKey in provided json.',
+      success: true
+    }
+  }
+
+  if (!json.encryptedKey) {
+    return {
+      error: 'Key missing in provided json.',
       success: false
     }
   }
 
-  if (computeAddress(json.privateKey) !== getAddress(json.associatedKeys[0])) {
+  if (!json.salt || !json.iv) {
     return {
-      error:
-        'PrivateKey and associatedKey address mismatch. Are you providing the correct private key?',
+      error: 'Encryption information missing in provided json.',
       success: false
     }
   }
@@ -132,14 +166,63 @@ const validateJson = (json: ImportedJson): { error?: string; success: boolean } 
 
 const SmartAccountImportScreen = () => {
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme, styles, themeType } = useTheme(getStyles)
   const [error, setError] = useState('')
+  const [accountToImport, setAccountToImport] = useState<Account | null>(null)
+  const [privateKey, setPrivateKey] = useState<string | null>(null)
+  const [encryptedKey, setEncryptedKey] = useState<{
+    key: string
+    salt: string
+    iv: string
+  } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { dispatch } = useBackgroundService()
 
   const { accounts } = useAccountsControllerState()
   const newAccounts: Account[] = useMemo(() => accounts.filter((a) => a.newlyAdded), [accounts])
   const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
+
+  const {
+    ref: sheetRefConfirmKeyPassword,
+    open: openConfirmKeyPassword,
+    close: closeConfirmKeyPassword
+  } = useModalize()
+
+  useEffect(() => {
+    const onReceiveOneTimeData = (data: any) => {
+      if (!data.privateKey) return
+
+      setPrivateKey(data.privateKey)
+    }
+
+    eventBus.addEventListener('receiveOneTimeData', onReceiveOneTimeData)
+
+    return () => eventBus.removeEventListener('receiveOneTimeData', onReceiveOneTimeData)
+  }, [])
+
+  // import the account when all the data is collected successfully
+  useEffect(() => {
+    if (!privateKey || !accountToImport) return
+
+    const keys: ReadyToAddKeys['internal'] = [
+      {
+        addr: computeAddress(privateKey),
+        label: '',
+        type: 'internal',
+        privateKey,
+        dedicatedToOneSA: true,
+        meta: { createdAt: Date.now() }
+      }
+    ]
+
+    dispatch({
+      type: 'IMPORT_SMART_ACCOUNT_JSON',
+      params: { readyToAddAccount: accountToImport, keys }
+    })
+
+    setPrivateKey(null)
+    setAccountToImport(null)
+  }, [privateKey, accountToImport, dispatch])
 
   const handleFileUpload = (files: any) => {
     setError('')
@@ -162,7 +245,7 @@ const SmartAccountImportScreen = () => {
           return
         }
 
-        const readyToAddAccount: Account = {
+        setAccountToImport({
           addr: accountData.addr,
           associatedKeys: accountData.associatedKeys,
           initialPrivileges: accountData.initialPrivileges,
@@ -170,20 +253,21 @@ const SmartAccountImportScreen = () => {
           newlyAdded: true,
           preferences:
             accountData.preferences ?? getDefaultAccountPreferences(accountData.addr, accounts, 0)
-        }
-        const keys: ReadyToAddKeys['internal'] = [
-          {
-            addr: computeAddress(accountData.privateKey),
-            label: 'alabala',
-            type: 'internal',
-            privateKey: accountData.privateKey,
-            // TODO: maybe query the blockchain for this data
-            dedicatedToOneSA: true,
-            meta: { createdAt: Date.now() }
-          }
-        ]
+        })
 
-        dispatch({ type: 'IMPORT_SMART_ACCOUNT_JSON', params: { readyToAddAccount, keys } })
+        if (accountData.privateKey) {
+          setPrivateKey(accountData.privateKey)
+          return
+        }
+
+        // encrypted key handle from now on
+        // all the below data has been validated to exist at this point
+        setEncryptedKey({
+          key: accountData.encryptedKey!,
+          salt: accountData.salt!,
+          iv: accountData.iv!
+        })
+        openConfirmKeyPassword()
       } catch (e) {
         setError('Could not parse file. Please upload a valid json file')
         setIsLoading(false)
@@ -204,6 +288,21 @@ const SmartAccountImportScreen = () => {
       ),
     []
   )
+
+  const onPasswordSubmitted = (password?: string) => {
+    // shouldn't happen
+    if (!encryptedKey) return
+
+    dispatch({
+      type: 'KEYSTORE_CONTROLLER_SEND_JSON_DECRYPTED_PRIVATE_KEY_TO_UI',
+      params: {
+        secret: password,
+        key: encryptedKey.key,
+        salt: encryptedKey.salt,
+        iv: encryptedKey.iv
+      }
+    })
+  }
 
   return (
     <TabLayoutContainer
@@ -279,6 +378,28 @@ const SmartAccountImportScreen = () => {
             </Trans>
           </div>
         </Panel>
+        <BottomSheet
+          sheetRef={sheetRefConfirmKeyPassword}
+          id="confirm-password-bottom-sheet"
+          type="modal"
+          backgroundColor={
+            themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+          }
+          closeBottomSheet={closeConfirmKeyPassword}
+          scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+          containerInnerWrapperStyles={{ flex: 1 }}
+          style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
+        >
+          <PasswordConfirmation
+            title="Enter encrypted file password"
+            text={t(
+              'Please enter the password used for the encryption of this file. It should be the same as the extension password at the time of encryption'
+            )}
+            onPasswordConfirmed={() => closeConfirmKeyPassword()}
+            onSubmit={onPasswordSubmitted}
+            onBackButtonPress={closeConfirmKeyPassword}
+          />
+        </BottomSheet>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )

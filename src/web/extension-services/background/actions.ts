@@ -453,6 +453,10 @@ type KeystoreControllerSendEncryptedPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string; secret: string; entropy: string }
 }
+type KeystoreControllerSendJsonDecryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_JSON_DECRYPTED_PRIVATE_KEY_TO_UI'
+  params: { secret: string; key: string; salt: string; iv: string }
+}
 type KeystoreControllerDeleteSeedAction = {
   type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
   params: { id: string }
@@ -892,3 +896,4 @@ export type Action =
   | SetCrashAnalyticsAction
   | DismissBanner
   | KeystoreControllerSendEncryptedPrivateKeyToUiAction
+  | KeystoreControllerSendJsonDecryptedPrivateKeyToUiAction

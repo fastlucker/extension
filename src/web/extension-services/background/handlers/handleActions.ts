@@ -194,6 +194,14 @@ export const handleActions = async (
 
       return await mainCtrl.keystore.addKeys(params.keys)
     }
+    case 'KEYSTORE_CONTROLLER_SEND_JSON_DECRYPTED_PRIVATE_KEY_TO_UI': {
+      return await mainCtrl.keystore.sendPasswordDecryptedPrivateKeyToUi(
+        params.secret,
+        params.key,
+        params.salt,
+        params.iv
+      )
+    }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
       // Since these accounts are view-only, directly add them in the
       // MainController, bypassing the AccountPicker flow.
