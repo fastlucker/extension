@@ -234,18 +234,14 @@ handleKeepBridgeContentScriptAcrossSessions()
   const backgroundState: {
     isUnlocked: boolean
     ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
-    hasSignAccountOpCtrlInitialized: boolean
     autoLockIntervalId?: ReturnType<typeof setInterval>
-    accountStatePendingInterval?: ReturnType<typeof setTimeout>
-    selectedAccountStateInterval?: number
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
       While the flag is truthy and there are new updates coming for that ctrl in the same tick, they will be debounced and only one event will be executed at the end
     */
     isUnlocked: false,
-    ctrlOnUpdateIsDirtyFlags: {},
-    hasSignAccountOpCtrlInitialized: false
+    ctrlOnUpdateIsDirtyFlags: {}
   }
 
   const pm = new PortMessenger()
