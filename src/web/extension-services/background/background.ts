@@ -32,7 +32,6 @@ import {
   getActiveRoutesLowestServiceTime,
   getActiveRoutesUpdateInterval
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
 import CONFIG, { isDev, isProd } from '@common/config/env'
 import {
@@ -270,7 +269,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     activityRefreshInterval: number
-    hasSignAccountOpCtrlInitialized: boolean
     portfolioLastUpdatedByIntervalAt: number
     updatePortfolioInterval?: ReturnType<typeof setTimeout>
     updateDefiPositionsInterval?: ReturnType<typeof setTimeout>
@@ -279,7 +277,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
     updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
     swapAndBridgeQuoteStatus: 'INITIAL' | 'LOADING'
-    estimateTimeout?: { start: any; stop: any }
     accountStateLatestInterval?: ReturnType<typeof setTimeout>
     accountStatePendingInterval?: ReturnType<typeof setTimeout>
     selectedAccountStateInterval?: number
@@ -298,7 +295,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       retriedFastAccountStateReFetchForNetworks: []
     },
     activityRefreshInterval: ACTIVITY_REFRESH_INTERVAL,
-    hasSignAccountOpCtrlInitialized: false,
     swapAndBridgeQuoteStatus: 'INITIAL',
     portfolioLastUpdatedByIntervalAt: Date.now(), // Because the first update is immediate
     networksLastUpdatedByIntervalAt: Date.now()
@@ -792,15 +788,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     )
   }
 
-  function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => {
-      if (mainCtrl.signAccountOp) return mainCtrl.signAccountOp.simulate()
-      return new Promise((resolve) => {
-        resolve()
-      })
-    }, 30000)
-  }
-
   function debounceFrontEndEventUpdatesOnSameTick(
     ctrlName: string,
     ctrl: any,
@@ -861,20 +848,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   mainCtrl.onUpdate((forceEmit) => {
     const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl, mainCtrl, forceEmit)
     if (res === 'DEBOUNCED') return
-
-    // if the signAccountOp controller is active, reestimate at a set period of time
-    if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
-      if (mainCtrl.signAccountOp) {
-        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
-
-        backgroundState.estimateTimeout = createEstimateRecurringTimeout()
-        backgroundState.estimateTimeout.start()
-      } else {
-        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
-      }
-
-      backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
-    }
 
     if (mainCtrl.statuses.signAndBroadcastAccountOp === 'SUCCESS') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
