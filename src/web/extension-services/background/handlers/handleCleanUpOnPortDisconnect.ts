@@ -1,8 +1,8 @@
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ONBOARDING_WEB_ROUTES } from '@common/modules/router/constants/common'
 import { IS_FIREFOX } from '@web/constants/common'
 import { Port } from '@web/extension-services/messengers'
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 
 export const handleCleanUpOnPortDisconnect = async ({
   port,
@@ -76,10 +76,17 @@ export const handleCleanUpOnPortDisconnect = async ({
     // Since we can't distinguish between a `getCreds` call and a user intentionally closing the popup after signing,
     // we always enable tracking. This means that if the popup is closed immediately after signing with Lattice,
     // the next time you open the Transfer screen, you may see the transaction tracking screen.
+
+    const signAccountOpController = mainCtrl.transfer.signAccountOpController
+
+    // If there is no signAccountOpController or it has no status, we don't need to determine tracking
+    // as there is nothing to track. unloadScreen will handle the cleanup.
+    if (!signAccountOpController || !signAccountOpController.status) return
+
     const shouldTrack =
-      mainCtrl.transfer.signAccountOpController?.status?.type === SigningStatus.ReadyToSign ||
-      mainCtrl.transfer.signAccountOpController?.accountOp?.signingKeyType === 'trezor' ||
-      mainCtrl.transfer.signAccountOpController?.accountOp?.signingKeyType === 'lattice'
+      signAccountOpController.status?.type === SigningStatus.ReadyToSign ||
+      signAccountOpController.accountOp?.signingKeyType === 'trezor' ||
+      signAccountOpController.accountOp?.signingKeyType === 'lattice'
     // eslint-disable-next-line no-param-reassign
     mainCtrl.transfer.shouldTrackLatestBroadcastedAccountOp = shouldTrack
 
