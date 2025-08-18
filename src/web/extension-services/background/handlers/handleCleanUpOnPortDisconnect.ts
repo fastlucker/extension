@@ -76,23 +76,23 @@ export const handleCleanUpOnPortDisconnect = async ({
     // Since we can't distinguish between a `getCreds` call and a user intentionally closing the popup after signing,
     // we always enable tracking. This means that if the popup is closed immediately after signing with Lattice,
     // the next time you open the Transfer screen, you may see the transaction tracking screen.
+
+    const signAccountOpController = mainCtrl.transfer.signAccountOpController
+
+    // If there is no signAccountOpController or it has no status, we don't need to determine tracking
+    // as there is nothing to track. unloadScreen will handle the cleanup.
+    if (!signAccountOpController || !signAccountOpController.status) return
+
     const shouldTrack =
-      mainCtrl.transfer.signAccountOpController?.status?.type === SigningStatus.ReadyToSign ||
-      mainCtrl.transfer.signAccountOpController?.accountOp?.signingKeyType === 'trezor' ||
-      mainCtrl.transfer.signAccountOpController?.accountOp?.signingKeyType === 'lattice'
+      signAccountOpController.status?.type === SigningStatus.ReadyToSign ||
+      signAccountOpController.accountOp?.signingKeyType === 'trezor' ||
+      signAccountOpController.accountOp?.signingKeyType === 'lattice'
     // eslint-disable-next-line no-param-reassign
     mainCtrl.transfer.shouldTrackLatestBroadcastedAccountOp = shouldTrack
 
-    // Reset the form only if the transfer is being signed/broadcasted OR
-    // it has already been broadcasted and the user closed the popup.
-    // This is done to prevent the form from being reset when the user closes the popup
-    if (
-      (mainCtrl.transfer.latestBroadcastedAccountOp ||
-        mainCtrl.statuses.signAndBroadcastAccountOp !== 'INITIAL') &&
-      !shouldTrack
-    ) {
-      // We reset the form state without destroying the signAccountOp,
-      // since it's still needed for broadcasting. Once broadcasting completes, we destroy the signAccountOp.
+    // We reset the form state without destroying the signAccountOp,
+    // since it's still needed for broadcasting. Once broadcasting completes, we destroy the signAccountOp.
+    if (!shouldTrack) {
       mainCtrl.transfer.resetForm(false)
     }
 
