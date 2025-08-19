@@ -21,7 +21,7 @@ interface Props {
   onBackButtonPress: () => void
   text: string
   title?: string
-  onSubmit?: (password: string) => void
+  onCustomSubmit?: (password: string) => void
 }
 
 const PasswordConfirmation: React.FC<Props> = ({
@@ -29,7 +29,7 @@ const PasswordConfirmation: React.FC<Props> = ({
   onBackButtonPress,
   text,
   title = 'Confirm extension password',
-  onSubmit
+  onCustomSubmit
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -50,14 +50,16 @@ const PasswordConfirmation: React.FC<Props> = ({
     })()
   }, [])
 
-  // this shouldn't happen
-  // if the user doesn't have a keystore password set, navigate him to set it
+  // if using the onCustomSubmit method, it means we're using the
+  // password confirmation for something different than unlocks
+  const mode = onCustomSubmit ? 'custom' : 'unlock'
+
   useEffect(() => {
-    // if using a different onSubmit method, it means we're using the
-    // password confirmation for something different than unlocks
-    if (onSubmit) return
+    if (mode === 'custom') return
+
+    // if the user doesn't have a keystore password set, navigate him to set it
     if (!keystoreState.hasPasswordSecret) navigate(WEB_ROUTES.devicePasswordSet)
-  }, [keystoreState.hasPasswordSecret, navigate, onSubmit])
+  }, [keystoreState.hasPasswordSecret, navigate, mode])
 
   const {
     control,
@@ -90,8 +92,8 @@ const PasswordConfirmation: React.FC<Props> = ({
 
   const handleUnlock = useCallback(
     (data: { password: string }) => {
-      if (onSubmit) {
-        onSubmit(data.password)
+      if (onCustomSubmit) {
+        onCustomSubmit(data.password)
         return
       }
 
@@ -100,7 +102,7 @@ const PasswordConfirmation: React.FC<Props> = ({
         params: { secretId: 'password', secret: data.password }
       })
     },
-    [dispatch, onSubmit]
+    [dispatch, onCustomSubmit]
   )
 
   const passwordFieldError: string | undefined = useMemo(() => {

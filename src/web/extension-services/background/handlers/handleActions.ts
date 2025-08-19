@@ -193,7 +193,7 @@ export const handleActions = async (
 
       return await mainCtrl.keystore.addKeys(params.keys)
     }
-    case 'KEYSTORE_CONTROLLER_SEND_JSON_DECRYPTED_PRIVATE_KEY_TO_UI': {
+    case 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI': {
       return await mainCtrl.keystore.sendPasswordDecryptedPrivateKeyToUi(
         params.secret,
         params.key,
