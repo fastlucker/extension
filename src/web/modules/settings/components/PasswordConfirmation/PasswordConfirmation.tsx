@@ -17,15 +17,19 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 interface Props {
-  onPasswordConfirmed: () => void
+  onPasswordConfirmed: (password?: string) => void
   onBackButtonPress: () => void
   text: string
+  title?: string
+  onSubmit?: (password: string) => void
 }
 
 const PasswordConfirmation: React.FC<Props> = ({
   onPasswordConfirmed,
   onBackButtonPress,
-  text
+  text,
+  title = 'Confirm extension password',
+  onSubmit
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -49,8 +53,11 @@ const PasswordConfirmation: React.FC<Props> = ({
   // this shouldn't happen
   // if the user doesn't have a keystore password set, navigate him to set it
   useEffect(() => {
+    // if using a different onSubmit method, it means we're using the
+    // password confirmation for something different than unlocks
+    if (onSubmit) return
     if (!keystoreState.hasPasswordSecret) navigate(WEB_ROUTES.devicePasswordSet)
-  }, [keystoreState.hasPasswordSecret, navigate])
+  }, [keystoreState.hasPasswordSecret, navigate, onSubmit])
 
   const {
     control,
@@ -65,30 +72,36 @@ const PasswordConfirmation: React.FC<Props> = ({
     }
   })
 
+  const passwordFieldValue = watch('password')
+
   useEffect(() => {
     if (keystoreState.errorMessage) setError('password', { message: keystoreState.errorMessage })
     else if (keystoreState.statuses.unlockWithSecret === 'SUCCESS') {
-      onPasswordConfirmed()
+      onPasswordConfirmed(passwordFieldValue)
     }
   }, [
     keystoreState.errorMessage,
     keystoreState.statuses.unlockWithSecret,
     setError,
     dispatch,
-    onPasswordConfirmed
+    onPasswordConfirmed,
+    passwordFieldValue
   ])
 
   const handleUnlock = useCallback(
     (data: { password: string }) => {
+      if (onSubmit) {
+        onSubmit(data.password)
+        return
+      }
+
       dispatch({
         type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET',
         params: { secretId: 'password', secret: data.password }
       })
     },
-    [dispatch]
+    [dispatch, onSubmit]
   )
-
-  const passwordFieldValue = watch('password')
 
   const passwordFieldError: string | undefined = useMemo(() => {
     if (!errors.password) return undefined
@@ -104,7 +117,7 @@ const PasswordConfirmation: React.FC<Props> = ({
     <View style={flexbox.flex1}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
         <PanelBackButton onPress={onBackButtonPress} style={spacings.mrSm} />
-        <PanelTitle title={t('Confirm extension password')} style={textStyles.left} />
+        <PanelTitle title={t(title)} style={textStyles.left} />
       </View>
       <Controller
         control={control}
