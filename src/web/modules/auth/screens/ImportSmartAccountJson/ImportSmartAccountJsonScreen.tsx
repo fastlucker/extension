@@ -294,7 +294,7 @@ const SmartAccountImportScreen = () => {
     if (!encryptedKey || !accountToImport) return
 
     dispatch({
-      type: 'KEYSTORE_CONTROLLER_SEND_JSON_DECRYPTED_PRIVATE_KEY_TO_UI',
+      type: 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI',
       params: {
         secret: password,
         key: encryptedKey.key,
@@ -397,7 +397,7 @@ const SmartAccountImportScreen = () => {
               'Please enter the password used for the encryption of this file. It should be the same as the extension password at the time of encryption'
             )}
             onPasswordConfirmed={() => closeConfirmKeyPassword()}
-            onSubmit={onPasswordSubmitted}
+            onCustomSubmit={onPasswordSubmitted}
             onBackButtonPress={() => {
               closeConfirmKeyPassword()
               setIsLoading(false)
