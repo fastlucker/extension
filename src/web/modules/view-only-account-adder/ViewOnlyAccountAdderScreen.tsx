@@ -90,7 +90,9 @@ const ViewOnlyScreen = () => {
       return associatedKeys.some((key) => key.toLowerCase() === address.toLowerCase())
     })
 
-    return matchingAccount ? { isAssociated: true, address } : { isAssociated: false }
+    return matchingAccount
+      ? { isAssociated: true, address, associatedAddress: matchingAccount.addr }
+      : { isAssociated: false }
   })
 
   const isValid = useMemo(() => {

@@ -4,9 +4,10 @@ import { View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { getAddressFromAddressState } from '@ambire-common/utils/domains'
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import AddressInput from '@common/components/AddressInput'
-import Text from '@common/components/Text'
+import Banner from '@common/components/Banner/Banner'
 import useAddressInput from '@common/hooks/useAddressInput'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -135,13 +136,16 @@ const AddressField: FC<Props> = ({
           </View>
           {addressesInAssociatedKeys &&
             addressesInAssociatedKeys.length &&
-            addressesInAssociatedKeys.map((addressInfo, index) => {
+            addressesInAssociatedKeys.map((addressInfo) => {
               return addressInfo && addressInfo?.isAssociated && address === addressInfo.address ? (
-                <Text key={index} fontSize={14}>
-                  This key is already imported and associated with other accounts. If you import it
-                  it will be automatically associated with the existing account and not as a
-                  view-only.{' '}
-                </Text>
+                <Banner
+                  title="This account’s key is already imported."
+                  text={`It’s the same key associated with ${shortenAddress(
+                    addressInfo.associatedAddress,
+                    13
+                  )}. If you continue, this address will be linked to that key and managed with full access, not as view-only.`}
+                  type="info2"
+                />
               ) : null
             })}
         </View>
