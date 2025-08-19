@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
@@ -13,6 +14,7 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { getGasTankTokenDetails } from '@common/utils/getGasTankTokenDetails'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
@@ -23,12 +25,12 @@ type Props = {
   onPosition: (position: { x: number; y: number; width: number; height: number }) => void
   portfolio: SelectedAccountPortfolio
   account: Account | null
-  hasGasTank: boolean
 }
 
-const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: Props) => {
+const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   const { t } = useTranslation()
   const buttonRef = useRef(null)
+  const { hasGasTank, isViewOnly } = useHasGasTank({ account })
   const { theme, themeType } = useTheme()
   const { networks } = useNetworksControllerState()
 
@@ -38,9 +40,23 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
   })
 
   const totalBalanceGasTankDetails = useMemo(
-    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'amount'),
-    [account, hasGasTank, networks, portfolio]
+    () => getGasTankTokenDetails(portfolio, account, networks, 'amount'),
+    [account, networks, portfolio]
   )
+
+  const buttonState = useMemo(() => {
+    if (totalBalanceGasTankDetails.token === null) return 'error'
+    if (!hasGasTank && isViewOnly && totalBalanceGasTankDetails.balanceFormatted) return 'balance'
+    if (hasGasTank && totalBalanceGasTankDetails.balanceFormatted) return 'balance'
+    if (hasGasTank && !totalBalanceGasTankDetails.balanceFormatted) return 'topup'
+
+    return 'soon'
+  }, [
+    hasGasTank,
+    isViewOnly,
+    totalBalanceGasTankDetails.balanceFormatted,
+    totalBalanceGasTankDetails.token
+  ])
 
   useEffect(() => {
     const measureButton = () => {
@@ -66,6 +82,10 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
       window.removeEventListener('resize', handleResize)
     }
   }, [onPosition])
+
+  if (!portfolio.isAllReady) {
+    return <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
+  }
 
   return (
     <View>
@@ -95,39 +115,11 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
               : theme.primaryBackground
           }
         />
-        {hasGasTank ? (
-          totalBalanceGasTankDetails.balanceFormatted ? (
-            <>
-              <Text
-                testID='dashboard-gas-tank-balance'
-                style={[spacings.mlTy]}
-                color={
-                  themeType === THEME_TYPES.DARK
-                    ? theme.primaryBackgroundInverted
-                    : theme.primaryBackground
-                }
-                weight="number_bold"
-                fontSize={12}
-              >
-                {`${totalBalanceGasTankDetails.balanceFormatted} ${
-                  totalBalanceGasTankDetails.token?.symbol || ''
-                }`}
-              </Text>
-              <Text
-                style={[spacings.mlTy, { opacity: 0.57 }]}
-                fontSize={12}
-                color={
-                  themeType === THEME_TYPES.DARK
-                    ? theme.primaryBackgroundInverted
-                    : theme.primaryBackground
-                }
-              >
-                {t('on Gas Tank')}
-              </Text>
-            </>
-          ) : (
+        {buttonState === 'balance' && (
+          <>
             <Text
-              style={[spacings.mhTy]}
+              testID="dashboard-gas-tank-balance"
+              style={[spacings.mlTy]}
               color={
                 themeType === THEME_TYPES.DARK
                   ? theme.primaryBackgroundInverted
@@ -136,10 +128,39 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
               weight="number_bold"
               fontSize={12}
             >
-              {t('Top up Gas Tank')}
+              {`${totalBalanceGasTankDetails.balanceFormatted} ${
+                totalBalanceGasTankDetails.token?.symbol || ''
+              }`}
             </Text>
-          )
-        ) : (
+            <Text
+              style={[spacings.mlTy, { opacity: 0.57 }]}
+              fontSize={12}
+              color={
+                themeType === THEME_TYPES.DARK
+                  ? theme.primaryBackgroundInverted
+                  : theme.primaryBackground
+              }
+            >
+              {t('on Gas Tank')}
+            </Text>
+          </>
+        )}
+
+        {buttonState === 'topup' && (
+          <Text
+            style={[spacings.mhTy]}
+            color={
+              themeType === THEME_TYPES.DARK
+                ? theme.primaryBackgroundInverted
+                : theme.primaryBackground
+            }
+            weight="number_bold"
+            fontSize={12}
+          >
+            {t('Top up Gas Tank')}
+          </Text>
+        )}
+        {buttonState === 'soon' && (
           // @ts-ignore
           <View dataSet={{ tooltipId: 'gas-tank-soon' }}>
             <Text
@@ -152,12 +173,28 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
               weight="number_bold"
               fontSize={12}
             >
-              {t('Gas Tank Soon')}
+              {isViewOnly ? t('') : t('Gas Tank Soon')}
             </Text>
           </View>
         )}
+        {buttonState === 'error' && (
+          <Text
+            style={[spacings.mhTy]}
+            color={
+              themeType === THEME_TYPES.DARK
+                ? theme.primaryBackgroundInverted
+                : theme.primaryBackground
+            }
+            weight="number_bold"
+            fontSize={12}
+          >
+            {t('Gas Tank Error')}
+          </Text>
+        )}
       </AnimatedPressable>
-      <Tooltip content="Not available for hardware wallets yet." id="gas-tank-soon" />
+      {buttonState === 'soon' && (
+        <Tooltip content="Not available for hardware wallets yet." id="gas-tank-soon" />
+      )}
     </View>
   )
 }

@@ -1,14 +1,21 @@
+import { BA_PRIVATE_KEY, KEYSTORE_PASS } from 'constants/env'
 import locators from 'constants/locators'
 import selectors from 'constants/selectors'
+import BootstrapContext from 'interfaces/bootstrapContext'
 
-import { bootstrap } from 'common-helpers/bootstrap'
-import { BA_PRIVATE_KEY, KEYSTORE_PASS } from 'constants/env'
+import mainConstants from '../constants/mainConstants'
 import { BasePage } from './basePage'
 
 export class AuthPage extends BasePage {
-  async init() {
-    const { page } = await bootstrap('auth')
-    this.page = page // Initialize the POM page property with the Playwright page instance
+  extensionURL: string
+
+  constructor(opts: BootstrapContext) {
+    super(opts)
+    this.extensionURL = opts.extensionURL
+  }
+
+  async goToDashboard() {
+    await this.page.goto(`${this.extensionURL}${mainConstants.urls.dashboard}`)
   }
 
   async setExtensionPassword(): Promise<void> {

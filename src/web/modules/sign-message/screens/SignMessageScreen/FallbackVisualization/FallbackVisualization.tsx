@@ -2,7 +2,8 @@ import { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, ScrollView, View } from 'react-native'
 
-import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { ISignMessageController } from '@ambire-common/interfaces/signMessage'
+import { isPlainTextMessage } from '@ambire-common/libs/transfer/userRequest'
 import { isValidAddress } from '@ambire-common/services/address'
 import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import HumanizerAddress from '@common/components/HumanizerAddress'
@@ -22,7 +23,7 @@ const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: Nati
 }
 
 const FallbackVisualization: FC<{
-  messageToSign: SignMessageController['messageToSign']
+  messageToSign: ISignMessageController['messageToSign']
   setHasReachedBottom: (hasReachedBottom: boolean) => void
   hasReachedBottom: boolean
 }> = ({ messageToSign, setHasReachedBottom, hasReachedBottom }) => {
@@ -116,7 +117,7 @@ const FallbackVisualization: FC<{
             })}
           {content.kind === 'authorization-7702' && getMessageAsText(content.message)}
 
-          {content.kind === 'message' &&
+          {isPlainTextMessage(content) &&
             (getMessageAsText(content.message) || t('(Empty message)'))}
         </Text>
       </ScrollView>

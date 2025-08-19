@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
-import { ToastOptions } from '@common/contexts/toastContext'
 
 import getAddressInputValidation from './utils/validation'
 
@@ -11,7 +10,6 @@ interface Props {
   setAddressState: (newState: AddressStateOptional) => void
   overwriteError?: string
   overwriteValidLabel?: string
-  addToast: (message: string, options?: ToastOptions) => void
   handleCacheResolvedDomain: (address: string, domain: string, type: 'ens') => void
   // handleRevalidate is required when the address input is used
   // together with react-hook-form. It is used to trigger the revalidation of the input.
@@ -24,7 +22,6 @@ const useAddressInput = ({
   setAddressState,
   overwriteError,
   overwriteValidLabel,
-  addToast,
   handleCacheResolvedDomain,
   handleRevalidate
 }: Props) => {
@@ -50,6 +47,7 @@ const useAddressInput = ({
       addressState.fieldValue,
       addressState.isDomainResolving,
       addressState.ensAddress,
+      hasDomainResolveFailed,
       overwriteError,
       overwriteValidLabel
     ]
@@ -86,7 +84,7 @@ const useAddressInput = ({
         isDomainResolving: false
       })
     },
-    [addToast, handleCacheResolvedDomain, fieldValue, setAddressState]
+    [handleCacheResolvedDomain, fieldValue, setAddressState]
   )
 
   useEffect(() => {
@@ -165,7 +163,7 @@ const useAddressInput = ({
     if (!handleRevalidate) return
 
     handleRevalidate()
-  }, [handleRevalidate, debouncedValidation])
+  }, [handleRevalidate, debouncedValidation, validation.message])
 
   const reset = useCallback(() => {
     setAddressState({
@@ -179,8 +177,15 @@ const useAddressInput = ({
     // Disable the form if the address is not the same as the debounced address
     // This disables the submit button in the delay window
     if (validation.message !== debouncedValidation?.message) return false
+
+    // Disable the form if the address is resolving
+    if (!debouncedValidation?.isError && debouncedValidation.message === 'Resolving domain...') {
+      return false
+    }
+
     // Disable the form if there is an error
-    if (debouncedValidation?.isError) return debouncedValidation.message
+    if (debouncedValidation?.isError)
+      return !debouncedValidation?.isError && debouncedValidation.message === ''
 
     if (addressState.isDomainResolving) return false
 

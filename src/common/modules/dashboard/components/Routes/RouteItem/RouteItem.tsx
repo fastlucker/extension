@@ -6,6 +6,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
@@ -23,6 +24,7 @@ interface Props {
     testID?: string
     scale: number
     scaleOnHover: number
+    backgroundImage?: string
   }
   index: number
   routeItemsLength: number
@@ -39,7 +41,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
   return (
     <Pressable
       key={routeItem.label}
-      style={[flexbox.alignCenter, index !== routeItemsLength - 1 && spacings.mr]}
+      style={[flexbox.alignCenter, index !== routeItemsLength - 1 && spacings.mrSm]}
       disabled={routeItem.disabled}
       onPress={async () => {
         if (routeItem?.onPress) {
@@ -79,16 +81,40 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
               ...spacings.mbTy
             }}
           >
-            <routeItem.icon
-              color={
-                themeType === THEME_TYPES.DARK
-                  ? theme.primary
-                  : hovered
-                  ? '#c197ff'
-                  : theme.primaryBackground
-              }
-              height={ITEM_HEIGHT}
-            />
+            {routeItem.backgroundImage && (
+              <View
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  opacity: hovered ? 1 : 0.64,
+                  borderRadius: BORDER_RADIUS_PRIMARY,
+                  overflow: 'hidden',
+                  backgroundImage: `url(${routeItem.backgroundImage})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  transition: 'opacity 0.2s ease-in-out'
+                }}
+              />
+            )}
+            <View
+              style={[
+                flexbox.center,
+                flexbox.alignCenter,
+                routeItem.route === WEB_ROUTES.swapAndBridge && { width: 70, height: 24 }
+              ]}
+            >
+              <routeItem.icon
+                color={
+                  themeType === THEME_TYPES.DARK
+                    ? theme.primary
+                    : hovered && !routeItem.backgroundImage
+                    ? '#c197ff'
+                    : theme.primaryBackground
+                }
+                height={ITEM_HEIGHT}
+              />
+            </View>
           </View>
           <Text
             color={

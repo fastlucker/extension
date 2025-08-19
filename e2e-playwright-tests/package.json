@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "playwright test",
+    "test": "playwright test --grep-invert @balanceCheck",
     "test:auth": "playwright test --workers=3 --retries=1 --grep auth",
-    "show-trace": "playwright show-trace"
+    "show-trace": "playwright show-trace",
+    "balance:test": "npx playwright test -g @balanceCheck",
+    "postinstall": "patch-package"
   },
   "author": "Filip",
   "devDependencies": {
@@ -19,13 +21,17 @@
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-vitest-globals": "^1.5.0",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.7.1",
     "typescript": "^4.1.5"
   },
   "dependencies": {
     "@playwright/test": "^1.52.0",
+    "@trezor/connect-plugin-ethereum": "^9.0.5",
+    "@trezor/connect-webextension": "^9.6.1",
+    "@trezor/trezor-user-env-link": "^1.0.0",
     "dotenv": "^16.4.5",
-    "ethers": "^6.14.0",
     "qs": "^6.12.0"
   }
 }

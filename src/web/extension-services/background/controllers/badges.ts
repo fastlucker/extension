@@ -39,9 +39,6 @@ export class BadgesController {
     this.#walletStateCtrl = walletStateCtrl
 
     this.#mainCtrl.onUpdate(() => {
-      this.badgesCount = this.#mainCtrl.actions.visibleActionsQueue.filter(
-        (a) => a.type !== 'benzin' && a.type !== 'swapAndBridge'
-      ).length
       const swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
         (b) => b.category === 'bridge-ready'
       ).length
@@ -50,6 +47,12 @@ export class BadgesController {
         this.#mainCtrl.signAccountOp && !!swapAndBridgeBannersCount
           ? swapAndBridgeBannersCount - 1
           : swapAndBridgeBannersCount
+    })
+
+    this.#mainCtrl.requests.onUpdate(() => {
+      this.badgesCount = this.#mainCtrl.requests.actions.visibleActionsQueue.filter(
+        (a) => a.type !== 'benzin' && a.type !== 'swapAndBridge' && a.type !== 'transfer'
+      ).length
     })
 
     this.#mainCtrl.keystore.onUpdate(() => {
@@ -81,13 +84,15 @@ export class BadgesController {
   }
 
   setBadges = (badgesCount: number) => {
-    if (badgesCount <= 0) {
-      browser.action.setBadgeText({ text: '' })
-    } else {
-      browser.action.setBadgeText({ text: `${badgesCount}` })
-      browser.action.setBadgeBackgroundColor({
-        color: ThemeColors.successDecorative[this.#walletStateCtrl.themeType as 'dark' | 'light']
-      })
+    try {
+      if (badgesCount <= 0) {
+        browser.action.setBadgeText({ text: '' })
+      } else {
+        browser.action.setBadgeText({ text: `${badgesCount}` })
+        browser.action.setBadgeBackgroundColor({ color: ThemeColors.successDecorative.light })
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 

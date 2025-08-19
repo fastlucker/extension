@@ -1,4 +1,4 @@
-import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { ISignAccountOpController } from '@ambire-common/interfaces/signAccountOp'
 import { Sponsor } from '@ambire-common/libs/erc7677/types'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import { TokenResult } from '@ambire-common/libs/portfolio'
@@ -10,7 +10,7 @@ type FeeOption = Pick<SelectValue, 'value' | 'label' | 'disabled'> &
   }
 
 type Props = {
-  signAccountOpState: SignAccountOpController | null
+  signAccountOpState: ISignAccountOpController | null
   disabled: boolean
   hasEstimation: boolean
   slowRequest: boolean
@@ -18,6 +18,10 @@ type Props = {
   isSponsored: boolean
   sponsor: Sponsor | undefined
   updateType: 'Main' | 'Swap&Bridge' | 'Transfer&TopUp'
+  bundlerNonceDiscrepancy?: {
+    id: string
+    title: string
+  }
 }
 
 export type { FeeOption, Props }

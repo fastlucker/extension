@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { View } from 'react-native'
 
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { ITransferController } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
@@ -15,7 +15,7 @@ type Props = {
   onAddToAddressBook: () => any
   isRecipientAddressUnknown: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
-  isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
+  isRecipientAddressUnknownAgreed: ITransferController['isRecipientAddressUnknownAgreed']
   onRecipientCheckboxClick: () => void
   addressValidationMsg: string
   isSWWarningVisible: boolean
@@ -62,6 +62,7 @@ const ConfirmAddress = ({
       </View>
       <AnimatedPressable style={animStyle} onPress={onAddToAddressBook} {...bindAnim}>
         <Text
+          testID="send-form-add-to-address-book-button"
           style={{
             textDecorationLine: 'underline',
             ...spacings.mbTy

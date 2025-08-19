@@ -1,10 +1,16 @@
 /* eslint-disable no-console */
-import { BrowserProvider, Contract, formatUnits, Interface, JsonRpcProvider } from 'ethers'
+import {
+  BrowserProvider,
+  Contract,
+  formatEther,
+  formatUnits,
+  Interface,
+  JsonRpcProvider
+} from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import getAndFormatTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import CloseIcon from '@legends/components/CloseIcon'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
@@ -32,9 +38,10 @@ interface MigrateRewardsModalProps {
   card: CardFromResponse['card'] | undefined
 }
 
-const walletIface = new Interface([
+const xWalletIface = new Interface([
   'function approve(address,uint)',
-  'function balanceOf(address) view returns (uint256)'
+  'function balanceOf(address) view returns (uint256)',
+  'function lockedShares(address) view returns (uint256)'
 ])
 
 const X_WALLET_TOKEN = '0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935'
@@ -42,7 +49,8 @@ const X_WALLET_TOKEN = '0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935'
 const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   isOpen,
   handleClose,
-  action
+  action,
+  meta
 }) => {
   const { xWalletClaimableBalance } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
@@ -53,20 +61,24 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   const switchNetwork = useSwitchNetwork()
   const disabledButton = Boolean(!connectedAccount || v1Account)
 
-  const [walletBalance, setWalletBalance] = useState(null)
+  const [migratableXWalletBalance, setMigratableXWalletBalance] = useState<bigint | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSigning, setIsSigning] = useState(false)
   const closeModal = async () => {
     handleClose()
   }
 
-  const getWalletBalance = useCallback(async () => {
+  const getXWalletBalance = useCallback(async () => {
     if (!connectedAccount) return
     const ethereumProvider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
-    const walletContract = new Contract(X_WALLET_TOKEN, walletIface, ethereumProvider)
-    walletContract
-      .balanceOf(connectedAccount)
-      .then(setWalletBalance)
+    const walletContract = new Contract(X_WALLET_TOKEN, xWalletIface, ethereumProvider)
+    Promise.all([
+      walletContract.balanceOf(connectedAccount),
+      walletContract.lockedShares(connectedAccount)
+    ])
+      .then(([xWalletBalance, lockedShares]: [bigint, bigint]) =>
+        setMigratableXWalletBalance(xWalletBalance - lockedShares)
+      )
       .catch((e) => {
         console.error(e)
         addToast('Failed to get $WALLET token balance', { type: 'error' })
@@ -76,8 +88,8 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    getWalletBalance()
-  }, [getWalletBalance])
+    getXWalletBalance()
+  }, [getXWalletBalance])
 
   // Close Modal on ESC
   useEscModal(isOpen, closeModal)
@@ -107,7 +119,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
       if (receipt.transactionHash) {
         addToast('Transaction completed successfully', { type: 'success' })
         setIsSigning(false)
-        getWalletBalance()
+        getXWalletBalance()
         onLegendComplete()
         handleClose()
       }
@@ -124,7 +136,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
     getCallsStatus,
     onLegendComplete,
     sendCalls,
-    getWalletBalance,
+    getXWalletBalance,
     chainId,
     handleClose,
     addToast
@@ -141,30 +153,27 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
         <div className={styles.contentWrapper}>
           <h2 className={styles.title}>Migrate xWALLET</h2>
-          {walletBalance ? (
+          {migratableXWalletBalance ? (
             <div className={styles.content}>
               <div>
                 <p className={styles.sectionTitle}>Your xWALLET</p>
                 <div className={styles.sectionContent}>
                   <p>
-                    {walletBalance &&
-                      formatDecimals(
-                        Number(
-                          parseFloat(formatUnits(walletBalance, xWalletClaimableBalance.decimals))
-                        ),
-                        'amount'
-                      )}
+                    {migratableXWalletBalance
+                      ? formatDecimals(
+                          Number(parseFloat(formatUnits(migratableXWalletBalance, 18))),
+                          'amount'
+                        )
+                      : 'Loading...'}
                   </p>
                   <p className={styles.usdValue}>
-                    {walletBalance &&
-                      getAndFormatTokenDetails(
-                        {
-                          ...xWalletClaimableBalance,
-                          amount: walletBalance,
-                          flags: { rewardsType: 'wallet-rewards' }
-                        },
-                        [{ chainId: 1 }]
-                      ).balanceUSDFormatted}{' '}
+                    {migratableXWalletBalance
+                      ? formatDecimals(
+                          xWalletClaimableBalance.priceIn[0].price *
+                            Number(formatEther(migratableXWalletBalance)),
+                          'value'
+                        )
+                      : 'Loading...'}{' '}
                   </p>
                 </div>
               </div>
@@ -173,6 +182,12 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
             <p className={styles.noWalletTitle}>No xWALLET found</p>
           )}
 
+          {meta?.hasAlreadyMigrated && (
+            <div className={styles.alreadyMigratedWarning}>
+              You will not receive XP from this action as you already migrated some of your $xWALLET
+              tokens!
+            </div>
+          )}
           <CardActionButton
             onButtonClick={onButtonClick}
             buttonText={

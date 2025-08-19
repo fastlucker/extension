@@ -1,21 +1,26 @@
+import { formatUnits } from 'ethers'
+import { nanoid } from 'nanoid'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
+import { getUiType } from '@web/utils/uiType'
 
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import { formatUnits } from 'ethers'
 import MoreDetails from './MoreDetails'
 import getStyles from './styles'
 
@@ -23,6 +28,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
 
   const activeTransaction = useMemo(() => {
     const isInProgress = activeRoute.routeStatus === 'in-progress'
@@ -38,6 +44,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
   }, [activeRoute.route?.currentUserTxIndex, activeRoute.route?.userTxs, activeRoute.routeStatus])
 
   const { steps } = activeRoute.route || {}
+  const inputValueInUsd = activeRoute.route?.inputValueInUsd
+  const outputValueInUsd = activeRoute.route?.outputValueInUsd
 
   const handleRejectActiveRoute = useCallback(() => {
     dispatch({
@@ -118,6 +126,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
               activeRoute.routeStatus === 'waiting-approval-to-resolve')
           }
           routeStatus={activeRoute.routeStatus}
+          inputValueInUsd={inputValueInUsd}
+          outputValueInUsd={outputValueInUsd}
         />
       </View>
 
@@ -180,14 +190,49 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
             </View>
           )}
           {!!activeRoute.error && (
-            <Text
-              fontSize={12}
-              weight="medium"
-              style={[spacings.mrTy, flexbox.flex1]}
-              appearance="errorText"
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.justifySpaceBetween,
+                flexbox.alignCenter,
+                { width: '100%' }
+              ]}
             >
-              {activeRoute.error}
-            </Text>
+              <Text
+                fontSize={12}
+                weight="medium"
+                style={[spacings.mrTy, flexbox.flex1]}
+                appearance="errorText"
+              >
+                {activeRoute.error}
+              </Text>
+              {activeRoute.route && steps?.length && (
+                <Button
+                  onPress={() => {
+                    navigate(WEB_ROUTES.swapAndBridge, {
+                      state: {
+                        preselectedFromToken: {
+                          address: steps[0].fromAsset.address,
+                          chainId: BigInt(steps[0].fromAsset.chainId)
+                        },
+                        preselectedToToken: {
+                          address: steps[steps.length - 1].toAsset.address,
+                          chainId: BigInt(steps[steps.length - 1].toAsset.chainId)
+                        },
+                        fromAmount: formatDecimals(
+                          Number(formatUnits(steps[0].fromAmount, steps[0].fromAsset.decimals)),
+                          'precise'
+                        ),
+                        activeRouteIdToDelete: activeRoute.activeRouteId
+                      }
+                    })
+                  }}
+                  type="primary"
+                  size="small"
+                  text={t('Retry')}
+                />
+              )}
+            </View>
           )}
           {activeRoute.routeStatus === 'in-progress' && activeRoute.userTxHash && (
             <MoreDetails activeRoute={activeRoute} />

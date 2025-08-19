@@ -3,11 +3,13 @@ import { View } from 'react-native'
 
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
+import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import ActionsPagination from '@web/modules/action-requests/components/ActionsPagination'
@@ -23,6 +25,8 @@ type Props = {
   isAddToCartDisplayed: boolean
   isAddToCartDisabled: boolean
   inProgressButtonText: string
+  buttonText: string
+  buttonTooltipText?: string
 }
 
 const Footer = ({
@@ -31,13 +35,15 @@ const Footer = ({
   onSign,
   isSignLoading,
   isSignDisabled,
+  buttonTooltipText,
   isAddToCartDisplayed,
   isAddToCartDisabled,
-  inProgressButtonText
+  inProgressButtonText,
+  buttonText
 }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const { userRequests } = useMainControllerState()
+  const { userRequests } = useRequestsControllerState()
   const { account } = useSelectedAccountControllerState()
   const { accountOp } = useSignAccountOpControllerState() || {}
   const chainId = accountOp?.chainId
@@ -91,16 +97,19 @@ const Footer = ({
             <BatchIcon style={spacings.mlTy} />
           </Button>
         )}
-        <Button
-          testID="transaction-button-sign"
-          type="primary"
-          disabled={isSignDisabled}
-          text={isSignLoading ? inProgressButtonText : t('Sign')}
-          onPress={onSign}
-          hasBottomSpacing={false}
-          style={{ width: 160 }}
-          size="large"
-        />
+        {/* @ts-ignore */}
+        <View dataSet={{ tooltipId: 'sign-button-tooltip' }}>
+          <ButtonWithLoader
+            testID="transaction-button-sign"
+            type="primary"
+            disabled={isSignDisabled}
+            isLoading={isSignLoading}
+            text={isSignLoading ? inProgressButtonText : buttonText}
+            onPress={onSign}
+            size="large"
+          />
+        </View>
+        {!!buttonTooltipText && <Tooltip content={buttonTooltipText} id="sign-button-tooltip" />}
       </View>
     </View>
   )

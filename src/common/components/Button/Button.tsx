@@ -24,6 +24,7 @@ type ButtonTypes =
   | 'warning'
   | 'info'
   | 'info2'
+  | 'info3'
   | 'success'
   | 'gray'
 
@@ -97,7 +98,8 @@ const ButtonInnerContainer = ({
       info: [],
       info2: [],
       success: [],
-      gray: []
+      gray: [],
+      info3: []
     }),
     [themeType, theme]
   )
@@ -183,7 +185,21 @@ const Button = ({
           property: 'backgroundColor',
           from: theme.primary,
           to: theme.primaryLight
-        }
+        },
+        ...(themeType === THEME_TYPES.DARK
+          ? [
+              {
+                property: 'borderWidth',
+                from: 0,
+                to: 1
+              },
+              {
+                property: 'borderColor',
+                from: theme.primary,
+                to: theme.primary
+              }
+            ]
+          : [])
       ],
       secondary: [
         {
@@ -209,6 +225,13 @@ const Button = ({
       warning: [OPACITY_ANIMATION],
       info: [OPACITY_ANIMATION],
       info2: [OPACITY_ANIMATION],
+      info3: [
+        {
+          property: 'backgroundColor',
+          from: `${String(theme.info3Button)}`,
+          to: theme.info3ButtonHover
+        }
+      ],
       success: [OPACITY_ANIMATION],
       gray: [
         {
@@ -263,6 +286,10 @@ const Button = ({
       backgroundColor: theme.info2Text,
       borderWidth: 0
     },
+    info3: {
+      backgroundColor: theme.info3Button,
+      borderWidth: 0
+    },
     success: {
       backgroundColor: theme.successText,
       borderWidth: 0
@@ -289,14 +316,14 @@ const Button = ({
         {
           property: 'color',
           from: themeType === THEME_TYPES.DARK ? theme.primaryBackground : '#fff',
-          to: themeType === THEME_TYPES.DARK ? theme.primary : '#fff'
+          to: '#fff'
         }
       ],
       secondary: [
         {
           property: 'color',
           from: theme.primary,
-          to: theme.primary
+          to: themeType === THEME_TYPES.DARK ? '#fff' : theme.primary
         }
       ],
       danger: [
@@ -310,7 +337,7 @@ const Button = ({
         {
           property: 'color',
           from: themeType === THEME_TYPES.DARK ? theme.primary : theme.successDecorative,
-          to: themeType === THEME_TYPES.DARK ? theme.primary : theme.successDecorative
+          to: themeType === THEME_TYPES.DARK ? '#fff' : theme.successDecorative
         }
       ],
       ghost: [
@@ -349,6 +376,13 @@ const Button = ({
         }
       ],
       info2: [
+        {
+          property: 'color',
+          from: theme.primaryBackground,
+          to: theme.primaryBackground
+        }
+      ],
+      info3: [
         {
           property: 'color',
           from: theme.primaryBackground,

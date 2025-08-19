@@ -116,6 +116,8 @@ export interface CardFromResponse {
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
     availableToClaim?: BigInt
     notMetLvlThreshold?: true
+    hasAlreadyMigrated?: true
+    hasPenalty?: boolean
   }
   contentSteps?: string[]
   contentImageV2?: string

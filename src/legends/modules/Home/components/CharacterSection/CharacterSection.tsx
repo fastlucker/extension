@@ -46,8 +46,12 @@ const CharacterSection = () => {
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
       <RewardsBadge />
-      <section className={`${styles.wrapper} ${styles[`wrapper${character.characterType}`]}`}>
+      <section className={`${styles.wrapper}`}>
         <div className={styles.characterInfo}>
+           <div className={styles.currentSeasonBadge}>
+              {' '}
+              <UnionIcon /> Season 1
+            </div>
           <AccountInfo
             removeAvatarAndLevel
             wrapperClassName={styles.accountInfo}
@@ -55,10 +59,7 @@ const CharacterSection = () => {
             displayTooltip
           />
           <div className={styles.characterLevelInfoWrapper}>
-            <div className={styles.currentSeasonBadge}>
-              {' '}
-              <UnionIcon /> Season 1
-            </div>
+           
             <div className={styles.characterItemWrapper}>
               <div className={styles.levelWrapper}>
                 <div className={`${styles.levelInfo} ${styles.levelInfoTop}`}>
@@ -165,10 +166,7 @@ const CharacterSection = () => {
             </div>
           </div>
         </div>
-        <div
-          className={styles.characterBlurEffect}
-          style={{ backgroundImage: `url(${character.image})` }}
-        />
+       
 
         <div className={styles.character}>
           <div className={styles.characterRelativeWrapper}>

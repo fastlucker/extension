@@ -2,14 +2,15 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import {
-  SignAccountOpController,
-  SigningStatus
-} from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
+import {
+  ISignAccountOpController,
+  SignAccountOpError
+} from '@ambire-common/interfaces/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
 import Text from '@common/components/Text'
 import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
@@ -28,7 +29,7 @@ type Props = {
   updateController: (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => void
   estimationModalRef: React.RefObject<any>
   errors?: SignAccountOpError[]
-  signAccountOpController: SignAccountOpController | null
+  signAccountOpController: ISignAccountOpController | null
   hasProceeded: boolean
   updateType: 'Swap&Bridge' | 'Transfer&TopUp'
 }
@@ -72,7 +73,9 @@ const OneClickEstimation = ({
     warningModalRef,
     dismissWarning,
     acknowledgeWarning,
-    slowPaymasterRequest
+    slowPaymasterRequest,
+    primaryButtonText,
+    bundlerNonceDiscrepancy
   } = useSign({
     signAccountOpState: signAccountOpController,
     handleBroadcast: handleBroadcastAccountOp,
@@ -125,6 +128,13 @@ const OneClickEstimation = ({
                 </Text>
               </View>
             )}
+            {bundlerNonceDiscrepancy && (
+              <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
+                <Text fontSize={12} appearance="warningText">
+                  {t(bundlerNonceDiscrepancy.title)}
+                </Text>
+              </View>
+            )}
             <View
               style={{
                 height: 1,
@@ -142,13 +152,12 @@ const OneClickEstimation = ({
                 disabled={isSignLoading}
                 style={{ width: 98 }}
               />
-              <Button
+              <ButtonWithLoader
                 testID="sign-button"
-                text={isSignLoading ? t('Signing...') : t('Sign')}
-                hasBottomSpacing={false}
+                text={primaryButtonText}
+                isLoading={isSignLoading}
                 disabled={isSignDisabled || signingErrors.length > 0}
                 onPress={onSignButtonClick}
-                style={{ minWidth: 160 }}
               />
             </View>
           </View>

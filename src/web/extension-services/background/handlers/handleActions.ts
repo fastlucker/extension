@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/return-await */
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
@@ -9,6 +10,7 @@ import {
   SignAccountOpType
 } from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import wait from '@ambire-common/utils/wait'
 import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -19,6 +21,8 @@ import { Port, PortMessenger } from '@web/extension-services/messengers'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
+
+import sessionStorage from '../webapi/sessionStorage'
 
 export const handleActions = async (
   action: Action,
@@ -110,6 +114,9 @@ export const handleActions = async (
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
       return await mainCtrl.accounts.updateAccountPreferences(params)
     }
+    case 'ACCOUNTS_CONTROLLER_REORDER_ACCOUNTS': {
+      return await mainCtrl.accounts.reorderAccounts(params)
+    }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
       return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
     }
@@ -127,6 +134,9 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
       return await mainCtrl.networks.updateNetwork(params.network, params.chainId)
+    }
+    case 'MAIN_CONTROLLER_UPDATE_NETWORKS': {
+      return await mainCtrl.networks.updateNetworks(params.network, params.chainIds)
     }
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
@@ -184,6 +194,15 @@ export const handleActions = async (
 
       return await mainCtrl.keystore.addKeys(params.keys)
     }
+    case 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI': {
+      return await mainCtrl.keystore.sendPasswordDecryptedPrivateKeyToUi(
+        params.secret,
+        params.key,
+        params.salt,
+        params.iv,
+        params.associatedKeys
+      )
+    }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
       // Since these accounts are view-only, directly add them in the
       // MainController, bypassing the AccountPicker flow.
@@ -193,32 +212,6 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
       return await mainCtrl.removeAccount(params.accountAddr)
     }
-    case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
-      return await mainCtrl.buildTransferUserRequest(
-        params.amount,
-        params.recipientAddress,
-        params.selectedToken,
-        params.actionExecutionType,
-        windowId
-      )
-
-    case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
-      return await mainCtrl.buildClaimWalletUserRequest(params.token, windowId)
-    case 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST':
-      return await mainCtrl.buildMintVestingUserRequest(params.token, windowId)
-    case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-      return await mainCtrl.addUserRequests([params.userRequest], {
-        actionPosition: params.actionPosition,
-        actionExecutionType: params.actionExecutionType,
-        allowAccountSwitch: params.allowAccountSwitch,
-        skipFocus: params.skipFocus
-      })
-    case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-      return mainCtrl.removeUserRequests([params.id])
-    case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
-      return mainCtrl.resolveUserRequest(params.data, params.id)
-    case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-      return mainCtrl.rejectUserRequests(params.err, [params.id])
     case 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL': {
       return mainCtrl.rejectSignAccountOpCall(params.callId)
     }
@@ -277,6 +270,23 @@ export const handleActions = async (
       return mainCtrl.initSignAccOp(params.actionId)
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
+
+    case 'REQUESTS_CONTROLLER_BUILD_REQUEST':
+      return await mainCtrl.requests.build(params)
+    case 'REQUESTS_CONTROLLER_ADD_USER_REQUEST':
+      return await mainCtrl.requests.addUserRequests([params.userRequest], {
+        actionPosition: params.actionPosition,
+        actionExecutionType: params.actionExecutionType,
+        allowAccountSwitch: params.allowAccountSwitch,
+        skipFocus: params.skipFocus
+      })
+    case 'REQUESTS_CONTROLLER_REMOVE_USER_REQUEST':
+      return mainCtrl.requests.removeUserRequests([params.id])
+    case 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST':
+      return mainCtrl.requests.resolveUserRequest(params.data, params.id)
+    case 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST':
+      return mainCtrl.requests.rejectUserRequests(params.err, [params.id])
+
     case 'SIGN_ACCOUNT_OP_UPDATE': {
       if (params.updateType === 'Main') {
         return mainCtrl?.signAccountOp?.update(params)
@@ -294,14 +304,22 @@ export const handleActions = async (
       break
     }
 
+    case 'DISMISS_DEFI_POSITIONS_BANNER': {
+      await mainCtrl.selectedAccount.dismissDefiPositionsBannerForTheSelectedAccount()
+      break
+    }
+
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId, {
-        preselectedFromToken: params.preselectedFromToken
+        preselectedFromToken: params.preselectedFromToken,
+        preselectedToToken: params.preselectedToToken ?? undefined,
+        fromAmount: params.fromAmount ?? undefined,
+        activeRouteIdToDelete: params.activeRouteIdToDelete ?? undefined
       })
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
       return mainCtrl.swapAndBridge.unloadScreen(params.sessionId, params.forceUnload)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
-      return mainCtrl.swapAndBridge.updateForm(params)
+      return mainCtrl.swapAndBridge.updateForm(params.formValues, params.updateProps)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
       return await mainCtrl.swapAndBridge.switchFromAndToTokens()
     case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
@@ -310,15 +328,15 @@ export const handleActions = async (
       return await mainCtrl.swapAndBridge.searchToToken(params.searchTerm)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
       return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
-      return await mainCtrl.buildSwapAndBridgeUserRequest(
-        params.openActionWindow,
-        undefined,
-        windowId
-      )
-    }
-    case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
-      return await mainCtrl.buildSwapAndBridgeUserRequest(true, params.activeRouteId, windowId)
+    case 'REQUESTS_CONTROLLER_SWAP_AND_BRIDGE_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
+      return await mainCtrl.requests.build({
+        type: 'swapAndBridgeRequest',
+        params: {
+          openActionWindow: true,
+          activeRouteId: params.activeRouteId,
+          windowId
+        }
+      })
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
       await mainCtrl.swapAndBridge.updateQuote({
         skipPreviousQuoteRemoval: true,
@@ -346,7 +364,7 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.addOrUpdateActions(
+      return mainCtrl.requests.actions.addOrUpdateActions(
         [
           {
             id: `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`,
@@ -370,7 +388,7 @@ export const handleActions = async (
 
       const idSuffix = params.type === 'swapAndBridge' ? 'swap-and-bridge-sign' : 'transfer-sign'
 
-      return mainCtrl.actions.removeActions([
+      return mainCtrl.requests.actions.removeActions([
         `${mainCtrl.selectedAccount.account.addr}-${idSuffix}`
       ])
     }
@@ -395,28 +413,28 @@ export const handleActions = async (
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
     case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-      return mainCtrl.actions.removeActions([params.id], params.shouldOpenNextAction)
+      return mainCtrl.requests.actions.removeActions([params.id], params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
-      return mainCtrl.actions.focusActionWindow()
+      return mainCtrl.requests.actions.focusActionWindow()
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
-      return mainCtrl.actions.setCurrentActionById(params.actionId, {
+      return mainCtrl.requests.actions.setCurrentActionById(params.actionId, {
         baseWindowId: windowId
       })
     case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
-      return mainCtrl.actions.setCurrentActionByIndex(params.index, {
+      return mainCtrl.requests.actions.setCurrentActionByIndex(params.index, {
         ...params.params,
         baseWindowId: windowId
       })
     case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
-      return mainCtrl.actions.setWindowLoaded()
+      return mainCtrl.requests.actions.setWindowLoaded()
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        chainId: params?.chainId ? BigInt(params?.chainId) : undefined
+        chainIds: params?.chainId ? [BigInt(params?.chainId)] : undefined
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
-      return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate, params?.network)
+      return await mainCtrl.updateSelectedAccountPortfolio(params)
     }
 
     case 'DEFI_CONTOLLER_ADD_SESSION': {
@@ -499,6 +517,12 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
+    case 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI':
+      return await mainCtrl.keystore.sendPasswordEncryptedPrivateKeyToUi(
+        params.keyAddr,
+        params.secret,
+        params.entropy
+      )
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
@@ -507,21 +531,21 @@ export const handleActions = async (
       return await mainCtrl.keystore.deleteSeed(params.id)
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
-      return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
+      return await mainCtrl.emailVault?.getEmailVaultInfo(params.email)
     case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
-      return await mainCtrl.emailVault.uploadKeyStoreSecret(params.email)
+      return await mainCtrl.emailVault?.uploadKeyStoreSecret(params.email)
     case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
-      return await mainCtrl.emailVault.handleMagicLinkKey(params.email, undefined, params.flow)
+      return await mainCtrl.emailVault?.handleMagicLinkKey(params.email, undefined, params.flow)
     case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
-      return mainCtrl.emailVault.cancelEmailConfirmation()
+      return mainCtrl.emailVault?.cancelEmailConfirmation()
     case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
-      return await mainCtrl.emailVault.recoverKeyStore(params.email, params.newPass)
+      return await mainCtrl.emailVault?.recoverKeyStore(params.email, params.newPass)
     case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
-      return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
+      return await mainCtrl.emailVault?.cleanMagicAndSessionKeys()
     case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
-      return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+      return await mainCtrl.emailVault?.requestKeysSync(params.email, params.keys)
     case 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER':
-      return mainCtrl.emailVault.dismissBanner()
+      return mainCtrl.emailVault?.dismissBanner()
     case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
       return await mainCtrl.addressBook.addContact(params.name, params.address)
     }
@@ -613,18 +637,32 @@ export const handleActions = async (
     }
 
     case 'OPEN_EXTENSION_POPUP': {
+      // eslint-disable-next-line no-inner-declarations
+      async function waitForPopupOpen(timeout = 10000, interval = 100) {
+        const startTime = Date.now()
+        while (!pm.ports.some((p) => p.name === 'popup')) {
+          if (Date.now() - startTime > timeout) break
+          await wait(interval)
+        }
+      }
+
       try {
+        const isLoading = await sessionStorage.get('isOpenExtensionPopupLoading', false)
+        const isPopupAlreadyOpened = pm.ports.some((p) => p.name === 'popup')
+        if (isLoading || isPopupAlreadyOpened) return
+
+        await sessionStorage.set('isOpenExtensionPopupLoading', true)
         await browser.action.openPopup()
+        await waitForPopupOpen()
       } catch (error) {
         try {
           await chrome.action.openPopup()
+          await waitForPopupOpen()
         } catch (e) {
-          pm.send('> ui', {
-            method: 'navigate',
-            params: { route: '/' }
-          })
+          pm.send('> ui', { method: 'navigate', params: { route: '/' } })
         }
       }
+      await sessionStorage.set('isOpenExtensionPopupLoading', false)
       break
     }
 
@@ -634,6 +672,15 @@ export const handleActions = async (
     }
     case 'SET_LOG_LEVEL': {
       await walletStateCtrl.setLogLevel(params.logLevel)
+      break
+    }
+    case 'SET_CRASH_ANALYTICS': {
+      await walletStateCtrl.setCrashAnalytics(params.enabled)
+      break
+    }
+
+    case 'DISMISS_BANNER': {
+      await mainCtrl.banner.dismissBanner(params.bannerId)
       break
     }
 

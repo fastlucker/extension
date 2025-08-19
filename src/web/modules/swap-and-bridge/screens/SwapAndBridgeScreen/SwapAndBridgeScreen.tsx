@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { Key } from '@ambire-common/interfaces/keystore'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Spinner from '@common/components/Spinner'
@@ -15,7 +16,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import BatchAdded from '@web/modules/sign-account-op/components/OneClick/BatchModal/BatchAdded'
@@ -25,7 +26,6 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
-import { Key } from '@ambire-common/interfaces/keystore'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -60,7 +60,8 @@ const SwapAndBridgeScreen = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
@@ -75,14 +76,10 @@ const SwapAndBridgeScreen = () => {
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
+  const { statuses: requestsCtrlStatuses } = useRequestsControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
-
-  const handleBackButtonPress = useCallback(() => {
-    navigate(ROUTES.dashboard)
-  }, [navigate])
 
   useEffect(() => {
     if (!pendingRoutes || !prevPendingRoutes) return
@@ -104,19 +101,17 @@ const SwapAndBridgeScreen = () => {
     (!signAccountOpController ||
       signAccountOpController.estimation.status === EstimationStatus.Loading)
 
-  const isNotReadyToProceed = useMemo(() => {
+  const isLoading = useMemo(() => {
     return (
-      formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
-      mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
+      requestsCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
       updateQuoteStatus === 'LOADING' ||
       isEstimatingRoute
     )
-  }, [
-    isEstimatingRoute,
-    formStatus,
-    mainCtrlStatuses.buildSwapAndBridgeUserRequest,
-    updateQuoteStatus
-  ])
+  }, [isEstimatingRoute, requestsCtrlStatuses.buildSwapAndBridgeUserRequest, updateQuoteStatus])
+
+  const isNotReadyToProceed = useMemo(() => {
+    return formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || isLoading
+  }, [formStatus, isLoading])
 
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
@@ -178,23 +173,27 @@ const SwapAndBridgeScreen = () => {
   const buttons = useMemo(() => {
     return (
       <>
-        {isTab && <BackButton onPress={handleBackButtonPress} />}
+        {isTab && <BackButton onPress={onBackButtonPress} />}
         <Buttons
           signAccountOpErrors={swapSignErrors}
           isNotReadyToProceed={isNotReadyToProceed}
+          isLoading={isLoading}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
           networkUserRequests={networkUserRequests}
+          isLocalStateOutOfSync={isLocalStateOutOfSync}
         />
       </>
     )
   }, [
-    handleBackButtonPress,
+    onBackButtonPress,
+    swapSignErrors,
+    isNotReadyToProceed,
+    isLoading,
     handleSubmitForm,
     isBridge,
-    isNotReadyToProceed,
-    swapSignErrors,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   ])
 
   if (!sessionIds.includes(sessionId)) {

@@ -1,9 +1,14 @@
 import React, { useCallback, useMemo } from 'react'
 import { useModalize } from 'react-native-modalize'
 
-import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
+import {
+  Action,
+  Banner as BannerType,
+  BannerType as NonMarketingBannerType
+} from '@ambire-common/interfaces/banner'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
+import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import Banner, { BannerButton } from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
@@ -11,7 +16,7 @@ import DashboardBannerBottomSheet from '@common/modules/dashboard/components/Das
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 const ERROR_ACTIONS = [
@@ -21,19 +26,24 @@ const ERROR_ACTIONS = [
   'dismiss-7702-banner'
 ]
 
-const DashboardBanner = ({ banner }: { banner: BannerType }) => {
+const DashboardBanner = ({
+  banner
+}: {
+  banner: Omit<BannerType, 'type'> & { type: NonMarketingBannerType }
+}) => {
   const { type, category, title, text, actions = [] } = banner
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { visibleActionsQueue, actionsQueue } = useActionsControllerState()
-  const { statuses } = useMainControllerState()
+  const { statuses } = useRequestsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return BatchIcon
     if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
+    if (category === 'successful-acc-op') return SuccessIcon
 
     return null
   }, [category])
@@ -106,7 +116,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
 
         case 'proceed-bridge':
           dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_SWAP_AND_BRIDGE_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
             params: { activeRouteId: action.meta.activeRouteId }
           })
           break
@@ -127,21 +137,24 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           })
           break
 
-        case 'update-extension-version': {
-          const shouldPrompt =
-            actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0
+        // The "Reload" handler was removed since v5.16.1, because `browser.runtime.reload()`
+        // was causing some funky Chrome glitches, see the deprecation notes in
+        // ExtensionUpdateController.applyUpdate() for more details.
+        // case 'update-extension-version': {
+        //   const shouldPrompt =
+        //     actionsQueue.filter(({ type: actionType }) => actionType !== 'benzin').length > 0
 
-          if (shouldPrompt) {
-            openBottomSheet()
-            break
-          }
+        //   if (shouldPrompt) {
+        //     openBottomSheet()
+        //     break
+        //   }
 
-          dispatch({
-            type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
-          })
+        //   dispatch({
+        //     type: 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE'
+        //   })
 
-          break
-        }
+        //   break
+        // }
 
         case 'reload-selected-account':
           dispatch({
@@ -161,6 +174,17 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
           )
           break
 
+        case 'enable-networks':
+          dispatch({
+            type: 'MAIN_CONTROLLER_UPDATE_NETWORKS',
+            params: { network: { disabled: false }, chainIds: action.meta.networkChainIds }
+          })
+          break
+
+        case 'dismiss-defi-positions-banner':
+          dispatch({ type: 'DISMISS_DEFI_POSITIONS_BANNER' })
+          break
+
         default:
           break
       }
@@ -177,37 +201,41 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
     ]
   )
 
+  const dismissAction = actions.find((action: Action) => action.label === 'Dismiss')
+
   const renderButtons = useMemo(
     () =>
-      actions.map((action: Action) => {
-        const isReject =
-          ERROR_ACTIONS.includes(action.actionName) ||
-          ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
-        let actionText = action.label
-        let isDisabled = false
+      actions
+        .filter((action: Action) => action.label !== 'Dismiss')
+        .map((action: Action) => {
+          const isReject =
+            ERROR_ACTIONS.includes(action.actionName) ||
+            ('meta' in action && 'isHideStyle' in action.meta && action.meta.isHideStyle)
+          let actionText = action.label
+          let isDisabled = false
 
-        if (action.actionName === 'proceed-bridge') {
-          if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
-            actionText = 'Preparing...'
+          if (action.actionName === 'proceed-bridge') {
+            if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') {
+              actionText = 'Preparing...'
+              isDisabled = true
+            }
+          } else if (action.actionName === 'reload-selected-account' && !portfolio.isAllReady) {
             isDisabled = true
+            actionText = 'Retrying...'
           }
-        } else if (action.actionName === 'reload-selected-account' && !portfolio.isAllReady) {
-          isDisabled = true
-          actionText = 'Retrying...'
-        }
 
-        return (
-          <BannerButton
-            testID={`banner-button-${actionText.toLowerCase()}`}
-            key={action.actionName}
-            isReject={isReject}
-            text={actionText}
-            disabled={isDisabled}
-            type={type}
-            onPress={() => handleActionPress(action)}
-          />
-        )
-      }),
+          return (
+            <BannerButton
+              testID={`banner-button-${actionText.toLowerCase()}`}
+              key={action.actionName}
+              isReject={isReject}
+              text={actionText}
+              disabled={isDisabled}
+              type={type}
+              onPress={() => handleActionPress(action)}
+            />
+          )
+        }),
     [actions, type, handleActionPress, portfolio.isAllReady, statuses.buildSwapAndBridgeUserRequest]
   )
 
@@ -219,6 +247,7 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
         type={type}
         text={text}
         renderButtons={renderButtons}
+        onClosePress={dismissAction ? () => handleActionPress(dismissAction) : undefined}
       />
       <DashboardBannerBottomSheet
         id={String(banner.id)}

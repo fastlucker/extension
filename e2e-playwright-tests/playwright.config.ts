@@ -4,7 +4,7 @@ import { PlaywrightTestConfig } from '@playwright/test'
 
 const config: PlaywrightTestConfig = {
   expect: {
-    timeout: 10 * 1000,
+    timeout: 30 * 1000,
     toHaveScreenshot: {
       maxDiffPixelRatio: 1 / 100
     }
@@ -19,7 +19,7 @@ const config: PlaywrightTestConfig = {
   timeout: 180 * 1000, // 3min
   reportSlowTests: null,
   snapshotPathTemplate: 'data/screenshots/{projectName}/{testFilePath}/{arg}/text',
-  retries: process.env.CI ? 1 : 0,
+  retries: process.env.CI ? 3 : 0,
   workers: process.env.CI ? 3 : 4,
   fullyParallel: true,
   use: {

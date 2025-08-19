@@ -2,9 +2,28 @@ import { buildSelector } from '@helpers/buildSelector'
 
 // TODO: this should be refactored; we should have single file with selector IDs
 const selectors = {
+  dashboard: {
+    tokensTabButton: 'tokens-defi',
+    nftTabButton: 'tab-nft',
+    defiTabButton: 'tab-defi',
+    activityTabButton: 'tab-activity',
+    sendButton: 'dashboard-button-send',
+    swapAndBridgeButton: 'dashboard-button-swap-and-bridge',
+    hamburgerButton: 'dashboard-hamburger-btn',
+    balanceErrorIcon: 'balance-affecting-error-icon',
+    portfolioErrorAlert: 'portfolio-error-alert',
+    noTransactionOnActivityTab: 'no-transaction-history-text',
+    transactionSendText: '(//div[contains(text(),"Send")])[2]', // TODO: change once we have id on FE
+    confirmedTransactionPill: '//div[contains(text(),"Confirmed")]', // TODO: chage once we have id on FE
+    fuelGasTankTransactionPill: '//div[contains(text(),"Fuel gas tank with")]', // TODO: chage once we have id on FE,
+    grantApprovalText: '//div[contains(text(),"Grant approval")]' // TODO: change once we have id on FE
+  },
   account: 'account',
   importBtn: 'import-button',
   importPrivateBtn: 'button-import-private-key',
+  importExistingAccBtn: 'create-existing-account-btn',
+  importMethodTrezor: 'import-method-trezor',
+  trezorConnectConfirmTerms: '@analytics/continue-button',
   saveAndContinueBtn: 'button-save-and-continue',
   enterSeedPhraseField: 'enter-seed-phrase-field',
   buttonProceedSeedPhrase: 'button-proceed-seed-phrase',
@@ -19,10 +38,17 @@ const selectors = {
   editFieldNameField: 'edit-name-field',
   getStartedBtnAdd: 'get-started-button-add',
   addressEnsField: 'address-ens-field',
+  addToAddressBookButton: 'add-to-address-book-button',
   viewOnlyAddressField: 'view-only-address-field',
   viewOnlyBtnImport: 'view-only-button-import',
   addOneMoreAddress: 'add-one-more-address',
-  address: 'address',
+  addContactFormButton: 'add-contact-form-modal',
+  contactNameField: 'contact-name-field',
+  contactNameText: 'contact-name-text', // TODO: selector could be more precise
+  contactAddressText: 'address',
+  sendFormAddToAddresBook: 'send-form-add-to-address-book-button',
+  formAddContactNameField: 'form-contact-name-field',
+  formAddToContactsButton: 'form-add-to-contacts-button',
   buttonAddAccount: 'button-add-account',
   watchAddress: 'watch-address',
   checkbox: 'checkbox',
@@ -67,10 +93,8 @@ const selectors = {
   collectiblePicture: 'collectible-picture',
   collectibleRow: 'collectible-row',
   addressBookMyWalletContactDyn: 'address-book-my-wallet-contact',
-  dashboardButtonSend: 'dashboard-button-send',
-  dashboardButtonSwapAndBridge: 'dashboard-button-swap-and-bridge',
-  dashboardHumburgerBtn: 'dashboard-hamburger-btn',
   continueAnywayCheckboxSaB: 'checkbox',
+  continueAnywayButton: '//div[contains(text(),"Continue anyway")]',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
   transferButtonConfirm: 'transfer-button-confirm',
@@ -118,7 +142,8 @@ const selectors = {
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
-  highPriceImpactSab: 'high-price-impact-sab',
+  highPriceImpactSab: '//div[contains(text(), "Very high price impact")]', // TODO: change with ID when we add it
+  highSlippageModal: '//div[contains(text(), "higher slippage")]', // TODO: change with ID when we add it
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
   removeNetworkButton: 'remove-network-btn',
@@ -140,10 +165,34 @@ const selectors = {
   topUpButton: 'top-up-gas-tank-modal-button',
   topUpProceedButton: 'proceed-btn',
   closeProgressModalButton: 'track-progress-primary-button',
+  // Network Management
+  // TODO: change once we have IDs on FE
+  disableNetworkButton: 'disable-network-btn',
+  disableNetworkConfirmButton: 'disable-network-confirm-btn',
+  addRPCURLButton: '//div[.//div[text()="RPC URL"]]//div[text()="Add"]',
+  addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
+  connectWalletButton:
+    "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
+  chainlistSearchPlaceholder: 'input[placeholder="ETH, Fantom, ..."]',
+  addToMetamaskButton: '//button[contains(text(),"Add to Metamask")]',
+  confirmaddNetworkOnChainlistButton: '//div[contains(text(),"Add network")]',
+  blockExplorerURL: (url: string) => `//div[contains(text(),"${url}")]`,
+  networkDetailEditButton: '//div[.//div[text()="Network details"]]//div[text()="Edit"]',
+  // edit network modal
+  editNetworkModalTitle: '//div[text()="Edit network"]',
+  editNetworkCancelButton: '//div[contains(text(),"Cancel")]',
+  editNetworkSaveButton: '//div[contains(text(),"Save")]',
+  networkSettingsSavedSnackbar: (networkName: string) =>
+    `((//div[contains(normalize-space(), "${networkName} settings saved!")]))[4]`, // TODO: snackbar selector finding 8 elements; change once we have ID on FE
   // Sign
   dappConnectButton: 'dapp-connect-button',
-  signMessageButton: 'button-sign'
-
+  dappSecurityCheckPassed: 'dapp-security-check-passed',
+  signMessageButton: 'button-sign',
+  // Notifications
+  networkSuccessfullyAddedSnackbar:
+    '(//div[contains(normalize-space(), "Network successfully added!")])[4]', // TODO: snackbar selector finding 8 elements; change once we have ID on FE
+  contactSuccessfullyAddedSnackbar:
+    '(//div[contains(normalize-space(), "Contact added to Address Book")])[4]' // TODO: snackbar selector finding 8 elements; change once we have ID on FE
 }
 
 type SelectorKey = keyof typeof selectors

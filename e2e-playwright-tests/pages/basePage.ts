@@ -1,19 +1,32 @@
 import selectors from 'constants/selectors'
+import BootstrapContext from 'interfaces/bootstrapContext'
 import Token from 'interfaces/token'
 
-import { expect, Page, Locator } from '@playwright/test'
+import { BrowserContext, expect, Locator, Page } from '@playwright/test'
 
-export abstract class BasePage {
+import { categorizeRequests } from '../utils/requests'
+
+export class BasePage {
   page: Page
 
-  abstract init(param?): Promise<void> // ⛔ Must be implemented in subclasses
+  context: BrowserContext
 
-  async navigateToHome() {
-    await this.page.goto('/')
+  collectedRequests: string[] = []
+
+  constructor({ page, context }: BootstrapContext) {
+    this.page = page
+    this.context = context
+  }
+
+  async navigateToURL(url: string) {
+    await this.page.goto(`${url}`)
   }
 
   async click(selector: string, index?: number): Promise<void> {
-    await this.page.getByTestId(selector).nth(index ?? 0).click()
+    await this.page
+      .getByTestId(selector)
+      .nth(index ?? 0)
+      .click()
   }
 
   async clickOnMenuToken(token: Token, menuSelector: string = selectors.tokensSelect) {
@@ -37,10 +50,10 @@ export abstract class BasePage {
     // If the token is outside the viewport, we ensure it becomes visible by searching for its symbol
     await this.entertext(selectors.searchInput, token.symbol)
 
-    const paidBy = paidByAddress.toLowerCase()
-    const tokenAddress = token.address.toLowerCase()
+    const paidBy = paidByAddress
+    const tokenAddress = token.address
     const tokenSymbol = token.symbol.toLowerCase()
-    const gasTank = onGasTank ? 'gastank' : ''
+    const gasTank = onGasTank ? 'gasTank' : ''
 
     // Ensure we click the token inside the SelectMenu,
     // not the one rendered as the default value.
@@ -56,8 +69,12 @@ export abstract class BasePage {
     await this.page.locator(locator).pressSequentially(text)
   }
 
+  async clearFieldInput(selector: string): Promise<void> {
+    await this.page.getByTestId(selector).fill('')
+  }
+
   async getText(selector: string): Promise<string> {
-    return await this.page.getByTestId(selector).innerText()
+    return this.page.getByTestId(selector).innerText()
   }
 
   async entertext(selector: string, text: string): Promise<void> {
@@ -65,18 +82,16 @@ export abstract class BasePage {
   }
 
   async getValue(selector: string): Promise<string> {
-    return await this.page.getByTestId(selector).inputValue()
+    return this.page.getByTestId(selector).inputValue()
   }
 
   async handleNewPage(locator: Locator) {
     const context = this.page.context()
-    const actionWindowPagePromise = new Promise<Page>((resolve) => {
-      context.once('page', (p) => {
-        resolve(p)
-      })
-    })
 
-    await locator.first().click({ timeout: 3000 })
+    const [actionWindowPagePromise] = await Promise.all([
+      context.waitForEvent('page'),
+      locator.first().click({ timeout: 5000 }) // trigger opening
+    ])
 
     return actionWindowPagePromise
   }
@@ -93,5 +108,37 @@ export abstract class BasePage {
 
   async expectButtonVisible(selector: string) {
     await expect(this.page.getByTestId(selector)).toBeVisible()
+  }
+
+  async expectButtonEnabled(selector: string) {
+    await expect(this.page.getByTestId(selector)).toBeEnabled()
+  }
+
+  async compareText(selector: string, text: string) {
+    await expect(this.page.getByTestId(selector)).toContainText(text)
+  }
+
+  async isVisible(selector: string): Promise<boolean> {
+    return this.page.getByTestId(selector).isVisible()
+  }
+
+  async monitorRequests() {
+    await this.context.route('**/*', async (route, request) => {
+      if (request.resourceType() === 'fetch' && request.method() !== 'OPTIONS') {
+        this.collectedRequests.push(request.url())
+      }
+      await route.continue()
+    })
+  }
+
+  getCategorizedRequests() {
+    return categorizeRequests(this.collectedRequests)
+  }
+
+  async getDashboardTokenBalance(token: Token) {
+    const balanceText = await this.getText(`token-balance-${token.address}.${token.chainId}`)
+    const tokenBalance = parseFloat(balanceText)
+
+    return tokenBalance
   }
 }

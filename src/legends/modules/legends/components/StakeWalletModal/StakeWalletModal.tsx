@@ -16,11 +16,12 @@ import { createPortal } from 'react-dom'
 
 import { STK_WALLET, WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import InfoIcon from '@common/assets/svg/InfoIcon/InfoIcon'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import { RELAYER_URL } from '@env'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import CloseIcon from '@legends/components/CloseIcon'
 import Input from '@legends/components/Input'
+import Modal from '@legends/components/Modal'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
@@ -54,10 +55,6 @@ const xWalletIface = new Interface([
   'event LogLeave(address indexed owner, uint256 shares, uint256 unlocksAt, uint256 maxTokens)'
 ])
 
-function goToStakingInfo() {
-  window.open('https://help.ambire.com/hc/en-us/sections/4421155466130-Staking/', '_blank')
-}
-
 const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> = ({
   isOpen,
   handleClose
@@ -86,7 +83,14 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const switchNetwork = useSwitchNetwork()
   const { addToast } = useToast()
-  useEscModal(isOpen, handleClose)
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState(false)
+
+  const handleEsc = useCallback(() => {
+    if (isWarningModalOpen) setIsWarningModalOpen(false)
+    else handleClose()
+  }, [handleClose, isWarningModalOpen, setIsWarningModalOpen])
+
+  useEscModal(isOpen, handleEsc)
 
   const isConnected = useMemo(() => !!connectedAccount && !v1Account, [connectedAccount, v1Account])
 
@@ -184,7 +188,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         const firstUncollected = uncollected[0]
         if (!firstUncollected) return
         const { maxTokens, unlocksAt, shares } = firstUncollected
-        setFirstToCollect({ unlocksAt: unlocksAt, maxTokens, shares })
+        setFirstToCollect({ unlocksAt, maxTokens, shares })
       })
       .catch(() => addToast('Error getting pending withdraw data', { type: 'error' }))
       .finally(() => setIsLoadingLogs(false))
@@ -340,7 +344,15 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
     const minutes = totalMinutes % 60
     return `${days}d ${hours}h ${minutes}m`
   }
+  const displayWarningOrUnstake = useCallback(() => {
+    if (!onchainData || !inputAmount) return
+    const walletsInXwallet = +formatUnits(onchainData.shareValue * onchainData.xWalletBalance, 36)
+    const walletsInStkWallet = +formatUnits(onchainData.stkWalletBalance)
+    const totalStakedWallets = walletsInStkWallet + walletsInXwallet
 
+    if (Number(inputAmount) > totalStakedWallets * 0.65) setIsWarningModalOpen(true)
+    else requestWithdrawAction(inputAmount)
+  }, [onchainData, inputAmount, setIsWarningModalOpen, requestWithdrawAction])
   const buttonState = useMemo((): { text: string; action?: () => any } => {
     if (!isConnected) return { text: 'Connect a new account' }
     if (isLoadingLogs || isLoadingOnchainData) return { text: 'Loading...' }
@@ -355,7 +367,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
       return onchainData?.stkWalletBalance
         ? {
             text: 'Unstake',
-            action: inputAmount ? () => requestWithdrawAction(inputAmount) : undefined
+            action: inputAmount ? displayWarningOrUnstake : undefined
           }
         : { text: 'No $WALLET staked to withdraw' }
     }
@@ -438,6 +450,16 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         </button>
         <div className={styles.contentWrapper}>
           <h2 className={styles.title}>Stake $WALLET</h2>
+          <p className={styles.learnMore}>
+            Learn more about{' '}
+            <a
+              target="_blank"
+              href="https://help.ambire.com/hc/en-us/sections/4421155466130-Staking/"
+              rel="noreferrer"
+            >
+              how staking works
+            </a>
+          </p>
           <div className={styles.tabs}>
             <button
               type="button"
@@ -505,16 +527,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                 </div>
               ))}
             <div className={`${styles.infoRow} ${styles.apyInfo}`}>
-              APY
-              <InfoIcon
-                onClick={goToStakingInfo}
-                width={12}
-                height={12}
-                color="currentColor"
-                className={styles.infoIcon}
-                data-tooltip-id="weight-info"
-              />
-              {walletTokenInfo?.apy.toFixed(2)}%
+              <div style={{ marginRight: '1rem' }}>APY</div> {walletTokenInfo?.apy.toFixed(2)}%
             </div>
             <div
               className={`${activeTab === 'unstake' && onchainData?.lockedShares && styles.blur}`}
@@ -618,6 +631,37 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
           </button>
         </div>
       </div>
+      <Modal
+        isOpen={isWarningModalOpen}
+        handleClose={() => setIsWarningModalOpen(false)}
+        className={styles.warningModal}
+      >
+        <Modal.Heading className={styles.heading}>Confirm Unstake</Modal.Heading>
+        <WarningIcon height={45} width={45} strokeWidth={1} color="#E7AA27" />
+        <p className={styles.infoText}>
+          If you confirm unstaking a significant amount of your stkWALLET, you won’t be earning XP
+          for the unstake period.
+        </p>
+        <div className={styles.buttonWrapper}>
+          <button
+            type="button"
+            className={styles.cancelButton}
+            onClick={() => setIsWarningModalOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={styles.confirmButton}
+            onClick={() => {
+              setIsWarningModalOpen(false)
+              requestWithdrawAction(inputAmount)
+            }}
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
     </div>,
     document.getElementById('modal-root') as HTMLElement
   )

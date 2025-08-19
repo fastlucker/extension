@@ -11,6 +11,7 @@ import DashboardBanners from '@common/modules/dashboard/components/DashboardBann
 import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
 import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
 import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import { getDoesNetworkMatch } from '@common/utils/search'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -45,11 +46,10 @@ const DeFiPositions: FC<Props> = ({
 }) => {
   const { control, watch, setValue } = useForm({ mode: 'all', defaultValues: { search: '' } })
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const searchValue = watch('search')
   const { networks } = useNetworksControllerState()
-  const { defiPositions, areDefiPositionsLoading, dashboardNetworkFilter } =
-    useSelectedAccountControllerState()
+  const { defiPositions, portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { setSearchParams } = useNavigation()
 
   const { dispatch } = useBackgroundService()
@@ -140,6 +140,7 @@ const DeFiPositions: FC<Props> = ({
               <Text
                 fontSize={14}
                 appearance="primary"
+                color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
                 onPress={() => {
                   // eslint-disable-next-line @typescript-eslint/no-floating-promises
                   openInTab({ url: 'https://help.ambire.com/hc/en-us' })
@@ -186,11 +187,9 @@ const DeFiPositions: FC<Props> = ({
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        areDefiPositionsLoading && !defiPositions?.length
-          ? 'skeleton'
-          : 'keep-this-to-avoid-key-warning',
-        ...(initTab?.defi ? filteredPositions : []),
-        !areDefiPositionsLoading && !filteredPositions.length ? 'empty' : ''
+        !portfolio.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
+        ...(initTab?.defi && portfolio.isAllReady ? filteredPositions : []),
+        portfolio.isAllReady && !filteredPositions.length ? 'empty' : ''
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}

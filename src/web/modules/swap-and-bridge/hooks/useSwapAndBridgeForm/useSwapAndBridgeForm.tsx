@@ -4,20 +4,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
 import { useLocation } from 'react-router-dom'
 
-import { getUsdAmount } from '@ambire-common/controllers/signAccountOp/helper'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
+import { safeTokenAmountAndNumberMultiplication } from '@ambire-common/utils/numbers/formatters'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useNavigation from '@common/hooks/useNavigation'
-import usePrevious from '@common/hooks/usePrevious'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import useSyncedState from '@web/hooks/useSyncedState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -36,15 +37,30 @@ const useSwapAndBridgeForm = () => {
     fromAmountInFiat,
     activeRoutes,
     signAccountOpController,
+    fromAmountUpdateCounter,
     formStatus,
     supportedChainIds,
     updateQuoteStatus,
     sessionIds,
     toSelectedToken
   } = useSwapAndBridgeControllerState()
-  const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
+  const { dispatch } = useBackgroundService()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
+  const { userRequests } = useRequestsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
-  const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+  const controllerAmountFieldValue = fromAmountFieldMode === 'token' ? fromAmount : fromAmountInFiat
+  const [fromAmountValue, setFromAmountValue] = useSyncedState<string>({
+    backgroundState: controllerAmountFieldValue,
+    updateBackgroundState: (newAmount) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+        params: { formValues: { fromAmount: newAmount } }
+      })
+    },
+    forceUpdateOnChangeList: [fromAmountUpdateCounter, fromAmountFieldMode]
+  })
+
+  const isLocalStateOutOfSync = controllerAmountFieldValue !== fromAmountValue
   /**
    * @deprecated - the settings menu is not used anymore
    */
@@ -53,12 +69,9 @@ const useSwapAndBridgeForm = () => {
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
     useState<boolean>(false)
-  const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const currentRoute = useLocation()
   const { setSearchParams, navigate } = useNavigation()
-  const prevFromAmount = usePrevious(fromAmount)
-  const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
   const {
     ref: estimationModalRef,
@@ -159,17 +172,19 @@ const useSwapAndBridgeForm = () => {
 
     if (!portfolio.isReadyToVisualize) return
 
-    const preselectedTokenInParams = currentRoute.state as
+    const routeState = currentRoute.state as
       | {
-          address: string
-          chainId: string
+          preselectedFromToken?: { address: string; chainId: bigint }
+          preselectedToToken?: { address: string; chainId: bigint }
+          fromAmount?: string
+          activeRouteIdToDelete?: string
         }
       | undefined
 
     const tokenToSelectOnInit = portfolio.tokens.find(
       (t) =>
-        t.address === preselectedTokenInParams?.address &&
-        t.chainId.toString() === preselectedTokenInParams.chainId &&
+        t.address === routeState?.preselectedFromToken?.address &&
+        t.chainId === routeState?.preselectedFromToken?.chainId &&
         getIsTokenEligibleForSwapAndBridge(t)
     )
 
@@ -177,7 +192,10 @@ const useSwapAndBridgeForm = () => {
       type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM',
       params: {
         sessionId,
-        preselectedFromToken: tokenToSelectOnInit
+        preselectedFromToken: tokenToSelectOnInit,
+        preselectedToToken: routeState?.preselectedToToken,
+        fromAmount: routeState?.fromAmount,
+        activeRouteIdToDelete: routeState?.activeRouteIdToDelete
       }
     })
     sessionIdsRequestedToBeInit.current.push(sessionId)
@@ -207,48 +225,6 @@ const useSwapAndBridgeForm = () => {
       dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN', params: { sessionId } })
     }
   }, [dispatch, sessionId])
-
-  useEffect(() => {
-    if (
-      fromAmountFieldMode === 'fiat' &&
-      prevFromAmountInFiat !== fromAmountInFiat &&
-      fromAmountInFiat !== fromAmountValue
-    ) {
-      handleSetFromAmount(fromAmountInFiat)
-    }
-  }, [
-    fromAmountInFiat,
-    fromAmountValue,
-    prevFromAmountInFiat,
-    fromAmountFieldMode,
-    handleSetFromAmount
-  ])
-
-  useEffect(() => {
-    if (fromAmountFieldMode === 'token') handleSetFromAmount(fromAmount)
-    if (fromAmountFieldMode === 'fiat') handleSetFromAmount(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, handleSetFromAmount])
-
-  useEffect(() => {
-    if (
-      fromAmountFieldMode === 'token' &&
-      prevFromAmount !== fromAmount &&
-      fromAmount !== fromAmountValue
-    ) {
-      handleSetFromAmount(fromAmount)
-    }
-  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode, handleSetFromAmount])
-
-  const onFromAmountChange = useCallback(
-    (value: string) => {
-      handleSetFromAmount(value)
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { fromAmount: value }
-      })
-    },
-    [dispatch, handleSetFromAmount]
-  )
 
   const {
     options: fromTokenOptions,
@@ -313,10 +289,10 @@ const useSwapAndBridgeForm = () => {
       const minAmountOutInWei = BigInt(
         quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
       )
-      const minInUsd = getUsdAmount(
-        Number(quote.selectedRoute.toToken.priceUSD),
+      const minInUsd = safeTokenAmountAndNumberMultiplication(
+        minAmountOutInWei,
         quote.selectedRoute.toToken.decimals,
-        minAmountOutInWei
+        Number(quote.selectedRoute.toToken.priceUSD)
       )
       const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
       const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
@@ -352,9 +328,12 @@ const useSwapAndBridgeForm = () => {
     if (isOneClickModeDuringPriceImpact) {
       if (networkUserRequests.length > 0) {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
           params: {
-            openActionWindow: true
+            type: 'swapAndBridgeRequest',
+            params: {
+              openActionWindow: true
+            }
           }
         })
         window.close()
@@ -363,9 +342,12 @@ const useSwapAndBridgeForm = () => {
       }
     } else {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+        type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
         params: {
-          openActionWindow: false
+          type: 'swapAndBridgeRequest',
+          params: {
+            openActionWindow: false
+          }
         }
       })
       setShowAddedToBatch(true)
@@ -393,9 +375,12 @@ const useSwapAndBridgeForm = () => {
       if (isOneClickMode) {
         if (networkUserRequests.length > 0) {
           dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
             params: {
-              openActionWindow: true
+              type: 'swapAndBridgeRequest',
+              params: {
+                openActionWindow: true
+              }
             }
           })
           window.close()
@@ -404,9 +389,12 @@ const useSwapAndBridgeForm = () => {
         }
       } else {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
           params: {
-            openActionWindow: false
+            type: 'swapAndBridgeRequest',
+            params: {
+              openActionWindow: false
+            }
           }
         })
         setShowAddedToBatch(true)
@@ -481,7 +469,7 @@ const useSwapAndBridgeForm = () => {
   return {
     sessionId,
     fromAmountValue,
-    onFromAmountChange,
+    onFromAmountChange: handleSetFromAmount,
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
     fromTokenValue,
@@ -504,7 +492,8 @@ const useSwapAndBridgeForm = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
-    networkUserRequests
+    networkUserRequests,
+    isLocalStateOutOfSync
   }
 }
 
