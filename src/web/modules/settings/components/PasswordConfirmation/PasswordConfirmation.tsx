@@ -54,12 +54,10 @@ const PasswordConfirmation: React.FC<Props> = ({
   // password confirmation for something different than unlocks
   const mode = onCustomSubmit ? 'custom' : 'unlock'
 
-  // this shouldn't happen
-  // if the user doesn't have a keystore password set, navigate him to set it
   useEffect(() => {
-    // if using a different onCustomSubmit method, it means we're using the
-    // password confirmation for something different than unlocks
     if (mode === 'custom') return
+
+    // if the user doesn't have a keystore password set, navigate him to set it
     if (!keystoreState.hasPasswordSecret) navigate(WEB_ROUTES.devicePasswordSet)
   }, [keystoreState.hasPasswordSecret, navigate, mode])
 
