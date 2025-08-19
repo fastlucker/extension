@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { useModalize } from 'react-native-modalize'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import {
+  SignAccountOpUpdateProps,
+  SigningStatus
+} from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { ISignAccountOpController } from '@ambire-common/interfaces/signAccountOp'
 import usePrevious from '@common/hooks/usePrevious'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
 import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
@@ -15,7 +17,7 @@ import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
 type Props = {
   handleUpdateStatus: (status: SigningStatus) => void
   handleBroadcast: () => void
-  handleUpdate: (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => void
+  handleUpdate: (params: SignAccountOpUpdateProps) => void
   signAccountOpState: ISignAccountOpController | null
   isOneClickSign?: boolean
 }
@@ -28,7 +30,6 @@ const useSign = ({
   isOneClickSign
 }: Props) => {
   const { t } = useTranslation()
-  const mainState = useMainControllerState()
   const { networks } = useNetworksControllerState()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
@@ -119,7 +120,7 @@ const useSign = ({
   }, [networks, signAccountOpState?.accountOp?.chainId])
 
   const signingKeyType = signAccountOpState?.accountOp?.signingKeyType
-  const feePayerKeyType = mainState.feePayerKey?.type
+  const feePayerKeyType = signAccountOpState?.accountOp?.gasFeePayment?.paidByKeyType
   const isAtLeastOneOfTheKeysInvolvedLedger =
     signingKeyType === 'ledger' || feePayerKeyType === 'ledger'
 
@@ -185,6 +186,13 @@ const useSign = ({
       // setIsChooseSignerShown(false)
     },
     [handleSign, handleUpdate]
+  )
+
+  const handleChangeFeePayerKeyType = useCallback(
+    (newFeePayerKeyType: Key['type']) => {
+      handleUpdate({ paidByKeyType: newFeePayerKeyType })
+    },
+    [handleUpdate]
   )
 
   const onSignButtonClick = useCallback(() => {
@@ -298,6 +306,7 @@ const useSign = ({
     warningModalRef,
     signingKeyType,
     feePayerKeyType,
+    handleChangeFeePayerKeyType,
     shouldDisplayLedgerConnectModal,
     network,
     notReadyToSignButAlsoNotDone,
