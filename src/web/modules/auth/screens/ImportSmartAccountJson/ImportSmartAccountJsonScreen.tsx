@@ -2,6 +2,7 @@ import { computeAddress, getAddress, isAddress, isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Linking, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { AMBIRE_ACCOUNT_FACTORY } from '@ambire-common/consts/deploy'
 import { Account, AccountCreation } from '@ambire-common/interfaces/account'
@@ -9,6 +10,7 @@ import { ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import Alert from '@common/components/Alert'
+import BottomSheet from '@common/components/BottomSheet'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -17,19 +19,17 @@ import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import text from '@common/styles/utils/text'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import eventBus from '@web/extension-services/event/eventBus'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-
-import BottomSheet from '@common/components/BottomSheet'
-import { THEME_TYPES } from '@common/styles/themeConfig'
-import eventBus from '@web/extension-services/event/eventBus'
 import PasswordConfirmation from '@web/modules/settings/components/PasswordConfirmation'
-import { useModalize } from 'react-native-modalize'
+
 import getStyles from './styles'
 
 type ImportedJson = Account & {
@@ -392,9 +392,9 @@ const SmartAccountImportScreen = () => {
           style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
         >
           <PasswordConfirmation
-            title="Enter encrypted file password"
+            title="Decrypt backup"
             text={t(
-              'Please enter the password used for the encryption of this file. It should be the same as the extension password at the time of encryption'
+              'Please enter the password that encrypted this file - the extension password at the time of export.'
             )}
             onPasswordConfirmed={() => closeConfirmKeyPassword()}
             onCustomSubmit={onPasswordSubmitted}
