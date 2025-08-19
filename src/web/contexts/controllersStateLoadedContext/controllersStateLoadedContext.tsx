@@ -240,7 +240,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     if (areControllerStatesLoaded || !shouldWaitForMainCtrlStatus) return
     if (!hasUiState) return
-    console.log('uiCtrl.views', uiCtrl.views)
 
     const popupView = uiCtrl.views.find((v) => v.type === 'popup')
     if (!popupView || !popupView.isReady) return
