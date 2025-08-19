@@ -194,6 +194,15 @@ export const handleActions = async (
 
       return await mainCtrl.keystore.addKeys(params.keys)
     }
+    case 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI': {
+      return await mainCtrl.keystore.sendPasswordDecryptedPrivateKeyToUi(
+        params.secret,
+        params.key,
+        params.salt,
+        params.iv,
+        params.associatedKeys
+      )
+    }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
       // Since these accounts are view-only, directly add them in the
       // MainController, bypassing the AccountPicker flow.
@@ -508,6 +517,12 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
+    case 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI':
+      return await mainCtrl.keystore.sendPasswordEncryptedPrivateKeyToUi(
+        params.keyAddr,
+        params.secret,
+        params.entropy
+      )
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
@@ -516,21 +531,21 @@ export const handleActions = async (
       return await mainCtrl.keystore.deleteSeed(params.id)
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
-      return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
+      return await mainCtrl.emailVault?.getEmailVaultInfo(params.email)
     case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
-      return await mainCtrl.emailVault.uploadKeyStoreSecret(params.email)
+      return await mainCtrl.emailVault?.uploadKeyStoreSecret(params.email)
     case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
-      return await mainCtrl.emailVault.handleMagicLinkKey(params.email, undefined, params.flow)
+      return await mainCtrl.emailVault?.handleMagicLinkKey(params.email, undefined, params.flow)
     case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
-      return mainCtrl.emailVault.cancelEmailConfirmation()
+      return mainCtrl.emailVault?.cancelEmailConfirmation()
     case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
-      return await mainCtrl.emailVault.recoverKeyStore(params.email, params.newPass)
+      return await mainCtrl.emailVault?.recoverKeyStore(params.email, params.newPass)
     case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
-      return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
+      return await mainCtrl.emailVault?.cleanMagicAndSessionKeys()
     case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
-      return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+      return await mainCtrl.emailVault?.requestKeysSync(params.email, params.keys)
     case 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER':
-      return mainCtrl.emailVault.dismissBanner()
+      return mainCtrl.emailVault?.dismissBanner()
     case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
       return await mainCtrl.addressBook.addContact(params.name, params.address)
     }

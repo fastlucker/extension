@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect } from 'react'
 
-import { BannerController } from '@ambire-common/controllers/banner/banner'
+import { IBannerController } from '@ambire-common/interfaces/banner'
 import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
-const BannerControllerStateContext = createContext<BannerController>({} as BannerController)
+const BannerControllerStateContext = createContext<IBannerController>({} as IBannerController)
 
 const BannerControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'banner'

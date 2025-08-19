@@ -1,15 +1,15 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
-import {
-  AccountOpAction,
-  Action as ActionFromActionsQueue,
-  ActionExecutionType,
-  ActionPosition,
-  OpenActionWindowParams
-} from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
+import {
+  AccountOpAction,
+  ActionExecutionType,
+  Action as ActionFromActionsQueue,
+  ActionPosition,
+  OpenActionWindowParams
+} from '@ambire-common/interfaces/actions'
 import { Banner } from '@ambire-common/interfaces/banner'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
@@ -449,6 +449,14 @@ type KeystoreControllerSendPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string }
 }
+type KeystoreControllerSendEncryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI'
+  params: { keyAddr: string; secret: string; entropy: string }
+}
+type KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI'
+  params: { secret: string; key: string; salt: string; iv: string; associatedKeys: string[] }
+}
 type KeystoreControllerDeleteSeedAction = {
   type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
   params: { id: string }
@@ -772,7 +780,6 @@ export type Action =
   | MainControllerAddNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
-  | MainControllerUpdateNetworksAction
   | MainControllerAccountPickerSetPageAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
@@ -887,3 +894,5 @@ export type Action =
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
   | DismissBanner
+  | KeystoreControllerSendEncryptedPrivateKeyToUiAction
+  | KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction

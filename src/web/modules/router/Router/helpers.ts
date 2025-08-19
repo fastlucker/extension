@@ -1,7 +1,7 @@
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
-import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
-import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { IKeystoreController } from '@ambire-common/interfaces/keystore'
+import { ISwapAndBridgeController } from '@ambire-common/interfaces/swapAndBridge'
+import { ITransferController } from '@ambire-common/interfaces/transfer'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -16,11 +16,11 @@ const getInitialRoute = ({
   swapAndBridgeState,
   transferState
 }: {
-  keystoreState: KeystoreController
+  keystoreState: IKeystoreController
   authStatus: AUTH_STATUS
   actionsState: ActionsController
-  swapAndBridgeState: SwapAndBridgeController
-  transferState: TransferController
+  swapAndBridgeState: ISwapAndBridgeController
+  transferState: ITransferController
 }) => {
   if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
     return ROUTES.keyStoreUnlock
