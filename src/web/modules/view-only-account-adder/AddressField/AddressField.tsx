@@ -6,6 +6,7 @@ import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { getAddressFromAddressState } from '@ambire-common/utils/domains'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import AddressInput from '@common/components/AddressInput'
+import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -24,6 +25,7 @@ interface Props {
   disabled: boolean
   setValue: UseFormSetValue<any>
   trigger: UseFormTrigger<any>
+  addressesInAssociatedKeys: any[]
 }
 const AddressField: FC<Props> = ({
   duplicateAccountsIndexes,
@@ -36,7 +38,8 @@ const AddressField: FC<Props> = ({
   remove,
   disabled,
   setValue,
-  trigger
+  trigger,
+  addressesInAssociatedKeys
 }) => {
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
@@ -56,7 +59,7 @@ const AddressField: FC<Props> = ({
     },
     [index, setValue]
   )
-
+  const address = getAddressFromAddressState(value)
   const overwriteError = useMemo(() => {
     // We don't want to update the error message while accounts are being
     // imported because that would stop the import process.
@@ -112,22 +115,35 @@ const AddressField: FC<Props> = ({
         required: true
       }}
       render={({ field: { onChange, onBlur } }) => (
-        <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
-          <AddressInput
-            testID={`view-only-address-field-${index}`}
-            validation={validation}
-            containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value.fieldValue}
-            autoFocus
-            disabled={isLoading}
-            ensAddress={value.ensAddress}
-            isRecipientDomainResolving={value.isDomainResolving}
-            onSubmitEditing={disabled ? undefined : handleSubmit}
-            button={accounts.length > 1 ? <DeleteIcon /> : null}
-            onButtonPress={() => remove(index)}
-          />
+        <View>
+          <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
+            <AddressInput
+              testID={`view-only-address-field-${index}`}
+              validation={validation}
+              containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value.fieldValue}
+              autoFocus
+              disabled={isLoading}
+              ensAddress={value.ensAddress}
+              isRecipientDomainResolving={value.isDomainResolving}
+              onSubmitEditing={disabled ? undefined : handleSubmit}
+              button={accounts.length > 1 ? <DeleteIcon /> : null}
+              onButtonPress={() => remove(index)}
+            />
+          </View>
+          {addressesInAssociatedKeys &&
+            addressesInAssociatedKeys.length &&
+            addressesInAssociatedKeys.map((addressInfo, index) => {
+              return addressInfo && addressInfo?.isAssociated && address === addressInfo.address ? (
+                <Text key={index} fontSize={14}>
+                  This key is already imported and associated with other accounts. If you import it
+                  it will be automatically associated with the existing account and not as a
+                  view-only.{' '}
+                </Text>
+              ) : null
+            })}
         </View>
       )}
       name={`accounts.${index}.fieldValue`}
