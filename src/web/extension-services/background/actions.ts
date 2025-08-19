@@ -453,7 +453,7 @@ type KeystoreControllerSendEncryptedPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string; secret: string; entropy: string }
 }
-type KeystoreControllerSendJsonDecryptedPrivateKeyToUiAction = {
+type KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI'
   params: { secret: string; key: string; salt: string; iv: string; associatedKeys: string[] }
 }
@@ -896,4 +896,4 @@ export type Action =
   | SetCrashAnalyticsAction
   | DismissBanner
   | KeystoreControllerSendEncryptedPrivateKeyToUiAction
-  | KeystoreControllerSendJsonDecryptedPrivateKeyToUiAction
+  | KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction
