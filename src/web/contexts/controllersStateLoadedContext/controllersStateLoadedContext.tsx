@@ -23,6 +23,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useStorageControllerState from '@web/hooks/useStorageControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import useUiControllerState from '@web/hooks/useUiControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 import { getUiType } from '@web/utils/uiType'
 
@@ -47,6 +48,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
   const storageCtrl = useStorageControllerState()
+  const uiCtrl = useUiControllerState()
   const networksState = useNetworksControllerState()
   const providersState = useProvidersControllerState()
   const accountsState = useAccountsControllerState()
@@ -73,6 +75,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     [mainState]
   )
   const hasStorageState: boolean = useMemo(() => !!Object.keys(storageCtrl).length, [storageCtrl])
+  const hasUiState: boolean = useMemo(() => !!Object.keys(uiCtrl).length, [uiCtrl])
   const hasNetworksState: boolean = useMemo(
     () => !!Object.keys(networksState).length,
     [networksState]
@@ -166,6 +169,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     if (
       hasMainState &&
       hasStorageState &&
+      hasUiState &&
       hasNetworksState &&
       hasProvidersState &&
       hasAccountsState &&
@@ -190,7 +194,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     ) {
       clearTimeout(timeout)
       if (isPopup) {
-        dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
         setShouldWaitForMainCtrlStatus(true)
       } else {
         const elapsed = Date.now() - startTime
@@ -207,6 +210,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   }, [
     hasMainState,
     hasStorageState,
+    hasUiState,
     hasNetworksState,
     hasProvidersState,
     hasAccountsState,
@@ -235,8 +239,11 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     if (areControllerStatesLoaded || !shouldWaitForMainCtrlStatus) return
+    if (!hasUiState) return
+    console.log('uiCtrl.views', uiCtrl.views)
 
-    if (mainState.onPopupOpenStatus !== 'SUCCESS') return
+    const popupView = uiCtrl.views.find((v) => v.type === 'popup')
+    if (!popupView || !popupView.isReady) return
 
     const elapsed = Date.now() - startTime
     const wait = Math.max(0, 400 - elapsed)
@@ -246,12 +253,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       setAreControllerStatesLoaded(true)
       setShouldWaitForMainCtrlStatus(false)
     }, wait)
-  }, [
-    shouldWaitForMainCtrlStatus,
-    mainState.onPopupOpenStatus,
-    startTime,
-    areControllerStatesLoaded
-  ])
+  }, [shouldWaitForMainCtrlStatus, hasUiState, uiCtrl.views, startTime, areControllerStatesLoaded])
 
   return (
     <ControllersStateLoadedContext.Provider

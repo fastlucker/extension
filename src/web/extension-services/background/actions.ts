@@ -414,10 +414,6 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   }
 }
 
-type MainControllerOnPopupOpenAction = {
-  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
-}
-
 type MainControllerLockAction = {
   type: 'MAIN_CONTROLLER_LOCK'
 }

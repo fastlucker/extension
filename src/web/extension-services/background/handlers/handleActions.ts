@@ -79,8 +79,6 @@ export const handleActions = async (
       }
       break
     }
-    case 'MAIN_CONTROLLER_ON_POPUP_OPEN':
-      return mainCtrl.onPopupOpen()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER': {
