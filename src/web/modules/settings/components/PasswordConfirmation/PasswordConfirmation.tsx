@@ -53,8 +53,11 @@ const PasswordConfirmation: React.FC<Props> = ({
   // this shouldn't happen
   // if the user doesn't have a keystore password set, navigate him to set it
   useEffect(() => {
+    // if using a different onSubmit method, it means we're using the
+    // password confirmation for something different than unlocks
+    if (onSubmit) return
     if (!keystoreState.hasPasswordSecret) navigate(WEB_ROUTES.devicePasswordSet)
-  }, [keystoreState.hasPasswordSecret, navigate])
+  }, [keystoreState.hasPasswordSecret, navigate, onSubmit])
 
   const {
     control,
