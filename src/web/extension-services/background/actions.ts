@@ -5,8 +5,8 @@ import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountO
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
   ActionExecutionType,
+  Action as ActionFromActionsQueue,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/interfaces/actions'
@@ -449,6 +449,14 @@ type KeystoreControllerSendPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string }
 }
+type KeystoreControllerSendEncryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI'
+  params: { keyAddr: string; secret: string; entropy: string }
+}
+type KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI'
+  params: { secret: string; key: string; salt: string; iv: string; associatedKeys: string[] }
+}
 type KeystoreControllerDeleteSeedAction = {
   type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
   params: { id: string }
@@ -772,7 +780,6 @@ export type Action =
   | MainControllerAddNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
-  | MainControllerUpdateNetworksAction
   | MainControllerAccountPickerSetPageAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
@@ -887,3 +894,5 @@ export type Action =
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
   | DismissBanner
+  | KeystoreControllerSendEncryptedPrivateKeyToUiAction
+  | KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction

@@ -74,6 +74,7 @@ const Modals: FC<Props> = ({
             secondaryButtonText={t('Cancel')}
             onPrimaryButtonPress={acknowledgeWarning}
             onSecondaryButtonPress={dismissWarning}
+            type={warningToPromptBeforeSign?.type}
           />
         )}
         {slowPaymasterRequest && (
