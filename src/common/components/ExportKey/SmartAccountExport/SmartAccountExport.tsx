@@ -69,12 +69,12 @@ const SmartAccountExport: FC<Props> = ({
 
   return (
     <>
-      <View style={[flexbox.flex1, spacings.mbTy]}>
+      <View style={[flexbox.flex1, spacings.mb]}>
         <Alert
           size="sm"
           type="warning"
           title={t(
-            'Warning: Below is a download option for a JSON backup of your smart account. Never disclose this file or share it with anyone. The file containts the private key with the privileges to execute transactions on behalf of the smart account. Anyone with it can steal any assets held in your account.'
+            "Encrypted JSON backup of this smart account, containing the private key that controls it.\n\nImportant: The file is encrypted with your current extension password. If you forget it, the backup is unusable.\n\nChanging extension password won't update the backup. It always requires the password set at download time."
           )}
         />
       </View>

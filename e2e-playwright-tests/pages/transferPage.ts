@@ -43,7 +43,7 @@ export class TransferPage extends BasePage {
     // clear input if any
     await this.clearFieldInput(selectors.addressEnsField)
     await this.entertext(selectors.addressEnsField, address)
-
+    await this.page.waitForTimeout(1000)
     // if address is unknown checkbox has to be checked
     if (isUnknownAddress) {
       await this.click(selectors.recipientAddressUnknownCheckbox)
