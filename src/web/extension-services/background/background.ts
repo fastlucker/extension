@@ -186,8 +186,7 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
 
 handleKeepBridgeContentScriptAcrossSessions()
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-;(async () => {
+const init = async () => {
   // Init sentry
   if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
     Sentry.init({
@@ -665,7 +664,16 @@ handleKeepBridgeContentScriptAcrossSessions()
       })
     }
   })
-})()
+}
+
+// Ensure the service worker fully activates before running init, allowing
+// chrome.storage, caches, clients control, runtime APIs, and migration tasks
+// to be properly initialized and ready, preventing startup race conditions,
+// storage access issues and related errors.
+// eslint-disable-next-line no-restricted-globals
+self.addEventListener('activate', (event: any) => {
+  event.waitUntil(init())
+})
 
 try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {
