@@ -294,7 +294,8 @@
     "@types/react": "18.3.12",
     "expo-modules-autolinking": "~0.10.1",
     "@babel/core": "^7.20.2",
-    "babel-loader": "8.3.0"
+    "babel-loader": "8.3.0",
+    "elliptic": "^6.6.1"
   },
   "private": true
 }
