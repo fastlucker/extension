@@ -100,6 +100,9 @@ const SignAccountOpScreen = () => {
     isSignLoading,
     hasEstimation,
     warningModalRef,
+    handleChangeFeePayerKeyType,
+    isChooseFeePayerKeyShown,
+    setIsChooseFeePayerKeyShown,
     signingKeyType,
     feePayerKeyType,
     shouldDisplayLedgerConnectModal,
@@ -328,9 +331,15 @@ const SignAccountOpScreen = () => {
           <SigningKeySelect
             isVisible={isChooseSignerShown}
             isSigning={isSignLoading || !signAccountOpState.readyToSign}
-            handleClose={() => setIsChooseSignerShown(false)}
+            handleClose={() => {
+              setIsChooseSignerShown(false)
+              setIsChooseFeePayerKeyShown(false)
+            }}
             selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
-            handleChooseSigningKey={handleChangeSigningKey}
+            handleChooseKey={
+              isChooseFeePayerKeyShown ? handleChangeFeePayerKeyType : handleChangeSigningKey
+            }
+            type={isChooseFeePayerKeyShown ? 'broadcasting' : 'signing'}
             account={signAccountOpState.account}
           />
         ) : null}

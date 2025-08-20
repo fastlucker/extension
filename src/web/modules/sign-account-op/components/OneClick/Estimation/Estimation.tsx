@@ -73,6 +73,9 @@ const OneClickEstimation = ({
     warningModalRef,
     dismissWarning,
     acknowledgeWarning,
+    handleChangeFeePayerKeyType,
+    isChooseFeePayerKeyShown,
+    setIsChooseFeePayerKeyShown,
     slowPaymasterRequest,
     primaryButtonText,
     bundlerNonceDiscrepancy
@@ -104,9 +107,15 @@ const OneClickEstimation = ({
             <SigningKeySelect
               isVisible={isChooseSignerShown}
               isSigning={isSignLoading || !signAccountOpController.readyToSign}
-              handleClose={() => setIsChooseSignerShown(false)}
+              handleClose={() => {
+                setIsChooseSignerShown(false)
+                setIsChooseFeePayerKeyShown(false)
+              }}
               selectedAccountKeyStoreKeys={signAccountOpController.accountKeyStoreKeys}
-              handleChooseSigningKey={handleChangeSigningKey}
+              handleChooseKey={
+                isChooseFeePayerKeyShown ? handleChangeFeePayerKeyType : handleChangeSigningKey
+              }
+              type={isChooseFeePayerKeyShown ? 'broadcasting' : 'signing'}
               account={signAccountOpController.account}
             />
             <Estimation

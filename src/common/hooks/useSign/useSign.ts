@@ -32,6 +32,8 @@ const useSign = ({
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [isChooseFeePayerKeyShown, setIsChooseFeePayerKeyShown] = useState(false)
+  const [chosenSigningKeyType, setChosenSigningKeyType] = useState<Key['type'] | null>(null)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
@@ -144,7 +146,7 @@ const useSign = ({
   )
 
   const handleSign = useCallback(
-    (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
+    (_chosenSigningKeyType?: Key['type'], _warningAccepted?: boolean) => {
       // Prioritize warning(s) modals over all others
       // Warning modals are not displayed in the one-click swap flow
       if (warningToPromptBeforeSign && !_warningAccepted) {
@@ -153,6 +155,9 @@ const useSign = ({
         return
       }
 
+      const isFeePayerSameAsSigner =
+        signAccountOpState?.accountOp.signingKeyAddr ===
+        signAccountOpState?.accountOp.gasFeePayment?.paidBy
       const isLedgerKeyInvolvedInTheJustChosenKeys = _chosenSigningKeyType
         ? _chosenSigningKeyType === 'ledger' || feePayerKeyType === 'ledger'
         : isAtLeastOneOfTheKeysInvolvedLedger
@@ -162,10 +167,23 @@ const useSign = ({
         return
       }
 
+      if ((signAccountOpState?.feePayerKeyStoreKeys?.length || 0) > 1 && !isFeePayerSameAsSigner) {
+        setIsChooseFeePayerKeyShown(true)
+        // Store the signing key to use it to broadcast the transaction
+        // after the user chooses the fee payer key.
+        // This is a rare case in which the user has > 1 signer type
+        // for both signing and fee payment.
+        setChosenSigningKeyType(_chosenSigningKeyType || null)
+        return
+      }
+
       handleBroadcast()
     },
     [
       warningToPromptBeforeSign,
+      signAccountOpState?.accountOp.signingKeyAddr,
+      signAccountOpState?.accountOp.gasFeePayment?.paidBy,
+      signAccountOpState?.feePayerKeyStoreKeys?.length,
       feePayerKeyType,
       isAtLeastOneOfTheKeysInvolvedLedger,
       isLedgerConnected,
@@ -183,16 +201,19 @@ const useSign = ({
       // the signing key type in the state might not be updated yet,
       // and Sign Account Op controller assigns a default signing upfront
       handleSign(_chosenSigningKeyType)
-      // setIsChooseSignerShown(false)
     },
     [handleSign, handleUpdate]
   )
 
   const handleChangeFeePayerKeyType = useCallback(
-    (newFeePayerKeyType: Key['type']) => {
+    // Done for compatibility with the select component
+    (_: Key['addr'], newFeePayerKeyType: Key['type']) => {
       handleUpdate({ paidByKeyType: newFeePayerKeyType })
+
+      handleSign(chosenSigningKeyType ?? undefined)
+      setIsChooseFeePayerKeyShown(false)
     },
-    [handleUpdate]
+    [chosenSigningKeyType, handleSign, handleUpdate]
   )
 
   const onSignButtonClick = useCallback(() => {
@@ -314,7 +335,9 @@ const useSign = ({
     setInitDispatchedForId,
     isSignDisabled,
     primaryButtonText,
-    bundlerNonceDiscrepancy
+    bundlerNonceDiscrepancy,
+    isChooseFeePayerKeyShown,
+    setIsChooseFeePayerKeyShown
   }
 }
 
