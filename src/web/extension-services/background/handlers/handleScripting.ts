@@ -24,7 +24,7 @@ const handleRegisterScripts = async () => {
   if (!registeredContentScriptMessengerBridge) {
     scripts.push({
       id: 'content-script-messenger-bridge',
-      allFrames: true,
+      allFrames: false,
       matches: ['http://*/*', 'https://*/*', 'file://*/*'],
       excludeMatches: ['*://doInWebPack.lan/*'],
       js: ['browser-polyfill.min.js', 'content-script.js'],
