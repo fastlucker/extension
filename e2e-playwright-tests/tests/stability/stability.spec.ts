@@ -6,7 +6,7 @@ import selectors from '../../constants/selectors'
 import tokens from '../../constants/tokens'
 import { test } from '../../fixtures/pageObjects'
 
-test.describe.only('stability', () => {
+test.describe('stability', () => {
   test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams, { shouldUnlockManually: true })
   })
