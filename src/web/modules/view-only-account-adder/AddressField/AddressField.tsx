@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo } from 'react'
 import { Controller, UseFormSetValue, UseFormTrigger, UseFormWatch } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
@@ -26,8 +27,8 @@ interface Props {
   disabled: boolean
   setValue: UseFormSetValue<any>
   trigger: UseFormTrigger<any>
-  addressesInAssociatedKeys: any[]
 }
+
 const AddressField: FC<Props> = ({
   duplicateAccountsIndexes,
   field,
@@ -39,13 +40,13 @@ const AddressField: FC<Props> = ({
   remove,
   disabled,
   setValue,
-  trigger,
-  addressesInAssociatedKeys
+  trigger
 }) => {
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
+  const { t } = useTranslation()
 
   const setAddressState = useCallback(
     (newState: AddressStateOptional) => {
@@ -60,7 +61,22 @@ const AddressField: FC<Props> = ({
     },
     [index, setValue]
   )
-  const address = getAddressFromAddressState(value)
+
+  // Check if an address is already associated with existing accounts
+  // If that is the case the address will be added with the associated keys
+  // and not as a view-only account,
+  // so we need to inform the user about this to make the behavior clear
+  const addressesInAssociatedKeys = useMemo(() => {
+    const fieldVal = value?.fieldValue.toLowerCase()
+    if (!fieldVal) return []
+    if (accountsState.accounts.find((account) => account.addr.toLowerCase() === fieldVal)) return []
+    return accountsState.accounts
+      .filter((account) =>
+        (account.associatedKeys || []).some((key) => key?.toLowerCase() === fieldVal)
+      )
+      .map((account) => account.addr)
+  }, [accountsState.accounts, value, value?.fieldValue])
+
   const overwriteError = useMemo(() => {
     // We don't want to update the error message while accounts are being
     // imported because that would stop the import process.
@@ -134,19 +150,21 @@ const AddressField: FC<Props> = ({
               onButtonPress={() => remove(index)}
             />
           </View>
-          {addressesInAssociatedKeys &&
-            addressesInAssociatedKeys.length &&
-            addressesInAssociatedKeys.map((addressInfo) => {
-              return addressInfo && addressInfo?.isAssociated && address === addressInfo.address ? (
+          {addressesInAssociatedKeys?.length > 0 &&
+            addressesInAssociatedKeys.map((_address) => {
+              return (
                 <Banner
-                  title="This account’s key is already imported."
-                  text={`It’s the same key associated with ${shortenAddress(
-                    addressInfo.associatedAddress,
-                    13
-                  )}. If you continue, this address will be linked to that key and managed with full access, not as view-only.`}
+                  title={t('This account’s key is already imported.')}
+                  text={t(
+                    `It’s the same key associated with ${shortenAddress(
+                      _address,
+                      13
+                    )}. If you continue, this address will be linked to that key and managed with full access, not as view-only.`
+                  )}
                   type="info2"
+                  key={_address}
                 />
-              ) : null
+              )
             })}
         </View>
       )}

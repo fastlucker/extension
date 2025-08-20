@@ -81,20 +81,6 @@ const ViewOnlyScreen = () => {
 
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
-  const addressesInAssociatedKeys = accounts.map((account) => {
-    const address = getAddressFromAddressState(account)
-    if (!address) return null
-
-    const matchingAccount = accountsState?.accounts.find((existingAccount) => {
-      const associatedKeys = existingAccount.associatedKeys || []
-      return associatedKeys.some((key) => key.toLowerCase() === address.toLowerCase())
-    })
-
-    return matchingAccount
-      ? { isAssociated: true, address, associatedAddress: matchingAccount.addr }
-      : { isAssociated: false }
-  })
-
   const isValid = useMemo(() => {
     return !errors.accounts?.length && perhapsUselessIsValid
   }, [perhapsUselessIsValid, errors.accounts?.length])
@@ -185,7 +171,6 @@ const ViewOnlyScreen = () => {
                     watch={watch}
                     setValue={setValue}
                     trigger={trigger}
-                    addressesInAssociatedKeys={addressesInAssociatedKeys}
                   />
                 ))}
                 <AnimatedPressable
