@@ -329,13 +329,17 @@ const SignAccountOpScreen = () => {
       >
         {signAccountOpState ? (
           <SigningKeySelect
-            isVisible={isChooseSignerShown}
+            isVisible={isChooseSignerShown || isChooseFeePayerKeyShown}
             isSigning={isSignLoading || !signAccountOpState.readyToSign}
             handleClose={() => {
               setIsChooseSignerShown(false)
               setIsChooseFeePayerKeyShown(false)
             }}
-            selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
+            selectedAccountKeyStoreKeys={
+              isChooseFeePayerKeyShown
+                ? signAccountOpState.feePayerKeyStoreKeys
+                : signAccountOpState.accountKeyStoreKeys
+            }
             handleChooseKey={
               isChooseFeePayerKeyShown ? handleChangeFeePayerKeyType : handleChangeSigningKey
             }

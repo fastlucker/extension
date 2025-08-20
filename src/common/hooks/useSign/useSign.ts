@@ -33,7 +33,6 @@ const useSign = ({
   const { networks } = useNetworksControllerState()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [isChooseFeePayerKeyShown, setIsChooseFeePayerKeyShown] = useState(false)
-  const [chosenSigningKeyType, setChosenSigningKeyType] = useState<Key['type'] | null>(null)
   const [shouldDisplayLedgerConnectModal, setShouldDisplayLedgerConnectModal] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const { isLedgerConnected } = useLedger()
@@ -169,11 +168,6 @@ const useSign = ({
 
       if ((signAccountOpState?.feePayerKeyStoreKeys?.length || 0) > 1 && !isFeePayerSameAsSigner) {
         setIsChooseFeePayerKeyShown(true)
-        // Store the signing key to use it to broadcast the transaction
-        // after the user chooses the fee payer key.
-        // This is a rare case in which the user has > 1 signer type
-        // for both signing and fee payment.
-        setChosenSigningKeyType(_chosenSigningKeyType || null)
         return
       }
 
@@ -210,10 +204,9 @@ const useSign = ({
     (_: Key['addr'], newFeePayerKeyType: Key['type']) => {
       handleUpdate({ paidByKeyType: newFeePayerKeyType })
 
-      handleSign(chosenSigningKeyType ?? undefined)
-      setIsChooseFeePayerKeyShown(false)
+      handleBroadcast()
     },
-    [chosenSigningKeyType, handleSign, handleUpdate]
+    [handleBroadcast, handleUpdate]
   )
 
   const onSignButtonClick = useCallback(() => {

@@ -105,13 +105,17 @@ const OneClickEstimation = ({
         {!!signAccountOpController && (
           <View>
             <SigningKeySelect
-              isVisible={isChooseSignerShown}
+              isVisible={isChooseSignerShown || isChooseFeePayerKeyShown}
               isSigning={isSignLoading || !signAccountOpController.readyToSign}
               handleClose={() => {
                 setIsChooseSignerShown(false)
                 setIsChooseFeePayerKeyShown(false)
               }}
-              selectedAccountKeyStoreKeys={signAccountOpController.accountKeyStoreKeys}
+              selectedAccountKeyStoreKeys={
+                isChooseFeePayerKeyShown
+                  ? signAccountOpController.feePayerKeyStoreKeys
+                  : signAccountOpController.accountKeyStoreKeys
+              }
               handleChooseKey={
                 isChooseFeePayerKeyShown ? handleChangeFeePayerKeyType : handleChangeSigningKey
               }
