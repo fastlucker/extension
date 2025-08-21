@@ -7,7 +7,7 @@ import {
   SubmittedAccountOp
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
-import { getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
+import { BundlerSwitcher } from '@ambire-common/services/bundlers/bundlerSwitcher'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import useBenzinNetworksContext from '@benzin/hooks/useBenzinNetworksContext'
@@ -64,11 +64,18 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
   const isInitialized = !isNetworkLoading && areRelayerNetworksLoaded
 
+  const switcher = useMemo(() => {
+    if (!network) return null
+    return new BundlerSwitcher(network, () => {
+      return false
+    })
+  }, [network])
+
   const userOpBundler = useMemo(() => {
     if (bundler && allBundlers.includes(bundler)) return bundler as BUNDLER
-    if (!network) return undefined
-    return getDefaultBundler(network).getName()
-  }, [bundler, network])
+    if (!network || !switcher) return undefined
+    return switcher.getBundler().getName()
+  }, [bundler, network, switcher])
 
   const stepsState = useSteps({
     txnId,
@@ -78,6 +85,7 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
     standardOptions,
     setActiveStep,
     provider,
+    switcher,
     bundler: userOpBundler,
     extensionAccOp,
     networks: actualNetworks

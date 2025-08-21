@@ -40,6 +40,8 @@ import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScree
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
 import { EIP7702Auth } from '@ambire-common/consts/7702'
+import { BundlerSwitcher } from '@ambire-common/services/bundlers/bundlerSwitcher'
+import { BundlerTransactionReceipt } from '@ambire-common/services/bundlers/types'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
@@ -68,6 +70,7 @@ interface Props {
   bundler?: BUNDLER
   extensionAccOp?: SubmittedAccountOp // only for in-app benzina
   networks: Network[]
+  switcher: BundlerSwitcher | null
 }
 
 export interface StepsData {
@@ -137,6 +140,7 @@ const useSteps = ({
   setActiveStep,
   provider,
   bundler,
+  switcher,
   extensionAccOp,
   networks
 }: Props): StepsData => {
@@ -181,7 +185,7 @@ const useSteps = ({
 
     if (!network || (!userOpHash && !relayerId) || txn || receiptAlreadyFetched) return
 
-    fetchTxnId(identifiedBy, network, standardOptions.fetch, standardOptions.callRelayer)
+    fetchTxnId(identifiedBy, network, standardOptions.callRelayer)
       .then((result) => {
         if (result.status === 'rejected') {
           setFinalizedStatus({
@@ -268,9 +272,92 @@ const useSteps = ({
     }
   }, [foundTxnId, txn, setActiveStep, provider, identifiedBy, refetchTxnCounter])
 
+  // always query the bundler for the userOpReceipt
   useEffect(() => {
     let timeout: any
-    if (!foundTxnId || !provider || receiptAlreadyFetched) return
+    if (!userOpHash || !provider || !network || receiptAlreadyFetched || !switcher || !bundler)
+      return
+
+    const bundlerProvider = switcher.getBundler()
+    bundlerProvider
+      .getReceipt(userOpHash, network)
+      .then((receipt: BundlerTransactionReceipt | null) => {
+        if (!receipt) {
+          timeout = setTimeout(() => setRefetchReceiptCounter((prev) => prev + 1), REFETCH_TIME)
+
+          if (switcher.canSwitch()) switcher.switch()
+
+          // if there is a txn but no receipt, it means it is pending
+          if (txn) {
+            // Prevent unnecessary rerenders
+            if (finalizedStatus?.status !== 'fetching') {
+              setFinalizedStatus({ status: 'fetching' })
+              setActiveStep('in-progress')
+            }
+          }
+
+          return
+        }
+
+        // if there's a receipt, the status is failure and it's an userOp,
+        // the txn might have been front ran. Try to find it
+        if (!receipt.success && userOpHash && !hasCheckedFrontRun) {
+          setIsFrontRan(true)
+          return
+        }
+
+        if (!foundTxnId) {
+          setFoundTxnId(receipt.receipt.transactionHash)
+          setUrlToTxnId(
+            receipt.receipt.transactionHash,
+            userOpHash,
+            relayerId,
+            network.chainId,
+            bundler
+          )
+        }
+
+        setTxnReceipt({
+          originatedFrom: receipt.sender,
+          actualGasCost: BigInt(receipt.actualGasUsed) * BigInt(receipt.actualGasCost),
+          blockNumber: BigInt(receipt.receipt.blockNumber)
+        })
+
+        const userOpLog = parseLogs(receipt.logs, userOpHash, 1)
+        if (userOpLog && !userOpLog.success) {
+          setFinalizedStatus({
+            status: 'failed',
+            reason: 'Inner calls failed'
+          })
+        } else {
+          setFinalizedStatus(receipt.success ? { status: 'confirmed' } : { status: 'failed' })
+        }
+        setActiveStep('finalized')
+      })
+      .catch(() => null)
+
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
+  }, [
+    finalizedStatus?.status,
+    foundTxnId,
+    bundler,
+    network,
+    provider,
+    setActiveStep,
+    txn,
+    relayerId,
+    receiptAlreadyFetched,
+    userOpHash,
+    refetchReceiptCounter,
+    hasCheckedFrontRun,
+    switcher
+  ])
+
+  useEffect(() => {
+    let timeout: any
+    if (!!userOpHash || !foundTxnId || !provider || receiptAlreadyFetched) return
 
     provider
       .getTransactionReceipt(foundTxnId)
@@ -297,43 +384,13 @@ const useSteps = ({
         // as it will set incorrect data for sender (from)
         if (!txn) return
 
-        // if there's a receipt, the status is failure and it's an userOp,
-        // the txn might have been front ran. Try to find it
-        if (!receipt.status && userOpHash && !hasCheckedFrontRun) {
-          setIsFrontRan(true)
-          return
-        }
-
         setTxnReceipt({
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
 
-        let userOpsLength = 0
-        if (!userOpHash && txn) {
-          try {
-            // check the sighash
-            const sigHash = txn.data.slice(0, 10)
-            const handleOpsData =
-              sigHash === handleOps060.getFunction('handleOps')!.selector
-                ? handleOps060.decodeFunctionData('handleOps', txn.data)
-                : handleOps070.decodeFunctionData('handleOps', txn.data)
-            userOpsLength = handleOpsData[0].length
-          } catch (e: any) {
-            /* silence is bitcoin */
-          }
-        }
-
-        const userOpLog = parseLogs(receipt.logs, userOpHash ?? '', userOpsLength)
-        if (userOpLog && !userOpLog.success) {
-          setFinalizedStatus({
-            status: 'failed',
-            reason: 'Inner calls failed'
-          })
-        } else {
-          setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
-        }
+        setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
         setActiveStep('finalized')
       })
       .catch(() => null)
