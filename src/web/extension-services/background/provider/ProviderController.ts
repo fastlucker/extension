@@ -510,9 +510,16 @@ export class ProviderController {
       atomic: !isMultipleTxn,
       status: getSuccessStatus(version),
       receipts: receipts.map((receipt) => {
-        const txnStatus = isUserOp
-          ? toBeHex(receipt.receipt.status as number, 1)
-          : toBeHex(receipt.status as number, 1)
+        let txnStatus = '0x0'
+        if (isUserOp) {
+          txnStatus =
+            'status' in receipt.receipt
+              ? toBeHex(receipt.receipt.status as number, 1)
+              : toBeHex(+receipt.success, 1)
+        } else {
+          txnStatus = toBeHex(receipt.status as number, 1)
+        }
+
         const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
         return {
           logs: receipt.logs,
