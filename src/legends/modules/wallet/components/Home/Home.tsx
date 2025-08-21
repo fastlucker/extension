@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
@@ -11,6 +11,17 @@ const Home = () => {
   const { walletTokenInfo, isLoadingWalletTokenInfo } = usePortfolioControllerState()
   const stakedWallet = walletTokenInfo && walletTokenInfo.percentageStakedWallet
 
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://widgets.coingecko.com/gecko-coin-price-chart-widget.js'
+    script.async = true
+    document.body.appendChild(script)
+
+    return () => {
+      document.body.removeChild(script) // cleanup on unmount
+    }
+  }, [])
+
   return (
     <>
       <div className={styles.overachieverWrapper}>
@@ -19,65 +30,56 @@ const Home = () => {
       <RewardsBadge />
       <section className={`${styles.wrapper}`}>
         <div className={styles.walletInfo}>
-          <h1 className={styles.title}>
-            <span className={styles.dollarSign}>$</span>WALLET
-          </h1>
+          <div className={styles.chartWrapper}>
+            {/* @ts-ignore - Custom element from CoinGecko widget */}
+            <gecko-coin-price-chart-widget
+              locale="en"
+              dark-mode="true"
+              transparent-background="true"
+              coin-id="ambire-wallet"
+              initial-currency="usd"
+              width="440"
+            />
+          </div>
 
           <div className={styles.walletLevelInfoWrapper}>
-            <div className={styles.logoAndBalanceWrapper}>
-              <div className={styles.walletItemWrapper}>
-                <div className={styles.walletItem}>
-                  <div className={styles.walletInfoWrapper}>Circulating supply</div>
-                  <span className={styles.item}>
-                    {isLoadingWalletTokenInfo
-                      ? 'Loading...'
-                      : walletTokenInfo?.circulatingSupply
-                      ? Math.floor(Number(walletTokenInfo.circulatingSupply)).toLocaleString(
-                          'en-US'
-                        )
-                      : '0'}
-                  </span>
-                </div>
-              </div>
-            </div>
             <div className={styles.walletItemWrapper}>
-              <div className={styles.walletItem}>
-                Staked $WALLET
-                <span className={styles.item}>
-                  {isLoadingWalletTokenInfo
-                    ? 'Loading...'
-                    : stakedWallet === null
-                    ? 0
-                    : `${stakedWallet.toFixed(2)}%`}
-                </span>
-                <div className={styles.walletInfoWrapper} />
-              </div>
-            </div>
-            <div className={styles.walletItemWrapper}>
-              <div className={styles.walletItem}>
-                APY
-                <span className={styles.item}>
-                  {isLoadingWalletTokenInfo
-                    ? 'Loading...'
-                    : walletTokenInfo?.apy === null
-                    ? 0
-                    : `${walletTokenInfo?.apy.toFixed(2)}%`}
-                </span>
-                <div className={styles.walletInfoWrapper} />
-              </div>
+              <span className={styles.item}>
+                {isLoadingWalletTokenInfo
+                  ? 'Loading...'
+                  : stakedWallet === null
+                  ? 0
+                  : `${stakedWallet.toFixed(2)}%`}
+              </span>
+              Staked $WALLET
+              <div className={styles.walletInfoWrapper} />
             </div>
 
             <div className={styles.walletItemWrapper}>
-              <div className={styles.walletItem}>
-                <div className={styles.walletInfoWrapper}>Current price</div>
-                <span className={styles.item}>
-                  {isLoadingWalletTokenInfo
-                    ? 'Loading...'
-                    : walletTokenInfo?.walletPrice !== undefined
-                    ? `$${Number(walletTokenInfo?.walletPrice).toFixed(3)}`
-                    : ''}
-                </span>
-              </div>
+              <span className={styles.item}>
+                {isLoadingWalletTokenInfo
+                  ? 'Loading...'
+                  : walletTokenInfo?.apy === null
+                  ? 0
+                  : `${walletTokenInfo?.apy.toFixed(2)}%`}
+              </span>
+              Staking APY
+              <div className={styles.walletInfoWrapper} />
+            </div>
+
+            <div className={styles.walletItemWrapper}>
+              <span className={styles.item}>
+                {isLoadingWalletTokenInfo
+                  ? 'Loading...'
+                  : walletTokenInfo?.walletPrice !== undefined &&
+                    walletTokenInfo?.totalSupply !== undefined
+                  ? new Intl.NumberFormat('en-US', {
+                      notation: 'compact',
+                      maximumFractionDigits: 2
+                    }).format(walletTokenInfo.walletPrice * walletTokenInfo.totalSupply)
+                  : ''}
+              </span>
+              <div className={styles.walletInfoWrapper}>Market Cap</div>
             </div>
           </div>
         </div>
