@@ -44,7 +44,7 @@ import { controllersMapping } from './types'
 
 type UpdateNavigationUrl = {
   type: 'UPDATE_PORT_URL'
-  params: { url: string }
+  params: { url: string; route?: string }
 }
 
 type InitControllerStateAction = {
@@ -189,6 +189,14 @@ type MainControllerUpdateNetworkAction = {
     chainId: ChainId
   }
 }
+type MainControllerUpdateNetworksAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORKS'
+  params: {
+    network: Partial<Network>
+    chainIds: ChainId[]
+  }
+}
+
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
   params: { callId: string }
@@ -404,10 +412,6 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   params: {
     updateType: 'Main' | 'Swap&Bridge' | 'Transfer&TopUp'
   }
-}
-
-type MainControllerOnPopupOpenAction = {
-  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
 }
 
 type MainControllerLockAction = {
