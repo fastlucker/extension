@@ -104,6 +104,10 @@ const AccountsOnPageList = ({
     [dispatch]
   )
 
+  const handleRetryFindingLinkedAccounts = useCallback(() => {
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS' })
+  }, [dispatch])
+
   const getType = useCallback((acc: any) => {
     if (!acc.account.creation) return 'basic'
     if (acc.isLinked) return 'linked'
@@ -341,6 +345,18 @@ const AccountsOnPageList = ({
                       </View>
                     )
                   })}
+
+                  {!!accountPickerState.linkedAccountsError && (
+                    <Alert
+                      type="warning"
+                      text={accountPickerState.linkedAccountsError}
+                      buttonProps={{
+                        onPress: handleRetryFindingLinkedAccounts,
+                        text: t('Retry'),
+                        type: 'warning'
+                      }}
+                    />
+                  )}
                 </View>
               )}
             </>

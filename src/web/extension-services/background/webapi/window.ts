@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
 
-import { FocusWindowParams, WindowProps } from '@ambire-common/interfaces/window'
+import { FocusWindowParams, WindowProps } from '@ambire-common/interfaces/ui'
 import { SPACING } from '@common/styles/spacings'
 import { browser, engine, isExtension, isSafari } from '@web/constants/browserapi'
 import { IS_FIREFOX, IS_WINDOWS } from '@web/constants/common'

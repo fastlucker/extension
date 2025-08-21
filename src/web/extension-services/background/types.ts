@@ -22,6 +22,7 @@ import { SignMessageController } from '@ambire-common/controllers/signMessage/si
 import { StorageController } from '@ambire-common/controllers/storage/storage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { UiController } from '@ambire-common/controllers/ui/ui'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
@@ -49,7 +50,8 @@ export const controllersNestedInMainMapping = {
   swapAndBridge: SwapAndBridgeController,
   featureFlags: FeatureFlagsController,
   defiPositions: DefiPositionsController,
-  banner: BannerController
+  banner: BannerController,
+  ui: UiController
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
