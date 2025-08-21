@@ -173,6 +173,9 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE':
       return await mainCtrl.accountPicker.setPage(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS': {
+      return await mainCtrl.accountPicker.findAndSetLinkedAccounts()
+    }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE': {
       return await mainCtrl.accountPicker.setHDPathTemplate(params)
     }
