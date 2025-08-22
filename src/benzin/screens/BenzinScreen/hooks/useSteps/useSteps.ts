@@ -168,6 +168,7 @@ const useSteps = ({
   const [from, setFrom] = useState<null | string>(null)
   const [isFrontRan, setIsFrontRan] = useState<boolean>(false)
   const [isFetching, setIsFetching] = useState<boolean>(false)
+  const [shouldTryBlockFetch, setShouldTryBlockFetch] = useState<boolean>(true)
 
   const getIdentifiedBy = useCallback((): AccountOpIdentifiedBy => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
@@ -495,15 +496,29 @@ const useSteps = ({
 
   // get block
   useEffect(() => {
-    if (!txnReceipt.blockNumber || blockData !== null || !provider) return
+    let timeout: any
+    if (!txnReceipt.blockNumber || blockData !== null || !provider || !shouldTryBlockFetch) return
 
+    setShouldTryBlockFetch(false)
     provider
       .getBlock(Number(txnReceipt.blockNumber))
       .then((fetchedBlockData) => {
+        // we have to retry the req if the block data is not found initially
+        if (!fetchedBlockData) {
+          timeout = setTimeout(() => {
+            setShouldTryBlockFetch(true)
+          }, 1000)
+          return
+        }
+
         setBlockData(fetchedBlockData)
       })
       .catch(() => null)
-  }, [provider, txnReceipt, blockData])
+
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
+  }, [provider, txnReceipt, blockData, shouldTryBlockFetch])
 
   // if it's an user op,
   // we need to call the entry point to fetch the hashes
