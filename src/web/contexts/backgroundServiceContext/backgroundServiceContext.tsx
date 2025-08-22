@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { ErrorRef } from '@ambire-common/interfaces/eventEmitter'
 import { ToastOptions } from '@common/contexts/toastContext'
 import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
 import useNavigation from '@common/hooks/useNavigation'
@@ -119,7 +119,10 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
-    globalDispatch({ type: 'UPDATE_PORT_URL', params: { url } })
+    globalDispatch({
+      type: 'UPDATE_PORT_URL',
+      params: { url, route: route.pathname?.substring(1) || '/' }
+    })
   }, [route])
 
   useEffect(() => {

@@ -52,6 +52,7 @@ export const handleActions = async (
         port.sender.url = params.url
         if (port.sender.tab) port.sender.tab.url = params.url
       }
+      mainCtrl.ui.updateView(port.id, { currentRoute: params.route })
       break
     }
     case 'INIT_CONTROLLER_STATE': {
@@ -78,8 +79,6 @@ export const handleActions = async (
       }
       break
     }
-    case 'MAIN_CONTROLLER_ON_POPUP_OPEN':
-      return mainCtrl.onPopupOpen()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER': {
@@ -174,6 +173,9 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE':
       return await mainCtrl.accountPicker.setPage(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS': {
+      return await mainCtrl.accountPicker.findAndSetLinkedAccounts()
+    }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE': {
       return await mainCtrl.accountPicker.setHDPathTemplate(params)
     }
