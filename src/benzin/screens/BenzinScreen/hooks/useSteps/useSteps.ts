@@ -20,7 +20,6 @@ import {
   AccountOpIdentifiedBy,
   fetchFrontRanTxnId,
   fetchTxnId,
-  isIdentifiedByTxn,
   SubmittedAccountOp
 } from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { Call } from '@ambire-common/libs/accountOp/types'
@@ -187,6 +186,11 @@ const useSteps = ({
     [finalizedStatus]
   )
 
+  const refetchTime = useMemo(() => {
+    if (!network) return REFETCH_TIME
+    return network.chainId === 1n ? REFETCH_TIME_ETHEREUM : REFETCH_TIME
+  }, [network])
+
   useEffect(() => {
     let timeout: any
 
@@ -206,7 +210,7 @@ const useSteps = ({
         if (result.status === 'not_found') {
           timeout = setTimeout(() => {
             setRefetchTxnIdCounter((prev) => prev + 1)
-          }, REFETCH_TIME)
+          }, refetchTime)
           return
         }
 
@@ -221,7 +225,7 @@ const useSteps = ({
         if (!txn && !receiptAlreadyFetched) {
           timeout = setTimeout(() => {
             setRefetchTxnIdCounter((prev) => prev + 1)
-          }, REFETCH_TIME)
+          }, refetchTime)
         }
       })
       .catch((e) => e)
@@ -243,31 +247,31 @@ const useSteps = ({
     receiptAlreadyFetched,
     refetchTxnIdCounter,
     getIdentifiedBy,
-    switcher
+    switcher,
+    refetchTime
   ])
 
   // find the transaction
   useEffect(() => {
     let timeout: any
 
-    if (txn || !foundTxnId || !provider) return
+    if (txn || !foundTxnId || !provider || refetchTxnCounter > 10) return
+
+    if (refetchTxnCounter === 10) {
+      setRefetchTxnCounter((prev) => prev + 1)
+      setFinalizedStatus({ status: 'not-found' })
+      setActiveStep('finalized')
+      return
+    }
 
     provider
       .getTransaction(foundTxnId)
       .then((fetchedTxn: null | TransactionResponse) => {
         if (!fetchedTxn) {
-          // if is EOA broadcast and we can't fetch the txn 15 times,
-          // declare the txn dropped
-          if (isIdentifiedByTxn(getIdentifiedBy()) && refetchTxnCounter >= 15) {
-            setFinalizedStatus({ status: 'dropped' })
-            setActiveStep('finalized')
-            return
-          }
-
           // start a refetch
           timeout = setTimeout(() => {
             setRefetchTxnCounter((prev) => prev + 1)
-          }, REFETCH_TIME)
+          }, refetchTime)
           return
         }
 
@@ -289,7 +293,8 @@ const useSteps = ({
     provider,
     getIdentifiedBy,
     refetchTxnCounter,
-    finalizedStatus
+    finalizedStatus,
+    refetchTime
   ])
 
   // always query the bundler for the userOpReceipt
@@ -309,13 +314,10 @@ const useSteps = ({
       .getReceipt(userOpHash, network)
       .then((receipt: BundlerTransactionReceipt | null) => {
         if (!receipt) {
-          timeout = setTimeout(
-            () => {
-              setRefetchReceiptCounter((prev) => prev + 1)
-              setIsFetching(false)
-            },
-            network.chainId === 1n ? REFETCH_TIME_ETHEREUM : REFETCH_TIME
-          )
+          timeout = setTimeout(() => {
+            setRefetchReceiptCounter((prev) => prev + 1)
+            setIsFetching(false)
+          }, refetchTime)
           switcher.forceSwitch()
           return
         }
@@ -371,7 +373,8 @@ const useSteps = ({
     hasCheckedFrontRun,
     switcher,
     isFetching,
-    fetchingConcluded
+    fetchingConcluded,
+    refetchTime
   ])
 
   useEffect(() => {
@@ -399,7 +402,7 @@ const useSteps = ({
           timeout = setTimeout(() => {
             setRefetchReceiptCounter((prev) => prev + 1)
             setIsFetching(false)
-          }, REFETCH_TIME)
+          }, refetchTime)
           return
         }
 
@@ -423,7 +426,8 @@ const useSteps = ({
     userOpHash,
     refetchReceiptCounter,
     fetchingConcluded,
-    txn
+    txn,
+    refetchTime
   ])
 
   // fix: front running
