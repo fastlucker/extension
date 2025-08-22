@@ -5,8 +5,8 @@ import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountO
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
+  ActionExecutionType,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/interfaces/actions'
@@ -44,7 +44,7 @@ import { controllersMapping } from './types'
 
 type UpdateNavigationUrl = {
   type: 'UPDATE_PORT_URL'
-  params: { url: string }
+  params: { url: string; route?: string }
 }
 
 type InitControllerStateAction = {
@@ -103,6 +103,10 @@ type MainControllerAccountPickerSetPageAction = {
     shouldGetAccountsUsedOnNetworks?: boolean
   }
 }
+type MainControllerAccountPickerFindAndSetLinkedAccountsAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS'
+}
+
 type MainControllerAccountPickerSetHdPathTemplateAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE'
   params: { hdPathTemplate: HD_PATH_TEMPLATE_TYPE }
@@ -189,6 +193,14 @@ type MainControllerUpdateNetworkAction = {
     chainId: ChainId
   }
 }
+type MainControllerUpdateNetworksAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORKS'
+  params: {
+    network: Partial<Network>
+    chainIds: ChainId[]
+  }
+}
+
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
   params: { callId: string }
@@ -404,10 +416,6 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   params: {
     updateType: 'Main' | 'Swap&Bridge' | 'Transfer&TopUp'
   }
-}
-
-type MainControllerOnPopupOpenAction = {
-  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
 }
 
 type MainControllerLockAction = {
@@ -781,6 +789,7 @@ export type Action =
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
   | MainControllerAccountPickerSetPageAction
+  | MainControllerAccountPickerFindAndSetLinkedAccountsAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
