@@ -16,7 +16,7 @@ const DomainsContext = createContext<{
 const providers = networks.reduce(
   (acc, { selectedRpcUrl, chainId }) => ({
     ...acc,
-    [chainId.toString()]: getRpcProvider([selectedRpcUrl])
+    [chainId.toString()]: getRpcProvider([selectedRpcUrl], chainId)
   }),
   {}
 )
@@ -45,4 +45,4 @@ const DomainsContextProvider: React.FC<any> = ({ children }) => {
   return <DomainsContext.Provider value={value}>{children}</DomainsContext.Provider>
 }
 
-export { DomainsContextProvider, DomainsContext }
+export { DomainsContext, DomainsContextProvider }

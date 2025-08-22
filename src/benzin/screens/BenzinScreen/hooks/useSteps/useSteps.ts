@@ -10,9 +10,8 @@ import {
   TransactionResponse,
   ZeroAddress
 } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { BUNDLER } from '@ambire-common/consts/bundlers'
 import { AMBIRE_PAYMASTER, ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
@@ -44,7 +43,8 @@ import { BundlerSwitcher } from '@ambire-common/services/bundlers/bundlerSwitche
 import { BundlerTransactionReceipt } from '@ambire-common/services/bundlers/types'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
-const REFETCH_TIME = 4000 // 4 seconds
+const REFETCH_TIME = 3000 // 4 seconds
+const REFETCH_TIME_ETHEREUM = 6000 // 4 seconds
 
 export type FeePaidWith = {
   address: string
@@ -67,7 +67,6 @@ interface Props {
   }
   setActiveStep: (step: ActiveStepType) => void
   provider: JsonRpcProvider | null
-  bundler?: BUNDLER
   extensionAccOp?: SubmittedAccountOp // only for in-app benzina
   networks: Network[]
   switcher: BundlerSwitcher | null
@@ -78,7 +77,6 @@ export interface StepsData {
   finalizedStatus: FinalizedStatusType
   feePaidWith: FeePaidWith | null
   calls: IrCall[] | null
-  pendingTime: number
   txnId: string | null
   from: string | null
   originatedFrom: string | null
@@ -93,7 +91,7 @@ const setUrlToTxnId = (
   userOpHash: string | null,
   relayerId: string | null,
   chainId: bigint,
-  bundler?: BUNDLER
+  switcher: BundlerSwitcher
 ) => {
   const splitUrl = (window.location.href || '').split('?')
   const search = splitUrl[1]
@@ -102,7 +100,12 @@ const setUrlToTxnId = (
 
   const getIdentifiedBy = (): AccountOpIdentifiedBy => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
-    if (userOpHash) return { type: 'UserOperation', identifier: userOpHash, bundler }
+    if (userOpHash)
+      return {
+        type: 'UserOperation',
+        identifier: userOpHash,
+        bundler: switcher.getBundler().getName()
+      }
     return { type: 'Transaction', identifier: transactionHash }
   }
 
@@ -139,7 +142,6 @@ const useSteps = ({
   standardOptions,
   setActiveStep,
   provider,
-  bundler,
   switcher,
   extensionAccOp,
   networks
@@ -158,7 +160,6 @@ const useSteps = ({
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [feePaidWith, setFeePaidWith] = useState<FeePaidWith | null>(null)
-  const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
   const [foundTxnId, setFoundTxnId] = useState<null | string>(txnId)
   const [hasCheckedFrontRun, setHasCheckedFrontRun] = useState<boolean>(false)
@@ -166,26 +167,31 @@ const useSteps = ({
   const [feeCall, setFeeCall] = useState<Call | null>(null)
   const [from, setFrom] = useState<null | string>(null)
   const [isFrontRan, setIsFrontRan] = useState<boolean>(false)
+  const [isFetching, setIsFetching] = useState<boolean>(false)
 
-  const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {
+  const getIdentifiedBy = useCallback((): AccountOpIdentifiedBy => {
     if (relayerId) return { type: 'Relayer', identifier: relayerId }
     if (userOpHash)
       return {
         type: 'UserOperation',
         identifier: userOpHash,
-        bundler
+        bundler: switcher ? switcher.getBundler().getName() : undefined
       }
     return { type: 'Transaction', identifier: txnId as string }
-  }, [relayerId, userOpHash, txnId, bundler])
+  }, [relayerId, userOpHash, switcher, txnId])
 
   const receiptAlreadyFetched = useMemo(() => !!txnReceipt.blockNumber, [txnReceipt.blockNumber])
+  const fetchingConcluded = useMemo(
+    () => finalizedStatus && finalizedStatus.status !== 'fetching',
+    [finalizedStatus]
+  )
 
   useEffect(() => {
     let timeout: any
 
-    if (!network || (!userOpHash && !relayerId) || txn || receiptAlreadyFetched) return
+    if (!network || (!userOpHash && !relayerId) || txn || fetchingConcluded || !switcher) return
 
-    fetchTxnId(identifiedBy, network, standardOptions.callRelayer)
+    fetchTxnId(getIdentifiedBy(), network, standardOptions.callRelayer)
       .then((result) => {
         if (result.status === 'rejected') {
           setFinalizedStatus({
@@ -207,7 +213,7 @@ const useSteps = ({
         if (resultTxnId !== foundTxnId) {
           setFoundTxnId(resultTxnId)
           setActiveStep('in-progress')
-          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId, bundler)
+          setUrlToTxnId(resultTxnId, userOpHash, relayerId, network.chainId, switcher)
         }
 
         // if there's no txn and receipt, keep searching
@@ -224,7 +230,6 @@ const useSteps = ({
     }
   }, [
     network,
-    identifiedBy,
     standardOptions.fetch,
     standardOptions.callRelayer,
     txnId,
@@ -232,10 +237,12 @@ const useSteps = ({
     foundTxnId,
     relayerId,
     userOpHash,
+    fetchingConcluded,
     txn,
     receiptAlreadyFetched,
-    bundler,
-    refetchTxnIdCounter
+    refetchTxnIdCounter,
+    getIdentifiedBy,
+    switcher
   ])
 
   // find the transaction
@@ -250,7 +257,7 @@ const useSteps = ({
         if (!fetchedTxn) {
           // if is EOA broadcast and we can't fetch the txn 15 times,
           // declare the txn dropped
-          if (isIdentifiedByTxn(identifiedBy) && refetchTxnCounter >= 15) {
+          if (isIdentifiedByTxn(getIdentifiedBy()) && refetchTxnCounter >= 15) {
             setFinalizedStatus({ status: 'dropped' })
             setActiveStep('finalized')
             return
@@ -264,59 +271,72 @@ const useSteps = ({
         }
 
         setTxn(fetchedTxn)
+        if (!finalizedStatus) {
+          setFinalizedStatus({ status: 'fetching' })
+          setActiveStep('in-progress')
+        }
       })
       .catch(() => null)
 
     return () => {
       if (timeout) clearTimeout(timeout)
     }
-  }, [foundTxnId, txn, setActiveStep, provider, identifiedBy, refetchTxnCounter])
+  }, [
+    foundTxnId,
+    txn,
+    setActiveStep,
+    provider,
+    getIdentifiedBy,
+    refetchTxnCounter,
+    finalizedStatus
+  ])
 
   // always query the bundler for the userOpReceipt
   useEffect(() => {
     let timeout: any
-    if (!userOpHash || !provider || !network || receiptAlreadyFetched || !switcher || !bundler)
-      return
+    if (!userOpHash || !provider || !network || !switcher || fetchingConcluded || isFetching) return
 
+    if (refetchReceiptCounter >= 10) {
+      setFinalizedStatus({ status: 'not-found' })
+      setActiveStep('finalized')
+      return
+    }
+
+    setIsFetching(true)
     const bundlerProvider = switcher.getBundler()
     bundlerProvider
       .getReceipt(userOpHash, network)
       .then((receipt: BundlerTransactionReceipt | null) => {
         if (!receipt) {
-          timeout = setTimeout(() => setRefetchReceiptCounter((prev) => prev + 1), REFETCH_TIME)
-
-          if (switcher.canSwitch()) switcher.switch()
-
-          // if there is a txn but no receipt, it means it is pending
-          if (txn) {
-            // Prevent unnecessary rerenders
-            if (finalizedStatus?.status !== 'fetching') {
-              setFinalizedStatus({ status: 'fetching' })
-              setActiveStep('in-progress')
-            }
-          }
-
+          timeout = setTimeout(
+            () => {
+              setRefetchReceiptCounter((prev) => prev + 1)
+              setIsFetching(false)
+            },
+            network.chainId === 1n ? REFETCH_TIME_ETHEREUM : REFETCH_TIME
+          )
+          switcher.forceSwitch()
           return
         }
 
-        // if there's a receipt, the status is failure and it's an userOp,
-        // the txn might have been front ran. Try to find it
-        if (!receipt.success && userOpHash && !hasCheckedFrontRun) {
+        // if there's a receipt and the status is a failure,
+        // the userOp might have been front ran. Try to find it
+        if (!receipt.success && !hasCheckedFrontRun) {
           setIsFrontRan(true)
           return
         }
 
         if (!foundTxnId) {
           setFoundTxnId(receipt.receipt.transactionHash)
-          setUrlToTxnId(
-            receipt.receipt.transactionHash,
-            userOpHash,
-            relayerId,
-            network.chainId,
-            bundler
-          )
         }
 
+        setUrlToTxnId(
+          receipt.receipt.transactionHash,
+          userOpHash,
+          relayerId,
+          network.chainId,
+          switcher
+        )
         setTxnReceipt({
           originatedFrom: receipt.sender,
           actualGasCost: BigInt(receipt.actualGasUsed) * BigInt(receipt.actualGasCost),
@@ -340,56 +360,53 @@ const useSteps = ({
       if (timeout) clearTimeout(timeout)
     }
   }, [
-    finalizedStatus?.status,
     foundTxnId,
-    bundler,
     network,
     provider,
     setActiveStep,
-    txn,
     relayerId,
-    receiptAlreadyFetched,
     userOpHash,
     refetchReceiptCounter,
     hasCheckedFrontRun,
-    switcher
+    switcher,
+    isFetching,
+    fetchingConcluded
   ])
 
   useEffect(() => {
     let timeout: any
-    if (!!userOpHash || !foundTxnId || !provider || receiptAlreadyFetched) return
+    if (!!userOpHash || !foundTxnId || !provider || fetchingConcluded) return
 
+    if (refetchReceiptCounter >= 10) {
+      if (txn) {
+        setFinalizedStatus({ status: 'dropped' })
+        setActiveStep('finalized')
+        return
+      }
+
+      setFinalizedStatus({ status: 'not-found' })
+      setActiveStep('finalized')
+      return
+    }
+
+    setIsFetching(true)
     provider
       .getTransactionReceipt(foundTxnId)
       .then((receipt: null | TransactionReceipt) => {
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
-          if (txn) {
-            timeout = setTimeout(() => setRefetchReceiptCounter((prev) => prev + 1), REFETCH_TIME)
-            // Prevent unnecessary rerenders
-            if (finalizedStatus?.status !== 'fetching') {
-              setFinalizedStatus({ status: 'fetching' })
-              setActiveStep('in-progress')
-            }
-            return
-          }
-
-          // just stop the execution if txn is null because we might
-          // not have fetched it, yet
-          // if txn is null, logic for dropping the txn is handled there
+          timeout = setTimeout(() => {
+            setRefetchReceiptCounter((prev) => prev + 1)
+            setIsFetching(false)
+          }, REFETCH_TIME)
           return
         }
-
-        // if the txn is still not fetched at this moment, do not proceed
-        // as it will set incorrect data for sender (from)
-        if (!txn) return
 
         setTxnReceipt({
           originatedFrom: receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
-
         setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
         setActiveStep('finalized')
       })
@@ -399,31 +416,38 @@ const useSteps = ({
       if (timeout) clearTimeout(timeout)
     }
   }, [
-    finalizedStatus?.status,
     foundTxnId,
     provider,
     setActiveStep,
-    txn,
-    receiptAlreadyFetched,
     userOpHash,
     refetchReceiptCounter,
-    hasCheckedFrontRun
+    fetchingConcluded,
+    txn
   ])
 
   // fix: front running
   useEffect(() => {
-    if (!isFrontRan || !foundTxnId || !network) return
+    if (!isFrontRan || !foundTxnId || !network || !switcher) return
 
-    fetchFrontRanTxnId(identifiedBy, foundTxnId, network)
+    fetchFrontRanTxnId(getIdentifiedBy(), foundTxnId, network)
       .then((frontRanTxnId) => {
         setFoundTxnId(frontRanTxnId)
         setActiveStep('in-progress')
-        setUrlToTxnId(frontRanTxnId, userOpHash, relayerId, network.chainId, bundler)
+        setUrlToTxnId(frontRanTxnId, userOpHash, relayerId, network.chainId, switcher)
         setIsFrontRan(false)
         setHasCheckedFrontRun(true)
       })
       .catch(() => null)
-  }, [isFrontRan, identifiedBy, foundTxnId, network, bundler, relayerId, userOpHash, setActiveStep])
+  }, [
+    isFrontRan,
+    getIdentifiedBy,
+    foundTxnId,
+    network,
+    relayerId,
+    userOpHash,
+    setActiveStep,
+    switcher
+  ])
 
   // check for error reason
   useEffect(() => {
@@ -468,35 +492,6 @@ const useSteps = ({
         })
       })
   }, [provider, txn, finalizedStatus, userOpHash, txnReceipt])
-
-  // calculate pending time
-  useEffect(() => {
-    if (!txn || receiptAlreadyFetched || !provider || !network) return
-
-    provider
-      .getBlock('latest', true)
-      .then((latestBlockData) => {
-        if (!latestBlockData) return
-
-        const gasPrice = txn.maxFeePerGas ?? txn.gasPrice
-        if (network.feeOptions.is1559 && latestBlockData.baseFeePerGas != null) {
-          setPendingTime(gasPrice > latestBlockData.baseFeePerGas ? 30 : 300)
-        } else {
-          const prices = latestBlockData.prefetchedTransactions
-            .map((x) => x.gasPrice)
-            .filter((x) => x > 0)
-
-          if (prices.length === 0) {
-            setPendingTime(30)
-            return
-          }
-
-          const average = prices.reduce((a, b) => a + b, 0n) / BigInt(prices.length)
-          setPendingTime(average - average / 8n > gasPrice ? 30 : 300)
-        }
-      })
-      .catch(() => null)
-  }, [txn, receiptAlreadyFetched, provider, network])
 
   // get block
   useEffect(() => {
@@ -781,7 +776,6 @@ const useSteps = ({
     finalizedStatus,
     feePaidWith,
     calls: calls || null,
-    pendingTime,
     txnId: foundTxnId,
     from: from || null,
     originatedFrom: txnReceipt.originatedFrom,
