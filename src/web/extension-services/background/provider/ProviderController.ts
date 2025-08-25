@@ -2,7 +2,7 @@
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
-import { toBeHex } from 'ethers'
+import { toBeHex, TransactionReceipt } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
 
@@ -411,7 +411,7 @@ export class ProviderController {
     throw new Error('Transaction failed!')
   }
 
-  walletGetCallsStatus = async (data: any) => {
+  walletGetCallsStatus = async (data: any): Promise<any> => {
     if (!data.params || !data.params.length) {
       throw ethErrors.rpc.invalidParams('params is required but got []')
     }
@@ -444,12 +444,7 @@ export class ProviderController {
       : undefined
     const version = getVersion(accOp)
 
-    const txnIdData = await fetchTxnId(
-      identifiedBy,
-      network,
-      this.mainCtrl.fetch,
-      this.mainCtrl.callRelayer
-    )
+    const txnIdData = await fetchTxnId(identifiedBy, network, this.mainCtrl.callRelayer)
     if (txnIdData.status === 'rejected') {
       return {
         status: getFailureStatus(version)
@@ -467,7 +462,6 @@ export class ProviderController {
     const isUserOp = identifiedBy.type === 'UserOperation'
     const bundler = bundlerName ? getBundlerByName(bundlerName) : getDefaultBundler(network)
 
-    const receipts = []
     if (isUserOp) {
       const userOpReceipt = await bundler
         .getReceipt(identifiedBy.identifier, network)
@@ -478,8 +472,32 @@ export class ProviderController {
         }
       }
 
-      receipts.push(userOpReceipt)
-    } else if (!isMultipleTxn) {
+      const txnStatus =
+        'status' in userOpReceipt.receipt
+          ? toBeHex(userOpReceipt.receipt.status as number, 1)
+          : toBeHex(+userOpReceipt.success, 1)
+      const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
+      return {
+        version,
+        id: identifiedBy,
+        atomic: !isMultipleTxn,
+        status: getSuccessStatus(version),
+        receipts: [
+          {
+            logs: userOpReceipt.logs,
+            status,
+            chainId: networkChainIdToHex(network.chainId),
+            blockHash: userOpReceipt.receipt.blockHash,
+            blockNumber: userOpReceipt.receipt.blockNumber,
+            gasUsed: userOpReceipt.receipt.gasUsed,
+            transactionHash: userOpReceipt.receipt.transactionHash
+          }
+        ]
+      }
+    }
+
+    const receipts = []
+    if (!isMultipleTxn) {
       const txnReceipt = await provider.getTransactionReceipt(txnId).catch(() => null)
       if (!txnReceipt) {
         return {
@@ -510,27 +528,17 @@ export class ProviderController {
       atomic: !isMultipleTxn,
       status: getSuccessStatus(version),
       receipts: receipts.map((receipt) => {
-        let txnStatus = '0x0'
-        if (isUserOp) {
-          txnStatus =
-            'status' in receipt.receipt
-              ? toBeHex(receipt.receipt.status as number, 1)
-              : toBeHex(+receipt.success, 1)
-        } else {
-          txnStatus = toBeHex(receipt.status as number, 1)
-        }
-
+        const txnReceipt = receipt as unknown as TransactionReceipt
+        const txnStatus = toBeHex(txnReceipt.status as number, 1)
         const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
         return {
-          logs: receipt.logs,
+          logs: txnReceipt.logs,
           status,
           chainId: networkChainIdToHex(network.chainId),
-          blockHash: isUserOp ? receipt.receipt.blockHash : receipt.blockHash,
-          blockNumber: isUserOp
-            ? receipt.receipt.blockNumber
-            : toBeHex(receipt.blockNumber as number),
-          gasUsed: isUserOp ? receipt.receipt.gasUsed : toBeHex(receipt.gasUsed),
-          transactionHash: isUserOp ? receipt.receipt.transactionHash : receipt.hash
+          blockHash: txnReceipt.blockHash,
+          blockNumber: toBeHex(txnReceipt.blockNumber as number),
+          gasUsed: toBeHex(txnReceipt.gasUsed),
+          transactionHash: txnReceipt.hash
         }
       })
     }
