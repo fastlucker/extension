@@ -104,7 +104,7 @@ const Feedback = ({ meta }: Props) => {
   }
 
   const btnText = useMemo(() => {
-    if (unknownCharacter) return 'You need to mint your NFT in order to continue with quests'
+    if (unknownCharacter) return 'Join Rewards to start accumulating XP'
     if (meta?.notMetLvlThreshold) return 'Minimum level 10 threshold not met.'
     if (!connectedAccount || v1Account)
       return 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'

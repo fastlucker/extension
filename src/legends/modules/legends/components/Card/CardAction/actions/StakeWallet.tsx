@@ -124,7 +124,7 @@ const StakeWallet = () => {
       buttonText={
         disabledButton
           ? unknownCharacter
-            ? 'You need to mint your NFT in order to continue with quests'
+            ? 'Join Rewards to start accumulating XP'
             : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isLoading
           ? 'Loading...'

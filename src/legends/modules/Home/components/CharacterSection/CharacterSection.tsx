@@ -71,19 +71,24 @@ const CharacterSection = () => {
           />
           {unknownCharacter && (
             <div className={styles.unknownCharacterLevelInfoWrapper}>
-              <p className={styles.claimableXpText}>
-                You have{' '}
-                <span className={styles.claimableBalance}>
-                  {unknownCharacter?.xp?.toLocaleString()} XP
-                </span>{' '}
-                available to claim
-              </p>
+              {unknownCharacter.xp > 0 ? (
+                <p className={styles.claimableXpText}>
+                  You have{' '}
+                  <span className={styles.claimableBalance}>
+                    {unknownCharacter?.xp?.toLocaleString()} XP
+                  </span>{' '}
+                  available to claim
+                </p>
+              ) : (
+                <p className={styles.claimableXpText}>Join Rewards to start accumulating XP</p>
+              )}
+
               <button
                 type="button"
                 className={styles.claimXpButton}
                 onClick={redirectToCharacterSelect}
               >
-                Claim
+                {unknownCharacter.xp > 0 ? 'Claim' : 'Join'}
               </button>
             </div>
           )}
@@ -202,14 +207,16 @@ const CharacterSection = () => {
             {unknownCharacter && (
               <div className={styles.claimRewardsBubble}>
                 <p className={styles.claimRewardsBubbleText}>
-                  Claim your rewards & mint a cool NFT!
+                  {unknownCharacter.xp > 0
+                    ? 'Claim your rewards & mint a cool NFT!'
+                    : 'Mint a cool NFT!'}
                 </p>
               </div>
             )}
             <img
               className={styles.characterImage}
-              src={unknownCharacter ? unknownCharacterImg : character.image}
-              alt={unknownCharacterImg ? 'unknown' : character.characterName}
+              src={unknownCharacter ? unknownCharacterImg : character?.image}
+              alt={unknownCharacterImg ? 'unknown' : character?.characterName}
             />
             <div className={styles.characterPodium} />
           </div>

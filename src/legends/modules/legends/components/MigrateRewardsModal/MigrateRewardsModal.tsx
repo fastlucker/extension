@@ -195,7 +195,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
             buttonText={
               disabledButton
                 ? unknownCharacter
-                  ? 'You need to mint your NFT in order to continue with quests'
+                  ? 'Join Rewards to start accumulating XP'
                   : 'Switch to a new account to unlock Rewards quests.'
                 : 'Migrate xWALLET'
             }
