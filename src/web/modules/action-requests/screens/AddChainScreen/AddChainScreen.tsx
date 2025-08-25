@@ -1,3 +1,4 @@
+import LottieView from 'lottie-react'
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -32,6 +33,7 @@ import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
 
 import getStyles from './styles'
+import animation from './update-animation.json'
 
 /**
  * This screen is used to add a new network to the wallet. If the network is already in the wallet
@@ -280,7 +282,7 @@ const AddChainScreen = () => {
             <ActionFooter
               onReject={handleCloseOnAlreadyAdded}
               onResolve={handleUpdateNetwork}
-              resolveButtonText={t('Update network RPC')}
+              resolveButtonText={t('Update network')}
               rejectButtonText={t('Reject')}
               resolveDisabled={
                 !areParamsValid ||
@@ -327,23 +329,32 @@ const AddChainScreen = () => {
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg} withScroll={false}>
         {networkAlreadyAdded ? (
-          <View style={[flexbox.flex1, flexbox.alignCenter, spacings.mt2Xl]}>
+          <View
+            style={[
+              flexbox.flex1,
+              flexbox.alignCenter,
+              ...(!networkAlreadyAddedRpcUrl ? [spacings.mt2Xl] : [])
+            ]}
+          >
             {networkAlreadyAddedRpcUrl && networkDetails ? (
               <>
+                <LottieView animationData={animation} loop />
                 <Text fontSize={20} weight="medium" style={spacings.mb}>
-                  {/* TODO: Apply the design here sent by Miro */}
                   {t(
                     `Add ${
                       networkDetails.selectedRpcUrl.replace(/(^\w+:|^)\/\//, '').split('/')[0]
                     } to ${networkAlreadyAdded.name}`
                   )}
                 </Text>
-                <Text fontSize={15} appearance="secondaryText" style={spacings.mt}>
+                <Text fontSize={15} appearance="secondaryText">
                   {t(
                     `Do you want to add ${
                       networkDetails.selectedRpcUrl.replace(/(^\w+:|^)\/\//, '').split('/')[0]
-                    } as a default for ${networkAlreadyAdded.name}?`
+                    }`
                   )}
+                </Text>
+                <Text fontSize={15} appearance="secondaryText">
+                  {t(` as a default for ${networkAlreadyAdded.name}?`)}
                 </Text>
               </>
             ) : (
