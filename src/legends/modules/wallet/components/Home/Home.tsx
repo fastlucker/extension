@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
@@ -7,9 +7,31 @@ import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerSt
 import walletCoin from './assets/wallet-coin.png'
 import styles from './Home.module.scss'
 
+// Formats a number as 1.23B, 4.56M, 7.89K, or with commas for smaller numbers
+function formatMarketCap(value: number): string {
+  if (value >= 1_000_000_000) {
+    return `${(value / 1_000_000_000).toFixed(2).replace(/\.00$/, '')}B`
+  }
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(2).replace(/\.00$/, '')}M`
+  }
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(2).replace(/\.00$/, '')}K`
+  }
+  return value.toLocaleString('en-US')
+}
+
 const Home = () => {
   const { walletTokenInfo, isLoadingWalletTokenInfo } = usePortfolioControllerState()
   const stakedWallet = walletTokenInfo && walletTokenInfo.percentageStakedWallet
+
+  const marketCapFormatted = useMemo(() => {
+    if (walletTokenInfo?.walletPrice !== undefined && walletTokenInfo?.totalSupply !== undefined) {
+      const marketCap = walletTokenInfo.walletPrice * walletTokenInfo.totalSupply
+      return formatMarketCap(marketCap)
+    }
+    return ''
+  }, [walletTokenInfo?.walletPrice, walletTokenInfo?.totalSupply])
 
   useEffect(() => {
     const script = document.createElement('script')
@@ -18,7 +40,9 @@ const Home = () => {
     document.body.appendChild(script)
 
     return () => {
-      document.body.removeChild(script) // cleanup on unmount
+      if (script.parentNode) {
+        script.parentNode.removeChild(script) // cleanup on unmount
+      }
     }
   }, [])
 
@@ -69,15 +93,7 @@ const Home = () => {
 
             <div className={styles.walletItemWrapper}>
               <span className={styles.item}>
-                {isLoadingWalletTokenInfo
-                  ? 'Loading...'
-                  : walletTokenInfo?.walletPrice !== undefined &&
-                    walletTokenInfo?.totalSupply !== undefined
-                  ? new Intl.NumberFormat('en-US', {
-                      notation: 'compact',
-                      maximumFractionDigits: 2
-                    }).format(walletTokenInfo.walletPrice * walletTokenInfo.totalSupply)
-                  : ''}
+                {isLoadingWalletTokenInfo ? 'Loading...' : marketCapFormatted}
               </span>
               <div className={styles.walletInfoWrapper}>Market Cap</div>
             </div>
