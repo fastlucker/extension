@@ -126,12 +126,16 @@ background: linear-gradient(147.96deg, #191B1F 43.03%, rgba(19, 21, 43, 0.99) 87
         margin-bottom: .625rem;
       }
       .claimableBalance {
-        color: $green-500;
+        color: #02F3BF;
+        font-weight: 600;
       }
       .claimXpButton {
         @include primary-button;
         cursor: pointer;
         max-width: 10.625rem;
+        height: 4rem;
+        font-weight: 400;
+        font-size: 1.25rem;
         margin-bottom: 2.8125rem;
       }
     }

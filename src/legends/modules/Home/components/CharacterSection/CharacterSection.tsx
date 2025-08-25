@@ -72,12 +72,19 @@ const CharacterSection = () => {
           {unknownCharacter && (
             <div className={styles.unknownCharacterLevelInfoWrapper}>
               <p className={styles.claimableXpText}>
-                You have <span className={styles.claimableBalance}>{unknownCharacter.xp} XP</span>{' '}
+                You have{' '}
+                <span className={styles.claimableBalance}>
+                  {unknownCharacter?.xp?.toLocaleString()} XP
+                </span>{' '}
                 available to claim
               </p>
-              <div className={styles.claimXpButton} onClick={redirectToCharacterSelect}>
+              <button
+                type="button"
+                className={styles.claimXpButton}
+                onClick={redirectToCharacterSelect}
+              >
                 Claim
-              </div>
+              </button>
             </div>
           )}
           {!unknownCharacter && (
