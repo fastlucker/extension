@@ -9,30 +9,14 @@ import { nanoid } from 'nanoid'
 
 import EmittableError from '@ambire-common/classes/EmittableError'
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
-import {
-  ACCOUNT_STATE_PENDING_INTERVAL,
-  ACCOUNT_STATE_STAND_BY_INTERVAL,
-  ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL,
-  ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
-  ACTIVITY_REFRESH_INTERVAL,
-  INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
-  UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
-} from '@ambire-common/consts/intervals'
-import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { ErrorRef } from '@ambire-common/interfaces/eventEmitter'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
-import { WindowManager } from '@ambire-common/interfaces/window'
+import { UiManager } from '@ambire-common/interfaces/ui'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
-import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
-import {
-  getActiveRoutesLowestServiceTime,
-  getActiveRoutesUpdateInterval
-} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import { createRecurringTimeout } from '@ambire-common/utils/timeout'
 import wait from '@ambire-common/utils/wait'
 import CONFIG, { isDev, isProd } from '@common/config/env'
 import {
@@ -202,19 +186,6 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
 
 handleKeepBridgeContentScriptAcrossSessions()
 
-function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: number): number {
-  // 5s + new Date().getTime() - timestamp of newest op / 10
-  // here are some example of what this means:
-  // 1s diff between now and newestOpTimestamp: 5.1s
-  // 10s diff between now and newestOpTimestamp: 6s
-  // 60s diff between now and newestOpTimestamp: 11s
-  // 5m diff between now and newestOpTimestamp: 35s
-  // 10m diff between now and newestOpTimestamp: 65s
-  return newestOpTimestamp === 0
-    ? constUpdateInterval
-    : constUpdateInterval + (new Date().getTime() - newestOpTimestamp) / 10
-}
-
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // Init sentry
@@ -263,50 +234,19 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   const backgroundState: {
     isUnlocked: boolean
     ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
-    accountStateIntervals: {
-      pending: number
-      standBy: number
-      retriedFastAccountStateReFetchForNetworks: string[]
-      fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
-    }
-    activityRefreshInterval: number
-    hasSignAccountOpCtrlInitialized: boolean
-    portfolioLastUpdatedByIntervalAt: number
-    updatePortfolioInterval?: ReturnType<typeof setTimeout>
-    updateDefiPositionsInterval?: ReturnType<typeof setTimeout>
     autoLockIntervalId?: ReturnType<typeof setInterval>
-    accountsOpsStatusesInterval?: ReturnType<typeof setTimeout>
-    updateActiveRoutesInterval?: ReturnType<typeof setTimeout>
-    updateSwapAndBridgeQuoteInterval?: ReturnType<typeof setTimeout>
-    swapAndBridgeQuoteStatus: 'INITIAL' | 'LOADING'
-    estimateTimeout?: { start: any; stop: any }
-    accountStateLatestInterval?: ReturnType<typeof setTimeout>
-    accountStatePendingInterval?: ReturnType<typeof setTimeout>
-    selectedAccountStateInterval?: number
-    networksLastUpdatedByIntervalAt: number
-    updateNetworksInterval?: ReturnType<typeof setTimeout>
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
       While the flag is truthy and there are new updates coming for that ctrl in the same tick, they will be debounced and only one event will be executed at the end
     */
     isUnlocked: false,
-    ctrlOnUpdateIsDirtyFlags: {},
-    accountStateIntervals: {
-      pending: ACCOUNT_STATE_PENDING_INTERVAL,
-      standBy: ACCOUNT_STATE_STAND_BY_INTERVAL,
-      retriedFastAccountStateReFetchForNetworks: []
-    },
-    activityRefreshInterval: ACTIVITY_REFRESH_INTERVAL,
-    hasSignAccountOpCtrlInitialized: false,
-    swapAndBridgeQuoteStatus: 'INITIAL',
-    portfolioLastUpdatedByIntervalAt: Date.now(), // Because the first update is immediate
-    networksLastUpdatedByIntervalAt: Date.now()
+    ctrlOnUpdateIsDirtyFlags: {}
   }
 
   const pm = new PortMessenger()
   const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController(windowManager as WindowManager)
+  const trezorCtrl = new TrezorController(windowManager as UiManager['window'])
   const latticeCtrl = new LatticeController()
 
   // Extension-specific additional trackings
@@ -377,38 +317,46 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       trezor: trezorCtrl,
       lattice: latticeCtrl
     } as any,
-    windowManager: {
-      ...windowManager,
-      remove: async (winId: number | 'popup') => {
-        if (winId === 'popup') {
-          return new Promise((resolve) => {
-            const popupPort = pm.ports.find((p) => p.name === 'popup')
-            if (!popupPort) {
-              resolve()
-              return
-            }
+    uiManager: {
+      window: {
+        ...windowManager,
+        remove: async (winId: number | 'popup') => {
+          if (winId === 'popup') {
+            return new Promise((resolve) => {
+              const popupPort = pm.ports.find((p) => p.name === 'popup')
+              if (!popupPort) {
+                resolve()
+                return
+              }
 
-            const timeout = setTimeout(() => {
-              resolve()
-            }, 1500)
+              const timeout = setTimeout(() => {
+                resolve()
+              }, 1500)
 
-            popupPort.onDisconnect.addListener(() => {
-              clearTimeout(timeout)
-              resolve()
+              popupPort.onDisconnect.addListener(() => {
+                clearTimeout(timeout)
+                resolve()
+              })
+              pm.send('> ui', { method: 'closePopup', params: {} })
             })
-            pm.send('> ui', { method: 'closePopup', params: {} })
-          })
+          }
+          await windowManager.remove(winId, pm)
         }
-        await windowManager.remove(winId, pm)
       },
-      sendWindowToastMessage: (text, options) => {
-        pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
-      },
-      sendWindowUiMessage: (params) => {
-        pm.send('> ui', { method: 'receiveOneTimeData', params })
+      notification: notificationManager,
+      message: {
+        sendToastMessage: (text, options) => {
+          pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
+        },
+        sendUiMessage: (params) => {
+          pm.send('> ui', { method: 'receiveOneTimeData', params })
+        },
+        sendNavigateMessage: () => {
+          // TODO:
+          // pm.send('> ui-navigate', ...)
+        }
       }
-    },
-    notificationManager
+    }
   })
 
   walletStateCtrl = new WalletStateController({
@@ -433,373 +381,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     mainCtrl.keystore.lock()
   })
   const extensionUpdateCtrl = new ExtensionUpdateController()
-
-  /**
-   * Schedules periodic network synchronization.
-   *
-   * This function ensures that the `synchronizeNetworks` method runs every 8 hours
-   * to periodically refetch networks in case there are updates,
-   * since the extension relies on the config from relayer.
-   *
-   * Networks are also updated on NetworksController load and background process refresh,
-   * but this ensures they stay refreshed.
-   * Because of this, tt does **not** execute immediately at startup, only after the first interval.
-   */
-  function scheduleNetworkSync() {
-    if (backgroundState.updateNetworksInterval) {
-      clearTimeout(backgroundState.updateNetworksInterval)
-    }
-
-    backgroundState.updateNetworksInterval = setTimeout(async () => {
-      try {
-        await mainCtrl.networks.synchronizeNetworks()
-        backgroundState.networksLastUpdatedByIntervalAt = Date.now()
-      } catch (error) {
-        console.error('Failed to synchronize networks:', error)
-      }
-
-      scheduleNetworkSync()
-    }, 8 * 60 * 60 * 1000)
-  }
-
-  scheduleNetworkSync()
-
-  async function initPortfolioContinuousUpdate() {
-    if (backgroundState.updatePortfolioInterval)
-      clearTimeout(backgroundState.updatePortfolioInterval)
-
-    const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-    const updateInterval = isExtensionActive
-      ? ACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
-      : INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
-
-    async function updatePortfolio() {
-      // Postpone the portfolio update for the next interval
-      // if we have broadcasted but not yet confirmed acc op.
-      // Here's why:
-      // 1. On the Dashboard, we show a pending-to-be-confirmed token badge
-      //    if an acc op has been broadcasted but is still unconfirmed.
-      // 2. To display the expected balance change, we calculate it from the portfolio's pending simulation state.
-      // 3. When we sign and broadcast the acc op, we remove it from the Main controller.
-      // 4. If we trigger a portfolio update at this point, we will lose the pending simulation state.
-      // 5. Therefore, to ensure the badge is displayed, we pause the portfolio update temporarily.
-      //    Once the acc op is confirmed or failed, the portfolio interval will resume as normal.
-      // 6. Gotcha: If the user forcefully updates the portfolio, we will also lose the simulation.
-      //    However, this is not a frequent case, and we can make a compromise here.
-      if (mainCtrl.activity.broadcastedButNotConfirmed.length) {
-        backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
-        return
-      }
-
-      await mainCtrl.updateSelectedAccountPortfolio()
-
-      backgroundState.portfolioLastUpdatedByIntervalAt = Date.now()
-      // Schedule the next update only when the previous one completes
-      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
-    }
-
-    const isAtLeastOnePortfolioUpdateMissed =
-      Date.now() - backgroundState.portfolioLastUpdatedByIntervalAt >
-      INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL
-
-    // If the extension is inactive and the last update was missed, update the portfolio immediately
-    if (isAtLeastOnePortfolioUpdateMissed) {
-      clearTimeout(backgroundState.updatePortfolioInterval)
-      await updatePortfolio()
-    } else {
-      // Start the first update
-      backgroundState.updatePortfolioInterval = setTimeout(updatePortfolio, updateInterval)
-    }
-  }
-
-  async function initDefiPositionsContinuousUpdate() {
-    async function updateDefiPositions() {
-      const isExtensionActive = pm.ports.length > 0 // (opened tab, popup, action-window)
-
-      if (!isExtensionActive) {
-        if (backgroundState.updateDefiPositionsInterval) {
-          clearTimeout(backgroundState.updateDefiPositionsInterval)
-        }
-
-        return
-      }
-
-      const FIVE_MINUTES = 1000 * 60 * 5
-      await mainCtrl.defiPositions.updatePositions({ maxDataAgeMs: FIVE_MINUTES })
-
-      // Schedule the next update only when the previous one completes
-      backgroundState.updateDefiPositionsInterval = setTimeout(
-        updateDefiPositions,
-        ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
-      )
-    }
-
-    // The onPopupOpen func in the MainController will update the defi positions on port init.
-    // Here, we only need to schedule the next update to avoid duplicate updates
-    backgroundState.updateDefiPositionsInterval = setTimeout(
-      updateDefiPositions,
-      ACTIVE_EXTENSION_DEFI_POSITIONS_UPDATE_INTERVAL
-    )
-  }
-
-  function initAccountsOpsStatusesContinuousUpdate(updateInterval: number) {
-    if (backgroundState.accountsOpsStatusesInterval)
-      clearTimeout(backgroundState.accountsOpsStatusesInterval)
-
-    async function updateStatuses() {
-      const { newestOpTimestamp } = await mainCtrl.updateAccountsOpsStatuses()
-
-      // Schedule the next update only when the previous one completes
-      const interval = getIntervalRefreshTime(updateInterval, newestOpTimestamp)
-      backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, interval)
-    }
-
-    backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
-  }
-
-  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: SwapAndBridgeActiveRoute[]) {
-    if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
-      !!backgroundState.updateActiveRoutesInterval &&
-        clearTimeout(backgroundState.updateActiveRoutesInterval)
-      delete backgroundState.updateActiveRoutesInterval
-      return
-    }
-    if (backgroundState.updateActiveRoutesInterval) return
-
-    let minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress)
-
-    async function updateActiveRoutes() {
-      minServiceTime = getActiveRoutesLowestServiceTime(activeRoutesInProgress!)
-      await mainCtrl.swapAndBridge.checkForNextUserTxForActiveRoutes()
-
-      // Schedule the next update only when the previous one completes
-      backgroundState.updateActiveRoutesInterval = setTimeout(
-        updateActiveRoutes,
-        getActiveRoutesUpdateInterval(minServiceTime)
-      )
-    }
-
-    backgroundState.updateActiveRoutesInterval = setTimeout(
-      updateActiveRoutes,
-      getActiveRoutesUpdateInterval(minServiceTime)
-    )
-  }
-
-  function initSwapAndBridgeQuoteContinuousUpdate() {
-    if (mainCtrl.swapAndBridge.formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) {
-      !!backgroundState.updateSwapAndBridgeQuoteInterval &&
-        clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
-      delete backgroundState.updateSwapAndBridgeQuoteInterval
-      return
-    }
-
-    // This logic is triggered when the user manually refreshes the quotes,
-    // resetting the interval to synchronize with the UI.
-    if (
-      backgroundState.updateSwapAndBridgeQuoteInterval &&
-      backgroundState.swapAndBridgeQuoteStatus === 'LOADING' &&
-      mainCtrl.swapAndBridge.updateQuoteStatus === 'INITIAL'
-    ) {
-      clearTimeout(backgroundState.updateSwapAndBridgeQuoteInterval)
-      delete backgroundState.updateSwapAndBridgeQuoteInterval
-    }
-
-    if (backgroundState.updateSwapAndBridgeQuoteInterval) return
-
-    async function updateSwapAndBridgeQuote() {
-      if (mainCtrl.swapAndBridge.formStatus === SwapAndBridgeFormStatus.ReadyToSubmit)
-        await mainCtrl.swapAndBridge.updateQuote({
-          skipPreviousQuoteRemoval: true,
-          skipQuoteUpdateOnSameValues: false,
-          skipStatusUpdate: false
-        })
-
-      // Schedule the next update only when the previous one completes
-      backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(
-        updateSwapAndBridgeQuote,
-        UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
-      )
-    }
-
-    backgroundState.updateSwapAndBridgeQuoteInterval = setTimeout(
-      updateSwapAndBridgeQuote,
-      UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
-    )
-  }
-
-  /**
-   * Updates the account state for the selected account. Doesn't update the state for networks with failed RPC as this is handled by a different interval.
-   */
-  async function initLatestAccountStateContinuousUpdate(intervalLength: number) {
-    if (backgroundState.accountStateLatestInterval)
-      clearTimeout(backgroundState.accountStateLatestInterval)
-
-    const updateAccountState = async () => {
-      if (!mainCtrl.selectedAccount.account) {
-        console.error('No selected account to latest state')
-        return
-      }
-      const failedChainIds = getNetworksWithFailedRPC({
-        providers: mainCtrl.providers.providers
-      })
-      const networksToUpdate = mainCtrl.networks.networks
-        .filter(({ chainId }) => !failedChainIds.includes(chainId.toString()))
-        .map(({ chainId }) => chainId)
-
-      await mainCtrl.accounts.updateAccountState(
-        mainCtrl.selectedAccount.account.addr,
-        'latest',
-        networksToUpdate
-      )
-      backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
-    }
-
-    // Start the first update
-    backgroundState.accountStateLatestInterval = setTimeout(updateAccountState, intervalLength)
-  }
-
-  async function initPendingAccountStateContinuousUpdate(intervalLength: number) {
-    if (!mainCtrl.selectedAccount.account) {
-      console.error('No selected account to update pending state')
-      return
-    }
-
-    if (backgroundState.accountStatePendingInterval)
-      clearTimeout(backgroundState.accountStatePendingInterval)
-
-    const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
-      .map((op) => op.chainId)
-      .filter((chainId, index, self) => self.indexOf(chainId) === index)
-    await mainCtrl.accounts.updateAccountState(
-      mainCtrl.selectedAccount.account.addr,
-      'pending',
-      networksToUpdate
-    )
-
-    const updateAccountState = async (chainIds: bigint[]) => {
-      if (!mainCtrl.selectedAccount.account) {
-        console.error('No selected account to update pending state')
-        return
-      }
-
-      await mainCtrl.accounts.updateAccountState(
-        mainCtrl.selectedAccount.account.addr,
-        'pending',
-        chainIds
-      )
-
-      // if there are no more broadcastedButNotConfirmed ops for the network,
-      // remove the timeout
-      const networksToUpdate = mainCtrl.activity.broadcastedButNotConfirmed
-        .map((op) => op.chainId)
-        .filter((chainId, index, self) => self.indexOf(chainId) === index)
-      if (!networksToUpdate.length) {
-        clearTimeout(backgroundState.accountStatePendingInterval)
-      } else {
-        // Schedule the next update
-        const newestOpTimestamp = mainCtrl.activity.broadcastedButNotConfirmed.reduce(
-          (newestTimestamp, accOp) => {
-            return accOp.timestamp > newestTimestamp ? accOp.timestamp : newestTimestamp
-          },
-          0
-        )
-        const interval = getIntervalRefreshTime(intervalLength, newestOpTimestamp)
-        backgroundState.accountStatePendingInterval = setTimeout(
-          () => updateAccountState(networksToUpdate),
-          interval
-        )
-      }
-    }
-
-    // Start the first update
-    backgroundState.accountStatePendingInterval = setTimeout(
-      () => updateAccountState(networksToUpdate),
-      intervalLength / 2
-    )
-  }
-
-  /** Update failed network states more often. If a network's first failed
-   *  update is just now, retry in 8s. If it's a repeated failure, retry in 20s.
-   */
-  function initFrequentLatestAccountStateContinuousUpdateIfNeeded() {
-    const isExtensionActive = pm.ports.length > 0
-
-    if (backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout) {
-      clearTimeout(backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout)
-    }
-
-    // If there are no open ports the account state will be updated
-    // automatically when the extension is opened.
-    if (!isExtensionActive) return
-
-    const updateAccountState = async () => {
-      const failedChainIds = getNetworksWithFailedRPC({
-        providers: mainCtrl.providers.providers
-      })
-
-      if (!failedChainIds.length) return
-
-      const retriedFastAccountStateReFetchForNetworks =
-        backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
-
-      // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
-      // if the RPC goes down again
-      if (retriedFastAccountStateReFetchForNetworks.length) {
-        retriedFastAccountStateReFetchForNetworks.forEach((chainId, index) => {
-          if (!failedChainIds.includes(chainId)) {
-            delete retriedFastAccountStateReFetchForNetworks[index]
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-
-            const network = mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
-            mainCtrl.updateSelectedAccountPortfolio({ networks: network ? [network] : undefined })
-          }
-        })
-      }
-
-      // Filter out the network ids that have already been retried
-      const recentlyFailedNetworks = failedChainIds.filter(
-        (id) =>
-          !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
-            (chainId) => chainId === id
-          )
-      )
-
-      const updateTime = recentlyFailedNetworks.length ? 8000 : 20000
-
-      await mainCtrl.accounts.updateAccountStates(
-        mainCtrl.selectedAccount.account?.addr,
-        'latest',
-        failedChainIds.map((id) => BigInt(id))
-      )
-      // Add the network ids that have been retried to the list
-      failedChainIds.forEach((id) => {
-        if (retriedFastAccountStateReFetchForNetworks.includes(id)) return
-
-        retriedFastAccountStateReFetchForNetworks.push(id)
-      })
-
-      if (!failedChainIds.length) return
-
-      backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
-        updateAccountState,
-        updateTime
-      )
-    }
-
-    backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
-      updateAccountState,
-      8000
-    )
-  }
-
-  function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => {
-      if (mainCtrl.signAccountOp) return mainCtrl.signAccountOp.simulate()
-      return new Promise((resolve) => {
-        resolve()
-      })
-    }, 30000)
-  }
 
   function debounceFrontEndEventUpdatesOnSameTick(
     ctrlName: string,
@@ -862,26 +443,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl, mainCtrl, forceEmit)
     if (res === 'DEBOUNCED') return
 
-    // if the signAccountOp controller is active, reestimate at a set period of time
-    if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
-      if (mainCtrl.signAccountOp) {
-        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
-
-        backgroundState.estimateTimeout = createEstimateRecurringTimeout()
-        backgroundState.estimateTimeout.start()
-      } else {
-        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
-      }
-
-      backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
-    }
-
-    if (mainCtrl.statuses.signAndBroadcastAccountOp === 'SUCCESS') {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
-      initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
-    }
-
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
       const controller = (mainCtrl as any)[ctrlName]
       if (Array.isArray(controller?.onUpdateIds)) {
@@ -917,27 +478,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               }
             }
 
-            if (ctrlName === 'activity') {
-              // Start the interval for updating the accounts ops statuses, only if there are broadcasted but not confirmed accounts ops
-              if (controller?.broadcastedButNotConfirmed.length) {
-                // If the interval is already set, then do nothing.
-                if (!backgroundState.accountsOpsStatusesInterval) {
-                  initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
-                }
-              } else {
-                !!backgroundState.accountsOpsStatusesInterval &&
-                  clearTimeout(backgroundState.accountsOpsStatusesInterval)
-                delete backgroundState.accountsOpsStatusesInterval
-              }
-            }
-            if (ctrlName === 'providers') {
-              initFrequentLatestAccountStateContinuousUpdateIfNeeded()
-            }
-            if (ctrlName === 'swapAndBridge') {
-              initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
-              initSwapAndBridgeQuoteContinuousUpdate()
-              backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
-            }
             if (ctrlName === 'selectedAccount') {
               if (controller?.account?.addr) {
                 setBackgroundExtraContext('account', controller.account.addr)
@@ -1044,9 +584,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
-
-      initPortfolioContinuousUpdate()
-      initDefiPositionsContinuousUpdate()
+      mainCtrl.ui.addView({ id: port.id, type: port.name })
 
       mainCtrl.phishing.updateIfNeeded()
 
@@ -1106,7 +644,8 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       port.onDisconnect.addListener(() => {
         pm.dispose(port.id)
         pm.removePort(port.id)
-        initPortfolioContinuousUpdate()
+        mainCtrl.ui.removeView(port.id)
+
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup
@@ -1126,9 +665,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       })
     }
   })
-
-  initPortfolioContinuousUpdate()
-  await initLatestAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 })()
 
 try {

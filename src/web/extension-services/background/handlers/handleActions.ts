@@ -52,6 +52,7 @@ export const handleActions = async (
         port.sender.url = params.url
         if (port.sender.tab) port.sender.tab.url = params.url
       }
+      mainCtrl.ui.updateView(port.id, { currentRoute: params.route })
       break
     }
     case 'INIT_CONTROLLER_STATE': {
@@ -78,8 +79,6 @@ export const handleActions = async (
       }
       break
     }
-    case 'MAIN_CONTROLLER_ON_POPUP_OPEN':
-      return mainCtrl.onPopupOpen()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER': {
@@ -174,6 +173,9 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE':
       return await mainCtrl.accountPicker.setPage(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS': {
+      return await mainCtrl.accountPicker.findAndSetLinkedAccounts()
+    }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE': {
       return await mainCtrl.accountPicker.setHDPathTemplate(params)
     }
@@ -193,6 +195,15 @@ export const handleActions = async (
       // skips the parallel one, if one is requested).
 
       return await mainCtrl.keystore.addKeys(params.keys)
+    }
+    case 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI': {
+      return await mainCtrl.keystore.sendPasswordDecryptedPrivateKeyToUi(
+        params.secret,
+        params.key,
+        params.salt,
+        params.iv,
+        params.associatedKeys
+      )
     }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
       // Since these accounts are view-only, directly add them in the
@@ -508,6 +519,12 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
+    case 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI':
+      return await mainCtrl.keystore.sendPasswordEncryptedPrivateKeyToUi(
+        params.keyAddr,
+        params.secret,
+        params.entropy
+      )
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':

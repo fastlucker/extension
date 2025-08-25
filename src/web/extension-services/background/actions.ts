@@ -44,7 +44,7 @@ import { controllersMapping } from './types'
 
 type UpdateNavigationUrl = {
   type: 'UPDATE_PORT_URL'
-  params: { url: string }
+  params: { url: string; route?: string }
 }
 
 type InitControllerStateAction = {
@@ -103,6 +103,10 @@ type MainControllerAccountPickerSetPageAction = {
     shouldGetAccountsUsedOnNetworks?: boolean
   }
 }
+type MainControllerAccountPickerFindAndSetLinkedAccountsAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS'
+}
+
 type MainControllerAccountPickerSetHdPathTemplateAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE'
   params: { hdPathTemplate: HD_PATH_TEMPLATE_TYPE }
@@ -189,6 +193,14 @@ type MainControllerUpdateNetworkAction = {
     chainId: ChainId
   }
 }
+type MainControllerUpdateNetworksAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORKS'
+  params: {
+    network: Partial<Network>
+    chainIds: ChainId[]
+  }
+}
+
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
   params: { callId: string }
@@ -406,10 +418,6 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   }
 }
 
-type MainControllerOnPopupOpenAction = {
-  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
-}
-
 type MainControllerLockAction = {
   type: 'MAIN_CONTROLLER_LOCK'
 }
@@ -448,6 +456,14 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
 type KeystoreControllerSendPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string }
+}
+type KeystoreControllerSendEncryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI'
+  params: { keyAddr: string; secret: string; entropy: string }
+}
+type KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI'
+  params: { secret: string; key: string; salt: string; iv: string; associatedKeys: string[] }
 }
 type KeystoreControllerDeleteSeedAction = {
   type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
@@ -772,8 +788,8 @@ export type Action =
   | MainControllerAddNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
-  | MainControllerUpdateNetworksAction
   | MainControllerAccountPickerSetPageAction
+  | MainControllerAccountPickerFindAndSetLinkedAccountsAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
@@ -887,3 +903,5 @@ export type Action =
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
   | DismissBanner
+  | KeystoreControllerSendEncryptedPrivateKeyToUiAction
+  | KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction
