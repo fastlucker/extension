@@ -15,6 +15,7 @@ import CloseIcon from '@legends/components/CloseIcon'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
@@ -58,8 +59,9 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
+  const { unknownCharacter } = useCharacterContext()
   const switchNetwork = useSwitchNetwork()
-  const disabledButton = Boolean(!connectedAccount || v1Account)
+  const disabledButton = Boolean(!connectedAccount || v1Account || unknownCharacter)
 
   const [migratableXWalletBalance, setMigratableXWalletBalance] = useState<bigint | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -192,7 +194,9 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
             onButtonClick={onButtonClick}
             buttonText={
               disabledButton
-                ? 'Switch to a new account to unlock Rewards quests.'
+                ? unknownCharacter
+                  ? 'You need to mint your NFT in order to continue with quests'
+                  : 'Switch to a new account to unlock Rewards quests.'
                 : 'Migrate xWALLET'
             }
             className={styles.button}

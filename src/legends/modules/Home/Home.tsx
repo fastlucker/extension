@@ -2,6 +2,7 @@ import React from 'react'
 
 import Page from '@legends/components/Page'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 
 import ActivitySection from './components/ActivitySection'
 import CharacterSection from './components/CharacterSection'
@@ -12,6 +13,7 @@ import QuestsSection from './components/QuestsSection'
 
 const Character = () => {
   const { v1Account, connectedAccount } = useAccountContext()
+  const { unknownCharacter } = useCharacterContext()
 
   return (
     <Page containerSize="full">
@@ -27,9 +29,9 @@ const Character = () => {
       )}
 
       <QuestsSection />
-      {connectedAccount && !v1Account && <ActivitySection />}
+      {connectedAccount && !v1Account && !unknownCharacter && <ActivitySection />}
 
-      {(!connectedAccount || !!v1Account) && <FaqSection />}
+      {(!connectedAccount || !v1Account || unknownCharacter) && <FaqSection />}
     </Page>
   )
 }

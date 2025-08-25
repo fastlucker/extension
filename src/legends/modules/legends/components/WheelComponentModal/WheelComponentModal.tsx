@@ -11,6 +11,7 @@ import { LEGENDS_CONTRACT_ADDRESS } from '@legends/constants/addresses'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
@@ -43,13 +44,14 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   >('locked')
 
   const { connectedAccount, v1Account } = useAccountContext()
+  const { unknownCharacter } = useCharacterContext()
 
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus } = useErc5792()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
   const chainRef = React.useRef<HTMLImageElement>(null)
-  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account || unknownCharacter)
 
   const stopSpinnerTeaseAnimation = useCallback(() => {
     if (!spinnerRef.current) return
@@ -233,7 +235,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             onClick={onButtonClick}
           >
             {nonConnectedAcc
-              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+              ? unknownCharacter
+                ? 'You need to mint your NFT in order to continue with quests'
+                : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
               : buttonLabel}
           </button>
         </div>

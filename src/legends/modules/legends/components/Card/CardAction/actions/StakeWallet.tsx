@@ -7,6 +7,7 @@ import HumanReadableError from '@legends/classes/HumanReadableError'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
@@ -31,7 +32,8 @@ const StakeWallet = () => {
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
-  const disabledButton = Boolean(!connectedAccount || v1Account)
+  const { unknownCharacter } = useCharacterContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account || unknownCharacter)
 
   const [walletBalance, setWalletBalance] = useState(null)
 
@@ -121,7 +123,9 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+          ? unknownCharacter
+            ? 'You need to mint your NFT in order to continue with quests'
+            : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isLoading
           ? 'Loading...'
           : !walletBalance

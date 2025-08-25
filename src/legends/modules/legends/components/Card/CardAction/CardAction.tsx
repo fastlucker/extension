@@ -1,6 +1,7 @@
 import React, { FC, useCallback } from 'react'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
@@ -17,7 +18,8 @@ export type CardActionComponentProps = {
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
   const { connectedAccount, v1Account } = useAccountContext()
-  const disabledButton = Boolean(!connectedAccount || v1Account)
+  const { unknownCharacter } = useCharacterContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account || unknownCharacter)
 
   const handleWalletRouteButtonPress = useCallback(async () => {
     if (action.type !== CardActionType.walletRoute) return
@@ -61,7 +63,9 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
       <CardActionButton
         buttonText={
           disabledButton
-            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+            ? unknownCharacter
+              ? 'You need to mint your NFT in order to continue with quests'
+              : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
             : 'Proceed'
         }
         onButtonClick={() => {
@@ -78,7 +82,9 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
       <CardActionButton
         buttonText={
           disabledButton
-            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+            ? unknownCharacter
+              ? 'You need to mint your NFT in order to continue with quests'
+              : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
             : 'Proceed'
         }
         onButtonClick={handleWalletRouteButtonPress}
