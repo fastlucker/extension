@@ -27,7 +27,7 @@ const useTaskQueue = () => {
     return () => {
       queueRef.current.clear()
     }
-  }, [])
+  }, [addToast, goBack])
 
   return { queueRef, createTask }
 }
