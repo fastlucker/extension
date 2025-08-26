@@ -81,45 +81,47 @@ const RouteInfo: FC<Props> = ({
             isAutoSelectRouteDisabled)) &&
         !isEstimatingRoute && (
           <>
-            {signAccountOpController?.estimation.status === EstimationStatus.Success && (
-              <View
-                style={[
-                  flexbox.directionRow,
-                  flexbox.alignCenter,
-                  flexbox.justifySpaceBetween,
-                  { width: '100%' }
-                ]}
-              >
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text appearance="tertiaryText" fontSize={14} weight="medium">
-                    {t('Ambire fee: {{fee}}', {
-                      fee: isOG ? "0% - you're an OG 🎉" : `${FEE_PERCENT}%`
-                    })}
-                  </Text>
-                  {quote?.selectedRoute?.serviceTime ? (
-                    <Text
-                      appearance="tertiaryText"
-                      fontSize={14}
-                      weight="medium"
-                      style={spacings.mlLg}
-                    >
-                      {t('Time: {{time}}', {
-                        time:
-                          quote?.selectedRoute.fromChainId !== quote?.selectedRoute.toChainId
-                            ? `~ ${formatTime(quote?.selectedRoute?.serviceTime)}`
-                            : 'instant'
+            {signAccountOpController?.estimation.status === EstimationStatus.Success &&
+              formStatus !== SwapAndBridgeFormStatus.InvalidRouteSelected && (
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.alignCenter,
+                    flexbox.justifySpaceBetween,
+                    { width: '100%' }
+                  ]}
+                >
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Text appearance="tertiaryText" fontSize={14} weight="medium">
+                      {t('Ambire fee: {{fee}}', {
+                        fee: isOG ? "0% - you're an OG 🎉" : `${FEE_PERCENT}%`
                       })}
                     </Text>
-                  ) : null}
-                </View>
+                    {quote?.selectedRoute?.serviceTime ? (
+                      <Text
+                        appearance="tertiaryText"
+                        fontSize={14}
+                        weight="medium"
+                        style={spacings.mlLg}
+                      >
+                        {t('Time: {{time}}', {
+                          time:
+                            quote?.selectedRoute.fromChainId !== quote?.selectedRoute.toChainId
+                              ? `~ ${formatTime(quote?.selectedRoute?.serviceTime)}`
+                              : 'instant'
+                        })}
+                      </Text>
+                    ) : null}
+                  </View>
 
-                <SelectRoute
-                  shouldEnableRoutesSelection={shouldEnableRoutesSelection}
-                  openRoutesModal={openRoutesModal}
-                />
-              </View>
-            )}
-            {signAccountOpController?.estimation.status === EstimationStatus.Error && (
+                  <SelectRoute
+                    shouldEnableRoutesSelection={shouldEnableRoutesSelection}
+                    openRoutesModal={openRoutesModal}
+                  />
+                </View>
+              )}
+            {(signAccountOpController?.estimation.status === EstimationStatus.Error ||
+              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
               <View
                 style={[
                   flexbox.directionRow,
@@ -172,18 +174,20 @@ const RouteInfo: FC<Props> = ({
                       appearance="warningText"
                       style={spacings.mlMi}
                     >
-                      {t('Estimation error encountered. More details:')}
+                      {t('An error occurred. More details:')}
                     </Text>
                     <InfoIcon
                       width={16}
                       height={16}
-                      data-tooltip-id="bridge-fee-icon"
+                      data-tooltip-id="error-info-icon"
                       style={spacings.mlTy}
                     />
-                    <Tooltip id="bridge-fee-icon" clickable>
+                    <Tooltip id="error-info-icon" clickable>
                       <View>
                         <Text fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
-                          {signAccountOpController?.estimation.error?.message}
+                          {quote && quote.selectedRoute && quote.selectedRoute.disabled
+                            ? quote.selectedRoute.disabledReason
+                            : signAccountOpController?.estimation.error?.message}
                         </Text>
                       </View>
                     </Tooltip>
