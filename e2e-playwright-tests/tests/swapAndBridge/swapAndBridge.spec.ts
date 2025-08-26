@@ -37,7 +37,7 @@ test.describe('swapAndBridge Smart Account', () => {
     const fromToken = tokens.dai.optimism
     const toToken = tokens.usdce.optimism
 
-    await pages.swapAndBridge.prepareSwapAndBridge(0.1, fromToken, toToken)
+    await pages.swapAndBridge.prepareSwapAndBridge(0.1, fromToken, toToken) // ~ 0.1$
     await pages.swapAndBridge.enterNumber('abc', true)
   })
 
@@ -85,7 +85,7 @@ test.describe('swapAndBridge Smart Account', () => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
     await pages.swapAndBridge.openSwapAndBridge()
-    await pages.swapAndBridge.prepareSwapAndBridge(0.8, usdc, wallet)
+    await pages.swapAndBridge.prepareSwapAndBridge(1, usdc, wallet) // ~ 0,1$
     await pages.swapAndBridge.rejectTransaction()
   })
 
@@ -101,7 +101,7 @@ test.describe('swapAndBridge Smart Account', () => {
 
     await test.step('prepare swap and bridge transaction', async () => {
       await pages.swapAndBridge.openSwapAndBridge()
-      await pages.swapAndBridge.prepareSwapAndBridge(0.005, usdc, wallet)
+      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
     })
 
     await test.step('proceed and sign the transaction', async () => {
@@ -135,7 +135,7 @@ test.describe('swapAndBridge Smart Account', () => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
-    await pages.swapAndBridge.prepareSwapAndBridge(0.009, usdc, wallet)
+    await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
     await pages.swapAndBridge.verifyAutoRefreshRoute()
   })
 
@@ -145,7 +145,7 @@ test.describe('swapAndBridge Smart Account', () => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
-    await pages.swapAndBridge.prepareSwapAndBridge(0.009, usdc, wallet)
+    await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
     await pages.swapAndBridge.clickOnSecondRoute()
   })
 
@@ -158,7 +158,7 @@ test.describe('swapAndBridge Smart Account', () => {
     })
 
     await test.step('prepare bridge transaction', async () => {
-      await pages.swapAndBridge.prepareBridgeTransaction(0.0063, usdc, usdcOpt)
+      await pages.swapAndBridge.prepareBridgeTransaction(0.1, usdc, usdcOpt) // ~ 0.1$
     })
 
     await test.step('sign transaction', async () => {
@@ -181,7 +181,7 @@ test.describe('swapAndBridge Smart Account', () => {
     })
 
     await test.step('add a transaction swapping WALLET for USDC to the batch', async () => {
-      await pages.swapAndBridge.prepareSwapAndBridge(0.003, wallet, usdc)
+      await pages.swapAndBridge.prepareSwapAndBridge(4, wallet, usdc) // 4 WALLET ~ 0.1$
       await pages.swapAndBridge.batchAction()
     })
 
