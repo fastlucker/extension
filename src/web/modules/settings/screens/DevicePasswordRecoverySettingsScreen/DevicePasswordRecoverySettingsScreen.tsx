@@ -75,7 +75,9 @@ const DevicePasswordRecoverySettingsScreen = () => {
       return
     }
     closeConfirmationModal()
-  }, [closeConfirmationModal, ev.currentState, openConfirmationModal, confirmationModalRef])
+    // Ref is stable, `.current` isn't a valid dep - safe to ignore.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [closeConfirmationModal, ev.currentState, openConfirmationModal])
 
   useEffect(() => {
     if (ev.statuses.uploadKeyStoreSecret === 'SUCCESS') {
