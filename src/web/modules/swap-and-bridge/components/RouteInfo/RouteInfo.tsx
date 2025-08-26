@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
@@ -37,6 +37,7 @@ const RouteInfo: FC<Props> = ({
   const { t } = useTranslation()
 
   const noRoutesFoundError = errors.find(({ id }) => id === 'no-routes')?.title
+  const allRoutesFailedError = errors.find(({ id }) => id === 'all-routes-failed')
 
   return (
     <View
@@ -64,7 +65,7 @@ const RouteInfo: FC<Props> = ({
           <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
             {noRoutesFoundError
               ? t(`No routes found. Reason: ${noRoutesFoundError}`)
-              : t('No routes found, please try again by changing the amount')}
+              : t('No routes found')}
           </Text>
         </View>
       )}
@@ -76,49 +77,52 @@ const RouteInfo: FC<Props> = ({
           SwapAndBridgeFormStatus.Proceeded
         ].includes(formStatus) &&
         (signAccountOpController?.estimation.status === EstimationStatus.Success ||
-          (signAccountOpController?.estimation.status === EstimationStatus.Error &&
+          ((signAccountOpController?.estimation.status === EstimationStatus.Error ||
+            formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
             isAutoSelectRouteDisabled)) &&
         !isEstimatingRoute && (
           <>
-            {signAccountOpController?.estimation.status === EstimationStatus.Success && (
-              <View
-                style={[
-                  flexbox.directionRow,
-                  flexbox.alignCenter,
-                  flexbox.justifySpaceBetween,
-                  { width: '100%' }
-                ]}
-              >
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text appearance="tertiaryText" fontSize={14} weight="medium">
-                    {t('Ambire fee: {{fee}}', {
-                      fee: isOG ? "0% - you're an OG 🎉" : `${FEE_PERCENT}%`
-                    })}
-                  </Text>
-                  {quote?.selectedRoute?.serviceTime ? (
-                    <Text
-                      appearance="tertiaryText"
-                      fontSize={14}
-                      weight="medium"
-                      style={spacings.mlLg}
-                    >
-                      {t('Time: {{time}}', {
-                        time:
-                          quote?.selectedRoute.fromChainId !== quote?.selectedRoute.toChainId
-                            ? `~ ${formatTime(quote?.selectedRoute?.serviceTime)}`
-                            : 'instant'
+            {signAccountOpController?.estimation.status === EstimationStatus.Success &&
+              formStatus !== SwapAndBridgeFormStatus.InvalidRouteSelected && (
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.alignCenter,
+                    flexbox.justifySpaceBetween,
+                    { width: '100%' }
+                  ]}
+                >
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Text appearance="tertiaryText" fontSize={14} weight="medium">
+                      {t('Ambire fee: {{fee}}', {
+                        fee: isOG ? "0% - you're an OG 🎉" : `${FEE_PERCENT}%`
                       })}
                     </Text>
-                  ) : null}
-                </View>
+                    {quote?.selectedRoute?.serviceTime ? (
+                      <Text
+                        appearance="tertiaryText"
+                        fontSize={14}
+                        weight="medium"
+                        style={spacings.mlLg}
+                      >
+                        {t('Time: {{time}}', {
+                          time:
+                            quote?.selectedRoute.fromChainId !== quote?.selectedRoute.toChainId
+                              ? `~ ${formatTime(quote?.selectedRoute?.serviceTime)}`
+                              : 'instant'
+                        })}
+                      </Text>
+                    ) : null}
+                  </View>
 
-                <SelectRoute
-                  shouldEnableRoutesSelection={shouldEnableRoutesSelection}
-                  openRoutesModal={openRoutesModal}
-                />
-              </View>
-            )}
-            {signAccountOpController?.estimation.status === EstimationStatus.Error && (
+                  <SelectRoute
+                    shouldEnableRoutesSelection={shouldEnableRoutesSelection}
+                    openRoutesModal={openRoutesModal}
+                  />
+                </View>
+              )}
+            {(signAccountOpController?.estimation.status === EstimationStatus.Error ||
+              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
               <View
                 style={[
                   flexbox.directionRow,
@@ -127,35 +131,76 @@ const RouteInfo: FC<Props> = ({
                   { width: '100%' }
                 ]}
               >
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <WarningIcon width={14} height={14} color={theme.warningDecorative} />
-                  <Text
-                    fontSize={14}
-                    weight="medium"
-                    appearance="warningText"
-                    style={spacings.mlMi}
-                  >
-                    Estimation error encountered. More details:
-                  </Text>
-                  <InfoIcon
-                    width={16}
-                    height={16}
-                    data-tooltip-id="bridge-fee-icon"
-                    style={spacings.mlTy}
-                  />
-                  <Tooltip id="bridge-fee-icon" clickable>
-                    <View>
-                      <Text fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
-                        {signAccountOpController?.estimation.error?.message}
+                {allRoutesFailedError ? (
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+                    <Text
+                      fontSize={14}
+                      weight="medium"
+                      appearance="warningText"
+                      style={spacings.mlMi}
+                    >
+                      {allRoutesFailedError.text}
+                    </Text>
+                    <Pressable
+                      style={{
+                        paddingVertical: 2,
+                        ...spacings.phTy,
+                        ...flexbox.directionRow,
+                        ...flexbox.alignCenter,
+                        opacity: 1
+                      }}
+                      onPress={openRoutesModal as any}
+                    >
+                      <Text
+                        fontSize={14}
+                        weight="medium"
+                        color={theme.warningText}
+                        style={{
+                          ...spacings.mr,
+                          textDecorationColor: theme.warningText,
+                          textDecorationLine: 'underline'
+                        }}
+                      >
+                        {t('See details')}
                       </Text>
-                    </View>
-                  </Tooltip>
-                </View>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+                    <Text
+                      fontSize={14}
+                      weight="medium"
+                      appearance="warningText"
+                      style={spacings.mlMi}
+                    >
+                      {t('An error occurred. More details:')}
+                    </Text>
+                    <InfoIcon
+                      width={16}
+                      height={16}
+                      data-tooltip-id="error-info-icon"
+                      style={spacings.mlTy}
+                    />
+                    <Tooltip id="error-info-icon" clickable>
+                      <View>
+                        <Text fontSize={14} appearance="secondaryText" style={spacings.mbMi}>
+                          {quote && quote.selectedRoute && quote.selectedRoute.disabled
+                            ? quote.selectedRoute.disabledReason
+                            : signAccountOpController?.estimation.error?.message}
+                        </Text>
+                      </View>
+                    </Tooltip>
+                  </View>
+                )}
 
-                <SelectRoute
-                  shouldEnableRoutesSelection={shouldEnableRoutesSelection}
-                  openRoutesModal={openRoutesModal}
-                />
+                {!allRoutesFailedError && (
+                  <SelectRoute
+                    shouldEnableRoutesSelection={shouldEnableRoutesSelection}
+                    openRoutesModal={openRoutesModal}
+                  />
+                )}
               </View>
             )}
           </>
