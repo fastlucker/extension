@@ -14,6 +14,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 interface Props {
   duplicateAccountsIndexes: number[]
@@ -44,6 +45,7 @@ const AddressField: FC<Props> = ({
 }) => {
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
+  const keystoreState = useKeystoreControllerState()
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
   const { t } = useTranslation()
@@ -62,20 +64,34 @@ const AddressField: FC<Props> = ({
     [index, setValue]
   )
 
-  // Check if an address is already associated with existing accounts
-  // If that is the case the address will be added with the associated keys
-  // and not as a view-only account,
-  // so we need to inform the user about this to make the behavior clear
+  // Check if the address being entered is already linked to existing keys
+  // This helps inform users that the address will be added with full access instead of view-only
   const addressesInAssociatedKeys = useMemo(() => {
-    const fieldVal = value?.fieldValue.toLowerCase()
-    if (!fieldVal) return []
-    if (accountsState.accounts.find((account) => account.addr.toLowerCase() === fieldVal)) return []
-    return accountsState.accounts
-      .filter((account) =>
-        (account.associatedKeys || []).some((key) => key?.toLowerCase() === fieldVal)
-      )
+    const currentAddress = value?.fieldValue?.toLowerCase()
+    if (!currentAddress) return []
+    if (accountsState.accounts.find((account) => account.addr.toLowerCase() === currentAddress))
+      return []
+
+    // Find accounts that have the current address in their associated keys
+    // but only if the address also exists in the keystore (meaning we have the private key)
+    const addressesWithSharedKey = accountsState.accounts
+      .filter((account) => {
+        // Check if this address exists in keystore (we have the private key)
+        const addressInKeystore = keystoreState.keys.some(
+          (key) => key.addr?.toLowerCase() === currentAddress
+        )
+
+        // Check if this address is associated with the current account
+        const isAssociatedWithAccount = (account.associatedKeys || []).some(
+          (key) => key?.toLowerCase() === currentAddress
+        )
+
+        return isAssociatedWithAccount && addressInKeystore
+      })
       .map((account) => account.addr)
-  }, [accountsState.accounts, value, value?.fieldValue])
+
+    return [...new Set(addressesWithSharedKey)]
+  }, [accountsState.accounts, keystoreState.keys, value?.fieldValue])
 
   const overwriteError = useMemo(() => {
     // We don't want to update the error message while accounts are being
