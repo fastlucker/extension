@@ -380,7 +380,7 @@ export class SwapAndBridgePage extends BasePage {
     await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 10000 })
 
     // assert transaction successful
-    await expect(this.page.getByText('Nice trade!')).toBeVisible({ timeout: 120000 }) // sometimes confirmation takes more time (around 1 min)
+    await expect(this.page.getByText('Nice trade!')).toBeVisible({ timeout: 80000 }) // sometimes confirmation takes more time (around 1 min)
     await this.click(selectors.closeProgressModalButton)
   }
 
