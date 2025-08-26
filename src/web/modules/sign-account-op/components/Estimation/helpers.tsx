@@ -1,13 +1,11 @@
 import { formatUnits } from 'ethers'
 
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
-import {
-  FeeSpeed,
-  SignAccountOpController
-} from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { ISignAccountOpController } from '@ambire-common/interfaces/signAccountOp'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
-
 import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
+
 import PayOption from './components/PayOption'
 import { NO_FEE_OPTIONS } from './consts'
 import { FeeOption } from './types'
@@ -37,7 +35,7 @@ const sortBasedOnUSDValue = (a: FeePaymentOption, b: FeePaymentOption) => {
 const sortFeeOptions = (
   a: FeePaymentOption,
   b: FeePaymentOption,
-  signAccountOpState: SignAccountOpController
+  signAccountOpState: ISignAccountOpController
 ) => {
   const aId = getFeeSpeedIdentifier(
     a,
@@ -75,7 +73,7 @@ const sortFeeOptions = (
 
 const mapFeeOptions = (
   feeOption: FeePaymentOption,
-  signAccountOpState: SignAccountOpController
+  signAccountOpState: ISignAccountOpController
 ) => {
   let disabledReason: string | undefined
   const gasTankKey = feeOption.token.flags.onGasTank ? 'gasTank' : ''

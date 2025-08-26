@@ -111,7 +111,7 @@ export class BasePage {
   }
 
   async expectButtonEnabled(selector: string) {
-    await expect(this.page.getByTestId(selector)).toBeEnabled()
+    await expect(this.page.getByTestId(selector)).toBeEnabled({ timeout: 5000 })
   }
 
   async compareText(selector: string, text: string) {

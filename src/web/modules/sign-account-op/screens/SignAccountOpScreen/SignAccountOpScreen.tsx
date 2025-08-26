@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 
-import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { AccountOpAction } from '@ambire-common/interfaces/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { getErrorCodeStringFromReason } from '@ambire-common/libs/errorDecoder/helpers'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -100,6 +100,9 @@ const SignAccountOpScreen = () => {
     isSignLoading,
     hasEstimation,
     warningModalRef,
+    handleChangeFeePayerKeyType,
+    isChooseFeePayerKeyShown,
+    setIsChooseFeePayerKeyShown,
     signingKeyType,
     feePayerKeyType,
     shouldDisplayLedgerConnectModal,
@@ -326,11 +329,21 @@ const SignAccountOpScreen = () => {
       >
         {signAccountOpState ? (
           <SigningKeySelect
-            isVisible={isChooseSignerShown}
+            isVisible={isChooseSignerShown || isChooseFeePayerKeyShown}
             isSigning={isSignLoading || !signAccountOpState.readyToSign}
-            handleClose={() => setIsChooseSignerShown(false)}
-            selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
-            handleChooseSigningKey={handleChangeSigningKey}
+            handleClose={() => {
+              setIsChooseSignerShown(false)
+              setIsChooseFeePayerKeyShown(false)
+            }}
+            selectedAccountKeyStoreKeys={
+              isChooseFeePayerKeyShown
+                ? signAccountOpState.feePayerKeyStoreKeys
+                : signAccountOpState.accountKeyStoreKeys
+            }
+            handleChooseKey={
+              isChooseFeePayerKeyShown ? handleChangeFeePayerKeyType : handleChangeSigningKey
+            }
+            type={isChooseFeePayerKeyShown ? 'broadcasting' : 'signing'}
             account={signAccountOpState.account}
           />
         ) : null}

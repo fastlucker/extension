@@ -200,22 +200,24 @@ const DashboardOverview: FC<Props> = ({
                         >
                           {totalPortfolioAmountInteger}
                         </Text>
-                        <Text
-                          fontSize={20}
-                          shouldScale={false}
-                          weight="number_bold"
-                          color={
-                            networksWithErrors.length || isOffline
-                              ? theme.warningDecorative2
-                              : themeType === THEME_TYPES.DARK
-                              ? theme.primaryBackgroundInverted
-                              : theme.primaryBackground
-                          }
-                          selectable
-                        >
-                          {t('.')}
-                          {totalPortfolioAmountDecimal}
-                        </Text>
+                        {totalPortfolioAmountInteger.length < 12 && (
+                          <Text
+                            fontSize={20}
+                            shouldScale={false}
+                            weight="number_bold"
+                            color={
+                              networksWithErrors.length || isOffline
+                                ? theme.warningDecorative2
+                                : themeType === THEME_TYPES.DARK
+                                ? theme.primaryBackgroundInverted
+                                : theme.primaryBackground
+                            }
+                            selectable
+                          >
+                            {t('.')}
+                            {totalPortfolioAmountDecimal}
+                          </Text>
+                        )}
                       </Text>
                     </Pressable>
                   )}
