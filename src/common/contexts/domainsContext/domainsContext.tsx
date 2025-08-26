@@ -13,13 +13,14 @@ const DomainsContext = createContext<{
   domainsCtrl: {} as IDomainsController
 })
 
-const providers = networks.reduce(
-  (acc, { selectedRpcUrl, chainId }) => ({
-    ...acc,
-    [chainId.toString()]: getRpcProvider([selectedRpcUrl])
-  }),
-  {}
-)
+const ethereum = networks.find(({ chainId }) => chainId === 1n)
+
+// Init only ethereum as it's the only provider needed for ENS resolution
+// If we add other services (like UD or lens) we would need to init their
+// providers here as well
+const providers = {
+  '1': getRpcProvider(ethereum?.rpcUrls || [], 1n, ethereum?.selectedRpcUrl)
+}
 
 const domainsCtrl = new DomainsController(providers)
 
@@ -45,4 +46,4 @@ const DomainsContextProvider: React.FC<any> = ({ children }) => {
   return <DomainsContext.Provider value={value}>{children}</DomainsContext.Provider>
 }
 
-export { DomainsContextProvider, DomainsContext }
+export { DomainsContext, DomainsContextProvider }
