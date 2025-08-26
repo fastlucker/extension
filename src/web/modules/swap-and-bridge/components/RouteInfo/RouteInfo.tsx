@@ -77,7 +77,8 @@ const RouteInfo: FC<Props> = ({
           SwapAndBridgeFormStatus.Proceeded
         ].includes(formStatus) &&
         (signAccountOpController?.estimation.status === EstimationStatus.Success ||
-          (signAccountOpController?.estimation.status === EstimationStatus.Error &&
+          ((signAccountOpController?.estimation.status === EstimationStatus.Error ||
+            formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
             isAutoSelectRouteDisabled)) &&
         !isEstimatingRoute && (
           <>
