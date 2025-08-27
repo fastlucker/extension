@@ -17,6 +17,7 @@ import RetryButton from '@web/components/RetryButton'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+
 import SelectRoute from './SelectRoute'
 
 type Props = {
@@ -83,7 +84,7 @@ const RouteInfo: FC<Props> = ({
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <WarningIcon width={14} height={14} color={theme.warningDecorative} />
             <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
-              {t('No routes found')}
+              {t('No routes now, but note some markets may change often.')}
             </Text>
           </View>
           <RetryButton onPress={updateQuote as any} type="wide" />
@@ -159,7 +160,11 @@ const RouteInfo: FC<Props> = ({
                     appearance="warningText"
                     style={spacings.mlMi}
                   >
-                    {t('Routes found but failed.')}
+                    {quote?.routes.length === 1
+                      ? t("1 route found, but it'd fail onchain.")
+                      : t("{{count}} routes found, but they'd all fail onchain.", {
+                          count: quote?.routes.length
+                        })}
                   </Text>
                   <Pressable
                     style={{
