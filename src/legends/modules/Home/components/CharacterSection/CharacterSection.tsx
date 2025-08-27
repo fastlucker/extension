@@ -31,7 +31,7 @@ const CharacterSection = () => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
 
-  if (!isCharacterNotMinted)
+  if (!character)
     return (
       <Alert
         className={styles.error}
@@ -50,7 +50,7 @@ const CharacterSection = () => {
   const startXpForCurrentLevel = Math.ceil((currentLevel * 4.5) ** 2)
 
   // Helper: get XP for not minted state (if needed)
-  const notMintedXp = character?.xp ?? 0
+  const characterXp = character?.xp ?? 0
 
   return (
     <>
@@ -76,10 +76,10 @@ const CharacterSection = () => {
           />
           {isCharacterNotMinted && (
             <div className={styles.unknownCharacterLevelInfoWrapper}>
-              {notMintedXp > 0 ? (
+              {characterXp > 0 ? (
                 <p className={styles.claimableXpText}>
                   You have{' '}
-                  <span className={styles.claimableBalance}>{notMintedXp.toLocaleString()} XP</span>{' '}
+                  <span className={styles.claimableBalance}>{characterXp.toLocaleString()} XP</span>{' '}
                   available to claim
                 </p>
               ) : (
@@ -91,7 +91,7 @@ const CharacterSection = () => {
                 className={styles.claimXpButton}
                 onClick={redirectToCharacterSelect}
               >
-                {notMintedXp > 0 ? 'Claim' : 'Join'}
+                {characterXp > 0 ? 'Claim' : 'Join'}
               </button>
             </div>
           )}
@@ -210,7 +210,7 @@ const CharacterSection = () => {
             {isCharacterNotMinted && (
               <div className={styles.claimRewardsBubble}>
                 <p className={styles.claimRewardsBubbleText}>
-                  {notMintedXp > 0 ? 'Claim your rewards & mint a cool NFT!' : 'Mint a cool NFT!'}
+                  {characterXp > 0 ? 'Claim your rewards & mint a cool NFT!' : 'Mint a cool NFT!'}
                 </p>
               </div>
             )}
