@@ -84,7 +84,7 @@ const RouteInfo: FC<Props> = ({
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <WarningIcon width={14} height={14} color={theme.warningDecorative} />
             <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
-              {t('No routes found')}
+              {t('No routes now, but note some markets may change often.')}
             </Text>
           </View>
           <RetryButton onPress={updateQuote as any} type="wide" />
