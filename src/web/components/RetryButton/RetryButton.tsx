@@ -1,19 +1,18 @@
+import React, { FC } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import RetryIcon from '@common/assets/svg/RetryIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import React, { FC } from 'react'
-import { useTranslation } from 'react-i18next'
 
 type Props = {
   onPress: () => {}
-  type?: 'default' | 'wide'
 }
 
-const RetryButton: FC<Props> = ({ onPress, type = 'default' }) => {
+const RetryButton: FC<Props> = ({ onPress }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const [bindAnim, animStyle] = useCustomHover({
@@ -24,27 +23,16 @@ const RetryButton: FC<Props> = ({ onPress, type = 'default' }) => {
     }
   })
 
-  const defaultSpacings = {
-    ...spacings.pvSm,
-    ...spacings.ph,
-    ...spacings.mt
-  }
-
-  const wideSpacings = {
-    ...spacings.pvTy,
-    ...spacings.phXl
-  }
-
-  const usedSpacings = type === 'default' ? defaultSpacings : wideSpacings
-
   return (
     <AnimatedPressable
       style={{
-        borderRadius: 50,
+        borderRadius: 14,
         ...flexbox.directionRow,
         ...flexbox.alignCenter,
         ...animStyle,
-        ...usedSpacings
+        ...spacings.phTy,
+        minHeight: 28,
+        paddingLeft: 10
       }}
       onPress={onPress}
       {...bindAnim}
