@@ -69,6 +69,7 @@ const AddressField: FC<Props> = ({
   const addressesInAssociatedKeys = useMemo(() => {
     const currentAddress = value?.fieldValue?.toLowerCase()
     if (!currentAddress) return []
+    // Already handled in another validation (account already imported)
     if (accountsState.accounts.find((account) => account.addr.toLowerCase() === currentAddress))
       return []
 
