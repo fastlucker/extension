@@ -18,6 +18,7 @@ import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
+import { getRewardsButtonText } from '@legends/utils/getRewardsButtonText'
 
 import { humanizeError } from '../../utils/errors/humanizeError'
 import chainImage from './assets/chain.png'
@@ -45,6 +46,12 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   const { connectedAccount, v1Account } = useAccountContext()
   const { isCharacterNotMinted } = useCharacterContext()
+
+  const buttonText = getRewardsButtonText({
+    connectedAccount,
+    v1Account: !!v1Account,
+    isCharacterNotMinted: !!isCharacterNotMinted
+  })
 
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
@@ -234,11 +241,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             }`}
             onClick={onButtonClick}
           >
-            {nonConnectedAcc
-              ? isCharacterNotMinted
-                ? 'Join Rewards to start accumulating XP'
-                : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
-              : buttonLabel}
+            {nonConnectedAcc ? buttonText : buttonLabel}
           </button>
         </div>
       </div>

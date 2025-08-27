@@ -23,6 +23,7 @@ import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerSt
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
+import { getRewardsButtonText } from '@legends/utils/getRewardsButtonText'
 
 import { CardActionCalls, CardActionPredefined, CardFromResponse } from '../../types'
 import CardActionButton from '../Card/CardAction/actions/CardActionButton'
@@ -62,6 +63,12 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   const { isCharacterNotMinted } = useCharacterContext()
   const switchNetwork = useSwitchNetwork()
   const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
+
+  const buttonText = getRewardsButtonText({
+    connectedAccount,
+    v1Account: !!v1Account,
+    isCharacterNotMinted: !!isCharacterNotMinted
+  })
 
   const [migratableXWalletBalance, setMigratableXWalletBalance] = useState<bigint | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -192,13 +199,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
           )}
           <CardActionButton
             onButtonClick={onButtonClick}
-            buttonText={
-              disabledButton
-                ? isCharacterNotMinted
-                  ? 'Join Rewards to start accumulating XP'
-                  : 'Switch to a new account to unlock Rewards quests.'
-                : 'Migrate xWALLET'
-            }
+            buttonText={disabledButton ? buttonText : 'Migrate xWALLET'}
             className={styles.button}
             disabled={disabledButton || isSigning || isLoading}
           />

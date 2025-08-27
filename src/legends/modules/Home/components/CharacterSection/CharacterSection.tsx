@@ -57,7 +57,7 @@ const CharacterSection = () => {
       <div className={styles.overachieverWrapper}>
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
-      {!isCharacterNotMinted && <RewardsBadge />}
+      <RewardsBadge />
       <section
         className={`${styles.wrapper}${
           isCharacterNotMinted ? ` ${styles.unknownCharacterWrapper}` : ''

@@ -5,6 +5,7 @@ import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacter
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
+import { getRewardsButtonText } from '@legends/utils/getRewardsButtonText'
 
 import { InviteAcc, SendAccOp } from './actions'
 import Feedback from './actions/Feedback'
@@ -20,6 +21,13 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   const { connectedAccount, v1Account } = useAccountContext()
   const { isCharacterNotMinted } = useCharacterContext()
   const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
+
+  const getButtonText = () =>
+    getRewardsButtonText({
+      connectedAccount,
+      v1Account: !!v1Account,
+      isCharacterNotMinted: !!isCharacterNotMinted
+    })
 
   const handleWalletRouteButtonPress = useCallback(async () => {
     if (action.type !== CardActionType.walletRoute) return
@@ -61,13 +69,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.link) {
     return (
       <CardActionButton
-        buttonText={
-          disabledButton
-            ? isCharacterNotMinted
-              ? 'Join Rewards to start accumulating XP'
-              : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
-            : 'Proceed'
-        }
+        buttonText={getButtonText()}
         onButtonClick={() => {
           window.open(action.link, '_blank')
         }}
@@ -80,13 +82,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.walletRoute && window.ambire) {
     return (
       <CardActionButton
-        buttonText={
-          disabledButton
-            ? isCharacterNotMinted
-              ? 'Join Rewards to start accumulating XP'
-              : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
-            : 'Proceed'
-        }
+        buttonText={getButtonText()}
         onButtonClick={handleWalletRouteButtonPress}
         loadingText=""
         disabled={disabledButton}

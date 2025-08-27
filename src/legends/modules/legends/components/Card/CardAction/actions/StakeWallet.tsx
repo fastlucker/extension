@@ -13,6 +13,7 @@ import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
+import { getRewardsButtonText } from '@legends/utils/getRewardsButtonText'
 
 import CardActionWrapper from './CardActionWrapper'
 
@@ -34,6 +35,12 @@ const StakeWallet = () => {
   const switchNetwork = useSwitchNetwork()
   const { isCharacterNotMinted } = useCharacterContext()
   const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
+
+  const buttonText = getRewardsButtonText({
+    connectedAccount,
+    v1Account: !!v1Account,
+    isCharacterNotMinted: !!isCharacterNotMinted
+  })
 
   const [walletBalance, setWalletBalance] = useState(null)
 
@@ -123,9 +130,7 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? isCharacterNotMinted
-            ? 'Join Rewards to start accumulating XP'
-            : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+          ? buttonText
           : isLoading
           ? 'Loading...'
           : !walletBalance
