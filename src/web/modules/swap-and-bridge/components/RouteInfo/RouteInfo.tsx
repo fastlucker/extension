@@ -149,8 +149,7 @@ const RouteInfo: FC<Props> = ({
                   flexbox.directionRow,
                   flexbox.alignCenter,
                   flexbox.justifySpaceBetween,
-                  { width: '100%' },
-                  spacings.mt
+                  { width: '100%' }
                 ]}
               >
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
