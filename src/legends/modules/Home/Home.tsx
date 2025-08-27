@@ -13,7 +13,7 @@ import QuestsSection from './components/QuestsSection'
 
 const Character = () => {
   const { v1Account, connectedAccount } = useAccountContext()
-  const { unknownCharacter } = useCharacterContext()
+  const { isCharacterNotMinted } = useCharacterContext()
 
   return (
     <Page containerSize="full">
@@ -29,9 +29,9 @@ const Character = () => {
       )}
 
       <QuestsSection />
-      {connectedAccount && !v1Account && !unknownCharacter && <ActivitySection />}
+      {connectedAccount && !v1Account && !isCharacterNotMinted && <ActivitySection />}
 
-      {(!connectedAccount || !v1Account || unknownCharacter) && <FaqSection />}
+      {(!connectedAccount || !v1Account || isCharacterNotMinted) && <FaqSection />}
     </Page>
   )
 }

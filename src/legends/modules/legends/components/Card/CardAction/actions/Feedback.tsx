@@ -34,7 +34,7 @@ const Feedback = ({ meta }: Props) => {
   const { addToast } = useToast()
   const switchNetwork = useSwitchNetwork()
   const { connectedAccount, v1Account } = useAccountContext()
-  const { unknownCharacter } = useCharacterContext()
+  const { isCharacterNotMinted } = useCharacterContext()
 
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
@@ -104,15 +104,21 @@ const Feedback = ({ meta }: Props) => {
   }
 
   const btnText = useMemo(() => {
-    if (unknownCharacter) return 'Join Rewards to start accumulating XP'
+    if (isCharacterNotMinted) return 'Join Rewards to start accumulating XP'
     if (meta?.notMetLvlThreshold) return 'Minimum level 10 threshold not met.'
     if (!connectedAccount || v1Account)
       return 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
     return isFeedbackFormOpen ? 'Claim xp' : 'Open feedback form'
-  }, [meta?.notMetLvlThreshold, connectedAccount, v1Account, isFeedbackFormOpen, unknownCharacter])
+  }, [
+    meta?.notMetLvlThreshold,
+    connectedAccount,
+    v1Account,
+    isFeedbackFormOpen,
+    isCharacterNotMinted
+  ])
 
   const isButtonDisabled = useMemo(() => {
-    if (!connectedAccount || v1Account || unknownCharacter) return true
+    if (!connectedAccount || v1Account || isCharacterNotMinted) return true
     if (meta?.notMetLvlThreshold) return true
     if (isFeedbackFormOpen && !surveyCode) return true
     return false
@@ -122,7 +128,7 @@ const Feedback = ({ meta }: Props) => {
     v1Account,
     isFeedbackFormOpen,
     surveyCode,
-    unknownCharacter
+    isCharacterNotMinted
   ])
   return (
     <CardActionWrapper

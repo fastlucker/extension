@@ -32,8 +32,8 @@ const StakeWallet = () => {
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
-  const { unknownCharacter } = useCharacterContext()
-  const disabledButton = Boolean(!connectedAccount || v1Account || unknownCharacter)
+  const { isCharacterNotMinted } = useCharacterContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
 
   const [walletBalance, setWalletBalance] = useState(null)
 
@@ -123,7 +123,7 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? unknownCharacter
+          ? isCharacterNotMinted
             ? 'Join Rewards to start accumulating XP'
             : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isLoading

@@ -35,7 +35,7 @@ type CharacterContextValue = {
   error: string | null
   levelUpData: LevelUpData
   setLevelUpData: React.Dispatch<React.SetStateAction<LevelUpData>>
-  unknownCharacter: Character | null
+  isCharacterNotMinted: boolean
 }
 
 const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
@@ -43,7 +43,6 @@ const CharacterContext = createContext<CharacterContextValue>({} as CharacterCon
 const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const { connectedAccount, isLoading: isConnectedAccountLoading } = useAccountContext()
   const [character, setCharacter] = useState<Character | null>(null)
-  const [unknownCharacter, setUnknownCharacter] = useState<Character | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [levelUpData, setLevelUpData] = useState<LevelUpData>(null)
   const [lastKnownLevels, setLastKnownLevels] = useState<{ [address: string]: number }>(() => {
@@ -113,7 +112,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
   const getCharacter = useCallback(async () => {
     if (!connectedAccount) {
       setCharacter(null)
-      setUnknownCharacter(null)
       setIsLoading(true)
       return
     }
@@ -127,16 +125,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       )
       const characterJson = await characterResponse.json()
 
-      if (characterJson.characterType === 'unknown') {
-        setIsLoading(false)
-        setCharacter(null)
-        setUnknownCharacter({
-          ...characterJson,
-          address: connectedAccount
-        } as Character)
-        return
-      }
-
       const newCharacter = {
         ...characterJson,
         level: characterJson.level,
@@ -147,7 +135,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       handleLevelUpIfNeeded(newCharacter, character)
 
       setCharacter(newCharacter)
-      setUnknownCharacter(null)
       setError(null)
     } catch (e) {
       console.error(e)
@@ -174,9 +161,9 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       error,
       levelUpData,
       setLevelUpData,
-      unknownCharacter
+      isCharacterNotMinted: !!character && character.characterType === 'unknown'
     }),
-    [character, getCharacter, isLoading, error, levelUpData, unknownCharacter]
+    [character, getCharacter, isLoading, error, levelUpData]
   )
 
   // Important: Short-circuit evaluation to prevent loading of child contexts/components

@@ -44,14 +44,14 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
   >('locked')
 
   const { connectedAccount, v1Account } = useAccountContext()
-  const { unknownCharacter } = useCharacterContext()
+  const { isCharacterNotMinted } = useCharacterContext()
 
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus } = useErc5792()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
   const chainRef = React.useRef<HTMLImageElement>(null)
-  const nonConnectedAcc = Boolean(!connectedAccount || v1Account || unknownCharacter)
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
 
   const stopSpinnerTeaseAnimation = useCallback(() => {
     if (!spinnerRef.current) return
@@ -235,7 +235,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             onClick={onButtonClick}
           >
             {nonConnectedAcc
-              ? unknownCharacter
+              ? isCharacterNotMinted
                 ? 'Join Rewards to start accumulating XP'
                 : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
               : buttonLabel}

@@ -28,7 +28,7 @@ const Page = ({
   const { pathname } = useLocation()
 
   const { connectedAccount, nonV2Account } = useAccountContext()
-  const { unknownCharacter } = useCharacterContext()
+  const { character } = useCharacterContext()
 
   const openSidebar = () => setIsSidebarOpen(true)
   const closeSidebar = () => setIsSidebarOpen(false)
@@ -50,7 +50,7 @@ const Page = ({
                 pathname !== LEGENDS_ROUTES.home &&
                 pathname !== '/' && (
                   <div className={styles.account}>
-                    <AccountInfo removeAvatarAndLevel={!!unknownCharacter} />
+                    <AccountInfo removeAvatarAndLevel={character && character.type === 'unknown'} />
                   </div>
                 )}
             </div>

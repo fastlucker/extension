@@ -20,7 +20,7 @@ import styles from './CharacterSection.module.scss'
 import unknownCharacterImg from './unknown-character.png'
 
 const CharacterSection = () => {
-  const { character, unknownCharacter } = useCharacterContext()
+  const { character, isCharacterNotMinted } = useCharacterContext()
 
   const navigate = useNavigate()
 
@@ -31,7 +31,7 @@ const CharacterSection = () => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
 
-  if (!character && !unknownCharacter)
+  if (!isCharacterNotMinted)
     return (
       <Alert
         className={styles.error}
@@ -49,14 +49,19 @@ const CharacterSection = () => {
   const xpForNextLevel = Math.ceil(((currentLevel + 1) * 4.5) ** 2)
   const startXpForCurrentLevel = Math.ceil((currentLevel * 4.5) ** 2)
 
+  // Helper: get XP for not minted state (if needed)
+  const notMintedXp = character?.xp ?? 0
+
   return (
     <>
       <div className={styles.overachieverWrapper}>
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
-      {!unknownCharacter && <RewardsBadge />}
+      {!isCharacterNotMinted && <RewardsBadge />}
       <section
-        className={`${styles.wrapper} ${unknownCharacter ? styles.unknownCharacterWrapper : ''}`}
+        className={`${styles.wrapper}${
+          isCharacterNotMinted ? ` ${styles.unknownCharacterWrapper}` : ''
+        }`}
       >
         <div className={styles.characterInfo}>
           <div className={styles.currentSeasonBadge}>
@@ -69,14 +74,12 @@ const CharacterSection = () => {
             addressClassName={styles.accountInfoAddress}
             displayTooltip
           />
-          {unknownCharacter && (
+          {isCharacterNotMinted && (
             <div className={styles.unknownCharacterLevelInfoWrapper}>
-              {unknownCharacter.xp > 0 ? (
+              {notMintedXp > 0 ? (
                 <p className={styles.claimableXpText}>
                   You have{' '}
-                  <span className={styles.claimableBalance}>
-                    {unknownCharacter?.xp?.toLocaleString()} XP
-                  </span>{' '}
+                  <span className={styles.claimableBalance}>{notMintedXp.toLocaleString()} XP</span>{' '}
                   available to claim
                 </p>
               ) : (
@@ -88,11 +91,11 @@ const CharacterSection = () => {
                 className={styles.claimXpButton}
                 onClick={redirectToCharacterSelect}
               >
-                {unknownCharacter.xp > 0 ? 'Claim' : 'Join'}
+                {notMintedXp > 0 ? 'Claim' : 'Join'}
               </button>
             </div>
           )}
-          {!unknownCharacter && (
+          {!isCharacterNotMinted && (
             <div className={styles.characterLevelInfoWrapper}>
               <div className={styles.characterItemWrapper}>
                 <div className={styles.levelWrapper}>
@@ -204,19 +207,17 @@ const CharacterSection = () => {
 
         <div className={styles.character}>
           <div className={styles.characterRelativeWrapper}>
-            {unknownCharacter && (
+            {isCharacterNotMinted && (
               <div className={styles.claimRewardsBubble}>
                 <p className={styles.claimRewardsBubbleText}>
-                  {unknownCharacter.xp > 0
-                    ? 'Claim your rewards & mint a cool NFT!'
-                    : 'Mint a cool NFT!'}
+                  {notMintedXp > 0 ? 'Claim your rewards & mint a cool NFT!' : 'Mint a cool NFT!'}
                 </p>
               </div>
             )}
             <img
               className={styles.characterImage}
-              src={unknownCharacter ? unknownCharacterImg : character?.image}
-              alt={unknownCharacterImg ? 'unknown' : character?.characterName}
+              src={isCharacterNotMinted ? unknownCharacterImg : character?.image}
+              alt={isCharacterNotMinted ? 'unknown' : character?.characterName}
             />
             <div className={styles.characterPodium} />
           </div>

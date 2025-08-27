@@ -41,8 +41,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
-  const { unknownCharacter } = useCharacterContext()
-  const nonConnectedAcc = Boolean(!connectedAccount || v1Account || unknownCharacter)
+  const { isCharacterNotMinted } = useCharacterContext()
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
 
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
@@ -307,7 +307,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             onClick={onButtonClick}
           >
             {nonConnectedAcc
-              ? unknownCharacter
+              ? isCharacterNotMinted
                 ? 'Join Rewards to start accumulating XP'
                 : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
               : buttonLabel}

@@ -59,9 +59,9 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
-  const { unknownCharacter } = useCharacterContext()
+  const { isCharacterNotMinted } = useCharacterContext()
   const switchNetwork = useSwitchNetwork()
-  const disabledButton = Boolean(!connectedAccount || v1Account || unknownCharacter)
+  const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
 
   const [migratableXWalletBalance, setMigratableXWalletBalance] = useState<bigint | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -194,7 +194,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
             onButtonClick={onButtonClick}
             buttonText={
               disabledButton
-                ? unknownCharacter
+                ? isCharacterNotMinted
                   ? 'Join Rewards to start accumulating XP'
                   : 'Switch to a new account to unlock Rewards quests.'
                 : 'Migrate xWALLET'

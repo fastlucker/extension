@@ -18,8 +18,8 @@ export type CardActionComponentProps = {
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
   const { connectedAccount, v1Account } = useAccountContext()
-  const { unknownCharacter } = useCharacterContext()
-  const disabledButton = Boolean(!connectedAccount || v1Account || unknownCharacter)
+  const { isCharacterNotMinted } = useCharacterContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
 
   const handleWalletRouteButtonPress = useCallback(async () => {
     if (action.type !== CardActionType.walletRoute) return
@@ -63,7 +63,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
       <CardActionButton
         buttonText={
           disabledButton
-            ? unknownCharacter
+            ? isCharacterNotMinted
               ? 'Join Rewards to start accumulating XP'
               : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
             : 'Proceed'
@@ -82,7 +82,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
       <CardActionButton
         buttonText={
           disabledButton
-            ? unknownCharacter
+            ? isCharacterNotMinted
               ? 'Join Rewards to start accumulating XP'
               : 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
             : 'Proceed'
