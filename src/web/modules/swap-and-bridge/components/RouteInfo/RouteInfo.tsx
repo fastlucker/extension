@@ -17,6 +17,7 @@ import RetryButton from '@web/components/RetryButton'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+
 import SelectRoute from './SelectRoute'
 
 type Props = {
@@ -159,7 +160,11 @@ const RouteInfo: FC<Props> = ({
                     appearance="warningText"
                     style={spacings.mlMi}
                   >
-                    {t('Routes found but failed.')}
+                    {quote?.routes.length === 1
+                      ? t("1 route found, but it'd fail onchain.")
+                      : t("{{count}} routes found, but they'd all fail onchain.", {
+                          count: quote?.routes.length
+                        })}
                   </Text>
                   <Pressable
                     style={{
