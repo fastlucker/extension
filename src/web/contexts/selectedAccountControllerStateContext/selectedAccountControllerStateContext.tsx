@@ -1,13 +1,13 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
-import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
+import { ISelectedAccountController } from '@ambire-common/interfaces/selectedAccount'
 import { setExtraContext } from '@common/config/analytics/CrashAnalytics'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
-const SelectedAccountControllerStateContext = createContext<SelectedAccountController>(
-  {} as SelectedAccountController
+const SelectedAccountControllerStateContext = createContext<ISelectedAccountController>(
+  {} as ISelectedAccountController
 )
 
 const SelectedAccountControllerStateProvider: React.FC<any> = ({ children }) => {

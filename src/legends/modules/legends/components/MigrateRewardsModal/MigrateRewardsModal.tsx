@@ -15,6 +15,7 @@ import CloseIcon from '@legends/components/CloseIcon'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
@@ -22,6 +23,7 @@ import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerSt
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
+import { getRewardsButtonText } from '@legends/utils/getRewardsButtonText'
 
 import { CardActionCalls, CardActionPredefined, CardFromResponse } from '../../types'
 import CardActionButton from '../Card/CardAction/actions/CardActionButton'
@@ -58,8 +60,15 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
+  const { isCharacterNotMinted } = useCharacterContext()
   const switchNetwork = useSwitchNetwork()
-  const disabledButton = Boolean(!connectedAccount || v1Account)
+  const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
+
+  const buttonText = getRewardsButtonText({
+    connectedAccount,
+    v1Account: !!v1Account,
+    isCharacterNotMinted: !!isCharacterNotMinted
+  })
 
   const [migratableXWalletBalance, setMigratableXWalletBalance] = useState<bigint | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -190,11 +199,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
           )}
           <CardActionButton
             onButtonClick={onButtonClick}
-            buttonText={
-              disabledButton
-                ? 'Switch to a new account to unlock Rewards quests.'
-                : 'Migrate xWALLET'
-            }
+            buttonText={disabledButton ? buttonText : 'Migrate xWALLET'}
             className={styles.button}
             disabled={disabledButton || isSigning || isLoading}
           />

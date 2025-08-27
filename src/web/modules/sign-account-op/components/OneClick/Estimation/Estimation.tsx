@@ -2,12 +2,12 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import {
-  SignAccountOpController,
-  SigningStatus
-} from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
+import {
+  ISignAccountOpController,
+  SignAccountOpError
+} from '@ambire-common/interfaces/signAccountOp'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
@@ -29,7 +29,7 @@ type Props = {
   updateController: (params: { signingKeyAddr?: Key['addr']; signingKeyType?: Key['type'] }) => void
   estimationModalRef: React.RefObject<any>
   errors?: SignAccountOpError[]
-  signAccountOpController: SignAccountOpController | null
+  signAccountOpController: ISignAccountOpController | null
   hasProceeded: boolean
   updateType: 'Swap&Bridge' | 'Transfer&TopUp'
 }
@@ -73,6 +73,9 @@ const OneClickEstimation = ({
     warningModalRef,
     dismissWarning,
     acknowledgeWarning,
+    handleChangeFeePayerKeyType,
+    isChooseFeePayerKeyShown,
+    setIsChooseFeePayerKeyShown,
     slowPaymasterRequest,
     primaryButtonText,
     bundlerNonceDiscrepancy
@@ -102,11 +105,21 @@ const OneClickEstimation = ({
         {!!signAccountOpController && (
           <View>
             <SigningKeySelect
-              isVisible={isChooseSignerShown}
+              isVisible={isChooseSignerShown || isChooseFeePayerKeyShown}
               isSigning={isSignLoading || !signAccountOpController.readyToSign}
-              handleClose={() => setIsChooseSignerShown(false)}
-              selectedAccountKeyStoreKeys={signAccountOpController.accountKeyStoreKeys}
-              handleChooseSigningKey={handleChangeSigningKey}
+              handleClose={() => {
+                setIsChooseSignerShown(false)
+                setIsChooseFeePayerKeyShown(false)
+              }}
+              selectedAccountKeyStoreKeys={
+                isChooseFeePayerKeyShown
+                  ? signAccountOpController.feePayerKeyStoreKeys
+                  : signAccountOpController.accountKeyStoreKeys
+              }
+              handleChooseKey={
+                isChooseFeePayerKeyShown ? handleChangeFeePayerKeyType : handleChangeSigningKey
+              }
+              type={isChooseFeePayerKeyShown ? 'broadcasting' : 'signing'}
               account={signAccountOpController.account}
             />
             <Estimation

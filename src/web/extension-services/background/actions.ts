@@ -1,15 +1,15 @@
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
-import {
-  AccountOpAction,
-  Action as ActionFromActionsQueue,
-  ActionExecutionType,
-  ActionPosition,
-  OpenActionWindowParams
-} from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
+import {
+  AccountOpAction,
+  ActionExecutionType,
+  Action as ActionFromActionsQueue,
+  ActionPosition,
+  OpenActionWindowParams
+} from '@ambire-common/interfaces/actions'
 import { Banner } from '@ambire-common/interfaces/banner'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { MagicLinkFlow } from '@ambire-common/interfaces/emailVault'
@@ -44,7 +44,7 @@ import { controllersMapping } from './types'
 
 type UpdateNavigationUrl = {
   type: 'UPDATE_PORT_URL'
-  params: { url: string }
+  params: { url: string; route?: string }
 }
 
 type InitControllerStateAction = {
@@ -103,6 +103,10 @@ type MainControllerAccountPickerSetPageAction = {
     shouldGetAccountsUsedOnNetworks?: boolean
   }
 }
+type MainControllerAccountPickerFindAndSetLinkedAccountsAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS'
+}
+
 type MainControllerAccountPickerSetHdPathTemplateAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE'
   params: { hdPathTemplate: HD_PATH_TEMPLATE_TYPE }
@@ -189,6 +193,14 @@ type MainControllerUpdateNetworkAction = {
     chainId: ChainId
   }
 }
+type MainControllerUpdateNetworksAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORKS'
+  params: {
+    network: Partial<Network>
+    chainIds: ChainId[]
+  }
+}
+
 type MainControllerRejectSignAccountOpCall = {
   type: 'MAIN_CONTROLLER_REJECT_SIGN_ACCOUNT_OP_CALL'
   params: { callId: string }
@@ -406,10 +418,6 @@ type MainControllerHandleSignAndBroadcastAccountOp = {
   }
 }
 
-type MainControllerOnPopupOpenAction = {
-  type: 'MAIN_CONTROLLER_ON_POPUP_OPEN'
-}
-
 type MainControllerLockAction = {
   type: 'MAIN_CONTROLLER_LOCK'
 }
@@ -448,6 +456,14 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
 type KeystoreControllerSendPrivateKeyToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string }
+}
+type KeystoreControllerSendEncryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI'
+  params: { keyAddr: string; secret: string; entropy: string }
+}
+type KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI'
+  params: { secret: string; key: string; salt: string; iv: string; associatedKeys: string[] }
 }
 type KeystoreControllerDeleteSeedAction = {
   type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
@@ -589,6 +605,7 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
 }
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
+  params: { disabledReason: string }
 }
 type SwapAndBridgeControllerDestroySignAccountOp = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
@@ -772,8 +789,8 @@ export type Action =
   | MainControllerAddNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
-  | MainControllerUpdateNetworksAction
   | MainControllerAccountPickerSetPageAction
+  | MainControllerAccountPickerFindAndSetLinkedAccountsAction
   | MainControllerAccountPickerSetHdPathTemplateAction
   | MainControllerAccountPickerAddAccounts
   | MainControllerAddAccounts
@@ -887,3 +904,5 @@ export type Action =
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
   | DismissBanner
+  | KeystoreControllerSendEncryptedPrivateKeyToUiAction
+  | KeystoreControllerSendPasswordDecryptedPrivateKeyToUiAction

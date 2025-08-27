@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
 
-import { FocusWindowParams, WindowProps } from '@ambire-common/interfaces/window'
+import { FocusWindowParams, WindowProps } from '@ambire-common/interfaces/ui'
 import { SPACING } from '@common/styles/spacings'
 import { browser, engine, isExtension, isSafari } from '@web/constants/browserapi'
 import { IS_FIREFOX, IS_WINDOWS } from '@web/constants/common'
@@ -82,8 +82,8 @@ const calculateWindowSizeAndPosition = async (
   if (isSafari()) {
     screenWidth = formatScreenWidth(NOTIFICATION_WINDOW_WIDTH)
     screenHeight = formatScreenHeight(NOTIFICATION_WINDOW_HEIGHT)
-  } else if (engine === 'webkit') {
-    const displayInfo = await chrome.system.display.getInfo()
+  } else if (engine === 'webkit' && browser?.system?.display?.getInfo) {
+    const displayInfo = await browser.system.display.getInfo()
     screenWidth = formatScreenWidth(displayInfo?.[0]?.workArea?.width)
     screenHeight = formatScreenHeight(displayInfo?.[0]?.workArea?.height)
   } else {
@@ -234,7 +234,10 @@ const open = async (
  * cannot be focused (e.g., on Arc browser). If the window cannot be focused
  * within 1 second, a new window is created and the old one is removed.
  */
-const focus = async (windowProps: WindowProps, params: FocusWindowParams): Promise<WindowProps> => {
+const focus = async (
+  windowProps: WindowProps,
+  params?: FocusWindowParams
+): Promise<WindowProps> => {
   if (!windowProps) throw new Error('windowProps is undefined')
 
   const { id, width, height, createdFromWindowId } = windowProps

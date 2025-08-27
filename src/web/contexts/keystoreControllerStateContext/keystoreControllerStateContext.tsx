@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect } from 'react'
 
-import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
+import { IKeystoreController } from '@ambire-common/interfaces/keystore'
 import { setUserContext } from '@common/config/analytics/CrashAnalytics'
 import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -9,7 +9,7 @@ import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getExtensionInstanceId } from '@web/utils/analytics'
 
-const KeystoreControllerStateContext = createContext<KeystoreController>({} as KeystoreController)
+const KeystoreControllerStateContext = createContext<IKeystoreController>({} as IKeystoreController)
 
 const KeystoreControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'keystore'
