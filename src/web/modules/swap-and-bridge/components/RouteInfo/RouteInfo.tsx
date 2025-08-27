@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -32,14 +32,17 @@ const RouteInfo: FC<Props> = ({
   isAutoSelectRouteDisabled,
   openRoutesModal
 }) => {
-  const { formStatus, signAccountOpController, quote, swapSignErrors, errors } =
+  const { formStatus, signAccountOpController, quote, swapSignErrors } =
     useSwapAndBridgeControllerState()
   const { isOG } = useInviteControllerState()
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
 
-  const allRoutesFailedError = errors.find(({ id }) => id === 'all-routes-failed')
+  const allRoutesFailed = useMemo(() => {
+    if (!quote || !quote.routes.length) return false
+    return !quote.routes.find((r) => !r.disabled)
+  }, [quote])
 
   const updateQuote = useCallback(() => {
     dispatch({
@@ -96,7 +99,7 @@ const RouteInfo: FC<Props> = ({
         (signAccountOpController?.estimation.status === EstimationStatus.Success ||
           ((signAccountOpController?.estimation.status === EstimationStatus.Error ||
             formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
-            (!!allRoutesFailedError || isAutoSelectRouteDisabled))) &&
+            (allRoutesFailed || isAutoSelectRouteDisabled))) &&
         !isEstimatingRoute && (
           <>
             {signAccountOpController?.estimation.status === EstimationStatus.Success &&
@@ -138,7 +141,7 @@ const RouteInfo: FC<Props> = ({
                   />
                 </View>
               )}
-            {allRoutesFailedError && (
+            {allRoutesFailed && (
               <View
                 style={[
                   flexbox.directionRow,
@@ -156,7 +159,7 @@ const RouteInfo: FC<Props> = ({
                     appearance="warningText"
                     style={spacings.mlMi}
                   >
-                    {allRoutesFailedError.text}
+                    {t('Routes found but failed.')}
                   </Text>
                   <Pressable
                     style={{
@@ -188,7 +191,7 @@ const RouteInfo: FC<Props> = ({
 
             {(signAccountOpController?.estimation.status === EstimationStatus.Error ||
               formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
-              !allRoutesFailedError && (
+              !allRoutesFailed && (
                 <View
                   style={[
                     flexbox.directionRow,
