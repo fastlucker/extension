@@ -1,7 +1,7 @@
 import React from 'react'
 import { Animated, Pressable, PressableProps, View } from 'react-native'
 
-import RepeatIcon from '@common/assets/svg/RepeatIcon'
+import SwitchIcon from '@common/assets/svg/SwitchIcon'
 import useTheme from '@common/hooks/useTheme'
 import { useCustomHover } from '@web/hooks/useHover'
 
@@ -33,7 +33,7 @@ const SwitchTokensButton = ({ disabled, ...rest }: PressableProps) => {
         {...rest}
       >
         <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate || '0deg' }] }}>
-          <RepeatIcon />
+          <SwitchIcon />
         </Animated.View>
       </Pressable>
     </View>
