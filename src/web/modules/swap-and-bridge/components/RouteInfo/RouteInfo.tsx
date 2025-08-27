@@ -57,6 +57,7 @@ const RouteInfo: FC<Props> = ({
         flexbox.directionRow,
         flexbox.alignCenter,
         flexbox.justifySpaceBetween,
+        spacings.mh,
         {
           height: 25 // Prevents layout shifts
         },
@@ -87,7 +88,7 @@ const RouteInfo: FC<Props> = ({
               {t('No routes now, but note some markets may change often.')}
             </Text>
           </View>
-          <RetryButton onPress={updateQuote as any} type="wide" />
+          <RetryButton onPress={updateQuote} />
         </View>
       )}
       {swapSignErrors.length === 0 &&
@@ -190,7 +191,7 @@ const RouteInfo: FC<Props> = ({
                     </Text>
                   </Pressable>
                 </View>
-                <RetryButton onPress={updateQuote as any} type="wide" />
+                <RetryButton onPress={updateQuote} />
               </View>
             )}
 
