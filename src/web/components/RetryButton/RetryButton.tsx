@@ -10,7 +10,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 type Props = {
-  onPress: () => {}
+  onPress: () => void
 }
 
 const RetryButton: FC<Props> = ({ onPress }) => {
