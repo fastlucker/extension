@@ -27,7 +27,7 @@
   background: linear-gradient(147.96deg, #191B1F 43.03%, #201A47 87.21%);
 
   border-radius: 1rem;
-  padding: 0 1.625rem 1.375rem 2.375rem;
+  padding: 1.4375rem 1.625rem 1.375rem 2.375rem;
   margin: 0 auto;
   margin-bottom: 4.375rem;
   margin-top: 1.875rem;
@@ -52,6 +52,7 @@
     .chartWrapper {
       margin-bottom: 0.5rem;
       min-width: 27.5rem;
+
     }
 
     .walletNameWrapper {
@@ -192,7 +193,7 @@
     width: 43.1875rem;
     height: 28.0625rem;
     top: 0;
-    filter: blur(13.2px);
+    filter: blur(4.2px);
     background-position: 11rem -4rem;
     opacity: 0.1;
     background-size: 34.3125rem;
@@ -206,9 +207,7 @@
     width: calc(100% - 6rem);
   }
 
-  @include breakpoint-down-from(small-desktop) {
-    padding-top: 1rem;
-
+  @include breakpoint-down-from(small-desktop) {    
     .walletInfo {
       .walletName {
         font-size: 3rem;
@@ -240,7 +239,7 @@
        .walletInfo {
         .walletLevelInfoWrapper {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1fr;
         }
       }
   }
@@ -249,7 +248,7 @@
 .wrapper {
   @include breakpoint-down-from(tablet) {
     margin-left: 0;
-    margin-right: 0;
+    padding-right: 1rem;
     width: 100%;
 
     .walletInfo {

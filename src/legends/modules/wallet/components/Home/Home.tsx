@@ -22,6 +22,8 @@ function formatMarketCap(value: number): string {
 }
 
 const Home = () => {
+  const ref = useRef<HTMLElement>(null)
+
   const { walletTokenInfo, isLoadingWalletTokenInfo } = usePortfolioControllerState()
   const stakedWallet = walletTokenInfo && walletTokenInfo.percentageStakedWallet
 
@@ -38,6 +40,29 @@ const Home = () => {
     script.src = 'https://widgets.coingecko.com/gecko-coin-price-chart-widget.js'
     script.async = true
     document.body.appendChild(script)
+
+    const el = ref.current as any
+
+    // Need to wait for element to be initialized
+    const attachStyleToShadowRoot = () => {
+      if (el && el.shadowRoot) {
+        const style = document.createElement('style')
+        style.textContent = `
+        .gecko-coin-details {
+        padding: 0 !important;
+        }
+      `
+        el.shadowRoot.appendChild(style)
+      } else if (el) {
+        // If shadowRoot isn't available yet, try again soon
+        setTimeout(attachStyleToShadowRoot, 100)
+      }
+    }
+
+    // Start the process
+    if (el) {
+      attachStyleToShadowRoot()
+    }
 
     return () => {
       if (script.parentNode) {
@@ -57,6 +82,7 @@ const Home = () => {
           <div className={styles.chartWrapper}>
             {/* @ts-ignore - Custom element from CoinGecko widget */}
             <gecko-coin-price-chart-widget
+              ref={ref}
               locale="en"
               dark-mode="true"
               transparent-background="true"
