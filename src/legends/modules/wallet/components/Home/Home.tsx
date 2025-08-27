@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
@@ -23,7 +23,11 @@ function formatMarketCap(value: number): string {
 
 const Home = () => {
   const [isWidgetReady, setIsWidgetReady] = useState(false)
-  const ref = useRef<HTMLElement>(null)
+  // Use a callback ref for more reliable access to the custom element
+  const [widgetEl, setWidgetEl] = useState<HTMLElement | null>(null)
+  const widgetRef = React.useCallback((node: HTMLElement | null) => {
+    if (node) setWidgetEl(node)
+  }, [])
 
   const { walletTokenInfo, isLoadingWalletTokenInfo } = usePortfolioControllerState()
   const stakedWallet = walletTokenInfo && walletTokenInfo.percentageStakedWallet
@@ -55,36 +59,44 @@ const Home = () => {
       }
     }
 
-    const el = ref.current as any
-
-    // Need to wait for element to be initialized
-    const attachStyleToShadowRoot = () => {
-      if (el && el.shadowRoot) {
+    // Attach style to widget's shadowRoot when available
+    let observer: MutationObserver | null = null
+    function injectStyleToShadowRoot(target: HTMLElement) {
+      if (target.shadowRoot) {
         const style = document.createElement('style')
         style.textContent = `
-        .gecko-coin-details {
-        padding: 0 !important;
-        }
-      `
-        el.shadowRoot.appendChild(style)
-      } else if (el) {
-        // If shadowRoot isn't available yet, try again soon
-        setTimeout(attachStyleToShadowRoot, 100)
+          .gecko-coin-details {
+            padding: 0 !important;
+          }
+        `
+        target.shadowRoot.appendChild(style)
+        return true
       }
+      return false
     }
 
-    // Start the process
-    if (el) {
-      attachStyleToShadowRoot()
+    if (widgetEl) {
+      // Try immediately
+      if (!injectStyleToShadowRoot(widgetEl)) {
+        // If shadowRoot not present, observe for it
+        observer = new MutationObserver(() => {
+          if (widgetEl.shadowRoot) {
+            injectStyleToShadowRoot(widgetEl)
+            if (observer) observer.disconnect()
+          }
+        })
+        observer.observe(widgetEl, { childList: true })
+      }
     }
 
     return () => {
       setIsWidgetReady(false)
+      if (observer) observer.disconnect()
       if (script.parentNode) {
         script.parentNode.removeChild(script) // cleanup on unmount
       }
     }
-  }, [])
+  }, [widgetEl])
 
   return (
     <>
@@ -98,7 +110,7 @@ const Home = () => {
             {isWidgetReady ? (
               // @ts-ignore - Custom element from CoinGecko widget
               <gecko-coin-price-chart-widget
-                ref={ref}
+                ref={widgetRef}
                 locale="en"
                 dark-mode="true"
                 transparent-background="true"
@@ -129,9 +141,9 @@ const Home = () => {
               <span className={styles.item}>
                 {isLoadingWalletTokenInfo
                   ? 'Loading...'
-                  : walletTokenInfo?.apy === null
-                  ? 0
-                  : `${walletTokenInfo?.apy.toFixed(2)}%`}
+                  : walletTokenInfo?.apy === null || walletTokenInfo?.apy === undefined
+                  ? '0%'
+                  : `${walletTokenInfo.apy.toFixed(2)}%`}
               </span>
               Staking APY
               <div className={styles.walletInfoWrapper} />

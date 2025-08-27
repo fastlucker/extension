@@ -256,7 +256,12 @@
     padding-right: 1rem;
     width: 100%;
 
+
+    
     .walletInfo {
+      .chartWrapper {
+        min-width: auto;
+      }
       .title {
         margin-bottom: 2rem;
       }
