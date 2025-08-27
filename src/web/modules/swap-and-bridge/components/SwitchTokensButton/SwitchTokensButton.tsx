@@ -12,7 +12,7 @@ const SWITCH_TOKENS_CONDITION_TOOLTIP_ID = 'switch-tokens-condition-tooltip-sab'
 const SwitchTokensButton = ({ disabled, ...rest }: PressableProps) => {
   const { styles } = useTheme(getStyles)
   const [bindAnim, , , , animatedValues] = useCustomHover({
-    property: 'translateY' as any,
+    property: 'translateY',
     values: { from: 0, to: 1 },
     duration: 150
   })
