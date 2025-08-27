@@ -113,7 +113,7 @@ const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) 
 
   try {
     await browser.scripting.executeScript({
-      target: { tabId: tab.id, allFrames: true },
+      target: { tabId: tab.id, allFrames: false },
       files: ['browser-polyfill.min.js', 'content-script.js'],
       injectImmediately: true
     })
