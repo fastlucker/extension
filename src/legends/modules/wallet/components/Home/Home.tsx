@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
@@ -22,6 +22,7 @@ function formatMarketCap(value: number): string {
 }
 
 const Home = () => {
+  const [isWidgetReady, setIsWidgetReady] = useState(false)
   const ref = useRef<HTMLElement>(null)
 
   const { walletTokenInfo, isLoadingWalletTokenInfo } = usePortfolioControllerState()
@@ -40,6 +41,19 @@ const Home = () => {
     script.src = 'https://widgets.coingecko.com/gecko-coin-price-chart-widget.js'
     script.async = true
     document.body.appendChild(script)
+
+    // Mark widget ready once the custom element is defined to avoid layout shift
+    const tagName = 'gecko-coin-price-chart-widget'
+    if (typeof window !== 'undefined' && 'customElements' in window) {
+      if (customElements.get(tagName)) {
+        setIsWidgetReady(true)
+      } else {
+        customElements
+          .whenDefined(tagName)
+          .then(() => setIsWidgetReady(true))
+          .catch(() => {})
+      }
+    }
 
     const el = ref.current as any
 
@@ -65,6 +79,7 @@ const Home = () => {
     }
 
     return () => {
+      setIsWidgetReady(false)
       if (script.parentNode) {
         script.parentNode.removeChild(script) // cleanup on unmount
       }
@@ -80,16 +95,21 @@ const Home = () => {
       <section className={`${styles.wrapper}`}>
         <div className={styles.walletInfo}>
           <div className={styles.chartWrapper}>
-            {/* @ts-ignore - Custom element from CoinGecko widget */}
-            <gecko-coin-price-chart-widget
-              ref={ref}
-              locale="en"
-              dark-mode="true"
-              transparent-background="true"
-              coin-id="ambire-wallet"
-              initial-currency="usd"
-              width="440"
-            />
+            {isWidgetReady ? (
+              // @ts-ignore - Custom element from CoinGecko widget
+              <gecko-coin-price-chart-widget
+                ref={ref}
+                locale="en"
+                dark-mode="true"
+                transparent-background="true"
+                coin-id="ambire-wallet"
+                initial-currency="usd"
+                width="440"
+              />
+            ) : (
+              // Empty placeholder to reserve space and prevent layout shift while loading
+              <div aria-hidden="true" className={styles.placeholder} />
+            )}
           </div>
 
           <div className={styles.walletLevelInfoWrapper}>
