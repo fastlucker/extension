@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -13,6 +13,8 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
+import RetryButton from '@web/components/RetryButton'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SelectRoute from './SelectRoute'
@@ -30,14 +32,23 @@ const RouteInfo: FC<Props> = ({
   isAutoSelectRouteDisabled,
   openRoutesModal
 }) => {
-  const { formStatus, signAccountOpController, quote, swapSignErrors, errors } =
+  const { formStatus, signAccountOpController, quote, swapSignErrors } =
     useSwapAndBridgeControllerState()
   const { isOG } = useInviteControllerState()
   const { theme } = useTheme()
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
 
-  const noRoutesFoundError = errors.find(({ id }) => id === 'no-routes')?.title
-  const allRoutesFailedError = errors.find(({ id }) => id === 'all-routes-failed')
+  const allRoutesFailed = useMemo(() => {
+    if (!quote || !quote.routes.length) return false
+    return !quote.routes.find((r) => !r.disabled)
+  }, [quote])
+
+  const updateQuote = useCallback(() => {
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE'
+    })
+  }, [dispatch])
 
   return (
     <View
@@ -60,13 +71,22 @@ const RouteInfo: FC<Props> = ({
         </View>
       )}
       {swapSignErrors.length === 0 && formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter, { maxWidth: '100%' }]}>
-          <WarningIcon width={14} height={14} color={theme.warningDecorative} />
-          <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
-            {noRoutesFoundError
-              ? t(`No routes found. Reason: ${noRoutesFoundError}`)
-              : t('No routes found')}
-          </Text>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.justifySpaceBetween,
+            { width: '100%' },
+            spacings.mt
+          ]}
+        >
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+            <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
+              {t('No routes found')}
+            </Text>
+          </View>
+          <RetryButton onPress={updateQuote as any} type="wide" />
         </View>
       )}
       {swapSignErrors.length === 0 &&
@@ -79,7 +99,7 @@ const RouteInfo: FC<Props> = ({
         (signAccountOpController?.estimation.status === EstimationStatus.Success ||
           ((signAccountOpController?.estimation.status === EstimationStatus.Error ||
             formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
-            isAutoSelectRouteDisabled)) &&
+            (allRoutesFailed || isAutoSelectRouteDisabled))) &&
         !isEstimatingRoute && (
           <>
             {signAccountOpController?.estimation.status === EstimationStatus.Success &&
@@ -121,52 +141,65 @@ const RouteInfo: FC<Props> = ({
                   />
                 </View>
               )}
-            {(signAccountOpController?.estimation.status === EstimationStatus.Error ||
-              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) && (
+            {allRoutesFailed && (
               <View
                 style={[
                   flexbox.directionRow,
                   flexbox.alignCenter,
                   flexbox.justifySpaceBetween,
-                  { width: '100%' }
+                  { width: '100%' },
+                  spacings.mt
                 ]}
               >
-                {allRoutesFailedError ? (
-                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                    <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <WarningIcon width={14} height={14} color={theme.warningDecorative} />
+                  <Text
+                    fontSize={14}
+                    weight="medium"
+                    appearance="warningText"
+                    style={spacings.mlMi}
+                  >
+                    {t('Routes found but failed.')}
+                  </Text>
+                  <Pressable
+                    style={{
+                      paddingVertical: 2,
+                      ...spacings.phTy,
+                      ...flexbox.directionRow,
+                      ...flexbox.alignCenter,
+                      opacity: 1
+                    }}
+                    onPress={openRoutesModal as any}
+                  >
                     <Text
                       fontSize={14}
                       weight="medium"
-                      appearance="warningText"
-                      style={spacings.mlMi}
-                    >
-                      {allRoutesFailedError.text}
-                    </Text>
-                    <Pressable
+                      color={theme.warningText}
                       style={{
-                        paddingVertical: 2,
-                        ...spacings.phTy,
-                        ...flexbox.directionRow,
-                        ...flexbox.alignCenter,
-                        opacity: 1
+                        ...spacings.mr,
+                        textDecorationColor: theme.warningText,
+                        textDecorationLine: 'underline'
                       }}
-                      onPress={openRoutesModal as any}
                     >
-                      <Text
-                        fontSize={14}
-                        weight="medium"
-                        color={theme.warningText}
-                        style={{
-                          ...spacings.mr,
-                          textDecorationColor: theme.warningText,
-                          textDecorationLine: 'underline'
-                        }}
-                      >
-                        {t('See details')}
-                      </Text>
-                    </Pressable>
-                  </View>
-                ) : (
+                      {t('See details')}
+                    </Text>
+                  </Pressable>
+                </View>
+                <RetryButton onPress={updateQuote as any} type="wide" />
+              </View>
+            )}
+
+            {(signAccountOpController?.estimation.status === EstimationStatus.Error ||
+              formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected) &&
+              !allRoutesFailed && (
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.alignCenter,
+                    flexbox.justifySpaceBetween,
+                    { width: '100%' }
+                  ]}
+                >
                   <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                     <WarningIcon width={14} height={14} color={theme.warningDecorative} />
                     <Text
@@ -193,16 +226,13 @@ const RouteInfo: FC<Props> = ({
                       </View>
                     </Tooltip>
                   </View>
-                )}
 
-                {!allRoutesFailedError && (
                   <SelectRoute
                     shouldEnableRoutesSelection={shouldEnableRoutesSelection}
                     openRoutesModal={openRoutesModal}
                   />
-                )}
-              </View>
-            )}
+                </View>
+              )}
           </>
         )}
     </View>
