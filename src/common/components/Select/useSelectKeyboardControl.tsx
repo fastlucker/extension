@@ -305,7 +305,8 @@ const useSelectKeyboardControl = ({
       highlightedItemIndex,
       handleSetHoverIn,
       handleSetHoverOut,
-      sections
+      sections,
+      mode
     ]
   )
 

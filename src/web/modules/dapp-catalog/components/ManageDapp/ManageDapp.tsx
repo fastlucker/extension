@@ -96,7 +96,7 @@ const ManageDapp = ({
       !!state.dapps?.find((d) => d.id === dapp?.id) &&
       !predefinedDapps.find((d) => getDappIdFromUrl(d.url) === dapp?.id)
     )
-  }, [dapp?.url, state.dapps])
+  }, [dapp?.id, state.dapps])
 
   const promptRemoveDApp = useCallback(() => {
     openDialog()
