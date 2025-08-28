@@ -1,9 +1,11 @@
 import React, { FC, useCallback } from 'react'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
+import { getRewardsButtonText } from '@legends/utils/getRewardsButtonText'
 
 import { InviteAcc, SendAccOp } from './actions'
 import Feedback from './actions/Feedback'
@@ -17,7 +19,15 @@ export type CardActionComponentProps = {
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
   const { connectedAccount, v1Account } = useAccountContext()
-  const disabledButton = Boolean(!connectedAccount || v1Account)
+  const { isCharacterNotMinted } = useCharacterContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
+
+  const getButtonText = () =>
+    getRewardsButtonText({
+      connectedAccount,
+      v1Account: !!v1Account,
+      isCharacterNotMinted: !!isCharacterNotMinted
+    })
 
   const handleWalletRouteButtonPress = useCallback(async () => {
     if (action.type !== CardActionType.walletRoute) return
@@ -59,11 +69,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.link) {
     return (
       <CardActionButton
-        buttonText={
-          disabledButton
-            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
-            : 'Proceed'
-        }
+        buttonText={getButtonText()}
         onButtonClick={() => {
           window.open(action.link, '_blank')
         }}
@@ -76,11 +82,7 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
   if (action.type === CardActionType.walletRoute && window.ambire) {
     return (
       <CardActionButton
-        buttonText={
-          disabledButton
-            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
-            : 'Proceed'
-        }
+        buttonText={getButtonText()}
         onButtonClick={handleWalletRouteButtonPress}
         loadingText=""
         disabled={disabledButton}
