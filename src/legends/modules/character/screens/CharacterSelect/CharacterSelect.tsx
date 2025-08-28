@@ -25,7 +25,8 @@ const CharacterSelect = () => {
   const [isOpenNewNftAlert, setIsOpenNewNftAlert] = useState(false)
   const [hasStartedMinting, setHasStartedMinting] = useState(false)
 
-  const { character, isLoading } = useCharacterContext()
+  const { character, isLoading, isCharacterNotMinted } = useCharacterContext()
+
   const { isMinting, isMinted, loadingMessage, isCheckingMintStatus, mintCharacter } =
     useMintCharacter()
 
@@ -134,11 +135,11 @@ const CharacterSelect = () => {
           // Currently minting
           (isMinting ||
             // Minted a short time ago and not caught by the relayer
-            (isMinted && !character))
+            (isMinted && isCharacterNotMinted))
         }
         loadingMessage={loadingMessage}
         errorMessage={errorMessage}
-        showOnMintModal={!!(character || (character && isMinted))}
+        showOnMintModal={!!(character && !isCharacterNotMinted && isMinted)}
         onButtonClick={redirectToCharacterPage}
       />
     </div>
