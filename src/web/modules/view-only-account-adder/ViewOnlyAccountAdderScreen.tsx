@@ -6,6 +6,7 @@ import { ScrollView, View } from 'react-native'
 import { AddressState } from '@ambire-common/interfaces/domains'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import { getIdentity } from '@ambire-common/libs/accountPicker/accountPicker'
+import { getAddressFromAddressState } from '@ambire-common/utils/domains'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -16,7 +17,6 @@ import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNav
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { getAddressFromAddressState } from '@ambire-common/utils/domains'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
@@ -173,7 +173,6 @@ const ViewOnlyScreen = () => {
                     trigger={trigger}
                   />
                 ))}
-
                 <AnimatedPressable
                   testID="add-one-more-address"
                   disabled={isSubmitting}

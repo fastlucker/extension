@@ -10,17 +10,18 @@ import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
-import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 import { CardActionCalls, CardStatus, ChestCard } from '@legends/modules/legends/types'
 import { isMatchingPredefinedId } from '@legends/modules/legends/utils'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
+import { getRewardsButtonText } from '@legends/utils/getRewardsButtonText'
 
 import chestImageOpened from './assets/chest-opened.png'
 import chestImage from './assets/chest.png'
@@ -41,8 +42,14 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
   const { onLegendComplete } = useLegendsContext()
+  const { isCharacterNotMinted } = useCharacterContext()
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account || isCharacterNotMinted)
 
-  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
+  const buttonText = getRewardsButtonText({
+    connectedAccount,
+    v1Account: !!v1Account,
+    isCharacterNotMinted: !!isCharacterNotMinted
+  })
 
   const [isCongratsModalOpen, setCongratsModalOpen] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
@@ -306,9 +313,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
             }
             onClick={onButtonClick}
           >
-            {nonConnectedAcc
-              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
-              : buttonLabel}
+            {nonConnectedAcc ? buttonText : buttonLabel}
           </button>
         </div>
       </div>
