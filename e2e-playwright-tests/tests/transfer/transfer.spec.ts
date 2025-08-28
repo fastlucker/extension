@@ -38,7 +38,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('send transaction', async () => {
-      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate({ feeToken, payWithGasTank, sendToken })
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
@@ -72,7 +72,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('send transaction', async () => {
-      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate({ feeToken, payWithGasTank, sendToken })
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
@@ -136,10 +136,13 @@ test.describe('transfer', () => {
       })
     })
 
-    await test.step('stop monitoring requests and expect no uncategorized requests to be made', async () => {
-      const { uncategorized } = pages.transfer.getCategorizedRequests()
-      expect(uncategorized.length).toBeLessThanOrEqual(0)
-    })
+    await test.step(
+      'stop monitoring requests and expect no uncategorized requests to be made',
+      async () => {
+        const { uncategorized } = pages.transfer.getCategorizedRequests()
+        expect(uncategorized.length).toBeLessThanOrEqual(0)
+      }
+    )
   })
 
   test('add contact in address book and send transaction to newly added contact', async ({
@@ -188,7 +191,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('send transaction', async () => {
-      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate({ feeToken, payWithGasTank, sendToken })
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
@@ -199,6 +202,8 @@ test.describe('transfer', () => {
   test('Start transfer, add contact, send transaction to newly added contact', async ({
     pages
   }) => {
+    const sendToken = tokens.usdc.optimism
+    const feeToken = tokens.usdc.optimism
     const newContactName = 'First Address'
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
@@ -211,9 +216,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('add transfer amount', async () => {
-      const feeToken = tokens.usdc.optimism
-
-      await pages.transfer.fillAmount(feeToken)
+      await pages.transfer.fillAmount(sendToken)
     })
 
     await test.step('add unknown recepient to address book', async () => {
@@ -221,10 +224,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('send USCD to added contact', async () => {
-      const feeToken = tokens.usdc.optimism
-      const payWithGasTank = false
-
-      await pages.transfer.signAndValidate(feeToken, payWithGasTank)
+      await pages.transfer.signAndValidate({ feeToken, sendToken })
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
