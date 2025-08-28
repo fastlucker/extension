@@ -35,11 +35,11 @@ const useBalanceAffectingErrors = () => {
         ({ id }) => id === 'loading-too-long'
       )?.networkNames
 
-      if (!allNetworkNames) return t('Loading is taking too long.')
+      if (!allNetworkNames) return t('Still loading balances — this may take a moment.')
 
       const uniqueNetworkNames = [...new Set(allNetworkNames)]
 
-      return t('Loading is taking too long on {{networks}}.', {
+      return t('Still loading balances on {{networks}} — this may take a moment.', {
         networks: uniqueNetworkNames.join(', ')
       })
     }
