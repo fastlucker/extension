@@ -122,6 +122,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
       formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
       formStatus === SwapAndBridgeFormStatus.Proceeded ||
+      (formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected && isAutoSelectRouteDisabled) ||
       shouldShowAmountOnEstimationFailure) &&
     updateQuoteStatus !== 'LOADING'
 

@@ -388,11 +388,15 @@ const Estimation = ({
       </View>
     )
   }
+
+  if (signAccountOpState && signAccountOpState.estimation.status === EstimationStatus.Error) {
+    return null
+  }
+
   if (
     !signAccountOpState ||
     // <Bobby>: the line below may be incorrect and may cause
     // estimation flashing
-    signAccountOpState.estimation.status === EstimationStatus.Error ||
     (!hasEstimation && signAccountOpState.estimation.estimationRetryError) ||
     !payValue
   ) {
