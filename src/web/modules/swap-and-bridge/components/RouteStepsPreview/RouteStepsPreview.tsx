@@ -261,7 +261,7 @@ const RouteStepsPreview = ({
           )}
 
           {isDisabled && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <View style={[flexbox.directionRow, flexbox.alignCenter, { maxWidth: '100%' }]}>
               <Text
                 fontSize={12}
                 weight="medium"
