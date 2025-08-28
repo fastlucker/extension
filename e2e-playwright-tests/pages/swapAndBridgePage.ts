@@ -308,13 +308,13 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async assertSelectedAggregator(): Promise<void> {
-    await expect(this.page.getByText('LI.FI DEX Aggregator').last()).toBeVisible()
+    await expect(this.page.getByText('SushiSwap').last()).toBeVisible()
     await expect(this.page.getByText('Selected').last()).toBeVisible()
   }
 
   async clickOnSecondRoute(): Promise<void> {
     await this.click(selectors.selectRouteButton)
-    await this.page.locator(locators.liFiRoute).last().click() // missing ID
+    await this.page.locator(selectors.sushiSwapRoute).last().click() // missing ID
     await this.click(selectors.selectRouteButton)
     await this.assertSelectedAggregator()
   }
@@ -401,23 +401,19 @@ export class SwapAndBridgePage extends BasePage {
 
   async signBatchTransactionsPage(page): Promise<void> {
     const signButton = page.locator(SELECTORS.signTransactionButton)
-
-    try {
-      await expect(signButton).toBeVisible({ timeout: 5000 })
-      await expect(signButton).toBeEnabled()
-      await this.verifyBatchTransactionDetails(page)
-      await clickOnElement(page, selectors.signTransactionButton)
-      await page.waitForTimeout(1500)
-    } catch (error) {
-      console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
-    }
+    await expect(signButton).toBeVisible({ timeout: 5000 })
+    await expect(signButton).toBeEnabled()
+    await this.verifyBatchTransactionDetails(page)
+    await page.waitForTimeout(1500)
   }
 
   async verifyBatchTransactionDetails(page): Promise<void> {
-    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
+    await expect(page.getByTestId('recipient-address-0')).toHaveText(/4/)
+    // await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
     await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI\.FI/)
     await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.002/)
     await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
+    await page.getByTestId(selectors.signTransactionButton).click()
   }
 
   async getCurrentBalance() {

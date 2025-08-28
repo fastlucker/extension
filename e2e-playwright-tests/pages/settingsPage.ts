@@ -109,7 +109,6 @@ export class SettingsPage extends BasePage {
     await expect(connectPage.getByTestId(selectors.dappSecurityCheckPassed)).toBeVisible({
       timeout: 10000
     })
-
     await chainlistTab.waitForSelector(selectors.chainlistSearchPlaceholder)
     await chainlistTab.locator(selectors.chainlistSearchPlaceholder).fill(network.networkName)
 

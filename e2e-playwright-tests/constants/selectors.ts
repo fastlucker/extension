@@ -142,6 +142,7 @@ const selectors = {
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
+  sushiSwapRoute: 'div:has-text("SushiSwap Aggregator")',
   highPriceImpactSab: '//div[contains(text(), "Very high price impact")]', // TODO: change with ID when we add it
   highSlippageModal: '//div[contains(text(), "higher slippage")]', // TODO: change with ID when we add it
   settingsAddNetworkManually: 'add-network-manually',
@@ -173,7 +174,7 @@ const selectors = {
   addNetworkButton: '//div[.//div[text()="Network details"]]//div[text()="Add network"]',
   connectWalletButton:
     "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']",
-  chainlistSearchPlaceholder: 'input[placeholder="ETH, Fantom, ..."]',
+  chainlistSearchPlaceholder: 'input[placeholder*="ETH"]',
   addToMetamaskButton: '//button[contains(text(),"Add to Metamask")]',
   confirmaddNetworkOnChainlistButton: '//div[contains(text(),"Add network")]',
   blockExplorerURL: (url: string) => `//div[contains(text(),"${url}")]`,
