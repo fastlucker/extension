@@ -10,7 +10,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import ActionsPagination from '../ActionsPagination'
 
 type Props = {
-  onReject: () => void
+  onReject?: () => void
   onResolve: () => void
   rejectButtonText?: string
   resolveButtonText: string
@@ -38,15 +38,17 @@ const ActionFooter = ({
   return (
     <>
       <View style={flexbox.flex1}>
-        <Button
-          text={rejectButtonText || t('Reject')}
-          type="danger"
-          hasBottomSpacing={false}
-          size="large"
-          onPress={onReject}
-          testID={rejectButtonTestID}
-          style={flexbox.alignSelfStart}
-        />
+        {!!onReject && (
+          <Button
+            text={rejectButtonText || t('Reject')}
+            type="danger"
+            hasBottomSpacing={false}
+            size="large"
+            onPress={onReject}
+            testID={rejectButtonTestID}
+            style={flexbox.alignSelfStart}
+          />
+        )}
       </View>
       <ActionsPagination />
       <View style={flexbox.flex1}>

@@ -9,7 +9,6 @@ import { isDappRequestAction } from '@ambire-common/libs/actions/actions'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
-import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import SuccessAnimation from '@common/components/SuccessAnimation'
@@ -17,6 +16,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
@@ -217,7 +217,7 @@ const AddChainScreen = () => {
       type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
       params: {
         network: {
-          rpcUrls: Array.from(new Set([...networkDetails.rpcUrls, ...updatedRpcUrls])),
+          rpcUrls: Array.from(new Set([...updatedRpcUrls, networkDetails.selectedRpcUrl])),
           selectedRpcUrl: networkDetails.selectedRpcUrl
         },
         chainId: networkDetails.chainId
@@ -278,36 +278,23 @@ const AddChainScreen = () => {
       }
       footer={
         networkAlreadyAdded ? (
-          networkAlreadyAddedRpcUrl ? (
-            <ActionFooter
-              onReject={handleCloseOnAlreadyAdded}
-              onResolve={handleUpdateNetwork}
-              resolveButtonText={t('Update network')}
-              rejectButtonText={t('Reject')}
-              resolveDisabled={
-                !areParamsValid ||
-                statuses.addNetwork === 'LOADING' ||
-                statuses.updateNetwork === 'LOADING' ||
-                (features &&
-                  (features.some((f) => f.level === 'loading') ||
-                    !!features.filter((f) => f.id === 'flagged')[0])) ||
-                actionButtonPressedRef.current
-              }
-            />
-          ) : (
-            <View style={flexbox.flex1}>
-              <Button
-                testID="added-network-close-button"
-                style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
-                size="large"
-                hasBottomSpacing={false}
-                onPress={handleCloseOnAlreadyAdded}
-                text={t('Close')}
-                type="primary"
-                disabled={statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'}
-              />
-            </View>
-          )
+          <ActionFooter
+            onReject={networkAlreadyAddedRpcUrl ? handleDenyButtonPress : undefined}
+            onResolve={networkAlreadyAddedRpcUrl ? handleUpdateNetwork : handleCloseOnAlreadyAdded}
+            resolveButtonText={networkAlreadyAddedRpcUrl ? t('Update network') : t('Close')}
+            rejectButtonText={networkAlreadyAddedRpcUrl ? t('Reject') : undefined}
+            resolveDisabled={
+              networkAlreadyAddedRpcUrl
+                ? !areParamsValid ||
+                  statuses.addNetwork === 'LOADING' ||
+                  statuses.updateNetwork === 'LOADING' ||
+                  (features &&
+                    (features.some((f) => f.level === 'loading') ||
+                      !!features.find((f) => f.id === 'flagged'))) ||
+                  actionButtonPressedRef.current
+                : statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'
+            }
+          />
         ) : (
           <ActionFooter
             onReject={handleDenyButtonPress}
@@ -354,18 +341,32 @@ const AddChainScreen = () => {
                   )}
                 </Text>
                 <Text fontSize={15} appearance="secondaryText">
-                  {t(` as a default for ${networkAlreadyAdded.name}?`)}
+                  {t(` as a default RPC for ${networkAlreadyAdded.name}?`)}
                 </Text>
               </>
             ) : (
-              <SuccessAnimation>
-                <Text fontSize={20} weight="medium" style={spacings.mb}>
-                  {networkAlreadyAdded.name} {t('Network')}
-                </Text>
-                <Text fontSize={15} appearance="secondaryText">
-                  {successStateText}
-                </Text>
-              </SuccessAnimation>
+              <View
+                style={[
+                  common.borderRadiusPrimary,
+                  common.shadowTertiary,
+                  {
+                    width: '100%',
+                    maxWidth: 422,
+                    maxHeight: 343,
+                    ...flexbox.justifyCenter,
+                    backgroundColor: theme.primaryBackground
+                  }
+                ]}
+              >
+                <SuccessAnimation>
+                  <Text fontSize={20} weight="medium" style={spacings.mb}>
+                    {networkAlreadyAdded.name} {t('Network')}
+                  </Text>
+                  <Text fontSize={15} appearance="secondaryText">
+                    {successStateText}
+                  </Text>
+                </SuccessAnimation>
+              </View>
             )}
           </View>
         ) : (
