@@ -45,7 +45,7 @@ interface Props {
   }) => void
 }
 
-// We create a reusable height constant for both the Balance line-height and the Balance skeleton.
+// We create a reusable height constant for both the Balance height and the Balance skeleton.
 // We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
 const BALANCE_HEIGHT = 38
 
@@ -194,6 +194,7 @@ const DashboardOverview: FC<Props> = ({
                           fontSize={32}
                           shouldScale={false}
                           weight="number_bold"
+                          style={{ lineHeight: 28 }}
                           color={
                             networksWithErrors.length || isOffline
                               ? theme.warningDecorative2
