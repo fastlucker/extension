@@ -117,7 +117,13 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
         text: 'Save on network fees by prepaying with Gas Tank.'
       }
     ],
-    [theme.successDecorative, theme.primary]
+    [
+      theme.successDecorative,
+      theme.primary,
+      themeType,
+      theme.primaryBackgroundInverted,
+      theme.primaryBackground
+    ]
   )
 
   useEffect(() => {
