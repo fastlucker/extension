@@ -89,7 +89,7 @@ const Tab = ({
                 ? theme.primaryText
                 : theme.secondaryText
             }
-            fontSize={16}
+            fontSize={14}
           >
             {t(tabLabel)}
           </Text>
