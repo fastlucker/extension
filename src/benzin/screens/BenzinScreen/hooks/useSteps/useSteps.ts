@@ -322,15 +322,17 @@ const useSteps = ({
           return
         }
 
-        // if there's a receipt and the status is a failure,
-        // the userOp might have been front ran. Try to find it
-        if (!receipt.success && !hasCheckedFrontRun) {
-          setIsFrontRan(true)
-          return
-        }
-
         if (!foundTxnId) {
           setFoundTxnId(receipt.receipt.transactionHash)
+        }
+
+        const opTxnReceipt = receipt.receipt
+        const hasUserOpSucceeded = !!receipt.success
+        const hasTxnFailedOrNoInfo =
+          opTxnReceipt.status === undefined || BigInt(opTxnReceipt.status) === 0n
+        if (!hasUserOpSucceeded && hasTxnFailedOrNoInfo && !hasCheckedFrontRun) {
+          setIsFrontRan(true)
+          return
         }
 
         setUrlToTxnId(
@@ -441,6 +443,7 @@ const useSteps = ({
         setUrlToTxnId(frontRanTxnId, userOpHash, relayerId, network.chainId, switcher)
         setIsFrontRan(false)
         setHasCheckedFrontRun(true)
+        setIsFetching(false)
       })
       .catch(() => null)
   }, [
@@ -777,8 +780,7 @@ const useSteps = ({
         calls: decodedCalls,
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
-        gasFeePayment: null,
-        accountOpToExecuteBefore: null
+        gasFeePayment: null
       }
       const humanizedCalls = humanizeAccountOp(accountOp, { network })
 

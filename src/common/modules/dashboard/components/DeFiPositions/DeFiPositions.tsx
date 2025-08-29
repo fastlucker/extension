@@ -170,7 +170,8 @@ const DeFiPositions: FC<Props> = ({
       t,
       theme,
       sessionId,
-      dashboardNetworkFilterName
+      dashboardNetworkFilterName,
+      themeType
     ]
   )
 
