@@ -1,4 +1,4 @@
-import { getAddress } from 'ethers'
+import { getAddress, isAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
@@ -71,6 +71,8 @@ const WatchTokenRequestScreen = () => {
   }, [dappAction])
 
   const tokenData = userRequest?.action?.params?.options
+  // Check if address is present and accurate
+  const isTokenAddressAccurate = !!tokenData?.address && isAddress(tokenData.address)
   const origin = userRequest?.session?.origin
   const network =
     networks.find((n) => n.explorerUrl === origin) ||
@@ -107,6 +109,7 @@ const WatchTokenRequestScreen = () => {
   // Handle the case its already in token preferences
   const isTokenCustom = !!customTokens.find(
     (token) =>
+      isTokenAddressAccurate &&
       token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
       token.chainId === tokenNetwork?.chainId
   )
@@ -238,6 +241,9 @@ const WatchTokenRequestScreen = () => {
 
   if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
     return <Alert type="error" title={t('This network RPC is failing')} />
+  }
+  if (!isTokenAddressAccurate) {
+    return <Alert type="error" title={t('Invalid token address')} />
   }
   if (isLoading && tokenTypeEligibility === undefined) {
     return (

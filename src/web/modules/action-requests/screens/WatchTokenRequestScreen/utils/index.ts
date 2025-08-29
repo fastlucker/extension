@@ -101,6 +101,7 @@ const getTokenFromTemporaryTokens = (
 ) =>
   undefined ||
   (tokenData &&
+    tokenData.address &&
     tokenNetwork &&
     temporaryTokens?.[tokenNetwork.chainId.toString()] &&
     temporaryTokens?.[tokenNetwork.chainId.toString()]?.result?.tokens?.find(
