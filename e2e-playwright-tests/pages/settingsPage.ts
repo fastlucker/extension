@@ -196,6 +196,9 @@ export class SettingsPage extends BasePage {
     await expect(this.page.locator(selectors.settings.validENSDomainText)).toHaveText(
       'Valid ENS domain'
     )
+    // TODO: check for better solution
+    // Start timing only when import begins
+    const start = Date.now()
 
     // add account
     await this.click(selectors.settings.viewOnlyImportButton)
@@ -204,6 +207,8 @@ export class SettingsPage extends BasePage {
     await expect(this.page.locator(selectors.settings.addedSuccessfullyText)).toHaveText(
       'Added successfully'
     )
+    const duration = Date.now() - start
+    console.log(`Import took ${duration} ms`)
 
     // complete and assert info text
     await this.click(selectors.saveAndContinueBtn)

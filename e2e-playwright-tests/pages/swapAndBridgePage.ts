@@ -425,7 +425,7 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async verifyBatchTransactionDetails(page): Promise<void> {
-    await expect(page.getByTestId('recipient-address-0')).toHaveText(/4/)
+    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.1/)
     // await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
     await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI\.FI/)
     await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.002/)

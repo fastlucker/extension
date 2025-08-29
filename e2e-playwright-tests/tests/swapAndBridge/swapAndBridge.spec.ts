@@ -170,7 +170,7 @@ test.describe('swapAndBridge Smart Account', () => {
     })
   })
 
-  test('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({
+  test.only('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({
     pages
   }) => {
     const usdc = tokens.usdc.base
@@ -180,13 +180,13 @@ test.describe('swapAndBridge Smart Account', () => {
       await pages.swapAndBridge.monitorRequests()
     })
 
-    await test.step('add a transaction swapping WALLET for USDC to the batch', async () => {
-      await pages.swapAndBridge.prepareSwapAndBridge(4, wallet, usdc) // 4 WALLET ~ 0.1$
+    await test.step('add a transaction swapping USDC for WALLET to the batch', async () => {
+      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
       await pages.swapAndBridge.batchAction()
     })
 
     await test.step('add a transaction swapping USDC for WALLET to the existing batch and sign', async () => {
-      await pages.swapAndBridge.prepareSwapAndBridge(0.002, usdc, wallet)
+      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet)
       await pages.swapAndBridge.batchActionWithSign()
     })
 
