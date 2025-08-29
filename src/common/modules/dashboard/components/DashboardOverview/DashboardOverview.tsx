@@ -169,7 +169,6 @@ const DashboardOverview: FC<Props> = ({
                   style={[
                     flexbox.directionRow,
                     flexbox.alignCenter,
-                    flexbox.justifyCenter,
                     spacings.mbTy,
                     spacings.mtMi,
                     { height: BALANCE_HEIGHT }
