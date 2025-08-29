@@ -127,7 +127,7 @@ export class BasePage {
       if (request.resourceType() === 'fetch' && request.method() !== 'OPTIONS') {
         this.collectedRequests.push(request.url())
       }
-      await route.continue()
+      await route.fallback()
     })
   }
 
