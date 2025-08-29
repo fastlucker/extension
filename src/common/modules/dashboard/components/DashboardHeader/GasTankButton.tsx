@@ -94,7 +94,8 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
     <View>
       <AnimatedPressable
         ref={buttonRef}
-        onPress={hasGasTank ? onPress : () => {}}
+        onPress={onPress}
+        disabled={!hasGasTank}
         style={{
           ...flexbox.directionRow,
           ...flexbox.center,
@@ -105,8 +106,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           ...(!totalBalanceGasTankDetails.balanceFormatted && {
             borderWidth: 1,
             borderColor: theme.primaryLight
-          }),
-          ...{ cursor: !hasGasTank ? 'default' : 'pointer' }
+          })
         }}
         {...bindGasTankBtnAim}
         testID="dashboard-gas-tank-button"
