@@ -176,4 +176,33 @@ export class SettingsPage extends BasePage {
     // assert button name changed
     await this.compareText(selectors.disableNetworkButton, 'Enable')
   }
+
+  async addReadOnlyAccount(account: string) {
+    // open add view-only address modal
+    await this.click(selectors.settings.watchAnAddressButton)
+
+    // enter address/ens
+    await this.entertext(selectors.settings.viewOnlyAddressField, account)
+
+    // assert validation
+    await expect(this.page.locator(selectors.settings.validENSDomainText)).toHaveText(
+      'Valid ENS domain'
+    )
+
+    // add account
+    await this.click(selectors.settings.viewOnlyImportButton)
+
+    // assert success text
+    await expect(this.page.locator(selectors.settings.addedSuccessfullyText)).toHaveText(
+      'Added successfully'
+    )
+
+    // complete and assert info text
+    await this.click(selectors.saveAndContinueBtn)
+
+    // assert info text
+    await expect(this.page.locator(selectors.settings.accessAccFromDashboardInfoText)).toHaveText(
+      'You can access your accounts from the dashboard via the extension icon.'
+    )
+  }
 }

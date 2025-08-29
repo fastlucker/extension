@@ -1,6 +1,5 @@
 import { baParams } from 'constants/env'
 import selectors from 'constants/selectors'
-import BootstrapContext from 'interfaces/bootstrapContext'
 import Token from 'interfaces/token'
 
 import { expect } from '@playwright/test'
@@ -8,19 +7,8 @@ import { expect } from '@playwright/test'
 import { BasePage } from './basePage'
 
 export class TransferPage extends BasePage {
-  extensionURL: string
-
-  constructor(opts: BootstrapContext) {
-    super(opts)
-    this.extensionURL = opts.extensionURL
-  }
-
   async navigateToTransfer() {
     await this.click(selectors.dashboard.sendButton)
-  }
-
-  async navigateToDashboard() {
-    await this.navigateToURL(`${this.extensionURL}/tab.html#/`)
   }
 
   async openAddressBookPage() {

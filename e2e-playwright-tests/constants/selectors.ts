@@ -18,6 +18,17 @@ const selectors = {
     fuelGasTankTransactionPill: '//div[contains(text(),"Fuel gas tank with")]', // TODO: chage once we have id on FE,
     grantApprovalText: '//div[contains(text(),"Grant approval")]' // TODO: change once we have id on FE
   },
+  settings: {
+    createNewRecoveryPhraseButton: 'create-new-recovery-phrase',
+    importAccountButton: 'import-account',
+    connectHardwareWallet: 'connect-hardware-wallet',
+    watchAnAddressButton: 'watch-an-address-button',
+    viewOnlyAddressField: 'view-only-address-field-0',
+    viewOnlyImportButton: 'view-only-button-import',
+    validENSDomainText: '//div[contains(text(),"Valid ENS domain")]',
+    addedSuccessfullyText: '//div[contains(text(),"Added successfully")]',
+    accessAccFromDashboardInfoText: '//div[contains(text(),"access your accounts")]'
+  },
   account: 'account',
   importBtn: 'import-button',
   importPrivateBtn: 'button-import-private-key',
