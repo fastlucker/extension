@@ -357,7 +357,7 @@ export class SwapAndBridgePage extends BasePage {
     }
   }
 
-  async signTokens(): Promise<void> {
+  async signTokens({ fromToken }: { fromToken: Token }): Promise<void> {
     await this.click(selectors.topUpProceedButton)
 
     // approve the high impact modal
@@ -376,8 +376,25 @@ export class SwapAndBridgePage extends BasePage {
       await this.page.locator(selectors.continueAnywayButton).click()
     }
 
+    await this.monitorRequests()
+
+    // Sometimes the button needs a bit to become enabled
+    await this.page.waitForTimeout(1000)
+
     await this.click(selectors.signButton)
     await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 10000 })
+
+    const { rpc } = this.getCategorizedRequests()
+
+    // Verify that portfolio updates run only for the from token network.
+    // A previous regression was triggering updates on all enabled networks after a broadcast,
+    // which caused a significant performance downgrade.
+    expect(
+      rpc.every((req) => req === `https://invictus.ambire.com/${fromToken.chainName}`),
+      `Invalid portfolio update behavior detected.
+   After a broadcast, the portfolio must be refreshed only for *${fromToken.chainName}*.
+   However, RPC requests were also made for other networks: ${rpc.toString()}`
+    ).toEqual(true)
 
     // assert transaction successful
     await expect(this.page.getByText('Nice trade!')).toBeVisible({ timeout: 80000 }) // sometimes confirmation takes more time (around 1 min)

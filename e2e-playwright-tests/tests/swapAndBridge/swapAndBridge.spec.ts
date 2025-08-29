@@ -162,7 +162,7 @@ test.describe('swapAndBridge Smart Account', () => {
     })
 
     await test.step('sign transaction', async () => {
-      await pages.swapAndBridge.signTokens()
+      await pages.swapAndBridge.signTokens({ fromToken: usdc })
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
