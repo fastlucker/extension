@@ -211,7 +211,7 @@ const DashboardOverview: FC<Props> = ({
                           <Text
                             fontSize={20}
                             shouldScale={false}
-                            weight="number_regular"
+                            weight="number_bold"
                             color={
                               networksWithErrors.length || isOffline
                                 ? theme.warningDecorative2
