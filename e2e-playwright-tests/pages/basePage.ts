@@ -2,7 +2,7 @@ import selectors from 'constants/selectors'
 import BootstrapContext from 'interfaces/bootstrapContext'
 import Token from 'interfaces/token'
 
-import { BrowserContext, expect, Locator, Page } from '@playwright/test'
+import { BrowserContext, expect, Locator, Page, Request as PWRequest } from '@playwright/test'
 
 import { categorizeRequests } from '../utils/requests'
 
@@ -10,6 +10,10 @@ export class BasePage {
   page: Page
 
   context: BrowserContext
+
+  private _reqListener?: (r: PWRequest) => void
+
+  private _monitorInstalled = false
 
   collectedRequests: string[] = []
 
@@ -123,12 +127,16 @@ export class BasePage {
   }
 
   async monitorRequests() {
-    await this.context.route('**/*', async (route, request) => {
-      if (request.resourceType() === 'fetch' && request.method() !== 'OPTIONS') {
-        this.collectedRequests.push(request.url())
-      }
-      await route.fallback()
-    })
+    if (this._monitorInstalled) return
+    this._reqListener = (request: PWRequest) => {
+      const url = request.url()
+      if (!url.startsWith('http')) return
+      if (request.resourceType() !== 'fetch' || request.method() === 'OPTIONS') return
+
+      this.collectedRequests.push(url)
+    }
+    this.context.on('request', this._reqListener)
+    this._monitorInstalled = true
   }
 
   getCategorizedRequests() {
