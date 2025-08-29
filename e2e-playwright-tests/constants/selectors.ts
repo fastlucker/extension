@@ -18,6 +18,18 @@ const selectors = {
     fuelGasTankTransactionPill: '//div[contains(text(),"Fuel gas tank with")]', // TODO: chage once we have id on FE,
     grantApprovalText: '//div[contains(text(),"Grant approval")]' // TODO: change once we have id on FE
   },
+  settings: {
+    createNewRecoveryPhraseButton: 'create-new-recovery-phrase',
+    importAccountButton: 'import-account',
+    connectHardwareWallet: 'connect-hardware-wallet',
+    watchAnAddressButton: 'watch-an-address-button',
+    viewOnlyAddressField: 'view-only-address-field-0',
+    viewOnlyImportButton: 'view-only-button-import',
+    validENSDomainText: '//div[contains(text(),"Valid ENS domain")]',
+    addedSuccessfullyText: '//div[contains(text(),"Added successfully")]',
+    accessAccFromDashboardInfoText: '//div[contains(text(),"access your accounts")]',
+    addAccountButton: 'add-account-modal'
+  },
   account: 'account',
   importBtn: 'import-button',
   importPrivateBtn: 'button-import-private-key',
@@ -142,6 +154,7 @@ const selectors = {
   switchTokensTooltipSab: 'switch-tokens-condition-tooltip-sab',
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
+  sushiSwapRoute: 'div:has-text("SushiSwap Aggregator")',
   highPriceImpactSab: '//div[contains(text(), "Very high price impact")]', // TODO: change with ID when we add it
   highSlippageModal: '//div[contains(text(), "higher slippage")]', // TODO: change with ID when we add it
   settingsAddNetworkManually: 'add-network-manually',

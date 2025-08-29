@@ -175,7 +175,7 @@ test.describe('transfer', () => {
     })
 
     await test.step('go to dashboard', async () => {
-      await pages.transfer.navigateToDashboard()
+      await pages.dashboard.navigateToDashboard()
     })
 
     await test.step('start send transfer', async () => {
