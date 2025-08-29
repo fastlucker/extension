@@ -239,7 +239,7 @@ const useSelectKeyboardControl = ({
         highlightedItemOnMouseMoveEnabled.current = true
     }
 
-    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mousemove', handleMouseMove, { passive: true })
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)

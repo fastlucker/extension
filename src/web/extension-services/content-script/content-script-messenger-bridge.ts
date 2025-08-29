@@ -38,5 +38,5 @@ const registerUserActivity = () => {
     })
   }
 }
-document.addEventListener('mousemove', registerUserActivity)
-document.addEventListener('keydown', registerUserActivity)
+document.addEventListener('mousemove', registerUserActivity, { passive: true })
+document.addEventListener('keydown', registerUserActivity, { passive: true })
