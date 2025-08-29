@@ -27,6 +27,9 @@ type Props = {
   account: Account | null
 }
 
+// font families are different, with different "normal" line-heights, normalize them to vertically center better
+const GAS_TANK_BUTTON_LINE_HEIGHT = 14
+
 const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   const { t } = useTranslation()
   const buttonRef = useRef(null)
@@ -121,7 +124,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           <>
             <Text
               testID="dashboard-gas-tank-balance"
-              style={[spacings.mlMi]}
+              style={[spacings.mlMi, { lineHeight: GAS_TANK_BUTTON_LINE_HEIGHT }]}
               color={
                 themeType === THEME_TYPES.DARK
                   ? theme.primaryBackgroundInverted
@@ -135,7 +138,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
               }`}
             </Text>
             <Text
-              style={[spacings.mlMi, { opacity: 0.57 }]}
+              style={[spacings.mlMi, { opacity: 0.57, lineHeight: GAS_TANK_BUTTON_LINE_HEIGHT }]}
               fontSize={12}
               color={
                 themeType === THEME_TYPES.DARK
