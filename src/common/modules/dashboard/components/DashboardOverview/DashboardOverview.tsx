@@ -171,7 +171,7 @@ const DashboardOverview: FC<Props> = ({
                   {!portfolio?.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
-                      width={200}
+                      width={180}
                       height={BALANCE_HEIGHT}
                       borderRadius={8}
                     />
