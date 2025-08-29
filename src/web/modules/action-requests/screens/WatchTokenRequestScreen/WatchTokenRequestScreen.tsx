@@ -72,6 +72,8 @@ const WatchTokenRequestScreen = () => {
 
   const tokenData = userRequest?.action?.params?.options
   // Check if address is present and accurate
+  // walletWatchAsset requires address, if not present
+  // an error should be thrown
   const isTokenAddressAccurate = !!tokenData?.address && isAddress(tokenData.address)
   const origin = userRequest?.session?.origin
   const network =
