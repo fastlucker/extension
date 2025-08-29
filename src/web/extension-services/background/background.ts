@@ -146,6 +146,7 @@ function captureBackgroundExceptionFromControllerError(error: ErrorRef, controll
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 let walletStateCtrl: WalletStateController
+let autoLockCtrl: AutoLockController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
@@ -178,6 +179,7 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
       },
       mainCtrl,
       walletStateCtrl,
+      autoLockCtrl,
       id
     )
     return { id, result: res }
@@ -374,7 +376,7 @@ handleKeepBridgeContentScriptAcrossSessions()
   })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, walletStateCtrl)
-  const autoLockCtrl = new AutoLockController(() => {
+  autoLockCtrl = new AutoLockController(() => {
     // Prevents sending multiple notifications if the event is triggered multiple times
     if (mainCtrl.keystore.isUnlocked) {
       notificationManager
@@ -478,6 +480,7 @@ handleKeepBridgeContentScriptAcrossSessions()
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
+                  autoLockCtrl.setLastActiveTime()
                   await mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
                     mainCtrl.selectedAccount.account?.addr
                   ])

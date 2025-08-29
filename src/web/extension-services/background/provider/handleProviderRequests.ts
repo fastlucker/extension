@@ -4,6 +4,7 @@ import { Session } from '@ambire-common/classes/session'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { isDev } from '@common/config/env'
+import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import rpcFlow from '@web/extension-services/background/provider/rpcFlow'
@@ -13,12 +14,18 @@ const handleProviderRequests = async (
   request: DappProviderRequest & { session: Session },
   mainCtrl: MainController,
   walletStateCtrl: WalletStateController,
+  autoLockCtrl: AutoLockController,
   requestId: number
 ): Promise<any> => {
   const { method, params, session } = request
 
   if (requestId === 0) {
     mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
+  }
+
+  if (method === 'registerUserActivity' && mainCtrl.dapps.hasPermission(session.id)) {
+    autoLockCtrl.setLastActiveTime()
+    return
   }
 
   if (method === 'contentScriptReady') {
