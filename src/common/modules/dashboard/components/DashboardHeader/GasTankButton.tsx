@@ -84,7 +84,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   }, [onPosition])
 
   if (!portfolio.isAllReady) {
-    return <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
+    return <SkeletonLoader lowOpacity width={160} height={28} borderRadius={8} />
   }
 
   return (
@@ -96,6 +96,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           ...flexbox.directionRow,
           ...flexbox.center,
           ...spacings.phTy,
+          ...spacings.pvMi,
           ...common.borderRadiusPrimary,
           ...removeTankBtnStyle,
           ...(!totalBalanceGasTankDetails.balanceFormatted && {
@@ -109,6 +110,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
       >
         <GasTankIcon
           width={20}
+          height={20}
           color={
             themeType === THEME_TYPES.DARK
               ? theme.primaryBackgroundInverted
@@ -119,13 +121,13 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           <>
             <Text
               testID="dashboard-gas-tank-balance"
-              style={[spacings.mlTy]}
+              style={[spacings.mlMi]}
               color={
                 themeType === THEME_TYPES.DARK
                   ? theme.primaryBackgroundInverted
                   : theme.primaryBackground
               }
-              weight="number_bold"
+              weight="number_medium"
               fontSize={12}
             >
               {`${totalBalanceGasTankDetails.balanceFormatted} ${
@@ -133,7 +135,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
               }`}
             </Text>
             <Text
-              style={[spacings.mlTy, { opacity: 0.57 }]}
+              style={[spacings.mlMi, { opacity: 0.57 }]}
               fontSize={12}
               color={
                 themeType === THEME_TYPES.DARK
