@@ -12,7 +12,7 @@ import Routes from '@common/modules/dashboard/components/Routes'
 import useBalanceAffectingErrors from '@common/modules/dashboard/hooks/useBalanceAffectingErrors'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
-import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_SM, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -128,7 +128,7 @@ const DashboardOverview: FC<Props> = ({
             {
               paddingBottom: animatedOverviewHeight.interpolate({
                 inputRange: [0, OVERVIEW_CONTENT_MAX_HEIGHT],
-                outputRange: [SPACING_TY, SPACING],
+                outputRange: [SPACING_TY, SPACING_SM],
                 extrapolate: 'clamp'
               }),
               backgroundColor:
@@ -165,7 +165,9 @@ const DashboardOverview: FC<Props> = ({
               }}
             >
               <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+                <View
+                  style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy, spacings.mtMi]}
+                >
                   {!portfolio?.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
