@@ -20,6 +20,14 @@ export class SettingsPage extends BasePage {
     await this.checkUrl('/settings/networks')
   }
 
+  async openAccountsPage() {
+    await this.openSettingsGeneral()
+
+    // go to Add account page and assert url
+    await this.page.locator('//div[contains(text(),"Accounts")]').first().click()
+    await this.checkUrl('/settings/accounts')
+  }
+
   async lockKeystore(): Promise<void> {
     await this.openSettingsGeneral()
 

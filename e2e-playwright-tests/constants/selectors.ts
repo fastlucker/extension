@@ -27,7 +27,8 @@ const selectors = {
     viewOnlyImportButton: 'view-only-button-import',
     validENSDomainText: '//div[contains(text(),"Valid ENS domain")]',
     addedSuccessfullyText: '//div[contains(text(),"Added successfully")]',
-    accessAccFromDashboardInfoText: '//div[contains(text(),"access your accounts")]'
+    accessAccFromDashboardInfoText: '//div[contains(text(),"access your accounts")]',
+    addAccountButton: 'add-account-modal'
   },
   account: 'account',
   importBtn: 'import-button',

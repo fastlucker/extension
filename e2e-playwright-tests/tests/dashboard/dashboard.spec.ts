@@ -23,7 +23,7 @@ test.describe('dashboard', () => {
     await pages.dashboard.checkCollectibleItem()
   })
 
-  test('import whale account via ENS', async ({ pages }) => {
+  test('import whale account via ENS from Dashboard', async ({ pages }) => {
     await test.step('open add account modal from dashboard', async () => {
       await pages.basePage.click(selectors.accountSelectBtn)
       await pages.basePage.click(selectors.buttonAddAccount)
