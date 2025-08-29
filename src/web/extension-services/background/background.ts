@@ -19,12 +19,7 @@ import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigne
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import wait from '@ambire-common/utils/wait'
 import CONFIG, { isDev, isProd } from '@common/config/env'
-import {
-  BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
-  LI_FI_API_KEY,
-  RELAYER_URL,
-  VELCRO_URL
-} from '@env'
+import { BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY, RELAYER_URL, VELCRO_URL } from '@env'
 import * as Sentry from '@sentry/browser'
 import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
@@ -303,7 +298,6 @@ handleKeepBridgeContentScriptAcrossSessions()
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    swapApiKey: LI_FI_API_KEY,
     featureFlags: {},
     keystoreSigners: {
       internal: KeystoreSigner,
