@@ -55,7 +55,6 @@
     "yarn": ">=1.22.0 <2.0.0"
   },
   "dependencies": {
-    "@ambire/signature-validator": "^1.0.3",
     "@babel/plugin-proposal-decorators": "~7.22.7",
     "@babel/plugin-proposal-private-methods": "~7.18.6",
     "@babel/plugin-transform-typescript": "^7.23.3",
@@ -169,7 +168,6 @@
     "lru-cache": "6.0.0",
     "mini-css-extract-plugin": "^2.7.6",
     "nanoid": "4.0.0",
-    "p-queue": "^7.3.4",
     "path-browserify": "0.0.0",
     "process": "^0.11.0",
     "purify-ts": "2.1.0",
@@ -294,7 +292,8 @@
     "@types/react": "18.3.12",
     "expo-modules-autolinking": "~0.10.1",
     "@babel/core": "^7.20.2",
-    "babel-loader": "8.3.0"
+    "babel-loader": "8.3.0",
+    "elliptic": "^6.6.1"
   },
   "private": true
 }

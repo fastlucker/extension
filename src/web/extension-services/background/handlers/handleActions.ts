@@ -350,7 +350,7 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM':
       return mainCtrl.swapAndBridge.resetForm()
     case 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED':
-      return mainCtrl.swapAndBridge.markSelectedRouteAsFailed()
+      return mainCtrl.swapAndBridge.markSelectedRouteAsFailed(params.disabledReason)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
       return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':

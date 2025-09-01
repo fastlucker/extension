@@ -57,7 +57,8 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       testID: 'dashboard-button-quests',
       icon: BadgeIcon,
       label: t('Rewards'),
-      route: 'https://rewards.ambire.com',
+      route:
+        'https://rewards.ambire.com/?utm_source=extension&utm_medium=button&utm_campaign=measure-button',
       isExternal: true,
       scale: 0.95,
       scaleOnHover: 1.2,

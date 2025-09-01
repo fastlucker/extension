@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -26,6 +26,9 @@ type Props = {
   portfolio: SelectedAccountPortfolio
   account: Account | null
 }
+
+// font families are different, with different "normal" line-heights, normalize them to vertically center better
+const GAS_TANK_BUTTON_LINE_HEIGHT = 14
 
 const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   const { t } = useTranslation()
@@ -83,32 +86,45 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
     }
   }, [onPosition])
 
+  // Purposely don't disable the button (but block the onPress action) in
+  // case of a tooltip, because it should be clickable to show the tooltip.
+  const doesHaveTooltip = buttonState === 'soon'
+  const disabled = !hasGasTank && !doesHaveTooltip
+  const handleOnPress = useCallback(() => {
+    if (doesHaveTooltip) return
+
+    return onPress()
+  }, [doesHaveTooltip, onPress])
+
   if (!portfolio.isAllReady) {
-    return <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
+    return <SkeletonLoader lowOpacity width={160} height={28} borderRadius={8} />
   }
 
   return (
     <View>
       <AnimatedPressable
         ref={buttonRef}
-        onPress={hasGasTank ? onPress : () => {}}
+        onPress={handleOnPress}
+        disabled={disabled}
         style={{
           ...flexbox.directionRow,
           ...flexbox.center,
           ...spacings.phTy,
+          ...spacings.pvMi,
           ...common.borderRadiusPrimary,
           ...removeTankBtnStyle,
           ...(!totalBalanceGasTankDetails.balanceFormatted && {
             borderWidth: 1,
             borderColor: theme.primaryLight
           }),
-          ...{ cursor: !hasGasTank ? 'default' : 'pointer' }
+          ...(doesHaveTooltip && { cursor: 'default' })
         }}
         {...bindGasTankBtnAim}
         testID="dashboard-gas-tank-button"
       >
         <GasTankIcon
           width={20}
+          height={20}
           color={
             themeType === THEME_TYPES.DARK
               ? theme.primaryBackgroundInverted
@@ -119,13 +135,13 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           <>
             <Text
               testID="dashboard-gas-tank-balance"
-              style={[spacings.mlTy]}
+              style={[spacings.mlMi, { lineHeight: GAS_TANK_BUTTON_LINE_HEIGHT }]}
               color={
                 themeType === THEME_TYPES.DARK
                   ? theme.primaryBackgroundInverted
                   : theme.primaryBackground
               }
-              weight="number_bold"
+              weight="number_medium"
               fontSize={12}
             >
               {`${totalBalanceGasTankDetails.balanceFormatted} ${
@@ -133,7 +149,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
               }`}
             </Text>
             <Text
-              style={[spacings.mlTy, { opacity: 0.57 }]}
+              style={[spacings.mlMi, { opacity: 0.57, lineHeight: GAS_TANK_BUTTON_LINE_HEIGHT }]}
               fontSize={12}
               color={
                 themeType === THEME_TYPES.DARK

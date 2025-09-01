@@ -50,6 +50,13 @@ declare module '@env' {
   export const BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY: string
 
   /**
+   * Whether the logs should be stored in an array and managed by the extension.
+   * This improves performance, but makes it harder to debug.
+   * When false, the logs are printed directly to the console.
+   */
+  export const BROWSER_EXTENSION_MEMORY_INTENSIVE_LOGS: string
+
+  /**
    * This value can be used to control the unique ID of an extension, when it is
    * loaded during development. In prod, the ID is generated in Chrome Web Store
    * and can't be changed (could be retrieved from Chrome Web Store).

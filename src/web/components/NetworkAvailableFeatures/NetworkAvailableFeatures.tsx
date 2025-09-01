@@ -130,7 +130,7 @@ const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRe
     }
 
     dispatch({ type: 'REQUESTS_CONTROLLER_ADD_USER_REQUEST', params: { userRequest } })
-  }, [addToast, dispatch, account, selectedNetwork])
+  }, [addToast, dispatch, account, selectedNetwork, windowId])
 
   const shouldRenderRetryButton = useMemo(
     () => !!features && !!features.find((f) => f.id === 'flagged') && withRetryButton,

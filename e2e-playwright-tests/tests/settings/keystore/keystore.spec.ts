@@ -1,6 +1,6 @@
 import { baParams, KEYSTORE_PASS } from 'constants/env'
 
-import { test } from '../../fixtures/pageObjects'
+import { test } from '../../../fixtures/pageObjects'
 
 test.describe('keystore', () => {
   test.beforeEach(async ({ pages }) => {

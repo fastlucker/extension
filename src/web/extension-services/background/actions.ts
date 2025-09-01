@@ -5,8 +5,8 @@ import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountO
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import {
   AccountOpAction,
-  Action as ActionFromActionsQueue,
   ActionExecutionType,
+  Action as ActionFromActionsQueue,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/interfaces/actions'
@@ -605,6 +605,7 @@ type SwapAndBridgeControllerRemoveActiveRouteAction = {
 }
 type SwapAndBridgeControllerMarkSelectedRouteAsFailed = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
+  params: { disabledReason: string }
 }
 type SwapAndBridgeControllerDestroySignAccountOp = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
