@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import walletCoin from './assets/wallet-coin.png'
@@ -22,6 +23,8 @@ function formatMarketCap(value: number): string {
 }
 
 const Home = () => {
+  const { character, isCharacterNotMinted } = useCharacterContext()
+
   const [isWidgetReady, setIsWidgetReady] = useState(false)
   // Use a callback ref for more reliable access to the custom element
   const [widgetEl, setWidgetEl] = useState<HTMLElement | null>(null)
@@ -103,7 +106,7 @@ const Home = () => {
       <div className={styles.overachieverWrapper}>
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
-      <RewardsBadge />
+      {!isCharacterNotMinted && <RewardsBadge />}
       <section className={`${styles.wrapper}`}>
         <div className={styles.walletInfo}>
           <div className={styles.chartWrapper}>
