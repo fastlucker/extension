@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -86,6 +86,16 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
     }
   }, [onPosition])
 
+  // Purposely don't disable the button (but block the onPress action) in
+  // case of a tooltip, because it should be clickable to show the tooltip.
+  const doesHaveTooltip = buttonState === 'soon'
+  const disabled = !hasGasTank && !doesHaveTooltip
+  const handleOnPress = useCallback(() => {
+    if (doesHaveTooltip) return
+
+    return onPress()
+  }, [doesHaveTooltip, onPress])
+
   if (!portfolio.isAllReady) {
     return <SkeletonLoader lowOpacity width={160} height={28} borderRadius={8} />
   }
@@ -94,8 +104,8 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
     <View>
       <AnimatedPressable
         ref={buttonRef}
-        onPress={onPress}
-        disabled={!hasGasTank}
+        onPress={handleOnPress}
+        disabled={disabled}
         style={{
           ...flexbox.directionRow,
           ...flexbox.center,
@@ -106,7 +116,8 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
           ...(!totalBalanceGasTankDetails.balanceFormatted && {
             borderWidth: 1,
             borderColor: theme.primaryLight
-          })
+          }),
+          ...(doesHaveTooltip && { cursor: 'default' })
         }}
         {...bindGasTankBtnAim}
         testID="dashboard-gas-tank-button"
