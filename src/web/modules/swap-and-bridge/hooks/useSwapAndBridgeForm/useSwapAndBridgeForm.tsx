@@ -263,8 +263,6 @@ const useSwapAndBridgeForm = () => {
     }
     if (!inputValueInUsd) return null
 
-    if (inputValueInUsd <= quote.selectedRoute.outputValueInUsd) return null
-
     if (!fromSelectedToken) return null
 
     try {
@@ -294,7 +292,10 @@ const useSwapAndBridgeForm = () => {
         quote.selectedRoute.toToken.decimals,
         Number(quote.selectedRoute.toToken.priceUSD)
       )
-      const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
+      const allowedSlippage =
+        Number(inputValueInUsd) < 400
+          ? 1.05
+          : Number((0.005 / Math.ceil(Number(inputValueInUsd) / 20000)).toPrecision(2)) * 100 + 0.01
       const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
       if (possibleSlippage > allowedSlippage) {
         return {

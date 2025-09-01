@@ -7,6 +7,7 @@ import AccountInfo from '@legends/components/AccountInfo'
 import Banner from '@legends/components/Banner'
 import Sidebar from '@legends/components/Sidebar'
 import useAccountContext from '@legends/hooks/useAccountContext'
+import useCharacterContext from '@legends/hooks/useCharacterContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import styles from './Page.module.scss'
@@ -27,6 +28,7 @@ const Page = ({
   const { pathname } = useLocation()
 
   const { connectedAccount, nonV2Account } = useAccountContext()
+  const { isCharacterNotMinted } = useCharacterContext()
 
   const openSidebar = () => setIsSidebarOpen(true)
   const closeSidebar = () => setIsSidebarOpen(false)
@@ -48,7 +50,7 @@ const Page = ({
                 pathname !== LEGENDS_ROUTES.home &&
                 pathname !== '/' && (
                   <div className={styles.account}>
-                    <AccountInfo />
+                    <AccountInfo removeAvatarAndLevel={isCharacterNotMinted} />
                   </div>
                 )}
             </div>

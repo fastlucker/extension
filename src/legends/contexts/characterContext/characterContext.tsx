@@ -35,6 +35,7 @@ type CharacterContextValue = {
   error: string | null
   levelUpData: LevelUpData
   setLevelUpData: React.Dispatch<React.SetStateAction<LevelUpData>>
+  isCharacterNotMinted: boolean
 }
 
 const CharacterContext = createContext<CharacterContextValue>({} as CharacterContextValue)
@@ -124,12 +125,6 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       )
       const characterJson = await characterResponse.json()
 
-      if (characterJson.characterType === 'unknown') {
-        setIsLoading(false)
-        setCharacter(null)
-        return
-      }
-
       const newCharacter = {
         ...characterJson,
         level: characterJson.level,
@@ -165,7 +160,8 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
       isLoading,
       error,
       levelUpData,
-      setLevelUpData
+      setLevelUpData,
+      isCharacterNotMinted: !!character && character.characterType === 'unknown'
     }),
     [character, getCharacter, isLoading, error, levelUpData]
   )
