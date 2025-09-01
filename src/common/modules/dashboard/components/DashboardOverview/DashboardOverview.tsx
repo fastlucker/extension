@@ -26,6 +26,8 @@ import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
 
+const THRESHOLD_AMOUNT_TO_HIDE_BALANCE_DECIMALS = 100000
+
 interface Props {
   openReceiveModal: () => void
   openGasTankModal: () => void
@@ -82,10 +84,8 @@ const DashboardOverview: FC<Props> = ({
     return Number(portfolio.balancePerNetwork[dashboardNetworkFilter.toString()]) || 0
   }, [portfolio, dashboardNetworkFilter, account])
 
-  const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
-    totalPortfolioAmount,
-    'value'
-  ).split('.')
+  const [totalPortfolioAmountIntegerFormattedPart, totalPortfolioAmountDecimalFormattedPart] =
+    formatDecimals(totalPortfolioAmount, 'value').split('.')
 
   const reloadAccount = useCallback(() => {
     dispatch({
@@ -198,9 +198,9 @@ const DashboardOverview: FC<Props> = ({
                           selectable
                           testID="total-portfolio-amount-integer"
                         >
-                          {totalPortfolioAmountInteger}
+                          {totalPortfolioAmountIntegerFormattedPart}
                         </Text>
-                        {totalPortfolioAmountInteger.length < 12 && (
+                        {totalPortfolioAmount < THRESHOLD_AMOUNT_TO_HIDE_BALANCE_DECIMALS && (
                           <Text
                             fontSize={20}
                             shouldScale={false}
@@ -215,7 +215,7 @@ const DashboardOverview: FC<Props> = ({
                             selectable
                           >
                             {t('.')}
-                            {totalPortfolioAmountDecimal}
+                            {totalPortfolioAmountDecimalFormattedPart}
                           </Text>
                         )}
                       </Text>
