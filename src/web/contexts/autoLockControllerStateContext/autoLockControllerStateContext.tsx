@@ -29,7 +29,7 @@ const AutoLockControllerStateProvider: React.FC<any> = ({ children }) => {
     onAction(e) {
       if (!e) return
 
-      if (['mousedown', 'mousemove'].includes(e.type) && state.autoLockTime > 0) {
+      if (['mousedown', 'mousemove'].includes(e.type) && (state?.autoLockTime || 0) > 0) {
         // reset lock timer on mouse click or mouse move (user is active)
         dispatch({ type: 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME' })
       }
