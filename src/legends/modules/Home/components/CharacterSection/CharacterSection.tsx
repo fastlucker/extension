@@ -12,6 +12,7 @@ import Stacked from '@legends/components/Stacked'
 import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { Networks } from '@legends/modules/legends/types'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants/routes'
@@ -23,13 +24,14 @@ const CharacterSection = () => {
   const { character, isCharacterNotMinted } = useCharacterContext()
 
   const navigate = useNavigate()
-
+  const { legends } = useLegendsContext()
   const { accountPortfolio } = usePortfolioControllerState()
   const { season1LeaderboardData } = useLeaderboardContext()
   const { isReady, amountFormatted } = accountPortfolio || {}
   const formatXp = (xp: number) => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
+  const initial7702Xp = legends.find((card) => card.id === 'eip7702')?.meta?.initial7702Xp || 0
 
   if (!character)
     return (
@@ -57,7 +59,7 @@ const CharacterSection = () => {
       <div className={styles.overachieverWrapper}>
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
-      <RewardsBadge />
+      {!isCharacterNotMinted && <RewardsBadge />}
       <section
         className={`${styles.wrapper}${
           isCharacterNotMinted ? ` ${styles.unknownCharacterWrapper}` : ''
@@ -122,7 +124,7 @@ const CharacterSection = () => {
                   </div>
 
                   <div className={styles.xp}>
-                    {formatXp(season1LeaderboardData?.currentUser?.xp)} XP
+                    {formatXp((season1LeaderboardData?.currentUser?.xp || 0) + initial7702Xp)} XP
                   </div>
                 </div>
               </div>

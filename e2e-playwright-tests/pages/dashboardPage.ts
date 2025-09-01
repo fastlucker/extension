@@ -1,5 +1,6 @@
 import locators from 'constants/locators'
 import selectors from 'constants/selectors'
+import BootstrapContext from 'interfaces/bootstrapContext'
 
 import { expect } from '@playwright/test'
 
@@ -7,6 +8,17 @@ import Token from '../interfaces/token'
 import { BasePage } from './basePage'
 
 export class DashboardPage extends BasePage {
+  extensionURL: string
+
+  constructor(opts: BootstrapContext) {
+    super(opts)
+    this.extensionURL = opts.extensionURL
+  }
+
+  async navigateToDashboard() {
+    await this.navigateToURL(`${this.extensionURL}/tab.html#/`)
+  }
+
   // TODO: should be refactored
   async checkBalanceInAccount(): Promise<void> {
     await this.page.waitForSelector(locators.fullAmountDashboard)
