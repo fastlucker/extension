@@ -2,21 +2,35 @@
 // Content Script from bridging the messaging process between ambire-inpage/ethereum-inpage and the service_worker/background script
 //
 import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
+import { tabMessenger } from '../messengers/internal/tab'
 
 setupBridgeMessengerRelay()
 
 let lastMoveTime = 0
-const MOVE_INTERVAL = 1000
+const MOUSE_MOVE_THROTTLE = 1000
+let lastRestartLockTime = 0
+const RESTART_LOCK_THROTTLE = 5000
 
 // when the background is inactive this mechanism will reactivate it
-const reactivateBackground = () => {
+const registerUserActivity = () => {
   const now = Date.now()
 
-  if (now - lastMoveTime > MOVE_INTERVAL) {
+  if (now - lastMoveTime > MOUSE_MOVE_THROTTLE) {
     lastMoveTime = now
     if (!chrome?.runtime?.id) {
-      document.removeEventListener('mousemove', reactivateBackground)
+      document.removeEventListener('mousemove', registerUserActivity)
+      document.removeEventListener('keydown', registerUserActivity)
       return
+    }
+
+    if (now - lastRestartLockTime > RESTART_LOCK_THROTTLE) {
+      lastRestartLockTime = now
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        tabMessenger.send('ambireProviderRequest', { method: 'registerUserActivity' })
+      } catch (error) {
+        console.error('Failed to send registerUserActivity to the service worker')
+      }
     }
 
     chrome.runtime.sendMessage('mouseMoved').catch(() => {
@@ -24,4 +38,5 @@ const reactivateBackground = () => {
     })
   }
 }
-document.addEventListener('mousemove', reactivateBackground)
+document.addEventListener('mousemove', registerUserActivity, { passive: true })
+document.addEventListener('keydown', registerUserActivity, { passive: true })
