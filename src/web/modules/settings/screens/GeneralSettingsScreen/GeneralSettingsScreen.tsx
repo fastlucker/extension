@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { View } from 'react-native'
 
 import { CRASH_ANALYTICS_ENABLED_DEFAULT } from '@common/config/analytics/CrashAnalytics.web'
+import { isDev } from '@common/config/env'
 // import { isProd } from '@common/config/env'
 import spacings from '@common/styles/spacings'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
@@ -32,7 +33,7 @@ const GeneralSettingsScreen = () => {
       <SettingsPageHeader title="Support tools" />
       <LogLevelControlOption />
       {/* As of v5.21.2, display this only when crash analytics are disabled by default. */}
-      {!CRASH_ANALYTICS_ENABLED_DEFAULT && <CrashAnalyticsControlOption />}
+      {!isDev && !CRASH_ANALYTICS_ENABLED_DEFAULT && <CrashAnalyticsControlOption />}
     </>
   )
 }
