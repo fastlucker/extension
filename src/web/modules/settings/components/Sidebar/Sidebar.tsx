@@ -83,14 +83,15 @@ export const SETTINGS_LINKS = [
     label: 'Password recovery',
     path: ROUTES.devicePasswordRecovery
   },
-  {
-    key: 'email-vault',
-    Icon: React.memo(({ color }: SvgProps) => (
-      <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
-    )),
-    label: 'Email Vault',
-    path: '/settings/email-vault'
-  },
+  // Commented out for now, as the feature is not ready yet.
+  // {
+  //   key: 'email-vault',
+  //   Icon: React.memo(({ color }: SvgProps) => (
+  //     <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
+  //   )),
+  //   label: 'Email Vault',
+  //   path: '/settings/email-vault'
+  // },
   {
     key: 'manage-tokens',
     Icon: React.memo(CustomTokensIcon),
