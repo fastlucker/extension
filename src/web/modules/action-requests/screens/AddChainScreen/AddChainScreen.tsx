@@ -138,7 +138,8 @@ const AddChainScreen = () => {
   const networkAlreadyAddedRpcUrl = useMemo(
     () =>
       networkDetails?.selectedRpcUrl &&
-      networkDetails.selectedRpcUrl !== networkAlreadyAdded?.selectedRpcUrl,
+      networkDetails.selectedRpcUrl !== networkAlreadyAdded?.selectedRpcUrl &&
+      networkDetails.rpcUrls.length === 1,
     [networkAlreadyAdded?.selectedRpcUrl, networkDetails]
   )
 
@@ -203,7 +204,8 @@ const AddChainScreen = () => {
   }, [dappAction, dispatch])
 
   const handleUpdateNetwork = useCallback(() => {
-    if (!networkDetails) return
+    if (!networkDetails || !dappAction) return
+
     actionButtonPressedRef.current = true
 
     const matchedNetwork = networks.find((n) => n.chainId === networkDetails.chainId)
@@ -223,7 +225,12 @@ const AddChainScreen = () => {
         chainId: networkDetails.chainId
       }
     })
-  }, [dispatch, networkDetails, networks])
+
+    dispatch({
+      type: 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST',
+      params: { data: null, id: dappAction.id }
+    })
+  }, [dappAction, dispatch, networkDetails, networks])
 
   const handlePrimaryButtonPress = useCallback(() => {
     if (!networkDetails) return
