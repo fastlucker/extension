@@ -63,7 +63,7 @@ const LeaderboardContainer: React.FC = () => {
     const pageElement = pageRef.current
     if (pageElement) {
       // Attach the scroll event listener
-      pageElement.addEventListener('scroll', handleScroll)
+      pageElement.addEventListener('scroll', handleScroll, { passive: true })
 
       // Trigger the handleScroll function immediately after component mount
       handleScroll()

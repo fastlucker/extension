@@ -1,6 +1,6 @@
 import { saParams } from 'constants/env'
 
-import { test } from '../../fixtures/pageObjects'
+import { test } from '../../../fixtures/pageObjects'
 
 test.describe('network management', () => {
   test.beforeEach(async ({ pages }) => {
