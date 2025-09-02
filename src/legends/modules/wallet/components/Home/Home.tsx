@@ -71,6 +71,15 @@ const Home = () => {
           .gecko-coin-details {
             padding: 0 !important;
           }
+
+          .highcharts-color-negative {
+            fill: var(--color-success-400);
+            stroke: var(--color-success-400) !important;
+          }
+
+          .highcharts-area-series.highcharts-color-negative, .highcharts-area.zone-negative {
+            fill: url(#gecko-chart-positive-gradient);
+          }
         `
         target.shadowRoot.appendChild(style)
         return true
