@@ -131,7 +131,8 @@ const CharacterContextProvider: React.FC<any> = ({ children }) => {
         address: connectedAccount
       } as Character
 
-      saveLastKnownLevel(newCharacter.address, newCharacter.level)
+      characterJson.characterType !== 'unknown' &&
+        saveLastKnownLevel(newCharacter.address, newCharacter.level)
       handleLevelUpIfNeeded(newCharacter, character)
 
       setCharacter(newCharacter)
