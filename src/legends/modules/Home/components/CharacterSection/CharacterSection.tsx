@@ -52,7 +52,7 @@ const CharacterSection = () => {
   const startXpForCurrentLevel = Math.ceil((currentLevel * 4.5) ** 2)
 
   // Helper: get XP for not minted state (if needed)
-  const characterXp = character?.xp ?? 0
+  const characterXp = (character?.xp ?? 0) + initial7702Xp
 
   return (
     <>
@@ -123,9 +123,7 @@ const CharacterSection = () => {
                     />
                   </div>
 
-                  <div className={styles.xp}>
-                    {formatXp((season1LeaderboardData?.currentUser?.xp || 0) + initial7702Xp)} XP
-                  </div>
+                  <div className={styles.xp}>{formatXp(characterXp)} XP</div>
                 </div>
               </div>
 
