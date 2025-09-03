@@ -72,9 +72,9 @@ const CharacterSelect = () => {
       .catch((e) => console.log('Failed to get info about NFT balance', e))
   }, [connectedAccount])
 
-  // if (!!v1Account || !connectedAccount) {
-  //   return <Navigate to="/" />
-  // }
+  if (!!v1Account || !connectedAccount) {
+    return <Navigate to="/" />
+  }
 
   return (
     <div className={styles.wrapper}>
