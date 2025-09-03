@@ -83,7 +83,7 @@ const SettingsModal: React.FC<Props> = ({ handleToggleSettingsMenu, settingModal
         handleToggleSettingsMenu()
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', handleClickOutside, { passive: true })
     return () => {
       if (!isWeb) return
       document.removeEventListener('mousedown', handleClickOutside)

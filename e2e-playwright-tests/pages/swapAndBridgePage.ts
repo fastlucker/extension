@@ -308,13 +308,13 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async assertSelectedAggregator(): Promise<void> {
-    await expect(this.page.getByText('LI.FI DEX Aggregator').last()).toBeVisible()
+    await expect(this.page.getByText('SushiSwap').last()).toBeVisible()
     await expect(this.page.getByText('Selected').last()).toBeVisible()
   }
 
   async clickOnSecondRoute(): Promise<void> {
     await this.click(selectors.selectRouteButton)
-    await this.page.locator(locators.liFiRoute).last().click() // missing ID
+    await this.page.locator(selectors.sushiSwapRoute).last().click() // missing ID
     await this.click(selectors.selectRouteButton)
     await this.assertSelectedAggregator()
   }
@@ -357,7 +357,7 @@ export class SwapAndBridgePage extends BasePage {
     }
   }
 
-  async signTokens(): Promise<void> {
+  async signTokens({ fromToken }: { fromToken: Token }): Promise<void> {
     await this.click(selectors.topUpProceedButton)
 
     // approve the high impact modal
@@ -376,11 +376,28 @@ export class SwapAndBridgePage extends BasePage {
       await this.page.locator(selectors.continueAnywayButton).click()
     }
 
+    await this.monitorRequests()
+
+    // Sometimes the button needs a bit to become enabled
+    await this.page.waitForTimeout(1000)
+
     await this.click(selectors.signButton)
     await expect(this.page.getByText('Confirming your trade')).toBeVisible({ timeout: 10000 })
 
+    const { rpc } = this.getCategorizedRequests()
+
+    // Verify that portfolio updates run only for the from token network.
+    // A previous regression was triggering updates on all enabled networks after a broadcast,
+    // which caused a significant performance downgrade.
+    expect(
+      rpc.every((req) => req === `https://invictus.ambire.com/${fromToken.chainName}`),
+      `Invalid portfolio update behavior detected.
+   After a broadcast, the portfolio must be refreshed only for *${fromToken.chainName}*.
+   However, RPC requests were also made for other networks: ${rpc.toString()}`
+    ).toEqual(true)
+
     // assert transaction successful
-    await expect(this.page.getByText('Nice trade!')).toBeVisible({ timeout: 60000 }) // sometimes confirmation takes more time (around 1 min)
+    await expect(this.page.getByText('Nice trade!')).toBeVisible({ timeout: 80000 }) // sometimes confirmation takes more time (around 1 min)
     await this.click(selectors.closeProgressModalButton)
   }
 
@@ -401,23 +418,19 @@ export class SwapAndBridgePage extends BasePage {
 
   async signBatchTransactionsPage(page): Promise<void> {
     const signButton = page.locator(SELECTORS.signTransactionButton)
-
-    try {
-      await expect(signButton).toBeVisible({ timeout: 5000 })
-      await expect(signButton).toBeEnabled()
-      await this.verifyBatchTransactionDetails(page)
-      await clickOnElement(page, selectors.signTransactionButton)
-      await page.waitForTimeout(1500)
-    } catch (error) {
-      console.warn("⚠️ The 'Sign' button is not clickable, but it should be.")
-    }
+    await expect(signButton).toBeVisible({ timeout: 5000 })
+    await expect(signButton).toBeEnabled()
+    await this.verifyBatchTransactionDetails(page)
+    await page.waitForTimeout(1500)
   }
 
   async verifyBatchTransactionDetails(page): Promise<void> {
-    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
+    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.1/)
+    // await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
     await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI\.FI/)
-    await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.002/)
+    await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.1/)
     await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
+    await page.getByTestId(selectors.signTransactionButton).click()
   }
 
   async getCurrentBalance() {

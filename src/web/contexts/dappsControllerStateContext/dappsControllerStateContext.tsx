@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Dapp, IDappsController } from '@ambire-common/interfaces/dapp'
 import { getDappIdFromUrl } from '@ambire-common/libs/dapps/helpers'
@@ -20,8 +20,8 @@ const DappsControllerStateContext = createContext<{
 const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
   const [currentDapp, setCurrentDapp] = useState<Dapp | null>(null)
   const { dispatch } = useBackgroundService()
-  const controller = 'dapps'
-  const state = useControllerState(controller, async (newState: IDappsController) => {
+
+  const dappsControllerStateCallback = useCallback(async (newState: IDappsController) => {
     const tab = await getCurrentTab()
     if (!tab || !tab.id || !tab.url) return
 
@@ -49,7 +49,10 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
         favorite: false
       })
     }
-  })
+  }, [])
+
+  const controller = 'dapps'
+  const state = useControllerState(controller, dappsControllerStateCallback)
   useEffect(() => {
     dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: 'dapps' } })
   }, [dispatch])

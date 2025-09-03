@@ -83,7 +83,6 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
 
     // collect errors if any
     const errors: string[] = []
-
     await test.step('Check balance of Gas tank', async () => {
       const gasTankBalance = await pages.dashboard.getCurrentBalance()
 
