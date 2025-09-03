@@ -9,7 +9,6 @@ import { getFeatures } from '@ambire-common/libs/networks/networks'
 import ArrowRightIcon from '@common/assets/svg/ArrowRightIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
-import Badge from '@common/components/Badge'
 import Banner from '@common/components/Banner'
 import NetworkIcon from '@common/components/NetworkIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -18,7 +17,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
@@ -34,74 +33,8 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
 
+import RpcCard from './RpcCard'
 import getStyles from './styles'
-
-const RpcCard = ({
-  title,
-  url,
-  isNew,
-  children
-}: {
-  title: string
-  url: string
-  isNew?: boolean
-  children: React.ReactNode
-}) => {
-  const { theme } = useTheme()
-  const { t } = useTranslation()
-  return (
-    <View
-      style={[
-        flexbox.flex1,
-        common.borderRadiusPrimary,
-        common.shadowTertiary,
-        { maxWidth: 292, maxHeight: 308 }
-      ]}
-    >
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.justifySpaceBetween,
-          spacings.ph,
-          spacings.pv,
-          {
-            borderTopLeftRadius: BORDER_RADIUS_PRIMARY,
-            borderTopRightRadius: BORDER_RADIUS_PRIMARY,
-            backgroundColor: theme.primaryBackground
-          }
-        ]}
-      >
-        <View>
-          <Text fontSize={14} appearance="tertiaryText" weight="medium">
-            {title}
-          </Text>
-          <Text
-            fontSize={14}
-            weight="medium"
-            appearance={isNew ? 'successText' : 'primaryText'}
-            style={[spacings.mtTy]}
-          >
-            {url}
-          </Text>
-        </View>
-        {isNew && <Badge text={t('new')} type="success" />}
-      </View>
-      <View
-        style={[
-          spacings.ph,
-          spacings.pv,
-          {
-            backgroundColor: isNew ? '#f0f9ff' : theme.secondaryBackground,
-            borderBottomLeftRadius: BORDER_RADIUS_PRIMARY,
-            borderBottomRightRadius: BORDER_RADIUS_PRIMARY
-          }
-        ]}
-      >
-        {children}
-      </View>
-    </View>
-  )
-}
 
 /**
  * This screen is used to add a new network to the wallet. If the network is already in the wallet
@@ -424,25 +357,25 @@ const AddChainScreen = () => {
                 {t('This site is requesting to update your default RPC')}
               </Text>
               <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
+                style={[
+                  flexbox.directionRow,
+                  flexbox.flex1,
+                  flexbox.justifySpaceBetween,
+                  flexbox.alignCenter
+                ]}
               >
-                <RpcCard title="Old RPC URL" url="https://some-url.com">
+                <RpcCard title="Old RPC URL" url={networkAlreadyAdded.selectedRpcUrl}>
                   <NetworkAvailableFeatures
                     hideBackgroundAndBorders
                     titleSize={14}
-                    features={features}
-                    chainId={networkDetails.chainId}
+                    features={networkAlreadyAdded.features}
+                    chainId={networkAlreadyAdded.chainId}
                     withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
                     handleRetry={handleRetryWithDifferentRpcUrl}
                   />
                 </RpcCard>
                 <ArrowRightIcon />
-                <RpcCard title="New RPC URL" url="https://some-url.com" isNew>
+                <RpcCard title="New RPC URL" url={networkDetails.selectedRpcUrl} isNew>
                   <NetworkAvailableFeatures
                     hideBackgroundAndBorders
                     titleSize={14}
@@ -453,7 +386,6 @@ const AddChainScreen = () => {
                   />
                 </RpcCard>
               </View>
-
               <Banner
                 title=""
                 text={t(
@@ -461,6 +393,7 @@ const AddChainScreen = () => {
                 )}
                 type="info2"
               />
+              <View style={spacings.mtMi} />
             </>
           ) : (
             <View
