@@ -85,7 +85,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
       setIsSearchVisible(false)
     }
 
-    window.addEventListener('mousedown', onClick)
+    window.addEventListener('mousedown', onClick, { passive: true })
 
     return () => {
       window.removeEventListener('mousedown', onClick)

@@ -118,6 +118,7 @@ export interface CardFromResponse {
     notMetLvlThreshold?: true
     hasAlreadyMigrated?: true
     hasPenalty?: boolean
+    initial7702Xp?: number
   }
   contentSteps?: string[]
   contentImageV2?: string
