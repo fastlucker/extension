@@ -1,4 +1,3 @@
-import LottieView from 'lottie-react'
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -7,8 +6,11 @@ import { View } from 'react-native'
 import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { isDappRequestAction } from '@ambire-common/libs/actions/actions'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
+import ArrowRightIcon from '@common/assets/svg/ArrowRightIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
+import Badge from '@common/components/Badge'
+import Banner from '@common/components/Banner'
 import NetworkIcon from '@common/components/NetworkIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import SuccessAnimation from '@common/components/SuccessAnimation'
@@ -16,7 +18,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
@@ -33,7 +35,73 @@ import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
 
 import getStyles from './styles'
-import animation from './update-animation.json'
+
+const RpcCard = ({
+  title,
+  url,
+  isNew,
+  children
+}: {
+  title: string
+  url: string
+  isNew?: boolean
+  children: React.ReactNode
+}) => {
+  const { theme } = useTheme()
+  const { t } = useTranslation()
+  return (
+    <View
+      style={[
+        flexbox.flex1,
+        common.borderRadiusPrimary,
+        common.shadowTertiary,
+        { maxWidth: 292, maxHeight: 308 }
+      ]}
+    >
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.justifySpaceBetween,
+          spacings.ph,
+          spacings.pv,
+          {
+            borderTopLeftRadius: BORDER_RADIUS_PRIMARY,
+            borderTopRightRadius: BORDER_RADIUS_PRIMARY,
+            backgroundColor: theme.primaryBackground
+          }
+        ]}
+      >
+        <View>
+          <Text fontSize={14} appearance="tertiaryText" weight="medium">
+            {title}
+          </Text>
+          <Text
+            fontSize={14}
+            weight="medium"
+            appearance={isNew ? 'successText' : 'primaryText'}
+            style={[spacings.mtTy]}
+          >
+            {url}
+          </Text>
+        </View>
+        {isNew && <Badge text={t('new')} type="success" />}
+      </View>
+      <View
+        style={[
+          spacings.ph,
+          spacings.pv,
+          {
+            backgroundColor: isNew ? '#f0f9ff' : theme.secondaryBackground,
+            borderBottomLeftRadius: BORDER_RADIUS_PRIMARY,
+            borderBottomRightRadius: BORDER_RADIUS_PRIMARY
+          }
+        ]}
+      >
+        {children}
+      </View>
+    </View>
+  )
+}
 
 /**
  * This screen is used to add a new network to the wallet. If the network is already in the wallet
@@ -323,35 +391,85 @@ const AddChainScreen = () => {
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg} withScroll={false}>
         {networkAlreadyAdded ? (
-          <View
-            style={[
-              flexbox.flex1,
-              flexbox.alignCenter,
-              ...(!networkAlreadyAddedRpcUrl ? [spacings.mt2Xl] : [])
-            ]}
-          >
-            {networkAlreadyAddedRpcUrl && networkDetails ? (
-              <>
-                <LottieView animationData={animation} loop />
-                <Text fontSize={20} weight="medium" style={spacings.mb}>
-                  {t(
-                    `Add ${
-                      networkDetails.selectedRpcUrl.replace(/(^\w+:|^)\/\//, '').split('/')[0]
-                    } to ${networkAlreadyAdded.name}`
-                  )}
-                </Text>
-                <Text fontSize={15} appearance="secondaryText">
-                  {t(
-                    `Do you want to add ${
-                      networkDetails.selectedRpcUrl.replace(/(^\w+:|^)\/\//, '').split('/')[0]
-                    }`
-                  )}
-                </Text>
-                <Text fontSize={15} appearance="secondaryText">
-                  {t(` as a default RPC for ${networkAlreadyAdded.name}?`)}
-                </Text>
-              </>
-            ) : (
+          networkAlreadyAddedRpcUrl && networkDetails ? (
+            <>
+              <Text weight="medium" fontSize={20} style={spacings.mbMd}>
+                {t('Update network')}
+              </Text>
+
+              <View style={styles.dappInfoContainer}>
+                <ManifestImage
+                  uri={requestSession?.icon}
+                  size={50}
+                  fallback={() => <ManifestFallbackIcon />}
+                  containerStyle={spacings.mrMd}
+                />
+
+                <Trans values={{ name: requestSession?.name || 'The App' }}>
+                  <Text>
+                    <Text fontSize={20} appearance="secondaryText">
+                      {t('Allow ')}
+                    </Text>
+                    <Text fontSize={20} weight="semiBold">
+                      {'{{name}} '}
+                    </Text>
+                    <Text fontSize={20} appearance="secondaryText">
+                      {t(`to update ${networkAlreadyAdded.name}`)}
+                    </Text>
+                  </Text>
+                </Trans>
+              </View>
+
+              <Text fontSize={14} weight="medium" appearance="secondaryText" style={spacings.mb}>
+                {t('This site is requesting to update your default RPC')}
+              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <RpcCard title="Old RPC URL" url="https://some-url.com">
+                  <NetworkAvailableFeatures
+                    hideBackgroundAndBorders
+                    titleSize={14}
+                    features={features}
+                    chainId={networkDetails.chainId}
+                    withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
+                    handleRetry={handleRetryWithDifferentRpcUrl}
+                  />
+                </RpcCard>
+                <ArrowRightIcon />
+                <RpcCard title="New RPC URL" url="https://some-url.com" isNew>
+                  <NetworkAvailableFeatures
+                    hideBackgroundAndBorders
+                    titleSize={14}
+                    features={features}
+                    chainId={networkDetails.chainId}
+                    withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
+                    handleRetry={handleRetryWithDifferentRpcUrl}
+                  />
+                </RpcCard>
+              </View>
+
+              <Banner
+                title=""
+                text={t(
+                  'Make sure you trust this site and provider. You can change the RPC URL anytime in the network settings.'
+                )}
+                type="info2"
+              />
+            </>
+          ) : (
+            <View
+              style={[
+                flexbox.flex1,
+                flexbox.alignCenter,
+                ...(!networkAlreadyAddedRpcUrl ? [spacings.mt2Xl] : [])
+              ]}
+            >
               <View
                 style={[
                   common.borderRadiusPrimary,
@@ -374,8 +492,8 @@ const AddChainScreen = () => {
                   </Text>
                 </SuccessAnimation>
               </View>
-            )}
-          </View>
+            </View>
+          )
         ) : (
           <>
             <Text weight="medium" fontSize={20} style={spacings.mbMd}>
