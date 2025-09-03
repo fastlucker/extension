@@ -157,7 +157,6 @@ const RoutesModal = ({
             steps={steps}
             inputValueInUsd={inputValueInUsd}
             outputValueInUsd={outputValueInUsd}
-            totalGasFeesInUsd={item.totalGasFeesInUsd}
             estimationInSeconds={item.serviceTime}
             isSelected={item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute}
             isDisabled={item.disabled}

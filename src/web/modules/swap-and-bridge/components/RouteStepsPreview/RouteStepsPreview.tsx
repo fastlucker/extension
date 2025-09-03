@@ -24,7 +24,6 @@ import styles from './styles'
 
 const RouteStepsPreview = ({
   steps,
-  totalGasFeesInUsd,
   inputValueInUsd,
   outputValueInUsd,
   estimationInSeconds,
@@ -36,7 +35,6 @@ const RouteStepsPreview = ({
   disabledReason = 'Route failed'
 }: {
   steps: SwapAndBridgeStep[]
-  totalGasFeesInUsd?: number
   inputValueInUsd?: number
   outputValueInUsd?: number
   estimationInSeconds?: number
@@ -212,7 +210,7 @@ const RouteStepsPreview = ({
           )
         })}
       </View>
-      {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
+      {!!estimationInSeconds && (
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
           {!!estimationInSeconds && !isDisabled && (
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
