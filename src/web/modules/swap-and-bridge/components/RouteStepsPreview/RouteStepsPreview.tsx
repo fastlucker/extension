@@ -153,7 +153,9 @@ const RouteStepsPreview = ({
                         </Text>
                       </>
                     }
-                    isLoading={loadingEnabled && step.userTxIndex === currentStep}
+                    isLoading={
+                      loadingEnabled && (step.userTxIndex === currentStep || isOnlyOneStep)
+                    }
                     badgePosition="top"
                   />
                 </View>

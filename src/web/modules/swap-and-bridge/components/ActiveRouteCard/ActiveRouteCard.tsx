@@ -127,7 +127,6 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
           routeStatus={activeRoute.routeStatus}
           inputValueInUsd={inputValueInUsd}
           outputValueInUsd={outputValueInUsd}
-          estimationInSeconds={steps ? steps[0].serviceTime : undefined}
         />
       </View>
 
