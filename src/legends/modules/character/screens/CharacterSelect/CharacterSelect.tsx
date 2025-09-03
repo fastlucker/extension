@@ -2,6 +2,7 @@ import { Contract, JsonRpcProvider } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import { LEGENDS_NFT_ADDRESS } from '@env'
 import Modal from '@legends/components/Modal'
 import Spinner from '@legends/components/Spinner'
@@ -71,9 +72,9 @@ const CharacterSelect = () => {
       .catch((e) => console.log('Failed to get info about NFT balance', e))
   }, [connectedAccount])
 
-  if (!!v1Account || !connectedAccount) {
-    return <Navigate to="/" />
-  }
+  // if (!!v1Account || !connectedAccount) {
+  //   return <Navigate to="/" />
+  // }
 
   return (
     <div className={styles.wrapper}>
@@ -82,6 +83,10 @@ const CharacterSelect = () => {
         style={{ backgroundImage: `url(${blurredLights})` }}
       />
       <div>
+        <button type="button" className={styles.backButton} onClick={() => navigate(-1)}>
+          <LeftArrowIcon width={14} height={14} color="currentColor" />
+          Back to Rewards
+        </button>
         <h1 className={styles.title}>Mint Your NFT</h1>
         <p className={styles.description}>Pick your profile avatar and mint a soulbound NFT</p>
       </div>
