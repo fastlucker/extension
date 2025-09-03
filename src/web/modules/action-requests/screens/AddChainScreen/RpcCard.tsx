@@ -28,7 +28,7 @@ const RpcCard = ({
         flexbox.flex1,
         common.borderRadiusPrimary,
         common.shadowTertiary,
-        { maxWidth: 292, eight: 308 }
+        { maxWidth: 292, height: 308 }
       ]}
     >
       <View
@@ -65,6 +65,7 @@ const RpcCard = ({
         style={[
           spacings.ph,
           spacings.pv,
+          flexbox.flex1,
           {
             backgroundColor: isNew ? '#f0f9ff' : theme.secondaryBackground,
             borderBottomLeftRadius: BORDER_RADIUS_PRIMARY,
