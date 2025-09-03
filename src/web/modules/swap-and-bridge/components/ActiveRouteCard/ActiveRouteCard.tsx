@@ -1,5 +1,4 @@
 import { formatUnits } from 'ethers'
-import { nanoid } from 'nanoid'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
@@ -19,7 +18,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
-import { getUiType } from '@web/utils/uiType'
 
 import MoreDetails from './MoreDetails'
 import getStyles from './styles'
@@ -128,6 +126,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
           routeStatus={activeRoute.routeStatus}
           inputValueInUsd={inputValueInUsd}
           outputValueInUsd={outputValueInUsd}
+          estimationInSeconds={steps ? steps[0].serviceTime : undefined}
         />
       </View>
 
