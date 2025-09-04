@@ -127,6 +127,9 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
           routeStatus={activeRoute.routeStatus}
           inputValueInUsd={inputValueInUsd}
           outputValueInUsd={outputValueInUsd}
+          providerId={
+            activeRoute.route ? activeRoute.route.providerId : activeRoute.serviceProviderId
+          }
         />
       </View>
 

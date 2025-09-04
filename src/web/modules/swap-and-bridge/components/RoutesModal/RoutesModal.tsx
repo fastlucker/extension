@@ -161,6 +161,7 @@ const RoutesModal = ({
             isSelected={item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute}
             isDisabled={item.disabled}
             disabledReason={item.disabledReason}
+            providerId={item.providerId}
           />
         </Pressable>
       )

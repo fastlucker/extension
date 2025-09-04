@@ -13,11 +13,12 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 
+import BungeeIcon from '@common/assets/svg/BungeeIcon/BungeeIcon'
+import LiFiIcon from '@common/assets/svg/LiFiIcon/LiFiIcon'
 import RouteStepsArrow from '../RouteStepsArrow'
 import RouteStepsToken from '../RouteStepsToken'
 import styles from './styles'
@@ -32,7 +33,8 @@ const RouteStepsPreview = ({
   isSelected,
   isDisabled,
   routeStatus,
-  disabledReason = 'Route failed'
+  disabledReason = 'Route failed',
+  providerId
 }: {
   steps: SwapAndBridgeStep[]
   inputValueInUsd?: number
@@ -44,6 +46,7 @@ const RouteStepsPreview = ({
   isDisabled?: boolean
   routeStatus?: SwapAndBridgeActiveRoute['routeStatus']
   disabledReason?: string
+  providerId: string
 }) => {
   const { theme, themeType } = useTheme()
   const { t } = useTranslation()
@@ -237,26 +240,13 @@ const RouteStepsPreview = ({
             </View>
           )}
 
-          {isSelected && !isDisabled && (
+          {!isDisabled && (
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text
-                fontSize={12}
-                weight="medium"
-                color={themeType === THEME_TYPES.DARK ? theme.successDecorative : theme.primary}
-                style={[
-                  spacings.phTy,
-                  {
-                    paddingVertical: 1,
-                    backgroundColor:
-                      themeType === THEME_TYPES.DARK
-                        ? `${String(theme.successDecorative)}20`
-                        : '#6000FF14',
-                    borderRadius: 12
-                  }
-                ]}
-              >
-                {t('Selected')}
-              </Text>
+              {providerId === 'socket' ? (
+                <BungeeIcon width={56.7} height={11.2} />
+              ) : (
+                <LiFiIcon width={39.75} height={14} />
+              )}
             </View>
           )}
 
