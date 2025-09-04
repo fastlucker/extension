@@ -272,6 +272,15 @@ const AddChainScreen = () => {
     return existingNetwork ? t('Enable network') : t('Add network')
   }, [existingNetwork, statuses.addNetwork, statuses.updateNetwork, t])
 
+  const view: 'add' | 'update' | 'alreadyAdded' = useMemo(() => {
+    if (networkAlreadyAdded) {
+      if (isRpcUpdateRequested) return 'update'
+      return 'alreadyAdded'
+    }
+
+    return 'add'
+  }, [isRpcUpdateRequested, networkAlreadyAdded])
+
   return (
     <TabLayoutContainer
       width="full"
