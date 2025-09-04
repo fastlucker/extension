@@ -28,7 +28,8 @@ import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportSc
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import LedgerConnectScreen from '@web/modules/hardware-wallet/screens/LedgerConnectScreen/LedgerConnectScreen'
-import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
+import KeyStoreEmailRecoveryScreen from '@web/modules/keystore/screens/KeyStoreEmailRecoveryScreen/KeyStoreEmailRecoveryScreen'
+import KeyStoreEmailRecoverySetNewPasswordScreen from '@web/modules/keystore/screens/KeyStoreEmailRecoverySetNewPasswordScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import NetworksScreen from '@web/modules/networks/screens'
 import AuthenticatedRoute from '@web/modules/router/components/AuthenticatedRoute'
@@ -75,7 +76,11 @@ const MainRoutes = () => {
 
       <Route element={<TabOnlyRoute />}>
         <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
-        <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
+        <Route path={WEB_ROUTES.keyStoreEmailRecovery} element={<KeyStoreEmailRecoveryScreen />} />
+        <Route
+          path={WEB_ROUTES.keyStoreEmailRecoverySetNewPassword}
+          element={<KeyStoreEmailRecoverySetNewPasswordScreen />}
+        />
 
         <Route element={<KeystoreUnlockedRoute />}>
           <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />

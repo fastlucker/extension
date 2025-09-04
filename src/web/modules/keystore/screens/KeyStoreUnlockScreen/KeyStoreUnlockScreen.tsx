@@ -232,7 +232,7 @@ const KeyStoreUnlockScreen = () => {
             <TouchableOpacity
               onPress={() =>
                 openInternalPageInTab({
-                  route: ROUTES.keyStoreReset,
+                  route: ROUTES.keyStoreEmailRecovery,
                   shouldCloseCurrentWindow: !getUiType().isTab,
                   windowId: actionWindow.windowProps?.createdFromWindowId
                 })
