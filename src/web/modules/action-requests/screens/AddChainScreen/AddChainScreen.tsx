@@ -1,40 +1,18 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { useTranslation } from 'react-i18next'
 
 import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { isDappRequestAction } from '@ambire-common/libs/actions/actions'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
-import ArrowRightIcon from '@common/assets/svg/ArrowRightIcon'
-import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
-import Alert from '@common/components/Alert'
-import Banner from '@common/components/Banner'
-import NetworkIcon from '@common/components/NetworkIcon'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import SuccessAnimation from '@common/components/SuccessAnimation'
-import Text from '@common/components/Text'
-import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
-import { THEME_TYPES } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
-import flexbox from '@common/styles/utils/flexbox'
-import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
-import ManifestImage from '@web/components/ManifestImage'
-import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
-import NetworkDetails from '@web/components/NetworkDetails'
-import {
-  TabLayoutContainer,
-  TabLayoutWrapperMainContent
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
 
-import RpcCard from './RpcCard'
-import getStyles from './styles'
+import AddChain from './AddChain'
+import AlreadyAddedChain from './AlreadyAddedChain'
+import UpdateChain from './UpdateChain'
 
 /**
  * This screen is used to add a new network to the wallet. If the network is already in the wallet
@@ -43,7 +21,6 @@ import getStyles from './styles'
  */
 const AddChainScreen = () => {
   const { t } = useTranslation()
-  const { styles, theme, themeType } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
@@ -281,277 +258,64 @@ const AddChainScreen = () => {
     return 'add'
   }, [isRpcUpdateRequested, networkAlreadyAdded])
 
-  return (
-    <TabLayoutContainer
-      width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          backgroundColor={
-            themeType === THEME_TYPES.DARK
-              ? (theme.tertiaryBackground as string)
-              : (theme.primaryBackground as string)
-          }
-        />
-      }
-      footer={
-        networkAlreadyAdded ? (
-          <ActionFooter
-            onReject={isRpcUpdateRequested ? handleDenyButtonPress : undefined}
-            onResolve={isRpcUpdateRequested ? handleUpdateNetwork : handleCloseOnAlreadyAdded}
-            resolveButtonText={isRpcUpdateRequested ? t('Update network') : t('Close')}
-            rejectButtonText={isRpcUpdateRequested ? t('Reject') : undefined}
-            resolveDisabled={
-              isRpcUpdateRequested
-                ? !areParamsValid ||
-                  statuses.addNetwork === 'LOADING' ||
-                  statuses.updateNetwork === 'LOADING' ||
-                  (features &&
-                    (features.some((f) => f.level === 'loading') ||
-                      !!features.find((f) => f.id === 'flagged'))) ||
-                  actionButtonPressedRef.current
-                : statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'
-            }
+  if (view === 'update') {
+    return (
+      <>
+        {networkDetails && networkAlreadyAdded && (
+          <UpdateChain
+            handleDenyButtonPress={handleDenyButtonPress}
+            handleUpdateNetwork={handleUpdateNetwork}
+            handleRetryWithDifferentRpcUrl={handleRetryWithDifferentRpcUrl}
+            areParamsValid={areParamsValid}
+            statuses={statuses}
+            features={features}
+            networkDetails={networkDetails}
+            networkAlreadyAdded={networkAlreadyAdded}
+            requestSession={requestSession}
+            actionButtonPressedRef={actionButtonPressedRef}
+            rpcUrls={rpcUrls}
+            rpcUrlIndex={rpcUrlIndex}
           />
-        ) : (
-          <ActionFooter
-            onReject={handleDenyButtonPress}
-            onResolve={handlePrimaryButtonPress}
-            resolveButtonText={resolveButtonText}
-            resolveDisabled={
-              !areParamsValid ||
-              statuses.addNetwork === 'LOADING' ||
-              statuses.updateNetwork === 'LOADING' ||
-              (features &&
-                (features.some((f) => f.level === 'loading') ||
-                  !!features.filter((f) => f.id === 'flagged')[0])) ||
-              actionButtonPressedRef.current
-            }
-          />
-        )
-      }
-      backgroundColor={theme.quinaryBackground}
-    >
-      <TabLayoutWrapperMainContent style={spacings.mbLg} withScroll={false}>
-        {networkAlreadyAdded ? (
-          isRpcUpdateRequested && networkDetails ? (
-            <>
-              <Text weight="medium" fontSize={20} style={spacings.mbMd}>
-                {t('Update network')}
-              </Text>
-
-              <View style={styles.dappInfoContainer}>
-                <ManifestImage
-                  uri={requestSession?.icon}
-                  size={50}
-                  fallback={() => <ManifestFallbackIcon />}
-                  containerStyle={spacings.mrMd}
-                />
-
-                <Trans values={{ name: requestSession?.name || 'The App' }}>
-                  <Text>
-                    <Text fontSize={20} appearance="secondaryText">
-                      {t('Allow ')}
-                    </Text>
-                    <Text fontSize={20} weight="semiBold">
-                      {'{{name}} '}
-                    </Text>
-                    <Text fontSize={20} appearance="secondaryText">
-                      {t(`to update ${networkAlreadyAdded.name}`)}
-                    </Text>
-                  </Text>
-                </Trans>
-              </View>
-
-              <Text fontSize={16} weight="semiBold" appearance="secondaryText">
-                {t('This site is requesting to update your default RPC')}
-              </Text>
-              <View
-                style={[
-                  flexbox.directionRow,
-                  flexbox.flex1,
-                  flexbox.justifySpaceBetween,
-                  flexbox.alignStart
-                ]}
-              >
-                <View
-                  style={[
-                    flexbox.directionRow,
-                    flexbox.flex1,
-                    flexbox.justifySpaceBetween,
-                    flexbox.alignCenter,
-                    spacings.mt
-                  ]}
-                >
-                  <RpcCard title="Old RPC URL" url={networkAlreadyAdded.selectedRpcUrl}>
-                    <NetworkAvailableFeatures
-                      hideBackgroundAndBorders
-                      titleSize={14}
-                      features={networkAlreadyAdded.features}
-                      chainId={networkAlreadyAdded.chainId}
-                      withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
-                      handleRetry={handleRetryWithDifferentRpcUrl}
-                    />
-                  </RpcCard>
-                  <ArrowRightIcon />
-                  <RpcCard title="New RPC URL" url={networkDetails.selectedRpcUrl} isNew>
-                    <NetworkAvailableFeatures
-                      hideBackgroundAndBorders
-                      titleSize={14}
-                      features={features}
-                      chainId={networkDetails.chainId}
-                      withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
-                      handleRetry={handleRetryWithDifferentRpcUrl}
-                    />
-                  </RpcCard>
-                </View>
-              </View>
-              <Banner
-                title={t(
-                  'Make sure you trust this site and provider. You can change the RPC URL anytime in the network settings.'
-                )}
-                type="info2"
-              />
-              <View style={spacings.mtMi} />
-            </>
-          ) : (
-            <View
-              style={[
-                flexbox.flex1,
-                flexbox.alignCenter,
-                ...(!isRpcUpdateRequested ? [spacings.mt2Xl] : [])
-              ]}
-            >
-              <View
-                style={[
-                  common.borderRadiusPrimary,
-                  common.shadowTertiary,
-                  {
-                    width: '100%',
-                    maxWidth: 422,
-                    maxHeight: 343,
-                    ...flexbox.justifyCenter,
-                    backgroundColor: theme.primaryBackground
-                  }
-                ]}
-              >
-                <SuccessAnimation>
-                  <Text fontSize={20} weight="medium" style={spacings.mb}>
-                    {networkAlreadyAdded.name} {t('Network')}
-                  </Text>
-                  <Text fontSize={15} appearance="secondaryText">
-                    {successStateText}
-                  </Text>
-                </SuccessAnimation>
-              </View>
-            </View>
-          )
-        ) : (
-          <>
-            <Text weight="medium" fontSize={20} style={spacings.mbMd}>
-              {t('Add new network')}
-            </Text>
-
-            <View style={styles.dappInfoContainer}>
-              {!existingNetwork && (
-                <ManifestImage
-                  uri={requestSession?.icon}
-                  size={50}
-                  fallback={() => <ManifestFallbackIcon />}
-                  containerStyle={spacings.mrMd}
-                />
-              )}
-
-              {!existingNetwork ? (
-                <Trans values={{ name: requestSession?.name || 'The App' }}>
-                  <Text>
-                    <Text fontSize={20} appearance="secondaryText">
-                      {t('Allow ')}
-                    </Text>
-                    <Text fontSize={20} weight="semiBold">
-                      {'{{name}} '}
-                    </Text>
-                    <Text fontSize={20} appearance="secondaryText">
-                      {t('to add a network')}
-                    </Text>
-                  </Text>
-                </Trans>
-              ) : (
-                <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-                  <NetworkIcon
-                    id={String(existingNetwork.chainId)}
-                    size={50}
-                    style={spacings.mrMd}
-                  />
-
-                  <View style={flexbox.flex1}>
-                    <Text fontSize={20} weight="semiBold">
-                      {existingNetwork.name}
-                    </Text>
-                    <Text appearance="secondaryText" weight="medium" numberOfLines={2}>
-                      {t("found in Ambire Wallet but it's disabled. Do you wish to enable it?")}
-                    </Text>
-                  </View>
-                </View>
-              )}
-            </View>
-            {!existingNetwork && (
-              <Text fontSize={14} weight="medium" appearance="secondaryText" style={spacings.mb}>
-                {t('Ambire Wallet does not verify custom networks.')}
-              </Text>
-            )}
-            {!!areParamsValid && !!networkDetails && (
-              <View style={[flexbox.directionRow, flexbox.flex1]}>
-                <View style={styles.boxWrapper}>
-                  <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
-                    <NetworkDetails
-                      name={networkDetails.name || userRequest?.action?.params?.[0]?.chainName}
-                      iconUrls={networkDetails?.iconUrls || []}
-                      chainId={networkDetails.chainId}
-                      rpcUrls={networkDetails.rpcUrls}
-                      selectedRpcUrl={rpcUrls[rpcUrlIndex]}
-                      nativeAssetSymbol={networkDetails.nativeAssetSymbol}
-                      nativeAssetName={networkDetails.nativeAssetName}
-                      explorerUrl={networkDetails.explorerUrl}
-                      style={{
-                        backgroundColor:
-                          themeType === THEME_TYPES.DARK
-                            ? theme.secondaryBackground
-                            : theme.primaryBackground
-                      }}
-                      type="vertical"
-                    />
-                  </ScrollableWrapper>
-                </View>
-                <View style={styles.separator} />
-                <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
-                  {!!networkDetails && (
-                    <NetworkAvailableFeatures
-                      features={features}
-                      chainId={networkDetails.chainId}
-                      withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
-                      handleRetry={handleRetryWithDifferentRpcUrl}
-                    />
-                  )}
-                </ScrollableWrapper>
-              </View>
-            )}
-            {!areParamsValid && areParamsValid !== null && !actionButtonPressedRef.current && (
-              <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
-                <Alert
-                  title={t('Invalid Request Params')}
-                  text={t(
-                    `${
-                      userRequest?.session?.name || 'The App'
-                    } provided invalid params for adding a new network.`
-                  )}
-                  type="error"
-                />
-              </View>
-            )}
-          </>
         )}
-      </TabLayoutWrapperMainContent>
-    </TabLayoutContainer>
+      </>
+    )
+  }
+
+  if (view === 'alreadyAdded') {
+    return (
+      <AlreadyAddedChain
+        handleCloseOnAlreadyAdded={handleCloseOnAlreadyAdded}
+        areParamsValid={areParamsValid}
+        statuses={statuses}
+        features={features}
+        networkAlreadyAdded={networkAlreadyAdded!}
+        successStateText={successStateText}
+        actionButtonPressedRef={actionButtonPressedRef}
+      />
+    )
+  }
+
+  return (
+    <>
+      {networkDetails && (
+        <AddChain
+          handleDenyButtonPress={handleDenyButtonPress}
+          handlePrimaryButtonPress={handlePrimaryButtonPress}
+          handleRetryWithDifferentRpcUrl={handleRetryWithDifferentRpcUrl}
+          areParamsValid={areParamsValid}
+          statuses={statuses}
+          features={features}
+          networkDetails={networkDetails}
+          requestSession={requestSession}
+          actionButtonPressedRef={actionButtonPressedRef}
+          rpcUrls={rpcUrls}
+          rpcUrlIndex={rpcUrlIndex}
+          resolveButtonText={resolveButtonText}
+          existingNetwork={existingNetwork}
+          userRequest={userRequest}
+        />
+      )}
+    </>
   )
 }
 

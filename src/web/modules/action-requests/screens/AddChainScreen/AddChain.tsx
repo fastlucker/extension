@@ -36,7 +36,7 @@ type AddChainProps = {
   rpcUrls: string[]
   rpcUrlIndex: number
   resolveButtonText: string
-  existingNetwork: Network | null
+  existingNetwork: Network | null | undefined
   userRequest: DappUserRequest | undefined
 }
 
