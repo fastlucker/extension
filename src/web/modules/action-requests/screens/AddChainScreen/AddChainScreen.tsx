@@ -136,7 +136,7 @@ const AddChainScreen = () => {
     }
   }, [areParamsValid, requestData, existingNetwork, rpcUrls, rpcUrlIndex])
 
-  const networkAlreadyAddedRpcUrl = useMemo(
+  const isRpcUpdateRequested = useMemo(
     () =>
       networkDetails?.selectedRpcUrl &&
       networkDetails.selectedRpcUrl !== networkAlreadyAdded?.selectedRpcUrl &&
@@ -287,12 +287,12 @@ const AddChainScreen = () => {
       footer={
         networkAlreadyAdded ? (
           <ActionFooter
-            onReject={networkAlreadyAddedRpcUrl ? handleDenyButtonPress : undefined}
-            onResolve={networkAlreadyAddedRpcUrl ? handleUpdateNetwork : handleCloseOnAlreadyAdded}
-            resolveButtonText={networkAlreadyAddedRpcUrl ? t('Update network') : t('Close')}
-            rejectButtonText={networkAlreadyAddedRpcUrl ? t('Reject') : undefined}
+            onReject={isRpcUpdateRequested ? handleDenyButtonPress : undefined}
+            onResolve={isRpcUpdateRequested ? handleUpdateNetwork : handleCloseOnAlreadyAdded}
+            resolveButtonText={isRpcUpdateRequested ? t('Update network') : t('Close')}
+            rejectButtonText={isRpcUpdateRequested ? t('Reject') : undefined}
             resolveDisabled={
-              networkAlreadyAddedRpcUrl
+              isRpcUpdateRequested
                 ? !areParamsValid ||
                   statuses.addNetwork === 'LOADING' ||
                   statuses.updateNetwork === 'LOADING' ||
@@ -324,7 +324,7 @@ const AddChainScreen = () => {
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg} withScroll={false}>
         {networkAlreadyAdded ? (
-          networkAlreadyAddedRpcUrl && networkDetails ? (
+          isRpcUpdateRequested && networkDetails ? (
             <>
               <Text weight="medium" fontSize={20} style={spacings.mbMd}>
                 {t('Update network')}
@@ -409,7 +409,7 @@ const AddChainScreen = () => {
               style={[
                 flexbox.flex1,
                 flexbox.alignCenter,
-                ...(!networkAlreadyAddedRpcUrl ? [spacings.mt2Xl] : [])
+                ...(!isRpcUpdateRequested ? [spacings.mt2Xl] : [])
               ]}
             >
               <View
