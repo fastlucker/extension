@@ -33,7 +33,6 @@ const HumanizerAddressInner: FC<Props> = ({
   const accountsState = useAccountsControllerState()
   const { contacts = [] } = useAddressBookControllerState()
   const checksummedAddress = getAddressCaught(address)
-  const [fetchedAddressLabel, setFetchedAddressLabel] = useState<null | string>(null)
 
   const localAddressLabel = useMemo(() => {
     const zeroAddressLabel = address === ZeroAddress && 'Zero Address'
@@ -63,22 +62,11 @@ const HumanizerAddressInner: FC<Props> = ({
     accountsState?.accounts
   ])
 
-  useEffect(() => {
-    if (!localAddressLabel && chainId)
-      fetch(`https://cena.ambire.com/api/v3/contracts/${address}/${chainId}`)
-        .then((r) => r.json())
-        .then((r) => {
-          const forbiddenWords = ['Ambire', 'Identity', 'Safe', 'Proxy']
-          if (!forbiddenWords.some((w) => r.name.includes(w))) setFetchedAddressLabel(r.name)
-        })
-        .catch(console.error)
-  }, [address, chainId, localAddressLabel])
-
   // highestPriorityAlias and account labels are of higher priority than domains
-  if (localAddressLabel || fetchedAddressLabel)
+  if (localAddressLabel)
     return (
       <BaseAddress address={checksummedAddress} hideLinks={hideLinks} chainId={chainId} {...rest}>
-        {localAddressLabel || fetchedAddressLabel}
+        {localAddressLabel}
       </BaseAddress>
     )
 
