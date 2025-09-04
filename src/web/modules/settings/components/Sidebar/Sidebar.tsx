@@ -88,7 +88,7 @@ export const SETTINGS_LINKS = [
     Icon: React.memo(({ color }: SvgProps) => (
       <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
     )),
-    label: 'Email Vault',
+    label: 'Ambire Cloud (coming soon)',
     path: '/settings/email-vault'
   },
   {
