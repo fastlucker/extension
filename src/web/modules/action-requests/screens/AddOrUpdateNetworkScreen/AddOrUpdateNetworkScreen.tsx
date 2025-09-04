@@ -8,7 +8,7 @@ import { getFeatures } from '@ambire-common/libs/networks/networks'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
+import validateRequestParams from '@web/modules/action-requests/screens/AddOrUpdateNetworkScreen/validateRequestParams'
 
 import AddChain from './AddChain'
 import AlreadyAddedChain from './AlreadyAddedChain'
@@ -19,7 +19,7 @@ import UpdateChain from './UpdateChain'
  * but disabled, it will be enabled. The configuration usually comes from the dApp, but in the case
  * that it already exists, the dApp configuration is ignored.
  */
-const AddChainScreen = () => {
+const AddOrUpdateNetworkScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
@@ -319,4 +319,4 @@ const AddChainScreen = () => {
   )
 }
 
-export default React.memo(AddChainScreen)
+export default React.memo(AddOrUpdateNetworkScreen)
