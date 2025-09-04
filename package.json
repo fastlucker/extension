@@ -34,6 +34,7 @@
     "build:web:gecko": "rm -rf ./build/gecko-prod && APP_ENV=production WEB_ENGINE=gecko WEBPACK_BUILD_OUTPUT_PATH=gecko-prod expo export:web",
     "build:extensions": "sh ./scripts/build-extensions.sh",
     "build:extensions:gecko": "sh ./scripts/build-extensions.sh --gecko",
+    "build:extensions:webkit": "sh ./scripts/build-extensions.sh --webkit",
     "build:web:benzin": "rm -rf ./build/benzin-prod && APP_ENV=production WEBPACK_BUILD_OUTPUT_PATH=benzin-prod expo export:web",
     "build:web:legends": "rm -rf ./build/legends-prod && WEBPACK_BUILD_OUTPUT_PATH=legends-prod expo export:web",
     "export:web:webkit:sourcemaps": "sh ./scripts/export-source-maps.sh webkit",
