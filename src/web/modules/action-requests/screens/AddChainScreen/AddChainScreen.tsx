@@ -353,7 +353,7 @@ const AddChainScreen = () => {
                 </Trans>
               </View>
 
-              <Text fontSize={14} weight="medium" appearance="secondaryText" style={spacings.mb}>
+              <Text fontSize={16} weight="semiBold" appearance="secondaryText">
                 {t('This site is requesting to update your default RPC')}
               </Text>
               <View
@@ -361,34 +361,43 @@ const AddChainScreen = () => {
                   flexbox.directionRow,
                   flexbox.flex1,
                   flexbox.justifySpaceBetween,
-                  flexbox.alignCenter
+                  flexbox.alignStart
                 ]}
               >
-                <RpcCard title="Old RPC URL" url={networkAlreadyAdded.selectedRpcUrl}>
-                  <NetworkAvailableFeatures
-                    hideBackgroundAndBorders
-                    titleSize={14}
-                    features={networkAlreadyAdded.features}
-                    chainId={networkAlreadyAdded.chainId}
-                    withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
-                    handleRetry={handleRetryWithDifferentRpcUrl}
-                  />
-                </RpcCard>
-                <ArrowRightIcon />
-                <RpcCard title="New RPC URL" url={networkDetails.selectedRpcUrl} isNew>
-                  <NetworkAvailableFeatures
-                    hideBackgroundAndBorders
-                    titleSize={14}
-                    features={features}
-                    chainId={networkDetails.chainId}
-                    withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
-                    handleRetry={handleRetryWithDifferentRpcUrl}
-                  />
-                </RpcCard>
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.flex1,
+                    flexbox.justifySpaceBetween,
+                    flexbox.alignCenter,
+                    spacings.mt
+                  ]}
+                >
+                  <RpcCard title="Old RPC URL" url={networkAlreadyAdded.selectedRpcUrl}>
+                    <NetworkAvailableFeatures
+                      hideBackgroundAndBorders
+                      titleSize={14}
+                      features={networkAlreadyAdded.features}
+                      chainId={networkAlreadyAdded.chainId}
+                      withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
+                      handleRetry={handleRetryWithDifferentRpcUrl}
+                    />
+                  </RpcCard>
+                  <ArrowRightIcon />
+                  <RpcCard title="New RPC URL" url={networkDetails.selectedRpcUrl} isNew>
+                    <NetworkAvailableFeatures
+                      hideBackgroundAndBorders
+                      titleSize={14}
+                      features={features}
+                      chainId={networkDetails.chainId}
+                      withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
+                      handleRetry={handleRetryWithDifferentRpcUrl}
+                    />
+                  </RpcCard>
+                </View>
               </View>
               <Banner
-                title=""
-                text={t(
+                title={t(
                   'Make sure you trust this site and provider. You can change the RPC URL anytime in the network settings.'
                 )}
                 type="info2"

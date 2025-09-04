@@ -27,7 +27,7 @@ const RpcCard = ({
       style={[
         flexbox.flex1,
         common.borderRadiusPrimary,
-        common.shadowTertiary,
+        isNew && common.shadowTertiary,
         { maxWidth: 292, height: 308 }
       ]}
     >
