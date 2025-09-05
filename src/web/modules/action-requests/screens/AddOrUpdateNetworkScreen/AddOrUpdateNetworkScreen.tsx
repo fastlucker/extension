@@ -1,10 +1,13 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
 
 import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { isDappRequestAction } from '@ambire-common/libs/actions/actions'
 import { getFeatures } from '@ambire-common/libs/networks/networks'
+import Spinner from '@common/components/Spinner'
+import flexbox from '@common/styles/utils/flexbox'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -23,7 +26,6 @@ const AddOrUpdateNetworkScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
-  const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { statuses, networkToAddOrUpdate, disabledNetworks, networks } =
     useNetworksControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, undefined))
@@ -52,6 +54,11 @@ const AddOrUpdateNetworkScreen = () => {
 
   const requestSession = useMemo(() => userRequest?.session, [userRequest?.session])
 
+  const areParamsValid = useMemo(
+    () => validateRequestParams(requestKind, requestData),
+    [requestData, requestKind]
+  )
+
   const networkAlreadyAdded = useMemo(
     () =>
       networks.find(
@@ -70,10 +77,6 @@ const AddOrUpdateNetworkScreen = () => {
 
     setExistingNetwork(matchingNetwork)
   }, [disabledNetworks, existingNetwork, requestData?.chainId])
-
-  useEffect(() => {
-    setAreParamsValid(validateRequestParams(requestKind, requestData))
-  }, [requestKind, requestData])
 
   const rpcUrls: string[] = useMemo(() => {
     if (existingNetwork) return existingNetwork.rpcUrls
@@ -249,14 +252,23 @@ const AddOrUpdateNetworkScreen = () => {
     return existingNetwork ? t('Enable network') : t('Add network')
   }, [existingNetwork, statuses.addNetwork, statuses.updateNetwork, t])
 
-  const view: 'add' | 'update' | 'alreadyAdded' = useMemo(() => {
+  const view: 'loading' | 'add' | 'update' | 'alreadyAdded' = useMemo(() => {
+    if (!userRequest) return 'loading'
     if (networkAlreadyAdded) {
       if (isRpcUpdateRequested) return 'update'
       return 'alreadyAdded'
     }
 
     return 'add'
-  }, [isRpcUpdateRequested, networkAlreadyAdded])
+  }, [isRpcUpdateRequested, networkAlreadyAdded, userRequest])
+
+  if (view === 'loading') {
+    return (
+      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Spinner />
+      </View>
+    )
+  }
 
   if (view === 'update') {
     return (
