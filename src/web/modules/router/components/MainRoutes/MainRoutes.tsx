@@ -9,7 +9,7 @@ import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountO
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountPickerScreen from '@web/modules/account-picker/screens/AccountPickerScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
-import AddChainScreen from '@web/modules/action-requests/screens/AddChainScreen'
+import AddOrUpdateNetworkScreen from '@web/modules/action-requests/screens/AddOrUpdateNetworkScreen'
 import BenzinScreen from '@web/modules/action-requests/screens/BenzinScreen'
 import DappConnectScreen from '@web/modules/action-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/action-requests/screens/GetEncryptionPublicKeyRequestScreen'
@@ -167,7 +167,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.switchAccount} element={<SwitchAccountScreen />} />
 
           <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
-          <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
+          <Route path={WEB_ROUTES.addChain} element={<AddOrUpdateNetworkScreen />} />
           <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
 
           <Route
