@@ -18,21 +18,15 @@ import ActionFooter from '../../components/ActionFooter'
 
 type AlreadyAddedChainProps = {
   handleCloseOnAlreadyAdded: () => void
-  areParamsValid: boolean | null
   statuses: Statuses<'addNetwork' | 'updateNetwork'> & Statuses<string>
-  features: NetworkFeature[]
   networkAlreadyAdded: Network
-  actionButtonPressedRef: React.MutableRefObject<boolean>
   successStateText: string
 }
 
 const AlreadyAddedChain = ({
   handleCloseOnAlreadyAdded,
-  areParamsValid,
   statuses,
-  features,
   networkAlreadyAdded,
-  actionButtonPressedRef,
   successStateText
 }: AlreadyAddedChainProps) => {
   const { theme, themeType } = useTheme()
@@ -57,13 +51,7 @@ const AlreadyAddedChain = ({
           resolveButtonText={t('Close')}
           rejectButtonText={undefined}
           resolveDisabled={
-            !areParamsValid ||
-            statuses.addNetwork === 'LOADING' ||
-            statuses.updateNetwork === 'LOADING' ||
-            (features &&
-              (features.some((f) => f.level === 'loading') ||
-                !!features.find((f) => f.id === 'flagged'))) ||
-            actionButtonPressedRef.current
+            statuses.addNetwork === 'LOADING' || statuses.updateNetwork === 'LOADING'
           }
         />
       }

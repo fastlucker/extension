@@ -297,12 +297,9 @@ const AddOrUpdateNetworkScreen = () => {
     return (
       <AlreadyAddedChain
         handleCloseOnAlreadyAdded={handleCloseOnAlreadyAdded}
-        areParamsValid={areParamsValid}
         statuses={statuses}
-        features={features}
         networkAlreadyAdded={networkAlreadyAdded!}
         successStateText={successStateText}
-        actionButtonPressedRef={actionButtonPressedRef}
       />
     )
   }
