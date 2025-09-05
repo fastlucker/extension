@@ -194,7 +194,11 @@ const useSteps = ({
   useEffect(() => {
     let timeout: any
 
-    if (!network || (!userOpHash && !relayerId) || txn || fetchingConcluded || !switcher) return
+    // do not use fetchTxnId when having an userOpHash
+    // rely on getReceipt instead
+    if (userOpHash) return
+
+    if (!network || !relayerId || txn || fetchingConcluded || !switcher) return
 
     fetchTxnId(getIdentifiedBy(), network, standardOptions.callRelayer)
       .then((result) => {
@@ -318,7 +322,7 @@ const useSteps = ({
             setRefetchReceiptCounter((prev) => prev + 1)
             setIsFetching(false)
           }, refetchTime)
-          switcher.forceSwitch()
+          if (refetchReceiptCounter > 1) switcher.forceSwitch()
           return
         }
 
