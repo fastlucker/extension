@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
+import { getCallsCount } from '@ambire-common/utils/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
@@ -42,6 +43,7 @@ const Buttons: FC<Props> = ({
   isLocalStateOutOfSync
 }) => {
   const { t } = useTranslation()
+  const callsCount = getCallsCount(networkUserRequests)
 
   const oneClickDisabledReason = useMemo(() => {
     if (signAccountOpErrors.length > 0) {
@@ -62,12 +64,12 @@ const Buttons: FC<Props> = ({
       return proceedBtnText
     }
 
-    return networkUserRequests.length > 0
+    return callsCount > 0
       ? `${proceedBtnText} ${t('({{count}})', {
-          count: networkUserRequests.length
+          count: callsCount
         })}`
       : proceedBtnText
-  }, [proceedBtnText, networkUserRequests.length, t])
+  }, [proceedBtnText, callsCount, t])
 
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
@@ -77,9 +79,9 @@ const Buttons: FC<Props> = ({
           <Button
             hasBottomSpacing={false}
             text={
-              networkUserRequests.length > 0 && !batchDisabledReason
+              callsCount > 0 && !batchDisabledReason
                 ? t('Add to batch ({{count}})', {
-                    count: networkUserRequests.length
+                    count: callsCount
                   })
                 : t('Start a batch')
             }
