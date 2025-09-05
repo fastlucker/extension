@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
+import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import walletCoin from './assets/wallet-coin.png'
@@ -22,6 +23,8 @@ function formatMarketCap(value: number): string {
 }
 
 const Home = () => {
+  const { character, isCharacterNotMinted } = useCharacterContext()
+
   const [isWidgetReady, setIsWidgetReady] = useState(false)
   // Use a callback ref for more reliable access to the custom element
   const [widgetEl, setWidgetEl] = useState<HTMLElement | null>(null)
@@ -68,6 +71,15 @@ const Home = () => {
           .gecko-coin-details {
             padding: 0 !important;
           }
+
+          .highcharts-color-negative {
+            fill: var(--color-success-400);
+            stroke: var(--color-success-400) !important;
+          }
+
+          .highcharts-area-series.highcharts-color-negative, .highcharts-area.zone-negative {
+            fill: url(#gecko-chart-positive-gradient);
+          }
         `
         target.shadowRoot.appendChild(style)
         return true
@@ -103,7 +115,7 @@ const Home = () => {
       <div className={styles.overachieverWrapper}>
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
-      <RewardsBadge />
+      {!isCharacterNotMinted && <RewardsBadge />}
       <section className={`${styles.wrapper}`}>
         <div className={styles.walletInfo}>
           <div className={styles.chartWrapper}>

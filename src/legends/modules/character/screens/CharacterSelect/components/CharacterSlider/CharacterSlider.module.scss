@@ -164,3 +164,9 @@ $smallerSlideSize: 12rem;
     margin: 0 auto;
   }
 }
+
+@media screen and (min-width: 1200px) and (max-height: 800px) {
+  .wrapper {
+    margin-bottom: 3rem;
+  }
+}
