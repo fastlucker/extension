@@ -14,11 +14,13 @@ import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 
+import { isPermit2Interaction } from './detectPermit2Interaction'
 import SimulationSkeleton from './SimulationSkeleton'
 import getStyles from './styles'
 
@@ -40,6 +42,9 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
   const [shouldRespectIsLoading, setShouldRespectIsLoading] = useState(true)
   const { networks } = useNetworksControllerState()
+  const {
+    state: { dapps }
+  } = useDappsControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -164,12 +169,33 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     ]
   )
 
+  const containsPermit2 = useMemo(() => {
+    if (!signAccountOpState?.accountOp?.calls || !network) return false
+
+    return signAccountOpState.accountOp.calls.some((call) => {
+      if (!call.to || !call.data) return false
+      return isPermit2Interaction({ to: call.to, data: call.data }).isPermit2
+    })
+  }, [signAccountOpState?.accountOp.calls, network])
+
+  const containsDappsNotInCatalog = useMemo(() => {
+    if (!signAccountOpState?.accountOp?.calls || !network) return false
+
+    const dappUrls = dapps.map((d) => d.url.toLowerCase())
+
+    return signAccountOpState.accountOp.calls.some((call) => {
+      if (!call.dapp || !call.dapp.url) return false
+      return !dappUrls.includes(call.dapp.url.toLowerCase())
+    })
+  }, [signAccountOpState?.accountOp.calls, network, dapps])
+
   const simulationView:
     | 'no-changes'
     | 'changes'
     | 'error'
     | 'error-handled-elsewhere'
     | 'simulation-not-supported'
+    | 'alert-permit2'
     | null = useMemo(() => {
     if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
@@ -187,6 +213,8 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     if (!isSmartAccount(signAccountOpState.account) && !!network?.rpcNoStateOverride)
       return 'simulation-not-supported'
 
+    if (containsDappsNotInCatalog && containsPermit2) return 'alert-permit2'
+
     return 'no-changes'
   }, [
     shouldShowLoader,
@@ -198,7 +226,9 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     pendingSendCollection.length,
     pendingReceiveCollection.length,
     pendingTokens.length,
-    network?.rpcNoStateOverride
+    network?.rpcNoStateOverride,
+    containsPermit2,
+    containsDappsNotInCatalog
   ])
 
   useEffect(() => {
@@ -343,6 +373,20 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
               The RPC cannot perform simulations for EOA accounts. Try changing the RPC from
               Settings. If you wish to proceed regardless, please carefully review the transaction
               preview below.
+            </Trans>
+          }
+        />
+      )}
+      {simulationView === 'alert-permit2' && (
+        <Alert
+          type="warning"
+          isTypeLabelHidden
+          withIcon
+          customIcon={() => <SuccessIcon color={theme.warningDecorative} />}
+          title={
+            <Trans>
+              The transaction is using Permit2 for approvals. Make sure you have the necessary
+              permissions.
             </Trans>
           }
         />
