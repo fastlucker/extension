@@ -113,4 +113,12 @@ export class DashboardPage extends BasePage {
       'Confirmed'
     )
   }
+
+  async search(searchInput: string) {
+    // click on magnifying glass icon
+    await this.click(selectors.magnifyingGlassBtn)
+
+    // enter search phrase
+    await this.entertext(selectors.searchInput, searchInput)
+  }
 }

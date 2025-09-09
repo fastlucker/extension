@@ -1,6 +1,16 @@
 import Token from '../interfaces/token'
 
-type TokenSymbol = 'dai' | 'usdc' | 'usdce' | 'wallet' | 'eth' | 'link' | 'wcres' | 'xwallet'
+type TokenSymbol =
+  | 'dai'
+  | 'usdc'
+  | 'usdce'
+  | 'wallet'
+  | 'eth'
+  | 'link'
+  | 'wcres'
+  | 'xwallet'
+  | 'usdt'
+  | 'clbtc'
 type Network = 'optimism' | 'base' | 'ethereum' | 'arbitrum'
 
 type Tokens = Record<TokenSymbol, Partial<Record<Network, Token>>>

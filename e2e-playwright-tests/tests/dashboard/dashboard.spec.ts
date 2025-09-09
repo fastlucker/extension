@@ -2,6 +2,8 @@ import { saParams } from 'constants/env'
 import selectors from 'constants/selectors'
 import { test } from 'fixtures/pageObjects'
 
+import tokens from '../../constants/tokens'
+
 test.describe('dashboard', () => {
   test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(saParams)
@@ -38,6 +40,18 @@ test.describe('dashboard', () => {
 
       // assert account name
       await pages.basePage.compareText(selectors.accountSelectBtn, 'vitalik.eth')
+    })
+  })
+
+  test('Filter Tokens by Network', async ({ pages }) => {
+    await pages.auth.pause()
+    await test.step('search by network - Base', async () => {
+      await pages.dashboard.search('Base')
+    })
+
+    await test.step('assert search result', async () => {
+      // 5 tokens should be visible on Base network - wallet, usdc, usdt, eth, clBtc
+      await pages.basePage.expectItemsCount('Base', 5)
     })
   })
 })

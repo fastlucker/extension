@@ -149,4 +149,13 @@ export class BasePage {
 
     return tokenBalance
   }
+
+  async expectItemsCount(text: string, expectedNumber: number) {
+    const items = this.page.locator(`//div[contains(text(),"${text}")]`)
+    // ensures expected number of items is present
+    await expect(items).toHaveCount(expectedNumber)
+
+    // check for visibility of all items
+    await expect(items).toBeVisible()
+  }
 }
