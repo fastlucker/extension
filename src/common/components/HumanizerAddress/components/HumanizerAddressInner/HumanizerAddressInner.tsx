@@ -1,5 +1,5 @@
 import { ZeroAddress } from 'ethers'
-import React, { FC, useEffect, useMemo, useState } from 'react'
+import React, { FC, useMemo } from 'react'
 
 import { HumanizerMetaAddress } from '@ambire-common/libs/humanizer/interfaces'
 import { getAddressCaught } from '@ambire-common/utils/getAddressCaught'
@@ -9,8 +9,8 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
+import { AddressName, BenzinAddressName } from '../AddressName'
 import BaseAddress from '../BaseAddress'
-import { BenzinDomainsAddress, DomainsAddress } from '../DomainsAddress'
 
 interface Props extends TextProps {
   address: string
@@ -70,9 +70,10 @@ const HumanizerAddressInner: FC<Props> = ({
       </BaseAddress>
     )
 
-  if (!isExtension) return <BenzinDomainsAddress address={checksummedAddress} {...rest} />
+  if (!isExtension)
+    return <BenzinAddressName address={checksummedAddress} chainId={chainId} {...rest} />
 
-  return <DomainsAddress address={checksummedAddress} {...rest} />
+  return <AddressName address={checksummedAddress} chainId={chainId} {...rest} />
 }
 
 export default React.memo(HumanizerAddressInner)
