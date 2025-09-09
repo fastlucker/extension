@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
+import V1AccountBanner from '@legends/components/V1AccountBanner'
 import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -113,6 +114,7 @@ const Home = () => {
   return (
     <>
       <div className={styles.overachieverWrapper}>
+        <V1AccountBanner />
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
       {!isCharacterNotMinted && <RewardsBadge />}
