@@ -11,7 +11,7 @@ test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async 
     await context.close()
   })
 
-  test.only('check balance of test tokens', async ({ pages }) => {
+  test('check balance of test tokens', async ({ pages }) => {
     const walletBase = tokens.wallet.base
     const usdcBase = tokens.usdc.base
     const usdcOP = tokens.usdc.optimism
