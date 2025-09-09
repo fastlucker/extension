@@ -212,7 +212,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
                 <PendingBadge
                   amount={pendingToBeSigned}
                   amountFormatted={pendingToBeSignedFormatted}
-                  label="Pending transaction signature"
+                  label="awaiting signature"
                   backgroundColor={theme.warningBackground}
                   textColor={theme.warningText}
                   Icon={BatchIcon}
@@ -222,7 +222,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
                 <PendingBadge
                   amount={pendingToBeConfirmed}
                   amountFormatted={pendingToBeConfirmedFormatted}
-                  label="Pending to be confirmed"
+                  label="confirming"
                   backgroundColor={theme.info2Background}
                   textColor={theme.info2Text}
                   Icon={PendingToBeConfirmedIcon}
