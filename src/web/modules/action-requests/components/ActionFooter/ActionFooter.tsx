@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -10,7 +10,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import ActionsPagination from '../ActionsPagination'
 
 type Props = {
-  onReject: () => void
+  onReject?: () => void
   onResolve: () => void
   rejectButtonText?: string
   resolveButtonText: string
@@ -34,19 +34,22 @@ const ActionFooter = ({
 
   // Wrapped on purpose, because the `onResolve` should be called without any arguments
   const handleOnResolve = useCallback(() => onResolve(), [onResolve])
+  const showReject = useMemo(() => !!onReject, [onReject])
 
   return (
     <>
       <View style={flexbox.flex1}>
-        <Button
-          text={rejectButtonText || t('Reject')}
-          type="danger"
-          hasBottomSpacing={false}
-          size="large"
-          onPress={onReject}
-          testID={rejectButtonTestID}
-          style={flexbox.alignSelfStart}
-        />
+        {showReject && (
+          <Button
+            text={rejectButtonText || t('Reject')}
+            type="danger"
+            hasBottomSpacing={false}
+            size="large"
+            onPress={onReject}
+            testID={rejectButtonTestID}
+            style={flexbox.alignSelfStart}
+          />
+        )}
       </View>
       <ActionsPagination />
       <View style={flexbox.flex1}>

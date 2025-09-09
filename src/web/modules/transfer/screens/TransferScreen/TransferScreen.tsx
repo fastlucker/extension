@@ -4,14 +4,15 @@ import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
-import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { ActionExecutionType } from '@ambire-common/interfaces/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import { getAddressFromAddressState } from '@ambire-common/utils/domains'
+import { getCallsCount } from '@ambire-common/utils/userRequest'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
@@ -310,16 +311,16 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     accountUserRequests.length > 0 && !state.amount && visibleActionsQueue.length > 0
 
   const submitButtonText = useMemo(() => {
-    const count = isSendingBatch ? accountUserRequests.length : networkUserRequests.length
+    const callsCount = getCallsCount(isSendingBatch ? accountUserRequests : networkUserRequests)
 
-    if (!count) {
+    if (!callsCount) {
       return t('Send')
     }
 
     return t('Send ({{count}})', {
-      count: isSendingBatch ? accountUserRequests.length : networkUserRequests.length
+      count: callsCount
     })
-  }, [accountUserRequests.length, isSendingBatch, networkUserRequests.length, t])
+  }, [accountUserRequests, isSendingBatch, networkUserRequests, t])
 
   const isTransferFormValid = useMemo(() => {
     if (isSendingBatch) return true

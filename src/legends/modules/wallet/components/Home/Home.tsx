@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 import OverachieverBanner from '@legends/components/OverachieverBanner'
 import RewardsBadge from '@legends/components/RewardsBadge'
+import V1AccountBanner from '@legends/components/V1AccountBanner'
 import useCharacterContext from '@legends/hooks/useCharacterContext/useCharacterContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -113,6 +114,7 @@ const Home = () => {
   return (
     <>
       <div className={styles.overachieverWrapper}>
+        <V1AccountBanner />
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
       {!isCharacterNotMinted && <RewardsBadge />}
@@ -120,16 +122,39 @@ const Home = () => {
         <div className={styles.walletInfo}>
           <div className={styles.chartWrapper}>
             {isWidgetReady ? (
-              // @ts-ignore - Custom element from CoinGecko widget
-              <gecko-coin-price-chart-widget
-                ref={widgetRef}
-                locale="en"
-                dark-mode="true"
-                transparent-background="true"
-                coin-id="ambire-wallet"
-                initial-currency="usd"
-                width="440"
-              />
+              <div
+                style={{ cursor: 'pointer' }}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  window.open(
+                    'https://www.coingecko.com/en/coins/ambire-wallet',
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    window.open(
+                      'https://www.coingecko.com/en/coins/ambire-wallet',
+                      '_blank',
+                      'noopener,noreferrer'
+                    )
+                  }
+                }}
+                title="View on CoinGecko"
+              >
+                {/* @ts-ignore - Custom element from CoinGecko widget */}
+                <gecko-coin-price-chart-widget
+                  ref={widgetRef}
+                  locale="en"
+                  dark-mode="true"
+                  transparent-background="true"
+                  coin-id="ambire-wallet"
+                  initial-currency="usd"
+                  width="440"
+                />
+              </div>
             ) : (
               // Empty placeholder to reserve space and prevent layout shift while loading
               <div aria-hidden="true" className={styles.placeholder} />
