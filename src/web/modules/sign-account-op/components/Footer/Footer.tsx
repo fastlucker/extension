@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
+import { getCallsCount } from '@ambire-common/utils/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
@@ -49,13 +50,15 @@ const Footer = ({
   const chainId = accountOp?.chainId
 
   const batchCount = useMemo(() => {
-    return userRequests.filter((r) => {
+    const requests = userRequests.filter((r) => {
       return (
         r.action.kind === 'calls' &&
         r.meta.accountAddr === account?.addr &&
         r.meta.chainId === chainId
       )
-    }).length
+    })
+
+    return getCallsCount(requests)
   }, [account?.addr, userRequests, chainId])
 
   return (

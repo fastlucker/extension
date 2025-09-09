@@ -129,22 +129,24 @@ const DappControl = ({
               </View>
             </Button>
           )}
-          <Button
-            type="secondary"
-            size="small"
-            hasBottomSpacing={false}
-            text={inModal ? t('Close') : t('Manage')}
-            disabled={!inModal && !dapp?.isConnected}
-            onPress={() => {
-              !inModal && openBottomSheet()
-              inModal && closeBottomSheet()
-            }}
-          >
-            <View style={spacings.plTy}>
-              {!inModal && <UpArrowIcon color={theme.primary} />}
-              {!!inModal && <CloseIcon color={theme.primary} />}
-            </View>
-          </Button>
+          {dapp?.isConnected && (
+            <Button
+              type="secondary"
+              size="small"
+              hasBottomSpacing={false}
+              text={inModal ? t('Close') : t('Manage')}
+              disabled={!inModal}
+              onPress={() => {
+                !inModal && openBottomSheet()
+                inModal && closeBottomSheet()
+              }}
+            >
+              <View style={spacings.plTy}>
+                {!inModal && <UpArrowIcon color={theme.primary} />}
+                {!!inModal && <CloseIcon color={theme.primary} />}
+              </View>
+            </Button>
+          )}
         </View>
       </View>
     </View>
