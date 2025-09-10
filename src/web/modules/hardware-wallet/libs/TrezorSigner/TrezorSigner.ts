@@ -119,7 +119,8 @@ class TrezorSigner implements KeystoreSignerInterface {
         )}) is different than the key we expected (${shortenAddress(
           this.key.addr,
           13
-        )}). You likely unlocked your Trezor with different passphrase or the Trezor you connected has a different seed.`
+        )}). You likely unlocked your Trezor with different passphrase or the Trezor you connected has a different seed.`,
+        { sendCrashReport: false }
       )
     }
   }

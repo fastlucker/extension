@@ -1,5 +1,5 @@
 diff --git a/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js b/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js
-index 21fe53e..d39e555 100644
+index 21fe53e..f418933 100644
 --- a/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js
 +++ b/node_modules/@trezor/connect-webextension/build/trezor-connect-webextension.js
 @@ -2877,7 +2877,7 @@ class PopupManager extends (events_default()) {
@@ -11,3 +11,14 @@ index 21fe53e..d39e555 100644
            }, newWindow => {
              chrome.tabs.query({
                windowId: newWindow?.id,
+@@ -4120,8 +4120,8 @@ trezorContentScript();
+           this.logger.error('content script injection error', error);
+           throw error;
+         }), {
+-          attempts: new Array(3).fill({
+-            timeout: 100
++          attempts: new Array(10).fill({
++            timeout: 250
+           })
+         });
+       } else {
