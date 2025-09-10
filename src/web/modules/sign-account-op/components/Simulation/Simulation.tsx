@@ -183,11 +183,11 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
   const containsDappsNotInCatalog = useMemo(() => {
     if (!signAccountOpState?.accountOp?.calls || !network) return false
 
-    const dappUrls = dapps.map((d) => d.url.toLowerCase())
+    const dappUrlsSet = new Set(dapps.map((d) => d.url.toLowerCase()))
 
     return signAccountOpState.accountOp.calls.some((call) => {
       if (!call.dapp || !call.dapp.url) return false
-      return !dappUrls.includes(call.dapp.url.toLowerCase())
+      return !dappUrlsSet.has(call.dapp.url.toLowerCase())
     })
   }, [signAccountOpState?.accountOp.calls, network, dapps])
 
