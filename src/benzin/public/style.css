@@ -43,6 +43,7 @@ input {
   border-radius: 13px;
 }
 
-svg * {
+.button-icon g,
+.button-icon path {
   transition: fill 200ms ease-in-out, stroke 200ms ease-in-out;
 }
