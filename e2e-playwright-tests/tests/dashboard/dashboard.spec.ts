@@ -60,6 +60,9 @@ test.describe('dashboard', () => {
       await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
       await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
       await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
+
+      // 5 items should be visible for SA
+      await pages.basePage.expectItemsCount(selectors.dashboard.networkBase, 5)
     })
   })
 
@@ -82,5 +85,9 @@ test.describe('dashboard', () => {
       )
       await pages.basePage.isVisible(`token-balance-${usdcPolygon.address}.${usdcPolygon.chainId}`)
     })
+
+    // 4 items should be visible for SA
+    await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDC, 3)
+    await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDCe, 1)
   })
 })
