@@ -16,7 +16,8 @@ const selectors = {
     transactionSendText: '(//div[contains(text(),"Send")])[2]', // TODO: change once we have id on FE
     confirmedTransactionPill: '//div[contains(text(),"Confirmed")]', // TODO: chage once we have id on FE
     fuelGasTankTransactionPill: '//div[contains(text(),"Fuel gas tank with")]', // TODO: chage once we have id on FE,
-    grantApprovalText: '//div[contains(text(),"Grant approval")]' // TODO: change once we have id on FE
+    grantApprovalText: '//div[contains(text(),"Grant approval")]', // TODO: change once we have id on FE,
+    magnifyingGlassIcon: 'search-glass-icon'
   },
   settings: {
     createNewRecoveryPhraseButton: 'create-new-recovery-phrase',

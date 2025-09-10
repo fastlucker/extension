@@ -155,7 +155,10 @@ export class BasePage {
     // ensures expected number of items is present
     await expect(items).toHaveCount(expectedNumber)
 
-    // check for visibility of all items
-    await expect(items).toBeVisible()
+    // assert each one is visible
+    const count = await items.count()
+    for (let i = 0; i < count; i++) {
+      await expect(items.nth(i)).toBeVisible()
+    }
   }
 }

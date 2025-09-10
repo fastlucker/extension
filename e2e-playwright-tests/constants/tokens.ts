@@ -11,7 +11,7 @@ type TokenSymbol =
   | 'xwallet'
   | 'usdt'
   | 'clbtc'
-type Network = 'optimism' | 'base' | 'ethereum' | 'arbitrum'
+type Network = 'optimism' | 'base' | 'ethereum' | 'arbitrum' | 'polygon'
 
 type Tokens = Record<TokenSymbol, Partial<Record<Network, Token>>>
 
@@ -78,6 +78,12 @@ const tokens: Tokens = {
       chainId: '1',
       chainName: 'ethereum',
       symbol: 'USDC'
+    },
+    polygon: {
+      address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+      chainId: '137',
+      chainName: 'polygon',
+      symbol: 'USDC'
     }
   },
   usdce: {
@@ -108,6 +114,22 @@ const tokens: Tokens = {
       chainId: '1',
       chainName: 'ethereum',
       symbol: 'xWALLET'
+    }
+  },
+  usdt: {
+    base: {
+      address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
+      chainId: '8453',
+      chainName: 'base',
+      symbol: 'USDT'
+    }
+  },
+  clbtc: {
+    base: {
+      address: '0x8d2757EA27AaBf172DA4CCa4e5474c76016e3dC5',
+      chainId: '8453',
+      chainName: 'base',
+      symbol: 'clBTC'
     }
   }
 }
