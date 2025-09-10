@@ -434,7 +434,9 @@ const Button = ({
       // Only override color if it's not already set
       const childProps = child.props as any
       if (childProps.color === undefined) {
-        return React.cloneElement(child, { color: accentColor || effectiveColor } as any)
+        return React.cloneElement(child, {
+          color: accentColor || effectiveColor
+        } as any)
       }
     }
 

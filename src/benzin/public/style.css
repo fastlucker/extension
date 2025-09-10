@@ -42,3 +42,7 @@ input {
   background: #6770b354;
   border-radius: 13px;
 }
+
+svg * {
+  transition: fill 200ms ease-in-out, stroke 200ms ease-in-out;
+}
