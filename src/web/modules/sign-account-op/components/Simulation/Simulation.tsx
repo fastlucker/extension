@@ -197,7 +197,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     | 'error'
     | 'error-handled-elsewhere'
     | 'simulation-not-supported'
-    | 'alert-permit2'
+    | 'not-in-catalog-and-permit2'
     | null = useMemo(() => {
     if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
@@ -215,7 +215,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     if (!isSmartAccount(signAccountOpState.account) && !!network?.rpcNoStateOverride)
       return 'simulation-not-supported'
 
-    if (containsDappsNotInCatalog && containsPermit2) return 'alert-permit2'
+    if (containsDappsNotInCatalog && containsPermit2) return 'not-in-catalog-and-permit2'
 
     return 'no-changes'
   }, [
@@ -379,7 +379,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
           }
         />
       )}
-      {simulationView === 'alert-permit2' && (
+      {simulationView === 'not-in-catalog-and-permit2' && (
         <AlertVertical
           type="warning"
           customIcon={() => <WarningFilledIcon width={48} height={44} />}
