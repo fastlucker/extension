@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { isPermit2Interaction } from '@ambire-common/libs/simulation/detectPermit2Interaction'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Alert from '@common/components/Alert'
@@ -22,7 +23,6 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 
-import { isPermit2Interaction } from './detectPermit2Interaction'
 import SimulationSkeleton from './SimulationSkeleton'
 import getStyles from './styles'
 
