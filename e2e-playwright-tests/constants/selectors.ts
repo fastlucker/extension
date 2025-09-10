@@ -20,7 +20,8 @@ const selectors = {
     magnifyingGlassIcon: 'search-glass-icon',
     tokenUSDC: '//div[text()="USDC"]',
     tokenUSDCe: '//div[text()="USDC.E"]',
-    networkBase: '//div[text()="Base"]'
+    networkBase: '//div[text()="Base"]',
+    noTokenSearchResult: (message: string) => `//div[contains(text(),'${message}')]`
   },
   settings: {
     createNewRecoveryPhraseButton: 'create-new-recovery-phrase',

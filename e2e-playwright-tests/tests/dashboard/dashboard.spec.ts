@@ -84,10 +84,21 @@ test.describe('dashboard', () => {
         `token-balance-${usdcEMainnet.address}.${usdcEMainnet.chainId}`
       )
       await pages.basePage.isVisible(`token-balance-${usdcPolygon.address}.${usdcPolygon.chainId}`)
+
+      // 4 items should be visible for SA
+      await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDC, 3)
+      await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDCe, 1)
+    })
+  })
+
+  test('Search for non existing Token returns appropriate message', async ({ pages }) => {
+    await test.step('search by token name - USDC', async () => {
+      await pages.auth.pause()
+      await pages.dashboard.search('Test')
     })
 
-    // 4 items should be visible for SA
-    await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDC, 3)
-    await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDCe, 1)
+    await test.step('assert no search result', async () => {
+      await pages.dashboard.noSearchResult('No tokens match "Test".')
+    })
   })
 })

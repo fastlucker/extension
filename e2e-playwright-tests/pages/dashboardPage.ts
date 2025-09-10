@@ -121,4 +121,13 @@ export class DashboardPage extends BasePage {
     // enter search phrase
     await this.entertext(selectors.searchInput, searchInput)
   }
+
+  async noSearchResult(noSearchMessage: string) {
+    // creating selector using message
+    const noSearchResultSelector = this.page.locator(
+      selectors.dashboard.noTokenSearchResult(noSearchMessage)
+    )
+
+    await expect(noSearchResultSelector).toHaveText(noSearchMessage)
+  }
 }
