@@ -1,3 +1,3 @@
-import useDomainsContext from './useContractNamesContext'
+import useContractNamesContext from './useContractNamesContext'
 
-export default useDomainsContext
+export default useContractNamesContext

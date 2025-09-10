@@ -13,7 +13,7 @@ interface Props extends TextProps {
   chainId: bigint
 }
 
-const BenzinAddressNames: FC<Props> = ({ address, chainId, ...rest }) => {
+const BenzinAddressName: FC<Props> = ({ address, chainId, ...rest }) => {
   const { isLoading: isLoadingEns, resolvedDomain } = useStandaloneReverseLookup({ address })
   const { contractNamesCtrl, state } = useContractNamesContext()
 
@@ -46,4 +46,4 @@ const BenzinAddressNames: FC<Props> = ({ address, chainId, ...rest }) => {
   )
 }
 
-export default BenzinAddressNames
+export default BenzinAddressName

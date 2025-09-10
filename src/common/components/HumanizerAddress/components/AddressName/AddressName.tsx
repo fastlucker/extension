@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 import React, { FC, useEffect } from 'react'
 
 import Spinner from '@common/components/Spinner'
@@ -20,11 +19,14 @@ const AddressName: FC<Props> = ({ address, chainId, ...rest }) => {
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    if (!contractNames[address]?.name && !loadingAddresses.some((l) => l.address === address))
+    if (
+      !contractNames[address]?.name &&
+      !loadingAddresses.some((l) => l.address.toLowerCase() === address.toLowerCase())
+    )
       dispatch({
         type: 'CONTRACT_NAMES_CONTROLLER_GET_NAME',
         params: {
-          address: getAddress(address),
+          address,
           chainId
         }
       })
