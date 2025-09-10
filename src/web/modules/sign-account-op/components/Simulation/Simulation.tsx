@@ -176,7 +176,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
 
     return signAccountOpState.accountOp.calls.some((call) => {
       if (!call.to || !call.data) return false
-      return isPermit2Interaction({ to: call.to, data: call.data }).isPermit2
+      return isPermit2Interaction({ to: call.to, data: call.data })
     })
   }, [signAccountOpState?.accountOp.calls, network])
 
