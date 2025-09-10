@@ -297,7 +297,12 @@ const useSwapAndBridgeForm = () => {
           ? 1.05
           : Number((0.005 / Math.ceil(Number(inputValueInUsd) / 20000)).toPrecision(2)) * 100 + 0.01
       const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
-      if (possibleSlippage > allowedSlippage) {
+      // @precautionary if
+      const diffBetweenQuoteAndMinAmount =
+        quote.selectedRoute.outputValueInUsd > Number(minInUsd)
+          ? quote.selectedRoute.outputValueInUsd - Number(minInUsd)
+          : 0
+      if (possibleSlippage > allowedSlippage && diffBetweenQuoteAndMinAmount > 50) {
         return {
           type: 'slippageImpact',
           possibleSlippage,
