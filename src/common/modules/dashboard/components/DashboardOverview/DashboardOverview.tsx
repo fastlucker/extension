@@ -12,7 +12,7 @@ import Routes from '@common/modules/dashboard/components/Routes'
 import useBalanceAffectingErrors from '@common/modules/dashboard/hooks/useBalanceAffectingErrors'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
-import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_SM, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -25,6 +25,8 @@ import GasTankButton from '../DashboardHeader/GasTankButton'
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
+
+const THRESHOLD_AMOUNT_TO_HIDE_BALANCE_DECIMALS = 100000
 
 interface Props {
   openReceiveModal: () => void
@@ -43,9 +45,9 @@ interface Props {
   }) => void
 }
 
-// We create a reusable height constant for both the Balance line-height and the Balance skeleton.
+// We create a reusable height constant for both the Balance amount height and the Balance skeleton.
 // We want both components to have the same height; otherwise, clicking on the RefreshIcon causes a layout shift.
-const BALANCE_HEIGHT = 34
+const BALANCE_HEIGHT = 38
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
@@ -82,10 +84,8 @@ const DashboardOverview: FC<Props> = ({
     return Number(portfolio.balancePerNetwork[dashboardNetworkFilter.toString()]) || 0
   }, [portfolio, dashboardNetworkFilter, account])
 
-  const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
-    totalPortfolioAmount,
-    'value'
-  ).split('.')
+  const [totalPortfolioAmountIntegerFormattedPart, totalPortfolioAmountDecimalFormattedPart] =
+    formatDecimals(totalPortfolioAmount, 'value').split('.')
 
   const reloadAccount = useCallback(() => {
     dispatch({
@@ -128,7 +128,7 @@ const DashboardOverview: FC<Props> = ({
             {
               paddingBottom: animatedOverviewHeight.interpolate({
                 inputRange: [0, OVERVIEW_CONTENT_MAX_HEIGHT],
-                outputRange: [SPACING_TY, SPACING],
+                outputRange: [SPACING_TY, SPACING_SM],
                 extrapolate: 'clamp'
               }),
               backgroundColor:
@@ -165,11 +165,19 @@ const DashboardOverview: FC<Props> = ({
               }}
             >
               <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+                <View
+                  style={[
+                    flexbox.directionRow,
+                    flexbox.alignCenter,
+                    spacings.mbTy,
+                    spacings.mtMi,
+                    { height: BALANCE_HEIGHT }
+                  ]}
+                >
                   {!portfolio?.isAllReady ? (
                     <SkeletonLoader
                       lowOpacity
-                      width={200}
+                      width={180}
                       height={BALANCE_HEIGHT}
                       borderRadius={8}
                     />
@@ -184,10 +192,9 @@ const DashboardOverview: FC<Props> = ({
                         <Text
                           fontSize={32}
                           shouldScale={false}
-                          style={{
-                            lineHeight: BALANCE_HEIGHT
-                          }}
                           weight="number_bold"
+                          // Line height should be constant based on font size, not on parent height
+                          style={{ lineHeight: 28 }}
                           color={
                             networksWithErrors.length || isOffline
                               ? theme.warningDecorative2
@@ -198,24 +205,26 @@ const DashboardOverview: FC<Props> = ({
                           selectable
                           testID="total-portfolio-amount-integer"
                         >
-                          {totalPortfolioAmountInteger}
+                          {totalPortfolioAmountIntegerFormattedPart}
                         </Text>
-                        <Text
-                          fontSize={20}
-                          shouldScale={false}
-                          weight="number_bold"
-                          color={
-                            networksWithErrors.length || isOffline
-                              ? theme.warningDecorative2
-                              : themeType === THEME_TYPES.DARK
-                              ? theme.primaryBackgroundInverted
-                              : theme.primaryBackground
-                          }
-                          selectable
-                        >
-                          {t('.')}
-                          {totalPortfolioAmountDecimal}
-                        </Text>
+                        {totalPortfolioAmount < THRESHOLD_AMOUNT_TO_HIDE_BALANCE_DECIMALS && (
+                          <Text
+                            fontSize={20}
+                            shouldScale={false}
+                            weight="number_bold"
+                            color={
+                              networksWithErrors.length || isOffline
+                                ? theme.warningDecorative2
+                                : themeType === THEME_TYPES.DARK
+                                ? theme.primaryBackgroundInverted
+                                : theme.primaryBackground
+                            }
+                            selectable
+                          >
+                            {t('.')}
+                            {totalPortfolioAmountDecimalFormattedPart}
+                          </Text>
+                        )}
                       </Text>
                     </Pressable>
                   )}

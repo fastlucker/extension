@@ -32,7 +32,8 @@ const RouteStepsPreview = ({
   loadingEnabled,
   isSelected,
   isDisabled,
-  routeStatus
+  routeStatus,
+  disabledReason = 'Route failed'
 }: {
   steps: SwapAndBridgeStep[]
   totalGasFeesInUsd?: number
@@ -44,6 +45,7 @@ const RouteStepsPreview = ({
   isSelected?: boolean
   isDisabled?: boolean
   routeStatus?: SwapAndBridgeActiveRoute['routeStatus']
+  disabledReason?: string
 }) => {
   const { theme, themeType } = useTheme()
   const { t } = useTranslation()
@@ -212,7 +214,7 @@ const RouteStepsPreview = ({
       </View>
       {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
-          {!!estimationInSeconds && (
+          {!!estimationInSeconds && !isDisabled && (
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               {!!shouldWarnForLongEstimation && (
                 <WarningIcon
@@ -235,34 +237,45 @@ const RouteStepsPreview = ({
             </View>
           )}
 
-          {(isSelected || isDisabled) && (
-            <Text
-              fontSize={12}
-              weight="medium"
-              color={
-                !isDisabled
-                  ? themeType === THEME_TYPES.DARK
-                    ? theme.successDecorative
-                    : theme.primary
-                  : theme.warningText
-              }
-              style={[
-                spacings.phTy,
-                {
-                  paddingVertical: 1,
-                  backgroundColor: !isDisabled
-                    ? themeType === THEME_TYPES.DARK
-                      ? `${String(theme.successDecorative)}20`
-                      : '#6000FF14'
-                    : theme.warningBackground,
-                  borderRadius: 12
-                }
-              ]}
-            >
-              {isSelected && isDisabled && t('Route failed. Please select another')}
-              {isSelected && !isDisabled && t('Selected')}
-              {!isSelected && isDisabled && t('Failed')}
-            </Text>
+          {isSelected && !isDisabled && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text
+                fontSize={12}
+                weight="medium"
+                color={themeType === THEME_TYPES.DARK ? theme.successDecorative : theme.primary}
+                style={[
+                  spacings.phTy,
+                  {
+                    paddingVertical: 1,
+                    backgroundColor:
+                      themeType === THEME_TYPES.DARK
+                        ? `${String(theme.successDecorative)}20`
+                        : '#6000FF14',
+                    borderRadius: 12
+                  }
+                ]}
+              >
+                {t('Selected')}
+              </Text>
+            </View>
+          )}
+
+          {isDisabled && (
+            <View style={[flexbox.directionRow, flexbox.alignCenter, { maxWidth: '100%' }]}>
+              <Text
+                fontSize={12}
+                weight="medium"
+                color={theme.warningText}
+                style={[
+                  spacings.phTy,
+                  {
+                    backgroundColor: theme.warningBackground
+                  }
+                ]}
+              >
+                {disabledReason}
+              </Text>
+            </View>
           )}
         </View>
       )}

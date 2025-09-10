@@ -2,6 +2,8 @@ name: Update the public repository 🔌
 
 on:
   push:
+    branches:
+      - main
     tags:
       - '*'
 

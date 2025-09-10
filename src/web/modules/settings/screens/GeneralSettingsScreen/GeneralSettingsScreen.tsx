@@ -1,12 +1,15 @@
 import React, { useContext, useEffect } from 'react'
 import { View } from 'react-native'
 
+import { CRASH_ANALYTICS_ENABLED_DEFAULT } from '@common/config/analytics/CrashAnalytics.web'
+import { isDev } from '@common/config/env'
 // import { isProd } from '@common/config/env'
 import spacings from '@common/styles/spacings'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 import AutoLockDeviceControlOption from './components/AutoLockDeviceControlOption'
+import CrashAnalyticsControlOption from './components/CrashAnalyticsControlOption'
 // import CrashAnalyticsControlOption from './components/CrashAnalyticsControlOption'
 import LockAmbireControlOption from './components/LockAmbireControlOption'
 import LogLevelControlOption from './components/LogLevelControlOption'
@@ -29,10 +32,8 @@ const GeneralSettingsScreen = () => {
       </View>
       <SettingsPageHeader title="Support tools" />
       <LogLevelControlOption />
-      {/* As of v5.15.0, temporarily hidden on all environments, */}
-      {/* because we enable anonymous crash reporting by default, */}
-      {/* which is part of our privacy policy now. */}
-      {/* {isProd && <CrashAnalyticsControlOption />} */}
+      {/* As of v5.21.2, display this only when crash analytics are disabled by default. */}
+      {!isDev && !CRASH_ANALYTICS_ENABLED_DEFAULT && <CrashAnalyticsControlOption />}
     </>
   )
 }

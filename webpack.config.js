@@ -295,14 +295,6 @@ module.exports = async function (env, argv) {
       {
         from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
         to: 'browser-polyfill.min.js'
-      },
-      {
-        from: require.resolve('@trezor/connect-webextension/build/content-script.js'),
-        to: 'vendor/trezor/trezor-content-script.js'
-      },
-      {
-        from: require.resolve('@trezor/connect-webextension/build/trezor-connect-webextension.js'),
-        to: 'vendor/trezor/trezor-connect-webextension.js'
       }
     ]
 

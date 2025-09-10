@@ -250,8 +250,6 @@ const TokenDetails = ({
       shouldDisableSwapAndBridge,
       isNetworkNotSupportedForSwapAndBridge,
       unavailableBecauseGasTankOrRewardsTokenTooltipText,
-      notImplementedYetTooltipText,
-      isGasTankToken,
       isTokenInfoLoading,
       hasGasTank
     ]

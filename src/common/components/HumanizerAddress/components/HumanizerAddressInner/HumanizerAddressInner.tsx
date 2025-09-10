@@ -67,7 +67,12 @@ const HumanizerAddressInner: FC<Props> = ({
     if (!localAddressLabel && chainId)
       fetch(`https://cena.ambire.com/api/v3/contracts/${address}/${chainId}`)
         .then((r) => r.json())
-        .then((r) => setFetchedAddressLabel(r.name))
+        .then((r) => {
+          if (!r || typeof r?.name !== 'string') return
+
+          const forbiddenWords = ['Ambire', 'Identity', 'Safe', 'Proxy']
+          if (!forbiddenWords.some((w) => r.name.includes(w))) setFetchedAddressLabel(r.name)
+        })
         .catch(console.error)
   }, [address, chainId, localAddressLabel])
 

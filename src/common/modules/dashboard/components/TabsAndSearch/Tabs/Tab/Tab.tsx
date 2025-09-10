@@ -79,7 +79,7 @@ const Tab = ({
           ]}
         >
           <Text
-            weight={isActive ? 'medium' : 'regular'}
+            weight="medium"
             color={
               isActive
                 ? themeType === THEME_TYPES.DARK
@@ -89,7 +89,7 @@ const Tab = ({
                 ? theme.primaryText
                 : theme.secondaryText
             }
-            fontSize={16}
+            fontSize={14}
           >
             {t(tabLabel)}
           </Text>

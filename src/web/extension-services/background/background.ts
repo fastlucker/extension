@@ -21,6 +21,7 @@ import wait from '@ambire-common/utils/wait'
 import CONFIG, { isDev, isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  BROWSER_EXTENSION_MEMORY_INTENSIVE_LOGS,
   LI_FI_API_KEY,
   RELAYER_URL,
   VELCRO_URL
@@ -107,10 +108,17 @@ function stateDebug(
     type === 'error'
       ? `${ctrlName} ctrl emitted an error at ${timeWithMs}`
       : `${ctrlName} ctrl emitted an update at ${timeWithMs}`
+  const value =
+    BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+
+  if (BROWSER_EXTENSION_MEMORY_INTENSIVE_LOGS === 'true' && isDev) {
+    logInfoWithPrefix(key, value)
+    return
+  }
 
   debugLogs.unshift({
     key,
-    value: BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY === 'true' ? ctrlState : { ...args }
+    value
   })
 
   if (debugLogs.length > 200) {
@@ -138,6 +146,7 @@ function captureBackgroundExceptionFromControllerError(error: ErrorRef, controll
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 let walletStateCtrl: WalletStateController
+let autoLockCtrl: AutoLockController
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
@@ -170,6 +179,7 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
       },
       mainCtrl,
       walletStateCtrl,
+      autoLockCtrl,
       id
     )
     return { id, result: res }
@@ -345,7 +355,7 @@ const init = () => {
   })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, walletStateCtrl)
-  const autoLockCtrl = new AutoLockController(() => {
+  autoLockCtrl = new AutoLockController(() => {
     // Prevents sending multiple notifications if the event is triggered multiple times
     if (mainCtrl.keystore.isUnlocked) {
       notificationManager
@@ -449,6 +459,7 @@ const init = () => {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   await mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
+                  autoLockCtrl.setLastActiveTime()
                   await mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
                     mainCtrl.selectedAccount.account?.addr
                   ])

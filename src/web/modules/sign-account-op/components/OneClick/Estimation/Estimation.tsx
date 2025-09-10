@@ -11,6 +11,7 @@ import {
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
+import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Text from '@common/components/Text'
 import useSign from '@common/hooks/useSign'
 import useTheme from '@common/hooks/useTheme'
@@ -73,6 +74,9 @@ const OneClickEstimation = ({
     warningModalRef,
     dismissWarning,
     acknowledgeWarning,
+    handleChangeFeePayerKeyType,
+    isChooseFeePayerKeyShown,
+    setIsChooseFeePayerKeyShown,
     slowPaymasterRequest,
     primaryButtonText,
     bundlerNonceDiscrepancy
@@ -102,11 +106,21 @@ const OneClickEstimation = ({
         {!!signAccountOpController && (
           <View>
             <SigningKeySelect
-              isVisible={isChooseSignerShown}
+              isVisible={isChooseSignerShown || isChooseFeePayerKeyShown}
               isSigning={isSignLoading || !signAccountOpController.readyToSign}
-              handleClose={() => setIsChooseSignerShown(false)}
-              selectedAccountKeyStoreKeys={signAccountOpController.accountKeyStoreKeys}
-              handleChooseSigningKey={handleChangeSigningKey}
+              handleClose={() => {
+                setIsChooseSignerShown(false)
+                setIsChooseFeePayerKeyShown(false)
+              }}
+              selectedAccountKeyStoreKeys={
+                isChooseFeePayerKeyShown
+                  ? signAccountOpController.feePayerKeyStoreKeys
+                  : signAccountOpController.accountKeyStoreKeys
+              }
+              handleChooseKey={
+                isChooseFeePayerKeyShown ? handleChangeFeePayerKeyType : handleChangeSigningKey
+              }
+              type={isChooseFeePayerKeyShown ? 'broadcasting' : 'signing'}
               account={signAccountOpController.account}
             />
             <Estimation
@@ -121,13 +135,16 @@ const OneClickEstimation = ({
               isSponsored={signAccountOpController ? signAccountOpController.isSponsored : false}
               sponsor={signAccountOpController ? signAccountOpController.sponsor : undefined}
             />
-            {signingErrors.length > 0 && (
-              <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
-                <Text fontSize={12} appearance="errorText">
-                  {t(signingErrors[0].title)}
-                </Text>
-              </View>
-            )}
+            {signingErrors.length > 0 &&
+              (signingErrors.map(({ code }) => code).includes('NO_KEYS_AVAILABLE') ? (
+                <NoKeysToSignAlert style={spacings.mt} />
+              ) : (
+                <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
+                  <Text fontSize={12} appearance="errorText">
+                    {t(signingErrors[0].title)}
+                  </Text>
+                </View>
+              ))}
             {bundlerNonceDiscrepancy && (
               <View style={[flexbox.directionRow, flexbox.alignEnd, spacings.mt]}>
                 <Text fontSize={12} appearance="warningText">
