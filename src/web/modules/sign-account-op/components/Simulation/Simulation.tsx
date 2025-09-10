@@ -6,7 +6,9 @@ import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAcco
 import { Network } from '@ambire-common/interfaces/network'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
+import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Alert from '@common/components/Alert'
+import AlertVertical from '@common/components/AlertVertical'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import Nft from '@common/components/TokenOrNft/components/Nft'
@@ -378,16 +380,15 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
         />
       )}
       {simulationView === 'alert-permit2' && (
-        <Alert
+        <AlertVertical
           type="warning"
-          isTypeLabelHidden
-          withIcon
-          customIcon={() => <SuccessIcon color={theme.warningDecorative} />}
-          title={
-            <Trans>
-              The transaction is using Permit2 for approvals. Make sure you have the necessary
-              permissions.
-            </Trans>
+          customIcon={() => <WarningFilledIcon width={48} height={44} />}
+          text={
+            <Text appearance="warningText" weight="semiBold">
+              {t(
+                'App is not on the default Ambire App Catalog.\nMake sure you trust it before signing requests.'
+              )}
+            </Text>
           }
         />
       )}
