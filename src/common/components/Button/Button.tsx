@@ -431,11 +431,14 @@ const Button = ({
 
   const enhancedChildren = React.Children.toArray(children).map((child, index) => {
     if (index === 0 && React.isValidElement(child)) {
-      // Only override color if it's not already set
       const childProps = child.props as any
-      if (childProps.color === undefined) {
-        return React.cloneElement(child, { color: accentColor || effectiveColor } as any)
-      }
+      const extraProps: any = {}
+
+      if (childProps.color === undefined) extraProps.color = accentColor || effectiveColor
+
+      extraProps.className = [childProps.className, 'button-icon'].filter(Boolean).join(' ')
+
+      return React.cloneElement(child, extraProps)
     }
 
     return child
