@@ -1,6 +1,6 @@
 import { dataSlice, getAddress } from 'ethers'
 
-export const PERMIT2_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3'.toLowerCase()
+export const PERMIT2_ADDRESS_LOWERCASED = '0x000000000022D473030F116dDEE9F6B43aC78BA3'.toLowerCase()
 const APPROVE_SELECTOR = '0x095ea7b3'
 
 /**
@@ -26,14 +26,14 @@ export function isPermit2Interaction(call: { to: string; data: string }): boolea
   const selector = call.data.slice(0, 10).toLowerCase()
 
   // Case 1: direct call to Permit2
-  if (call.to.toLowerCase() === PERMIT2_ADDRESS) {
+  if (call.to.toLowerCase() === PERMIT2_ADDRESS_LOWERCASED) {
     return true
   }
 
   // Case 2: approve on ERC-20 where spender is Permit2
   if (selector === APPROVE_SELECTOR) {
     const spender = extractSpenderFromApprove(call.data)
-    if (spender?.toLowerCase() === PERMIT2_ADDRESS) {
+    if (spender?.toLowerCase() === PERMIT2_ADDRESS_LOWERCASED) {
       return true
     }
   }
