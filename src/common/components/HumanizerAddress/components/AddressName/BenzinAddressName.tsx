@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React, { FC, useEffect, useMemo } from 'react'
 
+import { isUnderstandableName } from '@ambire-common/utils/contractNames'
 import Spinner from '@common/components/Spinner'
 import { Props as TextProps } from '@common/components/Text'
 import useContractNamesContext from '@common/hooks/useContractNamesContext/useContractNamesContext'
@@ -24,9 +25,8 @@ const BenzinAddressName: FC<Props> = ({ address, chainId, ...rest }) => {
   const foundContractName = useMemo(() => {
     const name = state.contractNames?.[address]?.name
     if (!name) return
-    const forbiddenWords = ['Ambire', 'Identity', 'Safe', 'Proxy']
-    if (forbiddenWords.some((fw) => name.toLowerCase().includes(fw.toLowerCase()))) return
-    return name
+    if (isUnderstandableName(name)) return name
+    return undefined
   }, [state, address])
 
   if (isLoadingEns)
