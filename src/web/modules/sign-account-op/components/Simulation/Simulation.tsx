@@ -197,7 +197,6 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     | 'error'
     | 'error-handled-elsewhere'
     | 'simulation-not-supported'
-    | 'not-in-catalog-and-permit2'
     | null = useMemo(() => {
     if (shouldShowLoader || !signAccountOpState?.isInitialized) return null
 
@@ -215,8 +214,6 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     if (!isSmartAccount(signAccountOpState.account) && !!network?.rpcNoStateOverride)
       return 'simulation-not-supported'
 
-    if (containsDappsNotInCatalog && containsPermit2) return 'not-in-catalog-and-permit2'
-
     return 'no-changes'
   }, [
     shouldShowLoader,
@@ -228,9 +225,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     pendingSendCollection.length,
     pendingReceiveCollection.length,
     pendingTokens.length,
-    network?.rpcNoStateOverride,
-    containsPermit2,
-    containsDappsNotInCatalog
+    network?.rpcNoStateOverride
   ])
 
   useEffect(() => {
@@ -242,7 +237,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
   return (
     <View style={styles.simulationSection}>
       {simulationView === 'changes' && (
-        <View style={[flexbox.directionRow, flexbox.flex1]}>
+        <View style={[flexbox.directionRow, flexbox.flex1, spacings.mb]}>
           {(!!pendingSendTokens.length || !!pendingSendCollection.length) && (
             <View
               style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
@@ -379,7 +374,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
           }
         />
       )}
-      {simulationView === 'not-in-catalog-and-permit2' && (
+      {containsDappsNotInCatalog && containsPermit2 && (
         <AlertVertical
           type="warning"
           customIcon={() => <WarningFilledIcon width={48} height={44} />}
