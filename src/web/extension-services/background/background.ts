@@ -143,6 +143,8 @@ function captureBackgroundExceptionFromControllerError(error: ErrorRef, controll
   })
 }
 
+let isInitialized = false
+let isSetupStorageForTestingCalled = false
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 let walletStateCtrl: WalletStateController
@@ -197,6 +199,9 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
 handleKeepBridgeContentScriptAcrossSessions()
 
 const init = () => {
+  if (isInitialized) return
+  isInitialized = true
+
   // Init sentry
   if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
     Sentry.init({
@@ -657,71 +662,57 @@ const init = () => {
   })
 }
 
-// eslint-disable-next-line no-restricted-globals
-self.addEventListener('install', () => {
-  console.log('[Service Worker] Installed')
-})
+const setupStorageForTesting = async () => {
+  if (isSetupStorageForTestingCalled) return
+  isSetupStorageForTestingCalled = true
 
-// eslint-disable-next-line no-restricted-globals
-self.addEventListener('activate', () => {
-  console.log('[Service Worker] Activated')
-})
-// TODO: temporarily call init outside activate
-;(async () => {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Playwright tests,
   // ensuring that the Controllers are initialized with the storage correctly.
   // Once the storage is configured in Playwright, we set the `isE2EStorageSet` flag to true.
   // Here, we are waiting for its value to be set.
-  if (process.env.IS_TESTING === 'true') {
-    const checkE2EStorage = async (): Promise<void> => {
-      const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
 
-      if (isE2EStorageSet) {
-        return
-      }
+  const checkE2EStorage = async (): Promise<void> => {
+    const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
 
-      await wait(100)
-      await checkE2EStorage()
+    if (isE2EStorageSet) {
+      return
     }
 
+    await wait(100)
     await checkE2EStorage()
   }
-  console.log('[Service Worker] Called init')
+
+  await checkE2EStorage()
+}
+
+browser.runtime.onStartup.addListener(async () => {
+  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
   init()
-})()
-// Ensure the service worker fully activates before running init, allowing
-// chrome.storage, caches, clients control, runtime APIs, and migration tasks
-// to be properly initialized and ready, preventing startup race conditions,
-// storage access issues and related errors.
-// TODO: temp commented-out until we confirm that the activate event is emitted correctly and consistently in production
+})
 
-// self.addEventListener('activate', (event: any) => {
-//   event.waitUntil(
-//     (async () => {
-//       // In the testing environment, we need to slow down app initialization.
-//       // This is necessary to predefine the chrome.storage testing values in our Playwright tests,
-//       // ensuring that the Controllers are initialized with the storage correctly.
-//       // Once the storage is configured in Playwright, we set the `isE2EStorageSet` flag to true.
-//       // Here, we are waiting for its value to be set.
-//       if (process.env.IS_TESTING === 'true') {
-//         const checkE2EStorage = async (): Promise<void> => {
-//           const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
+browser.runtime.onInstalled.addListener(async ({ reason }: any) => {
+  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
+  init()
 
-//           if (isE2EStorageSet) {
-//             return
-//           }
+  // It makes Playwright tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
+  // and we prefer to skip opening it for the testing.
+  if (process.env.IS_TESTING === 'true') return
+  if (isProd) {
+    browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
+  }
+  if (reason === 'install') {
+    setTimeout(() => {
+      const extensionURL = browser.runtime.getURL('tab.html')
+      browser.tabs.create({ url: extensionURL })
+    }, 500)
+  }
+})
 
-//           await wait(100)
-//           await checkE2EStorage()
-//         }
-
-//         await checkE2EStorage()
-//       }
-//       init()
-//     })()
-//   )
-// })
+browser.runtime.onMessage.addListener(async () => {
+  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
+  init()
+})
 
 try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {
@@ -739,22 +730,6 @@ try {
 } catch (error) {
   console.error('Failed to register browser.tabs.onRemoved.addListener', error)
 }
-
-// Open the get-started screen in a new tab right after the extension is installed.
-browser.runtime.onInstalled.addListener(({ reason }: any) => {
-  // It makes Playwright tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
-  // and we prefer to skip opening it for the testing.
-  if (process.env.IS_TESTING === 'true') return
-  if (isProd) {
-    browser.runtime.setUninstallURL('https://www.ambire.com/uninstall')
-  }
-  if (reason === 'install') {
-    setTimeout(() => {
-      const extensionURL = browser.runtime.getURL('tab.html')
-      browser.tabs.create({ url: extensionURL })
-    }, 500)
-  }
-})
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
