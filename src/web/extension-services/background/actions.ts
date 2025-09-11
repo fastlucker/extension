@@ -5,8 +5,8 @@ import { FeeSpeed, SigningStatus } from '@ambire-common/controllers/signAccountO
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import {
   AccountOpAction,
-  ActionExecutionType,
   Action as ActionFromActionsQueue,
+  ActionExecutionType,
   ActionPosition,
   OpenActionWindowParams
 } from '@ambire-common/interfaces/actions'
@@ -255,7 +255,6 @@ type MainControllerReloadSelectedAccount = {
 type MainControllerUpdateSelectedAccountPortfolio = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params?: {
-    forceUpdate?: boolean
     networks?: Network[]
   }
 }

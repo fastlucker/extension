@@ -93,7 +93,7 @@ const SettingsLink: FC<Props> = ({
         <Text
           style={Icon ? spacings.ml : {}}
           color={theme[getColor(isActive, isHovered)]}
-          fontSize={label.length > 25 ? 15 : 16}
+          fontSize={16}
           weight="medium"
         >
           {t(label)}
