@@ -237,6 +237,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
+    "@babel/plugin-transform-export-namespace-from": "7.27.1",
     "@babel/preset-env": "^7.22.5",
     "@babel/preset-typescript": "^7.23.3",
     "@expo/webpack-config": "^18.0.4",
