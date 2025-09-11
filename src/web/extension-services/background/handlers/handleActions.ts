@@ -581,6 +581,8 @@ export const handleActions = async (
       return await mainCtrl.domains.reverseLookup(params.address)
     case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
       return mainCtrl.domains.saveResolvedReverseLookup(params)
+    case 'CONTRACT_NAMES_CONTROLLER_GET_NAME':
+      return mainCtrl.contractNames.getName(params.address, params.chainId)
     case 'SET_IS_PINNED': {
       walletStateCtrl.isPinned = params.isPinned
       break
