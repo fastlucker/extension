@@ -24,7 +24,7 @@ const BenzinAddressName: FC<Props> = ({ address, chainId, ...rest }) => {
   const foundContractName = useMemo(() => {
     const name = state.contractNames?.[address]?.name
     if (!name) return
-    return undefined
+    return name
   }, [state, address])
 
   if (isLoadingEns)
