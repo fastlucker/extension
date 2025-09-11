@@ -18,6 +18,7 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 
 type Props = {
   title: string
+  callsCount: number
   primaryButtonText: string
   secondaryButtonText: string
   onPrimaryButtonPress: () => void
@@ -26,6 +27,7 @@ type Props = {
 
 const BatchAdded: FC<Props> = ({
   title,
+  callsCount,
   primaryButtonText,
   secondaryButtonText,
   onPrimaryButtonPress,
@@ -95,7 +97,7 @@ const BatchAdded: FC<Props> = ({
             >
               <BatchIcon width={16} height={16} color="#6000ff" />
               <Text fontSize={16} style={[spacings.mlSm]} color="#6000ff">
-                {t('3 transactions in batch')}
+                {t('{{ callsCount }} transactions in batch', { callsCount })}
               </Text>
             </View>
             <Text

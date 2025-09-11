@@ -92,6 +92,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const recipientMenuClosedAutomatically = useRef(false)
 
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
+  const [latestBatchedNetwork, setLatestBatchedNetwork] = useState(null)
 
   const controllerAmountFieldValue = amountFieldMode === 'token' ? controllerAmount : amountInFiat
   const [amountFieldValue, setAmountFieldValue] = useSyncedState<string>({
@@ -140,6 +141,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
     return accountUserRequests.filter((r) => r.meta.chainId === selectedToken.chainId)
   }, [selectedToken, account, userRequests.length, accountUserRequests])
+
+  const batchNetworkUserRequestsCount = useMemo(() => {
+    return getCallsCount(accountUserRequests.filter((r) => r.meta.chainId === latestBatchedNetwork))
+  }, [latestBatchedNetwork, accountUserRequests])
 
   const navigateOut = useCallback(() => {
     if (isActionWindow) {
@@ -413,6 +418,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
         // If the Batch modal is already skipped, we show the success batch page.
         if (state.shouldSkipTransactionQueuedModal) {
           setShowAddedToBatch(true)
+          setLatestBatchedNetwork(state.selectedToken?.chainId)
         }
 
         resetTransferForm()
@@ -588,6 +594,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     return (
       <BatchAdded
         title={isTopUp ? t('Top Up Gas Tank') : t('Send')}
+        callsCount={batchNetworkUserRequestsCount}
         primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
