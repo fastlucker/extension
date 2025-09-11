@@ -55,7 +55,7 @@ const AccountsOnPageList = ({
 }: Props) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { networks } = useNetworksControllerState()
+  const { allNetworks } = useNetworksControllerState()
   const accountPickerState = useAccountPickerControllerState()
   const [hasReachedBottom, setHasReachedBottom] = useState<null | boolean>(null)
   const [containerHeight, setContainerHeight] = useState(0)
@@ -168,9 +168,9 @@ const AccountsOnPageList = ({
 
   const networkNamesWithAccountStateError = useMemo(() => {
     return accountPickerState.networksWithAccountStateError.map((chainId) => {
-      return networks.find((n) => n.chainId === chainId)?.name
+      return allNetworks.find((n) => n.chainId === chainId)?.name
     })
-  }, [accountPickerState.networksWithAccountStateError, networks])
+  }, [accountPickerState.networksWithAccountStateError, allNetworks])
 
   // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device

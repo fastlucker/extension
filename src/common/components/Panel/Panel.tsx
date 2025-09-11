@@ -135,7 +135,7 @@ const Panel: React.FC<Props> = ({
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
               {!!withBackButton && <PanelBackButton onPress={onBackButtonPress} />}
               {!!title && <PanelTitle title={title} />}
-              <View style={{ width: 20 }} />
+              {!!withBackButton && <View style={{ width: 20 }} />}
             </View>
           )}
           {children}
