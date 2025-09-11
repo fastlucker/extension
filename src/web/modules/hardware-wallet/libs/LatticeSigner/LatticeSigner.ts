@@ -12,9 +12,7 @@ import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import wait from '@ambire-common/utils/wait'
-import LatticeController, {
-  GridPlusSDKConstants
-} from '@web/modules/hardware-wallet/controllers/LatticeController'
+import LatticeController, { GridPlusSDKConstants } from '@web/modules/hardware-wallet/controllers/LatticeController'
 
 class LatticeSigner implements KeystoreSignerInterface {
   key: ExternalKey
@@ -87,7 +85,8 @@ class LatticeSigner implements KeystoreSignerInterface {
         )}) is different than the key we expected (${shortenAddress(
           this.key.addr,
           13
-        )}). You likely have different active wallet on your Lattice1 device.`
+        )}). You likely have different active wallet on your Lattice1 device.`,
+        { sendCrashReport: false }
       )
     }
   }
@@ -99,7 +98,8 @@ class LatticeSigner implements KeystoreSignerInterface {
         `The key you signed with is different than the key we expected (${shortenAddress(
           this.key.addr,
           13
-        )}). You likely have different active wallet on your Lattice1 device.`
+        )}). You likely have different active wallet on your Lattice1 device.`,
+        { sendCrashReport: false }
       )
     }
   }
