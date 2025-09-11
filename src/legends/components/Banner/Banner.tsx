@@ -9,10 +9,10 @@ const Banner: React.FC = () => {
       <img className={styles.iconPlaceholder} src={governance} alt="Governance banner icon" />
       <div className={styles.textContent}>
         <div className={styles.title}>
-          ✅ Season 1 reward pool is confirmed: 20 million stkWALLET.
+          🛒 Vote is live: Add Bitrefill to Ambire’s App Catalog + 20% cashback on your first order!
         </div>
         <a
-          href="https://blog.ambire.com/rewards-pool-season1/#vote-summary/"
+          href="https://snapshot.box/#/s:ambire.eth/proposal/0xe9c25d55ec5277147a5a75ec082830bc5feaeb257b66e6409ff3788872867ac0"
           className={styles.readMoreLink}
           target="_blank"
           rel="noreferrer"
