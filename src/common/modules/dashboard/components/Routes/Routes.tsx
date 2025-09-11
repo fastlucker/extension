@@ -1,6 +1,8 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import rewardsBg from '@common/assets/images/rewards-bg.png'
+import BadgeIcon from '@common/assets/svg/BadgeIcon'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import ReceiveIcon from '@common/assets/svg/ReceiveIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -50,6 +52,17 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       isExternal: false,
       scale: 0.95,
       scaleOnHover: 1.02
+    },
+    {
+      testID: 'dashboard-button-quests',
+      icon: BadgeIcon,
+      label: t('Rewards'),
+      route:
+        'https://rewards.ambire.com/?utm_source=extension&utm_medium=button&utm_campaign=measure-button',
+      isExternal: true,
+      scale: 0.95,
+      scaleOnHover: 1.2,
+      backgroundImage: rewardsBg
     }
   ]
 

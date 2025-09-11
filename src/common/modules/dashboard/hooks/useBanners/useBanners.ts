@@ -32,7 +32,7 @@ const OFFLINE_BANNER: BannerInterface = {
   ]
 }
 
-export default function useBanners(): BannerInterface[] {
+export default function useBanners(): [BannerInterface[], BannerInterface[]] {
   const { isOffline } = useMainControllerState()
   const { banners: marketingBanners } = useBannersControllerState()
   const { account, portfolio, deprecatedSmartAccountBanner, firstCashbackBanner } =
@@ -46,22 +46,20 @@ export default function useBanners(): BannerInterface[] {
   const { extensionUpdateBanner } = useExtensionUpdateControllerState()
   const { banners: selectedAccountBanners } = useSelectedAccountControllerState()
 
-  const allBanners = useMemo(() => {
+  const controllerBanners = useMemo(() => {
     return [
-      ...marketingBanners,
       ...deprecatedSmartAccountBanner,
       ...requestBanners,
       ...actionBanners,
       ...(isOffline && portfolio.isAllReady ? [OFFLINE_BANNER] : []),
       ...(isOffline ? [] : [...swapAndBridgeBanners]),
-      ...activityBanners,
+      ...getCurrentAccountBanners(activityBanners, account?.addr),
       ...getCurrentAccountBanners(emailVaultBanners, account?.addr),
       ...selectedAccountBanners,
       ...extensionUpdateBanner,
       ...firstCashbackBanner
     ]
   }, [
-    marketingBanners,
     deprecatedSmartAccountBanner,
     requestBanners,
     actionBanners,
@@ -76,5 +74,5 @@ export default function useBanners(): BannerInterface[] {
     firstCashbackBanner
   ])
 
-  return allBanners
+  return [controllerBanners, marketingBanners]
 }

@@ -34,6 +34,7 @@
     "build:web:gecko": "rm -rf ./build/gecko-prod && APP_ENV=production WEB_ENGINE=gecko WEBPACK_BUILD_OUTPUT_PATH=gecko-prod expo export:web",
     "build:extensions": "sh ./scripts/build-extensions.sh",
     "build:extensions:gecko": "sh ./scripts/build-extensions.sh --gecko",
+    "build:extensions:webkit": "sh ./scripts/build-extensions.sh --webkit",
     "build:web:benzin": "rm -rf ./build/benzin-prod && APP_ENV=production WEBPACK_BUILD_OUTPUT_PATH=benzin-prod expo export:web",
     "build:web:legends": "rm -rf ./build/legends-prod && WEBPACK_BUILD_OUTPUT_PATH=legends-prod expo export:web",
     "export:web:webkit:sourcemaps": "sh ./scripts/export-source-maps.sh webkit",
@@ -55,7 +56,6 @@
     "yarn": ">=1.22.0 <2.0.0"
   },
   "dependencies": {
-    "@ambire/signature-validator": "^1.0.3",
     "@babel/plugin-proposal-decorators": "~7.22.7",
     "@babel/plugin-proposal-private-methods": "~7.18.6",
     "@babel/plugin-transform-typescript": "^7.23.3",
@@ -169,7 +169,6 @@
     "lru-cache": "6.0.0",
     "mini-css-extract-plugin": "^2.7.6",
     "nanoid": "4.0.0",
-    "p-queue": "^7.3.4",
     "path-browserify": "0.0.0",
     "process": "^0.11.0",
     "purify-ts": "2.1.0",
@@ -232,6 +231,7 @@
     "util": "~0.10.3",
     "uuid": "9.0.0",
     "validator": "^13.7.0",
+    "viem": "^2.33.3",
     "vm-browserify": "0.0.4",
     "webextension-polyfill": "^0.10.0"
   },
@@ -293,7 +293,8 @@
     "@types/react": "18.3.12",
     "expo-modules-autolinking": "~0.10.1",
     "@babel/core": "^7.20.2",
-    "babel-loader": "8.3.0"
+    "babel-loader": "8.3.0",
+    "elliptic": "^6.6.1"
   },
   "private": true
 }

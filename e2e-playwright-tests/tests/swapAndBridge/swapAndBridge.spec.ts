@@ -12,14 +12,18 @@ test.describe('swapAndBridge Smart Account', () => {
   test.afterEach(async ({ context }) => {
     await context.close()
   })
-  test('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should accept amount starting with zeros like "00.01" with during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const fromToken = tokens.dai.optimism
     const toToken = tokens.usdce.optimism
     await pages.swapAndBridge.prepareSwapAndBridge(0.1, fromToken, toToken)
     await pages.swapAndBridge.enterNumber('00.01', true)
   })
 
-  test('should accept amount starting with point like ".01" during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should accept amount starting with point like ".01" during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const fromToken = tokens.dai.optimism
     const toToken = tokens.usdce.optimism
 
@@ -27,11 +31,13 @@ test.describe('swapAndBridge Smart Account', () => {
     await pages.swapAndBridge.enterNumber('.01', true)
   })
 
-  test('should not accept chars as amount during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should not accept chars as amount during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const fromToken = tokens.dai.optimism
     const toToken = tokens.usdce.optimism
 
-    await pages.swapAndBridge.prepareSwapAndBridge(0.1, fromToken, toToken)
+    await pages.swapAndBridge.prepareSwapAndBridge(0.1, fromToken, toToken) // ~ 0.1$
     await pages.swapAndBridge.enterNumber('abc', true)
   })
 
@@ -44,7 +50,9 @@ test.describe('swapAndBridge Smart Account', () => {
     await pages.swapAndBridge.switchTokensOnSwapAndBridge()
   })
 
-  test('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should do MAX token "From" amount during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const dai = tokens.dai.optimism
     const usdc = tokens.usdc.base
 
@@ -52,7 +60,9 @@ test.describe('swapAndBridge Smart Account', () => {
     await pages.swapAndBridge.verifySendMaxTokenAmount(usdc)
   })
 
-  test('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should find token that already exists within the "Receive" list during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
     const eth = tokens.eth.base
@@ -61,21 +71,27 @@ test.describe('swapAndBridge Smart Account', () => {
     await pages.swapAndBridge.verifyDefaultReceiveToken(eth, wallet)
   })
 
-  test('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should import a token by address that is NOT in the default "Receive" list during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const eth = tokens.eth.ethereum
     const wcres = tokens.wcres.ethereum
     await pages.swapAndBridge.verifyNonDefaultReceiveToken(eth, wcres)
   })
 
-  test('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async ({ pages }) => {
+  test('should "reject" (ie cancel) Swap & Bridge from the Pending Route component with a Smart Account', async ({
+    pages
+  }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
     await pages.swapAndBridge.openSwapAndBridge()
-    await pages.swapAndBridge.prepareSwapAndBridge(0.8, usdc, wallet)
+    await pages.swapAndBridge.prepareSwapAndBridge(1, usdc, wallet) // ~ 0,1$
     await pages.swapAndBridge.rejectTransaction()
   })
 
-  test('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async ({ pages }) => {
+  test('should "proceed" Swap & Bridge from the Pending Route component with a Smart Account', async ({
+    pages
+  }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
@@ -85,7 +101,7 @@ test.describe('swapAndBridge Smart Account', () => {
 
     await test.step('prepare swap and bridge transaction', async () => {
       await pages.swapAndBridge.openSwapAndBridge()
-      await pages.swapAndBridge.prepareSwapAndBridge(0.005, usdc, wallet)
+      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
     })
 
     await test.step('proceed and sign the transaction', async () => {
@@ -97,7 +113,9 @@ test.describe('swapAndBridge Smart Account', () => {
     })
   })
 
-  test('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should switch from token amount to USD value and vise-versa during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const usdce = tokens.usdce.optimism
     const dai = tokens.dai.optimism
     const usdc = tokens.usdc.base
@@ -111,19 +129,23 @@ test.describe('swapAndBridge Smart Account', () => {
     await pages.swapAndBridge.switchUSDValueOnSwapAndBridge(xwallet, 0.9)
   })
 
-  test('should auto-refresh active route after 60s during Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should auto-refresh active route after 60s during Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
-    await pages.swapAndBridge.prepareSwapAndBridge(0.009, usdc, wallet)
+    await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
     await pages.swapAndBridge.verifyAutoRefreshRoute()
   })
 
-  test('should select a different route when Swap & Bridge with a Smart Account', async ({ pages }) => {
+  test('should select a different route when Swap & Bridge with a Smart Account', async ({
+    pages
+  }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
-    await pages.swapAndBridge.prepareSwapAndBridge(0.009, usdc, wallet)
+    await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
     await pages.swapAndBridge.clickOnSecondRoute()
   })
 
@@ -136,11 +158,11 @@ test.describe('swapAndBridge Smart Account', () => {
     })
 
     await test.step('prepare bridge transaction', async () => {
-      await pages.swapAndBridge.prepareBridgeTransaction(0.0063, usdc, usdcOpt)
+      await pages.swapAndBridge.prepareBridgeTransaction(0.1, usdc, usdcOpt) // ~ 0.1$
     })
 
     await test.step('sign transaction', async () => {
-      await pages.swapAndBridge.signTokens()
+      await pages.swapAndBridge.signTokens({ fromToken: usdc })
     })
 
     await test.step('assert new transaction on Activity tab', async () => {
@@ -148,7 +170,9 @@ test.describe('swapAndBridge Smart Account', () => {
     })
   })
 
-  test('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({ pages }) => {
+  test('should batch Swap of ERC20 tokens and Native to ERC20 token with a Smart Account', async ({
+    pages
+  }) => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
@@ -156,13 +180,13 @@ test.describe('swapAndBridge Smart Account', () => {
       await pages.swapAndBridge.monitorRequests()
     })
 
-    await test.step('add a transaction swapping WALLET for USDC to the batch', async () => {
-      await pages.swapAndBridge.prepareSwapAndBridge(0.003, wallet, usdc)
+    await test.step('add a transaction swapping USDC for WALLET to the batch', async () => {
+      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
       await pages.swapAndBridge.batchAction()
     })
 
     await test.step('add a transaction swapping USDC for WALLET to the existing batch and sign', async () => {
-      await pages.swapAndBridge.prepareSwapAndBridge(0.002, usdc, wallet)
+      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet)
       await pages.swapAndBridge.batchActionWithSign()
     })
 

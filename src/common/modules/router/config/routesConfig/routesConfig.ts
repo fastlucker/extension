@@ -103,10 +103,15 @@ const routesConfig: RouteConfig = {
     title: i18n.t('Welcome to Ambire Wallet'),
     name: i18n.t('Extension Password Setup')
   },
-  [ROUTES.keyStoreReset]: {
-    route: ROUTES.keyStoreReset,
-    title: i18n.t('Restore Key Store Passphrase'),
-    name: i18n.t('Restore Key Store Passphrase')
+  [ROUTES.keyStoreEmailRecovery]: {
+    route: ROUTES.keyStoreEmailRecovery,
+    title: i18n.t('Restore Extension Password'),
+    name: i18n.t('Restore Extension Password')
+  },
+  [ROUTES.keyStoreEmailRecoverySetNewPassword]: {
+    route: ROUTES.keyStoreEmailRecoverySetNewPassword,
+    title: i18n.t('Set New Extension Password'),
+    name: i18n.t('Set New Extension Password')
   },
   [ROUTES.accountPicker]: {
     route: ROUTES.accountPicker,
@@ -372,8 +377,8 @@ const routesConfig: RouteConfig = {
   },
   [ROUTES.benzin]: {
     route: ROUTES.benzin,
-    title: Platform.select({ default: i18n.t('Benzin') }),
-    name: Platform.select({ default: i18n.t('Benzin') })
+    title: Platform.select({ default: i18n.t('Explorer') }),
+    name: Platform.select({ default: i18n.t('Explorer') })
   },
   [ROUTES.switchAccount]: {
     route: ROUTES.switchAccount,

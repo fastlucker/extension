@@ -91,7 +91,7 @@ const AddressBookContact: FC<Props> = ({
 
     const container = containerRef.current as HTMLElement
 
-    container.addEventListener('mouseleave', closeTooltip)
+    container.addEventListener('mouseleave', closeTooltip, { passive: true })
 
     return () => {
       container.removeEventListener('mouseleave', () => closeTooltip)

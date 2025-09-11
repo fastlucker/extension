@@ -1,4 +1,5 @@
-name: Build production browser extensions ⚡
+# Temporarily build webkit only, because gecko build requires ARM64 architecture, see build-extension-gecko.yml
+name: Build AMD64 webkit production browser extension ⚡
 
 on:
   workflow_dispatch: # Manual trigger
@@ -45,6 +46,7 @@ jobs:
           echo "BROWSER_EXTENSION_PUBLIC_KEY=\"${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}\"" >> .env
           echo "REACT_APP_PIMLICO_API_KEY=\"${{ vars.REACT_APP_PIMLICO_API_KEY }}\"" >> .env
           echo "REACT_APP_ETHERSPOT_API_KEY=\"${{ vars.REACT_APP_ETHERSPOT_API_KEY }}\"" >> .env
+          echo "REACT_APP_CANDIDE_API_KEY=\"${{ vars.REACT_APP_CANDIDE_API_KEY }}\"" >> .env
           echo "NFT_CDN_URL=\"${{ vars.NFT_CDN_URL }}\"" >> .env
           echo "LEGENDS_NFT_ADDRESS=\"${{ vars.LEGENDS_NFT_ADDRESS }}\"" >> .env
           echo "LI_FI_API_KEY=\"${{ vars.LI_FI_API_KEY }}\"" >> .env
@@ -58,26 +60,28 @@ jobs:
           BROWSER_EXTENSION_PUBLIC_KEY: ${{ vars.BROWSER_EXTENSION_PUBLIC_KEY }}
           REACT_APP_PIMLICO_API_KEY: ${{ vars.REACT_APP_PIMLICO_API_KEY }}
           REACT_APP_ETHERSPOT_API_KEY: ${{ vars.REACT_APP_ETHERSPOT_API_KEY }}
+          REACT_APP_CANDIDE_API_KEY: ${{ vars.REACT_APP_CANDIDE_API_KEY }}
           NFT_CDN_URL: ${{ vars.NFT_CDN_URL }}
           LEGENDS_NFT_ADDRESS: ${{ vars.LEGENDS_NFT_ADDRESS }}
           LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
           SENTRY_DSN_BROWSER_EXTENSION: ${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}
-        run: yarn build:extensions
+        run: yarn build:extensions:webkit
 
-      - name: Generate .zip with the full source code (including .env)
-        run: |
-          zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip"
-        shell: bash
+      # TODO: Gecko-only, so skip while building webkit only
+      # - name: Generate .zip with the full source code (including .env)
+      #   run: |
+      #     zip -r extension-source-code.zip . -x "node_modules/*" -x ".git/*" -x "build/*" -x "*.zip" -x "src/legends/*"
+      #   shell: bash
 
-      - name: Upload source code 📦
-        uses: actions/upload-artifact@v4
-        with:
-          name: extension-source-code
-          path: ./extension-source-code.zip
+      # - name: Upload source code 📦
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: extension-source-code
+      #     path: ./extension-source-code.zip
 
       - name: Upload extension builds 📦
         uses: actions/upload-artifact@v4
         with:
-          name: extension-builds-and-source-maps
+          name: extension-builds-and-source-maps-webkit
           path: ./build/*.zip

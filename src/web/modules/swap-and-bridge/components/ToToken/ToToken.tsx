@@ -72,7 +72,9 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
-          toChainId: networks.filter((n) => String(n.chainId) === networkOption.value)[0].chainId
+          formValues: {
+            toChainId: networks.filter((n) => String(n.chainId) === networkOption.value)[0].chainId
+          }
         }
       })
     },
@@ -120,6 +122,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
       formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
       formStatus === SwapAndBridgeFormStatus.Proceeded ||
+      (formStatus === SwapAndBridgeFormStatus.InvalidRouteSelected && isAutoSelectRouteDisabled) ||
       shouldShowAmountOnEstimationFailure) &&
     updateQuoteStatus !== 'LOADING'
 
@@ -182,9 +185,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: {
-          toSelectedTokenAddr,
-          // Reset the from token if it's the same. undefined acts as "do nothing", null as reset
-          fromSelectedToken: isSameAsFromToken ? null : undefined
+          formValues: {
+            toSelectedTokenAddr,
+            // Reset the from token if it's the same. undefined acts as "do nothing", null as reset
+            fromSelectedToken: isSameAsFromToken ? null : undefined
+          }
         }
       })
     },

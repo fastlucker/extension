@@ -45,7 +45,6 @@ const RoutesModal = ({
     undefined
   )
   const [isEstimationLoading, setIsEstimationLoading] = useState<boolean>(false)
-  const [disabledRoutes, setDisabledRoutes] = useState<string[]>([])
 
   const persistedSelectedRoute = useMemo(() => {
     return quote?.selectedRoute
@@ -55,10 +54,15 @@ const RoutesModal = ({
     setUserSelectedRoute(persistedSelectedRoute)
   }, [persistedSelectedRoute])
 
+  const disabledRoutes = useMemo(() => {
+    if (!quote) return []
+    return quote.routes.filter((route) => route.disabled)
+  }, [quote])
+
   const handleSelectRoute = useCallback(
     (route: SwapAndBridgeRoute) => {
       if (!route) return
-      if (disabledRoutes.indexOf(route.routeId) !== -1) return
+      if (disabledRoutes.find((r) => r.routeId === route.routeId)) return
 
       if (route.routeId === persistedSelectedRoute?.routeId) {
         closeBottomSheet()
@@ -85,10 +89,11 @@ const RoutesModal = ({
       signAccountOpController.estimation.status === EstimationStatus.Error
     ) {
       setIsEstimationLoading(false)
-      disabledRoutes.push(persistedSelectedRoute.routeId)
-      setDisabledRoutes(disabledRoutes)
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED'
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED',
+        params: {
+          disabledReason: signAccountOpController.estimation.error?.message || 'Estimation failed'
+        }
       })
     }
 
@@ -112,8 +117,7 @@ const RoutesModal = ({
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item, index }: { item: SwapAndBridgeRoute; index: number }) => {
-      const { steps } = item
-      const isDisabled = disabledRoutes.indexOf(item.routeId) !== -1
+      const { steps, inputValueInUsd, outputValueInUsd } = item
       const isEstimatingRoute = isEstimationLoading && item.routeId === userSelectedRoute?.routeId
       const isSelected = item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute
 
@@ -123,13 +127,13 @@ const RoutesModal = ({
           style={({ hovered }: any) => [
             styles.itemContainer,
             index + 1 === quote?.routes?.length && spacings.mb0,
-            isDisabled && styles.disabledItem,
+            item.disabled && styles.disabledItem,
             (isSelected || hovered) && styles.selectedItem,
             isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
           onPress={() => handleSelectRoute(item)}
           // Disable route selection if any route is being estimated
-          disabled={isEstimationLoading || isDisabled}
+          disabled={isEstimationLoading || item.disabled}
         >
           {isEstimatingRoute && (
             <View
@@ -151,16 +155,18 @@ const RoutesModal = ({
           )}
           <RouteStepsPreview
             steps={steps}
+            inputValueInUsd={inputValueInUsd}
+            outputValueInUsd={outputValueInUsd}
             totalGasFeesInUsd={item.totalGasFeesInUsd}
             estimationInSeconds={item.serviceTime}
             isSelected={item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute}
-            isDisabled={isDisabled}
+            isDisabled={item.disabled}
+            disabledReason={item.disabledReason}
           />
         </Pressable>
       )
     },
     [
-      disabledRoutes,
       isEstimationLoading,
       userSelectedRoute?.routeId,
       styles.itemContainer,

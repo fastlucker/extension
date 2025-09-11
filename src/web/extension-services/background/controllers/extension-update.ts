@@ -1,5 +1,6 @@
-import EventEmitter, { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Banner } from '@ambire-common/interfaces/banner'
+import { ErrorRef } from '@ambire-common/interfaces/eventEmitter'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { logInfoWithPrefix } from '@web/utils/logger'
 

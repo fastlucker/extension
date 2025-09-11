@@ -85,7 +85,7 @@ module.exports = async function (env, argv) {
       manifest.browser_specific_settings = {
         gecko: {
           id: 'wallet@ambire.com',
-          strict_min_version: '115.0'
+          strict_min_version: '116.0'
         }
       }
     }
@@ -295,14 +295,6 @@ module.exports = async function (env, argv) {
       {
         from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
         to: 'browser-polyfill.min.js'
-      },
-      {
-        from: require.resolve('@trezor/connect-webextension/build/content-script.js'),
-        to: 'vendor/trezor/trezor-content-script.js'
-      },
-      {
-        from: require.resolve('@trezor/connect-webextension/build/trezor-connect-webextension.js'),
-        to: 'vendor/trezor/trezor-connect-webextension.js'
       }
     ]
 

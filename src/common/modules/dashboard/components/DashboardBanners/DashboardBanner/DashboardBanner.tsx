@@ -76,9 +76,13 @@ const DashboardBanner = ({
           break
 
         case 'open-external-url': {
-          if (type !== 'success') break
-
-          window.open(action.meta.url, '_blank')
+          if (action.meta?.url) {
+            window.open(action.meta.url, '_blank')
+          } else {
+            addToast('Could not open block explorer.', {
+              type: 'error'
+            })
+          }
           break
         }
 
@@ -189,16 +193,7 @@ const DashboardBanner = ({
           break
       }
     },
-    [
-      dispatch,
-      navigate,
-      addToast,
-      visibleActionsQueue,
-      type,
-      account,
-      actionsQueue,
-      openBottomSheet
-    ]
+    [dispatch, navigate, addToast, visibleActionsQueue, type, account, openBottomSheet]
   )
 
   const dismissAction = actions.find((action: Action) => action.label === 'Dismiss')

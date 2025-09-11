@@ -128,7 +128,7 @@ test.describe('trezor', () => {
       // When running in headed mode (--ui or --debug flags enabled in Playwright),
       // this dialog doesn't appear, so we conditionally click it.
       const locator = trezorPage.getByRole('button', { name: /I acknowledge and wish to/i })
-      await locator.waitFor({ timeout: 5000 })
+      await page.waitForTimeout(5000)
       if (await locator.isVisible()) {
         await locator.click()
       }

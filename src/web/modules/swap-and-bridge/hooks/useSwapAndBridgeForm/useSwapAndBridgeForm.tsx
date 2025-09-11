@@ -54,7 +54,7 @@ const useSwapAndBridgeForm = () => {
     updateBackgroundState: (newAmount) => {
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { fromAmount: newAmount }
+        params: { formValues: { fromAmount: newAmount } }
       })
     },
     forceUpdateOnChangeList: [fromAmountUpdateCounter, fromAmountFieldMode]
@@ -172,17 +172,19 @@ const useSwapAndBridgeForm = () => {
 
     if (!portfolio.isReadyToVisualize) return
 
-    const preselectedTokenInParams = currentRoute.state as
+    const routeState = currentRoute.state as
       | {
-          address: string
-          chainId: string
+          preselectedFromToken?: { address: string; chainId: bigint }
+          preselectedToToken?: { address: string; chainId: bigint }
+          fromAmount?: string
+          activeRouteIdToDelete?: string
         }
       | undefined
 
     const tokenToSelectOnInit = portfolio.tokens.find(
       (t) =>
-        t.address === preselectedTokenInParams?.address &&
-        t.chainId.toString() === preselectedTokenInParams.chainId &&
+        t.address === routeState?.preselectedFromToken?.address &&
+        t.chainId === routeState?.preselectedFromToken?.chainId &&
         getIsTokenEligibleForSwapAndBridge(t)
     )
 
@@ -190,7 +192,10 @@ const useSwapAndBridgeForm = () => {
       type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM',
       params: {
         sessionId,
-        preselectedFromToken: tokenToSelectOnInit
+        preselectedFromToken: tokenToSelectOnInit,
+        preselectedToToken: routeState?.preselectedToToken,
+        fromAmount: routeState?.fromAmount,
+        activeRouteIdToDelete: routeState?.activeRouteIdToDelete
       }
     })
     sessionIdsRequestedToBeInit.current.push(sessionId)
@@ -258,8 +263,6 @@ const useSwapAndBridgeForm = () => {
     }
     if (!inputValueInUsd) return null
 
-    if (inputValueInUsd <= quote.selectedRoute.outputValueInUsd) return null
-
     if (!fromSelectedToken) return null
 
     try {
@@ -289,7 +292,10 @@ const useSwapAndBridgeForm = () => {
         quote.selectedRoute.toToken.decimals,
         Number(quote.selectedRoute.toToken.priceUSD)
       )
-      const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
+      const allowedSlippage =
+        Number(inputValueInUsd) < 400
+          ? 1.05
+          : Number((0.005 / Math.ceil(Number(inputValueInUsd) / 20000)).toPrecision(2)) * 100 + 0.01
       const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
       if (possibleSlippage > allowedSlippage) {
         return {

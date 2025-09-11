@@ -38,9 +38,18 @@ type Props = {
   features: NetworkFeature[] | undefined
   withRetryButton?: boolean
   handleRetry?: () => void
+  hideBackgroundAndBorders?: boolean
+  titleSize?: number
 }
 
-const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRetry }: Props) => {
+const NetworkAvailableFeatures = ({
+  chainId,
+  features,
+  withRetryButton,
+  handleRetry,
+  hideBackgroundAndBorders = false,
+  titleSize = 18
+}: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
@@ -130,7 +139,7 @@ const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRe
     }
 
     dispatch({ type: 'REQUESTS_CONTROLLER_ADD_USER_REQUEST', params: { userRequest } })
-  }, [addToast, dispatch, account, selectedNetwork])
+  }, [addToast, dispatch, account, selectedNetwork, windowId])
 
   const shouldRenderRetryButton = useMemo(
     () => !!features && !!features.find((f) => f.id === 'flagged') && withRetryButton,
@@ -138,8 +147,8 @@ const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRe
   )
 
   return (
-    <View style={styles.container}>
-      <Text fontSize={18} weight="medium" style={spacings.mbMd}>
+    <View style={!hideBackgroundAndBorders ? styles.container : undefined}>
+      <Text fontSize={titleSize} weight="medium" style={spacings.mbMd}>
         {t('Available features')}
       </Text>
       <View>

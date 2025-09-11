@@ -279,7 +279,8 @@ const SignMessageScreen = () => {
           isVisible={isChooseSignerShown}
           isSigning={signStatus === 'LOADING'}
           selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-          handleChooseSigningKey={handleSign}
+          handleChooseKey={handleSign}
+          type="signing"
           handleClose={() => setIsChooseSignerShown(false)}
           account={account}
         />

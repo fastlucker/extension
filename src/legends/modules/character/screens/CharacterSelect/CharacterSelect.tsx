@@ -2,6 +2,7 @@ import { Contract, JsonRpcProvider } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import { LEGENDS_NFT_ADDRESS } from '@env'
 import Modal from '@legends/components/Modal'
 import Spinner from '@legends/components/Spinner'
@@ -25,7 +26,8 @@ const CharacterSelect = () => {
   const [isOpenNewNftAlert, setIsOpenNewNftAlert] = useState(false)
   const [hasStartedMinting, setHasStartedMinting] = useState(false)
 
-  const { character, isLoading } = useCharacterContext()
+  const { character, isLoading, isCharacterNotMinted } = useCharacterContext()
+
   const { isMinting, isMinted, loadingMessage, isCheckingMintStatus, mintCharacter } =
     useMintCharacter()
 
@@ -81,6 +83,10 @@ const CharacterSelect = () => {
         style={{ backgroundImage: `url(${blurredLights})` }}
       />
       <div>
+        <button type="button" className={styles.backButton} onClick={() => navigate(-1)}>
+          <LeftArrowIcon width={14} height={14} color="currentColor" />
+          Back to Rewards
+        </button>
         <h1 className={styles.title}>Mint Your NFT</h1>
         <p className={styles.description}>Pick your profile avatar and mint a soulbound NFT</p>
       </div>
@@ -134,11 +140,11 @@ const CharacterSelect = () => {
           // Currently minting
           (isMinting ||
             // Minted a short time ago and not caught by the relayer
-            (isMinted && !character))
+            (isMinted && isCharacterNotMinted))
         }
         loadingMessage={loadingMessage}
         errorMessage={errorMessage}
-        showOnMintModal={!!(character || (character && isMinted))}
+        showOnMintModal={!!(character && !isCharacterNotMinted && isMinted)}
         onButtonClick={redirectToCharacterPage}
       />
     </div>

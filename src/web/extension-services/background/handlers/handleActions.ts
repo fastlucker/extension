@@ -52,6 +52,7 @@ export const handleActions = async (
         port.sender.url = params.url
         if (port.sender.tab) port.sender.tab.url = params.url
       }
+      mainCtrl.ui.updateView(port.id, { currentRoute: params.route })
       break
     }
     case 'INIT_CONTROLLER_STATE': {
@@ -78,8 +79,6 @@ export const handleActions = async (
       }
       break
     }
-    case 'MAIN_CONTROLLER_ON_POPUP_OPEN':
-      return mainCtrl.onPopupOpen()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER': {
@@ -174,6 +173,9 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE':
       return await mainCtrl.accountPicker.setPage(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_FIND_AND_SET_LINKED_ACCOUNTS': {
+      return await mainCtrl.accountPicker.findAndSetLinkedAccounts()
+    }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE': {
       return await mainCtrl.accountPicker.setHDPathTemplate(params)
     }
@@ -193,6 +195,15 @@ export const handleActions = async (
       // skips the parallel one, if one is requested).
 
       return await mainCtrl.keystore.addKeys(params.keys)
+    }
+    case 'KEYSTORE_CONTROLLER_SEND_PASSWORD_DECRYPTED_PRIVATE_KEY_TO_UI': {
+      return await mainCtrl.keystore.sendPasswordDecryptedPrivateKeyToUi(
+        params.secret,
+        params.key,
+        params.salt,
+        params.iv,
+        params.associatedKeys
+      )
     }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
       // Since these accounts are view-only, directly add them in the
@@ -304,12 +315,13 @@ export const handleActions = async (
       return await mainCtrl.swapAndBridge.initForm(params.sessionId, {
         preselectedFromToken: params.preselectedFromToken,
         preselectedToToken: params.preselectedToToken ?? undefined,
-        fromAmount: params.fromAmount ?? undefined
+        fromAmount: params.fromAmount ?? undefined,
+        activeRouteIdToDelete: params.activeRouteIdToDelete ?? undefined
       })
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
       return mainCtrl.swapAndBridge.unloadScreen(params.sessionId, params.forceUnload)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
-      return mainCtrl.swapAndBridge.updateForm(params)
+      return mainCtrl.swapAndBridge.updateForm(params.formValues, params.updateProps)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
       return await mainCtrl.swapAndBridge.switchFromAndToTokens()
     case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
@@ -338,7 +350,7 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM':
       return mainCtrl.swapAndBridge.resetForm()
     case 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED':
-      return mainCtrl.swapAndBridge.markSelectedRouteAsFailed()
+      return mainCtrl.swapAndBridge.markSelectedRouteAsFailed(params.disabledReason)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
       return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
@@ -420,7 +432,9 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        chainIds: params?.chainId ? [BigInt(params?.chainId)] : undefined
+        chainIds: params?.chainId ? [BigInt(params?.chainId)] : undefined,
+        isManualReload: true,
+        maxDataAgeMs: 10 * 1000
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
@@ -507,6 +521,12 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
+    case 'KEYSTORE_CONTROLLER_SEND_ENCRYPTED_PRIVATE_KEY_TO_UI':
+      return await mainCtrl.keystore.sendPasswordEncryptedPrivateKeyToUi(
+        params.keyAddr,
+        params.secret,
+        params.entropy
+      )
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
@@ -515,21 +535,21 @@ export const handleActions = async (
       return await mainCtrl.keystore.deleteSeed(params.id)
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
-      return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
+      return await mainCtrl.emailVault?.getEmailVaultInfo(params.email)
     case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
-      return await mainCtrl.emailVault.uploadKeyStoreSecret(params.email)
+      return await mainCtrl.emailVault?.uploadKeyStoreSecret(params.email)
     case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
-      return await mainCtrl.emailVault.handleMagicLinkKey(params.email, undefined, params.flow)
+      return await mainCtrl.emailVault?.handleMagicLinkKey(params.email, undefined, params.flow)
     case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
-      return mainCtrl.emailVault.cancelEmailConfirmation()
+      return mainCtrl.emailVault?.cancelEmailConfirmation()
     case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
-      return await mainCtrl.emailVault.recoverKeyStore(params.email, params.newPass)
+      return await mainCtrl.emailVault?.recoverKeyStore(params.email, params.newPass)
     case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
-      return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
+      return await mainCtrl.emailVault?.cleanMagicAndSessionKeys()
     case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
-      return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+      return await mainCtrl.emailVault?.requestKeysSync(params.email, params.keys)
     case 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER':
-      return mainCtrl.emailVault.dismissBanner()
+      return mainCtrl.emailVault?.dismissBanner()
     case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
       return await mainCtrl.addressBook.addContact(params.name, params.address)
     }

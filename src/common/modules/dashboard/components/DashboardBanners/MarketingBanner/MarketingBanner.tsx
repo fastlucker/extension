@@ -16,6 +16,8 @@ import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
+const RELAYER_BANNER_TYPES = ['updates', 'rewards', 'new', 'vote', 'tips', 'alert'] as const
+
 interface Props {
   banner: Banner
 }
@@ -65,7 +67,8 @@ const MarketingBanner: React.FC<Props> = ({ banner }) => {
   const { isTab, isPopup } = getUiType()
   const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
-  const { text, type = 'updates', actions } = banner
+  const { text, type: bannerType = 'updates', actions } = banner
+  const type = RELAYER_BANNER_TYPES.includes(bannerType as any) ? bannerType : 'updates'
   const url = actions?.find((action) => action.actionName === 'open-link')?.meta?.url || ''
   const colors = typeBannerColorsMap[type]
 

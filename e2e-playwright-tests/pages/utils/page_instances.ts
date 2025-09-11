@@ -39,11 +39,15 @@ export class PageManager {
     this.dashboard = new DashboardPage(bootstrapContext)
     this.swapAndBridge = new SwapAndBridgePage(bootstrapContext)
     this.transfer = new TransferPage(bootstrapContext)
-    this.stability   = new StabilityPage(bootstrapContext)
+    this.stability = new StabilityPage(bootstrapContext)
   }
 
-  async initWithStorage(param: any): Promise<void> {
-    const { page, context, serviceWorker, extensionURL } = await bootstrapWithStorage('', param)
+  async initWithStorage(param: any, opts?: { shouldUnlockManually?: boolean }): Promise<void> {
+    const { page, context, serviceWorker, extensionURL } = await bootstrapWithStorage(
+      '',
+      param,
+      opts?.shouldUnlockManually ?? false
+    )
 
     const bootstrapContext = { page, context, serviceWorker, extensionURL }
 
@@ -51,13 +55,12 @@ export class PageManager {
   }
 
   async initWithoutStorage(): Promise<void> {
-    const { page, context } = await bootstrap('')
+    const { page, context, extensionURL } = await bootstrap('')
 
     const bootstrapContext = {
       page,
       context,
-      serviceWorker: undefined,
-      extensionURL: undefined
+      extensionURL
     }
 
     this.initializePages(bootstrapContext)

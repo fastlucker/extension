@@ -130,8 +130,10 @@ const TokenDetails = ({
         onPress: ({ chainId, address }: TokenResult) =>
           navigate(WEB_ROUTES.swapAndBridge, {
             state: {
-              chainId: String(chainId),
-              address
+              preselectedFromToken: {
+                address,
+                chainId
+              }
             }
           }),
         isDisabled: shouldDisableSwapAndBridge,
@@ -248,8 +250,6 @@ const TokenDetails = ({
       shouldDisableSwapAndBridge,
       isNetworkNotSupportedForSwapAndBridge,
       unavailableBecauseGasTankOrRewardsTokenTooltipText,
-      notImplementedYetTooltipText,
-      isGasTankToken,
       isTokenInfoLoading,
       hasGasTank
     ]
