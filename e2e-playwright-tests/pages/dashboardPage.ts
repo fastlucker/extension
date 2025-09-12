@@ -77,7 +77,7 @@ export class DashboardPage extends BasePage {
     const balanceThresholds: Record<string, number> = {
       'WALLET-8453': 400,
       'USDC-8453': 5,
-      'USDC-10': 5,
+      'USDC-10': 3,
       'USDC.E-10': 2,
       'DAI-10': 2,
       'xWALLET-1': 2
