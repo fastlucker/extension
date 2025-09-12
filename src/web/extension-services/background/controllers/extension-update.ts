@@ -81,7 +81,7 @@ export class ExtensionUpdateController extends EventEmitter {
           id: 'update-available',
           type: 'info',
           title: 'Update Available',
-          text: 'A new version is ready! Please restart your browser to apply the update.',
+          text: 'Please restart your browser, or toggle the extension off and on to update.',
           // The "Reload" button was removed since v5.16.1, because `browser.runtime.reload()`
           // was causing some funky Chrome glitches, see the deprecation notes in
           // ExtensionUpdateController.applyUpdate() for more details.
