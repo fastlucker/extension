@@ -3,6 +3,7 @@ import { AccountsController } from '@ambire-common/controllers/accounts/accounts
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { BannerController } from '@ambire-common/controllers/banner/banner'
+import { ContractNamesController } from '@ambire-common/controllers/contractNames/contractNames'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { DefiPositionsController } from '@ambire-common/controllers/defiPositions/defiPositions'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
@@ -46,6 +47,7 @@ export const controllersNestedInMainMapping = {
   requests: RequestsController,
   addressBook: AddressBookController,
   domains: DomainsController,
+  contractNames: ContractNamesController,
   invite: InviteController,
   swapAndBridge: SwapAndBridgeController,
   featureFlags: FeatureFlagsController,
