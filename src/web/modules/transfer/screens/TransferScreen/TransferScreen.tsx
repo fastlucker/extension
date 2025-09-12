@@ -16,14 +16,10 @@ import { getCallsCount } from '@ambire-common/utils/userRequest'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
-import BottomSheet from '@common/components/BottomSheet'
-import Checkbox from '@common/components/Checkbox'
-import DualChoiceModal from '@common/components/DualChoiceModal'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
-import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -76,11 +72,9 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { theme } = useTheme()
   const { visibleActionsQueue } = useActionsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { userRequests } = useRequestsControllerState()
   const {
     ref: gasTankSheetRef,
@@ -374,12 +368,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       }
 
       if (isFormValid && state.selectedToken) {
-        // In the case of a Batch, we show an info modal explaining what Batching is.
-        // We provide an option to skip this modal next time.
-        if (actionExecutionType === 'queue' && !state.shouldSkipTransactionQueuedModal) {
-          openBottomSheet()
-        }
-
         // Proceed in OneClick txn
         if (actionExecutionType === 'open-action-window') {
           // one click mode opens signAccountOp if more than 1 req in batch
@@ -419,11 +407,8 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           }
         })
 
-        // If the Batch modal is already skipped, we show the success batch page.
-        if (state.shouldSkipTransactionQueuedModal) {
-          setShowAddedToBatch(true)
-          setLatestBatchedNetwork(state.selectedToken?.chainId)
-        }
+        setShowAddedToBatch(true)
+        setLatestBatchedNetwork(state.selectedToken?.chainId)
 
         resetTransferForm()
       }
@@ -432,7 +417,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       isSendingBatch,
       isFormValid,
       state.selectedToken,
-      state.shouldSkipTransactionQueuedModal,
       state.amount,
       visibleActionsQueue,
       dispatch,
@@ -441,7 +425,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
       isTopUp,
       addressState,
       resetTransferForm,
-      openBottomSheet,
       networkUserRequests.length,
       openEstimationModalAndDispatch
     ]
@@ -679,57 +662,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           />
         )}
       </Content>
-      <BottomSheet
-        id="import-seed-phrase"
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        backgroundColor="secondaryBackground"
-        style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
-        type="modal"
-      >
-        <DualChoiceModal
-          title={t('Transaction added to batch')}
-          description={
-            <View>
-              <Text style={spacings.mbTy} appearance="secondaryText">
-                {t(
-                  'You can now add more transactions on this network and send them batched all together for signing.'
-                )}
-              </Text>
-              <Text appearance="secondaryText" style={spacings.mbLg}>
-                {t('All pending batch transactions are available on your Dashboard.')}
-              </Text>
-              <Checkbox
-                value={state.shouldSkipTransactionQueuedModal}
-                onValueChange={() => {
-                  dispatch({
-                    type: 'TRANSFER_CONTROLLER_SHOULD_SKIP_TRANSACTION_QUEUED_MODAL',
-                    params: {
-                      shouldSkip: true
-                    }
-                  })
-                }}
-                uncheckedBorderColor={theme.secondaryText}
-                label={t("Don't show this modal again")}
-                labelProps={{
-                  style: {
-                    color: theme.secondaryText
-                  },
-                  weight: 'medium'
-                }}
-                style={spacings.mb0}
-              />
-            </View>
-          }
-          primaryButtonText={t('Got it')}
-          primaryButtonTestID="queue-modal-got-it-button"
-          onPrimaryButtonPress={() => {
-            closeBottomSheet()
-            setShowAddedToBatch(true)
-          }}
-          onCloseIconPress={() => setShowAddedToBatch(true)}
-        />
-      </BottomSheet>
       <GasTankInfoModal
         id="gas-tank-info"
         sheetRef={gasTankSheetRef}

@@ -71,7 +71,7 @@ const BatchAdded: FC<Props> = ({
             flexbox.justifyCenter,
             spacings.pt2Xl,
             spacings.pbXl,
-            { maxWidth: 320, alignSelf: 'center' }
+            { alignSelf: 'center' }
           ]}
         >
           <BatchIconAnimated />
@@ -79,7 +79,7 @@ const BatchAdded: FC<Props> = ({
             {t('Successfully added to batch!')}
           </Text>
           <Text weight="medium" appearance="secondaryText" style={text.center}>
-            {t('You are saving on gas fees compared to sending individually.')}
+            {t('You are saving on gas fees compared\nto sending individually.')}
           </Text>
 
           <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mt2Xl]}>
