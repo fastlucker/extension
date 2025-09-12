@@ -198,9 +198,12 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
 
 handleKeepBridgeContentScriptAcrossSessions()
 
-const init = () => {
+const init = async () => {
   if (isInitialized) return
   isInitialized = true
+
+  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
+  await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
 
   // Init sentry
   if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
@@ -674,10 +677,7 @@ const setupStorageForTesting = async () => {
 
   const checkE2EStorage = async (): Promise<void> => {
     const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
-
-    if (isE2EStorageSet) {
-      return
-    }
+    if (isE2EStorageSet) return
 
     await wait(100)
     await checkE2EStorage()
@@ -686,14 +686,12 @@ const setupStorageForTesting = async () => {
   await checkE2EStorage()
 }
 
-browser.runtime.onStartup.addListener(async () => {
-  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
-  init()
+browser.runtime.onStartup.addListener(() => {
+  init().catch((err) => console.error(err)) // init the ctrls if not already initialized
 })
 
-browser.runtime.onInstalled.addListener(async ({ reason }: any) => {
-  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
-  init()
+browser.runtime.onInstalled.addListener(({ reason }: any) => {
+  init().catch((err) => console.error(err)) // init the ctrls if not already initialized
 
   // It makes Playwright tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
@@ -709,18 +707,21 @@ browser.runtime.onInstalled.addListener(async ({ reason }: any) => {
   }
 })
 
-browser.runtime.onMessage.addListener(async () => {
-  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
-  init()
-})
+browser.runtime.onMessage.addListener(
+  async (message: any, _: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+    init().catch((err) => console.error(err)) // init the ctrls if not already initialized
+
+    // The extension UI periodically sends "ping" messages. Responding here wakes up
+    // the service worker and keeps it alive as long as a view (popup, window, or tab) remains open.
+    if (message === 'ping') sendResponse('pong')
+  }
+)
 
 try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {
     // wait for mainCtrl to be initialized before handling dapp requests
-    while (!mainCtrl) {
-      // eslint-disable-next-line no-await-in-loop
-      await wait(200)
-    }
+    while (!mainCtrl) await wait(200)
+
     const sessionKeys = Object.keys(mainCtrl.dapps.dappSessions || {})
     // eslint-disable-next-line no-restricted-syntax
     for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
