@@ -27,7 +27,7 @@ import {
   VELCRO_URL
 } from '@env'
 import * as Sentry from '@sentry/browser'
-import { browser, platform } from '@web/constants/browserapi'
+import { browser, engine, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -220,7 +220,14 @@ const init = async () => {
   isInitialized = true
 
   if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
-  await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
+
+  if (engine === 'webkit') {
+    try {
+      await browser.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   const backgroundState: {
     isUnlocked: boolean
@@ -682,7 +689,7 @@ browser.runtime.onStartup.addListener(() => {
   init().catch((err) => console.error(err)) // init the ctrls if not already initialized
 })
 
-// Ensures controllers are initialized whenever the service worker restarts, the extension is updated, or installed for the first time.
+// Ensures controllers are initialized whenever the service worker restarts, the extension is updated, or is installed for the first time.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
   init().catch((err) => console.error(err)) // init the ctrls if not already initialized
 
