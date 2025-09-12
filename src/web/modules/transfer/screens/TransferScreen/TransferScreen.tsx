@@ -92,7 +92,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const recipientMenuClosedAutomatically = useRef(false)
 
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
-  const [latestBatchedNetwork, setLatestBatchedNetwork] = useState(null)
+  const [latestBatchedNetwork, setLatestBatchedNetwork] = useState<bigint | undefined>()
 
   const controllerAmountFieldValue = amountFieldMode === 'token' ? controllerAmount : amountInFiat
   const [amountFieldValue, setAmountFieldValue] = useSyncedState<string>({
@@ -143,8 +143,12 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   }, [selectedToken, account, userRequests.length, accountUserRequests])
 
   const batchNetworkUserRequestsCount = useMemo(() => {
-    return getCallsCount(accountUserRequests.filter((r) => r.meta.chainId === latestBatchedNetwork))
-  }, [latestBatchedNetwork, accountUserRequests])
+    if (!latestBatchedNetwork || !account || !accountUserRequests.length) return 0
+
+    const reqs = accountUserRequests.filter((r) => r.meta.chainId === latestBatchedNetwork)
+
+    return getCallsCount(reqs)
+  }, [latestBatchedNetwork, account, accountUserRequests])
 
   const navigateOut = useCallback(() => {
     if (isActionWindow) {
