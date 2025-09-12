@@ -149,6 +149,24 @@ let mainCtrl: MainController
 let walletStateCtrl: WalletStateController
 let autoLockCtrl: AutoLockController
 
+// Initialize Sentry early to set up global error handlers during initial script evaluation
+if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
+  Sentry.init({
+    ...CRASH_ANALYTICS_BACKGROUND_CONFIG,
+    beforeSend(event) {
+      // We don't want to miss errors that occur before the controllers are initialized
+      if (!walletStateCtrl) return event
+
+      if (isDev) {
+        console.log(`Sentry event captured in background: ${event.event_id}`, event)
+      }
+
+      // If the Sentry is disabled, we don't send any events
+      return walletStateCtrl?.crashAnalyticsEnabled ? event : null
+    }
+  })
+}
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
 handleKeepAlive()
@@ -203,24 +221,6 @@ const init = async () => {
 
   if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
   await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
-
-  // Init sentry
-  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
-    Sentry.init({
-      ...CRASH_ANALYTICS_BACKGROUND_CONFIG,
-      beforeSend(event) {
-        // We don't want to miss errors that occur before the controllers are initialized
-        if (!walletStateCtrl) return event
-
-        if (isDev) {
-          console.log(`Sentry event captured in background: ${event.event_id}`, event)
-        }
-
-        // If the Sentry is disabled, we don't send any events
-        return walletStateCtrl.crashAnalyticsEnabled ? event : null
-      }
-    })
-  }
 
   const backgroundState: {
     isUnlocked: boolean
