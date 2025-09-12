@@ -682,10 +682,12 @@ const setupStorageForTesting = async () => {
   await checkE2EStorage()
 }
 
+// Ensures controllers are initialized when the browser starts.
 browser.runtime.onStartup.addListener(() => {
   init().catch((err) => console.error(err)) // init the ctrls if not already initialized
 })
 
+// Ensures controllers are initialized whenever the service worker restarts, the extension is updated, or installed for the first time.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
   init().catch((err) => console.error(err)) // init the ctrls if not already initialized
 
@@ -703,6 +705,7 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
   }
 })
 
+// Ensures controllers are initialized if the service worker is inactive and gets reactivated when the extension popup opens.
 browser.runtime.onMessage.addListener(
   async (message: any, _: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
     init().catch((err) => console.error(err)) // init the ctrls if not already initialized
