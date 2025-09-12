@@ -64,7 +64,7 @@ import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
 import {
   captureBackgroundException,
-  CRASH_ANALYTICS_WEB_CONFIG,
+  CRASH_ANALYTICS_BACKGROUND_CONFIG,
   setBackgroundExtraContext,
   setBackgroundUserContext
 } from './CrashAnalytics'
@@ -207,12 +207,7 @@ const init = async () => {
   // Init sentry
   if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
     Sentry.init({
-      ...CRASH_ANALYTICS_WEB_CONFIG,
-      initialScope: {
-        tags: {
-          content: 'background'
-        }
-      },
+      ...CRASH_ANALYTICS_BACKGROUND_CONFIG,
       beforeSend(event) {
         // We don't want to miss errors that occur before the controllers are initialized
         if (!walletStateCtrl) return event
