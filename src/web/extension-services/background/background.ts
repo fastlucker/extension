@@ -144,7 +144,6 @@ function captureBackgroundExceptionFromControllerError(error: ErrorRef, controll
 }
 
 let isInitialized = false
-let isSetupStorageForTestingCalled = false
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 let walletStateCtrl: WalletStateController
@@ -666,9 +665,6 @@ const init = async () => {
 }
 
 const setupStorageForTesting = async () => {
-  if (isSetupStorageForTestingCalled) return
-  isSetupStorageForTestingCalled = true
-
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Playwright tests,
   // ensuring that the Controllers are initialized with the storage correctly.
