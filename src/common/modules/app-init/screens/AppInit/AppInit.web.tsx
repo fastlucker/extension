@@ -27,6 +27,7 @@ import { AddressBookControllerStateProvider } from '@web/contexts/addressBookCon
 import { AutoLockControllerStateProvider } from '@web/contexts/autoLockControllerStateContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { BannerControllerStateProvider } from '@web/contexts/bannerControllerStateContext/bannerControllerStateContext'
+import { ContractNamesControllerStateProvider } from '@web/contexts/contractNamesControllerStateContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
 import { DappsControllerStateProvider } from '@web/contexts/dappsControllerStateContext'
 import { DomainsControllerStateProvider } from '@web/contexts/domainsControllerStateContext'
@@ -90,30 +91,32 @@ const AppInit = () => {
                                                             <PhishingControllerStateProvider>
                                                               <DappsControllerStateProvider>
                                                                 <DomainsControllerStateProvider>
-                                                                  <AddressBookControllerStateProvider>
-                                                                    <SwapAndBridgeControllerStateProvider>
-                                                                      <TransferControllerStateProvider>
-                                                                        {/* Reading from controllers in components, rendered above ControllersStateLoadedProvider
+                                                                  <ContractNamesControllerStateProvider>
+                                                                    <AddressBookControllerStateProvider>
+                                                                      <SwapAndBridgeControllerStateProvider>
+                                                                        <TransferControllerStateProvider>
+                                                                          {/* Reading from controllers in components, rendered above ControllersStateLoadedProvider
                                                                     must be done very carefully, as it is not guaranteed that the state is loaded */}
-                                                                        <ControllersStateLoadedProvider>
-                                                                          <StorageProvider>
-                                                                            <KeyboardProvider>
-                                                                              <NetInfoProvider>
-                                                                                <AuthProvider>
-                                                                                  <OnboardingNavigationProvider>
-                                                                                    <PrivateModeProvider>
-                                                                                      <AppRouter />
-                                                                                    </PrivateModeProvider>
-                                                                                    <PortalHost name="global" />
-                                                                                  </OnboardingNavigationProvider>
-                                                                                </AuthProvider>
-                                                                              </NetInfoProvider>
-                                                                            </KeyboardProvider>
-                                                                          </StorageProvider>
-                                                                        </ControllersStateLoadedProvider>
-                                                                      </TransferControllerStateProvider>
-                                                                    </SwapAndBridgeControllerStateProvider>
-                                                                  </AddressBookControllerStateProvider>
+                                                                          <ControllersStateLoadedProvider>
+                                                                            <StorageProvider>
+                                                                              <KeyboardProvider>
+                                                                                <NetInfoProvider>
+                                                                                  <AuthProvider>
+                                                                                    <OnboardingNavigationProvider>
+                                                                                      <PrivateModeProvider>
+                                                                                        <AppRouter />
+                                                                                      </PrivateModeProvider>
+                                                                                      <PortalHost name="global" />
+                                                                                    </OnboardingNavigationProvider>
+                                                                                  </AuthProvider>
+                                                                                </NetInfoProvider>
+                                                                              </KeyboardProvider>
+                                                                            </StorageProvider>
+                                                                          </ControllersStateLoadedProvider>
+                                                                        </TransferControllerStateProvider>
+                                                                      </SwapAndBridgeControllerStateProvider>
+                                                                    </AddressBookControllerStateProvider>
+                                                                  </ContractNamesControllerStateProvider>
                                                                 </DomainsControllerStateProvider>
                                                               </DappsControllerStateProvider>
                                                             </PhishingControllerStateProvider>
