@@ -21,14 +21,10 @@ const selectors = {
     magnifyingGlassIcon: 'search-glass-icon',
     tokenBalance: '[data-testid^="token-balance"]',
     networkBase: '//div[text()="Base"]',
-<<<<<<< HEAD
     nftTitle: 'collection-item',
     nftsTitle: '[data-testid^="collection-item"]',
-    noTokenSearchResult: (message: string) => `//div[contains(text(),'${message}')]`
-=======
     noTokenSearchResult: (message: string) => `//div[contains(text(),'${message}')]`,
     searchForNetwork: 'search-for-network-field'
->>>>>>> v2
   },
   settings: {
     createNewRecoveryPhraseButton: 'create-new-recovery-phrase',
