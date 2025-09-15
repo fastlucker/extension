@@ -27,7 +27,7 @@ import {
   VELCRO_URL
 } from '@env'
 import * as Sentry from '@sentry/browser'
-import { browser, engine, platform } from '@web/constants/browserapi'
+import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -221,11 +221,12 @@ const init = async () => {
 
   if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
 
-  if (engine === 'webkit') {
+  if (browser.storage.local?.setAccessLevel) {
     try {
       await browser.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      captureBackgroundException(err)
+      console.error(err)
     }
   }
 
@@ -686,12 +687,20 @@ const setupStorageForTesting = async () => {
 
 // Ensures controllers are initialized when the browser starts.
 browser.runtime.onStartup.addListener(() => {
-  init().catch((err) => console.error(err)) // init the ctrls if not already initialized
+  // init the ctrls if not already initialized
+  init().catch((err) => {
+    captureBackgroundException(err)
+    console.error(err)
+  })
 })
 
 // Ensures controllers are initialized whenever the service worker restarts, the extension is updated, or is installed for the first time.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
-  init().catch((err) => console.error(err)) // init the ctrls if not already initialized
+  // init the ctrls if not already initialized
+  init().catch((err) => {
+    captureBackgroundException(err)
+    console.error(err)
+  })
 
   // It makes Playwright tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
@@ -710,7 +719,11 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
 // Ensures controllers are initialized if the service worker is inactive and gets reactivated when the extension popup opens.
 browser.runtime.onMessage.addListener(
   async (message: any, _: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-    init().catch((err) => console.error(err)) // init the ctrls if not already initialized
+    // init the ctrls if not already initialized
+    init().catch((err) => {
+      captureBackgroundException(err)
+      console.error(err)
+    })
 
     // The extension UI periodically sends "ping" messages. Responding here wakes up
     // the service worker and keeps it alive as long as a view (popup, window, or tab) remains open.
