@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { Hex } from '@ambire-common/interfaces/hex'
-import { getIsBridgeRoute } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getIsBridgeRoute, getLink } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -34,8 +34,6 @@ const { isActionWindow } = getUiType()
 type Props = {
   handleClose: () => void
 }
-
-const LIFI_EXPLORER_URL = 'https://scan.li.fi'
 
 const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { t } = useTranslation()
@@ -125,7 +123,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
 
   const explorerLink = useMemo(() => {
     if (!isSwap) {
-      return `${LIFI_EXPLORER_URL}/tx/${lastCompletedRoute.userTxHash}`
+      return getLink(lastCompletedRoute)
     }
     const toChainId = lastCompletedRoute.route?.toChainId
     if (!toChainId) return

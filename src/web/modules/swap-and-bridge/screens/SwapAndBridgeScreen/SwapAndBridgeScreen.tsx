@@ -73,7 +73,8 @@ const SwapAndBridgeScreen = () => {
     signAccountOpController,
     isAutoSelectRouteDisabled,
     hasProceeded,
-    swapSignErrors
+    swapSignErrors,
+    quote
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
@@ -276,6 +277,7 @@ const SwapAndBridgeScreen = () => {
         handleBroadcastAccountOp={handleBroadcastAccountOp}
         hasProceeded={hasProceeded}
         signAccountOpController={signAccountOpController}
+        serviceFee={quote?.selectedRoute?.serviceFee}
       />
       <PriceImpactWarningModal
         sheetRef={priceImpactModalRef}

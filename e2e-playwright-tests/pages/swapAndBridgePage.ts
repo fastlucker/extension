@@ -309,7 +309,7 @@ export class SwapAndBridgePage extends BasePage {
 
   async assertSelectedAggregator(): Promise<void> {
     await expect(this.page.getByText('SushiSwap').last()).toBeVisible()
-    await expect(this.page.getByText('Selected').last()).toBeVisible()
+    await expect(this.page.getByTestId('selected-route')).toBeVisible()
   }
 
   async clickOnSecondRoute(): Promise<void> {

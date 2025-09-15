@@ -22,7 +22,6 @@ import CONFIG, { isDev, isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   BROWSER_EXTENSION_MEMORY_INTENSIVE_LOGS,
-  LI_FI_API_KEY,
   RELAYER_URL,
   VELCRO_URL
 } from '@env'
@@ -302,7 +301,6 @@ const init = async () => {
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    swapApiKey: LI_FI_API_KEY,
     featureFlags: {},
     keystoreSigners: {
       internal: KeystoreSigner,
