@@ -242,7 +242,7 @@
 .stakeButton {
   @include primary-button;
   min-width: 30.875rem;
-  height: 4rem;
+  min-height: 4rem;
   font-size: 1.25rem;
   font-weight: 400;
 }

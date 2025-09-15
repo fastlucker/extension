@@ -90,8 +90,36 @@ test.describe('dashboard', () => {
     })
   })
 
+  test('Filter Token using network dropdown', async ({ pages }) => {
+    // SA should have 5 tokens on Base network - wallet, usdc, usdt, eth, clBtc
+    const wallet = tokens.wallet.base
+    const usdc = tokens.usdc.base
+    const usdt = tokens.usdt.base
+    const eth = tokens.eth.base
+    const clBtc = tokens.clbtc.base
+
+    await test.step('select Base network via dropdown', async () => {
+      await pages.dashboard.searchByNetworkDropdown('Base')
+    })
+
+    await test.step('assert search result', async () => {
+      await pages.basePage.isVisible(`token-balance-${wallet.address}.${wallet.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdc.address}.${usdc.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
+
+      // 5 items should be visible for SA
+      await pages.basePage.expectItemsCount(selectors.dashboard.networkBase, 5)
+    })
+  })
+
   test('Search for non existing Token returns appropriate message', async ({ pages }) => {
+<<<<<<< HEAD
     await test.step('search for non existing Token name - Test', async () => {
+=======
+    await test.step('search by token name - USDC', async () => {
+>>>>>>> v2
       await pages.dashboard.search('Test')
     })
 
