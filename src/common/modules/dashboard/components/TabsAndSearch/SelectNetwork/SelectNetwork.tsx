@@ -122,7 +122,11 @@ const SelectNetwork = () => {
             <Text fontSize={14}>{filterByNetworkName}</Text>
           </View>
         ) : (
-          <Text fontSize={14} color={isHovered ? theme.primaryText : theme.secondaryText}>
+          <Text
+            testID="networks-dropdown"
+            fontSize={14}
+            color={isHovered ? theme.primaryText : theme.secondaryText}
+          >
             {t('All Networks')}
           </Text>
         )}
