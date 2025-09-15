@@ -51,7 +51,7 @@ test.describe('dashboard', () => {
     const clBtc = tokens.clbtc.base
 
     await test.step('search Tokens by network - Base', async () => {
-      await pages.dashboard.search('Base')
+      await pages.dashboard.search('Base', 'tokens')
     })
 
     await test.step('assert search result', async () => {
@@ -74,7 +74,7 @@ test.describe('dashboard', () => {
     const usdcPolygon = tokens.usdc.polygon
 
     await test.step('search Tokens by token name - USDC', async () => {
-      await pages.dashboard.search('USDC')
+      await pages.dashboard.search('USDC', 'tokens')
     })
 
     await test.step('assert search result', async () => {
@@ -99,7 +99,7 @@ test.describe('dashboard', () => {
     const clBtc = tokens.clbtc.base
 
     await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base')
+      await pages.dashboard.searchByNetworkDropdown('Base', 'tokens')
     })
 
     await test.step('assert search result', async () => {
@@ -116,7 +116,7 @@ test.describe('dashboard', () => {
 
   test('Search for non existing Token returns appropriate message', async ({ pages }) => {
     await test.step('search for non existing Token name - Test', async () => {
-      await pages.dashboard.search('Test')
+      await pages.dashboard.search('Test', 'tokens')
     })
 
     await test.step('assert no search result', async () => {
@@ -130,7 +130,7 @@ test.describe('dashboard', () => {
     })
 
     await test.step('search NFTs by network - Base', async () => {
-      await pages.dashboard.search('Base', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.search('Base', 'collectibles')
     })
 
     await test.step('assert search result', async () => {
@@ -145,7 +145,7 @@ test.describe('dashboard', () => {
     })
 
     await test.step('search by NFT name - Ambire Legends', async () => {
-      await pages.dashboard.search('Ambire Legends', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.search('Ambire Legends', 'collectibles')
     })
 
     await test.step('assert search result', async () => {
@@ -163,7 +163,7 @@ test.describe('dashboard', () => {
     })
 
     await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.searchByNetworkDropdown('Base', 'collectibles')
     })
 
     await test.step('assert search result', async () => {
@@ -178,7 +178,7 @@ test.describe('dashboard', () => {
     })
 
     await test.step('search by NFT name - Test', async () => {
-      await pages.dashboard.search('Test', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.search('Test', 'collectibles')
     })
 
     await test.step('assert no search result', async () => {
