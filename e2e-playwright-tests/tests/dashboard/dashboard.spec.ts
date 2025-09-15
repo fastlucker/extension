@@ -157,13 +157,13 @@ test.describe('dashboard', () => {
     })
   })
 
-  test.only('Filter NFTs using network dropdown', async ({ pages }) => {
+  test('Filter NFTs using network dropdown', async ({ pages }) => {
     await test.step('navigate to tab NFTs', async () => {
       await pages.basePage.click(selectors.dashboard.nftTabButton)
     })
 
     await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base')
+      await pages.dashboard.searchByNetworkDropdown('Base', 1) // passing index for clicking on search icon; NFT tab is second
     })
 
     await test.step('assert search result', async () => {

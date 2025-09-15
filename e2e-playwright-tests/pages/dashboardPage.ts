@@ -122,9 +122,9 @@ export class DashboardPage extends BasePage {
     await this.entertext(selectors.searchInput, searchInput)
   }
 
-  async searchByNetworkDropdown(searchInput: string) {
+  async searchByNetworkDropdown(searchInput: string, index?: number) {
     // open dropdown
-    await this.click(selectors.dashboard.networksDropdown)
+    await this.click(selectors.dashboard.networksDropdown, index)
 
     // search network
     await this.entertext(selectors.dashboard.searchForNetwork, searchInput)
