@@ -99,7 +99,7 @@ test.describe('dashboard', () => {
     const clBtc = tokens.clbtc.base
 
     await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base')
+      await pages.dashboard.searchByNetworkDropdown('Base', 'tokens')
     })
 
     await test.step('assert search result', async () => {
