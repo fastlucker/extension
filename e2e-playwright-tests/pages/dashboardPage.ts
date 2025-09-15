@@ -122,6 +122,18 @@ export class DashboardPage extends BasePage {
     await this.entertext(selectors.searchInput, searchInput)
   }
 
+  async searchByNetworkDropdown(searchInput: string) {
+    // open dropdown
+    await this.click(selectors.dashboard.networksDropdown)
+
+    // search network
+    await this.entertext(selectors.dashboard.searchForNetwork, searchInput)
+
+    // click on searched network
+    const networkSelector = this.page.locator(`//div[text()="${searchInput}"]`)
+    await networkSelector.click()
+  }
+
   async noSearchResult(noSearchMessage: string) {
     // creating selector using message
     const noSearchResultSelector = this.page.locator(
