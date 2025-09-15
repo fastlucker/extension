@@ -150,7 +150,7 @@ test.describe('dashboard', () => {
 
     await test.step('assert search result', async () => {
       // 1 item should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 'collectibles')
+      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 1)
 
       // assert nft title
       await pages.basePage.compareText(selectors.dashboard.nftTitle, 'Ambire Legends')
