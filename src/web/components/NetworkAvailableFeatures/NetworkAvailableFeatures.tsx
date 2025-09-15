@@ -176,7 +176,7 @@ const NetworkAvailableFeatures = ({
                     weight="medium"
                     appearance="secondaryText"
                     style={{ ...spacings.mrTy, overflow: 'visible' }}
-                    numberOfLines={2}
+                    numberOfLines={3}
                   >
                     {feature.title}
                     {pathname?.includes(ROUTES.networksSettings) &&

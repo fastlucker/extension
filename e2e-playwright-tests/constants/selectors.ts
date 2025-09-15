@@ -19,9 +19,10 @@ const selectors = {
     grantApprovalText: '//div[contains(text(),"Grant approval")]', // TODO: change once we have id on FE,
     networksDropdown: 'networks-dropdown',
     magnifyingGlassIcon: 'search-glass-icon',
-    tokenUSDC: '//div[text()="USDC"]',
-    tokenUSDCe: '//div[text()="USDC.E"]',
+    tokenBalance: '[data-testid^="token-balance"]',
     networkBase: '//div[text()="Base"]',
+    nftTitle: 'collection-item',
+    nftsTitle: '[data-testid^="collection-item"]',
     noTokenSearchResult: (message: string) => `//div[contains(text(),'${message}')]`,
     searchForNetwork: 'search-for-network-field'
   },

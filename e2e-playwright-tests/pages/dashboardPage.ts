@@ -114,17 +114,17 @@ export class DashboardPage extends BasePage {
     )
   }
 
-  async search(searchInput: string) {
+  async search(searchInput: string, index?: number) {
     // click on magnifying glass icon
-    await this.click(selectors.dashboard.magnifyingGlassIcon)
+    await this.click(selectors.dashboard.magnifyingGlassIcon, index ?? 0)
 
     // enter search phrase
     await this.entertext(selectors.searchInput, searchInput)
   }
 
-  async searchByNetworkDropdown(searchInput: string) {
+  async searchByNetworkDropdown(searchInput: string, index?: number) {
     // open dropdown
-    await this.click(selectors.dashboard.networksDropdown)
+    await this.click(selectors.dashboard.networksDropdown, index)
 
     // search network
     await this.entertext(selectors.dashboard.searchForNetwork, searchInput)

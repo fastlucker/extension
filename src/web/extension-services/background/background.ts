@@ -63,7 +63,7 @@ import { LOG_LEVELS, logInfoWithPrefix } from '@web/utils/logger'
 
 import {
   captureBackgroundException,
-  CRASH_ANALYTICS_WEB_CONFIG,
+  CRASH_ANALYTICS_BACKGROUND_CONFIG,
   setBackgroundExtraContext,
   setBackgroundUserContext
 } from './CrashAnalytics'
@@ -142,10 +142,29 @@ function captureBackgroundExceptionFromControllerError(error: ErrorRef, controll
   })
 }
 
+let isInitialized = false
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
 let walletStateCtrl: WalletStateController
 let autoLockCtrl: AutoLockController
+
+// Initialize Sentry early to set up global error handlers during initial script evaluation
+if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
+  Sentry.init({
+    ...CRASH_ANALYTICS_BACKGROUND_CONFIG,
+    beforeSend(event) {
+      // We don't want to miss errors that occur before the controllers are initialized
+      if (!walletStateCtrl) return event
+
+      if (isDev) {
+        console.log(`Sentry event captured in background: ${event.event_id}`, event)
+      }
+
+      // If the Sentry is disabled, we don't send any events
+      return walletStateCtrl?.crashAnalyticsEnabled ? event : null
+    }
+  })
+}
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 handleRegisterScripts()
@@ -195,28 +214,19 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
 
 handleKeepBridgeContentScriptAcrossSessions()
 
-const init = () => {
-  // Init sentry
-  if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
-    Sentry.init({
-      ...CRASH_ANALYTICS_WEB_CONFIG,
-      initialScope: {
-        tags: {
-          content: 'background'
-        }
-      },
-      beforeSend(event) {
-        // We don't want to miss errors that occur before the controllers are initialized
-        if (!walletStateCtrl) return event
+const init = async () => {
+  if (isInitialized) return
+  isInitialized = true
 
-        if (isDev) {
-          console.log(`Sentry event captured in background: ${event.event_id}`, event)
-        }
+  if (process.env.IS_TESTING === 'true') await setupStorageForTesting()
 
-        // If the Sentry is disabled, we don't send any events
-        return walletStateCtrl.crashAnalyticsEnabled ? event : null
-      }
-    })
+  if (browser.storage.local?.setAccessLevel) {
+    try {
+      await browser.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
+    } catch (err) {
+      captureBackgroundException(err)
+      console.error(err)
+    }
   }
 
   const backgroundState: {
@@ -655,91 +665,41 @@ const init = () => {
   })
 }
 
-// eslint-disable-next-line no-restricted-globals
-self.addEventListener('install', () => {
-  console.log('[Service Worker] Installed')
-})
-
-// eslint-disable-next-line no-restricted-globals
-self.addEventListener('activate', () => {
-  console.log('[Service Worker] Activated')
-})
-// TODO: temporarily call init outside activate
-;(async () => {
+const setupStorageForTesting = async () => {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Playwright tests,
   // ensuring that the Controllers are initialized with the storage correctly.
   // Once the storage is configured in Playwright, we set the `isE2EStorageSet` flag to true.
   // Here, we are waiting for its value to be set.
-  if (process.env.IS_TESTING === 'true') {
-    const checkE2EStorage = async (): Promise<void> => {
-      const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
 
-      if (isE2EStorageSet) {
-        return
-      }
+  const checkE2EStorage = async (): Promise<void> => {
+    const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
+    if (isE2EStorageSet) return
 
-      await wait(100)
-      await checkE2EStorage()
-    }
-
+    await wait(100)
     await checkE2EStorage()
   }
-  console.log('[Service Worker] Called init')
-  init()
-})()
-// Ensure the service worker fully activates before running init, allowing
-// chrome.storage, caches, clients control, runtime APIs, and migration tasks
-// to be properly initialized and ready, preventing startup race conditions,
-// storage access issues and related errors.
-// TODO: temp commented-out until we confirm that the activate event is emitted correctly and consistently in production
 
-// self.addEventListener('activate', (event: any) => {
-//   event.waitUntil(
-//     (async () => {
-//       // In the testing environment, we need to slow down app initialization.
-//       // This is necessary to predefine the chrome.storage testing values in our Playwright tests,
-//       // ensuring that the Controllers are initialized with the storage correctly.
-//       // Once the storage is configured in Playwright, we set the `isE2EStorageSet` flag to true.
-//       // Here, we are waiting for its value to be set.
-//       if (process.env.IS_TESTING === 'true') {
-//         const checkE2EStorage = async (): Promise<void> => {
-//           const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
-
-//           if (isE2EStorageSet) {
-//             return
-//           }
-
-//           await wait(100)
-//           await checkE2EStorage()
-//         }
-
-//         await checkE2EStorage()
-//       }
-//       init()
-//     })()
-//   )
-// })
-
-try {
-  browser.tabs.onRemoved.addListener(async (tabId: number) => {
-    // wait for mainCtrl to be initialized before handling dapp requests
-    while (!mainCtrl) {
-      // eslint-disable-next-line no-await-in-loop
-      await wait(200)
-    }
-    const sessionKeys = Object.keys(mainCtrl.dapps.dappSessions || {})
-    // eslint-disable-next-line no-restricted-syntax
-    for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
-      mainCtrl.dapps.deleteDappSession(key)
-    }
-  })
-} catch (error) {
-  console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+  await checkE2EStorage()
 }
 
-// Open the get-started screen in a new tab right after the extension is installed.
+// Ensures controllers are initialized when the browser starts.
+browser.runtime.onStartup.addListener(() => {
+  // init the ctrls if not already initialized
+  init().catch((err) => {
+    captureBackgroundException(err)
+    console.error(err)
+  })
+})
+
+// Ensures controllers are initialized whenever the service worker restarts, the extension is updated, or is installed for the first time.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
+  // init the ctrls if not already initialized
+  init().catch((err) => {
+    captureBackgroundException(err)
+    console.error(err)
+  })
+
   // It makes Playwright tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
   if (process.env.IS_TESTING === 'true') return
@@ -753,6 +713,36 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
     }, 500)
   }
 })
+
+// Ensures controllers are initialized if the service worker is inactive and gets reactivated when the extension popup opens.
+browser.runtime.onMessage.addListener(
+  async (message: any, _: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+    // init the ctrls if not already initialized
+    init().catch((err) => {
+      captureBackgroundException(err)
+      console.error(err)
+    })
+
+    // The extension UI periodically sends "ping" messages. Responding here wakes up
+    // the service worker and keeps it alive as long as a view (popup, window, or tab) remains open.
+    if (message === 'ping') sendResponse('pong')
+  }
+)
+
+try {
+  browser.tabs.onRemoved.addListener(async (tabId: number) => {
+    // wait for mainCtrl to be initialized before handling dapp requests
+    while (!mainCtrl) await wait(200)
+
+    const sessionKeys = Object.keys(mainCtrl.dapps.dappSessions || {})
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
+      mainCtrl.dapps.deleteDappSession(key)
+    }
+  })
+} catch (error) {
+  console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+}
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
