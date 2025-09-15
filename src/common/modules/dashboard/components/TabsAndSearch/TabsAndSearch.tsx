@@ -104,6 +104,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
           <SelectNetwork />
           {searchControl && (
             <AnimatedPressable
+              testID="search-glass-icon"
               onPress={toggleSearchVisibility}
               ref={searchButtonRef}
               style={[
