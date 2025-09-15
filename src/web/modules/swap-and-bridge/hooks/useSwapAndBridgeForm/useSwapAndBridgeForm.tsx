@@ -21,6 +21,7 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 import useSyncedState from '@web/hooks/useSyncedState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
+import { getCallsCount } from '@ambire-common/utils/userRequest'
 
 type SessionId = ReturnType<typeof nanoid>
 
@@ -67,6 +68,7 @@ const useSwapAndBridgeForm = () => {
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
   const [hasBroadcasted, setHasBroadcasted] = useState(false)
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
+  const [latestBatchedNetwork, setLatestBatchedNetwork] = useState<bigint | undefined>()
   const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
     useState<boolean>(false)
   const { networks } = useNetworksControllerState()
@@ -116,6 +118,19 @@ const useSwapAndBridgeForm = () => {
         r.meta.chainId === fromSelectedToken.chainId
     )
   }, [fromSelectedToken, userRequests, account])
+
+  const batchNetworkUserRequestsCount = useMemo(() => {
+    if (!latestBatchedNetwork || !account || !userRequests.length) return 0
+
+    const reqs = userRequests.filter(
+      (r) =>
+        r.action.kind === 'calls' &&
+        r.meta.accountAddr === account.addr &&
+        r.meta.chainId === latestBatchedNetwork
+    )
+
+    return getCallsCount(reqs)
+  }, [latestBatchedNetwork, userRequests, account])
 
   const handleSetFromAmount = useCallback(
     (val: string) => {
@@ -357,6 +372,7 @@ const useSwapAndBridgeForm = () => {
         }
       })
       setShowAddedToBatch(true)
+      setLatestBatchedNetwork(fromSelectedToken?.chainId)
     }
   }, [
     closePriceImpactModal,
@@ -364,7 +380,8 @@ const useSwapAndBridgeForm = () => {
     dispatch,
     isOneClickModeDuringPriceImpact,
     setShowAddedToBatch,
-    networkUserRequests
+    networkUserRequests,
+    fromSelectedToken
   ])
 
   const handleSubmitForm = useCallback(
@@ -404,6 +421,7 @@ const useSwapAndBridgeForm = () => {
           }
         })
         setShowAddedToBatch(true)
+        setLatestBatchedNetwork(fromSelectedToken?.chainId)
       }
     },
     [
@@ -412,7 +430,8 @@ const useSwapAndBridgeForm = () => {
       openEstimationModalAndDispatch,
       openPriceImpactModal,
       quote,
-      networkUserRequests
+      networkUserRequests,
+      fromSelectedToken
     ]
   )
 
@@ -498,6 +517,8 @@ const useSwapAndBridgeForm = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
+    latestBatchedNetwork,
+    batchNetworkUserRequestsCount,
     networkUserRequests,
     isLocalStateOutOfSync
   }

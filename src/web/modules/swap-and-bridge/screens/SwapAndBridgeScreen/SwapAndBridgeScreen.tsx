@@ -60,6 +60,7 @@ const SwapAndBridgeScreen = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
+    batchNetworkUserRequestsCount,
     networkUserRequests,
     isLocalStateOutOfSync
   } = useSwapAndBridgeForm()
@@ -223,6 +224,7 @@ const SwapAndBridgeScreen = () => {
     return (
       <BatchAdded
         title={t('Swap & Bridge')}
+        callsCount={batchNetworkUserRequestsCount}
         primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}

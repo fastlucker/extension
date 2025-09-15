@@ -88,7 +88,6 @@ export class TransferPage extends BasePage {
 
   async addToBatch() {
     await this.click(selectors.batchBtn)
-    await this.click(selectors.batchModalGotIt)
   }
 
   async addUnknownRecepientToAddressBook(recepientAddress: string, contactName: string) {
