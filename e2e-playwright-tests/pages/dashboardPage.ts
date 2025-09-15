@@ -114,9 +114,9 @@ export class DashboardPage extends BasePage {
     )
   }
 
-  async search(searchInput: string, index?: number) {
+  async search(searchInput: string, tabName: 'tokens' | 'collectibles' | 'defi' | 'activity') {
     // click on magnifying glass icon
-    await this.click(selectors.dashboard.magnifyingGlassIcon, index ?? 0)
+    await this.click(`${selectors.dashboard.magnifyingGlassIcon}-${tabName}`)
 
     // enter search phrase
     await this.entertext(selectors.searchInput, searchInput)

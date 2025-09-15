@@ -37,13 +37,14 @@ const getSearchPlaceholder = (openTab: TabType, t: TFunction) => {
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  currentTab: TabType
   searchControl?: any
   sessionId: string
 }
 
 const TABS = ['tokens', 'collectibles', 'defi', 'activity']
 
-const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionId }) => {
+const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, currentTab, searchControl, sessionId }) => {
   const [, setSearchParams] = useSearchParams()
   const searchRef = useRef<any>(null)
   const searchButtonRef = useRef<any>(null)
@@ -104,7 +105,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl, sessionI
           <SelectNetwork />
           {searchControl && (
             <AnimatedPressable
-              testID="search-glass-icon"
+              testID={`search-glass-icon-${currentTab}`}
               onPress={toggleSearchVisibility}
               ref={searchButtonRef}
               style={[

@@ -102,6 +102,7 @@ const Collections: FC<Props> = ({
             <TabsAndSearch
               openTab={openTab}
               setOpenTab={setOpenTab}
+              currentTab="collectibles"
               searchControl={control}
               sessionId={sessionId}
             />
