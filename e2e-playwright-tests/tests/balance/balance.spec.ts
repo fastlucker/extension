@@ -54,7 +54,7 @@ test.describe('Basic Acc - Token balance test', { tag: '@balanceCheck' }, async 
     })
 
     if (errors.length > 0) {
-      throw new Error(`Test failed with ${errors.length} issues:\n${errors.join('\n')}`)
+      throw new Error(`BA balance test failed with ${errors.length} issues:\n${errors.join('\n')}`)
     } else {
       console.log('✅ BA Tokens and gas tank have sufficient balance.')
     }
@@ -113,7 +113,7 @@ test.describe('Smart Acc - Token balance test', { tag: '@balanceCheck' }, async 
     })
 
     if (errors.length > 0) {
-      throw new Error(`Test failed with ${errors.length} issues:\n${errors.join('\n')}`)
+      throw new Error(`SA Balance test failed with ${errors.length} issues:\n${errors.join('\n')}`)
     } else {
       console.log('✅ SA Tokens and gas tank have sufficient balance.')
     }

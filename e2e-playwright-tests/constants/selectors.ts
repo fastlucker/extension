@@ -16,7 +16,15 @@ const selectors = {
     transactionSendText: '(//div[contains(text(),"Send")])[2]', // TODO: change once we have id on FE
     confirmedTransactionPill: '//div[contains(text(),"Confirmed")]', // TODO: chage once we have id on FE
     fuelGasTankTransactionPill: '//div[contains(text(),"Fuel gas tank with")]', // TODO: chage once we have id on FE,
-    grantApprovalText: '//div[contains(text(),"Grant approval")]' // TODO: change once we have id on FE
+    grantApprovalText: '//div[contains(text(),"Grant approval")]', // TODO: change once we have id on FE,
+    networksDropdown: 'networks-dropdown',
+    magnifyingGlassIcon: 'search-glass-icon',
+    tokenBalance: '[data-testid^="token-balance"]',
+    networkBase: '//div[text()="Base"]',
+    nftTitle: 'collection-item',
+    nftsTitle: '[data-testid^="collection-item"]',
+    noTokenSearchResult: (message: string) => `//div[contains(text(),'${message}')]`,
+    searchForNetwork: 'search-for-network-field'
   },
   settings: {
     createNewRecoveryPhraseButton: 'create-new-recovery-phrase',
