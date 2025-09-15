@@ -432,7 +432,9 @@ export const handleActions = async (
 
     case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
       return await mainCtrl.reloadSelectedAccount({
-        chainIds: params?.chainId ? [BigInt(params?.chainId)] : undefined
+        chainIds: params?.chainId ? [BigInt(params?.chainId)] : undefined,
+        isManualReload: true,
+        maxDataAgeMs: 10 * 1000
       })
     }
     case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
@@ -579,6 +581,8 @@ export const handleActions = async (
       return await mainCtrl.domains.reverseLookup(params.address)
     case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
       return mainCtrl.domains.saveResolvedReverseLookup(params)
+    case 'CONTRACT_NAMES_CONTROLLER_GET_NAME':
+      return mainCtrl.contractNames.getName(params.address, params.chainId)
     case 'SET_IS_PINNED': {
       walletStateCtrl.isPinned = params.isPinned
       break
