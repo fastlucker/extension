@@ -1,5 +1,6 @@
 import { saParams } from 'constants/env'
 import selectors from 'constants/selectors'
+import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
 
 test.describe('dashboard', () => {
@@ -38,6 +39,89 @@ test.describe('dashboard', () => {
 
       // assert account name
       await pages.basePage.compareText(selectors.accountSelectBtn, 'vitalik.eth')
+    })
+  })
+
+  test('Filter Tokens by Network', async ({ pages }) => {
+    // SA should have 5 tokens on Base network - wallet, usdc, usdt, eth, clBtc
+    const wallet = tokens.wallet.base
+    const usdc = tokens.usdc.base
+    const usdt = tokens.usdt.base
+    const eth = tokens.eth.base
+    const clBtc = tokens.clbtc.base
+
+    await test.step('search by network - Base', async () => {
+      await pages.dashboard.search('Base')
+    })
+
+    await test.step('assert search result', async () => {
+      await pages.basePage.isVisible(`token-balance-${wallet.address}.${wallet.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdc.address}.${usdc.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
+
+      // 5 items should be visible for SA
+      await pages.basePage.expectItemsCount(selectors.dashboard.networkBase, 5)
+    })
+  })
+
+  test('Filter Tokens by token name', async ({ pages }) => {
+    // SA should have 4 tokens containing USDC - base/optimism/polygon, USDCe - optimism
+    const usdcMainnet = tokens.usdc.optimism
+    const usdcBase = tokens.usdc.base
+    const usdcEMainnet = tokens.usdce.optimism
+    const usdcPolygon = tokens.usdc.polygon
+
+    await test.step('search by token name - USDC', async () => {
+      await pages.dashboard.search('USDC')
+    })
+
+    await test.step('assert search result', async () => {
+      await pages.basePage.isVisible(`token-balance-${usdcMainnet.address}.${usdcMainnet.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdcBase.address}.${usdcBase.chainId}`)
+      await pages.basePage.isVisible(
+        `token-balance-${usdcEMainnet.address}.${usdcEMainnet.chainId}`
+      )
+      await pages.basePage.isVisible(`token-balance-${usdcPolygon.address}.${usdcPolygon.chainId}`)
+
+      // 4 items should be visible for SA
+      await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDC, 3)
+      await pages.basePage.expectItemsCount(selectors.dashboard.tokenUSDCe, 1)
+    })
+  })
+
+  test('Filter Token using network dropdown', async ({ pages }) => {
+    // SA should have 5 tokens on Base network - wallet, usdc, usdt, eth, clBtc
+    const wallet = tokens.wallet.base
+    const usdc = tokens.usdc.base
+    const usdt = tokens.usdt.base
+    const eth = tokens.eth.base
+    const clBtc = tokens.clbtc.base
+
+    await test.step('select Base network via dropdown', async () => {
+      await pages.dashboard.searchByNetworkDropdown('Base')
+    })
+
+    await test.step('assert search result', async () => {
+      await pages.basePage.isVisible(`token-balance-${wallet.address}.${wallet.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdc.address}.${usdc.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
+
+      // 5 items should be visible for SA
+      await pages.basePage.expectItemsCount(selectors.dashboard.networkBase, 5)
+    })
+  })
+
+  test('Search for non existing Token returns appropriate message', async ({ pages }) => {
+    await test.step('search by token name - USDC', async () => {
+      await pages.dashboard.search('Test')
+    })
+
+    await test.step('assert no search result', async () => {
+      await pages.dashboard.noSearchResult('No tokens match "Test".')
     })
   })
 })

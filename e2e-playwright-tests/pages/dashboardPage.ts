@@ -77,7 +77,7 @@ export class DashboardPage extends BasePage {
     const balanceThresholds: Record<string, number> = {
       'WALLET-8453': 400,
       'USDC-8453': 5,
-      'USDC-10': 5,
+      'USDC-10': 3,
       'USDC.E-10': 2,
       'DAI-10': 2,
       'xWALLET-1': 2
@@ -112,5 +112,34 @@ export class DashboardPage extends BasePage {
     await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
       'Confirmed'
     )
+  }
+
+  async search(searchInput: string) {
+    // click on magnifying glass icon
+    await this.click(selectors.dashboard.magnifyingGlassIcon)
+
+    // enter search phrase
+    await this.entertext(selectors.searchInput, searchInput)
+  }
+
+  async searchByNetworkDropdown(searchInput: string) {
+    // open dropdown
+    await this.click(selectors.dashboard.networksDropdown)
+
+    // search network
+    await this.entertext(selectors.dashboard.searchForNetwork, searchInput)
+
+    // click on searched network
+    const networkSelector = this.page.locator(`//div[text()="${searchInput}"]`)
+    await networkSelector.click()
+  }
+
+  async noSearchResult(noSearchMessage: string) {
+    // creating selector using message
+    const noSearchResultSelector = this.page.locator(
+      selectors.dashboard.noTokenSearchResult(noSearchMessage)
+    )
+
+    await expect(noSearchResultSelector).toHaveText(noSearchMessage)
   }
 }
