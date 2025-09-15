@@ -115,11 +115,7 @@ test.describe('dashboard', () => {
   })
 
   test('Search for non existing Token returns appropriate message', async ({ pages }) => {
-<<<<<<< HEAD
     await test.step('search for non existing Token name - Test', async () => {
-=======
-    await test.step('search by token name - USDC', async () => {
->>>>>>> v2
       await pages.dashboard.search('Test')
     })
 
@@ -158,6 +154,21 @@ test.describe('dashboard', () => {
 
       // assert nft title
       await pages.basePage.compareText(selectors.dashboard.nftTitle, 'Ambire Legends')
+    })
+  })
+
+  test.only('Filter NFTs using network dropdown', async ({ pages }) => {
+    await test.step('navigate to tab NFTs', async () => {
+      await pages.basePage.click(selectors.dashboard.nftTabButton)
+    })
+
+    await test.step('select Base network via dropdown', async () => {
+      await pages.dashboard.searchByNetworkDropdown('Base')
+    })
+
+    await test.step('assert search result', async () => {
+      // 8 NFTs should be visible for SA
+      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 8)
     })
   })
 
