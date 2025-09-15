@@ -3,7 +3,7 @@ import { THEME_TYPES } from '@common/styles/themeConfig'
 import React from 'react'
 import Svg, { Path, SvgProps } from 'react-native-svg'
 
-const BungeeIcon: React.FC<SvgProps> = ({ width = 90, height = 32 }) => {
+const LifiIcon: React.FC<SvgProps> = ({ width = 90, height = 32 }) => {
   const { themeType } = useTheme()
   const fill = themeType === THEME_TYPES.DARK ? 'white' : 'black'
   return (
@@ -42,4 +42,4 @@ const BungeeIcon: React.FC<SvgProps> = ({ width = 90, height = 32 }) => {
   )
 }
 
-export default React.memo(BungeeIcon)
+export default React.memo(LifiIcon)

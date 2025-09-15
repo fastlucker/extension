@@ -131,6 +131,7 @@ const RoutesModal = ({
             (isSelected || hovered) && styles.selectedItem,
             isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
+          testID={isSelected ? 'selected-route' : ''}
           onPress={() => handleSelectRoute(item)}
           // Disable route selection if any route is being estimated
           disabled={isEstimationLoading || item.disabled}

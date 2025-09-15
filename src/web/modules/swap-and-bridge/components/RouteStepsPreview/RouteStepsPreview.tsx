@@ -48,7 +48,7 @@ const RouteStepsPreview = ({
   disabledReason?: string
   providerId: string
 }) => {
-  const { theme, themeType } = useTheme()
+  const { theme } = useTheme()
   const { t } = useTranslation()
 
   const shouldWarnForLongEstimation = useMemo(() => {
