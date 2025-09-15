@@ -95,14 +95,14 @@ const BatchAdded: FC<Props> = ({
                 }
               ]}
             >
-              <BatchIcon width={16} height={16} color="#6000ff" />
-              <Text fontSize={16} style={[spacings.mlSm]} color="#6000ff">
+              <BatchIcon width={16} height={16} color={theme.linkText} />
+              <Text fontSize={16} style={[spacings.mlSm]} color={theme.linkText}>
                 {t('{{ callsCount }} transactions in batch', { callsCount })}
               </Text>
             </View>
             <Text
               fontSize={12}
-              color={theme.tertiaryText}
+              color={themeType === THEME_TYPES.DARK ? '#ffffff51' : '#767dad'}
               weight="medium"
               appearance="secondaryText"
               style={[text.center, spacings.mtTy]}
