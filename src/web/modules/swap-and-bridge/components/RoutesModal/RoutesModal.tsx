@@ -11,7 +11,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_LG } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { TRANSACTION_FORM_WIDTH } from '@web/components/TransactionsScreen/styles'
@@ -21,6 +21,8 @@ import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStep
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const FLAT_LIST_ITEM_HEIGHT = 138.5
 
 const { isPopup } = getUiType()
 
@@ -209,11 +211,18 @@ const RoutesModal = ({
         if (!selectedRouteIndex) return
 
         setTimeout(() => {
-          scrollRef?.current?.scrollToIndex({
-            index: selectedRouteIndex,
-            animated: true,
-            viewPosition: 0.1
-          })
+          try {
+            scrollRef?.current?.scrollToIndex({
+              index: selectedRouteIndex,
+              animated: true,
+              viewPosition: 0.1
+            })
+          } catch (e) {
+            scrollRef?.current?.scrollToOffset({
+              offset: selectedRouteIndex * FLAT_LIST_ITEM_HEIGHT - SPACING_LG,
+              animated: true
+            })
+          }
         }, 100)
       }}
       containerInnerWrapperStyles={flexbox.flex1}
