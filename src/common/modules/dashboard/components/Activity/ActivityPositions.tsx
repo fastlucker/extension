@@ -88,15 +88,15 @@ const ActivityPositions: FC<Props> = ({
             />
             {!!broadcastedButNotConfirmed.length && (
               <Banner
-                type="warning"
+                type="info2"
                 CustomIcon={() => (
                   <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
-                    <Spinner style={{ width: 20, height: 20 }} variant="warning" />
+                    <Spinner style={{ width: 20, height: 20 }} variant="info2" />
                     <Text
                       fontSize={12}
                       weight="semiBold"
                       style={{ position: 'absolute' }}
-                      appearance="warningText"
+                      appearance="info2Text"
                     >
                       {broadcastedButNotConfirmed.length}
                     </Text>

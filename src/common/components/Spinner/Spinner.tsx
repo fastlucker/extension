@@ -11,7 +11,7 @@ const Spinner = ({
   variant
 }: {
   style?: ViewStyle
-  variant?: 'gradient' | 'white' | 'warning'
+  variant?: 'gradient' | 'white' | 'info2'
 }) => {
   return (
     <LottieView

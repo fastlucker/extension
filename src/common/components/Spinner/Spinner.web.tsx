@@ -2,7 +2,7 @@ import LottieView from 'lottie-react'
 import React, { useMemo } from 'react'
 
 import SpinnerAnimation from './spinner-animation.json'
-import WarningSpinnerAnimation from './spinner-warning-animation.json'
+import Info2SpinnerAnimation from './spinner-info2-animation.json'
 import WhiteSpinnerAnimation from './spinner-white-animation.json'
 
 const Spinner = ({
@@ -10,11 +10,11 @@ const Spinner = ({
   variant = 'gradient'
 }: {
   style: any
-  variant?: 'gradient' | 'white' | 'warning'
+  variant?: 'gradient' | 'white' | 'info2'
 }) => {
   const animation = useMemo(() => {
     if (variant === 'white') return WhiteSpinnerAnimation
-    if (variant === 'warning') return WarningSpinnerAnimation
+    if (variant === 'info2') return Info2SpinnerAnimation
 
     return SpinnerAnimation
   }, [variant])

@@ -75,19 +75,19 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
               disabled={disabled}
               customColors={
                 type === 'activity' && !isActive && hasPendingActivity
-                  ? [`${theme.warningDecorative2 as any}45`, `${theme.warningDecorative2 as any}07`]
+                  ? [`${theme.info2Decorative as any}45`, `${theme.info2Decorative as any}07`]
                   : undefined
               }
               style={type === 'activity' ? { width: 100 } : undefined}
             >
               {type === 'activity' && !isActive && hasPendingActivity && (
                 <View style={[spacings.mlTy, flexbox.alignCenter, flexbox.justifyCenter]}>
-                  <Spinner style={{ width: 18, height: 18 }} variant="warning" />
+                  <Spinner style={{ width: 18, height: 18 }} variant="info2" />
                   <Text
                     fontSize={10}
                     weight="medium"
                     style={{ position: 'absolute' }}
-                    appearance="warningText"
+                    appearance="info2Text"
                   >
                     {broadcastedButNotConfirmed.length}
                   </Text>
