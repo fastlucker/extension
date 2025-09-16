@@ -124,7 +124,12 @@ const DeFiPositions: FC<Props> = ({
       if (item === 'empty') {
         return (
           <>
-            <Text fontSize={16} weight="medium" style={styles.noPositions}>
+            <Text
+              testID="no-protocols-text"
+              fontSize={16}
+              weight="medium"
+              style={styles.noPositions}
+            >
               {!searchValue && !dashboardNetworkFilterName && t('No known protocols detected.')}
               {!searchValue &&
                 dashboardNetworkFilterName &&
@@ -136,9 +141,10 @@ const DeFiPositions: FC<Props> = ({
                   }.`
                 )}
             </Text>
-            <Text fontSize={14} style={styles.noPositions}>
+            <Text testID="suggest-protocol-text" fontSize={14} style={styles.noPositions}>
               {t('To suggest a protocol integration, ')}
               <Text
+                testID="open-ticket-link"
                 fontSize={14}
                 appearance="primary"
                 color={themeType === THEME_TYPES.DARK ? theme.linkText : theme.primary}
