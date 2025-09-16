@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Animated, FlatListProps, View } from 'react-native'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import Banner from '@common/components/Banner'
 import Button from '@common/components/Button'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import ActivityPositionsSkeleton from '@common/modules/dashboard/components/Activity/ActivityPositionsSkeleton'
@@ -48,7 +50,7 @@ const ActivityPositions: FC<Props> = ({
   const { theme } = useTheme()
 
   const { dispatch } = useBackgroundService()
-  const { accountsOps } = useActivityControllerState()
+  const { accountsOps, broadcastedButNotConfirmed } = useActivityControllerState()
   const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
 
   useEffect(() => {
@@ -79,6 +81,31 @@ const ActivityPositions: FC<Props> = ({
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
             <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} sessionId={sessionId} />
+            {!!broadcastedButNotConfirmed.length && (
+              <Banner
+                type="warning"
+                CustomIcon={() => (
+                  <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+                    <Spinner style={{ width: 20, height: 20 }} variant="warning" />
+                    <Text
+                      fontSize={12}
+                      weight="semiBold"
+                      style={{ position: 'absolute' }}
+                      appearance="warningText"
+                    >
+                      {broadcastedButNotConfirmed.length}
+                    </Text>
+                  </View>
+                )}
+                title={
+                  broadcastedButNotConfirmed.length === 1
+                    ? t('transaction is pending on-chain confirmation.')
+                    : t('transactions are pending on-chain confirmation.')
+                }
+                style={{ minHeight: 28, ...spacings.mbSm }}
+                contentContainerStyle={{ minHeight: 28 }}
+              />
+            )}
           </View>
         )
       }
