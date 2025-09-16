@@ -60,6 +60,7 @@ const SwapAndBridgeScreen = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
+    batchNetworkUserRequestsCount,
     networkUserRequests,
     isLocalStateOutOfSync
   } = useSwapAndBridgeForm()
@@ -72,7 +73,8 @@ const SwapAndBridgeScreen = () => {
     signAccountOpController,
     isAutoSelectRouteDisabled,
     hasProceeded,
-    swapSignErrors
+    swapSignErrors,
+    quote
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
@@ -222,6 +224,7 @@ const SwapAndBridgeScreen = () => {
     return (
       <BatchAdded
         title={t('Swap & Bridge')}
+        callsCount={batchNetworkUserRequestsCount}
         primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
@@ -274,6 +277,7 @@ const SwapAndBridgeScreen = () => {
         handleBroadcastAccountOp={handleBroadcastAccountOp}
         hasProceeded={hasProceeded}
         signAccountOpController={signAccountOpController}
+        serviceFee={quote?.selectedRoute?.serviceFee}
       />
       <PriceImpactWarningModal
         sheetRef={priceImpactModalRef}

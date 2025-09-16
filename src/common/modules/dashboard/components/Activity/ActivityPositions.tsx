@@ -80,7 +80,12 @@ const ActivityPositions: FC<Props> = ({
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} sessionId={sessionId} />
+            <TabsAndSearch
+              openTab={openTab}
+              setOpenTab={setOpenTab}
+              currentTab="activity"
+              sessionId={sessionId}
+            />
             {!!broadcastedButNotConfirmed.length && (
               <Banner
                 type="warning"

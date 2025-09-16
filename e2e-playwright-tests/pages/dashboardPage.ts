@@ -1,6 +1,7 @@
 import locators from 'constants/locators'
 import selectors from 'constants/selectors'
 import BootstrapContext from 'interfaces/bootstrapContext'
+import Tabs from 'interfaces/tabs'
 
 import { expect } from '@playwright/test'
 
@@ -114,17 +115,17 @@ export class DashboardPage extends BasePage {
     )
   }
 
-  async search(searchInput: string, index?: number) {
+  async search(searchInput: string, tabName: Tabs) {
     // click on magnifying glass icon
-    await this.click(selectors.dashboard.magnifyingGlassIcon, index ?? 0)
+    await this.click(`${selectors.dashboard.magnifyingGlassIcon}-${tabName}`)
 
     // enter search phrase
     await this.entertext(selectors.searchInput, searchInput)
   }
 
-  async searchByNetworkDropdown(searchInput: string, index?: number) {
+  async searchByNetworkDropdown(searchInput: string, tabName: Tabs) {
     // open dropdown
-    await this.click(selectors.dashboard.networksDropdown, index)
+    await this.click(`${selectors.dashboard.networksDropdown}-${tabName}`)
 
     // search network
     await this.entertext(selectors.dashboard.searchForNetwork, searchInput)
