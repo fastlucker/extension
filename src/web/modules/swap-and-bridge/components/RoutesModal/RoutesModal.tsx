@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeRoute } from '@ambire-common/interfaces/swapAndBridge'
@@ -11,7 +11,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING_LG } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { TRANSACTION_FORM_WIDTH } from '@web/components/TransactionsScreen/styles'
@@ -21,8 +21,6 @@ import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStep
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-
-const FLAT_LIST_ITEM_HEIGHT = 138.5
 
 const { isPopup } = getUiType()
 
@@ -38,7 +36,7 @@ const RoutesModal = ({
   const { quote, shouldEnableRoutesSelection, signAccountOpController } =
     useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
-  const scrollRef: any = useRef(null)
+  const scrollRef = useRef<FlatList<SwapAndBridgeRoute>>(null)
   const { height } = useWindowSize()
   // there's a small discrepancy between ticks and we want to capture that
   const [userSelectedRoute, setUserSelectedRoute] = useState<SwapAndBridgeRoute | undefined>(
@@ -210,11 +208,11 @@ const RoutesModal = ({
       onOpen={() => {
         if (!selectedRouteIndex) return
 
-        // @TODO: Fix this
         setTimeout(() => {
-          scrollRef?.current?.scrollTo({
-            x: 0,
-            y: selectedRouteIndex * FLAT_LIST_ITEM_HEIGHT - SPACING_LG
+          scrollRef?.current?.scrollToIndex({
+            index: selectedRouteIndex,
+            animated: true,
+            viewPosition: 0.1
           })
         }, 100)
       }}
