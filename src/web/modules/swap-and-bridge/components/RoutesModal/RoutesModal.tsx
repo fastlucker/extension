@@ -131,6 +131,7 @@ const RoutesModal = ({
             (isSelected || hovered) && styles.selectedItem,
             isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
+          testID={isSelected ? 'selected-route' : ''}
           onPress={() => handleSelectRoute(item)}
           // Disable route selection if any route is being estimated
           disabled={isEstimationLoading || item.disabled}
@@ -157,11 +158,11 @@ const RoutesModal = ({
             steps={steps}
             inputValueInUsd={inputValueInUsd}
             outputValueInUsd={outputValueInUsd}
-            totalGasFeesInUsd={item.totalGasFeesInUsd}
             estimationInSeconds={item.serviceTime}
             isSelected={item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute}
             isDisabled={item.disabled}
             disabledReason={item.disabledReason}
+            providerId={item.providerId}
           />
         </Pressable>
       )
