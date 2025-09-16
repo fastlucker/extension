@@ -120,7 +120,7 @@ test.describe('dashboard', () => {
     })
 
     await test.step('assert no search result', async () => {
-      await pages.dashboard.noSearchResult('No tokens match "Test".')
+      await pages.dashboard.compareText(selectors.dashboard.noTokens, 'No tokens match "Test".')
     })
   })
 
@@ -129,14 +129,28 @@ test.describe('dashboard', () => {
       await pages.basePage.click(selectors.dashboard.nftTabButton)
     })
 
-    await test.step('search NFTs by network - Base', async () => {
-      await pages.dashboard.search('Base', 'collectibles')
-    })
+    const noCollectiblesText = await pages.basePage.isVisible(
+      selectors.dashboard.noCollectiblesText
+    )
 
-    await test.step('assert search result', async () => {
-      // 8 NFTs should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 8)
-    })
+    // in case there are no collectibles message is visible on NFTs tab
+    if (noCollectiblesText) {
+      await test.step('if no collectibles appropriate message should be visible', async () => {
+        await pages.basePage.compareText(
+          selectors.dashboard.noCollectiblesText,
+          "You don't have any collectibles (NFTs) yet."
+        )
+      })
+    } else {
+      await test.step('search NFTs by network - Base', async () => {
+        await pages.dashboard.search('Base', 'collectibles')
+      })
+
+      await test.step('assert search result', async () => {
+        // 8 NFTs should be visible for SA
+        await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 8)
+      })
+    }
   })
 
   test('Filter NFTs by token name', async ({ pages }) => {
@@ -144,17 +158,31 @@ test.describe('dashboard', () => {
       await pages.basePage.click(selectors.dashboard.nftTabButton)
     })
 
-    await test.step('search by NFT name - Ambire Legends', async () => {
-      await pages.dashboard.search('Ambire Legends', 'collectibles')
-    })
+    const noCollectiblesText = await pages.basePage.isVisible(
+      selectors.dashboard.noCollectiblesText
+    )
 
-    await test.step('assert search result', async () => {
-      // 1 item should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 1)
+    // in case there are no collectibles message is visible on NFTs tab
+    if (noCollectiblesText) {
+      await test.step('if no collectibles appropriate message should be visible', async () => {
+        await pages.basePage.compareText(
+          selectors.dashboard.noCollectiblesText,
+          "You don't have any collectibles (NFTs) yet."
+        )
+      })
+    } else {
+      await test.step('search by NFT name - Ambire Legends', async () => {
+        await pages.dashboard.search('Ambire Legends', 'collectibles')
+      })
 
-      // assert nft title
-      await pages.basePage.compareText(selectors.dashboard.nftTitle, 'Ambire Legends')
-    })
+      await test.step('assert search result', async () => {
+        // 1 item should be visible for SA
+        await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 1)
+
+        // assert nft title
+        await pages.basePage.compareText(selectors.dashboard.nftTitle, 'Ambire Legends')
+      })
+    }
   })
 
   test('Filter NFTs using network dropdown', async ({ pages }) => {
@@ -162,14 +190,28 @@ test.describe('dashboard', () => {
       await pages.basePage.click(selectors.dashboard.nftTabButton)
     })
 
-    await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base', 'collectibles')
-    })
+    const noCollectiblesText = await pages.basePage.isVisible(
+      selectors.dashboard.noCollectiblesText
+    )
 
-    await test.step('assert search result', async () => {
-      // 8 NFTs should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 8)
-    })
+    // in case there are no collectibles message is visible on DeFi tab
+    if (noCollectiblesText) {
+      await test.step('if no collectibles appropriate message should be visible', async () => {
+        await pages.basePage.compareText(
+          selectors.dashboard.noCollectiblesText,
+          "You don't have any collectibles (NFTs) yet."
+        )
+      })
+    } else {
+      await test.step('select Base network via dropdown', async () => {
+        await pages.dashboard.searchByNetworkDropdown('Base', 'collectibles')
+      })
+
+      await test.step('assert search result', async () => {
+        // 8 NFTs should be visible for SA
+        await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 8)
+      })
+    }
   })
 
   test('Search for non existing NFT returns appropriate message', async ({ pages }) => {
@@ -182,7 +224,59 @@ test.describe('dashboard', () => {
     })
 
     await test.step('assert no search result', async () => {
-      await pages.dashboard.noSearchResult('No collectibles (NFTs) match "Test".')
+      await pages.dashboard.compareText(
+        selectors.dashboard.noCollectiblesText,
+        'No collectibles (NFTs) match "Test".'
+      )
+    })
+  })
+
+  // TODO: add tests and assertions once we have protocols on FE
+  test('Search Protocol by network dropdown', async ({ pages }) => {
+    // await pages.auth.pause()
+    await test.step('navigate to tab DeFi', async () => {
+      await pages.basePage.click(selectors.dashboard.defiTabButton)
+    })
+
+    const noProtocolText = await pages.basePage.isVisible(selectors.dashboard.noProtocolsText)
+
+    if (noProtocolText) {
+      await test.step('if no protocols appropriate message should be visible', async () => {
+        await pages.basePage.compareText(
+          selectors.dashboard.noProtocolsText,
+          'No known protocols detected.'
+        )
+      })
+    } else {
+      await test.step('select Base network via dropdown', async () => {
+        await pages.dashboard.searchByNetworkDropdown('Base', 'defi')
+      })
+
+      // TODO: ATM there are no protocols for SA; uncomment when we have protocols
+      // await test.step('assert search result', async () => {
+      //   await pages.basePage.expectItemsCount(selectors.dashboard.protocolTitle, 1)
+      // })
+    }
+  })
+
+  test('Search for non existing Defi Protocol returns appropriate message', async ({ pages }) => {
+    await test.step('navigate to tab DeFi', async () => {
+      await pages.basePage.click(selectors.dashboard.defiTabButton)
+    })
+
+    await test.step('search Protocol by name - Test', async () => {
+      await pages.dashboard.search('Test', 'defi')
+    })
+
+    await test.step('assert no search result', async () => {
+      await pages.basePage.compareText(
+        selectors.dashboard.noProtocolsText,
+        'No known protocols match "Test".'
+      )
+    })
+
+    await test.step('assert suggestion - open a ticket page', async () => {
+      await pages.dashboard.checkOpenTicketPage()
     })
   })
 })

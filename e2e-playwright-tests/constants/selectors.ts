@@ -4,8 +4,13 @@ import { buildSelector } from '@helpers/buildSelector'
 const selectors = {
   dashboard: {
     tokensTabButton: 'tokens-defi',
+    noTokens: 'no-tokens-text',
     nftTabButton: 'tab-nft',
+    noCollectiblesText: 'no-collectibles-text',
     defiTabButton: 'tab-defi',
+    noProtocolsText: 'no-protocols-text',
+    suggestProtocolText: 'suggest-protocol-text',
+    openTicketLink: 'open-ticket-link',
     activityTabButton: 'tab-activity',
     sendButton: 'dashboard-button-send',
     swapAndBridgeButton: 'dashboard-button-swap-and-bridge',
@@ -23,7 +28,6 @@ const selectors = {
     networkBase: '//div[text()="Base"]',
     nftTitle: 'collection-item',
     nftsTitle: '[data-testid^="collection-item"]',
-    noTokenSearchResult: (message: string) => `//div[contains(text(),'${message}')]`,
     searchForNetwork: 'search-for-network-field'
   },
   settings: {
