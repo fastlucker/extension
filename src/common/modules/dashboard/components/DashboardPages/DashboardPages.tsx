@@ -29,7 +29,7 @@ const { isTab } = getUiType()
 const DashboardPages = ({ onScroll, animatedOverviewHeight }: Props) => {
   const { t } = useTranslation()
   const route = useRoute()
-  const [sessionId] = useState(nanoid())
+  const [sessionId] = useState(`dashboard-${nanoid()}`)
   const [, setSearchParams] = useSearchParams()
   const { dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { networks } = useNetworksControllerState()

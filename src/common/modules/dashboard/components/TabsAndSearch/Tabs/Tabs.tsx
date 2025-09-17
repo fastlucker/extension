@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text'
+import Text, { TextAppearance } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -49,11 +49,15 @@ const TABS: {
 const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { styles, theme } = useTheme(getStyles)
 
-  const { broadcastedButNotConfirmed } = useActivityControllerState()
+  const { banners } = useActivityControllerState()
 
-  const hasPendingActivity = useMemo(() => {
-    return !!broadcastedButNotConfirmed.length
-  }, [broadcastedButNotConfirmed])
+  const pendingBanner = useMemo(() => {
+    return banners.find((b) => b.category === 'pending-to-be-confirmed-acc-ops')
+  }, [banners])
+
+  const failedBanner = useMemo(() => {
+    return banners.find((b) => b.category === 'failed-acc-ops')
+  }, [banners])
 
   return (
     <View style={[styles.container]}>
@@ -62,6 +66,41 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         const indexDiff = tabIndex - openTabIndex
 
         const isActive = openTab === type
+
+        let customColors: [string, string] | undefined
+        const withBadge = type === 'activity' && !isActive && (!!pendingBanner || !!failedBanner)
+        let badge
+        let badgeText
+        let badgeTextAppearance: TextAppearance = 'info2Text'
+
+        if (failedBanner) {
+          badge = (
+            <View
+              style={{
+                width: 18,
+                height: 18,
+                borderWidth: 2,
+                borderRadius: 50,
+                borderColor: theme.errorDecorative
+              }}
+            />
+          )
+          badgeText = failedBanner.meta!.accountOpsCount
+          badgeTextAppearance = 'errorText'
+        }
+
+        if (pendingBanner) {
+          badge = <Spinner style={{ width: 18, height: 18 }} variant="info2" />
+          badgeText = pendingBanner.meta!.accountOpsCount
+        }
+
+        if (type === 'activity' && !isActive && failedBanner) {
+          customColors = [`${theme.errorDecorative as any}45`, `${theme.errorDecorative as any}07`]
+        }
+
+        if (type === 'activity' && !isActive && pendingBanner) {
+          customColors = [`${theme.info2Decorative as any}45`, `${theme.info2Decorative as any}07`]
+        }
 
         return (
           <View key={type} style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -73,23 +112,19 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
               setOpenTab={setOpenTab}
               handleChangeQuery={handleChangeQuery}
               disabled={disabled}
-              customColors={
-                type === 'activity' && !isActive && hasPendingActivity
-                  ? [`${theme.info2Decorative as any}45`, `${theme.info2Decorative as any}07`]
-                  : undefined
-              }
+              customColors={customColors}
               style={type === 'activity' ? { width: 100 } : undefined}
             >
-              {type === 'activity' && !isActive && hasPendingActivity && (
+              {!!withBadge && (
                 <View style={[spacings.mlTy, flexbox.alignCenter, flexbox.justifyCenter]}>
-                  <Spinner style={{ width: 18, height: 18 }} variant="info2" />
+                  {badge}
                   <Text
                     fontSize={10}
                     weight="medium"
                     style={{ position: 'absolute' }}
-                    appearance="info2Text"
+                    appearance={badgeTextAppearance}
                   >
-                    {broadcastedButNotConfirmed.length}
+                    {badgeText}
                   </Text>
                 </View>
               )}
@@ -100,7 +135,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
                   borderRightWidth: 1,
                   height: 24,
                   borderRightColor:
-                    TABS[tabIndex + 1]?.type === 'activity' && hasPendingActivity
+                    TABS[tabIndex + 1]?.type === 'activity' && (!!pendingBanner || !!failedBanner)
                       ? 'transparent'
                       : indexDiff >= 1 || indexDiff < -1
                       ? theme.secondaryBorder
