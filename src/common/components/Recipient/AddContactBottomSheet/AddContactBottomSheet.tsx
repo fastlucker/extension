@@ -38,7 +38,8 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
       type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT',
       params: {
         address,
-        name
+        name,
+        shouldUpdateTransferState: true
       }
     })
     closeBottomSheet()

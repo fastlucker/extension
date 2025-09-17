@@ -551,7 +551,13 @@ export const handleActions = async (
     case 'EMAIL_VAULT_CONTROLLER_DISMISS_BANNER':
       return mainCtrl.emailVault?.dismissBanner()
     case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
-      return await mainCtrl.addressBook.addContact(params.name, params.address)
+      await mainCtrl.addressBook.addContact(params.name, params.address)
+
+      if (params.shouldUpdateTransferState && mainCtrl.transfer) {
+        await mainCtrl.transfer.checkIsRecipientAddressUnknown()
+      }
+
+      return
     }
     case 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT': {
       const { address, newName } = params
