@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { SwapAndBridgeRoute } from '@ambire-common/interfaces/swapAndBridge'
@@ -38,7 +38,7 @@ const RoutesModal = ({
   const { quote, shouldEnableRoutesSelection, signAccountOpController } =
     useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
-  const scrollRef: any = useRef(null)
+  const scrollRef = useRef<FlatList<SwapAndBridgeRoute>>(null)
   const { height } = useWindowSize()
   // there's a small discrepancy between ticks and we want to capture that
   const [userSelectedRoute, setUserSelectedRoute] = useState<SwapAndBridgeRoute | undefined>(
@@ -131,6 +131,7 @@ const RoutesModal = ({
             (isSelected || hovered) && styles.selectedItem,
             isEstimationLoading && !isEstimatingRoute && styles.otherItemLoading
           ]}
+          testID={isSelected ? 'selected-route' : ''}
           onPress={() => handleSelectRoute(item)}
           // Disable route selection if any route is being estimated
           disabled={isEstimationLoading || item.disabled}
@@ -157,11 +158,11 @@ const RoutesModal = ({
             steps={steps}
             inputValueInUsd={inputValueInUsd}
             outputValueInUsd={outputValueInUsd}
-            totalGasFeesInUsd={item.totalGasFeesInUsd}
             estimationInSeconds={item.serviceTime}
             isSelected={item.routeId === userSelectedRoute?.routeId && !isEstimatingRoute}
             isDisabled={item.disabled}
             disabledReason={item.disabledReason}
+            providerId={item.providerId}
           />
         </Pressable>
       )
@@ -209,12 +210,19 @@ const RoutesModal = ({
       onOpen={() => {
         if (!selectedRouteIndex) return
 
-        // @TODO: Fix this
         setTimeout(() => {
-          scrollRef?.current?.scrollTo({
-            x: 0,
-            y: selectedRouteIndex * FLAT_LIST_ITEM_HEIGHT - SPACING_LG
-          })
+          try {
+            scrollRef?.current?.scrollToIndex({
+              index: selectedRouteIndex,
+              animated: true,
+              viewPosition: 0.1
+            })
+          } catch (e) {
+            scrollRef?.current?.scrollToOffset({
+              offset: selectedRouteIndex * FLAT_LIST_ITEM_HEIGHT - SPACING_LG,
+              animated: true
+            })
+          }
         }, 100)
       }}
       containerInnerWrapperStyles={flexbox.flex1}

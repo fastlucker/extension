@@ -5,8 +5,11 @@ import { View } from 'react-native'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { isPermit2Interaction } from '@ambire-common/libs/simulation/detectPermit2Interaction'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
+import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Alert from '@common/components/Alert'
+import AlertVertical from '@common/components/AlertVertical'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import Nft from '@common/components/TokenOrNft/components/Nft'
@@ -14,6 +17,7 @@ import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
@@ -40,6 +44,9 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
   const [shouldRespectIsLoading, setShouldRespectIsLoading] = useState(true)
   const { networks } = useNetworksControllerState()
+  const {
+    state: { dapps }
+  } = useDappsControllerState()
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -164,6 +171,26 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     ]
   )
 
+  const containsPermit2 = useMemo(() => {
+    if (!signAccountOpState?.accountOp?.calls || !network) return false
+
+    return signAccountOpState.accountOp.calls.some((call) => {
+      if (!call.to || !call.data) return false
+      return isPermit2Interaction({ to: call.to, data: call.data })
+    })
+  }, [signAccountOpState?.accountOp.calls, network])
+
+  const containsDappsNotInCatalog = useMemo(() => {
+    if (!signAccountOpState?.accountOp?.calls || !network) return false
+
+    const dappUrlsSet = new Set(dapps.map((d) => d.url.toLowerCase()))
+
+    return signAccountOpState.accountOp.calls.some((call) => {
+      if (!call.dapp || !call.dapp.url) return false
+      return !dappUrlsSet.has(call.dapp.url.toLowerCase())
+    })
+  }, [signAccountOpState?.accountOp.calls, network, dapps])
+
   const simulationView:
     | 'no-changes'
     | 'changes'
@@ -210,7 +237,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
   return (
     <View style={styles.simulationSection}>
       {simulationView === 'changes' && (
-        <View style={[flexbox.directionRow, flexbox.flex1]}>
+        <View style={[flexbox.directionRow, flexbox.flex1, spacings.mb]}>
           {(!!pendingSendTokens.length || !!pendingSendCollection.length) && (
             <View
               style={[styles.simulationContainer, !!pendingReceiveTokens.length && spacings.mrTy]}
@@ -344,6 +371,19 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
               Settings. If you wish to proceed regardless, please carefully review the transaction
               preview below.
             </Trans>
+          }
+        />
+      )}
+      {containsDappsNotInCatalog && containsPermit2 && (
+        <AlertVertical
+          type="warning"
+          customIcon={() => <WarningFilledIcon width={48} height={44} />}
+          text={
+            <Text appearance="warningText" weight="semiBold">
+              {t(
+                'App is not on the default Ambire App Catalog.\nMake sure you trust it before signing requests.'
+              )}
+            </Text>
           }
         />
       )}

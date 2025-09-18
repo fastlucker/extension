@@ -200,6 +200,7 @@ const Tokens = ({
             <TabsAndSearch
               openTab={openTab}
               setOpenTab={setOpenTab}
+              currentTab="tokens"
               searchControl={control}
               sessionId={sessionId}
             />

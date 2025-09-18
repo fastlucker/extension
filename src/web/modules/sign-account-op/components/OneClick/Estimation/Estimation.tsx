@@ -8,6 +8,7 @@ import {
   ISignAccountOpController,
   SignAccountOpError
 } from '@ambire-common/interfaces/signAccountOp'
+import { SwapAndBridgeRoute } from '@ambire-common/interfaces/swapAndBridge'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
@@ -33,6 +34,7 @@ type Props = {
   signAccountOpController: ISignAccountOpController | null
   hasProceeded: boolean
   updateType: 'Swap&Bridge' | 'Transfer&TopUp'
+  serviceFee?: SwapAndBridgeRoute['serviceFee']
 }
 
 const { isActionWindow, isTab } = getUiType()
@@ -46,7 +48,8 @@ const OneClickEstimation = ({
   signAccountOpController,
   hasProceeded,
   errors,
-  updateType
+  updateType,
+  serviceFee
 }: Props) => {
   const { t } = useTranslation()
   const { theme, themeType } = useTheme()
@@ -134,6 +137,7 @@ const OneClickEstimation = ({
               isViewOnly={isViewOnly}
               isSponsored={signAccountOpController ? signAccountOpController.isSponsored : false}
               sponsor={signAccountOpController ? signAccountOpController.sponsor : undefined}
+              serviceFee={serviceFee}
             />
             {signingErrors.length > 0 &&
               (signingErrors.map(({ code }) => code).includes('NO_KEYS_AVAILABLE') ? (
