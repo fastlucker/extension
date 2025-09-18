@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Animated, FlatListProps, View } from 'react-native'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -90,19 +91,22 @@ const ActivityPositions: FC<Props> = ({
 
       if (item === 'empty') {
         return (
-          <Text
-            testID="no-transaction-history-text"
-            fontSize={16}
-            weight="medium"
-            style={styles.noPositions}
-          >
-            {t('No transactions history for {{account}}', {
-              account: `${account!.preferences.label} (${shortenAddress(account!.addr, 10)})`
-            })}
-            {!!dashboardNetworkFilter && !!dashboardNetworkFilterName && (
-              <> {t('on {{network}}', { network: dashboardNetworkFilterName })}</>
-            )}
-          </Text>
+          <View style={[flexbox.flex1, flexbox.center]}>
+            <InfoIcon width={32} height={32} color={theme.info3Decorative} style={spacings.mtSm} />
+            <Text
+              testID="no-transaction-history-text"
+              fontSize={16}
+              weight="medium"
+              style={styles.noPositions}
+            >
+              {t('No transactions history for {{account}}', {
+                account: `${account!.preferences.label} (${shortenAddress(account!.addr, 10)})`
+              })}
+              {!!dashboardNetworkFilter && !!dashboardNetworkFilterName && (
+                <> {t('on {{network}}', { network: dashboardNetworkFilterName })}</>
+              )}
+            </Text>
+          </View>
         )
       }
 
