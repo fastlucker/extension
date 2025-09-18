@@ -4,7 +4,7 @@ import { buildSelector } from '@helpers/buildSelector'
 const selectors = {
   dashboard: {
     tokensTabButton: 'tokens-defi',
-    noTokens: 'no-tokens-text',
+    noTokensText: 'no-tokens-text',
     nftTabButton: 'tab-nft',
     noCollectiblesText: 'no-collectibles-text',
     defiTabButton: 'tab-defi',
