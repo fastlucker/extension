@@ -1,8 +1,9 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, FlatListProps, View } from 'react-native'
 
 import { BannerType } from '@ambire-common/interfaces/banner'
+import { getCurrentAccountBanners } from '@ambire-common/libs/banners/banners'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import Banner from '@common/components/Banner'
 import Button from '@common/components/Button'
@@ -56,6 +57,10 @@ const ActivityPositions: FC<Props> = ({
   const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const prevOpenTab = usePrevious(openTab)
 
+  const currentAccountBanners = useMemo(() => {
+    return getCurrentAccountBanners(banners, account?.addr)
+  }, [banners, account])
+
   useEffect(() => {
     if (prevOpenTab === 'activity' && openTab !== 'activity') {
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS', params: { sessionId } })
@@ -98,7 +103,7 @@ const ActivityPositions: FC<Props> = ({
 
             {!!accountsOps[sessionId] && (
               <View style={spacings.mbMi}>
-                {banners.map((banner) => (
+                {currentAccountBanners.map((banner) => (
                   <Banner
                     key={banner.id}
                     type={banner.type as BannerType}

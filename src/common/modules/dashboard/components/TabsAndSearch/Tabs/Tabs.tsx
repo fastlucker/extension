@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
+import { getCurrentAccountBanners } from '@ambire-common/libs/banners/banners'
 import Spinner from '@common/components/Spinner'
 import Text, { TextAppearance } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import getStyles from './styles'
 import Tab from './Tab'
@@ -50,14 +52,19 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { styles, theme } = useTheme(getStyles)
 
   const { banners } = useActivityControllerState()
+  const { account } = useSelectedAccountControllerState()
+
+  const currentAccountBanners = useMemo(() => {
+    return getCurrentAccountBanners(banners, account?.addr)
+  }, [banners, account])
 
   const pendingBanner = useMemo(() => {
-    return banners.find((b) => b.category === 'pending-to-be-confirmed-acc-ops')
-  }, [banners])
+    return currentAccountBanners.find((b) => b.category === 'pending-to-be-confirmed-acc-ops')
+  }, [currentAccountBanners])
 
   const failedBanner = useMemo(() => {
-    return banners.find((b) => b.category === 'failed-acc-ops')
-  }, [banners])
+    return currentAccountBanners.find((b) => b.category === 'failed-acc-ops')
+  }, [currentAccountBanners])
 
   return (
     <View style={[styles.container]}>
