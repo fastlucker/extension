@@ -241,7 +241,6 @@ const ToToken: FC<Props> = ({
     'balanceFormatted' in toTokenValue
 
   // @ts-ignore
-  // @ts-ignore
   return (
     <View>
       <View
