@@ -33,9 +33,14 @@ import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
   isAutoSelectRouteDisabled: boolean
+  simulationFailed?: boolean
 }
 
-const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
+const ToToken: FC<Props> = ({
+  isAutoSelectRouteDisabled,
+  setIsAutoSelectRouteDisabled,
+  simulationFailed
+}) => {
   const { theme, styles, themeType } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
@@ -235,6 +240,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     'pendingBalanceFormatted' in toTokenValue &&
     'balanceFormatted' in toTokenValue
 
+  // @ts-ignore
+  // @ts-ignore
   return (
     <View>
       <View
@@ -321,8 +328,16 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           ]}
         >
           {hasSelectedToToken && (
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
+            <View
+              style={[flexbox.directionRow, flexbox.alignCenter]}
+              // @ts-ignore
+              dataSet={{ tooltipId: 'to-token-balance-tooltip' }}
+            >
+              <WalletFilledIcon
+                width={14}
+                height={14}
+                color={simulationFailed ? theme.warningDecorative : theme.tertiaryText}
+              />
               <Text
                 testID="max-available-amount"
                 numberOfLines={1}
@@ -331,6 +346,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                 weight="medium"
                 appearance="tertiaryText"
                 ellipsizeMode="tail"
+                color={simulationFailed ? theme.warningDecorative : theme.tertiaryText}
               >
                 {`${
                   toTokenValue.isPending
@@ -338,6 +354,10 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
                     : toTokenValue.balanceFormatted
                 } ${toTokenValue.symbol}`}
               </Text>
+              <Tooltip
+                content={simulationFailed ? 'Balance may be inaccurate' : ''}
+                id="to-token-balance-tooltip"
+              />
             </View>
           )}
           {!!quote?.selectedRoute && isReadyToDisplayAmounts && (
