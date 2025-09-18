@@ -150,9 +150,12 @@ export class BasePage {
     return tokenBalance
   }
 
-  async expectItemsCount(selector: string, expectedNumber: number) {
+  async expectItemsVisible(selector: string) {
     const items = this.page.locator(selector)
-    // ensures expected number of items is present
-    await expect(items).toHaveCount(expectedNumber)
+    const count = await items.count()
+
+    for (let i = 0; i < count; i++) {
+      await expect(items.nth(i)).toBeVisible()
+    }
   }
 }

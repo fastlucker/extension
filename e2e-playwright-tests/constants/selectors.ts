@@ -5,6 +5,7 @@ const selectors = {
   dashboard: {
     tokensTabButton: 'tokens-defi',
     noTokensText: 'no-tokens-text',
+    tokenTitleText: '[data-testid^="token-balance-"]',
     nftTabButton: 'tab-nft',
     noCollectiblesText: 'no-collectibles-text',
     defiTabButton: 'tab-defi',
