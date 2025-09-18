@@ -56,7 +56,6 @@ const DashboardPages = ({ onScroll, animatedOverviewHeight }: Props) => {
     return result || null
   }, [dashboardNetworkFilter, networks])
 
-  // TODO: check if this prop is needed at all
   const dashboardNetworkFilterName = useMemo(() => {
     if (!dashboardNetworkFilter) return null
 
