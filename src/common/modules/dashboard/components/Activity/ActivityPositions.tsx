@@ -1,11 +1,16 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, FlatListProps, View } from 'react-native'
 
+import { BannerType } from '@ambire-common/interfaces/banner'
 import { Network } from '@ambire-common/interfaces/network'
+import { getCurrentAccountBanners } from '@ambire-common/libs/banners/banners'
 import InfoIcon from '@common/assets/svg/InfoIcon'
+import Banner from '@common/components/Banner'
 import Button from '@common/components/Button'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import ActivityPositionsSkeleton from '@common/modules/dashboard/components/Activity/ActivityPositionsSkeleton'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -63,8 +68,19 @@ const ActivityPositions: FC<Props> = ({
   const { theme } = useTheme()
 
   const { dispatch } = useBackgroundService()
-  const { accountsOps } = useActivityControllerState()
+  const { accountsOps, banners } = useActivityControllerState()
   const { account, dashboardNetworkFilter } = useSelectedAccountControllerState()
+  const prevOpenTab = usePrevious(openTab)
+
+  const currentAccountBanners = useMemo(() => {
+    return getCurrentAccountBanners(banners, account?.addr)
+  }, [banners, account])
+
+  useEffect(() => {
+    if (prevOpenTab === 'activity' && openTab !== 'activity') {
+      dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET_ACC_OPS_FILTERS', params: { sessionId } })
+    }
+  }, [prevOpenTab, openTab, dispatch, sessionId])
 
   useEffect(() => {
     // Optimization: Don't apply filtration if we are not on Activity tab
@@ -99,6 +115,48 @@ const ActivityPositions: FC<Props> = ({
               currentTab="activity"
               sessionId={sessionId}
             />
+
+            {!!accountsOps[sessionId] && (
+              <View style={spacings.mbMi}>
+                {currentAccountBanners.map((banner) => (
+                  <Banner
+                    key={banner.id}
+                    type={banner.type as BannerType}
+                    CustomIcon={() => {
+                      return (
+                        <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+                          {banner.type === 'info2' ? (
+                            <Spinner style={{ width: 20, height: 20 }} variant="info2" />
+                          ) : (
+                            <View
+                              style={{
+                                width: 20,
+                                height: 20,
+                                borderWidth: 2,
+                                borderRadius: 50,
+                                borderColor: theme[`${banner.type as BannerType}Decorative`]
+                              }}
+                            />
+                          )}
+                          <Text
+                            fontSize={12}
+                            weight="semiBold"
+                            style={{ position: 'absolute' }}
+                            appearance={`${banner.type as BannerType}Text`}
+                          >
+                            {banner.meta!.accountOpsCount}
+                          </Text>
+                        </View>
+                      )
+                    }}
+                    title={banner.title}
+                    text={banner.text}
+                    style={{ minHeight: 28, ...spacings.mbTy }}
+                    contentContainerStyle={{ minHeight: 28 }}
+                  />
+                ))}
+              </View>
+            )}
           </View>
         )
       }
@@ -189,16 +247,15 @@ const ActivityPositions: FC<Props> = ({
     },
     [
       initTab?.activity,
-      theme.primaryBackground,
-      theme.info3Decorative,
-      theme.linkText,
+      theme,
       openTab,
       setOpenTab,
       sessionId,
+      accountsOps,
+      currentAccountBanners,
       t,
       network?.explorerUrl,
       account,
-      accountsOps,
       dispatch,
       dashboardNetworkFilter
     ]

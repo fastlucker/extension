@@ -38,6 +38,7 @@ type Props = {
   selectTestId?: string
   title?: string | ReactNode
   maxAmountDisabled?: boolean
+  simulationFailed?: boolean
 }
 
 const SendToken: FC<Props> = ({
@@ -58,7 +59,8 @@ const SendToken: FC<Props> = ({
   inputTestId,
   selectTestId,
   title,
-  maxAmountDisabled
+  maxAmountDisabled,
+  simulationFailed
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const { theme, styles, themeType } = useTheme(getStyles)
@@ -168,6 +170,7 @@ const SendToken: FC<Props> = ({
                 selectedTokenSymbol={fromSelectedToken?.symbol || ''}
                 onMaxButtonPress={handleSetMaxFromAmount}
                 disabled={maxAmountDisabled}
+                simulationFailed={simulationFailed}
               />
             )}
             {fromSelectedToken && fromSelectedToken.priceIn.length !== 0 ? (
