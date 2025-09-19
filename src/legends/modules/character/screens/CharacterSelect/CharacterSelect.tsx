@@ -72,23 +72,18 @@ const CharacterSelect = () => {
       .catch((e) => console.log('Failed to get info about NFT balance', e))
   }, [connectedAccount])
 
-  if (!!v1Account || !connectedAccount) {
-    return <Navigate to="/" />
-  }
+  // if (!!v1Account || !connectedAccount) {
+  //   return <Navigate to="/" />
+  // }
 
   return (
-    <div className={styles.wrapper}>
+    <Modal className={styles.wrapper} isOpen>
       <div
         className={styles.backgroundEffect}
         style={{ backgroundImage: `url(${blurredLights})` }}
       />
       <div>
-        <button type="button" className={styles.backButton} onClick={() => navigate(-1)}>
-          <LeftArrowIcon width={14} height={14} color="currentColor" />
-          Back to Rewards
-        </button>
-        <h1 className={styles.title}>Mint Your NFT</h1>
-        <p className={styles.description}>Pick your profile avatar and mint a soulbound NFT</p>
+        <h1 className={styles.title}>Pick Your Avatar</h1>
       </div>
 
       <div>
@@ -107,7 +102,7 @@ const CharacterSelect = () => {
             disabled={isButtonDisabled}
             className={styles.saveButton}
           >
-            {isMinting ? 'Please wait...' : 'Mint NFT'}
+            {isMinting ? 'Please wait...' : 'Continue'}
           </button>
         )}
         {isCheckingMintStatus && <Spinner />}
@@ -147,7 +142,7 @@ const CharacterSelect = () => {
         showOnMintModal={!!(character && !isCharacterNotMinted && isMinted)}
         onButtonClick={redirectToCharacterPage}
       />
-    </div>
+    </Modal>
   )
 }
 
