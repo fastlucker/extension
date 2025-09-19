@@ -3,6 +3,8 @@ import selectors from 'constants/selectors'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
 
+import { expect } from '@playwright/test'
+
 test.describe('dashboard', () => {
   test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(saParams)
@@ -43,35 +45,65 @@ test.describe('dashboard', () => {
   })
 
   test('Filter Tokens by Network', async ({ pages }) => {
+    // SA should have 5 tokens on Base network - wallet, usdc, usdt, eth, clBtc
+    const wallet = tokens.wallet.base
+    const usdc = tokens.usdc.base
+    const usdt = tokens.usdt.base
+    const eth = tokens.eth.base
+    const clBtc = tokens.clbtc.base
+
     await test.step('search Tokens by network - Base', async () => {
       await pages.dashboard.search('Base', 'tokens')
     })
 
     await test.step('assert search result', async () => {
-      // SA should have 5 tokens on Base network - wallet, usdc, usdt, eth, clBtc
-      await pages.basePage.expectItemsVisible(selectors.dashboard.tokenTitleText)
+      await pages.basePage.isVisible(`token-balance-${wallet.address}.${wallet.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdc.address}.${usdc.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
     })
   })
 
   test('Filter Tokens by token name', async ({ pages }) => {
+    // SA should have 4 tokens containing USDC - base/optimism/polygon, USDCe - optimism
+    const usdcMainnet = tokens.usdc.optimism
+    const usdcBase = tokens.usdc.base
+    const usdcEMainnet = tokens.usdce.optimism
+    const usdcPolygon = tokens.usdc.polygon
+
     await test.step('search Tokens by token name - USDC', async () => {
       await pages.dashboard.search('USDC', 'tokens')
     })
 
     await test.step('assert search result', async () => {
-      // SA should have 4 tokens containing USDC - base/optimism/polygon, USDCe - optimism
-      await pages.basePage.expectItemsVisible(selectors.dashboard.tokenTitleText)
+      await pages.basePage.isVisible(`token-balance-${usdcMainnet.address}.${usdcMainnet.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdcBase.address}.${usdcBase.chainId}`)
+      await pages.basePage.isVisible(
+        `token-balance-${usdcEMainnet.address}.${usdcEMainnet.chainId}`
+      )
+      await pages.basePage.isVisible(`token-balance-${usdcPolygon.address}.${usdcPolygon.chainId}`)
     })
   })
 
   test('Filter Token using network dropdown', async ({ pages }) => {
+    // SA should have 5 tokens on Base network - wallet, usdc, usdt, eth, clBtc
+    const wallet = tokens.wallet.base
+    const usdc = tokens.usdc.base
+    const usdt = tokens.usdt.base
+    const eth = tokens.eth.base
+    const clBtc = tokens.clbtc.base
+
     await test.step('select Base network via dropdown', async () => {
       await pages.dashboard.searchByNetworkDropdown('Base', 'tokens')
     })
 
     await test.step('assert search result', async () => {
-      // SA should have 5 tokens on Base network - wallet, usdc, usdt, eth, clBtc
-      await pages.basePage.expectItemsVisible(selectors.dashboard.tokenTitleText)
+      await pages.basePage.isVisible(`token-balance-${wallet.address}.${wallet.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdc.address}.${usdc.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
+      await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
     })
   })
 
@@ -95,7 +127,23 @@ test.describe('dashboard', () => {
     })
 
     await test.step('assert search result are visible', async () => {
-      await pages.basePage.expectItemsVisible(selectors.dashboard.nftsTitle)
+      // 8 NFTs should be visible for SA
+      const expectedTitles = [
+        'Ambire Legends',
+        'finance-cake.com - 135.000$ Win',
+        'Win 135.000$: cakesv4.finance',
+        't.ly/claimcake - 135.000$ Win',
+        'Rewards: t.ly/pancakeswap.finance',
+        'pudgyz.com - 233.000$ Drop',
+        'Win 135.000$: cakesv4.finance',
+        'finance-cake.com - 135.000$ Win'
+      ]
+
+      const collectibleTitle = pages.basePage.page.getByTestId(selectors.dashboard.nftTitle) // returns all items on page
+
+      for (let i = 0; i < expectedTitles.length; i++) {
+        await expect(collectibleTitle.nth(i)).toHaveText(expectedTitles[i])
+      }
     })
   })
 
@@ -104,31 +152,13 @@ test.describe('dashboard', () => {
       await pages.basePage.click(selectors.dashboard.nftTabButton)
     })
 
-    const noCollectiblesText = await pages.basePage.isVisible(
-      selectors.dashboard.noCollectiblesText
-    )
+    await test.step('search by NFT name - Ambire Legends', async () => {
+      await pages.dashboard.search('Ambire Legends', 'collectibles')
+    })
 
-    // in case there are no collectibles message is visible on NFTs tab
-    if (noCollectiblesText) {
-      await test.step('if no collectibles appropriate message should be visible', async () => {
-        await pages.basePage.compareText(
-          selectors.dashboard.noCollectiblesText,
-          "You don't have any collectibles (NFTs) yet."
-        )
-      })
-    } else {
-      await test.step('search by NFT name - Ambire Legends', async () => {
-        await pages.dashboard.search('Ambire Legends', 'collectibles')
-      })
-
-      await test.step('assert search result', async () => {
-        // 1 item should be visible for SA
-        await pages.basePage.expectItemsVisible(selectors.dashboard.nftsTitle)
-
-        // assert nft title
-        await pages.basePage.compareText(selectors.dashboard.nftTitle, 'Ambire Legends')
-      })
-    }
+    await test.step('assert search result', async () => {
+      await pages.basePage.compareText(selectors.dashboard.nftTitle, 'Ambire Legends')
+    })
   })
 
   test('Filter NFTs using network dropdown', async ({ pages }) => {
@@ -136,28 +166,29 @@ test.describe('dashboard', () => {
       await pages.basePage.click(selectors.dashboard.nftTabButton)
     })
 
-    const noCollectiblesText = await pages.basePage.isVisible(
-      selectors.dashboard.noCollectiblesText
-    )
+    await test.step('select Base network via dropdown', async () => {
+      await pages.dashboard.searchByNetworkDropdown('Base', 'collectibles')
+    })
 
-    // in case there are no collectibles message is visible on DeFi tab
-    if (noCollectiblesText) {
-      await test.step('if no collectibles appropriate message should be visible', async () => {
-        await pages.basePage.compareText(
-          selectors.dashboard.noCollectiblesText,
-          "You don't have any collectibles (NFTs) yet."
-        )
-      })
-    } else {
-      await test.step('select Base network via dropdown', async () => {
-        await pages.dashboard.searchByNetworkDropdown('Base', 'collectibles')
-      })
+    await test.step('assert search result', async () => {
+      // 8 NFTs should be visible for SA
+      const expectedTitles = [
+        'Ambire Legends',
+        'finance-cake.com - 135.000$ Win',
+        'Win 135.000$: cakesv4.finance',
+        't.ly/claimcake - 135.000$ Win',
+        'Rewards: t.ly/pancakeswap.finance',
+        'pudgyz.com - 233.000$ Drop',
+        'Win 135.000$: cakesv4.finance',
+        'finance-cake.com - 135.000$ Win'
+      ]
 
-      await test.step('assert search result', async () => {
-        // 8 NFTs should be visible for SA
-        await pages.basePage.expectItemsVisible(selectors.dashboard.nftsTitle)
-      })
-    }
+      const collectibleTitle = pages.basePage.page.getByTestId(selectors.dashboard.nftTitle) // returns all items on page
+
+      for (let i = 0; i < expectedTitles.length; i++) {
+        await expect(collectibleTitle.nth(i)).toHaveText(expectedTitles[i])
+      }
+    })
   })
 
   test('Search for non existing NFT returns appropriate message', async ({ pages }) => {
@@ -179,7 +210,6 @@ test.describe('dashboard', () => {
 
   // TODO: add tests and assertions once we have protocols on FE
   test('Search Protocol by network dropdown', async ({ pages }) => {
-    // await pages.auth.pause()
     await test.step('navigate to tab DeFi', async () => {
       await pages.basePage.click(selectors.dashboard.defiTabButton)
     })
