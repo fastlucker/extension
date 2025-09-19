@@ -537,12 +537,18 @@
   }
 
   @include breakpoint-from(small-desktop) {
+    // grid-template-columns: 16rem 26rem 11rem;
     .currentSeasonBadge {
       top: -2.75rem;
     }
   }
 
   @include breakpoint-down-from(small-desktop) {
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 1rem;
+
     padding-bottom: 1rem;
     .character {
       margin-left: 0;
@@ -582,6 +588,9 @@
 
   @include breakpoint-down-from(tablet) {
     margin-left: 0;
+
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
 
     
   }
