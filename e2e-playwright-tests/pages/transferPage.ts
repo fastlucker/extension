@@ -124,7 +124,7 @@ export class TransferPage extends BasePage {
     await this.click(selectors.dashboard.activityTabButton)
     await this.compareText(
       selectors.dashboard.noTransactionOnActivityTab,
-      'No transactions history for Account '
+      "Ambire doesn't retrieve transactions made before installing the extension, but you can check your address on etherscan.io."
     )
   }
 
