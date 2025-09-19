@@ -428,7 +428,7 @@ export class SwapAndBridgePage extends BasePage {
     await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.01/)
     await expect(page.getByTestId('recipient-address-1')).toHaveText(/WALLET/)
     await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.01/)
-    await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
+    await expect(page.getByTestId('recipient-address-3')).toHaveText(/WALLET/)
     await page.getByTestId(selectors.signTransactionButton).click()
   }
 
