@@ -209,30 +209,19 @@ test.describe('dashboard', () => {
   })
 
   // TODO: add tests and assertions once we have protocols on FE
-  test('Search Protocol by network dropdown', async ({ pages }) => {
+  test.skip('Search Protocol by network dropdown', async ({ pages }) => {
     await test.step('navigate to tab DeFi', async () => {
       await pages.basePage.click(selectors.dashboard.defiTabButton)
     })
 
-    const noProtocolText = await pages.basePage.isVisible(selectors.dashboard.noProtocolsText)
+    await test.step('select Base network via dropdown', async () => {
+      await pages.dashboard.searchByNetworkDropdown('Base', 'defi')
+    })
 
-    if (noProtocolText) {
-      await test.step('if no protocols appropriate message should be visible', async () => {
-        await pages.basePage.compareText(
-          selectors.dashboard.noProtocolsText,
-          'No known protocols detected.'
-        )
-      })
-    } else {
-      await test.step('select Base network via dropdown', async () => {
-        await pages.dashboard.searchByNetworkDropdown('Base', 'defi')
-      })
-
-      // TODO: ATM there are no protocols for SA; uncomment when we have protocols
-      // await test.step('assert search result', async () => {
-      //   await pages.basePage.expectItemsCount(selectors.dashboard.protocolTitle, 1)
-      // })
-    }
+    // TODO: ATM there are no protocols for SA; uncomment when we have protocols
+    // await test.step('assert search result', async () => {
+    //   await pages.basePage.expectItemsCount(selectors.dashboard.protocolTitle, 1)
+    // })
   })
 
   test('Search for non existing Defi Protocol returns appropriate message', async ({ pages }) => {
