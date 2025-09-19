@@ -204,7 +204,6 @@ providerRequestTransport.reply(async ({ method, id, providerId, params }, meta) 
       providerId
     )
 
-    console.log('background', method, res, providerId)
     return { id, result: res }
   } catch (error: any) {
     let errorRes
