@@ -681,7 +681,6 @@ type AddressBookControllerAddContact = {
   params: {
     address: Contact['address']
     name: Contact['name']
-    shouldUpdateTransferState?: boolean
   }
 }
 type AddressBookControllerRenameContact = {
