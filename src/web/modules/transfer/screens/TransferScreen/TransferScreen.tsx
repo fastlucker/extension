@@ -8,7 +8,6 @@ import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAcco
 import { ActionExecutionType } from '@ambire-common/interfaces/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import { getAddressFromAddressState } from '@ambire-common/utils/domains'
@@ -74,7 +73,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { t } = useTranslation()
   const { visibleActionsQueue } = useActionsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
-  const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { userRequests } = useRequestsControllerState()
   const {
     ref: gasTankSheetRef,
@@ -597,7 +595,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           <Form>
             <SendForm
               addressInputState={addressInputState}
-              isSmartAccount={isSmartAccount}
               hasGasTank={hasGasTank}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
               isRecipientAddressUnknown={isRecipientAddressUnknown}
