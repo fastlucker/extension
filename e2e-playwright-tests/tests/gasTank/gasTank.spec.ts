@@ -19,7 +19,7 @@ test.describe('gasTank - Basic Account', () => {
     let oldBalance: number
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.gasTank.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('get current gas tank balance', async () => {
