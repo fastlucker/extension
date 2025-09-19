@@ -45,14 +45,8 @@ const blockExplorerUrl = (explorerUrl: string | null, address: string) => {
   return `${explorerUrl}/address/${address}`
 }
 
-const blockExplorerName = (explorerUrl: string | null) => {
-  if (!explorerUrl) return 'block explorer'
-
-  const url = explorerUrl.replace('https://', '').replace('http://', '').replace('www.', '')
-  const [domain] = url.split('.')
-  const domainCapitalized = domain.charAt(0).toUpperCase() + domain.slice(1)
-
-  return domainCapitalized
+const blockExplorerName = (explorerUrl: string) => {
+  return explorerUrl.replace('https://', '').replace('http://', '').replace('www.', '')
 }
 
 const ActivityPositions: FC<Props> = ({
