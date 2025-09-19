@@ -292,10 +292,6 @@
           line-height: 1.5rem;
           color: $mainText;
           align-self: end;
-
-
-         
-      
         }
       }
         .levelWrapper {
@@ -422,7 +418,7 @@
 
   // old styles below
 
- 
+  
   .logoAndBalanceWrapper {
     display: inline-block;
     position: relative;
@@ -433,11 +429,7 @@
     position: relative;
     z-index: 2;
 
-    // .characterNameWrapper {
-    //   margin-bottom: 3rem;
-    //   display: flex;
-    //   gap: 0.75rem;
-    // }
+  
 
     .characterInfoWrapper {
       display: flex;
@@ -461,31 +453,6 @@
       font-weight: 400;
       color: $whiteText;
       margin-bottom: 6.5625rem;
-    }
-
-   
-
-
-    .unknownCharacterLevelInfoWrapper {
-      .claimableXpText {
-        font-size: 1.5rem;
-        line-height: 2.75rem;
-        font-weight: 400;
-        margin-bottom: .625rem;
-      }
-      .claimableBalance {
-        color: #02F3BF;
-        font-weight: 600;
-      }
-      .claimXpButton {
-        @include primary-button;
-        cursor: pointer;
-        max-width: 10.625rem;
-        height: 4rem;
-        font-weight: 400;
-        font-size: 1.25rem;
-        margin-bottom: 2.8125rem;
-      }
     }
 
     
@@ -622,9 +589,77 @@
 
 
 .unknownCharacterWrapper {
+  display: flex;
   justify-content: space-between;
   background: linear-gradient(147.96deg, #191B1F 43.03%, rgba(19, 21, 43, 0.99) 87.21%);
   position: relative;
+  padding: 0rem 2.5rem 0rem 2.375rem;
+  border-radius: 1rem;
+
+  .unknownCharacterContentWrapper {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+    
+    .unknownCharacterContent {
+
+      .currentSeasonBadge {
+        margin-bottom: 1.5rem;
+        width: fit-content;
+        background-color: $purple-700;
+        padding: .35rem .7rem;
+        border-bottom-right-radius: .5rem;
+        border-bottom-left-radius: .5rem;
+        box-shadow: 0px 4px 4px 0px #00000040 inset;
+        gap: .3125rem;
+        display: flex;
+        color: $whiteText;
+        align-self: center;
+        font-size: .75rem;
+        font-weight: 500;
+        line-height: 100%;
+        letter-spacing: .0375rem;
+        align-items: center;
+      } 
+
+      .accountInfo {
+        font-size: 1.125rem;
+        padding: 0;
+        justify-content: start;
+        margin-bottom: 1.5rem;
+        
+        .accountInfoAddress {
+          color: $secondaryText;
+        }
+      }
+
+
+      .unknownCharacterLevelInfoWrapper {
+
+        .claimableXpText {
+          font-size: 1.5rem;
+          line-height: 2.75rem;
+          font-weight: 400;
+          margin-bottom: .625rem;
+        }
+        .claimableBalance {
+          color: #02F3BF;
+          font-weight: 600;
+        }
+        .claimXpButton {
+          @include primary-button;
+          cursor: pointer;
+          max-width: 10.625rem;
+          height: 4rem;
+          font-weight: 400;
+          font-size: 1.25rem;
+          margin-bottom: 2.8125rem;
+        }
+      }
+
+    }
+        
+  }
 
   .claimRewardsBubble {
     position: absolute;
@@ -653,11 +688,15 @@
   .character {
     margin-left: 0;
     margin-right: 1.4375rem;
+    position: relative;
+    z-index: 2;
 
     .characterRelativeWrapper {
       .characterImage {
         width: 14.6875rem;
         height: 14.6875rem;
+        position: relative;
+        z-index: 4;
       }
     }
   }
@@ -681,8 +720,7 @@
     border: 0.25rem solid transparent;
     background-clip: padding-box, border-box;
     background-origin: padding-box, border-box;
-    // background-image: linear-gradient($mainBg, $mainBg),
-      // linear-gradient(8.85deg, #5d83ff 9.6%, #6735ff 90.76%);
+ 
 
   }
 }
