@@ -209,14 +209,14 @@ test.describe('dashboard', () => {
   })
 
   // TODO: add tests and assertions once we have protocols on FE
-  test.skip('Search Protocol by network dropdown', async ({ pages }) => {
-    await test.step('navigate to tab DeFi', async () => {
-      await pages.basePage.click(selectors.dashboard.defiTabButton)
-    })
+  // test.skip('Search Protocol by network dropdown', async ({ pages }) => {
+  //   await test.step('navigate to tab DeFi', async () => {
+  //     await pages.basePage.click(selectors.dashboard.defiTabButton)
+  //   })
 
-    await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base', 'defi')
-    })
+  //   await test.step('select Base network via dropdown', async () => {
+  //     await pages.dashboard.searchByNetworkDropdown('Base', 'defi')
+  //   })
 
     // TODO: ATM there are no protocols for SA; uncomment when we have protocols
     // await test.step('assert search result', async () => {
