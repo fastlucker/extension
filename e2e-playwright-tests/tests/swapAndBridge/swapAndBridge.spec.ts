@@ -96,7 +96,7 @@ test.describe('swapAndBridge Smart Account', () => {
     const wallet = tokens.wallet.base
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.swapAndBridge.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('prepare swap and bridge transaction', async () => {
@@ -154,7 +154,7 @@ test.describe('swapAndBridge Smart Account', () => {
     const usdcOpt = tokens.usdc.optimism
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.swapAndBridge.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('prepare bridge transaction', async () => {
