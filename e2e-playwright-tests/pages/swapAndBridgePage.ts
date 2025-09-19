@@ -441,15 +441,6 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   // TODO: use this method to check activity tab after POM refactor
-  async checkNoTransactionOnActivityTab() {
-    await this.click(selectors.dashboard.activityTabButton)
-    await this.compareText(
-      selectors.dashboard.noTransactionOnActivityTab,
-      'No transactions history for Account '
-    )
-  }
-
-  // TODO: use this method to check activity tab after POM refactor
   async checkSendTransactionOnActivityTab() {
     await this.click(selectors.dashboard.activityTabButton)
     await expect(this.page.locator(selectors.dashboard.grantApprovalText)).toContainText(
