@@ -4,39 +4,43 @@
 import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
 import { tabMessenger } from '../messengers/internal/tab'
 
+// Run setup bridge messenger in all frames
 setupBridgeMessengerRelay()
 
-let lastMoveTime = 0
-const MOUSE_MOVE_THROTTLE = 1000
-let lastRestartLockTime = 0
-const RESTART_LOCK_THROTTLE = 5000
+// Run the reactivation logic only in the top frame (skip iframes)
+if (window.top === window) {
+  let lastMoveTime = 0
+  const MOUSE_MOVE_THROTTLE = 1000
+  let lastRestartLockTime = 0
+  const RESTART_LOCK_THROTTLE = 5000
 
-// when the background is inactive this mechanism will reactivate it
-const registerUserActivity = () => {
-  const now = Date.now()
+  // when the background is inactive this mechanism will reactivate it
+  const registerUserActivity = () => {
+    const now = Date.now()
 
-  if (now - lastMoveTime > MOUSE_MOVE_THROTTLE) {
-    lastMoveTime = now
-    if (!chrome?.runtime?.id) {
-      document.removeEventListener('mousemove', registerUserActivity)
-      document.removeEventListener('keydown', registerUserActivity)
-      return
-    }
-
-    if (now - lastRestartLockTime > RESTART_LOCK_THROTTLE) {
-      lastRestartLockTime = now
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        tabMessenger.send('ambireProviderRequest', { method: 'registerUserActivity' })
-      } catch (error) {
-        console.error('Failed to send registerUserActivity to the service worker')
+    if (now - lastMoveTime > MOUSE_MOVE_THROTTLE) {
+      lastMoveTime = now
+      if (!chrome?.runtime?.id) {
+        document.removeEventListener('mousemove', registerUserActivity)
+        document.removeEventListener('keydown', registerUserActivity)
+        return
       }
-    }
 
-    chrome.runtime.sendMessage('mouseMoved').catch(() => {
-      // Service worker might be inactive; this error is expected.
-    })
+      if (now - lastRestartLockTime > RESTART_LOCK_THROTTLE) {
+        lastRestartLockTime = now
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          tabMessenger.send('ambireProviderRequest', { method: 'registerUserActivity' })
+        } catch (error) {
+          console.error('Failed to send registerUserActivity to the service worker')
+        }
+      }
+
+      chrome.runtime.sendMessage('mouseMoved').catch(() => {
+        // Service worker might be inactive; this error is expected.
+      })
+    }
   }
+  document.addEventListener('mousemove', registerUserActivity, { passive: true })
+  document.addEventListener('keydown', registerUserActivity, { passive: true })
 }
-document.addEventListener('mousemove', registerUserActivity, { passive: true })
-document.addEventListener('keydown', registerUserActivity, { passive: true })

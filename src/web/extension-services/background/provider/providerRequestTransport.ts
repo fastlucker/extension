@@ -51,6 +51,7 @@ export type RequestResponse =
 
 export type ProviderRequestPayload = RequestArguments & {
   id: number
+  providerId: number
   meta?: CallbackOptions
 }
 type ProviderResponse = RequestResponse

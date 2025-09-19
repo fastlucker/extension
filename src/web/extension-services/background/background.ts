@@ -173,7 +173,7 @@ handleRegisterScripts()
 handleKeepAlive()
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+providerRequestTransport.reply(async ({ method, id, providerId, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
   while (!mainCtrl || !walletStateCtrl) await wait(200)
 
@@ -200,8 +200,11 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
       mainCtrl,
       walletStateCtrl,
       autoLockCtrl,
-      id
+      id,
+      providerId
     )
+
+    console.log('background', method, res, providerId)
     return { id, result: res }
   } catch (error: any) {
     let errorRes
