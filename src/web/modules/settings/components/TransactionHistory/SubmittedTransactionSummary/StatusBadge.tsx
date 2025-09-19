@@ -19,6 +19,9 @@ const StatusBadge: FC<Props> = ({ status, textSize }) => {
     case AccountOpStatus.Success:
       return <Badge type="success" weight="medium" text={t('Confirmed')} withRightSpacing />
 
+    case AccountOpStatus.BroadcastedButNotConfirmed:
+      return <Badge type="info2" weight="medium" text={t('Pending')} withRightSpacing />
+
     case AccountOpStatus.BroadcastButStuck:
       return (
         <View style={spacings.mrMd}>
@@ -51,4 +54,4 @@ const StatusBadge: FC<Props> = ({ status, textSize }) => {
   }
 }
 
-export default StatusBadge
+export default React.memo(StatusBadge)
