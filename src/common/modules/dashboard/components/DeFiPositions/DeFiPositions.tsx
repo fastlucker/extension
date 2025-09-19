@@ -113,6 +113,7 @@ const DeFiPositions: FC<Props> = ({
             <TabsAndSearch
               openTab={openTab}
               setOpenTab={setOpenTab}
+              currentTab="defi"
               searchControl={control}
               sessionId={sessionId}
             />

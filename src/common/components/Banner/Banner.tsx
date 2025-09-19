@@ -36,6 +36,7 @@ export interface Props {
   renderButtons?: React.ReactNode | React.ReactNode[]
   CustomIcon?: React.FC<any> | null
   style?: ViewStyle
+  contentContainerStyle?: ViewStyle
   titleFontSize?: number
   onClosePress?: () => void
 }
@@ -93,6 +94,7 @@ const Banner = React.memo(
     renderButtons,
     titleFontSize,
     style,
+    contentContainerStyle,
     onClosePress
   }: Props) => {
     const { styles, theme, themeType } = useTheme(getStyles)
@@ -118,7 +120,13 @@ const Banner = React.memo(
         ]}
         testID={`dashboard-${type}-banner`}
       >
-        <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
+        <View
+          style={[
+            styles.content,
+            { borderLeftColor: theme[`${type}Decorative`] },
+            contentContainerStyle
+          ]}
+        >
           <View
             style={[
               spacings.mrSm,

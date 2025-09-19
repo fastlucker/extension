@@ -26,6 +26,7 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import useSimulationError from '@web/modules/portfolio/hooks/SimulationError/useSimulationError'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -60,19 +61,23 @@ const SwapAndBridgeScreen = () => {
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch,
+    batchNetworkUserRequestsCount,
     networkUserRequests,
     isLocalStateOutOfSync
   } = useSwapAndBridgeForm()
   const {
     sessionIds,
     formStatus,
+    fromChainId,
+    toChainId,
     isHealthy,
     shouldEnableRoutesSelection,
     updateQuoteStatus,
     signAccountOpController,
     isAutoSelectRouteDisabled,
     hasProceeded,
-    swapSignErrors
+    swapSignErrors,
+    quote
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
@@ -80,6 +85,9 @@ const SwapAndBridgeScreen = () => {
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
+
+  const { simulationError: fromChainSimulationError } = useSimulationError({ chainId: fromChainId })
+  const { simulationError: toChainSimulationError } = useSimulationError({ chainId: toChainId })
 
   useEffect(() => {
     if (!pendingRoutes || !prevPendingRoutes) return
@@ -222,6 +230,7 @@ const SwapAndBridgeScreen = () => {
     return (
       <BatchAdded
         title={t('Swap & Bridge')}
+        callsCount={batchNetworkUserRequestsCount}
         primaryButtonText={t('Open dashboard')}
         secondaryButtonText={t('Add more')}
         onPrimaryButtonPress={onBatchAddedPrimaryButtonPress}
@@ -251,10 +260,12 @@ const SwapAndBridgeScreen = () => {
             fromTokenAmountSelectDisabled={fromTokenAmountSelectDisabled}
             onFromAmountChange={onFromAmountChange}
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+            simulationFailed={!!fromChainSimulationError}
           />
           <ToToken
             isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+            simulationFailed={!!toChainSimulationError}
           />
         </Form>
         <RouteInfo
@@ -274,6 +285,7 @@ const SwapAndBridgeScreen = () => {
         handleBroadcastAccountOp={handleBroadcastAccountOp}
         hasProceeded={hasProceeded}
         signAccountOpController={signAccountOpController}
+        serviceFee={quote?.selectedRoute?.serviceFee}
       />
       <PriceImpactWarningModal
         sheetRef={priceImpactModalRef}
