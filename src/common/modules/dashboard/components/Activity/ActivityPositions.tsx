@@ -127,6 +127,7 @@ const ActivityPositions: FC<Props> = ({
               >
                 {blockExplorerName(network?.explorerUrl || 'https://etherscan.io')}
               </a>
+              .
             </Text>
           </View>
         )
