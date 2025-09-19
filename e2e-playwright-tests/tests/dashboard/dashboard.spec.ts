@@ -218,11 +218,11 @@ test.describe('dashboard', () => {
   //     await pages.dashboard.searchByNetworkDropdown('Base', 'defi')
   //   })
 
-    // TODO: ATM there are no protocols for SA; uncomment when we have protocols
-    // await test.step('assert search result', async () => {
-    //   await pages.basePage.expectItemsCount(selectors.dashboard.protocolTitle, 1)
-    // })
-  })
+  // TODO: ATM there are no protocols for SA; uncomment when we have protocols
+  // await test.step('assert search result', async () => {
+  //   await pages.basePage.expectItemsCount(selectors.dashboard.protocolTitle, 1)
+  // })
+  // })
 
   test('Search for non existing Defi Protocol returns appropriate message', async ({ pages }) => {
     await test.step('navigate to tab DeFi', async () => {
