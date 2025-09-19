@@ -16,7 +16,7 @@ type Props = Pick<
   | 'fromTokenAmountSelectDisabled'
   | 'onFromAmountChange'
   | 'setIsAutoSelectRouteDisabled'
->
+> & { simulationFailed?: boolean }
 
 const FromToken: FC<Props> = ({
   fromTokenOptions,
@@ -24,7 +24,8 @@ const FromToken: FC<Props> = ({
   fromAmountValue,
   fromTokenAmountSelectDisabled,
   setIsAutoSelectRouteDisabled,
-  onFromAmountChange
+  onFromAmountChange,
+  simulationFailed
 }) => {
   const { dispatch } = useBackgroundService()
 
@@ -102,6 +103,7 @@ const FromToken: FC<Props> = ({
       handleSetMaxFromAmount={handleSetMaxFromAmount}
       inputTestId="from-amount-input-sab"
       selectTestId="from-token-select"
+      simulationFailed={simulationFailed}
     />
   )
 }

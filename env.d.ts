@@ -7,7 +7,7 @@ declare module '@env' {
   export type EnvTypes = {
     RELAYER_URL: string
     VELCRO_URL: string
-    SOCKET_API_KEY: string
+    BUNGEE_API_KEY: string
     LI_FI_API_KEY: string
     SENTRY_DSN?: string
     ENVIRONMENT: string
@@ -81,12 +81,12 @@ declare module '@env' {
   export const IS_TESTING: string
 
   /**
-   * Socket API is part of the Bungee API. It allows developers to easily transfer
+   * Bungee API. It allows developers to easily transfer
    * liquidity across chains, access aggregated liquidity and information from
    * hundreds of on-chain and off-chain decentralized exchange networks, bridges,
    * across multiple blockchains. Access is restricted and requires an API key.
    */
-  export const SOCKET_API_KEY: EnvTypes['SOCKET_API_KEY']
+  export const BUNGEE_API_KEY: EnvTypes['BUNGEE_API_KEY']
 
   /**
    * Socket API is part of the Bungee API. It allows developers to easily transfer
