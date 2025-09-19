@@ -5,7 +5,7 @@ import { test } from 'fixtures/pageObjects'
 
 import { expect, Page } from '@playwright/test'
 
-test.describe.only('transfer', () => {
+test.describe('transfer', () => {
   test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(baParams)
   })
