@@ -112,7 +112,12 @@ const Collections: FC<Props> = ({
 
       if (item === 'empty') {
         return (
-          <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
+          <Text
+            testID="no-collectibles-text"
+            fontSize={16}
+            weight="medium"
+            style={styles.noCollectibles}
+          >
             {!searchValue &&
               !dashboardNetworkFilterName &&
               t("You don't have any collectibles (NFTs) yet.")}
