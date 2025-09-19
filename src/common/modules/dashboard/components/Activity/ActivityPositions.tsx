@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Animated, FlatListProps, View } from 'react-native'
 
 import { BannerType } from '@ambire-common/interfaces/banner'
+import { Network } from '@ambire-common/interfaces/network'
 import { getCurrentAccountBanners } from '@ambire-common/libs/banners/banners'
-import shortenAddress from '@ambire-common/utils/shortenAddress'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Banner from '@common/components/Banner'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
@@ -32,13 +33,21 @@ interface Props {
   initTab?: { [key: string]: boolean }
   sessionId: string
   onScroll: FlatListProps<any>['onScroll']
-  dashboardNetworkFilterName: string | null
   animatedOverviewHeight: Animated.Value
+  network: Network | null
 }
 
 const { isPopup } = getUiType()
 
 const ITEMS_PER_PAGE = 10
+
+const blockExplorerUrl = (explorerUrl: string | null, address: string) => {
+  return `${explorerUrl}/address/${address}`
+}
+
+const blockExplorerName = (explorerUrl: string) => {
+  return explorerUrl.replace('https://', '').replace('http://', '').replace('www.', '')
+}
 
 const ActivityPositions: FC<Props> = ({
   openTab,
@@ -46,8 +55,8 @@ const ActivityPositions: FC<Props> = ({
   setOpenTab,
   initTab,
   onScroll,
-  dashboardNetworkFilterName,
-  animatedOverviewHeight
+  animatedOverviewHeight,
+  network
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -148,19 +157,31 @@ const ActivityPositions: FC<Props> = ({
 
       if (item === 'empty') {
         return (
-          <Text
-            testID="no-transaction-history-text"
-            fontSize={16}
-            weight="medium"
-            style={styles.noPositions}
-          >
-            {t('No transactions history for {{account}}', {
-              account: `${account!.preferences.label} (${shortenAddress(account!.addr, 10)})`
-            })}
-            {!!dashboardNetworkFilter && !!dashboardNetworkFilterName && (
-              <> {t('on {{network}}', { network: dashboardNetworkFilterName })}</>
-            )}
-          </Text>
+          <View style={styles.noPositionsWrapper}>
+            <InfoIcon width={32} height={32} color={theme.info3Decorative} style={spacings.mtSm} />
+            <Text
+              testID="no-transaction-history-text"
+              fontSize={16}
+              weight="medium"
+              style={styles.noPositions}
+            >
+              {t(
+                "Ambire doesn't retrieve transactions made\n before installing the extension, but you can \ncheck your address on "
+              )}
+              <a
+                href={blockExplorerUrl(
+                  network?.explorerUrl || 'https://etherscan.io',
+                  account!.addr
+                )}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: theme.linkText, textDecorationLine: 'none' }}
+              >
+                {blockExplorerName(network?.explorerUrl || 'https://etherscan.io')}
+              </a>
+              .
+            </Text>
+          </View>
         )
       }
 
@@ -220,17 +241,17 @@ const ActivityPositions: FC<Props> = ({
     },
     [
       initTab?.activity,
+      theme,
       openTab,
       setOpenTab,
       sessionId,
-      t,
-      account,
-      dashboardNetworkFilter,
-      dashboardNetworkFilterName,
       accountsOps,
+      currentAccountBanners,
+      t,
+      network?.explorerUrl,
+      account,
       dispatch,
-      banners,
-      theme
+      dashboardNetworkFilter
     ]
   )
 
