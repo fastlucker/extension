@@ -15,12 +15,13 @@ const handleProviderRequests = async (
   mainCtrl: MainController,
   walletStateCtrl: WalletStateController,
   autoLockCtrl: AutoLockController,
-  requestId: number
+  requestId: number,
+  providerId: number
 ): Promise<any> => {
   const { method, params, session } = request
 
   if (requestId === 0) {
-    mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId)
+    mainCtrl.dapps.resetSessionLastHandledRequestsId(session.sessionId, providerId)
   }
 
   if (method === 'registerUserActivity' && mainCtrl.dapps.hasPermission(session.id)) {
@@ -73,9 +74,10 @@ const handleProviderRequests = async (
   }
 
   // Prevents handling the same request more than once
-  if (session.lastHandledRequestId >= requestId) return
+  if (session.lastHandledRequestIds[providerId] >= requestId) return
   mainCtrl.dapps.setSessionLastHandledRequestsId(
     session.sessionId,
+    providerId,
     requestId,
     // Exclude 'getProviderState' as it's always requested on document ready
     method !== 'getProviderState'

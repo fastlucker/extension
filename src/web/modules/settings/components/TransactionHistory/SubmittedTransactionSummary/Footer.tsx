@@ -60,7 +60,9 @@ const Footer: FC<Props> = ({
   const canViewFee =
     status !== AccountOpStatus.Rejected &&
     status !== AccountOpStatus.BroadcastButStuck &&
-    status !== AccountOpStatus.UnknownButPastNonce
+    status !== AccountOpStatus.UnknownButPastNonce &&
+    status !== AccountOpStatus.BroadcastedButNotConfirmed
+
   const { chainId } = network
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()

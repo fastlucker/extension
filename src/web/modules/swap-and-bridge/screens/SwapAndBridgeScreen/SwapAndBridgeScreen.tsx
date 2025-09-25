@@ -26,6 +26,7 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import useSimulationError from '@web/modules/portfolio/hooks/SimulationError/useSimulationError'
 import TrackProgress from '../../components/Estimation/TrackProgress'
 import FromToken from '../../components/FromToken'
 import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
@@ -67,6 +68,8 @@ const SwapAndBridgeScreen = () => {
   const {
     sessionIds,
     formStatus,
+    fromChainId,
+    toChainId,
     isHealthy,
     shouldEnableRoutesSelection,
     updateQuoteStatus,
@@ -82,6 +85,9 @@ const SwapAndBridgeScreen = () => {
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
+
+  const { simulationError: fromChainSimulationError } = useSimulationError({ chainId: fromChainId })
+  const { simulationError: toChainSimulationError } = useSimulationError({ chainId: toChainId })
 
   useEffect(() => {
     if (!pendingRoutes || !prevPendingRoutes) return
@@ -254,10 +260,12 @@ const SwapAndBridgeScreen = () => {
             fromTokenAmountSelectDisabled={fromTokenAmountSelectDisabled}
             onFromAmountChange={onFromAmountChange}
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+            simulationFailed={!!fromChainSimulationError}
           />
           <ToToken
             isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+            simulationFailed={!!toChainSimulationError}
           />
         </Form>
         <RouteInfo

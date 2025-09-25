@@ -97,12 +97,11 @@ export class DashboardPage extends BasePage {
     return { token, error }
   }
 
-  // TODO: use this method to check activity tab after POM refactor
   async checkNoTransactionOnActivityTab() {
     await this.click(selectors.dashboard.activityTabButton)
     await this.compareText(
       selectors.dashboard.noTransactionOnActivityTab,
-      'No transactions history for Account '
+      "Ambire doesn't retrieve transactions made before installing the extension, but you can check your address on etherscan.io."
     )
   }
 
@@ -135,12 +134,18 @@ export class DashboardPage extends BasePage {
     await networkSelector.click()
   }
 
-  async noSearchResult(noSearchMessage: string) {
-    // creating selector using message
-    const noSearchResultSelector = this.page.locator(
-      selectors.dashboard.noTokenSearchResult(noSearchMessage)
+  async checkOpenTicketPage() {
+    // assert text
+    await this.compareText(
+      selectors.dashboard.suggestProtocolText,
+      'To suggest a protocol integration, '
     )
+    await this.compareText(selectors.dashboard.openTicketLink, 'open a ticket.')
 
-    await expect(noSearchResultSelector).toHaveText(noSearchMessage)
+    // check redirection
+    const selector = this.page.getByTestId(selectors.dashboard.openTicketLink)
+    const newTab = await this.handleNewPage(selector)
+
+    expect(newTab.url()).toContain('help.ambire.com/hc/en-us')
   }
 }

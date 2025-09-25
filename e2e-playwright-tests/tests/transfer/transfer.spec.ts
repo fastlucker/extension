@@ -22,7 +22,7 @@ test.describe('transfer', () => {
     const payWithGasTank = true
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transfer.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('start send transfer', async () => {
@@ -56,7 +56,7 @@ test.describe('transfer', () => {
     const payWithGasTank = false
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transfer.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('start send transfer', async () => {
@@ -156,7 +156,7 @@ test.describe('transfer', () => {
     const isUnknownAddress = false
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transfer.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('go to address book page', async () => {
@@ -208,7 +208,7 @@ test.describe('transfer', () => {
     const newContactAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.transfer.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('start send transfer', async () => {

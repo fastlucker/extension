@@ -24,7 +24,7 @@ const handleRegisterScripts = async () => {
   if (!registeredContentScriptMessengerBridge) {
     scripts.push({
       id: 'content-script-messenger-bridge',
-      allFrames: false,
+      allFrames: true,
       matches: ['http://*/*', 'https://*/*', 'file://*/*'],
       excludeMatches: ['*://doInWebPack.lan/*'],
       js: ['browser-polyfill.min.js', 'content-script.js'],
@@ -113,7 +113,7 @@ const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) 
 
   try {
     await browser.scripting.executeScript({
-      target: { tabId: tab.id, allFrames: false },
+      target: { tabId: tab.id, allFrames: true },
       files: ['browser-polyfill.min.js', 'content-script.js'],
       injectImmediately: true
     })

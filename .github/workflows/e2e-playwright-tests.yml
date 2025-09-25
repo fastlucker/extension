@@ -21,8 +21,8 @@ jobs:
       # DISPLAY: ':99.0'
       RELAYER_URL: ${{ vars.RELAYER_URL }}
       VELCRO_URL: ${{ vars.VELCRO_URL }}
-      SOCKET_API_KEY: ${{ vars.SOCKET_API_KEY }}
       LI_FI_API_KEY: ${{ vars.LI_FI_API_KEY }}
+      BUNGEE_API_KEY: ${{ vars.BUNGEE_API_KEY }}
       REACT_APP_PIMLICO_API_KEY: ${{ vars.REACT_APP_PIMLICO_API_KEY }}
       REACT_APP_ETHERSPOT_API_KEY: ${{ vars.REACT_APP_ETHERSPOT_API_KEY }}
       REACT_APP_CANDIDE_API_KEY: ${{ vars.REACT_APP_CANDIDE_API_KEY }}

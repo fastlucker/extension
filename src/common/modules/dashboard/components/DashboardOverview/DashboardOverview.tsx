@@ -76,13 +76,7 @@ const DashboardOverview: FC<Props> = ({
     networksWithErrors
   } = useBalanceAffectingErrors()
 
-  const totalPortfolioAmount = useMemo(() => {
-    if (!dashboardNetworkFilter) return portfolio?.totalBalance || 0
-
-    if (!account) return 0
-
-    return Number(portfolio.balancePerNetwork[dashboardNetworkFilter.toString()]) || 0
-  }, [portfolio, dashboardNetworkFilter, account])
+  const totalPortfolioAmount = useMemo(() => portfolio?.totalBalance || 0, [portfolio])
 
   const [totalPortfolioAmountIntegerFormattedPart, totalPortfolioAmountDecimalFormattedPart] =
     formatDecimals(totalPortfolioAmount, 'value').split('.')

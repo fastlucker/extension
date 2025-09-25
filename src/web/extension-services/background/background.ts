@@ -22,6 +22,8 @@ import CONFIG, { isDev, isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
   BROWSER_EXTENSION_MEMORY_INTENSIVE_LOGS,
+  BUNGEE_API_KEY,
+  LI_FI_API_KEY,
   RELAYER_URL,
   VELCRO_URL
 } from '@env'
@@ -171,7 +173,7 @@ handleRegisterScripts()
 handleKeepAlive()
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+providerRequestTransport.reply(async ({ method, id, providerId, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
   while (!mainCtrl || !walletStateCtrl) await wait(200)
 
@@ -198,8 +200,10 @@ providerRequestTransport.reply(async ({ method, id, params }, meta) => {
       mainCtrl,
       walletStateCtrl,
       autoLockCtrl,
-      id
+      id,
+      providerId
     )
+
     return { id, result: res }
   } catch (error: any) {
     let errorRes
@@ -301,6 +305,8 @@ const init = async () => {
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
+    liFiApiKey: LI_FI_API_KEY,
+    bungeeApiKey: BUNGEE_API_KEY,
     featureFlags: {},
     keystoreSigners: {
       internal: KeystoreSigner,
