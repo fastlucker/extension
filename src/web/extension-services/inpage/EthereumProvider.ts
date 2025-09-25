@@ -126,6 +126,12 @@ export class EthereumProvider extends EventEmitter {
 
   #requestId = 0
 
+  #providerId: number
+
+  get providerId() {
+    return this.#providerId
+  }
+
   #backgroundMessenger: Messenger
 
   constructor(
@@ -144,6 +150,7 @@ export class EthereumProvider extends EventEmitter {
     this.shimLegacy()
     this.#pushEventHandlers = new PushEventHandlers(this)
     this.#backgroundMessenger.reply('broadcast', this.#handleBackgroundMessage)
+    this.#providerId = Date.now()
   }
 
   initialize = async () => {
@@ -155,6 +162,7 @@ export class EthereumProvider extends EventEmitter {
       providerRequestTransport.send(
         {
           id,
+          providerId: this.#providerId,
           method: 'tabCheckin',
           params: {
             icon: await getIconWithRetry(),
@@ -214,6 +222,7 @@ export class EthereumProvider extends EventEmitter {
       providerRequestTransport.send(
         {
           id,
+          providerId: this.#providerId,
           method: 'tabCheckin',
           params: {
             // @ts-ignore
@@ -337,6 +346,7 @@ export class EthereumProvider extends EventEmitter {
       const response = await providerRequestTransport.send(
         {
           id,
+          providerId: this.#providerId,
           method: data.method,
           params: data.params
         },

@@ -149,10 +149,4 @@ export class BasePage {
 
     return tokenBalance
   }
-
-  async expectItemsCount(selector: string, expectedNumber: number) {
-    const items = this.page.locator(selector)
-    // ensures expected number of items is present
-    await expect(items).toHaveCount(expectedNumber)
-  }
 }
