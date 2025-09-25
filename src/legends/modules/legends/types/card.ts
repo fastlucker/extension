@@ -119,6 +119,8 @@ export interface CardFromResponse {
     hasAlreadyMigrated?: true
     hasPenalty?: boolean
     initial7702Xp?: number
+    code?: string
+    allCollected?: boolean
   }
   contentSteps?: string[]
   contentImageV2?: string
