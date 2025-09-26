@@ -102,6 +102,17 @@ const mapFeeOptions = (
     }
   }
 
+  // TODO: to be discussed:
+  // 1. Should we refactor and move `disabledReason` logic together with `speedCoverage` into controller.
+  // 2. We could have more than 1 `accountKeyStoreKeys`.
+  const isExternal = signAccountOpState.accountKeyStoreKeys.find(
+    (keyStoreKey) => keyStoreKey.addr === feeOption.paidBy && keyStoreKey.isExternallyStored
+  )
+
+  if (isExternal && feeOption.token.address !== ZERO_ADDRESS) {
+    disabledReason = 'Coming soon for Hardware wallets'
+  }
+
   return {
     value:
       feeOption.paidBy +
