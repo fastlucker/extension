@@ -25,4 +25,12 @@
   font-weight: 400;
 }
 
-
+.bitrefillCode {
+  font-size: 3rem;
+  p {
+    color: $mainText;
+  }
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
