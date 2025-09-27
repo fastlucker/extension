@@ -118,8 +118,8 @@ export class BasePage {
     await expect(this.page.getByTestId(selector)).toBeEnabled({ timeout: 5000 })
   }
 
-  async compareText(selector: string, text: string) {
-    await expect(this.page.getByTestId(selector)).toContainText(text)
+  async compareText(selector: string, text: string, index?: number) {
+    await expect(this.page.getByTestId(selector).nth(index ?? 0)).toContainText(text)
   }
 
   async isVisible(selector: string): Promise<boolean> {
@@ -127,7 +127,7 @@ export class BasePage {
   }
 
   async expectElementNotVisible(selector: string): Promise<void> {
-    expect(this.page.getByTestId(selector)).toBeFalsy()
+    await expect(this.page.getByTestId(selector)).not.toBeVisible()
   }
 
   async monitorRequests() {
