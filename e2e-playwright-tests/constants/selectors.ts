@@ -29,7 +29,11 @@ const selectors = {
     networkBase: '//div[text()="Base"]',
     nftTitle: 'collection-item',
     nftsTitle: '[data-testid^="collection-item"]',
-    searchForNetwork: 'search-for-network-field'
+    searchForNetwork: 'search-for-network-field',
+    hideTokenButton: 'hide-token-button',
+    yesHideItButton: 'yes-hide-it-text',
+    hideTokenModalTitle: 'hide-token-modal-title',
+    hideTokenModalDescription: 'hide-token-modal-description'
   },
   settings: {
     createNewRecoveryPhraseButton: 'create-new-recovery-phrase',

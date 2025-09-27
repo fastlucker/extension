@@ -244,4 +244,33 @@ test.describe('dashboard', () => {
       await pages.dashboard.checkOpenTicketPage()
     })
   })
+
+  test.only('Hide WALLET token from dashboard; then unhide it in settings', async ({ pages }) => {
+    const wallet = tokens.wallet.base
+
+    await pages.auth.pause()
+    await test.step('Hide WALLET token', async () => {
+      await pages.dashboard.click(`${wallet.address}.${wallet.chainId}-balance`)
+      await pages.dashboard.click(selectors.dashboard.hideTokenButton)
+    })
+
+    await test.step('assert hide token modal', async () => {
+      await pages.basePage.compareText(
+        selectors.dashboard.hideTokenModalTitle,
+        'Are you sure you want to hide this token?'
+      )
+      await pages.basePage.compareText(
+        selectors.dashboard.hideTokenModalDescription,
+        'You can always unhide it from the Settings menu > Custom tokens.'
+      )
+    })
+
+    await test.step('assert WALLET token not visible on Dashboard', async () => {
+      await pages.basePage.expectElementNotVisible(`${wallet.address}.${wallet.chainId}-balance`)
+    })
+
+    // await test.step('assert WALLET token not visible on Dashboard', async () => {
+    //   await pages.basePage.expectElementNotVisible(`${wallet.address}.${wallet.chainId}-balance`)
+    // })
+  })
 })

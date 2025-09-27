@@ -126,6 +126,10 @@ export class BasePage {
     return this.page.getByTestId(selector).isVisible()
   }
 
+  async expectElementNotVisible(selector: string): Promise<void> {
+    expect(this.page.getByTestId(selector)).toBeFalsy()
+  }
+
   async monitorRequests() {
     if (this._monitorInstalled) return
     this._reqListener = (request: PWRequest) => {
