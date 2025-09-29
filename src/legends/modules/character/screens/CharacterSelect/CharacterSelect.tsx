@@ -18,7 +18,7 @@ import CharacterLoadingModal from './components/CharacterLoadingModal'
 import CharacterSlider from './components/CharacterSlider'
 import useMintCharacter from './hooks/useMintCharacter'
 
-const CharacterSelect = () => {
+const CharacterSelect = ({ onClose }) => {
   const navigate = useNavigate()
   const [characterId, setCharacterId] = useState(1)
   const { connectedAccount, v1Account } = useAccountContext()
@@ -72,12 +72,8 @@ const CharacterSelect = () => {
       .catch((e) => console.log('Failed to get info about NFT balance', e))
   }, [connectedAccount])
 
-  // if (!!v1Account || !connectedAccount) {
-  //   return <Navigate to="/" />
-  // }
-
   return (
-    <Modal className={styles.wrapper} isOpen>
+    <Modal className={styles.wrapper} isOpen handleClose={onClose}>
       <div
         className={styles.backgroundEffect}
         style={{ backgroundImage: `url(${blurredLights})` }}

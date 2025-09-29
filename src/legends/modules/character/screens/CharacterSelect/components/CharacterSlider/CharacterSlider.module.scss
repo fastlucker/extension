@@ -1,7 +1,7 @@
 @import '@legends/styles/base';
 
 $centerSlideSize: 17.9904rem;
-$adjacentSlideSize: 15rem;
+$adjacentSlideSize: 13.125rem;
 $smallerSlideSize: 11rem;
 
 .wrapper {
@@ -37,7 +37,6 @@ $smallerSlideSize: 11rem;
       flex-shrink: 0;
       width: $smallerSlideSize;
       height: $smallerSlideSize;
-
 
       &.adjacent {
         .image {

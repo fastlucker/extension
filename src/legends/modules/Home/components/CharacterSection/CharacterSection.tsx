@@ -64,7 +64,7 @@ const CharacterSection = () => {
 
   return (
     <>
-      {isClaimModalOpen && <CharacterSelect />}
+      {isClaimModalOpen && <CharacterSelect onClose={() => setIsClaimModalOpen(false)} />}
       <div className={styles.overachieverWrapper}>
         <OverachieverBanner wrapperClassName={styles.overachieverBanner} />
       </div>
