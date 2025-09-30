@@ -167,6 +167,9 @@ export class EthereumProvider extends EventEmitter {
           params: {
             icon: await getIconWithRetry(),
             name:
+              ($('meta[property="og:site_name"]') as HTMLMetaElement)?.content?.trim() ||
+              ($('meta[name="application-name"]') as HTMLMetaElement)?.content?.trim() ||
+              ($('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement)?.content?.trim() ||
               document.title ||
               ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
               location.hostname ||
