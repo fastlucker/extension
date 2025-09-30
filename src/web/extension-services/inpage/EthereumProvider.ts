@@ -73,6 +73,38 @@ function getIconWithRetry(delay = 1000): Promise<string> {
   })
 }
 
+function getDappName(rawName: string) {
+  const host = location.hostname.replace(/^www\./, '')
+  const parts = host.split('.')
+  const domainCore = parts.slice(0, -1).join('.')
+
+  const domainWords = domainCore.split('.').map((w) => w.toLowerCase())
+
+  const matches = []
+  // eslint-disable-next-line no-restricted-syntax
+  for (const word of domainWords) {
+    const regex = new RegExp(`\\b${word}\\b`, 'i')
+    const match = rawName.match(regex)
+    if (match) {
+      matches.push({ word: match[0], index: match.index })
+    }
+  }
+
+  let finalName
+
+  if (matches.length > 0) {
+    matches.sort((a: any, b: any) => a.index - b.index)
+    finalName = matches
+      .map((m) => m.word)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+  } else {
+    finalName = rawName.trim()
+  }
+
+  return finalName
+}
+
 export class EthereumProvider extends EventEmitter {
   #pushEventHandlers: PushEventHandlers
 
@@ -158,21 +190,28 @@ export class EthereumProvider extends EventEmitter {
 
     const id = this.#requestId++
     domReadyCall(async () => {
+      const icon = await getIconWithRetry()
+      const rawName =
+        document.title ||
+        ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+        location.hostname ||
+        location.origin
+
+      let name = rawName
+
+      try {
+        name = getDappName(rawName)
+      } catch (error) {
+        console.warn('Failed to extract dApp name. Falling back to raw page title.')
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
         {
           id,
           providerId: this.#providerId,
           method: 'tabCheckin',
-          params: {
-            icon: await getIconWithRetry(),
-            name:
-              document.title ||
-              ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
-              location.hostname ||
-              location.origin,
-            origin: location.origin
-          }
+          params: { icon, name }
         },
         { id }
       )
@@ -218,6 +257,21 @@ export class EthereumProvider extends EventEmitter {
   #handleBackgroundMessage = ({ event, data }: any) => {
     if (event === 'tabCheckin') {
       const id = this.#requestId++
+
+      const rawName =
+        document.title ||
+        ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+        location.hostname ||
+        location.origin
+
+      let name = rawName
+
+      try {
+        name = getDappName(rawName)
+      } catch (error) {
+        console.warn('Failed to extract dApp name. Falling back to raw page title.')
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
         {
@@ -229,12 +283,7 @@ export class EthereumProvider extends EventEmitter {
             icon:
               ($('head > link[rel~="icon"]') as HTMLLinkElement)?.href ||
               ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content,
-            name:
-              document.title ||
-              ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
-              location.hostname ||
-              location.origin,
-            origin: location.origin
+            name
           }
         },
         { id }
