@@ -73,6 +73,39 @@ function getIconWithRetry(delay = 1000): Promise<string> {
   })
 }
 
+async function getSiteName(): Promise<string> {
+  const og = ($('meta[property="og:site_name"]') as HTMLMetaElement)?.content?.trim()
+  if (og) return og
+
+  const app = ($('meta[name="application-name"]') as HTMLMetaElement)?.content?.trim()
+  if (app) return app
+
+  const apple = ($('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement)?.content?.trim()
+  if (apple) return apple
+
+  const manifestUrl = (document.querySelector('link[rel="manifest"]') as HTMLLinkElement)?.href
+  if (manifestUrl) {
+    try {
+      const res = await fetch(manifestUrl)
+      if (res.ok) {
+        const json = await res.json()
+        if (json.name) return String(json.name).trim()
+        if (json.short_name) return String(json.short_name).trim()
+      }
+    } catch {
+      // ignore errors
+    }
+  }
+
+  // Fallbacks
+  return (
+    document.title ||
+    ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+    location.hostname ||
+    location.origin
+  )
+}
+
 export class EthereumProvider extends EventEmitter {
   #pushEventHandlers: PushEventHandlers
 
@@ -166,14 +199,7 @@ export class EthereumProvider extends EventEmitter {
           method: 'tabCheckin',
           params: {
             icon: await getIconWithRetry(),
-            name:
-              ($('meta[property="og:site_name"]') as HTMLMetaElement)?.content?.trim() ||
-              ($('meta[name="application-name"]') as HTMLMetaElement)?.content?.trim() ||
-              ($('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement)?.content?.trim() ||
-              document.title ||
-              ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
-              location.hostname ||
-              location.origin,
+            name: await getSiteName(),
             origin: location.origin
           }
         },
