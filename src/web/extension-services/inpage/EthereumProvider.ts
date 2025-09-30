@@ -223,17 +223,15 @@ export class EthereumProvider extends EventEmitter {
 
     const id = this.#requestId++
     domReadyCall(async () => {
-      const icon = await getIconWithRetry()
-      const name = await getDappName()
+      const params = {
+        icon: await getIconWithRetry(),
+        name: await getDappName(),
+        origin: location.origin
+      }
 
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
-        {
-          id,
-          providerId: this.#providerId,
-          method: 'tabCheckin',
-          params: { icon, name }
-        },
+        { id, providerId: this.#providerId, method: 'tabCheckin', params },
         { id }
       )
 
@@ -278,17 +276,15 @@ export class EthereumProvider extends EventEmitter {
   #handleBackgroundMessage = async ({ event, data }: any) => {
     if (event === 'tabCheckin') {
       const id = this.#requestId++
-      const icon = await getIconWithRetry()
-      const name = await getDappName()
+      const params = {
+        icon: await getIconWithRetry(),
+        name: await getDappName(),
+        origin: location.origin
+      }
 
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       providerRequestTransport.send(
-        {
-          id,
-          providerId: this.#providerId,
-          method: 'tabCheckin',
-          params: { icon, name }
-        },
+        { id, providerId: this.#providerId, method: 'tabCheckin', params },
         { id }
       )
 
