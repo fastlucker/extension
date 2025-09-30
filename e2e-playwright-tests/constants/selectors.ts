@@ -49,7 +49,14 @@ const selectors = {
     hiddenTokenName: 'hidden-token-name',
     hiddenTokenNetwork: 'hidden-token-network',
     unhideTokenButton: 'unhide-button',
-    youDontHaveInfoText: 'you-dont-have-any-text' // there can be multiple on same page
+    youDontHaveInfoText: 'you-dont-have-any-text', // there can be multiple on same page
+    customTokens: {
+      addCustomTokenButton: 'add-custom-token-button',
+      addTokenModalTitle: 'add-token-modal-title-text',
+      chooseNetworkDropdown: 'option-Ethereum', // ETH is selected by default
+      tokenAddressField: 'token-address-field',
+      addTokenButton: 'add-token-button'
+    }
   },
   account: 'account',
   importBtn: 'import-button',

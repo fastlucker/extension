@@ -229,7 +229,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
       style={{ maxWidth: 720 }}
       backgroundColor={themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'}
     >
-      <Text fontSize={20} style={spacings.mbXl} weight="medium">
+      <Text testID="add-token-modal-title-text" fontSize={20} style={spacings.mbXl} weight="medium">
         {t('Add Token')}
       </Text>
       <Select
@@ -244,6 +244,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
         name="address"
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            testID="token-address-field"
             onBlur={onBlur}
             onChangeText={onChange}
             label={t('Token Address')}
@@ -327,6 +328,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
         ) : null}
       </View>
       <Button
+        testID="add-token-button"
         disabled={
           showAlreadyInPortfolioMessage ||
           (!temporaryToken && !tokenTypeEligibility) ||
