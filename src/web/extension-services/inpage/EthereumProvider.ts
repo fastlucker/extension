@@ -118,8 +118,8 @@ async function getDappName() {
         if (json.name) return String(json.name).trim()
         if (json.short_name) return String(json.short_name).trim()
       }
-    } catch {
-      // ignore errors
+    } catch (e) {
+      console.warn('Failed to get dApp name from manifest. Falling back to guessing it.', e)
     }
   }
 
