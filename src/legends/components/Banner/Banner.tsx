@@ -1,22 +1,33 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+
+import { CardFromResponse } from '@legends/modules/legends/types'
 
 import styles from './Banner.module.scss'
 import governance from './governance.png'
 
-const Banner: React.FC = () => {
+interface Props {
+  activeProposals: NonNullable<NonNullable<CardFromResponse['meta']>['activeProposals']>
+}
+const Banner: React.FC<Props> = ({ activeProposals }) => {
+  const bannerInfo = useMemo(() => {
+    if (activeProposals.length === 1)
+      return {
+        text: `🗳️ Vote is live: ${activeProposals[0].title}`,
+        url: `https://snapshot.box/#/s:ambire.eth/proposal/${activeProposals[0].id}`
+      }
+    return {
+      text: `🗳️ ${activeProposals.length} votes are live: ${activeProposals
+        .map((p) => p.title)
+        .join(' ')}`,
+      url: 'https://snapshot.box/#/s:ambire.eth'
+    }
+  }, [activeProposals])
   return (
     <div className={styles.container}>
       <img className={styles.iconPlaceholder} src={governance} alt="Governance banner icon" />
       <div className={styles.textContent}>
-        <div className={styles.title}>
-          🛒 Vote is live: Add Bitrefill to Ambire’s App Catalog + 20% cashback on your first order!
-        </div>
-        <a
-          href="https://snapshot.box/#/s:ambire.eth/proposal/0xe9c25d55ec5277147a5a75ec082830bc5feaeb257b66e6409ff3788872867ac0"
-          className={styles.readMoreLink}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <div className={styles.title}>{bannerInfo.text}</div>
+        <a href={bannerInfo.url} className={styles.readMoreLink} target="_blank" rel="noreferrer">
           Read more &gt;
         </a>
       </div>
