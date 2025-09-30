@@ -74,7 +74,6 @@ function getIconWithRetry(delay = 1000): Promise<string> {
 }
 
 function getDappName(rawName: string) {
-  console.log('rawName', rawName)
   const host = location.hostname.replace(/^www\./, '')
   const parts = host.split('.')
   const domainCore = parts.slice(0, -1).join('.')
@@ -201,7 +200,6 @@ export class EthereumProvider extends EventEmitter {
       let name = rawName
 
       try {
-        console.log('1')
         name = getDappName(rawName)
       } catch (error) {
         console.warn('Failed to extract dApp name. Falling back to raw page title.')
@@ -269,7 +267,6 @@ export class EthereumProvider extends EventEmitter {
       let name = rawName
 
       try {
-        console.log('2')
         name = getDappName(rawName)
       } catch (error) {
         console.warn('Failed to extract dApp name. Falling back to raw page title.')
