@@ -20,15 +20,20 @@ TARGET="$1"
 upload_source_maps_for_build() {
   local ENGINE="$1"
 
-  echo "Injecting debug IDs for $ENGINE build"
+  # Only create a new release if auth token is available
+  if [ -n "$SENTRY_AUTH_TOKEN" ]; then
+    sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
+  else
+    echo "SENTRY_AUTH_TOKEN not available, skipping creating new Sentry release"
+  fi
 
+  echo "Injecting debug IDs for $ENGINE build"
   # Always inject debug IDs (doesn't require auth token)
   sentry-cli sourcemaps inject build/$ENGINE-prod/ --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 
   # Only upload to Sentry if auth token is available
   if [ -n "$SENTRY_AUTH_TOKEN" ]; then
     echo "Uploading source maps for $ENGINE build to Sentry"
-    sentry-cli releases new extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
     sentry-cli sourcemaps upload --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT build/$ENGINE-prod/
     sentry-cli releases finalize extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
   else
