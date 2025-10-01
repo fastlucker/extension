@@ -17,6 +17,8 @@ fi
 # Read the build target
 TARGET="$1"
 
+# The order of the commands is crucial! Injecting the debug ids
+# before creating the release will result in an empty release!
 upload_source_maps_for_build() {
   local ENGINE="$1"
 
