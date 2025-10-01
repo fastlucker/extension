@@ -27,8 +27,9 @@ upload_source_maps_for_build() {
     echo "SENTRY_AUTH_TOKEN not available, skipping creating new Sentry release"
   fi
 
+  # Always inject debug IDs (doesn't require auth token), so that the build is
+  # deterministic enough to pass the Firefox review process.
   echo "Injecting debug IDs for $ENGINE build"
-  # Always inject debug IDs (doesn't require auth token)
   sentry-cli sourcemaps inject build/$ENGINE-prod/ --release=extension-$ENGINE@$VERSION --project=$SENTRY_PROJECT
 
   # Only upload to Sentry if auth token is available
