@@ -7,6 +7,7 @@ import { Statuses } from '@ambire-common/interfaces/eventEmitter'
 import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
+import Alert from '@common/components/Alert'
 import NetworkIcon from '@common/components/NetworkIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
@@ -19,6 +20,7 @@ import ManifestImage from '@web/components/ManifestImage'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import NetworkDetails from '@web/components/NetworkDetails'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import useDappInfo from '@web/hooks/useDappInfo'
 
 import ActionFooter from '../../components/ActionFooter'
 import getStyles from './styles'
@@ -58,6 +60,7 @@ const AddChain = ({
 }: AddChainProps) => {
   const { styles, theme, themeType } = useTheme(getStyles)
   const { t } = useTranslation()
+  const { name } = useDappInfo(userRequest)
 
   return (
     <TabLayoutContainer
@@ -179,11 +182,9 @@ const AddChain = ({
             <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
               <Alert
                 title={t('Invalid Request Params')}
-                text={t(
-                  `${
-                    userRequest?.session?.name || 'The App'
-                  } provided invalid params for adding a new network.`
-                )}
+                text={t('{{appName}} provided invalid params for adding a new network.', {
+                  appName: name || 'The App'
+                })}
                 type="error"
               />
             </View>

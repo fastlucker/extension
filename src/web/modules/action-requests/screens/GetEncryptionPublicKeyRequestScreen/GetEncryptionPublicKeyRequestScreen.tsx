@@ -17,6 +17,7 @@ import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetwork
 import ManifestImage from '@web/components/ManifestImage'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useDappInfo from '@web/hooks/useDappInfo'
 
 import styles from './styles'
 
@@ -35,6 +36,8 @@ const GetEncryptionPublicKeyRequestScreen = () => {
 
     return dappAction?.userRequest || null
   }, [dappAction])
+
+  const { name } = useDappInfo(userRequest)
 
   const handleDeny = useCallback(() => {
     if (!dappAction) return
@@ -69,7 +72,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
                   {'The App '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={theme.primaryLight}>
-                  {userRequest?.session?.name || ''}
+                  {name}
                 </Text>
                 <Text fontSize={14} weight="regular">
                   {
