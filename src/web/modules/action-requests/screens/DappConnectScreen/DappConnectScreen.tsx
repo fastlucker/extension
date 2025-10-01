@@ -57,6 +57,10 @@ const DappConnectScreen = () => {
     return dappRefFromTheDappsController?.name || userRequest?.session?.name
   }, [userRequest?.session?.name, dappRefFromTheDappsController])
 
+  const icon = useMemo(() => {
+    return dappRefFromTheDappsController?.icon || userRequest?.session?.icon
+  }, [userRequest?.session?.icon, dappRefFromTheDappsController])
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
@@ -155,7 +159,7 @@ const DappConnectScreen = () => {
           <DAppConnectHeader
             name={name}
             origin={userRequest?.session?.origin}
-            icon={userRequest?.session?.icon}
+            icon={icon}
             securityCheck={securityCheck}
             responsiveSizeMultiplier={responsiveSizeMultiplier}
           />
