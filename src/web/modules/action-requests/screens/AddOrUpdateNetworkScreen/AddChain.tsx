@@ -2,7 +2,6 @@ import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { Session } from '@ambire-common/classes/session'
 import { Statuses } from '@ambire-common/interfaces/eventEmitter'
 import { AddNetworkRequestParams, Network, NetworkFeature } from '@ambire-common/interfaces/network'
 import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
@@ -33,7 +32,6 @@ type AddChainProps = {
   statuses: Statuses<'addNetwork' | 'updateNetwork'> & Statuses<string>
   features: NetworkFeature[]
   networkDetails: AddNetworkRequestParams
-  requestSession: Session | undefined
   actionButtonPressedRef: React.MutableRefObject<boolean>
   rpcUrls: string[]
   rpcUrlIndex: number
@@ -50,7 +48,6 @@ const AddChain = ({
   statuses,
   features,
   networkDetails,
-  requestSession,
   actionButtonPressedRef,
   rpcUrls,
   rpcUrlIndex,
@@ -60,7 +57,7 @@ const AddChain = ({
 }: AddChainProps) => {
   const { styles, theme, themeType } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { name } = useDappInfo(userRequest)
+  const { name, icon } = useDappInfo(userRequest)
 
   return (
     <TabLayoutContainer
@@ -101,7 +98,7 @@ const AddChain = ({
           <View style={styles.dappInfoContainer}>
             {!existingNetwork && (
               <ManifestImage
-                uri={requestSession?.icon}
+                uri={icon}
                 size={50}
                 fallback={() => <ManifestFallbackIcon />}
                 containerStyle={spacings.mrMd}
@@ -109,7 +106,7 @@ const AddChain = ({
             )}
 
             {!existingNetwork ? (
-              <Trans values={{ name: requestSession?.name || 'The App' }}>
+              <Trans values={{ name: name || 'The App' }}>
                 <Text>
                   <Text fontSize={20} appearance="secondaryText">
                     {t('Allow ')}
@@ -182,8 +179,8 @@ const AddChain = ({
             <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
               <Alert
                 title={t('Invalid Request Params')}
-                text={t('{{appName}} provided invalid params for adding a new network.', {
-                  appName: name || 'The App'
+                text={t('{{name}} provided invalid params for adding a new network.', {
+                  name: name || 'The App'
                 })}
                 type="error"
               />
