@@ -10,7 +10,6 @@ import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 type Props = LeaderboardEntry['currentUser'] & {
   stickyPosition: string | null
   projectedRewards?: number
-  projectedAmount?: number
   currentUserRef: React.RefObject<HTMLDivElement>
 }
 
@@ -53,8 +52,7 @@ const Row: FC<Props> = ({
   projectedRewards,
   level,
   stickyPosition,
-  currentUserRef,
-  projectedAmount
+  currentUserRef
 }) => {
   const { connectedAccount } = useAccountContext()
   const isConnectedAccountRow = account === connectedAccount
@@ -114,7 +112,9 @@ const Row: FC<Props> = ({
       </div>
       <h5 className={styles.cell}>{level}</h5>
       {typeof projectedRewards !== 'undefined' && (
-        <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(projectedRewards)}</h5>
+        <h5 className={`${styles.cell} ${styles.weight}`}>
+          {projectedRewards ? prettifyWeight(projectedRewards) : 'Loading...'}
+        </h5>
       )}
       <h5 className={styles.cell}>{formattedXp}</h5>
     </div>
