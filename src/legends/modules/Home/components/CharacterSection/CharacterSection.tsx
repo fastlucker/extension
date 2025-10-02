@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
+import { STK_WALLET } from '@ambire-common/consts/addresses'
+import { getTokenBalanceInUSD } from '@ambire-common/libs/portfolio/helpers'
 import { calculateRewardsForSeason } from '@ambire-common/utils/rewards'
-import AmbireLogo from '@common/assets/svg/AmbireLogo/AmbireLogo'
 import EqualIcon from '@common/assets/svg/EqualIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import MultiplicationIcon from '@common/assets/svg/MultiplicationIcon'
 import StkWalletIcon from '@common/assets/svg/StkWalletIcon'
 import Tooltip from '@common/components/Tooltip'
+import HourGlassIcon from '@legends/common/assets/svg/HourGlassIcon'
+import LockIcon from '@legends/common/assets/svg/LockIcon'
 import UnionIcon from '@legends/common/assets/svg/UnionIcon'
 import AccountInfo from '@legends/components/AccountInfo'
 import Alert from '@legends/components/Alert'
@@ -19,8 +21,6 @@ import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
-import { Networks } from '@legends/modules/legends/types'
-import { LEGENDS_ROUTES } from '@legends/modules/router/constants/routes'
 
 import styles from './CharacterSection.module.scss'
 import startsBackground from './starsBackground.png'
@@ -32,11 +32,34 @@ const CharacterSection = () => {
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
   const { character, isCharacterNotMinted } = useCharacterContext()
 
-  const navigate = useNavigate()
-  const { legends } = useLegendsContext()
-  const { accountPortfolio, walletTokenInfo } = usePortfolioControllerState()
-  const { season1LeaderboardData } = useLeaderboardContext()
-  const { isReady, amountFormatted } = accountPortfolio || {}
+  const {
+    accountPortfolio,
+    claimableRewardsError,
+    isLoadingClaimableRewards,
+    rewardsProjectionData
+  } = usePortfolioControllerState()
+
+  const { legends, isLoading } = useLegendsContext()
+
+  const { season1LeaderboardData, isLeaderboardLoading } = useLeaderboardContext()
+
+  const isRewardsLoading =
+    isLoadingClaimableRewards ||
+    isLoading ||
+    isLeaderboardLoading ||
+    !season1LeaderboardData ||
+    !accountPortfolio ||
+    !accountPortfolio?.isReady
+
+  const { amountFormatted, amount } = accountPortfolio || {}
+  const isNotAvailableForRewards =
+    ((accountPortfolio || accountPortfolio?.isReady) &&
+      amountFormatted &&
+      Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500) ||
+    (season1LeaderboardData?.currentUser?.level ?? 0) <= 2
+
+  const shouldShowIcon = isRewardsLoading || !!claimableRewardsError || isNotAvailableForRewards
+
   const formatXp = (xp: number) => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
@@ -63,14 +86,43 @@ const CharacterSection = () => {
   // Helper: get XP for not minted state (if needed)
   const characterXp = (character?.xp ?? 0) + initial7702Xp
 
-  // const calculatedRewards = calculateRewardsForSeason(
-  //   1,
-  //   currentLevel,
-  //   season1LeaderboardData?.currentUser?.xp ?? 0
-  // )
-  // const amountFromRewards = calculatedRewards?.totalRewards ?? 0
-  // const amountFromLevelUp = walletTokenInfo?.rewardsFromLevelingUp ?? 0
-  // const totalAmount = amountFromRewards + amountFromLevelUp
+  const currentTotalBalanceOnSupportedChains = amount || undefined
+
+  const parsedSnapshotsBalance = rewardsProjectionData?.currentSeasonSnapshots.map(
+    (snapshot: { week: number; balance: number }) => snapshot.balance
+  )
+
+  const projectedAmount =
+    rewardsProjectionData &&
+    calculateRewardsForSeason(
+      rewardsProjectionData?.userLevel,
+      parsedSnapshotsBalance,
+      currentTotalBalanceOnSupportedChains ?? 0,
+      rewardsProjectionData?.numberOfWeeksSinceStartOfSeason,
+      rewardsProjectionData?.totalWeightNonUser,
+      rewardsProjectionData?.walletPrice,
+      rewardsProjectionData?.totalRewardsPool
+    )
+
+  const projectedAmountFormatted =
+    projectedAmount && Math.round(projectedAmount.walletRewards * 1e18)
+  const balanceInUsd = getTokenBalanceInUSD({
+    chainId: BigInt(1),
+    amount: BigInt(projectedAmountFormatted || 1),
+    latestAmount: BigInt(projectedAmountFormatted || 1),
+    pendingAmount: BigInt(projectedAmountFormatted || 1),
+    address: STK_WALLET,
+    symbol: 'stkWALLET',
+    name: 'Staked $WALLET',
+    decimals: 18,
+    priceIn: [{ baseCurrency: 'usd', price: rewardsProjectionData?.walletPrice }],
+    flags: {
+      onGasTank: false,
+      rewardsType: 'wallet-projected-rewards' as const,
+      canTopUpGasTank: false,
+      isFeeToken: false
+    }
+  })
 
   return (
     <>
@@ -181,7 +233,7 @@ const CharacterSection = () => {
                   />
                 </div>
                 <span className={styles.balanceAmount}>
-                  {isReady ? amountFormatted : 'Loading...'}
+                  {accountPortfolio?.isReady ? amountFormatted : 'Loading...'}
                 </span>
               </div>
               <div className={styles.logoAndBalanceWrapper}>
@@ -199,38 +251,105 @@ const CharacterSection = () => {
                 className={styles.starsBackground}
                 style={{ backgroundImage: `url(${startsBackground})` }}
               />
-              <div className={styles.rewardsProjectionTitleWrapper}>
-                <p className={styles.rewardsProjectionTitle}>Rewards Projection </p>{' '}
-                <InfoIcon
-                  width={12}
-                  height={12}
-                  color="currentColor"
-                  className={styles.infoIcon}
-                  data-tooltip-id="rewards  -info"
-                />
-              </div>
-              <div className={styles.rewardsProjectionStats}>
-                <p className={styles.projectionStatLabel}>
-                  <StkWalletIcon width={34} height={34} />
-                  $stkWALLET
-                </p>
-                <p className={styles.projectionStatValue}>17,345</p>
-                <p className={styles.projectionStatPriceValue}>$2,123</p>
-              </div>
 
-              <div className={styles.apyWrapper}>
-                <div className={styles.apyTitleWrapper}>
-                  <p className={styles.rewardsProjectionTitle}>APY</p>{' '}
-                  <InfoIcon
-                    width={12}
-                    height={12}
-                    color="currentColor"
-                    className={styles.infoIcon}
-                    data-tooltip-id="apy-info"
-                  />
-                </div>
-                <p className={styles.apyValue}>{walletTokenInfo?.apy.toFixed(2)}%</p>
-              </div>
+              {shouldShowIcon && <LockIcon className={styles.lockIcon} width={29} height={37} />}
+
+              {(() => {
+                // Loading state
+                if (isRewardsLoading) {
+                  return <p>Loading rewards...</p>
+                }
+
+                // Error state
+                if (claimableRewardsError) {
+                  return <p>Error loading rewards</p>
+                }
+
+                // Extract level and balance eligibility
+                const userLevel = season1LeaderboardData?.currentUser?.level ?? 0
+                const hasMinBalance =
+                  amountFormatted &&
+                  Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) >= 500
+                const hasMinLevel = userLevel > 2
+
+                // Lvl reached, Usd < 500
+                if (hasMinLevel && !hasMinBalance) {
+                  return (
+                    <p className={styles.rewardsTitle}>
+                      Keep your account balance over $500 to accumulate rewards.
+                    </p>
+                  )
+                }
+
+                // Lvl not reached, Usd > 500
+                if (!hasMinLevel && hasMinBalance) {
+                  return (
+                    <p className={styles.rewardsTitle}>
+                      Reach level 3 to start accumulating rewards.
+                    </p>
+                  )
+                }
+
+                // Lvl not reached, Usd < 500
+                if (!hasMinLevel && !hasMinBalance) {
+                  return (
+                    <p className={styles.rewardsTitle}>
+                      Keep your account balance over $500 and reach level 3 to start accumulating
+                      rewards.
+                    </p>
+                  )
+                }
+
+                // Lvl reached, Usd > 500
+                if (hasMinLevel && hasMinBalance) {
+                  // Active state with rewards
+                  return (
+                    <>
+                      <div className={styles.rewardsProjectionTitleWrapper}>
+                        <p className={styles.rewardsProjectionTitle}>Rewards Projection </p>{' '}
+                        <InfoIcon
+                          width={12}
+                          height={12}
+                          color="currentColor"
+                          className={styles.infoIcon}
+                          data-tooltip-id="rewards-info"
+                        />
+                      </div>
+                      <div className={styles.rewardsProjectionStats}>
+                        <p className={styles.projectionStatLabel}>
+                          <StkWalletIcon width={34} height={34} />
+                          $stkWALLET
+                        </p>
+                        <p className={styles.projectionStatValue}>
+                          {projectedAmount?.walletRewards
+                            ? projectedAmount.walletRewards.toLocaleString(undefined, {
+                                minimumFractionDigits: 3,
+                                maximumFractionDigits: 3
+                              })
+                            : '0.000'}
+                        </p>
+                        <p className={styles.projectionStatPriceValue}>
+                          {balanceInUsd ? `$${Number(balanceInUsd).toFixed(2)}` : '$0.00'}
+                        </p>
+                      </div>
+
+                      <div className={styles.apyWrapper}>
+                        <div className={styles.apyTitleWrapper}>
+                          <p className={styles.rewardsProjectionTitle}>APY</p>{' '}
+                          <InfoIcon
+                            width={12}
+                            height={12}
+                            color="currentColor"
+                            className={styles.infoIcon}
+                            data-tooltip-id="apy-info"
+                          />
+                        </div>
+                        <p className={styles.apyValue}>{projectedAmount?.apy.toFixed(2)}%</p>
+                      </div>
+                    </>
+                  )
+                }
+              })()}
             </div>{' '}
           </>
         )}

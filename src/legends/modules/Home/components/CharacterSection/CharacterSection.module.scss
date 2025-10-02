@@ -111,6 +111,15 @@
       background-size: contain;
     }
 
+    .rewardsTitle {
+      font-weight: 300;
+      font-size: .8125rem;
+      line-height: 1.125rem;
+      letter-spacing: 0%;
+      text-align: center;
+      max-width: 13.9375rem;
+
+    }
     .rewardsProjectionTitleWrapper {
       display: flex;
       align-items: center;
@@ -140,6 +149,7 @@
           font-weight: 400;
           color: $whiteText;
           display: flex;
+          align-items: center;
           gap: .5625rem;
 
           .ambireLogoWrapper {
@@ -364,6 +374,7 @@
           font-size: .75rem;
           margin-bottom: 2.5rem;
           margin-top: .5rem;
+          max-width: 3.125rem;
         }
 
         .characterLevel {
