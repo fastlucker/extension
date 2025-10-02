@@ -205,20 +205,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.click(selectors.addToBatchButton)
 
     // approve the high impact modal
-    const isHighPrice = await this.page
-      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
-      .catch(() => null)
-
-    // approve the high impact modal
-    const isHighSlippage = await this.page
-      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
-      .catch(() => null)
-
-    if (isHighPrice || isHighSlippage) {
-      // TODO: change methods once we have IDs
-      await this.click(selectors.continueAnywayCheckboxSaB)
-      await this.page.locator(selectors.continueAnywayButton).click()
-    }
+    await this.handlePriceWarningModals()
 
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
@@ -361,20 +348,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.click(selectors.topUpProceedButton)
 
     // approve the high impact modal
-    const isHighPrice = await this.page
-      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
-      .catch(() => null)
-
-    // approve the high impact modal
-    const isHighSlippage = await this.page
-      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
-      .catch(() => null)
-
-    if (isHighPrice || isHighSlippage) {
-      // TODO: change methods once we have IDs
-      await this.click(selectors.continueAnywayCheckboxSaB)
-      await this.page.locator(selectors.continueAnywayButton).click()
-    }
+    await this.handlePriceWarningModals()
 
     await this.monitorRequests()
 
@@ -404,6 +378,10 @@ export class SwapAndBridgePage extends BasePage {
   async batchAction(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.click(selectors.addToBatchButton)
+
+    // approve high impact modal
+    await this.handlePriceWarningModals()
+
     await this.page.getByTestId(selectors.addMoreButton).isVisible()
     await this.click(selectors.addMoreButton)
   }
@@ -466,5 +444,22 @@ export class SwapAndBridgePage extends BasePage {
     await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
       'Confirmed'
     )
+  }
+
+  // approve the high impact modal if appears
+  async handlePriceWarningModals() {
+    const isHighPrice = await this.page
+      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
+      .catch(() => null)
+
+    const isHighSlippage = await this.page
+      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
+      .catch(() => null)
+
+    if (isHighPrice || isHighSlippage) {
+      // TODO: change methods once we have IDs
+      await this.click(selectors.continueAnywayCheckboxSaB)
+      await this.page.locator(selectors.continueAnywayButton).click()
+    }
   }
 }
