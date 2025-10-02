@@ -1,11 +1,13 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+import { calculateRewardsForSeason } from '@ambire-common/utils/rewards'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Tooltip from '@common/components/Tooltip'
 import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
+import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import Podium from './components/Podium'
 import Row from './components/Row'
@@ -22,6 +24,27 @@ const LeaderboardContainer: React.FC = () => {
     error,
     updateLeaderboard
   } = useLeaderboardContext()
+
+  const { rewardsProjectionData } = usePortfolioControllerState()
+
+  const currentTotalBalanceOnSupportedChains =
+    (rewardsProjectionData && rewardsProjectionData?.amount) || undefined
+
+  const parsedSnapshotsBalance = rewardsProjectionData?.currentSeasonSnapshots.map(
+    (snapshot: { week: number; balance: number }) => snapshot.balance
+  )
+
+  const projectedAmount =
+    rewardsProjectionData &&
+    calculateRewardsForSeason(
+      rewardsProjectionData?.userLevel,
+      parsedSnapshotsBalance,
+      currentTotalBalanceOnSupportedChains ?? 0,
+      rewardsProjectionData?.numberOfWeeksSinceStartOfSeason,
+      rewardsProjectionData?.totalWeightNonUser,
+      rewardsProjectionData?.walletPrice,
+      rewardsProjectionData?.totalRewardsPool
+    )
 
   const tableRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
@@ -138,9 +161,9 @@ const LeaderboardContainer: React.FC = () => {
                   <h5 className={styles.playerCell}>player</h5>
                 </div>
                 {leaderboardData.some((i) => i.level) && <h5 className={styles.cell}>Level</h5>}
-                {leaderboardData.some((i) => i.weight) && (
+                {leaderboardData.some((i) => i.projectedRewards) && (
                   <div className={styles.cell}>
-                    <h5 className={styles.weightText}>Weight</h5>
+                    <h5 className={styles.weightText}>Rewards</h5>
                     <InfoIcon
                       width={10}
                       height={10}
@@ -184,6 +207,7 @@ const LeaderboardContainer: React.FC = () => {
                     {...userLeaderboardData}
                     stickyPosition={stickyPosition}
                     currentUserRef={currentUserRef}
+                    projectedAmount={projectedAmount}
                   />
                 )}
             </div>
