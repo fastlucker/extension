@@ -2,6 +2,7 @@
 
 import { BrowserProvider, Interface } from 'ethers'
 import React, { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Pressable } from 'react-native'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -33,6 +34,7 @@ const BitrefillClaim = ({ meta }: Props) => {
   const switchNetwork = useSwitchNetwork()
   const { connectedAccount, v1Account } = useAccountContext()
   const { isCharacterNotMinted } = useCharacterContext()
+  const { t } = useTranslation()
 
   const claimCode = useCallback(async () => {
     try {
@@ -83,7 +85,8 @@ const BitrefillClaim = ({ meta }: Props) => {
 
   const copyText = useCallback(async () => {
     await navigator.clipboard.writeText(meta?.code || '')
-  }, [meta?.code])
+    addToast(t('Code copied to clipboard'))
+  }, [meta?.code, addToast, t])
 
   if (meta?.code)
     return (
