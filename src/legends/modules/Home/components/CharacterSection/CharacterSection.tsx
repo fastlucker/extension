@@ -312,7 +312,22 @@ const CharacterSection = () => {
                           height={12}
                           color="currentColor"
                           className={styles.infoIcon}
-                          data-tooltip-id="rewards-info"
+                          data-tooltip-id="projected-rewards-info"
+                        />
+                        <Tooltip
+                          style={{
+                            backgroundColor: '#101114',
+                            color: '#F4F4F7',
+                            fontFamily: 'FunnelDisplay',
+                            fontSize: 11,
+                            lineHeight: '16px',
+                            fontWeight: 300,
+                            maxWidth: 244,
+                            boxShadow: '0px 0px 12.1px 0px #191B20'
+                          }}
+                          place="bottom"
+                          id="projected-rewards-info"
+                          content="Projected rewards based on season weekly balance snapshot. End results might vary."
                         />
                       </div>
                       <div className={styles.rewardsProjectionStats}>
