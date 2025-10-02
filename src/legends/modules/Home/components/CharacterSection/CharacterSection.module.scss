@@ -590,24 +590,25 @@
     margin-left: 3rem;
     margin-right: 3rem;
     width: calc(100% - 6rem);
+    grid-template-columns: 32% 32% 32%;
+
   }
 
   @include breakpoint-from(small-desktop) {
+
     .currentSeasonBadge {
       top: -2.75rem;
     }
-  }
 
+  }
+  
   @include breakpoint-down-from(small-desktop) {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 1rem;
+    padding-bottom: 1rem;
+
 
     .substractBackground {
       background-size: 100% 100%;
     }
-
-    padding-bottom: 1rem;
     .character {
       margin-left: 0;
     }
@@ -637,19 +638,33 @@
         }
       }
 
-      .characterImage {
-        width: 30rem;
-        height: 30rem;
-      }
+     
     }
   }
 
+  @include breakpoint-down-from(large-tablet) {
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.5rem;
+  }
+
   @include breakpoint-down-from(tablet) {
-    margin-left: 0;
+    padding-left: 3rem;
+    grid-template-columns: 1fr ;
+    grid-template-rows: auto;
 
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
 
+    .character {
+
+      .characterImage {
+        width: 10.9rem;
+        height: 10.9rem;
+      }
+    }
+    .substractBackground {
+      background-size: 100% 100%;
+    }
     .characterWrapper, .characterStatsWrapper, .rewardsProjectionWrapper {
       height: 20rem;
     }
