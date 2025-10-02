@@ -147,11 +147,12 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
   }, [network, userOpHash, stepsState.txnId, onOpenExplorer, addToast])
 
   const showCopyBtn = useMemo(() => {
-    if (!network) return true
+    if (!network) return false
+    if (extensionAccOp && extensionAccOp.identifiedBy?.type === 'MultipleTxns') return false
 
     const isRejected = stepsState.finalizedStatus?.status === 'rejected'
     return !isRejected
-  }, [network, stepsState.finalizedStatus?.status])
+  }, [network, stepsState.finalizedStatus?.status, extensionAccOp])
 
   const showOpenExplorerBtn = useMemo(() => {
     if (!network) return false
