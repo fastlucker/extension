@@ -6,6 +6,7 @@ import Tooltip from '@common/components/Tooltip'
 import Alert from '@legends/components/Alert'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
+import useAccountContext from '@legends/hooks/useAccountContext'
 import useLeaderboardContext from '@legends/hooks/useLeaderboardContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -25,10 +26,11 @@ const LeaderboardContainer: React.FC = () => {
     updateLeaderboard
   } = useLeaderboardContext()
 
-  const { rewardsProjectionData } = usePortfolioControllerState()
+  const { rewardsProjectionData, accountPortfolio } = usePortfolioControllerState()
+  const { connectedAccount } = useAccountContext()
 
   const currentTotalBalanceOnSupportedChains =
-    (rewardsProjectionData && rewardsProjectionData?.amount) || undefined
+    (accountPortfolio && accountPortfolio?.amount) || undefined
 
   const parsedSnapshotsBalance = rewardsProjectionData?.currentSeasonSnapshots.map(
     (snapshot: { week: number; balance: number }) => snapshot.balance
@@ -196,6 +198,11 @@ const LeaderboardContainer: React.FC = () => {
                 <Row
                   key={item.account}
                   {...item}
+                  projectedRewards={
+                    connectedAccount === item.account
+                      ? projectedAmount?.walletRewards
+                      : item.projectedRewards
+                  }
                   stickyPosition={stickyPosition}
                   currentUserRef={currentUserRef}
                 />
@@ -209,7 +216,6 @@ const LeaderboardContainer: React.FC = () => {
                     {...userLeaderboardData}
                     stickyPosition={stickyPosition}
                     currentUserRef={currentUserRef}
-                    projectedAmount={projectedAmount}
                   />
                 )}
             </div>
