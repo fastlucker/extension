@@ -101,7 +101,9 @@ const CharacterSection = () => {
       rewardsProjectionData?.numberOfWeeksSinceStartOfSeason,
       rewardsProjectionData?.totalWeightNonUser,
       rewardsProjectionData?.walletPrice,
-      rewardsProjectionData?.totalRewardsPool
+      rewardsProjectionData?.totalRewardsPool,
+      rewardsProjectionData?.minLvl,
+      rewardsProjectionData?.minBalance
     )
 
   const projectedAmountFormatted =

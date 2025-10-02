@@ -43,7 +43,9 @@ const LeaderboardContainer: React.FC = () => {
       rewardsProjectionData?.numberOfWeeksSinceStartOfSeason,
       rewardsProjectionData?.totalWeightNonUser,
       rewardsProjectionData?.walletPrice,
-      rewardsProjectionData?.totalRewardsPool
+      rewardsProjectionData?.totalRewardsPool,
+      rewardsProjectionData?.minLvl,
+      rewardsProjectionData?.minBalance
     )
 
   const tableRef = useRef<HTMLDivElement>(null)
