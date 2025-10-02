@@ -113,7 +113,7 @@ const Row: FC<Props> = ({
       <h5 className={styles.cell}>{level}</h5>
       {typeof projectedRewards !== 'undefined' && (
         <h5 className={`${styles.cell} ${styles.weight}`}>
-          {projectedRewards ? prettifyWeight(projectedRewards) : 'Loading...'}
+          {typeof projectedRewards === 'number' ? prettifyWeight(projectedRewards) : 'Loading...'}
         </h5>
       )}
       <h5 className={styles.cell}>{formattedXp}</h5>
