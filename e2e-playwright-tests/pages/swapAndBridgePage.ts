@@ -425,10 +425,28 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async verifyBatchTransactionDetails(page): Promise<void> {
+    const entireRow = await page.getByTestId('recipient-address-1').innerText() // grab entire row on transaction page
+    const routeSelector = entireRow.trim().split(/\s+/).pop() || '' // grab last item from row e.g. LI.FI
+
+    // possible routes: socket (Socket gateway), LIFI, BungeeInbox (rare case)
+    switch (routeSelector) {
+      case 'WALLET':
+        await expect(page.getByTestId('recipient-address-1')).toHaveText(/WALLET/)
+        await expect(page.getByTestId('recipient-address-3')).toHaveText(/WALLET/)
+        break
+      case 'LI.FI':
+        await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI.FI/)
+        await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI.FI/)
+        break
+      case 'BungeeInbox':
+        // TODO: define assertion; atm could not rep on FE
+        break
+      default:
+        throw new Error(`Unexpected route: ${routeSelector}`)
+    }
+
     await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.01/)
-    await expect(page.getByTestId('recipient-address-1')).toHaveText(/WALLET/)
     await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.01/)
-    await expect(page.getByTestId('recipient-address-3')).toHaveText(/WALLET/)
     await page.getByTestId(selectors.signTransactionButton).click()
   }
 
