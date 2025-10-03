@@ -46,16 +46,27 @@ const selectors = {
     addedSuccessfullyText: '//div[contains(text(),"Added successfully")]',
     accessAccFromDashboardInfoText: '//div[contains(text(),"access your accounts")]',
     addAccountButton: 'add-account-modal',
-    hiddenTokenName: 'hidden-token-name',
-    hiddenTokenNetwork: 'hidden-token-network',
+    hiddenTokenName: 'hidden-token-name', // works for custom tokens section
+    hiddenTokenNetwork: 'hidden-token-network', // works for custom tokens section
     unhideTokenButton: 'unhide-button',
     youDontHaveInfoText: 'you-dont-have-any-text', // there can be multiple on same page
     customTokens: {
       addCustomTokenButton: 'add-custom-token-button',
       addTokenModalTitle: 'add-token-modal-title-text',
-      chooseNetworkDropdown: 'option-Ethereum', // ETH is selected by default
+      ethNetworkOption: 'option-Ethereum',
+      opMainnetNetworkOption: 'option-OP-Mainnet',
+      bnbNetworkOption: 'option-BNB-Chain',
+      polygonNetworkOption: 'option-Polygon',
+      mantleNetworkOption: 'option-Mantle',
+      baseNetworkOption: 'option-Base',
+      arbitrumNetworkOption: 'option-Arbitrum',
       tokenAddressField: 'token-address-field',
-      addTokenButton: 'add-token-button'
+      customNameTokenText: 'custom-token-name', // visible after entering valid address
+      confirmedPillText: 'confirmed-pill-text',
+      addTokenButton: 'add-token-button',
+      addedTokenSnackbar: '//span[contains(text(),"Added token")]',
+      tokenRemovedSnackbar: '//span[contains(text(),"Token removed")]',
+      removeCustomTokenButton: 'remove-button'
     }
   },
   account: 'account',
