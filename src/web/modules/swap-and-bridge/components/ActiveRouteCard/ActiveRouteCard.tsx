@@ -1,5 +1,4 @@
 import { formatUnits } from 'ethers'
-import { nanoid } from 'nanoid'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
@@ -19,8 +18,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
-import { getUiType } from '@web/utils/uiType'
 
+import { isTxnBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import MoreDetails from './MoreDetails'
 import getStyles from './styles'
 
@@ -35,7 +34,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
 
     // If the transaction is in progress we need to mark the bridge request as active
     if (isInProgress) {
-      const bridgeRequest = activeRoute.route?.userTxs.find((tx) => tx.userTxType === 'fund-movr')
+      const bridgeRequest = activeRoute.route?.userTxs.find((tx) => isTxnBridge(tx))
 
       return bridgeRequest || activeRoute.route?.userTxs[activeRoute.route.currentUserTxIndex]
     }
@@ -128,6 +127,9 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
           routeStatus={activeRoute.routeStatus}
           inputValueInUsd={inputValueInUsd}
           outputValueInUsd={outputValueInUsd}
+          providerId={
+            activeRoute.route ? activeRoute.route.providerId : activeRoute.serviceProviderId
+          }
         />
       </View>
 
@@ -136,7 +138,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
           {!activeRoute.error && (
             <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
               {activeRoute.routeStatus === 'in-progress' &&
-                activeTransaction?.userTxType === 'fund-movr' && (
+                activeTransaction &&
+                isTxnBridge(activeTransaction) && (
                   <>
                     <Text
                       fontSize={12}
@@ -161,7 +164,8 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
                   </>
                 )}
               {activeRoute.routeStatus === 'in-progress' &&
-                activeTransaction?.userTxType === 'dex-swap' && (
+                activeTransaction &&
+                !isTxnBridge(activeTransaction) && (
                   <>
                     <Text
                       fontSize={12}

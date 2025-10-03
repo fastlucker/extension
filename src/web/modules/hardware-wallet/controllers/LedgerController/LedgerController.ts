@@ -14,15 +14,12 @@ import {
   LEDGER_VENDOR_ID,
   UserInteractionRequired
 } from '@ledgerhq/device-management-kit'
-import {
-  Signature as LedgerSignature,
-  SignerEthBuilder,
-  TypedDataDomain
-} from '@ledgerhq/device-signer-kit-ethereum'
+import { Signature, SignerEthBuilder, TypedDataDomain } from '@ledgerhq/device-signer-kit-ethereum'
 import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 import { isVivaldi } from '@web/constants/browserapi'
 
-export { LedgerDeviceModels, type LedgerSignature }
+export { LedgerDeviceModels }
+export type LedgerSignature = Signature
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 

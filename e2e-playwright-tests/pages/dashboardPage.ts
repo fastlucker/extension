@@ -1,6 +1,7 @@
 import locators from 'constants/locators'
 import selectors from 'constants/selectors'
 import BootstrapContext from 'interfaces/bootstrapContext'
+import Tabs from 'interfaces/tabs'
 
 import { expect } from '@playwright/test'
 
@@ -91,17 +92,16 @@ export class DashboardPage extends BasePage {
     try {
       expect(tokenBalance).toBeGreaterThanOrEqual(minBalance)
     } catch (e) {
-      error = `${token.symbol} balance is only: ${tokenBalance}.`
+      error = `${token.symbol}-${token.chainId} balance is only: ${tokenBalance}.`
     }
     return { token, error }
   }
 
-  // TODO: use this method to check activity tab after POM refactor
   async checkNoTransactionOnActivityTab() {
     await this.click(selectors.dashboard.activityTabButton)
     await this.compareText(
       selectors.dashboard.noTransactionOnActivityTab,
-      'No transactions history for Account '
+      "Ambire doesn't retrieve transactions made before installing the extension, but you can check your address on etherscan.io."
     )
   }
 
@@ -114,17 +114,17 @@ export class DashboardPage extends BasePage {
     )
   }
 
-  async search(searchInput: string, index?: number) {
+  async search(searchInput: string, tabName: Tabs) {
     // click on magnifying glass icon
-    await this.click(selectors.dashboard.magnifyingGlassIcon, index ?? 0)
+    await this.click(`${selectors.dashboard.magnifyingGlassIcon}-${tabName}`)
 
     // enter search phrase
     await this.entertext(selectors.searchInput, searchInput)
   }
 
-  async searchByNetworkDropdown(searchInput: string, index?: number) {
+  async searchByNetworkDropdown(searchInput: string, tabName: Tabs) {
     // open dropdown
-    await this.click(selectors.dashboard.networksDropdown, index)
+    await this.click(`${selectors.dashboard.networksDropdown}-${tabName}`)
 
     // search network
     await this.entertext(selectors.dashboard.searchForNetwork, searchInput)
@@ -134,12 +134,18 @@ export class DashboardPage extends BasePage {
     await networkSelector.click()
   }
 
-  async noSearchResult(noSearchMessage: string) {
-    // creating selector using message
-    const noSearchResultSelector = this.page.locator(
-      selectors.dashboard.noTokenSearchResult(noSearchMessage)
+  async checkOpenTicketPage() {
+    // assert text
+    await this.compareText(
+      selectors.dashboard.suggestProtocolText,
+      'To suggest a protocol integration, '
     )
+    await this.compareText(selectors.dashboard.openTicketLink, 'open a ticket.')
 
-    await expect(noSearchResultSelector).toHaveText(noSearchMessage)
+    // check redirection
+    const selector = this.page.getByTestId(selectors.dashboard.openTicketLink)
+    const newTab = await this.handleNewPage(selector)
+
+    expect(newTab.url()).toContain('help.ambire.com/hc/en-us')
   }
 }

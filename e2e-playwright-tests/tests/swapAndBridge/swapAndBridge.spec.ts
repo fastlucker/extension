@@ -96,12 +96,12 @@ test.describe('swapAndBridge Smart Account', () => {
     const wallet = tokens.wallet.base
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.swapAndBridge.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('prepare swap and bridge transaction', async () => {
       await pages.swapAndBridge.openSwapAndBridge()
-      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
+      await pages.swapAndBridge.prepareSwapAndBridge(0.01, usdc, wallet) // ~ 0.1$
     })
 
     await test.step('proceed and sign the transaction', async () => {
@@ -145,7 +145,7 @@ test.describe('swapAndBridge Smart Account', () => {
     const usdc = tokens.usdc.base
     const wallet = tokens.wallet.base
 
-    await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
+    await pages.swapAndBridge.prepareSwapAndBridge(0.01, usdc, wallet) // ~ 0.1$
     await pages.swapAndBridge.clickOnSecondRoute()
   })
 
@@ -154,11 +154,11 @@ test.describe('swapAndBridge Smart Account', () => {
     const usdcOpt = tokens.usdc.optimism
 
     await test.step('assert no transaction on Activity tab', async () => {
-      await pages.swapAndBridge.checkNoTransactionOnActivityTab()
+      await pages.dashboard.checkNoTransactionOnActivityTab()
     })
 
     await test.step('prepare bridge transaction', async () => {
-      await pages.swapAndBridge.prepareBridgeTransaction(0.1, usdc, usdcOpt) // ~ 0.1$
+      await pages.swapAndBridge.prepareBridgeTransaction(0.01, usdc, usdcOpt) // ~ 0.1$
     })
 
     await test.step('sign transaction', async () => {
@@ -181,12 +181,12 @@ test.describe('swapAndBridge Smart Account', () => {
     })
 
     await test.step('add a transaction swapping USDC for WALLET to the batch', async () => {
-      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet) // ~ 0.1$
+      await pages.swapAndBridge.prepareSwapAndBridge(0.01, usdc, wallet) // ~ 0.1$
       await pages.swapAndBridge.batchAction()
     })
 
     await test.step('add a transaction swapping USDC for WALLET to the existing batch and sign', async () => {
-      await pages.swapAndBridge.prepareSwapAndBridge(0.1, usdc, wallet)
+      await pages.swapAndBridge.prepareSwapAndBridge(0.01, usdc, wallet)
       await pages.swapAndBridge.batchActionWithSign()
     })
 

@@ -205,20 +205,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.click(selectors.addToBatchButton)
 
     // approve the high impact modal
-    const isHighPrice = await this.page
-      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
-      .catch(() => null)
-
-    // approve the high impact modal
-    const isHighSlippage = await this.page
-      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
-      .catch(() => null)
-
-    if (isHighPrice || isHighSlippage) {
-      // TODO: change methods once we have IDs
-      await this.click(selectors.continueAnywayCheckboxSaB)
-      await this.page.locator(selectors.continueAnywayButton).click()
-    }
+    await this.handlePriceWarningModals()
 
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
@@ -309,7 +296,7 @@ export class SwapAndBridgePage extends BasePage {
 
   async assertSelectedAggregator(): Promise<void> {
     await expect(this.page.getByText('SushiSwap').last()).toBeVisible()
-    await expect(this.page.getByText('Selected').last()).toBeVisible()
+    await expect(this.page.getByTestId('selected-route')).toBeVisible()
   }
 
   async clickOnSecondRoute(): Promise<void> {
@@ -361,20 +348,7 @@ export class SwapAndBridgePage extends BasePage {
     await this.click(selectors.topUpProceedButton)
 
     // approve the high impact modal
-    const isHighPrice = await this.page
-      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
-      .catch(() => null)
-
-    // approve the high impact modal
-    const isHighSlippage = await this.page
-      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
-      .catch(() => null)
-
-    if (isHighPrice || isHighSlippage) {
-      // TODO: change methods once we have IDs
-      await this.click(selectors.continueAnywayCheckboxSaB)
-      await this.page.locator(selectors.continueAnywayButton).click()
-    }
+    await this.handlePriceWarningModals()
 
     await this.monitorRequests()
 
@@ -404,6 +378,10 @@ export class SwapAndBridgePage extends BasePage {
   async batchAction(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.click(selectors.addToBatchButton)
+
+    // approve high impact modal
+    await this.handlePriceWarningModals()
+
     await this.page.getByTestId(selectors.addMoreButton).isVisible()
     await this.click(selectors.addMoreButton)
   }
@@ -425,11 +403,28 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   async verifyBatchTransactionDetails(page): Promise<void> {
-    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.1/)
-    // await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.003/)
-    await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI\.FI/)
-    await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.1/)
-    await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI\.FI/)
+    const entireRow = await page.getByTestId('recipient-address-1').innerText() // grab entire row on transaction page
+    const routeSelector = entireRow.trim().split(/\s+/).pop() || '' // grab last item from row e.g. LI.FI
+
+    // possible routes: socket (Socket gateway), LIFI, BungeeInbox (rare case)
+    switch (routeSelector) {
+      case 'WALLET':
+        await expect(page.getByTestId('recipient-address-1')).toHaveText(/WALLET/)
+        await expect(page.getByTestId('recipient-address-3')).toHaveText(/WALLET/)
+        break
+      case 'LI.FI':
+        await expect(page.getByTestId('recipient-address-1')).toHaveText(/LI.FI/)
+        await expect(page.getByTestId('recipient-address-3')).toHaveText(/LI.FI/)
+        break
+      case 'BungeeInbox':
+        // TODO: define assertion; atm could not rep on FE
+        break
+      default:
+        throw new Error(`Unexpected route: ${routeSelector}`)
+    }
+
+    await expect(page.getByTestId('recipient-address-0')).toHaveText(/0\.01/)
+    await expect(page.getByTestId('recipient-address-2')).toHaveText(/0\.01/)
     await page.getByTestId(selectors.signTransactionButton).click()
   }
 
@@ -441,15 +436,6 @@ export class SwapAndBridgePage extends BasePage {
   }
 
   // TODO: use this method to check activity tab after POM refactor
-  async checkNoTransactionOnActivityTab() {
-    await this.click(selectors.dashboard.activityTabButton)
-    await this.compareText(
-      selectors.dashboard.noTransactionOnActivityTab,
-      'No transactions history for Account '
-    )
-  }
-
-  // TODO: use this method to check activity tab after POM refactor
   async checkSendTransactionOnActivityTab() {
     await this.click(selectors.dashboard.activityTabButton)
     await expect(this.page.locator(selectors.dashboard.grantApprovalText)).toContainText(
@@ -458,5 +444,22 @@ export class SwapAndBridgePage extends BasePage {
     await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
       'Confirmed'
     )
+  }
+
+  // approve the high impact modal if appears
+  async handlePriceWarningModals() {
+    const isHighPrice = await this.page
+      .waitForSelector(selectors.highPriceImpactSab, { timeout: 1000 })
+      .catch(() => null)
+
+    const isHighSlippage = await this.page
+      .waitForSelector(selectors.highSlippageModal, { timeout: 1000 })
+      .catch(() => null)
+
+    if (isHighPrice || isHighSlippage) {
+      // TODO: change methods once we have IDs
+      await this.click(selectors.continueAnywayCheckboxSaB)
+      await this.page.locator(selectors.continueAnywayButton).click()
+    }
   }
 }

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View } from 'react-native'
 
 import { isDappRequestAction } from '@ambire-common/libs/actions/actions'
+import { getDappIdFromUrl } from '@ambire-common/libs/dapps/helpers'
 import wait from '@ambire-common/utils/wait'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -12,6 +13,8 @@ import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWr
 import eventBus from '@web/extension-services/event/eventBus'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useDappInfo from '@web/hooks/useDappInfo'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 
 import DAppConnectBody from './components/DAppConnectBody'
@@ -24,6 +27,9 @@ const DappConnectScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
+  const {
+    state: { dapps }
+  } = useDappsControllerState()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
   const { minHeightSize } = useWindowSize()
   const securityCheckCalled = useRef(false)
@@ -43,6 +49,8 @@ const DappConnectScreen = () => {
 
     return dappAction.userRequest
   }, [dappAction])
+
+  const { name, icon } = useDappInfo(userRequest)
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -140,9 +148,9 @@ const DappConnectScreen = () => {
       <View style={[styles.container]}>
         <View style={styles.content}>
           <DAppConnectHeader
-            name={userRequest?.session?.name}
+            name={name}
             origin={userRequest?.session?.origin}
-            icon={userRequest?.session?.icon}
+            icon={icon}
             securityCheck={securityCheck}
             responsiveSizeMultiplier={responsiveSizeMultiplier}
           />

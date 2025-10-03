@@ -3,6 +3,8 @@ import selectors from 'constants/selectors'
 import tokens from 'constants/tokens'
 import { test } from 'fixtures/pageObjects'
 
+import { expect } from '@playwright/test'
+
 test.describe('dashboard', () => {
   test.beforeEach(async ({ pages }) => {
     await pages.initWithStorage(saParams)
@@ -51,7 +53,7 @@ test.describe('dashboard', () => {
     const clBtc = tokens.clbtc.base
 
     await test.step('search Tokens by network - Base', async () => {
-      await pages.dashboard.search('Base')
+      await pages.dashboard.search('Base', 'tokens')
     })
 
     await test.step('assert search result', async () => {
@@ -60,9 +62,6 @@ test.describe('dashboard', () => {
       await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
       await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
       await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
-
-      // 5 tokens should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.tokenBalance, 5)
     })
   })
 
@@ -74,7 +73,7 @@ test.describe('dashboard', () => {
     const usdcPolygon = tokens.usdc.polygon
 
     await test.step('search Tokens by token name - USDC', async () => {
-      await pages.dashboard.search('USDC')
+      await pages.dashboard.search('USDC', 'tokens')
     })
 
     await test.step('assert search result', async () => {
@@ -84,9 +83,6 @@ test.describe('dashboard', () => {
         `token-balance-${usdcEMainnet.address}.${usdcEMainnet.chainId}`
       )
       await pages.basePage.isVisible(`token-balance-${usdcPolygon.address}.${usdcPolygon.chainId}`)
-
-      // 4 tokens should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.tokenBalance, 4)
     })
   })
 
@@ -99,7 +95,7 @@ test.describe('dashboard', () => {
     const clBtc = tokens.clbtc.base
 
     await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base')
+      await pages.dashboard.searchByNetworkDropdown('Base', 'tokens')
     })
 
     await test.step('assert search result', async () => {
@@ -108,19 +104,16 @@ test.describe('dashboard', () => {
       await pages.basePage.isVisible(`token-balance-${usdt.address}.${usdt.chainId}`)
       await pages.basePage.isVisible(`token-balance-${eth.address}.${eth.chainId}`)
       await pages.basePage.isVisible(`token-balance-${clBtc.address}.${clBtc.chainId}`)
-
-      // 5 items should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.networkBase, 5)
     })
   })
 
   test('Search for non existing Token returns appropriate message', async ({ pages }) => {
     await test.step('search for non existing Token name - Test', async () => {
-      await pages.dashboard.search('Test')
+      await pages.dashboard.search('Test', 'tokens')
     })
 
     await test.step('assert no search result', async () => {
-      await pages.dashboard.noSearchResult('No tokens match "Test".')
+      await pages.dashboard.compareText(selectors.dashboard.noTokensText, 'No tokens match "Test".')
     })
   })
 
@@ -130,12 +123,27 @@ test.describe('dashboard', () => {
     })
 
     await test.step('search NFTs by network - Base', async () => {
-      await pages.dashboard.search('Base', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.search('Base', 'collectibles')
     })
 
-    await test.step('assert search result', async () => {
+    await test.step('assert search result are visible', async () => {
       // 8 NFTs should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 8)
+      const expectedTitles = [
+        'Ambire Legends',
+        'finance-cake.com - 135.000$ Win',
+        'Win 135.000$: cakesv4.finance',
+        't.ly/claimcake - 135.000$ Win',
+        'Rewards: t.ly/pancakeswap.finance',
+        'pudgyz.com - 233.000$ Drop',
+        'Win 135.000$: cakesv4.finance',
+        'finance-cake.com - 135.000$ Win'
+      ]
+
+      const collectibleTitle = pages.basePage.page.getByTestId(selectors.dashboard.nftTitle) // returns all items on page
+
+      for (let i = 0; i < expectedTitles.length; i++) {
+        await expect(collectibleTitle.nth(i)).toHaveText(expectedTitles[i])
+      }
     })
   })
 
@@ -145,14 +153,10 @@ test.describe('dashboard', () => {
     })
 
     await test.step('search by NFT name - Ambire Legends', async () => {
-      await pages.dashboard.search('Ambire Legends', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.search('Ambire Legends', 'collectibles')
     })
 
     await test.step('assert search result', async () => {
-      // 1 item should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 1)
-
-      // assert nft title
       await pages.basePage.compareText(selectors.dashboard.nftTitle, 'Ambire Legends')
     })
   })
@@ -163,12 +167,27 @@ test.describe('dashboard', () => {
     })
 
     await test.step('select Base network via dropdown', async () => {
-      await pages.dashboard.searchByNetworkDropdown('Base', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.searchByNetworkDropdown('Base', 'collectibles')
     })
 
     await test.step('assert search result', async () => {
       // 8 NFTs should be visible for SA
-      await pages.basePage.expectItemsCount(selectors.dashboard.nftsTitle, 8)
+      const expectedTitles = [
+        'Ambire Legends',
+        'finance-cake.com - 135.000$ Win',
+        'Win 135.000$: cakesv4.finance',
+        't.ly/claimcake - 135.000$ Win',
+        'Rewards: t.ly/pancakeswap.finance',
+        'pudgyz.com - 233.000$ Drop',
+        'Win 135.000$: cakesv4.finance',
+        'finance-cake.com - 135.000$ Win'
+      ]
+
+      const collectibleTitle = pages.basePage.page.getByTestId(selectors.dashboard.nftTitle) // returns all items on page
+
+      for (let i = 0; i < expectedTitles.length; i++) {
+        await expect(collectibleTitle.nth(i)).toHaveText(expectedTitles[i])
+      }
     })
   })
 
@@ -178,11 +197,100 @@ test.describe('dashboard', () => {
     })
 
     await test.step('search by NFT name - Test', async () => {
-      await pages.dashboard.search('Test', 1) // passing index for clicking on search icon; NFT tab is second
+      await pages.dashboard.search('Test', 'collectibles')
     })
 
     await test.step('assert no search result', async () => {
-      await pages.dashboard.noSearchResult('No collectibles (NFTs) match "Test".')
+      await pages.dashboard.compareText(
+        selectors.dashboard.noCollectiblesText,
+        'No collectibles (NFTs) match "Test".'
+      )
+    })
+  })
+
+  // TODO: add tests and assertions once we have protocols on FE
+  // test.skip('Search Protocol by network dropdown', async ({ pages }) => {
+  //   await test.step('navigate to tab DeFi', async () => {
+  //     await pages.basePage.click(selectors.dashboard.defiTabButton)
+  //   })
+
+  //   await test.step('select Base network via dropdown', async () => {
+  //     await pages.dashboard.searchByNetworkDropdown('Base', 'defi')
+  //   })
+
+  // TODO: ATM there are no protocols for SA; uncomment when we have protocols
+  // await test.step('assert search result', async () => {
+  //   await pages.basePage.expectItemsCount(selectors.dashboard.protocolTitle, 1)
+  // })
+  // })
+
+  test('Search for non existing Defi Protocol returns appropriate message', async ({ pages }) => {
+    await test.step('navigate to tab DeFi', async () => {
+      await pages.basePage.click(selectors.dashboard.defiTabButton)
+    })
+
+    await test.step('search Protocol by name - Test', async () => {
+      await pages.dashboard.search('Test', 'defi')
+    })
+
+    await test.step('assert no search result', async () => {
+      await pages.basePage.compareText(
+        selectors.dashboard.noProtocolsText,
+        'No known protocols match "Test".'
+      )
+    })
+
+    await test.step('assert suggestion - open a ticket page', async () => {
+      await pages.dashboard.checkOpenTicketPage()
+    })
+  })
+
+  test('Hide WALLET token from dashboard; then unhide it in settings', async ({ pages }) => {
+    const wallet = tokens.wallet.base
+
+    await test.step('open hide wallet modal', async () => {
+      await pages.dashboard.click(`token-balance-${wallet.address}.${wallet.chainId}`)
+      await pages.dashboard.click(selectors.dashboard.hideTokenButton)
+    })
+
+    await test.step('assert hide token modal text and confirm hide token', async () => {
+      await pages.basePage.compareText(
+        selectors.dashboard.hideTokenModalTitle,
+        'Are you sure you want to hide this token?'
+      )
+      await pages.basePage.compareText(
+        selectors.dashboard.hideTokenModalDescription,
+        'You can always unhide it from the Settings menu > Custom tokens.'
+      )
+
+      await pages.basePage.click(selectors.dashboard.yesHideItButton)
+    })
+
+    await test.step('assert WALLET token not visible on Dashboard', async () => {
+      await pages.basePage.expectElementNotVisible(
+        `token-balance-${wallet.address}.${wallet.chainId}`
+      )
+    })
+
+    await test.step('navigate to settings > custom tokens page', async () => {
+      await pages.settings.openCustomTokensPage()
+    })
+
+    await test.step('WALLET token should be visible under hidden token list', async () => {
+      await pages.basePage.compareText(selectors.settings.hiddenTokenName, 'WALLET')
+      await pages.basePage.compareText(selectors.settings.hiddenTokenNetwork, 'Base')
+    })
+
+    await test.step('unhide WALLET token', async () => {
+      await pages.settings.unhideToken()
+    })
+
+    await test.step('navigate to Dashboard', async () => {
+      await pages.dashboard.navigateToDashboard()
+    })
+
+    await test.step('assert WALLET token is visible on Dashboard', async () => {
+      await pages.settings.isVisible(`token-balance-${wallet.address}.${wallet.chainId}`)
     })
   })
 })

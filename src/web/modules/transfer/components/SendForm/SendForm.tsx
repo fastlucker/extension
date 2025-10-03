@@ -21,6 +21,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
 import styles from './styles'
+import useSimulationError from "@web/modules/portfolio/hooks/SimulationError/useSimulationError";
 
 const SendForm = ({
   addressInputState,
@@ -79,6 +80,8 @@ const SendForm = ({
     networks,
     isToToken: false
   })
+
+  const { simulationError } = useSimulationError({ chainId: selectedToken?.chainId })
 
   const disableForm = (!hasGasTank && isTopUp) || !tokens.length
 
@@ -180,6 +183,7 @@ const SendForm = ({
           inputTestId="amount-field"
           selectTestId="tokens-select"
           title={formTitle}
+          simulationFailed={!!simulationError}
         />
       )}
       <View>

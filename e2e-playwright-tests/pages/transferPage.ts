@@ -88,7 +88,6 @@ export class TransferPage extends BasePage {
 
   async addToBatch() {
     await this.click(selectors.batchBtn)
-    await this.click(selectors.batchModalGotIt)
   }
 
   async addUnknownRecepientToAddressBook(recepientAddress: string, contactName: string) {
@@ -118,15 +117,6 @@ export class TransferPage extends BasePage {
 
     await expect(addedContactName).toContainText(contactName)
     await expect(addedContactAddress).toContainText(contactAddress)
-  }
-
-  // TODO: move to dashboard page once POM is refactored
-  async checkNoTransactionOnActivityTab() {
-    await this.click(selectors.dashboard.activityTabButton)
-    await this.compareText(
-      selectors.dashboard.noTransactionOnActivityTab,
-      'No transactions history for Account '
-    )
   }
 
   // TODO: move to dashboard page once POM is refactored

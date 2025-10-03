@@ -4,8 +4,14 @@ import { buildSelector } from '@helpers/buildSelector'
 const selectors = {
   dashboard: {
     tokensTabButton: 'tokens-defi',
+    noTokensText: 'no-tokens-text',
+    tokenTitleText: '[data-testid^="token-balance-"]',
     nftTabButton: 'tab-nft',
+    noCollectiblesText: 'no-collectibles-text',
     defiTabButton: 'tab-defi',
+    noProtocolsText: 'no-protocols-text',
+    suggestProtocolText: 'suggest-protocol-text',
+    openTicketLink: 'open-ticket-link',
     activityTabButton: 'tab-activity',
     sendButton: 'dashboard-button-send',
     swapAndBridgeButton: 'dashboard-button-swap-and-bridge',
@@ -23,8 +29,11 @@ const selectors = {
     networkBase: '//div[text()="Base"]',
     nftTitle: 'collection-item',
     nftsTitle: '[data-testid^="collection-item"]',
-    noTokenSearchResult: (message: string) => `//div[contains(text(),'${message}')]`,
-    searchForNetwork: 'search-for-network-field'
+    searchForNetwork: 'search-for-network-field',
+    hideTokenButton: 'hide-token-button',
+    yesHideItButton: 'yes-hide-it-text',
+    hideTokenModalTitle: 'hide-token-modal-title',
+    hideTokenModalDescription: 'hide-token-modal-description'
   },
   settings: {
     createNewRecoveryPhraseButton: 'create-new-recovery-phrase',
@@ -36,7 +45,11 @@ const selectors = {
     validENSDomainText: '//div[contains(text(),"Valid ENS domain")]',
     addedSuccessfullyText: '//div[contains(text(),"Added successfully")]',
     accessAccFromDashboardInfoText: '//div[contains(text(),"access your accounts")]',
-    addAccountButton: 'add-account-modal'
+    addAccountButton: 'add-account-modal',
+    hiddenTokenName: 'hidden-token-name',
+    hiddenTokenNetwork: 'hidden-token-network',
+    unhideTokenButton: 'unhide-button',
+    youDontHaveInfoText: 'you-dont-have-any-text' // there can be multiple on same page
   },
   account: 'account',
   importBtn: 'import-button',

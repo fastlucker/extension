@@ -118,12 +118,16 @@ export class BasePage {
     await expect(this.page.getByTestId(selector)).toBeEnabled({ timeout: 5000 })
   }
 
-  async compareText(selector: string, text: string) {
-    await expect(this.page.getByTestId(selector)).toContainText(text)
+  async compareText(selector: string, text: string, index?: number) {
+    await expect(this.page.getByTestId(selector).nth(index ?? 0)).toContainText(text)
   }
 
   async isVisible(selector: string): Promise<boolean> {
     return this.page.getByTestId(selector).isVisible()
+  }
+
+  async expectElementNotVisible(selector: string): Promise<void> {
+    await expect(this.page.getByTestId(selector)).not.toBeVisible()
   }
 
   async monitorRequests() {
@@ -148,11 +152,5 @@ export class BasePage {
     const tokenBalance = parseFloat(balanceText)
 
     return tokenBalance
-  }
-
-  async expectItemsCount(selector: string, expectedNumber: number) {
-    const items = this.page.locator(selector)
-    // ensures expected number of items is present
-    await expect(items).toHaveCount(expectedNumber)
   }
 }

@@ -135,7 +135,6 @@ const DappControl = ({
               size="small"
               hasBottomSpacing={false}
               text={inModal ? t('Close') : t('Manage')}
-              disabled={!inModal}
               onPress={() => {
                 !inModal && openBottomSheet()
                 inModal && closeBottomSheet()

@@ -96,7 +96,8 @@ const Estimation = ({
   sponsor,
   updateType,
   slowRequest,
-  bundlerNonceDiscrepancy
+  bundlerNonceDiscrepancy,
+  serviceFee
 }: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
@@ -311,12 +312,6 @@ const Estimation = ({
       }
     ]
   }, [payOptionsPaidByEOA, payOptionsPaidByUsOrGasTank, t, theme.secondaryText])
-
-  const serviceFee = useMemo(() => {
-    const fees = signAccountOpState?.accountOp.meta?.swapTxn?.serviceFee || []
-    if (fees.length === 0) return null
-    return fees[0]
-  }, [signAccountOpState])
 
   const nativeFeeOption = signAccountOpState?.estimation.availableFeeOptions.find(
     (feeOption) =>

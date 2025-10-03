@@ -7,8 +7,6 @@ import {
   BannerType as NonMarketingBannerType
 } from '@ambire-common/interfaces/banner'
 import BatchIcon from '@common/assets/svg/BatchIcon'
-import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
-import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import Banner, { BannerButton } from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
@@ -35,15 +33,13 @@ const DashboardBanner = ({
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { visibleActionsQueue, actionsQueue } = useActionsControllerState()
+  const { visibleActionsQueue } = useActionsControllerState()
   const { statuses } = useRequestsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const { ref: sheetRef, close: closeBottomSheet, open: openBottomSheet } = useModalize()
 
   const Icon = useMemo(() => {
     if (category === 'pending-to-be-signed-acc-op') return BatchIcon
-    if (category === 'pending-to-be-confirmed-acc-op') return PendingToBeConfirmedIcon
-    if (category === 'successful-acc-op') return SuccessIcon
 
     return null
   }, [category])
