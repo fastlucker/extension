@@ -292,11 +292,16 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
                 chainId={network.chainId}
                 address={address}
               />
-              <Text fontSize={16} style={spacings.mlTy} weight="semiBold">
+              <Text
+                testID="custom-token-name"
+                fontSize={16}
+                style={spacings.mlTy}
+                weight="semiBold"
+              >
                 {temporaryToken?.symbol || portfolioToken?.symbol}
               </Text>
             </View>
-            <View style={flexbox.directionRow}>
+            <View testID="confirmed-pill-text" style={flexbox.directionRow}>
               {temporaryToken?.priceIn?.length || portfolioToken?.priceIn?.length ? (
                 <CoingeckoConfirmedBadge text="Confirmed" address={address} network={network} />
               ) : null}
