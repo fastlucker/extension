@@ -27,7 +27,7 @@ import substractGradientBackground from './substract-gradient.png'
 import substractBackground from './substract.png'
 import unknownCharacterImg from './unknown-character.png'
 
-const THRESHOLD_AMOUNT_TO_HIDE_BALANCE_DECIMALS = 100000
+const THRESHOLD_AMOUNT_TO_HIDE_BALANCE_DECIMALS = 500
 
 const CharacterSection = () => {
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
@@ -249,7 +249,7 @@ const CharacterSection = () => {
                   />
                 </div>
                 <span className={styles.balanceAmount}>
-                  {accountPortfolio?.isReady ? formatBalance(amountFormatted) : 'Loading...'}
+                  {accountPortfolio?.isReady ? `$${formatBalance(amountFormatted)}` : 'Loading...'}
                 </span>
               </div>
               <div className={styles.logoAndBalanceWrapper}>
@@ -365,7 +365,18 @@ const CharacterSection = () => {
                             : '0.000'}
                         </p>
                         <p className={styles.projectionStatPriceValue}>
-                          {balanceInUsd ? `$${Number(balanceInUsd).toFixed(2)}` : '$0.00'}
+                          {balanceInUsd
+                            ? `$${
+                                Number(balanceInUsd) >= THRESHOLD_AMOUNT_TO_HIDE_BALANCE_DECIMALS
+                                  ? Number(balanceInUsd).toLocaleString(undefined, {
+                                      maximumFractionDigits: 0
+                                    })
+                                  : Number(balanceInUsd).toLocaleString(undefined, {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2
+                                    })
+                              }`
+                            : '$0.00'}
                         </p>
                       </div>
 
