@@ -152,7 +152,7 @@ const AddressBookContact: FC<Props> = ({
               <Text fontSize={fontSize} weight="medium" style={!name && spacings.mrTy}>
                 {name || 'New address'}
               </Text>
-              {!name && (
+              {!name && !!onAddToAddressBookPress && (
                 <Button
                   size="tiny"
                   hasBottomSpacing={false}
@@ -161,8 +161,9 @@ const AddressBookContact: FC<Props> = ({
                   accentColor={theme.primary}
                   style={spacings.phMi}
                   onPress={onAddToAddressBookPress}
+                  childrenPosition="left"
                 >
-                  <AddIcon width={14} height={14} style={spacings.mlMi} />
+                  <AddIcon width={14} height={14} style={spacings.mrMi} />
                 </Button>
               )}
             </View>
