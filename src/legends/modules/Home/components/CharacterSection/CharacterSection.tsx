@@ -249,7 +249,7 @@ const CharacterSection = () => {
                   />
                 </div>
                 <span className={styles.balanceAmount}>
-                  {accountPortfolio?.isReady ? formatBalance(amountFormatted) : 'Loading...'}
+                  {accountPortfolio?.isReady ? `$${formatBalance(amountFormatted)}` : 'Loading...'}
                 </span>
               </div>
               <div className={styles.logoAndBalanceWrapper}>
