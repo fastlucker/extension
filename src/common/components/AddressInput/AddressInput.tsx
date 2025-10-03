@@ -1,16 +1,22 @@
+import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TextInput, View } from 'react-native'
 
+import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import CopyIcon from '@common/assets/svg/CopyIcon'
+import EnsIcon from '@common/assets/svg/EnsIcon'
 import AddressBookContact from '@common/components/AddressBookContact'
 import Button from '@common/components/Button'
 import Input, { InputProps } from '@common/components/Input'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
@@ -44,13 +50,14 @@ const AddressInput: React.FC<Props> = ({
   ...rest
 }) => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { styles, theme } = useTheme(getStyles)
   const [isFocused, setIsFocused] = useState(false)
   const { contacts } = useAddressBookControllerState()
   const { message, isError } = validation
   const isValidationInDomainResolvingState = message === 'Resolving domain...'
   const inputRef = useRef<TextInput | null>(null)
-
+  const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
   const setInputRef = useCallback((ref: TextInput | null) => {
     if (ref) inputRef.current = ref
   }, [])
@@ -59,6 +66,19 @@ const AddressInput: React.FC<Props> = ({
     () => !isError && !isValidationInDomainResolvingState,
     [isError, isValidationInDomainResolvingState]
   )
+
+  const handleCopyResolvedAddress = useCallback(async () => {
+    const address = ensAddress
+
+    if (address) {
+      try {
+        await setStringAsync(address)
+        addToast(t('Copied to clipboard!'), { timeout: 2500 })
+      } catch {
+        addToast(t('Failed to copy address to clipboard'), { type: 'error' })
+      }
+    }
+  }, [addToast, ensAddress, t])
 
   const address = ensAddress || rest.value!
 
@@ -82,7 +102,50 @@ const AddressInput: React.FC<Props> = ({
         placeholder={placeholder || t('Address / ENS')}
         bottomLabelStyle={styles.bottomLabel}
         info={isValidationInDomainResolvingState ? t('Resolving domain...') : ''}
-        childrenBeforeButtons={childrenBeforeButtons}
+        childrenBeforeButtons={
+          childrenBeforeButtons ||
+          (!withDetails && (
+            <>
+              {ensAddress && !isRecipientDomainResolving ? (
+                <AnimatedPressable
+                  style={[flexbox.alignCenter, flexbox.directionRow, animStyle]}
+                  onPress={handleCopyResolvedAddress}
+                  {...bindAnim}
+                >
+                  <Text style={flexbox.flex1} numberOfLines={1}>
+                    <Text
+                      style={{
+                        flex: 1
+                      }}
+                      fontSize={12}
+                      appearance="secondaryText"
+                      numberOfLines={1}
+                      ellipsizeMode="head"
+                    >
+                      ({shortenAddress(ensAddress, 18)})
+                    </Text>
+                  </Text>
+                  <CopyIcon
+                    width={16}
+                    height={16}
+                    style={[
+                      spacings.mlMi,
+                      {
+                        minWidth: 16
+                      }
+                    ]}
+                  />
+                </AnimatedPressable>
+              ) : null}
+              <View style={[styles.domainIcons, rest.button ? spacings.pr0 : spacings.pr]}>
+                {childrenBeforeButtons}
+                <View style={styles.plTy}>
+                  <EnsIcon isActive={!!ensAddress} />
+                </View>
+              </View>
+            </>
+          ))
+        }
         onFocus={(e) => {
           if (isValid && withDetails) return
           setIsFocused(true)
