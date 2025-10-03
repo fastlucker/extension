@@ -373,7 +373,6 @@
         .characterName {
           color: $mainText;
           font-size: .75rem;
-          margin-bottom: 2.5rem;
           margin-top: .5rem;
           max-width: 3.125rem;
         }
@@ -384,6 +383,8 @@
           display: flex;
           flex-direction: column;
           align-items: end;
+          margin-top: auto;
+          margin-bottom: auto;
           .characterLevelText {
             color: #FFFFFF;
             font-size: 1.75rem;
