@@ -1,4 +1,4 @@
-import React, { FC, memo, ReactNode, useCallback } from 'react'
+import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -36,7 +36,6 @@ type Props = {
   handleSetMaxFromAmount: () => void
   inputTestId?: string
   selectTestId?: string
-  title?: string | ReactNode
   maxAmountDisabled?: boolean
   simulationFailed?: boolean
 }
@@ -58,20 +57,15 @@ const SendToken: FC<Props> = ({
   handleSetMaxFromAmount,
   inputTestId,
   selectTestId,
-  title,
   maxAmountDisabled,
   simulationFailed
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const { theme, styles, themeType } = useTheme(getStyles)
   const { t } = useTranslation()
-  const heading = title ?? t('Send')
 
   return (
-    <View style={spacings.mbLg}>
-      <Text appearance="secondaryText" fontSize={16} weight="medium" style={spacings.mbTy}>
-        {heading}
-      </Text>
+    <>
       <View
         style={[
           styles.outerContainer,
@@ -83,6 +77,7 @@ const SendToken: FC<Props> = ({
         >
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <Select
+              label={t('Select token')}
               setValue={handleChangeFromToken}
               options={fromTokenOptions}
               value={fromTokenValue}
@@ -112,6 +107,7 @@ const SendToken: FC<Props> = ({
               disabled={fromTokenAmountSelectDisabled}
               containerStyle={[
                 spacings.mb0,
+                spacings.mtLg,
                 flexbox.flex1,
                 {
                   overflow: 'hidden'
@@ -238,7 +234,7 @@ const SendToken: FC<Props> = ({
           {validateFromAmount?.message}
         </Text>
       )}
-    </View>
+    </>
   )
 }
 

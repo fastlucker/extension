@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, TextInput, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -8,6 +8,7 @@ import { ITransferController } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { findAccountDomainFromPartialDomain } from '@ambire-common/utils/domains'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
@@ -27,6 +28,7 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
 import AddressBookContact from '../AddressBookContact'
+import Button from '../Button'
 import { SectionedSelect } from '../Select'
 import { RenderSelectedOptionParams, SectionedSelectProps, SelectValue } from '../Select/types'
 import TitleAndIcon from '../TitleAndIcon'
@@ -67,7 +69,8 @@ const SelectedMenuOption: React.FC<{
   setAddress: (text: string) => void
   disabled?: boolean
   toggleMenu: () => void
-  isAddressInAddressBook: boolean
+  setIsMenuOpen: (isMenuOpen: boolean) => void
+  openAddToAddressBook: () => void
   filteredContacts: Contact[]
   recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
 }> = ({
@@ -80,11 +83,24 @@ const SelectedMenuOption: React.FC<{
   address,
   setAddress,
   disabled,
+  setIsMenuOpen,
+  openAddToAddressBook,
   toggleMenu,
-  isAddressInAddressBook,
   recipientMenuClosedAutomaticallyRef
 }) => {
   const { theme } = useTheme()
+  const { t } = useTranslation()
+  const inputRef = useRef<TextInput | null>(null)
+  const [isFocused, setIsFocused] = useState(false)
+
+  const setInputRef = useCallback((ref: TextInput | null) => {
+    if (ref) inputRef.current = ref
+  }, [])
+
+  const sessionValidation = useMemo(
+    () => (isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation),
+    [isMenuOpen, validation]
+  )
 
   useEffect(() => {
     if (isMenuOpen && !filteredContacts.length) {
@@ -98,7 +114,7 @@ const SelectedMenuOption: React.FC<{
       // Reopen the menu only if the address is invalid
       // Otherwise we will reopen it while the user is done with this field
       // and wants to proceed
-      validation.isError
+      sessionValidation.isError
     ) {
       toggleMenu()
       // eslint-disable-next-line no-param-reassign
@@ -110,12 +126,20 @@ const SelectedMenuOption: React.FC<{
     isMenuOpen,
     recipientMenuClosedAutomaticallyRef,
     toggleMenu,
-    validation.isError
+    sessionValidation.isError
   ])
+
+  const { message, isError } = validation
+  const isValidationInDomainResolvingState = message === 'Resolving domain...'
+  const isValid = useMemo(
+    () => !isError && !isValidationInDomainResolvingState,
+    [isError, isValidationInDomainResolvingState]
+  )
 
   return (
     <AddressInput
       inputBorderWrapperRef={selectRef}
+      setInputRef={setInputRef}
       validation={isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
@@ -124,21 +148,58 @@ const SelectedMenuOption: React.FC<{
       value={address}
       onChangeText={setAddress}
       disabled={disabled}
-      onFocus={toggleMenu}
+      onFocus={() => {
+        setIsMenuOpen(true)
+        setIsFocused(true)
+      }}
+      onBlur={() => {
+        setIsFocused(false)
+      }}
       childrenBeforeButtons={
-        <AccountsFilledIcon
-          color={theme[isAddressInAddressBook ? 'primary' : 'secondaryText']}
-          opacity={isAddressInAddressBook ? 1 : 0.25}
-          style={spacings.mrTy}
-          width={24}
-          height={24}
-        />
+        isValid ? (
+          <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+            <Button
+              size="tiny"
+              hasBottomSpacing={false}
+              text={t('Clear')}
+              type="gray"
+              style={{ ...spacings.phTy, height: 28 }}
+              accentColor={theme.secondaryText}
+              onPress={() => {
+                !!setAddress && setAddress('')
+                setIsMenuOpen(true)
+                inputRef?.current?.focus()
+              }}
+            >
+              <CloseIcon width={12} height={12} strokeWidth="1.75" style={spacings.mlMi} />
+            </Button>
+          </View>
+        ) : null
       }
       button={isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
-      buttonProps={{
-        onPress: toggleMenu
-      }}
+      buttonProps={{ onPress: toggleMenu }}
       buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
+      customInputContent={
+        isValid && !isFocused ? (
+          <Pressable
+            style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}
+            onPress={() => setIsMenuOpen(true)}
+          >
+            <AddressBookContact
+              avatarSize={36}
+              key={address}
+              style={{
+                borderRadius: 0,
+                ...spacings.ph0,
+                ...spacings.pv0
+              }}
+              address={ensAddress || address}
+              name={filteredContacts.find((c) => c.address === ensAddress || address)?.name}
+              onAddToAddressBookPress={openAddToAddressBook}
+            />
+          </Pressable>
+        ) : null
+      }
     />
   )
 }
@@ -156,8 +217,6 @@ const Recipient: React.FC<Props> = ({
   isRecipientDomainResolving,
   disabled,
   isSWWarningVisible,
-  isSWWarningAgreed,
-  selectedTokenSymbol,
   recipientMenuClosedAutomaticallyRef
 }) => {
   const { account } = useSelectedAccountControllerState()
@@ -175,10 +234,6 @@ const Recipient: React.FC<Props> = ({
   const onManagePress = useCallback(() => {
     navigate(ROUTES.addressBook)
   }, [navigate])
-
-  const isAddressInAddressBook = contacts.some((contact) => {
-    return actualAddress.toLowerCase() === contact.address.toLowerCase()
-  })
 
   const filteredContacts = useMemo(
     () =>
@@ -309,20 +364,21 @@ const Recipient: React.FC<Props> = ({
   )
 
   const renderSelectedOption = useCallback(
-    ({ toggleMenu, isMenuOpen, selectRef }: RenderSelectedOptionParams) => {
+    ({ toggleMenu, setIsMenuOpen, isMenuOpen, selectRef }: RenderSelectedOptionParams) => {
       return (
         <SelectedMenuOption
           toggleMenu={toggleMenu}
+          setIsMenuOpen={setIsMenuOpen}
+          openAddToAddressBook={openBottomSheet}
           selectRef={selectRef}
           filteredContacts={filteredContacts}
           isMenuOpen={isMenuOpen}
-          validation={isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
+          validation={validation}
           ensAddress={ensAddress}
           isRecipientDomainResolving={isRecipientDomainResolving}
           address={address}
           setAddress={setAddress}
           disabled={disabled}
-          isAddressInAddressBook={isAddressInAddressBook}
           recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
         />
       )
@@ -335,7 +391,6 @@ const Recipient: React.FC<Props> = ({
       address,
       setAddress,
       disabled,
-      isAddressInAddressBook,
       recipientMenuClosedAutomaticallyRef
     ]
   )
@@ -364,10 +419,7 @@ const Recipient: React.FC<Props> = ({
           isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
           isRecipientAddressSameAsSender={actualAddress === account?.addr}
           addressValidationMsg={addressValidationMsg}
-          onAddToAddressBook={openBottomSheet}
           isSWWarningVisible={isSWWarningVisible}
-          isSWWarningAgreed={isSWWarningAgreed}
-          selectedTokenSymbol={selectedTokenSymbol}
         />
       </View>
       <AddContactBottomSheet

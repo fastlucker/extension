@@ -45,7 +45,7 @@ import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 import { getUiType } from '@web/utils/uiType'
 
-const { isPopup, isTab, isActionWindow } = getUiType()
+const { isTab, isActionWindow } = getUiType()
 
 const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { dispatch } = useBackgroundService()
@@ -458,19 +458,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     [state.isTopUp, gasTankLabelWithInfo, t]
   )
 
-  // Title shown before SendToken component
-  const formTitle = useMemo(() => {
-    if (state.isTopUp) {
-      if (isPopup) {
-        return t('Top Up')
-      }
-
-      return gasTankLabelWithInfo
-    }
-
-    return t('Send')
-  }, [state.isTopUp, t, gasTankLabelWithInfo])
-
   const buttons = useMemo(() => {
     return (
       <>
@@ -603,7 +590,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
               }
               isSWWarningVisible={isSWWarningVisible}
               recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
-              formTitle={formTitle}
               amountFieldValue={amountFieldValue}
               setAmountFieldValue={setAmountFieldValue}
               addressStateFieldValue={addressStateFieldValue}

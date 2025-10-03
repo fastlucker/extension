@@ -4,6 +4,7 @@ import { View, ViewStyle } from 'react-native'
 import { TooltipRefProps } from 'react-tooltip'
 
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import AddIcon from '@common/assets/svg/AddIcon'
 import AccountAddress from '@common/components/AccountAddress'
 import Avatar from '@common/components/Avatar'
 import DomainBadge from '@common/components/Avatar/DomainBadge'
@@ -20,14 +21,16 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
+import Button from '../Button'
 import ManageContact from './ManageContact'
 
 interface Props {
   address: string
-  name: string
+  name?: string
   isManageable?: boolean
   isEditable?: boolean
   onPress?: () => void
+  onAddToAddressBookPress?: () => void
   style?: ViewStyle
   testID?: string
   avatarSize?: number
@@ -41,6 +44,7 @@ const AddressBookContact: FC<Props> = ({
   isManageable,
   isEditable,
   onPress,
+  onAddToAddressBookPress,
   testID,
   style = {},
   avatarSize,
@@ -144,9 +148,24 @@ const AddressBookContact: FC<Props> = ({
               onSave={onSave}
             />
           ) : (
-            <Text fontSize={fontSize} weight="medium">
-              {name}
-            </Text>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text fontSize={fontSize} weight="medium" style={!name && spacings.mrTy}>
+                {name || 'New address'}
+              </Text>
+              {!name && (
+                <Button
+                  size="tiny"
+                  hasBottomSpacing={false}
+                  text={t('Add to address book')}
+                  type="ghost2"
+                  accentColor={theme.primary}
+                  style={spacings.phMi}
+                  onPress={onAddToAddressBookPress}
+                >
+                  <AddIcon width={14} height={14} style={spacings.mlMi} />
+                </Button>
+              )}
+            </View>
           )}
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <DomainBadge ens={ens} />
@@ -154,11 +173,11 @@ const AddressBookContact: FC<Props> = ({
           </View>
         </View>
       </View>
-      {isManageable ? (
+      {isManageable && name ? (
         <ManageContact tooltipRef={tooltipRef} address={address} name={name} />
       ) : null}
     </ContainerElement>
   )
 }
 
-export default AddressBookContact
+export default React.memo(AddressBookContact)

@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
@@ -18,10 +18,10 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import useSimulationError from '@web/modules/portfolio/hooks/SimulationError/useSimulationError'
 import { getTokenId } from '@web/utils/token'
 
 import styles from './styles'
-import useSimulationError from "@web/modules/portfolio/hooks/SimulationError/useSimulationError";
 
 const SendForm = ({
   addressInputState,
@@ -31,7 +31,6 @@ const SendForm = ({
   isSWWarningVisible,
   isRecipientHumanizerKnownTokenOrSmartContract,
   recipientMenuClosedAutomaticallyRef,
-  formTitle,
   amountFieldValue,
   setAmountFieldValue,
   addressStateFieldValue,
@@ -44,7 +43,6 @@ const SendForm = ({
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
   recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
-  formTitle: string | ReactNode
   amountFieldValue: string
   setAmountFieldValue: (value: string) => void
   addressStateFieldValue: string
@@ -155,6 +153,29 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
+      <View>
+        {!isTopUp && (
+          <Recipient
+            disabled={disableForm}
+            address={addressStateFieldValue}
+            setAddress={setAddressStateFieldValue}
+            validation={validation}
+            ensAddress={addressState.ensAddress}
+            addressValidationMsg={validation.message}
+            isRecipientHumanizerKnownTokenOrSmartContract={
+              isRecipientHumanizerKnownTokenOrSmartContract
+            }
+            isRecipientAddressUnknown={isRecipientAddressUnknown}
+            isRecipientDomainResolving={addressState.isDomainResolving}
+            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+            onRecipientCheckboxClick={onRecipientCheckboxClick}
+            isSWWarningVisible={isSWWarningVisible}
+            isSWWarningAgreed={isSWWarningAgreed}
+            selectedTokenSymbol={selectedToken?.symbol}
+            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
+          />
+        )}
+      </View>
       {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
@@ -182,33 +203,9 @@ const SendForm = ({
           handleSetMaxFromAmount={setMaxAmount}
           inputTestId="amount-field"
           selectTestId="tokens-select"
-          title={formTitle}
           simulationFailed={!!simulationError}
         />
       )}
-      <View>
-        {!isTopUp && (
-          <Recipient
-            disabled={disableForm}
-            address={addressStateFieldValue}
-            setAddress={setAddressStateFieldValue}
-            validation={validation}
-            ensAddress={addressState.ensAddress}
-            addressValidationMsg={validation.message}
-            isRecipientHumanizerKnownTokenOrSmartContract={
-              isRecipientHumanizerKnownTokenOrSmartContract
-            }
-            isRecipientAddressUnknown={isRecipientAddressUnknown}
-            isRecipientDomainResolving={addressState.isDomainResolving}
-            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
-            onRecipientCheckboxClick={onRecipientCheckboxClick}
-            isSWWarningVisible={isSWWarningVisible}
-            isSWWarningAgreed={isSWWarningAgreed}
-            selectedTokenSymbol={selectedToken?.symbol}
-            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
-          />
-        )}
-      </View>
     </ScrollableWrapper>
   )
 }
