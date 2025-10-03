@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -6,6 +6,7 @@ import { useModalize } from 'react-native-modalize'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { ITransferController } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { validateAddress } from '@ambire-common/services/validations'
 import { findAccountDomainFromPartialDomain } from '@ambire-common/utils/domains'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -27,6 +28,7 @@ import {
 import Text from '@common/components/Text'
 import TitleAndIcon from '@common/components/TitleAndIcon'
 import useNavigation from '@common/hooks/useNavigation'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -51,7 +53,6 @@ interface Props extends InputProps {
   isRecipientDomainResolving: boolean
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
-  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   selectedTokenSymbol?: TokenResult['symbol']
   menuPosition?: 'top' | 'bottom'
 }
@@ -70,11 +71,9 @@ const SelectedMenuOption: React.FC<{
   address: string
   setAddress: (text: string) => void
   disabled?: boolean
-  toggleMenu: () => void
   setIsMenuOpen: (isMenuOpen: boolean) => void
   openAddToAddressBook: () => void
   filteredContacts: Contact[]
-  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
 }> = ({
   selectRef,
   filteredContacts,
@@ -86,48 +85,28 @@ const SelectedMenuOption: React.FC<{
   setAddress,
   disabled,
   setIsMenuOpen,
-  openAddToAddressBook,
-  toggleMenu,
-  recipientMenuClosedAutomaticallyRef
+  openAddToAddressBook
 }) => {
-  const sessionValidation = useMemo(
-    () => (isMenuOpen ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation),
-    [isMenuOpen, validation]
-  )
+  const [isFocused, setIsFocused] = useState(false)
+  const prevFilteredContactsLength = usePrevious(filteredContacts.length)
 
   useEffect(() => {
     if (isMenuOpen && !filteredContacts.length) {
-      toggleMenu()
-      // eslint-disable-next-line no-param-reassign
-      recipientMenuClosedAutomaticallyRef.current = true
-    } else if (
-      recipientMenuClosedAutomaticallyRef.current &&
-      !isMenuOpen &&
-      filteredContacts.length &&
-      // Reopen the menu only if the address is invalid
-      // Otherwise we will reopen it while the user is done with this field
-      // and wants to proceed
-      sessionValidation.isError
-    ) {
-      toggleMenu()
-      // eslint-disable-next-line no-param-reassign
-      recipientMenuClosedAutomaticallyRef.current = false
+      setIsMenuOpen(false)
+    }
+    if (!isMenuOpen && !prevFilteredContactsLength && !!filteredContacts.length && !!isFocused) {
+      setIsMenuOpen(true)
     }
   }, [
     address,
     filteredContacts.length,
+    prevFilteredContactsLength,
     isMenuOpen,
-    recipientMenuClosedAutomaticallyRef,
-    toggleMenu,
-    sessionValidation.isError
+    setIsMenuOpen,
+    isFocused
   ])
 
-  const { message, isError } = validation
-  const isValidationInDomainResolvingState = message === 'Resolving domain...'
-  const isValid = useMemo(
-    () => !isError && !isValidationInDomainResolvingState,
-    [isError, isValidationInDomainResolvingState]
-  )
+  const isValidAddress = useMemo(() => !!validateAddress(address).success, [address])
 
   return (
     <AddressInput
@@ -142,13 +121,22 @@ const SelectedMenuOption: React.FC<{
       onChangeText={setAddress}
       disabled={disabled}
       onFocus={() => {
-        if (isValid) return
+        if (isValidAddress) return
+        setIsFocused(true)
         setIsMenuOpen(true)
+      }}
+      onBlur={() => {
+        setIsFocused(false)
       }}
       onClearButtonPress={() => setIsMenuOpen(true)}
       onOpenAddToAddressBook={openAddToAddressBook}
-      button={isValid ? undefined : isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
-      buttonProps={{ onPress: toggleMenu }}
+      button={address ? undefined : isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
+      buttonProps={{
+        onPress: () => {
+          if (isValidAddress) return
+          setIsMenuOpen(true)
+        }
+      }}
       buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
     />
   )
@@ -166,8 +154,7 @@ const Recipient: React.FC<Props> = ({
   validation,
   isRecipientDomainResolving,
   disabled,
-  isSWWarningVisible,
-  recipientMenuClosedAutomaticallyRef
+  isSWWarningVisible
 }) => {
   const { account } = useSelectedAccountControllerState()
   const actualAddress = ensAddress || address
@@ -314,10 +301,9 @@ const Recipient: React.FC<Props> = ({
   )
 
   const renderSelectedOption = useCallback(
-    ({ toggleMenu, setIsMenuOpen, isMenuOpen, selectRef }: RenderSelectedOptionParams) => {
+    ({ setIsMenuOpen, isMenuOpen, selectRef }: RenderSelectedOptionParams) => {
       return (
         <SelectedMenuOption
-          toggleMenu={toggleMenu}
           setIsMenuOpen={setIsMenuOpen}
           openAddToAddressBook={openBottomSheet}
           selectRef={selectRef}
@@ -329,7 +315,6 @@ const Recipient: React.FC<Props> = ({
           address={address}
           setAddress={setAddress}
           disabled={disabled}
-          recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
         />
       )
     },
@@ -341,7 +326,6 @@ const Recipient: React.FC<Props> = ({
       address,
       setAddress,
       disabled,
-      recipientMenuClosedAutomaticallyRef,
       openBottomSheet
     ]
   )

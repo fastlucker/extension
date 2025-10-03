@@ -1,8 +1,9 @@
 import { setStringAsync } from 'expo-clipboard'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TextInput, View } from 'react-native'
 
+import { validateAddress } from '@ambire-common/services/validations'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -52,7 +53,6 @@ const AddressInput: React.FC<Props> = ({
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { styles, theme } = useTheme(getStyles)
-  const [isFocused, setIsFocused] = useState(false)
   const { contacts } = useAddressBookControllerState()
   const { message, isError } = validation
   const isValidationInDomainResolvingState = message === 'Resolving domain...'
@@ -81,6 +81,8 @@ const AddressInput: React.FC<Props> = ({
   }, [addToast, ensAddress, t])
 
   const address = ensAddress || rest.value!
+
+  const isValidAddress = useMemo(() => !!validateAddress(address).success, [address])
 
   return (
     <>
@@ -146,17 +148,8 @@ const AddressInput: React.FC<Props> = ({
             </>
           ))
         }
-        onFocus={(e) => {
-          if (isValid && withDetails) return
-          setIsFocused(true)
-          !!rest.onFocus && rest.onFocus(e)
-        }}
-        onBlur={(e) => {
-          setIsFocused(false)
-          !!rest.onBlur && rest.onBlur(e)
-        }}
         customInputContent={
-          !!withDetails && isValid && !isFocused ? (
+          !!withDetails && !!isValidAddress ? (
             <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
               <AddressBookContact
                 avatarSize={36}
