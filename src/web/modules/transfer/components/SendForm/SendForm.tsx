@@ -3,6 +3,7 @@ import { View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import SendToken from '@common/components/SendToken'
@@ -13,6 +14,8 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -30,11 +33,11 @@ const SendForm = ({
   isRecipientAddressUnknown,
   isSWWarningVisible,
   isRecipientHumanizerKnownTokenOrSmartContract,
-  recipientMenuClosedAutomaticallyRef,
   amountFieldValue,
   setAmountFieldValue,
   addressStateFieldValue,
-  setAddressStateFieldValue
+  setAddressStateFieldValue,
+  handleGoBack
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   hasGasTank: boolean
@@ -42,11 +45,11 @@ const SendForm = ({
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
   isRecipientHumanizerKnownTokenOrSmartContract: boolean
-  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   amountFieldValue: string
   setAmountFieldValue: (value: string) => void
   addressStateFieldValue: string
   setAddressStateFieldValue: (value: string) => void
+  handleGoBack: () => void
 }) => {
   const { validation } = addressInputState
   const { state, tokens } = useTransferControllerState()
@@ -153,6 +156,11 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb]}>
+        <PanelBackButton onPress={handleGoBack} style={spacings.mrSm} />
+        <PanelTitle title={t('Send')} style={text.left} />
+      </View>
+
       <View>
         {!isTopUp && (
           <Recipient
@@ -172,7 +180,6 @@ const SendForm = ({
             isSWWarningVisible={isSWWarningVisible}
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
-            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
           />
         )}
       </View>

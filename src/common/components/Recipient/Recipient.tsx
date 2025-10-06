@@ -94,7 +94,7 @@ const SelectedMenuOption: React.FC<{
   const prevIsValidAddress = usePrevious(isValidAddress)
 
   useEffect(() => {
-    if (isMenuOpen && !filteredContacts.length) {
+    if (isMenuOpen && !filteredContacts.length && !!isFocused) {
       setIsMenuOpen(false)
     }
     if (!isMenuOpen && !prevFilteredContactsLength && !!filteredContacts.length && !!isFocused) {

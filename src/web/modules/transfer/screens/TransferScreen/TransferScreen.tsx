@@ -576,11 +576,12 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   }
 
   return (
-    <Wrapper title={headerTitle} handleGoBack={handleGoBackPress} buttons={buttons}>
+    <Wrapper title={headerTitle} buttons={buttons}>
       <Content buttons={buttons}>
         {state?.isInitialized ? (
           <Form>
             <SendForm
+              handleGoBack={handleGoBackPress}
               addressInputState={addressInputState}
               hasGasTank={hasGasTank}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
@@ -589,7 +590,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
                 isRecipientHumanizerKnownTokenOrSmartContract
               }
               isSWWarningVisible={isSWWarningVisible}
-              recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomatically}
               amountFieldValue={amountFieldValue}
               setAmountFieldValue={setAmountFieldValue}
               addressStateFieldValue={addressStateFieldValue}
