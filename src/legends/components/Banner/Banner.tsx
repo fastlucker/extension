@@ -9,11 +9,10 @@ const Banner: React.FC = () => {
       <img className={styles.iconPlaceholder} src={governance} alt="Governance banner icon" />
       <div className={styles.textContent}>
         <div className={styles.title}>
-          🗳️ Should we extend Ambire Rewards Season 1 until December 15, 2025? Vote until October
-          5th.
+          🗳️ A Series of governance proposals for Ambire Rewards is up for discussion and voting.
         </div>
         <a
-          href="https://snapshot.box/#/s:ambire.eth/proposal/0x95c6d26b2bbf628f62a85a27d9a9ee5b19d0ea864385d3da40aff2b97025008b"
+          href="https://blog.ambire.com/governance-proposals-rewards/"
           className={styles.readMoreLink}
           target="_blank"
           rel="noreferrer"
