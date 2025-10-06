@@ -90,6 +90,11 @@ const SelectedMenuOption: React.FC<{
   const [isFocused, setIsFocused] = useState(false)
   const prevFilteredContactsLength = usePrevious(filteredContacts.length)
 
+  const isValidAddress = useMemo(() => !!validateAddress(address).success, [address])
+  const prevIsValidAddress = usePrevious(isValidAddress)
+
+  const { contacts } = useAddressBookControllerState()
+
   useEffect(() => {
     if (isMenuOpen && !filteredContacts.length) {
       setIsMenuOpen(false)
@@ -97,16 +102,19 @@ const SelectedMenuOption: React.FC<{
     if (!isMenuOpen && !prevFilteredContactsLength && !!filteredContacts.length && !!isFocused) {
       setIsMenuOpen(true)
     }
+    if (!prevIsValidAddress && isValidAddress) {
+      setIsMenuOpen(false)
+    }
   }, [
     address,
     filteredContacts.length,
     prevFilteredContactsLength,
     isMenuOpen,
     setIsMenuOpen,
-    isFocused
+    isFocused,
+    prevIsValidAddress,
+    isValidAddress
   ])
-
-  const isValidAddress = useMemo(() => !!validateAddress(address).success, [address])
 
   return (
     <AddressInput
@@ -121,9 +129,10 @@ const SelectedMenuOption: React.FC<{
       onChangeText={setAddress}
       disabled={disabled}
       onFocus={() => {
-        if (isValidAddress) return
-        setIsFocused(true)
-        setIsMenuOpen(true)
+        if (contacts.find((c) => c.address === (ensAddress || address))) {
+          setIsFocused(true)
+          setIsMenuOpen(true)
+        }
       }}
       onBlur={() => {
         setIsFocused(false)
@@ -133,8 +142,9 @@ const SelectedMenuOption: React.FC<{
       button={address ? undefined : isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
       buttonProps={{
         onPress: () => {
-          if (isValidAddress) return
-          setIsMenuOpen(true)
+          if (contacts.find((c) => c.address === (ensAddress || address))) {
+            setIsMenuOpen(true)
+          }
         }
       }}
       buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}

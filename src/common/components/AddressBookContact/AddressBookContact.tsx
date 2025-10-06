@@ -76,10 +76,7 @@ const AddressBookContact: FC<Props> = ({
   const onSave = (newName: string) => {
     dispatch({
       type: 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT',
-      params: {
-        address,
-        newName
-      }
+      params: { address, newName }
     })
     addToast(t('Successfully renamed contact'))
   }

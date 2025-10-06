@@ -127,16 +127,7 @@ const AddressInput: React.FC<Props> = ({
                       ({shortenAddress(ensAddress, 18)})
                     </Text>
                   </Text>
-                  <CopyIcon
-                    width={16}
-                    height={16}
-                    style={[
-                      spacings.mlMi,
-                      {
-                        minWidth: 16
-                      }
-                    ]}
-                  />
+                  <CopyIcon width={16} height={16} style={[spacings.mlMi, { minWidth: 16 }]} />
                 </AnimatedPressable>
               ) : null}
               <View style={[styles.domainIcons, rest.button ? spacings.pr0 : spacings.pr]}>
