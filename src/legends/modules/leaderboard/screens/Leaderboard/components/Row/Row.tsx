@@ -9,6 +9,7 @@ import { LeaderboardEntry } from '@legends/modules/leaderboard/types'
 
 type Props = LeaderboardEntry['currentUser'] & {
   stickyPosition: string | null
+  projectedRewards?: number
   currentUserRef: React.RefObject<HTMLDivElement>
 }
 
@@ -36,11 +37,11 @@ const getBadge = (rank: number) => {
   }
 }
 
-function prettifyWeight(weight: number) {
-  if (weight > 1_000) return `${(weight / 1_000).toFixed(2)}K`
-  if (weight > 1_000_000) return `${(weight / 1_000_000).toFixed(2)}M`
-  if (weight > 1_000_000_000) return `${(weight / 1_000_000_000).toFixed(2)}B`
-  return Math.floor(weight)
+function prettifyProjectedRewards(amount: number) {
+  if (amount > 1_000_000_000) return `${(amount / 1_000_000_000).toFixed(2)}B`
+  if (amount > 1_000_000) return `${(amount / 1_000_000).toFixed(2)}M`
+  if (amount > 1_000) return `${(amount / 1_000).toFixed(2)}K`
+  return Math.floor(amount)
 }
 
 const Row: FC<Props> = ({
@@ -48,7 +49,7 @@ const Row: FC<Props> = ({
   image_avatar,
   rank,
   xp,
-  weight,
+  projectedRewards,
   level,
   stickyPosition,
   currentUserRef
@@ -110,8 +111,12 @@ const Row: FC<Props> = ({
         )}
       </div>
       <h5 className={styles.cell}>{level}</h5>
-      {typeof weight !== 'undefined' && (
-        <h5 className={`${styles.cell} ${styles.weight}`}>{prettifyWeight(weight || 0)}</h5>
+      {typeof projectedRewards !== 'undefined' && (
+        <h5 className={`${styles.cell} ${styles.weight}`}>
+          {typeof projectedRewards === 'number'
+            ? prettifyProjectedRewards(projectedRewards)
+            : 'Loading...'}
+        </h5>
       )}
       <h5 className={styles.cell}>{formattedXp}</h5>
     </div>
