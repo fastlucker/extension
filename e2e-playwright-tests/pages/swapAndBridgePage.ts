@@ -204,7 +204,7 @@ export class SwapAndBridgePage extends BasePage {
     })
     await this.click(selectors.addToBatchButton)
 
-    // approve the high impact modal
+    // approve the high impact modal if appears
     await this.handlePriceWarningModals()
 
     await this.click(selectors.goDashboardButton)
@@ -347,7 +347,7 @@ export class SwapAndBridgePage extends BasePage {
   async signTokens({ fromToken }: { fromToken: Token }): Promise<void> {
     await this.click(selectors.topUpProceedButton)
 
-    // approve the high impact modal
+    // approve the high impact modal if appears
     await this.handlePriceWarningModals()
 
     await this.monitorRequests()
