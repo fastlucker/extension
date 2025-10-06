@@ -93,8 +93,6 @@ const SelectedMenuOption: React.FC<{
   const isValidAddress = useMemo(() => !!validateAddress(address).success, [address])
   const prevIsValidAddress = usePrevious(isValidAddress)
 
-  const { contacts } = useAddressBookControllerState()
-
   useEffect(() => {
     if (isMenuOpen && !filteredContacts.length) {
       setIsMenuOpen(false)
@@ -129,7 +127,7 @@ const SelectedMenuOption: React.FC<{
       onChangeText={setAddress}
       disabled={disabled}
       onFocus={() => {
-        if (contacts.find((c) => c.address === (ensAddress || address))) {
+        if (!address || filteredContacts.length) {
           setIsFocused(true)
           setIsMenuOpen(true)
         }
@@ -142,7 +140,7 @@ const SelectedMenuOption: React.FC<{
       button={address ? undefined : isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
       buttonProps={{
         onPress: () => {
-          if (contacts.find((c) => c.address === (ensAddress || address))) {
+          if (!address || filteredContacts.length) {
             setIsMenuOpen(true)
           }
         }
