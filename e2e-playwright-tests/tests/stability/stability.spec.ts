@@ -94,7 +94,6 @@ test.describe('stability', { tag: '@stability' }, () => {
 
       // ☢️ Critical: there should be no truly uncategorized requests.
       // Anything uncategorized is likely unexpected or suspicious.
-      console.log("UNCATEGORZED: ", categorized.uncategorized)
       expect(categorized.uncategorized.length).toBeLessThanOrEqual(0)
     })
   })
