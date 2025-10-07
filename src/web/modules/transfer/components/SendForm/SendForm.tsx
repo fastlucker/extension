@@ -20,8 +20,8 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 
+import useSimulationError from '@web/modules/portfolio/hooks/SimulationError/useSimulationError'
 import styles from './styles'
-import useSimulationError from "@web/modules/portfolio/hooks/SimulationError/useSimulationError";
 
 const SendForm = ({
   addressInputState,
