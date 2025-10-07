@@ -40,7 +40,7 @@ const ActionFooter = ({
 
   return (
     <>
-      <View style={resolveNode ? { flex: 0.3 } : flexbox.flex1}>
+      <View style={flexbox.flex1}>
         {showReject && (
           <Button
             text={rejectButtonText || t('Reject')}
@@ -54,10 +54,8 @@ const ActionFooter = ({
         )}
       </View>
       <ActionsPagination />
-      <View style={resolveNode ? { flex: 0.7 } : flexbox.flex1}>
-        {resolveNode ? (
-          <View style={{ ...flexbox.alignSelfEnd, minWidth: 128 }}>{resolveNode}</View>
-        ) : (
+      <View style={flexbox.flex1}>
+        {resolveNode || (
           <Button
             testID={resolveButtonTestID}
             style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}

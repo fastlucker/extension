@@ -274,7 +274,13 @@ const SignMessageScreen = () => {
             resolveButtonTestID="button-sign"
             rejectButtonText={rejectButtonText}
             {...(isViewOnly
-              ? { resolveNode: <NoKeysToSignAlert type="short" isTransaction={false} /> }
+              ? {
+                  resolveNode: (
+                    <View style={[{ flex: 3 }, flexbox.directionRow, flexbox.justifyEnd]}>
+                      <NoKeysToSignAlert type="short" isTransaction={false} />
+                    </View>
+                  )
+                }
               : {})}
           />
         }
