@@ -125,8 +125,8 @@ const SelectedMenuOption: React.FC<{
       onChangeText={setAddress}
       disabled={disabled}
       onFocus={() => {
-        if (!address || filteredContacts.length) {
-          setIsFocused(true)
+        setIsFocused(true)
+        if (filteredContacts.length) {
           setIsMenuOpen(true)
         }
       }}
