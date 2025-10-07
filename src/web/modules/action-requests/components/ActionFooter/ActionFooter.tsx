@@ -13,11 +13,13 @@ type Props = {
   onReject?: () => void
   onResolve: () => void
   rejectButtonText?: string
-  resolveButtonText: string
-  resolveDisabled: boolean
+  resolveButtonText?: string
+  resolveDisabled?: boolean
   resolveType?: ButtonProps['type']
   rejectButtonTestID?: string
   resolveButtonTestID?: string
+  /** Optional custom node to replace the default resolve button */
+  resolveNode?: React.ReactNode
 }
 
 const ActionFooter = ({
@@ -25,20 +27,20 @@ const ActionFooter = ({
   onResolve,
   rejectButtonText,
   resolveButtonText,
-  resolveDisabled,
+  resolveDisabled = false,
   resolveType = 'primary',
   rejectButtonTestID,
-  resolveButtonTestID
+  resolveButtonTestID,
+  resolveNode
 }: Props) => {
   const { t } = useTranslation()
 
-  // Wrapped on purpose, because the `onResolve` should be called without any arguments
   const handleOnResolve = useCallback(() => onResolve(), [onResolve])
   const showReject = useMemo(() => !!onReject, [onReject])
 
   return (
     <>
-      <View style={flexbox.flex1}>
+      <View style={resolveNode ? { flex: 0.3 } : flexbox.flex1}>
         {showReject && (
           <Button
             text={rejectButtonText || t('Reject')}
@@ -52,17 +54,21 @@ const ActionFooter = ({
         )}
       </View>
       <ActionsPagination />
-      <View style={flexbox.flex1}>
-        <Button
-          testID={resolveButtonTestID}
-          style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
-          size="large"
-          type={resolveType}
-          hasBottomSpacing={false}
-          onPress={handleOnResolve}
-          disabled={resolveDisabled}
-          text={resolveButtonText}
-        />
+      <View style={resolveNode ? { flex: 0.7 } : flexbox.flex1}>
+        {resolveNode ? (
+          <View style={{ ...flexbox.alignSelfEnd, minWidth: 128 }}>{resolveNode}</View>
+        ) : (
+          <Button
+            testID={resolveButtonTestID}
+            style={{ ...spacings.phLg, ...flexbox.alignSelfEnd, minWidth: 128 }}
+            size="large"
+            type={resolveType}
+            hasBottomSpacing={false}
+            onPress={handleOnResolve}
+            disabled={resolveDisabled}
+            text={resolveButtonText}
+          />
+        )}
       </View>
       <Tooltip id="coming-soon" />
     </>
