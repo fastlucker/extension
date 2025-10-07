@@ -1,7 +1,6 @@
 import React, { FC, memo, ReactNode, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
-import { from } from 'rxjs'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
