@@ -87,7 +87,6 @@ const SendToken: FC<Props> = ({
 
       formatted = formatted.replace(/^0+(?=\d)/, '')
       if (formatted === '') formatted = '0'
-      if (formatted.startsWith('.')) formatted = `0${formatted}`
 
       if (formatted !== fromAmountValue) {
         onFromAmountChange(formatted)
