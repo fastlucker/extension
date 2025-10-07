@@ -72,7 +72,6 @@ const SelectedMenuOption: React.FC<{
   setAddress: (text: string) => void
   disabled?: boolean
   setIsMenuOpen: (isMenuOpen: boolean) => void
-  openAddToAddressBook: () => void
   filteredContacts: Contact[]
 }> = ({
   selectRef,
@@ -84,8 +83,7 @@ const SelectedMenuOption: React.FC<{
   address,
   setAddress,
   disabled,
-  setIsMenuOpen,
-  openAddToAddressBook
+  setIsMenuOpen
 }) => {
   const [isFocused, setIsFocused] = useState(false)
   const prevFilteredContactsLength = usePrevious(filteredContacts.length)
@@ -136,7 +134,6 @@ const SelectedMenuOption: React.FC<{
         setIsFocused(false)
       }}
       onClearButtonPress={() => setIsMenuOpen(true)}
-      onOpenAddToAddressBook={openAddToAddressBook}
       button={address ? undefined : isMenuOpen ? <UpArrowIcon /> : <DownArrowIcon />}
       buttonProps={{
         onPress: () => {
@@ -313,7 +310,6 @@ const Recipient: React.FC<Props> = ({
       return (
         <SelectedMenuOption
           setIsMenuOpen={setIsMenuOpen}
-          openAddToAddressBook={openBottomSheet}
           selectRef={selectRef}
           filteredContacts={filteredContacts}
           isMenuOpen={isMenuOpen}
@@ -333,8 +329,7 @@ const Recipient: React.FC<Props> = ({
       isRecipientDomainResolving,
       address,
       setAddress,
-      disabled,
-      openBottomSheet
+      disabled
     ]
   )
 
@@ -363,6 +358,7 @@ const Recipient: React.FC<Props> = ({
           isRecipientAddressSameAsSender={actualAddress === account?.addr}
           addressValidationMsg={addressValidationMsg}
           isSWWarningVisible={isSWWarningVisible}
+          onAddToAddressBookPress={openBottomSheet}
         />
       </View>
       <AddContactBottomSheet

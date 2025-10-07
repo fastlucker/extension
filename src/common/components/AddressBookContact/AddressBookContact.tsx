@@ -4,7 +4,6 @@ import { View, ViewStyle } from 'react-native'
 import { TooltipRefProps } from 'react-tooltip'
 
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import AddIcon from '@common/assets/svg/AddIcon'
 import AccountAddress from '@common/components/AccountAddress'
 import Avatar from '@common/components/Avatar'
 import DomainBadge from '@common/components/Avatar/DomainBadge'
@@ -21,8 +20,8 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
-import Button from '../Button'
 import ManageContact from './ManageContact'
+import getStyles from './styles'
 
 interface Props {
   address: string
@@ -30,7 +29,6 @@ interface Props {
   isManageable?: boolean
   isEditable?: boolean
   onPress?: () => void
-  onAddToAddressBookPress?: () => void
   style?: ViewStyle
   testID?: string
   avatarSize?: number
@@ -44,7 +42,6 @@ const AddressBookContact: FC<Props> = ({
   isManageable,
   isEditable,
   onPress,
-  onAddToAddressBookPress,
   testID,
   style = {},
   avatarSize,
@@ -54,7 +51,7 @@ const AddressBookContact: FC<Props> = ({
   const ContainerElement = onPress ? AnimatedPressable : View
 
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme } = useTheme(getStyles)
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const { accounts } = useAccountsControllerState()
@@ -149,20 +146,6 @@ const AddressBookContact: FC<Props> = ({
               <Text fontSize={fontSize} weight="medium" style={!name && spacings.mrTy}>
                 {name || 'New address'}
               </Text>
-              {!name && !!onAddToAddressBookPress && (
-                <Button
-                  size="tiny"
-                  hasBottomSpacing={false}
-                  text={t('Add to address book')}
-                  type="ghost2"
-                  accentColor={theme.primary}
-                  style={spacings.phMi}
-                  onPress={onAddToAddressBookPress}
-                  childrenPosition="left"
-                >
-                  <AddIcon width={14} height={14} style={spacings.mrMi} />
-                </Button>
-              )}
             </View>
           )}
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>

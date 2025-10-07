@@ -15,7 +15,6 @@ import usePrevious from '@common/hooks/usePrevious'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
@@ -256,8 +255,9 @@ const SwapAndBridgeScreen = () => {
         )}
         <Form>
           <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb]}>
-            <PanelBackButton onPress={onBackButtonPress} style={spacings.mrSm} />
-            <PanelTitle title={t('Swap & Bridge')} style={text.left} />
+            {!isTab && <PanelBackButton onPress={onBackButtonPress} style={spacings.mrSm} />}
+            <PanelTitle title={t('Swap & Bridge')} />
+            {!isTab && <View style={{ width: 40 }} />}
           </View>
           <View style={spacings.mbLg}>
             <FromToken

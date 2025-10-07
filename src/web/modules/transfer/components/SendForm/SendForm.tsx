@@ -23,9 +23,11 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import useSimulationError from '@web/modules/portfolio/hooks/SimulationError/useSimulationError'
 import { getTokenId } from '@web/utils/token'
+import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
+const isTab = getUiType().isTab
 const SendForm = ({
   addressInputState,
   hasGasTank,
@@ -157,10 +159,10 @@ const SendForm = ({
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb]}>
-        <PanelBackButton onPress={handleGoBack} style={spacings.mrSm} />
-        <PanelTitle title={t('Send')} style={text.left} />
+        {!isTab && <PanelBackButton onPress={handleGoBack} style={spacings.mrSm} />}
+        <PanelTitle title={t('Send')} />
+        {!isTab && <View style={{ width: 40 }} />}
       </View>
-
       <View>
         {!isTopUp && (
           <Recipient
@@ -211,6 +213,7 @@ const SendForm = ({
           inputTestId="amount-field"
           selectTestId="tokens-select"
           simulationFailed={!!simulationError}
+          withLabel
         />
       )}
     </ScrollableWrapper>

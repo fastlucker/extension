@@ -33,7 +33,6 @@ interface Props extends InputProps {
   validation: AddressValidation
   label?: string
   onClearButtonPress?: () => void
-  onOpenAddToAddressBook?: () => void
 }
 
 const AddressInput: React.FC<Props> = ({
@@ -47,7 +46,6 @@ const AddressInput: React.FC<Props> = ({
   placeholder,
   childrenBeforeButtons,
   onClearButtonPress,
-  onOpenAddToAddressBook,
   ...rest
 }) => {
   const { t } = useTranslation()
@@ -152,7 +150,6 @@ const AddressInput: React.FC<Props> = ({
                 }}
                 address={address}
                 name={contacts.find((c) => c.address === address)?.name}
-                onAddToAddressBookPress={onOpenAddToAddressBook}
               />
             </View>
           ) : null
