@@ -1,6 +1,7 @@
 import React, { FC, memo, ReactNode, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
+import { from } from 'rxjs'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -67,6 +68,35 @@ const SendToken: FC<Props> = ({
   const { t } = useTranslation()
   const heading = title ?? t('Send')
 
+  const handleOnChangeTextAndFormat = useCallback(
+    (text: string) => {
+      let formatted = text
+
+      // Remove invalid chars (only digits and dots allowed)
+      formatted = formatted.replace(/[^0-9.]/g, '')
+
+      // If input starts with ".", prefix with "0"
+      if (formatted.startsWith('.')) {
+        formatted = `0${formatted}`
+      }
+
+      // Prevent multiple decimals
+      const parts = formatted.split('.')
+      if (parts.length > 2) {
+        formatted = `${parts[0]}.${parts.slice(1).join('')}`
+      }
+
+      formatted = formatted.replace(/^0+(?=\d)/, '')
+      if (formatted === '') formatted = '0'
+      if (formatted.startsWith('.')) formatted = `0${formatted}`
+
+      if (formatted !== fromAmountValue) {
+        onFromAmountChange(formatted)
+      }
+    },
+    [fromAmountValue, onFromAmountChange]
+  )
+
   return (
     <View style={spacings.mbLg}>
       <Text appearance="secondaryText" fontSize={16} weight="medium" style={spacings.mbTy}>
@@ -100,7 +130,7 @@ const SendToken: FC<Props> = ({
             />
             <NumberInput
               value={fromAmountValue}
-              onChangeText={onFromAmountChange}
+              onChangeText={handleOnChangeTextAndFormat}
               placeholder="0"
               borderless
               inputWrapperStyle={{ backgroundColor: 'transparent' }}
