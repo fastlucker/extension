@@ -47,23 +47,27 @@ module.exports = async function (env, argv) {
     const manifest = JSON.parse(content.toString())
     if (config.mode === 'development') {
       manifest.name = `${manifest.name} (DEV build)`
-      const devBuildIcons = {}
-      Object.keys(manifest.icons).forEach((size) => {
-        const iconPath = manifest.icons[size]
-        const dotIndex = iconPath.lastIndexOf('.')
-        const prefix = iconPath.slice(0, dotIndex)
-        const extension = iconPath.slice(dotIndex)
-        devBuildIcons[size] = `${prefix}-dev-build-ONLY${extension}`
-      })
-      manifest.icons = devBuildIcons
     }
-
-    // Customize for Ambire Next build
     if (isAmbireNext) {
       manifest.name = 'Ambire Web3 Wallet (NEXT build)'
       manifest.short_name = 'Ambire Next'
       manifest.action.default_title = 'Ambire Next'
     }
+
+    // Customize extension icons to emphasize the different build
+    if (config.mode === 'development' || isAmbireNext) {
+      const buildIcons = {}
+      const suffix = isAmbireNext ? '-next-build-ONLY' : '-dev-build-ONLY'
+      Object.keys(manifest.icons).forEach((size) => {
+        const iconPath = manifest.icons[size]
+        const dotIndex = iconPath.lastIndexOf('.')
+        const prefix = iconPath.slice(0, dotIndex)
+        const extension = iconPath.slice(dotIndex)
+        buildIcons[size] = `${prefix}${suffix}${extension}`
+      })
+      manifest.icons = buildIcons
+    }
+
     // Note: Safari allows up to 100 characters, all others allow up to 132 characters
     manifest.description =
       'Fast & secure Web3 wallet to supercharge your account on Ethereum and EVM networks.'
