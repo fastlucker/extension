@@ -60,11 +60,6 @@ const AddressInput: React.FC<Props> = ({
     if (ref) inputRef.current = ref
   }, [])
 
-  const isValid = useMemo(
-    () => !isError && !isValidationInDomainResolvingState,
-    [isError, isValidationInDomainResolvingState]
-  )
-
   const handleCopyResolvedAddress = useCallback(async () => {
     const address = ensAddress
 
@@ -96,9 +91,9 @@ const AddressInput: React.FC<Props> = ({
         testID="address-ens-field"
         {...rest}
         containerStyle={containerStyle}
-        validLabel={isValid ? message : ''}
+        validLabel={!isError && !isValidationInDomainResolvingState ? message : ''}
         error={isError ? message : ''}
-        isValid={isValid}
+        isValid={!isError && !isValidationInDomainResolvingState}
         placeholder={placeholder || t('Address / ENS')}
         bottomLabelStyle={styles.bottomLabel}
         info={isValidationInDomainResolvingState ? t('Resolving domain...') : ''}
