@@ -8,11 +8,24 @@ on:
 
 jobs:
   build:
-    name: Build browser extension webkit and gecko .zips, ready for review submission
+    name: Build extension .zips, ready for review submission
     runs-on: ubuntu-24.04
-    environment: extension-production
+    strategy:
+      matrix:
+        include:
+          - environment: extension-production
+            build_variant: webkit
+            artifact_suffix: webkit-production
+          - environment: extension-production-next
+            build_variant: webkit:next
+            artifact_suffix: webkit-next
+          # TODO: Enable gecko builds when build-extension-gecko.yml is deprecated
+          # - environment: extension-production
+          #   build_variant: gecko
+          #   artifact_suffix: gecko-production
+    environment: ${{ matrix.environment }}
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.build_variant }}
     steps:
       - name: Checkout code 🛎️
         uses: actions/checkout@v4
@@ -68,7 +81,7 @@ jobs:
           BUNGEE_API_KEY: ${{ vars.BUNGEE_API_KEY }}
           SENTRY_DSN_BROWSER_EXTENSION: ${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN_BROWSER_EXTENSIONS }}
-        run: yarn build:extensions:webkit
+        run: yarn build:extensions:${{ matrix.build_variant }}
 
       # TODO: Gecko-only, so skip while building webkit only
       # - name: Generate .zip with the full source code (including .env)
@@ -85,5 +98,5 @@ jobs:
       - name: Upload extension builds 📦
         uses: actions/upload-artifact@v4
         with:
-          name: extension-builds-and-source-maps-webkit
+          name: extension-builds-and-source-maps-${{ matrix.artifact_suffix }}
           path: ./build/*.zip
