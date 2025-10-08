@@ -25,6 +25,11 @@ const isExtension =
 const isAmbireExplorer = outputPath.includes('benzin')
 const isLegends = outputPath.includes('legends')
 
+// Ambire Next is a separate production build variant used for beta testing and preview
+// before releasing features to the main production build. It allows us to have two
+// production webkit builds with different branding for testing purposes.
+const isAmbireNext = process.env.AMBIRE_NEXT === 'true'
+
 // style.css output file for WEB_ENGINE: GECKO
 function processStyleGecko(content) {
   const style = content.toString()
@@ -51,6 +56,13 @@ module.exports = async function (env, argv) {
         devBuildIcons[size] = `${prefix}-dev-build-ONLY${extension}`
       })
       manifest.icons = devBuildIcons
+    }
+
+    // Customize for Ambire Next build
+    if (isAmbireNext) {
+      manifest.name = 'Ambire Web3 Wallet (NEXT build)'
+      manifest.short_name = 'Ambire Next'
+      manifest.action.default_title = 'Ambire Next'
     }
     // Note: Safari allows up to 100 characters, all others allow up to 132 characters
     manifest.description =
