@@ -160,7 +160,7 @@ const SendForm = ({
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb]}>
         {!isTab && <PanelBackButton onPress={handleGoBack} style={spacings.mrSm} />}
-        <PanelTitle title={t('Send')} />
+        <PanelTitle title={isTopUp ? t('Top up Gas Tank') : t('Send')} />
         {!isTab && <View style={{ width: 40 }} />}
       </View>
       <View>
@@ -185,40 +185,31 @@ const SendForm = ({
           />
         )}
       </View>
+      <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
+        {!portfolio?.isReadyToVisualize ? t('Loading tokens...') : t('Select token')}
+      </Text>
       {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
-        <View>
-          <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
-            {!portfolio?.isReadyToVisualize
-              ? t('Loading tokens...')
-              : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
-          </Text>
-          <SkeletonLoader width="100%" height={120} style={spacings.mbLg} />
-        </View>
+        <SkeletonLoader width="100%" height={115} />
       ) : (
-        <>
-          <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
-            {t('Select token')}
-          </Text>
-          <SendToken
-            fromTokenOptions={options}
-            fromTokenValue={tokenSelectValue}
-            fromAmountValue={amountFieldValue}
-            fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
-            handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
-            fromSelectedToken={selectedToken}
-            fromAmount={controllerAmount}
-            fromAmountInFiat={amountInFiat}
-            fromAmountFieldMode={amountFieldMode}
-            maxFromAmount={maxAmount}
-            validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
-            onFromAmountChange={setAmountFieldValue}
-            handleSwitchFromAmountFieldMode={switchAmountFieldMode}
-            handleSetMaxFromAmount={setMaxAmount}
-            inputTestId="amount-field"
-            selectTestId="tokens-select"
-            simulationFailed={!!simulationError}
-          />
-        </>
+        <SendToken
+          fromTokenOptions={options}
+          fromTokenValue={tokenSelectValue}
+          fromAmountValue={amountFieldValue}
+          fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
+          handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
+          fromSelectedToken={selectedToken}
+          fromAmount={controllerAmount}
+          fromAmountInFiat={amountInFiat}
+          fromAmountFieldMode={amountFieldMode}
+          maxFromAmount={maxAmount}
+          validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
+          onFromAmountChange={setAmountFieldValue}
+          handleSwitchFromAmountFieldMode={switchAmountFieldMode}
+          handleSetMaxFromAmount={setMaxAmount}
+          inputTestId="amount-field"
+          selectTestId="tokens-select"
+          simulationFailed={!!simulationError}
+        />
       )}
     </ScrollableWrapper>
   )
