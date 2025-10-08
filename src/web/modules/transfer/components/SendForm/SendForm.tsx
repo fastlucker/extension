@@ -195,26 +195,30 @@ const SendForm = ({
           <SkeletonLoader width="100%" height={120} style={spacings.mbLg} />
         </View>
       ) : (
-        <SendToken
-          fromTokenOptions={options}
-          fromTokenValue={tokenSelectValue}
-          fromAmountValue={amountFieldValue}
-          fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
-          handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
-          fromSelectedToken={selectedToken}
-          fromAmount={controllerAmount}
-          fromAmountInFiat={amountInFiat}
-          fromAmountFieldMode={amountFieldMode}
-          maxFromAmount={maxAmount}
-          validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
-          onFromAmountChange={setAmountFieldValue}
-          handleSwitchFromAmountFieldMode={switchAmountFieldMode}
-          handleSetMaxFromAmount={setMaxAmount}
-          inputTestId="amount-field"
-          selectTestId="tokens-select"
-          simulationFailed={!!simulationError}
-          withLabel
-        />
+        <>
+          <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
+            {t('Select token')}
+          </Text>
+          <SendToken
+            fromTokenOptions={options}
+            fromTokenValue={tokenSelectValue}
+            fromAmountValue={amountFieldValue}
+            fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
+            handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
+            fromSelectedToken={selectedToken}
+            fromAmount={controllerAmount}
+            fromAmountInFiat={amountInFiat}
+            fromAmountFieldMode={amountFieldMode}
+            maxFromAmount={maxAmount}
+            validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
+            onFromAmountChange={setAmountFieldValue}
+            handleSwitchFromAmountFieldMode={switchAmountFieldMode}
+            handleSetMaxFromAmount={setMaxAmount}
+            inputTestId="amount-field"
+            selectTestId="tokens-select"
+            simulationFailed={!!simulationError}
+          />
+        </>
       )}
     </ScrollableWrapper>
   )

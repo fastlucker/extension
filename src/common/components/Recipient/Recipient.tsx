@@ -119,7 +119,6 @@ const SelectedMenuOption: React.FC<{
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
-      label="Add recipient"
       value={address}
       withDetails
       onChangeText={setAddress}
@@ -335,6 +334,9 @@ const Recipient: React.FC<Props> = ({
 
   return (
     <>
+      <Text appearance="secondaryText" fontSize={14} weight="medium" style={spacings.mbMi}>
+        {t('Add recipient')}
+      </Text>
       <SectionedSelect
         value={selectedOption}
         setValue={setAddressWrapped}

@@ -38,7 +38,6 @@ type Props = {
   selectTestId?: string
   maxAmountDisabled?: boolean
   simulationFailed?: boolean
-  withLabel?: boolean
 }
 
 const SendToken: FC<Props> = ({
@@ -59,8 +58,7 @@ const SendToken: FC<Props> = ({
   inputTestId,
   selectTestId,
   maxAmountDisabled,
-  simulationFailed,
-  withLabel
+  simulationFailed
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const { theme, styles, themeType } = useTheme(getStyles)
@@ -107,7 +105,6 @@ const SendToken: FC<Props> = ({
         >
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <Select
-              label={withLabel ? t('Select token') : undefined}
               setValue={handleChangeFromToken}
               options={fromTokenOptions}
               value={fromTokenValue}
@@ -135,15 +132,7 @@ const SendToken: FC<Props> = ({
                 textAlign: 'right'
               }}
               disabled={fromTokenAmountSelectDisabled}
-              containerStyle={[
-                spacings.mb0,
-                // @ts-ignore
-                !!withLabel && spacings.mtLg,
-                flexbox.flex1,
-                {
-                  overflow: 'hidden'
-                }
-              ]}
+              containerStyle={[spacings.mb0, flexbox.flex1, { overflow: 'hidden' }]}
               inputStyle={spacings.ph0}
               testID={inputTestId}
               childrenBelowInput={
