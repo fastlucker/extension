@@ -54,7 +54,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
       from: 0,
       to: 1
     },
-    forceHoveredStyle: (isHovered || dashboardNetworkFilter === chainId) && !isInternalNetwork,
+    forceHoveredStyle: dashboardNetworkFilter === chainId && !isInternalNetwork,
     duration: DURATIONS.REGULAR
   })
 
@@ -92,25 +92,27 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
         <Text style={spacings.mlTy} fontSize={16}>
           {networkName}
         </Text>
-        <AnimatedPressable
-          onPress={handleOpenBlockExplorer}
-          // @ts-ignore missing type, but the prop is valid
-          dataSet={{
-            tooltipId: tooltipBlockExplorerMissingId,
-            tooltipContent: NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
-          }}
-          style={[spacings.mlSm, explorerIconAnimStyle]}
-          onHoverIn={triggerHover}
-        >
-          {({ hovered }: any) => (
-            <OpenIcon
-              width={16}
-              height={16}
-              color={hovered ? theme.primaryText : theme.secondaryText}
-              style={isBlockExplorerMissing && { opacity: 0.4 }}
-            />
-          )}
-        </AnimatedPressable>
+        {dashboardNetworkFilter === chainId && (
+          <AnimatedPressable
+            onPress={handleOpenBlockExplorer}
+            // @ts-ignore missing type, but the prop is valid
+            dataSet={{
+              tooltipId: tooltipBlockExplorerMissingId,
+              tooltipContent: NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
+            }}
+            style={[spacings.mlSm, explorerIconAnimStyle]}
+            onHoverIn={triggerHover}
+          >
+            {({ hovered }: any) => (
+              <OpenIcon
+                width={16}
+                height={16}
+                color={hovered ? theme.primaryText : theme.secondaryText}
+                style={isBlockExplorerMissing && { opacity: 0.4 }}
+              />
+            )}
+          </AnimatedPressable>
+        )}
         {isBlockExplorerMissing && <Tooltip id={tooltipBlockExplorerMissingId} />}
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
