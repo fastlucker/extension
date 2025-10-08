@@ -46,6 +46,7 @@ const AddressInput: React.FC<Props> = ({
   placeholder,
   childrenBeforeButtons,
   onClearButtonPress,
+  value,
   ...rest
 }) => {
   const { t } = useTranslation()
@@ -73,7 +74,7 @@ const AddressInput: React.FC<Props> = ({
     }
   }, [addToast, ensAddress, t])
 
-  const address = ensAddress || rest.value!
+  const address = ensAddress || value || ''
 
   const isValidAddress = useMemo(() => !!validateAddress(address).success, [address])
 
@@ -85,11 +86,11 @@ const AddressInput: React.FC<Props> = ({
         </Text>
       )}
       <Input
+        // Purposefully spread props here, so that we don't override AddressInput's props
+        {...rest}
         setInputRef={setInputRef}
         onChangeText={onChangeText}
-        // Purposefully spread props here, so that we don't override AddressInput's props
         testID="address-ens-field"
-        {...rest}
         containerStyle={containerStyle}
         validLabel={!isError && !isValidationInDomainResolvingState ? message : ''}
         error={isError ? message : ''}
