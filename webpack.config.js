@@ -122,7 +122,9 @@ module.exports = async function (env, argv) {
     // {@link https://developer.chrome.com/extensions/manifest/key}
     // TODO: key not supported in gecko browsers
     if (isWebkit) {
-      manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
+      manifest.key = isAmbireNext
+        ? process.env.BROWSER_EXTENSION_PUBLIC_KEY_NEXT
+        : process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
