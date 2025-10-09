@@ -159,12 +159,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     })
   }, [dispatch, navigate])
 
-  const { sessionHandler, onPrimaryButtonPress } = useTrackAccountOp({
+  const { sessionHandler } = useTrackAccountOp({
     address: latestBroadcastedAccountOp?.accountAddr,
     chainId: latestBroadcastedAccountOp?.chainId,
-    sessionId: 'transfer',
-    submittedAccountOp,
-    navigateOut
+    sessionId: 'transfer'
   })
 
   const explorerLink = useMemo(() => {
@@ -521,7 +519,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   if (displayedView === 'track') {
     return (
       <TrackProgress
-        onPrimaryButtonPress={onPrimaryButtonPress}
+        onPrimaryButtonPress={navigateOut}
         secondaryButtonText={t('Add more')}
         handleClose={() => {
           dispatch({
