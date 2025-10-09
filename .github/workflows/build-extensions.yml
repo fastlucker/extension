@@ -15,14 +15,14 @@ jobs:
         include:
           - environment: extension-production
             build_variant: webkit
-            artifact_suffix: webkit-production
+            artifact_suffix: webkit
           - environment: extension-production-next
-            build_variant: webkit:next
-            artifact_suffix: webkit-next
+            build_variant: next:webkit
+            artifact_suffix: next-webkit
           # TODO: Enable gecko builds when build-extension-gecko.yml is deprecated
           # - environment: extension-production
           #   build_variant: gecko
-          #   artifact_suffix: gecko-production
+          #   artifact_suffix: gecko
     environment: ${{ matrix.environment }}
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.build_variant }}
@@ -67,6 +67,11 @@ jobs:
           echo "SENTRY_DSN_BROWSER_EXTENSION=\"${{ vars.SENTRY_DSN_BROWSER_EXTENSION }}\"" >> .env
         shell: bash
 
+      - name: Get version from app.json
+        id: version
+        run: echo "VERSION=$(grep '"version"' ./app.json | head -n1 | cut -d':' -f2 | tr -d ' ",')" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Build extensions and upload source maps to Sentry
         env:
           RELAYER_URL: ${{ vars.RELAYER_URL }}
@@ -98,5 +103,5 @@ jobs:
       - name: Upload extension builds 📦
         uses: actions/upload-artifact@v4
         with:
-          name: extension-builds-and-source-maps-${{ matrix.artifact_suffix }}
+          name: ambire-extension-v${{ steps.version.outputs.VERSION }}-${{ matrix.artifact_suffix }}-with-sourcemaps
           path: ./build/*.zip
