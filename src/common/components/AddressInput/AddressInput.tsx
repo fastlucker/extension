@@ -88,6 +88,7 @@ const AddressInput: React.FC<Props> = ({
       <Input
         // Purposefully spread props here, so that we don't override AddressInput's props
         {...rest}
+        value={value}
         setInputRef={setInputRef}
         onChangeText={onChangeText}
         testID="address-ens-field"
