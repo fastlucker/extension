@@ -43,7 +43,7 @@ const DashboardHeader = ({ openReceiveModal }: { openReceiveModal: () => void })
         <View style={[flexboxStyles.directionRow]}>
           <AccountButton />
           <Pressable
-            testID="dashboard-hamburger-btn"
+            testID="dashboard-button-receive"
             style={[spacings.mlSm, spacings.pvTy, flexboxStyles.alignSelfCenter]}
             onPress={() => openReceiveModal()}
             {...bindReceiveAnim}
