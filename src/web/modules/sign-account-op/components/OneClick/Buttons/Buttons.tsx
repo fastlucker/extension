@@ -6,9 +6,11 @@ import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { getCallsCount } from '@ambire-common/utils/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
+import InformationIcon from '@common/assets/svg/InformationIcon'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
 import Tooltip from '@common/components/Tooltip'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
@@ -44,6 +46,7 @@ const Buttons: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const callsCount = getCallsCount(networkUserRequests)
+  const { theme } = useTheme()
 
   const oneClickDisabledReason = useMemo(() => {
     if (signAccountOpErrors.length > 0) {
@@ -63,6 +66,19 @@ const Buttons: FC<Props> = ({
     return ''
   }, [isBridge, t])
 
+  const startBatchingDisabled = useMemo(
+    () => isNotReadyToProceed || isBatchDisabled || !!batchDisabledReason,
+    [isNotReadyToProceed, isBatchDisabled, batchDisabledReason]
+  )
+
+  const startBatchingInfo = useMemo(() => {
+    if (startBatchingDisabled) return ''
+
+    return t(
+      'Start a batch and sign later. This feature allows you to add more actions to this transaction and sign them all together later.'
+    )
+  }, [startBatchingDisabled, t])
+
   const primaryButtonText = useMemo(() => {
     if (proceedBtnText !== 'Proceed') {
       return proceedBtnText
@@ -79,8 +95,9 @@ const Buttons: FC<Props> = ({
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
       {!isActionWindow && (
         // @ts-ignore
-        <View dataSet={{ tooltipId: 'batch-btn-tooltip' }}>
+        <View>
           <Button
+            data-tooltip-id="batch-btn-tooltip"
             hasBottomSpacing={false}
             text={
               callsCount > 0 && !batchDisabledReason
@@ -89,7 +106,7 @@ const Buttons: FC<Props> = ({
                   })
                 : t('Start a batch')
             }
-            disabled={isNotReadyToProceed || isBatchDisabled || !!batchDisabledReason}
+            disabled={startBatchingDisabled}
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
             onPress={() => {
@@ -101,6 +118,16 @@ const Buttons: FC<Props> = ({
           >
             <BatchIcon style={spacings.mlTy} />
           </Button>
+          <InformationIcon
+            data-tooltip-id="start-batch-info-tooltip"
+            color={theme.primary}
+            style={[
+              { position: 'absolute', top: 2, right: 2, cursor: 'pointer' },
+              startBatchingDisabled ? { opacity: 0.5, pointerEvents: 'none' } : {}
+            ]}
+            width={14}
+            height={14}
+          />
         </View>
       )}
       {/* @ts-ignore */}
@@ -119,6 +146,7 @@ const Buttons: FC<Props> = ({
       </View>
       <Tooltip content={oneClickDisabledReason} id="proceed-btn-tooltip" />
       <Tooltip content={batchDisabledReason} id="batch-btn-tooltip" />
+      <Tooltip content={startBatchingInfo} id="start-batch-info-tooltip" />
     </View>
   )
 }
