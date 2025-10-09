@@ -145,7 +145,11 @@ const AddressInput: React.FC<Props> = ({
                   ...spacings.pv0
                 }}
                 address={address}
-                name={contacts.find((c) => c.address === address)?.name}
+                name={
+                  contacts.find(
+                    (c) => c.address.toLocaleLowerCase() === address.toLocaleLowerCase()
+                  )?.name
+                }
               />
             </View>
           ) : null
