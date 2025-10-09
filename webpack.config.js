@@ -24,10 +24,6 @@ const isExtension =
   outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
 const isAmbireExplorer = outputPath.includes('benzin')
 const isLegends = outputPath.includes('legends')
-
-// Ambire Next is a separate production build variant used for beta testing and preview
-// before releasing features to the main production build. It allows us to have two
-// production webkit builds with different branding for testing purposes.
 const isAmbireNext = process.env.AMBIRE_NEXT === 'true'
 
 // style.css output file for WEB_ENGINE: GECKO
