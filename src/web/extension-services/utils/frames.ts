@@ -1,5 +1,5 @@
 // Used to skip running scripts inside cross-origin iframes like ads, trackers,
-// social media embeds, and  third-party widgets
+// social media embeds, and third-party widgets
 export function isCrossOriginFrame(): boolean {
   try {
     const topOrigin = window?.top?.location?.origin
