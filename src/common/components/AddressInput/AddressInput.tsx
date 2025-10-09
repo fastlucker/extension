@@ -152,7 +152,7 @@ const AddressInput: React.FC<Props> = ({
         }
         button={
           rest.button ||
-          (rest.value && withDetails ? (
+          (value && withDetails ? (
             <View style={[flexbox.alignCenter, flexbox.directionRow]}>
               <Button
                 size="tiny"

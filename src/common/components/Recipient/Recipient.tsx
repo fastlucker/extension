@@ -88,7 +88,10 @@ const SelectedMenuOption: React.FC<{
   const [isFocused, setIsFocused] = useState(false)
   const prevFilteredContactsLength = usePrevious(filteredContacts.length)
 
-  const isValidAddress = useMemo(() => !!validateAddress(address).success, [address])
+  const isValidAddress = useMemo(
+    () => !!validateAddress(ensAddress || address).success,
+    [ensAddress, address]
+  )
   const prevIsValidAddress = usePrevious(isValidAddress)
 
   useEffect(() => {
