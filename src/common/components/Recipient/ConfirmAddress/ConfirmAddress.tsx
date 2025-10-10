@@ -64,7 +64,12 @@ const ConfirmAddress = ({
         onPress={onAddToAddressBookPress}
       >
         <AddIcon width={16} height={16} style={spacings.mrMi} color={theme.primary} />
-        <Text fontSize={12} weight="medium" appearance="primary" testID="max-amount-button">
+        <Text
+          fontSize={12}
+          weight="medium"
+          appearance="primary"
+          testID="send-form-add-to-address-book-button"
+        >
           {t('Add to address book')}
         </Text>
       </Pressable>
