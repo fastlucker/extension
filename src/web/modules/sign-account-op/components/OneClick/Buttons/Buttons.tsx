@@ -6,13 +6,14 @@ import { SignAccountOpError } from '@ambire-common/interfaces/signAccountOp'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { getCallsCount } from '@ambire-common/utils/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
-import InformationIcon from '@common/assets/svg/InformationIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import { getUiType } from '@web/utils/uiType'
 
 type Props = {
@@ -71,13 +72,13 @@ const Buttons: FC<Props> = ({
     [isNotReadyToProceed, isBatchDisabled, batchDisabledReason]
   )
 
-  const startBatchingInfo = useMemo(() => {
-    if (startBatchingDisabled) return ''
-
-    return t(
-      'Start a batch and sign later. This feature allows you to add more actions to this transaction and sign them all together later.'
-    )
-  }, [startBatchingDisabled, t])
+  const startBatchingInfo = useMemo(
+    () =>
+      t(
+        'Start a batch and sign later. This feature allows you to add more actions to this transaction and sign them all together later.'
+      ),
+    [t]
+  )
 
   const primaryButtonText = useMemo(() => {
     if (proceedBtnText !== 'Proceed') {
@@ -91,11 +92,18 @@ const Buttons: FC<Props> = ({
       : proceedBtnText
   }, [proceedBtnText, callsCount, t])
 
+  const [bindAnim, animStyle] = useCustomHover({
+    property: 'backgroundColor',
+    values: {
+      from: 'transparent',
+      to: theme.quaternaryBackground
+    }
+  })
+
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
       {!isActionWindow && (
-        // @ts-ignore
-        <View>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Button
             data-tooltip-id="batch-btn-tooltip"
             hasBottomSpacing={false}
@@ -118,16 +126,15 @@ const Buttons: FC<Props> = ({
           >
             <BatchIcon style={spacings.mlTy} />
           </Button>
-          <InformationIcon
-            data-tooltip-id="start-batch-info-tooltip"
-            color={theme.primary}
-            style={[
-              { position: 'absolute', top: 2, right: 2, cursor: 'pointer' },
-              startBatchingDisabled ? { opacity: 0.5, pointerEvents: 'none' } : {}
-            ]}
-            width={14}
-            height={14}
-          />
+          {/* @ts-ignore */}
+          <View style={spacings.mlTy} dataSet={{ tooltipId: 'start-batch-info-tooltip' }}>
+            <AnimatedPressable
+              style={[spacings.phTy, spacings.pvTy, { borderRadius: 50 }, animStyle]}
+              {...bindAnim}
+            >
+              <InfoIcon color={theme.tertiaryText} width={20} height={20} />
+            </AnimatedPressable>
+          </View>
         </View>
       )}
       {/* @ts-ignore */}

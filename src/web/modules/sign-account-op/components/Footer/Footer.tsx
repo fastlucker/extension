@@ -3,6 +3,7 @@ import { View } from 'react-native'
 
 import { getCallsCount } from '@ambire-common/utils/userRequest'
 import BatchIcon from '@common/assets/svg/BatchIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon'
 import Button from '@common/components/Button'
 import ButtonWithLoader from '@common/components/ButtonWithLoader/ButtonWithLoader'
@@ -11,6 +12,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
@@ -62,13 +64,21 @@ const Footer = ({
     return getCallsCount(requests)
   }, [account?.addr, userRequests, chainId])
 
-  const startBatchingInfo = useMemo(() => {
-    if (isAddToCartDisabled) return ''
+  const startBatchingInfo = useMemo(
+    () =>
+      t(
+        'Start a batch and sign later. This feature allows you to add more actions to this transaction and sign them all together later.'
+      ),
+    [t]
+  )
 
-    return t(
-      'Start a batch and sign later. This feature allows you to add more actions to this transaction and sign them all together later.'
-    )
-  }, [isAddToCartDisabled, t])
+  const [bindAnim, animStyle] = useCustomHover({
+    property: 'backgroundColor',
+    values: {
+      from: 'transparent',
+      to: theme.quaternaryBackground
+    }
+  })
 
   return (
     <View style={styles.container}>
@@ -89,7 +99,7 @@ const Footer = ({
         style={[flexbox.directionRow, !isAddToCartDisplayed && flexbox.flex1, flexbox.justifyEnd]}
       >
         {isAddToCartDisplayed && (
-          <View>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <Button
               testID="queue-and-sign-later-button"
               type="outline"
@@ -104,21 +114,20 @@ const Footer = ({
               onPress={onAddToCart}
               disabled={isAddToCartDisabled}
               hasBottomSpacing={false}
-              style={{ minWidth: 160, ...spacings.ph, ...spacings.mr }}
+              style={{ minWidth: 160, ...spacings.ph }}
               size="large"
             >
               <BatchIcon style={spacings.mlTy} />
             </Button>
-            <InformationIcon
-              data-tooltip-id="start-batch-info-tooltip"
-              color={theme.primary}
-              style={[
-                { position: 'absolute', top: 2, right: 18, cursor: 'pointer' },
-                isAddToCartDisabled ? { opacity: 0.5, pointerEvents: 'none' } : {}
-              ]}
-              width={14}
-              height={14}
-            />
+            {/* @ts-ignore */}
+            <View style={spacings.mlTy} dataSet={{ tooltipId: 'start-batch-info-tooltip' }}>
+              <AnimatedPressable
+                style={[spacings.phTy, spacings.pvTy, { borderRadius: 50 }, animStyle]}
+                {...bindAnim}
+              >
+                <InfoIcon color={theme.tertiaryText} width={20} height={20} />
+              </AnimatedPressable>
+            </View>
           </View>
         )}
         {/* @ts-ignore */}
