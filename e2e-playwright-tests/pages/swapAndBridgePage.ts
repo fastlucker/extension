@@ -389,6 +389,10 @@ export class SwapAndBridgePage extends BasePage {
   async batchActionWithSign(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.click(selectors.addToBatchButton)
+
+    // approve high impact modal
+    await this.handlePriceWarningModals()
+
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
     await this.signBatchTransactionsPage(newPage)
