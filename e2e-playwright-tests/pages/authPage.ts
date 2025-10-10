@@ -77,7 +77,7 @@ export class AuthPage extends BasePage {
   async importExistingAccount(): Promise<void> {
     await this.click(selectors.getStarted.importExistingAccBtn)
     await this.click(selectors.getStarted.importMethodPrivateBtn)
-    await this.entertext(selectors.getStarted.enterSeedPhraseField, BA_PRIVATE_KEY)
+    await this.entertext(selectors.getStarted.enterPrivateKeyField, BA_PRIVATE_KEY)
     await this.click(selectors.getStarted.warningCheckbox)
     await this.click(selectors.getStarted.importBtn)
     await this.setExtensionPassword()

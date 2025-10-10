@@ -9,7 +9,8 @@ const selectors = {
     importMethodPrivateBtn: 'import-method-private-key',
     importMethodRecoveryPhrase: 'import-method-recovery-phrase',
     importMethodJSON: 'import-method-json-backup-file',
-    enterSeedPhraseField: 'enter-seed-phrase-field', // same ID for entering private key
+    enterSeedPhraseField: 'enter-seed-phrase-field',
+    enterPrivateKeyField: 'enter-private-key-field',
     advancedPassPhraseSwitch: 'enable-passphrase-toggle',
     recoveryPhrasePassphraseField: 'input-passphrase',
     warningCheckbox: 'backup-warning-checkbox',
