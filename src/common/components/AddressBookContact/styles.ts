@@ -6,24 +6,19 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  addToAddressBook: ViewStyle
   addressBookButton: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
-    addToAddressBook: {
-      maxWidth: 240
-    },
     addressBookButton: {
       backgroundColor:
         themeType === THEME_TYPES.DARK ? `${theme.primary as string}14` : '#6000FF14',
       ...common.borderRadiusPrimary,
-      ...spacings.phTy,
+      ...spacings.phSm,
       ...common.borderRadiusPrimary,
       ...flexbox.directionRow,
-      ...flexbox.alignCenter,
-      height: 28
+      ...flexbox.alignCenter
     }
   })
 
