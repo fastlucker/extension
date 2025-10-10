@@ -191,6 +191,10 @@ export class SwapAndBridgePage extends BasePage {
       timeout: 10000
     })
     await this.click(selectors.addToBatchButton)
+
+    // approve high impact modal
+    await this.handlePriceWarningModals()
+
     await this.click(selectors.goDashboardButton)
     await this.click(selectors.bannerButtonReject) // TODO: this ID gives 4 results on Dashboard page
     await expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
@@ -389,6 +393,10 @@ export class SwapAndBridgePage extends BasePage {
   async batchActionWithSign(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.click(selectors.addToBatchButton)
+
+    // approve high impact modal
+    await this.handlePriceWarningModals()
+
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
     await this.signBatchTransactionsPage(newPage)
