@@ -144,6 +144,60 @@ function captureBackgroundExceptionFromControllerError(error: ErrorRef, controll
   })
 }
 
+const INVICTUS_ERROR_PREFIX = 'Invictus RPC error'
+const INVICTUS_200_ERROR_PREFIX = 'Invictus RPC error (2XX)'
+
+/**
+ * In Sentry we can "fingerprint" errors by their message. This function is used to
+ * modify the error messages before sending them to Sentry, so they can be grouped.
+ * We do it here so the prefixes are not floating around in the application.
+ */
+function formatErrorsBeforeSendingToSentry(
+  errors: Sentry.Exception[],
+  contexts?: Sentry.Event['contexts']
+) {
+  errors.forEach((error) => {
+    const message = error.value
+
+    // Format errors of type ProviderError
+    if (error.type === 'ProviderError' && typeof message === 'string') {
+      // The error object is very plain and doesn't contain any custom properties
+      // except the message. We need to use the contexts to get the extra info.
+      // Note: this is possible because of the extraErrorDataIntegration from Sentry
+      const extraData = contexts?.ProviderError || {}
+      const {
+        isProviderInvictus,
+        error: nestedError,
+        statusCode,
+        providerUrl,
+        data,
+        info,
+        transaction
+      } = extraData
+
+      if (
+        isProviderInvictus &&
+        // Check if it's a relevant provider error
+        (data || info || nestedError || transaction) &&
+        !message.startsWith(INVICTUS_ERROR_PREFIX) &&
+        !message.startsWith(INVICTUS_200_ERROR_PREFIX)
+      ) {
+        // Ethers doesn't return a status code for 2XX responses, so we treat undefined as 2XX
+        // and have handling just in case statusCode is explicitly set to 200-299
+        const is200Status =
+          !statusCode || (typeof statusCode === 'number' && statusCode >= 200 && statusCode < 300)
+        const providerUrlPart = providerUrl ? `(${providerUrl})` : ''
+        // eslint-disable-next-line no-param-reassign
+        error.value = `${
+          is200Status ? INVICTUS_200_ERROR_PREFIX : INVICTUS_ERROR_PREFIX
+        } ${providerUrlPart}: ${message}`
+      }
+    }
+  })
+
+  return errors
+}
+
 let isInitialized = false
 const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 let mainCtrl: MainController
@@ -154,7 +208,18 @@ let autoLockCtrl: AutoLockController
 if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
   Sentry.init({
     ...CRASH_ANALYTICS_BACKGROUND_CONFIG,
+    integrations: [Sentry.extraErrorDataIntegration()],
     beforeSend(event) {
+      const errors = formatErrorsBeforeSendingToSentry(
+        event.exception?.values ?? [],
+        event.contexts
+      )
+
+      if (errors.length > 0 && event.exception?.values) {
+        // eslint-disable-next-line no-param-reassign
+        event.exception.values = errors
+      }
+
       // We don't want to miss errors that occur before the controllers are initialized
       if (!walletStateCtrl) return event
 
