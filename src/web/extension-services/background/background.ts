@@ -148,7 +148,7 @@ const INVICTUS_ERROR_PREFIX = 'Invictus RPC error'
 const INVICTUS_200_ERROR_PREFIX = 'Invictus RPC error (2XX)'
 
 /**
- * In Sentry we can "fingerprint" errors by their message. This functions is used to
+ * In Sentry we can "fingerprint" errors by their message. This function is used to
  * modify the error messages before sending them to Sentry, so they can be grouped.
  * We do it here so the prefixes are not floating around in the application.
  */
@@ -186,10 +186,11 @@ function formatErrorsBeforeSendingToSentry(
         // and have handling just in case statusCode is explicitly set to 200-299
         const is200Status =
           !statusCode || (typeof statusCode === 'number' && statusCode >= 200 && statusCode < 300)
+        const providerUrlPart = providerUrl ? `(${providerUrl})` : ''
         // eslint-disable-next-line no-param-reassign
-        error.value = `${is200Status ? INVICTUS_200_ERROR_PREFIX : INVICTUS_ERROR_PREFIX} ${
-          providerUrl ? `(${providerUrl})` : ''
-        }: ${message}`
+        error.value = `${
+          is200Status ? INVICTUS_200_ERROR_PREFIX : INVICTUS_ERROR_PREFIX
+        } ${providerUrlPart}: ${message}`
       }
     }
   })
