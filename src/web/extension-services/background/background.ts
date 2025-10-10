@@ -214,8 +214,6 @@ if (CONFIG.SENTRY_DSN_BROWSER_EXTENSION) {
         event.contexts
       )
 
-      console.log('Debug: errors', errors)
-
       if (errors.length > 0 && event.exception?.values) {
         // eslint-disable-next-line no-param-reassign
         event.exception.values = errors
