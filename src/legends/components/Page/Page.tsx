@@ -8,6 +8,7 @@ import Banner from '@legends/components/Banner'
 import Sidebar from '@legends/components/Sidebar'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import styles from './Page.module.scss'
@@ -44,6 +45,7 @@ const Page = ({
         <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
 
         <div ref={pageRef} className={`${styles.scroll} ${styles.containerfull}`} style={style}>
+          {activeProposals?.length && <Banner activeProposals={activeProposals} />}
           <div className={`${styles.container} ${customContainerSizeClass}`}>
             <div className={styles.header}>
               <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
