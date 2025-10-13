@@ -8,6 +8,7 @@ import governance from './governance.png'
 interface Props {
   activeProposals: NonNullable<NonNullable<CardFromResponse['meta']>['activeProposals']>
 }
+const emojis = ['🚀', '🔥', '🗣', '📢']
 const Banner: React.FC<Props> = ({ activeProposals }) => {
   return (
     <div className={styles.container}>
@@ -20,6 +21,7 @@ const Banner: React.FC<Props> = ({ activeProposals }) => {
               month: 'short',
               day: 'numeric'
             })}
+            !
           </div>
         ) : (
           <>
@@ -29,8 +31,9 @@ const Banner: React.FC<Props> = ({ activeProposals }) => {
                 'en',
                 { month: 'short', day: 'numeric' }
               )}
+              !
             </div>
-            {activeProposals.map(({ id, title }) => {
+            {activeProposals.map(({ id, title }, i) => {
               return (
                 <>
                   <a
@@ -39,7 +42,7 @@ const Banner: React.FC<Props> = ({ activeProposals }) => {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {title}
+                    {emojis[i % emojis.length]} {title}
                   </a>
                   <br />
                 </>
