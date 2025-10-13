@@ -171,7 +171,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     })
 
     errorDataRef.current = {
-      notReadyControllers: loadingControllers,
+      loadingControllers,
       isPopup,
       isPopupReady: isViewReady
     }
