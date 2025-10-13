@@ -12,7 +12,29 @@ import { ISignAccountOpController } from '@ambire-common/interfaces/signAccountO
 import usePrevious from '@common/hooks/usePrevious'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
+import { OneClickEstimationProps } from '@web/modules/sign-account-op/components/OneClick/Estimation/Estimation'
 import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
+
+const PRIMARY_BUTTON_LABELS: Record<
+  OneClickEstimationProps['updateType'] | 'Sign',
+  { default: string; isLoading: string; notLoading: string }
+> = {
+  'Swap&Bridge': {
+    default: 'Swap',
+    isLoading: 'Swapping...',
+    notLoading: 'Swap'
+  },
+  'Transfer&TopUp': {
+    default: 'Send',
+    isLoading: 'Sending...',
+    notLoading: 'Send'
+  },
+  Sign: {
+    default: 'Begin signing',
+    isLoading: 'Signing...',
+    notLoading: 'Sign'
+  }
+}
 
 type Props = {
   handleUpdateStatus: (status: SigningStatus) => void
@@ -20,6 +42,7 @@ type Props = {
   handleUpdate: (params: SignAccountOpUpdateProps) => void
   signAccountOpState: ISignAccountOpController | null
   isOneClickSign?: boolean
+  updateType?: OneClickEstimationProps['updateType'] | 'Sign'
 }
 
 const useSign = ({
@@ -27,7 +50,8 @@ const useSign = ({
   signAccountOpState,
   handleBroadcast,
   handleUpdate,
-  isOneClickSign
+  isOneClickSign,
+  updateType = 'Sign'
 }: Props) => {
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
@@ -276,10 +300,19 @@ const useSign = ({
     ])
 
   const primaryButtonText = useMemo(() => {
-    if (isAtLeastOneOfTheKeysInvolvedExternal) return t('Begin signing')
+    if (isAtLeastOneOfTheKeysInvolvedExternal)
+      return t('{{primaryButtonTextDefault}}', {
+        primaryButtonTextDefault: PRIMARY_BUTTON_LABELS[updateType].default
+      })
 
-    return isSignLoading ? t('Signing...') : t('Sign')
-  }, [isAtLeastOneOfTheKeysInvolvedExternal, isSignLoading, t])
+    return isSignLoading
+      ? t('{{primaryButtonTextIsLoading}}', {
+          primaryButtonTextIsLoading: PRIMARY_BUTTON_LABELS[updateType].isLoading
+        })
+      : t('{{primaryButtonTextNotLoading}}', {
+          primaryButtonTextNotLoading: PRIMARY_BUTTON_LABELS[updateType].notLoading
+        })
+  }, [isAtLeastOneOfTheKeysInvolvedExternal, isSignLoading, t, updateType])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
   // If so, the "Sign" button should NOT be disabled, so the user can retry broadcasting.
