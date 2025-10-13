@@ -191,6 +191,10 @@ export class SwapAndBridgePage extends BasePage {
       timeout: 10000
     })
     await this.click(selectors.addToBatchButton)
+
+    // approve high impact modal
+    await this.handlePriceWarningModals()
+
     await this.click(selectors.goDashboardButton)
     await this.click(selectors.bannerButtonReject) // TODO: this ID gives 4 results on Dashboard page
     await expect(this.page.getByText('Transaction waiting to be').first()).not.toBeVisible()
@@ -247,9 +251,8 @@ export class SwapAndBridgePage extends BasePage {
 
     const [usdNewAmount, newCurrency] = await this.getUSDTextContent()
     const newAmount = this.roundAmount(await this.getAmount(selectors.fromAmountInputSab))
-
-    expect(Math.abs(oldAmount - usdNewAmount)).toBeLessThanOrEqual(0.6)
-    expect(Math.abs(usdOldAmount - newAmount)).toBeLessThanOrEqual(0.6)
+    expect(Math.abs(oldAmount - usdNewAmount)).toBeLessThanOrEqual(0.2)
+    expect(Math.abs(usdOldAmount - newAmount)).toBeLessThanOrEqual(0.2)
     expect(newCurrency).toBe(sendToken.symbol)
 
     // Wait and flip back
@@ -260,8 +263,8 @@ export class SwapAndBridgePage extends BasePage {
     // const secondAmount = await this.getSendAmount()
     const secondAmount = await this.getAmount(selectors.fromAmountInputSab)
 
-    expect(Math.abs(newAmount - usdSecondAmount)).toBeLessThanOrEqual(1)
-    expect(Math.abs(usdNewAmount - secondAmount)).toBeLessThanOrEqual(1)
+    expect(Math.abs(newAmount - usdSecondAmount)).toBeLessThanOrEqual(0.2)
+    expect(Math.abs(usdNewAmount - secondAmount)).toBeLessThanOrEqual(0.2)
     expect(secondCurrency).toBe('$')
   }
 
@@ -389,6 +392,10 @@ export class SwapAndBridgePage extends BasePage {
   async batchActionWithSign(): Promise<void> {
     await this.page.getByTestId(selectors.addToBatchButton).isEnabled()
     await this.click(selectors.addToBatchButton)
+
+    // approve high impact modal
+    await this.handlePriceWarningModals()
+
     await this.click(selectors.goDashboardButton)
     const newPage = await this.handleNewPage(this.page.getByTestId(selectors.bannerButtonOpen))
     await this.signBatchTransactionsPage(newPage)
