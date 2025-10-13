@@ -8,7 +8,6 @@ import Banner from '@legends/components/Banner'
 import Sidebar from '@legends/components/Sidebar'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
-import useLegendsContext from '@legends/hooks/useLegendsContext'
 import { LEGENDS_ROUTES } from '@legends/modules/router/constants'
 
 import styles from './Page.module.scss'
@@ -30,7 +29,7 @@ const Page = ({
 
   const { pathname } = useLocation()
 
-  const { connectedAccount, nonV2Account } = useAccountContext()
+  const { connectedAccount } = useAccountContext()
   const { isCharacterNotMinted } = useCharacterContext()
 
   const openSidebar = () => setIsSidebarOpen(true)
@@ -45,20 +44,16 @@ const Page = ({
         <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
 
         <div ref={pageRef} className={`${styles.scroll} ${styles.containerfull}`} style={style}>
-          {activeProposals?.length && <Banner activeProposals={activeProposals} />}
           <div className={`${styles.container} ${customContainerSizeClass}`}>
             <div className={styles.header}>
               <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
                 <FontAwesomeIcon icon={faBars} />
               </button>
-              {connectedAccount &&
-                !nonV2Account &&
-                pathname !== LEGENDS_ROUTES.home &&
-                pathname !== '/' && (
-                  <div className={styles.account}>
-                    <AccountInfo removeAvatarAndLevel={isCharacterNotMinted} />
-                  </div>
-                )}
+              {connectedAccount && !isCharacterNotMinted && (
+                <div className={styles.account}>
+                  <AccountInfo removeAvatarAndLevel={isCharacterNotMinted} />
+                </div>
+              )}
             </div>
             <div className={styles.content}>{children}</div>
           </div>
