@@ -58,6 +58,7 @@ type ControllersToWait = Omit<
 const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const startTimeRef = useRef(Date.now())
   const timeoutRef = useRef<NodeJS.Timeout>()
+  const errorDataRef = useRef<any>(null)
   // Safeguard against a potential race condition where one of the controller
   // states might not update properly and the `areControllerStatesLoaded`
   // might get stuck in `false` state forever. If the timeout gets reached,
@@ -149,20 +150,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     ]
   )
 
-  // Check which controllers are ready
-  const controllerStatus = useMemo(() => {
-    const status: Record<string, boolean> = {}
-    const notReady: string[] = []
-
-    Object.entries(controllers).forEach(([name, state]) => {
-      const ready = isStateLoaded(state)
-      status[name] = ready
-      if (!ready) notReady.push(name)
-    })
-
-    return { status, notReady, allReady: notReady.length === 0 }
-  }, [controllers])
-
   const isViewReady = useMemo(() => {
     if (!isPopup) return true
 
@@ -174,22 +161,41 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     if (areControllerStatesLoaded) return
 
-    // Don't clear this timeout to ensure that the state will be set
-    timeoutRef.current = setTimeout(() => {
-      const errorData = {
-        notReadyControllers: controllerStatus.notReady,
-        isPopup,
-        isPopupReady: isViewReady
-      }
-      setIsStatesLoadingTakingTooLong(true)
-      captureMessage('ControllersStateLoadedProvider: states loading taking too long', {
-        level: 'warning',
-        extra: errorData
-      })
-      console.error('ControllersStateLoadedProvider: states loading taking too long', errorData)
-    }, 10000)
+    const status: Record<string, boolean> = {}
+    const loadingControllers: string[] = []
 
-    const shouldLoad = controllerStatus.allReady && isViewReady
+    Object.entries(controllers).forEach(([name, state]) => {
+      const ready = isStateLoaded(state)
+      status[name] = ready
+      if (!ready) loadingControllers.push(name)
+    })
+
+    errorDataRef.current = {
+      notReadyControllers: loadingControllers,
+      isPopup,
+      isPopupReady: isViewReady
+    }
+
+    // Don't clear this timeout to ensure that the state will be set
+    // Also start it only once
+    if (!timeoutRef.current) {
+      timeoutRef.current = setTimeout(() => {
+        if (document.visibilityState !== 'visible') return
+
+        // Done like this because state read in setTimeout
+        // is from the time it was set, not when it executes
+        const errorData = errorDataRef.current || {}
+
+        setIsStatesLoadingTakingTooLong(true)
+        captureMessage('ControllersStateLoadedProvider: states loading taking too long', {
+          level: 'warning',
+          extra: errorData
+        })
+        console.error('ControllersStateLoadedProvider: states loading taking too long', errorData)
+      }, 10000)
+    }
+
+    const shouldLoad = !loadingControllers.length && isViewReady
 
     if (shouldLoad) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -201,7 +207,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
         setAreControllerStatesLoaded(true)
       }, wait)
     }
-  }, [controllerStatus, areControllerStatesLoaded, isViewReady])
+  }, [areControllerStatesLoaded, isViewReady, controllers])
 
   const contextValue = useMemo(
     () => ({ areControllerStatesLoaded, isStatesLoadingTakingTooLong }),
