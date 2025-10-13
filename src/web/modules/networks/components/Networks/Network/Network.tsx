@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -28,6 +28,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
   const { themeType, theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
+  const [childHover, setChildHover] = useState(false)
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [
       {
@@ -54,7 +55,8 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
       from: 0,
       to: 1
     },
-    forceHoveredStyle: dashboardNetworkFilter === chainId && !isInternalNetwork,
+    forceHoveredStyle:
+      (dashboardNetworkFilter === chainId || isHovered || childHover) && !isInternalNetwork,
     duration: DURATIONS.REGULAR
   })
 
@@ -92,8 +94,10 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
         <Text style={spacings.mlTy} fontSize={16}>
           {networkName}
         </Text>
-        {dashboardNetworkFilter === chainId && (
-          <AnimatedPressable
+        {(dashboardNetworkFilter === chainId || isHovered || childHover) && (
+          <Pressable
+            onHoverIn={() => setChildHover(true)}
+            onHoverOut={() => setChildHover(false)}
             onPress={handleOpenBlockExplorer}
             // @ts-ignore missing type, but the prop is valid
             dataSet={{
@@ -101,17 +105,9 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
               tooltipContent: NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
             }}
             style={[spacings.mlSm, explorerIconAnimStyle]}
-            onHoverIn={triggerHover}
           >
-            {({ hovered }: any) => (
-              <OpenIcon
-                width={16}
-                height={16}
-                color={hovered ? theme.primaryText : theme.secondaryText}
-                style={isBlockExplorerMissing && { opacity: 0.4 }}
-              />
-            )}
-          </AnimatedPressable>
+            <OpenIcon width={16} height={16} color={theme.primaryText} />
+          </Pressable>
         )}
         {isBlockExplorerMissing && <Tooltip id={tooltipBlockExplorerMissingId} />}
       </View>
