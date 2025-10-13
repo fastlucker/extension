@@ -180,8 +180,6 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     // Also start it only once
     if (!timeoutRef.current) {
       timeoutRef.current = setTimeout(() => {
-        if (document.visibilityState !== 'visible') return
-
         // Done like this because state read in setTimeout
         // is from the time it was set, not when it executes
         const errorData = errorDataRef.current || {}
