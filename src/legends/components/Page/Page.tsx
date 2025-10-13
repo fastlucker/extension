@@ -36,7 +36,7 @@ const Page = ({
   const openSidebar = () => setIsSidebarOpen(true)
   const closeSidebar = () => setIsSidebarOpen(false)
   const activeProposals = useMemo(
-    () => legends.find(({ id }) => id === 'vote')?.meta?.activeProposals,
+    () => legends.find(({ id }) => id === 'vote')?.meta?.activeProposals || [],
     [legends]
   )
   return (
@@ -45,7 +45,7 @@ const Page = ({
         <Sidebar handleClose={closeSidebar} isOpen={isSidebarOpen} />
 
         <div ref={pageRef} className={`${styles.scroll} ${styles.containerfull}`} style={style}>
-          {activeProposals?.length && <Banner activeProposals={activeProposals} />}
+          {activeProposals.length > 0 && <Banner activeProposals={activeProposals} />}
           <div className={`${styles.container} ${customContainerSizeClass}`}>
             <div className={styles.header}>
               <button className={styles.sidebarButton} type="button" onClick={openSidebar}>
