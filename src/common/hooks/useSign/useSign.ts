@@ -17,22 +17,19 @@ import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
 
 const PRIMARY_BUTTON_LABELS: Record<
   OneClickEstimationProps['updateType'] | 'Sign',
-  { default: string; isLoading: string; notLoading: string }
+  { default: string; isLoading: string }
 > = {
   'Swap&Bridge': {
     default: 'Swap',
-    isLoading: 'Swapping...',
-    notLoading: 'Swap'
+    isLoading: 'Swapping...'
   },
   'Transfer&TopUp': {
     default: 'Send',
-    isLoading: 'Sending...',
-    notLoading: 'Send'
+    isLoading: 'Sending...'
   },
   Sign: {
     default: 'Begin signing',
-    isLoading: 'Signing...',
-    notLoading: 'Sign'
+    isLoading: 'Signing...'
   }
 }
 
@@ -300,18 +297,13 @@ const useSign = ({
     ])
 
   const primaryButtonText = useMemo(() => {
-    if (isAtLeastOneOfTheKeysInvolvedExternal)
-      return t('{{primaryButtonTextDefault}}', {
-        primaryButtonTextDefault: PRIMARY_BUTTON_LABELS[updateType].default
-      })
+    const buttonLabelType = isAtLeastOneOfTheKeysInvolvedExternal ? 'Sign' : updateType
 
-    return isSignLoading
-      ? t('{{primaryButtonTextIsLoading}}', {
-          primaryButtonTextIsLoading: PRIMARY_BUTTON_LABELS[updateType].isLoading
-        })
-      : t('{{primaryButtonTextNotLoading}}', {
-          primaryButtonTextNotLoading: PRIMARY_BUTTON_LABELS[updateType].notLoading
-        })
+    return t(
+      isSignLoading
+        ? PRIMARY_BUTTON_LABELS[buttonLabelType].isLoading
+        : PRIMARY_BUTTON_LABELS[buttonLabelType].default
+    )
   }, [isAtLeastOneOfTheKeysInvolvedExternal, isSignLoading, t, updateType])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
