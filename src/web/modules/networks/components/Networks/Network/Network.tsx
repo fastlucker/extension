@@ -28,7 +28,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
   const { themeType, theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
-  const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
+  const [bindAnim, animStyle, isHovered] = useMultiHover({
     values: [
       {
         property: 'backgroundColor',
@@ -121,7 +121,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
         </Text>
         {!isInternalNetwork && (
           <Pressable
-            onHoverIn={triggerHover}
+            onHoverIn={bindAnim.onHoverIn}
             onPress={() => openSettingsBottomSheet(chainId)}
             style={spacings.mlSm}
           >
