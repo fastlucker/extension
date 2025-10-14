@@ -48,6 +48,7 @@ const getInitialRoute = ({
         return ROUTES.getEncryptionPublicKeyRequest
       }
     }
+    if (actionType === 'siwe') return ROUTES.siwe
     if (actionType === 'accountOp') return ROUTES.signAccountOp
 
     if (actionType === 'signMessage') return ROUTES.signMessage

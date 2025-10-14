@@ -24,6 +24,7 @@ import {
 import { AddNetworkRequestParams, ChainId, Network } from '@ambire-common/interfaces/network'
 import { BuildRequest } from '@ambire-common/interfaces/requests'
 import { CashbackStatus } from '@ambire-common/interfaces/selectedAccount'
+import { SignMessageUpdateParams } from '@ambire-common/interfaces/signMessage'
 import {
   SwapAndBridgeActiveRoute,
   SwapAndBridgeRoute,
@@ -221,6 +222,10 @@ type MainControllerSignMessageInitAction = {
 }
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
+}
+type MainControllerSignMessageUpdate = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_UPDATE'
+  params: SignMessageUpdateParams
 }
 type MainControllerHandleSignMessage = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE'
@@ -800,6 +805,7 @@ export type Action =
   | MainControllerRejectAccountOpAction
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
+  | MainControllerSignMessageUpdate
   | MainControllerHandleSignMessage
   | MainControllerActivitySetAccOpsFiltersAction
   | MainControllerActivitySetSignedMessagesFiltersAction
