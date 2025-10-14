@@ -78,10 +78,7 @@ const SignAccountOpScreen = () => {
 
   const handleBroadcast = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
-      params: {
-        updateType: 'Main'
-      }
+      type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
     })
   }, [dispatch])
   const {
