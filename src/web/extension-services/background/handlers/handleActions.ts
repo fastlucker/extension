@@ -248,7 +248,7 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
       return mainCtrl?.signAccountOp?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-      return await mainCtrl.handleSignAndBroadcastAccountOp()
+      return await mainCtrl.handleSignAndBroadcastAccountOp(params.type)
     }
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
       return mainCtrl.initSignAccOp(params.actionId)
