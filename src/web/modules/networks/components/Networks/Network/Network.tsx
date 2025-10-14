@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback } from 'react'
 import { Pressable, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -28,7 +28,6 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
   const { themeType, theme, styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const { portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
-  const [childHover, setChildHover] = useState(false)
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [
       {
@@ -55,8 +54,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
       from: 0,
       to: 1
     },
-    forceHoveredStyle:
-      (dashboardNetworkFilter === chainId || isHovered || childHover) && !isInternalNetwork,
+    forceHoveredStyle: (dashboardNetworkFilter === chainId || isHovered) && !isInternalNetwork,
     duration: DURATIONS.REGULAR
   })
 
@@ -94,21 +92,20 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
         <Text style={spacings.mlTy} fontSize={16}>
           {networkName}
         </Text>
-        {(dashboardNetworkFilter === chainId || isHovered || childHover) && (
-          <Pressable
-            onHoverIn={() => setChildHover(true)}
-            onHoverOut={() => setChildHover(false)}
-            onPress={handleOpenBlockExplorer}
-            // @ts-ignore missing type, but the prop is valid
-            dataSet={{
-              tooltipId: tooltipBlockExplorerMissingId,
-              tooltipContent: NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
-            }}
-            style={[spacings.mlSm, explorerIconAnimStyle]}
-          >
-            <OpenIcon width={16} height={16} color={theme.primaryText} />
-          </Pressable>
-        )}
+        <AnimatedPressable
+          // Bind the parent animation so its hover state doesn't get lost
+          // when hovering over the explorer icon
+          onHoverIn={bindAnim.onHoverIn}
+          onPress={handleOpenBlockExplorer}
+          // @ts-ignore missing type, but the prop is valid
+          dataSet={{
+            tooltipId: tooltipBlockExplorerMissingId,
+            tooltipContent: NO_BLOCK_EXPLORER_AVAILABLE_TOOLTIP
+          }}
+          style={[spacings.mlSm, explorerIconAnimStyle]}
+        >
+          <OpenIcon width={16} height={16} color={theme.primaryText} />
+        </AnimatedPressable>
         {isBlockExplorerMissing && <Tooltip id={tooltipBlockExplorerMissingId} />}
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
