@@ -49,17 +49,13 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     // we're not signing or broadcasting on paused updates
     if (signAccountOpStatusType === SigningStatus.UpdatesPaused) return false
 
-    const isCurrentlyBroadcastingWithExternalKey =
-      signAndBroadcastAccountOpStatus === 'BROADCASTING' &&
+    const isCurrentlySigningAndBroadcastingWithExternalKey =
+      signAndBroadcastAccountOpStatus === 'LOADING' &&
       !!feePayerKeyType &&
       feePayerKeyType !== 'internal'
-    const isCurrentlySigningWithExternalKey =
-      signAccountOpStatusType === SigningStatus.InProgress &&
-      !!signingKeyType &&
-      signingKeyType !== 'internal'
 
-    return isCurrentlyBroadcastingWithExternalKey || isCurrentlySigningWithExternalKey
-  }, [signAndBroadcastAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
+    return isCurrentlySigningAndBroadcastingWithExternalKey
+  }, [signAndBroadcastAccountOpStatus, feePayerKeyType, signAccountOpStatusType])
 
   const currentlyInvolvedSignOrBroadcastKeyType = useMemo(
     () => (signAccountOpStatusType === SigningStatus.InProgress ? signingKeyType : feePayerKeyType),
