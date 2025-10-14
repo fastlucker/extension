@@ -104,7 +104,14 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
           }}
           style={[spacings.mlSm, explorerIconAnimStyle]}
         >
-          <OpenIcon width={16} height={16} color={theme.primaryText} />
+          {({ hovered }: any) => (
+            <OpenIcon
+              width={16}
+              height={16}
+              color={hovered ? theme.primaryText : theme.secondaryText}
+              style={isBlockExplorerMissing && { opacity: 0.4 }}
+            />
+          )}
         </AnimatedPressable>
         {isBlockExplorerMissing && <Tooltip id={tooltipBlockExplorerMissingId} />}
       </View>
