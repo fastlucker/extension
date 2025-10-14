@@ -97,7 +97,7 @@ const SignInWithEthereum = ({
         value: parsedMessageContent.uri
       },
       {
-        label: 'Network',
+        label: 'Domain',
         value: parsedMessageContent.domain
       },
       {
