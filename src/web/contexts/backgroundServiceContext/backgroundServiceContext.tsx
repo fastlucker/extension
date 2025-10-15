@@ -24,6 +24,7 @@ let pm: PortMessenger
 const actionsBeforeBackgroundReady: Action[] = []
 let backgroundReady: boolean
 let connectPort: () => Promise<void> = () => Promise.resolve()
+const MAX_RETRIES = 4
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessenger class to establish a connection between the popup
 // and background pages, and the eventBus to emit and listen for events.
@@ -33,7 +34,7 @@ let connectPort: () => Promise<void> = () => Promise.resolve()
 // actions to the background for further processing.
 if (isExtension) {
   const portId = nanoid()
-
+  let retries = 0
   connectPort = async () => {
     pm = new PortMessenger()
     backgroundReady = false
@@ -67,11 +68,16 @@ if (isExtension) {
       }
     })
 
-    // Use at least 500ms; on slower PCs, background responses can be slightly delayed,
+    // Use at least 1000ms; on slower PCs, background responses can be slightly delayed,
     // causing multiple recursive connectPort calls and slowing down window initialization.
+    // Once MAX_RETRIES is reached, it will stop retrying and wait indefinitely for the background to send 'portReady'
+    // because if the 'portReady' res from the background is delayed more than 500ms the connection will never resolve calling the recursion forever
     setTimeout(() => {
-      if (!backgroundReady) connectPort()
-    }, 500)
+      if (!backgroundReady && retries < MAX_RETRIES) {
+        retries++
+        connectPort()
+      }
+    }, 1000)
   }
 
   connectPort()

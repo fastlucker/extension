@@ -40,39 +40,88 @@ export type PortMessageType = {
 export class PortMessenger {
   ports: Port[] = []
 
+  #portListeners = new Map<string, (data: any) => void>()
+
+  #portDisconnectListeners = new Map<string, (data: any) => void>()
+
   constructor(ports: Port[] = []) {
     this.ports = ports
   }
 
-  addPort(port: Port) {
-    this.ports = [...this.ports, port]
-    this.send('> ui', { method: 'portReady', params: {} })
-  }
+  addOrUpdatePort(port: Port, onPortAddOrUpdate: (port: Port) => void) {
+    const index = this.ports.findIndex((p) => p.id === port.id)
 
-  removePort(portId: string) {
-    this.ports = this.ports.filter((port) => port.id !== portId)
+    if (index >= 0) {
+      const oldPort = this.ports[index]
+      this.#forceRemovePort(oldPort)
+      oldPort.disconnect()
+
+      this.ports[index] = port
+    } else {
+      this.ports.push(port)
+    }
+
+    this.send('> ui', { method: 'portReady', params: {} })
+    onPortAddOrUpdate(port)
   }
 
   connect = (port?: { id: string; name: string }) => {
     const { id, name } = port ?? {}
-    this.ports[0] = browser.runtime.connect(undefined, name ? { name: `${name}-${id}` } : undefined)
+
+    if (!id && !name) return
+
+    if (this.ports[0]) {
+      this.#forceRemovePort(this.ports[0])
+      this.ports[0].disconnect()
+    }
+
+    this.ports[0] = browser.runtime.connect(undefined, name ? { name: `${name}:${id}` } : undefined)
     if (id) this.ports[0].id = id
+    if (name) this.ports[0].name = name as Port['name']
   }
 
   addListener(portId: string, callback: ListenCallbackType) {
     const port = this.ports.find((p) => p.id === portId)
     if (!port) return
 
-    port.onMessage.addListener((data) => {
+    // If a listener already exists for this portId, remove the old one first
+    const oldListener = this.#portListeners.get(portId)
+    if (oldListener) {
+      const oldPort = this.ports.find((p) => p.id === portId)
+      if (oldPort) oldPort.onMessage.removeListener(oldListener)
+      this.#portListeners.delete(portId)
+    }
+
+    const listener = (data: any) => {
       if (!data.messageType || !data.message) return
-
       const message = parse(data.message)
-
-      let meta = {}
-      if (data.meta) meta = parse(data.meta)
-
+      const meta = data.meta ? parse(data.meta) : {}
       callback(data.messageType, message, meta)
-    })
+    }
+
+    port.onMessage.addListener(listener)
+    this.#portListeners.set(portId, listener)
+  }
+
+  addDisconnectListener(portId: string, callback: (p: chrome.runtime.Port) => void) {
+    const port = this.ports.find((p) => p.id === portId)
+    if (!port) return
+
+    // If a listener already exists for this portId, remove the old one first
+    const oldListener = this.#portDisconnectListeners.get(portId)
+    if (oldListener) {
+      const oldPort = this.ports.find((p) => p.id === portId)
+      if (oldPort) oldPort.onDisconnect.removeListener(oldListener)
+      this.#portDisconnectListeners.delete(portId)
+    }
+
+    const listener = (p: chrome.runtime.Port) => {
+      this.#forceRemovePort(port)
+      callback(p)
+    }
+
+    port.onDisconnect.addListener(listener)
+    this.#portDisconnectListeners.set(portId, listener)
   }
 
   send: SendType = (type, message, meta = {}) => {
@@ -87,17 +136,24 @@ export class PortMessenger {
     }
   }
 
-  dispose(portId: string) {
-    const port = this.ports.find((p) => p.id === portId)
-    if (port) port.disconnect()
-  }
+  #forceRemovePort(port: Port) {
+    this.ports = this.ports.filter((p) => p.id !== port.id)
+    const listener = this.#portListeners.get(port.id)
 
-  disposeAll() {
-    if (!this.ports.length) return
+    if (!port) return
 
-    this.ports.forEach((port) => {
-      port.disconnect()
-    })
-    this.ports = []
+    if (listener) {
+      port.onMessage.removeListener(listener)
+      this.#portListeners.delete(port.id)
+    }
+
+    const disconnectListener = this.#portDisconnectListeners.get(port.id)
+
+    if (disconnectListener) {
+      port.onDisconnect.removeListener(disconnectListener)
+      this.#portDisconnectListeners.delete(port.id)
+    }
+
+    port.disconnect()
   }
 }
