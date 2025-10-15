@@ -129,7 +129,15 @@ const SignInWithEthereum = ({
       },
       {
         label: 'Issued',
-        value: parsedMessageContent.issuedAt?.toLocaleString()
+        value: parsedMessageContent.issuedAt
+          ? new Date(parsedMessageContent.issuedAt).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : undefined
       },
       {
         label: 'Resources',
@@ -210,7 +218,7 @@ const SignInWithEthereum = ({
             <Row key={row.label}>
               <Label>{t(row.label)}</Label>
               {row.label === 'Resources' && Array.isArray(row.value) ? (
-                <View>
+                <View style={flexbox.alignEnd}>
                   {row.value.map((resource: string) => (
                     <Value key={resource}>{resource}</Value>
                   ))}
