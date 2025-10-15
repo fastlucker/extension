@@ -553,7 +553,7 @@ export class ProviderController {
     return {
       activePolicy: policy,
       expires: policy ? policy.defaultExpiration : null,
-      willingToCreatePolicy: true
+      willingToCreatePolicy: this.mainCtrl.autoLogin.settings.enabled
     }
   }
 
