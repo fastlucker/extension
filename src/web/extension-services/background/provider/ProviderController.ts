@@ -544,6 +544,19 @@ export class ProviderController {
     }
   }
 
+  walletGetCurrentAutoLoginPolicy = ({ session: { origin } }: DappProviderRequest) => {
+    const policy = this.mainCtrl.autoLogin.getAccountPolicyForOrigin(
+      this.mainCtrl.selectedAccount.account?.addr || '',
+      origin
+    )
+
+    return {
+      activePolicy: policy,
+      expires: policy ? policy.defaultExpiration : null,
+      willingToCreatePolicy: true
+    }
+  }
+
   // open benzina in a separate tab upon a dapp request
   walletShowCallsStatus = async (data: any) => {
     if (!data.params || !data.params.length) {
