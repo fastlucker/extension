@@ -53,8 +53,10 @@ export class PortMessenger {
     this.ports = this.ports.filter((port) => port.id !== portId)
   }
 
-  connect = (name?: string) => {
-    this.ports[0] = browser.runtime.connect(undefined, name ? { name } : undefined)
+  connect = (port?: { id: string; name: string }) => {
+    const { id, name } = port ?? {}
+    this.ports[0] = browser.runtime.connect(undefined, name ? { name: `${name}-${id}` } : undefined)
+    if (id) this.ports[0].id = id
   }
 
   addListener(portId: string, callback: ListenCallbackType) {

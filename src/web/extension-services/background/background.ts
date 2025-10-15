@@ -649,9 +649,15 @@ const init = async () => {
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
-    if (['popup', 'tab', 'action-window'].includes(port.name)) {
+    const [name, id] = port.name.split('-') as [Port['name'], Port['id']]
+    if (['popup', 'tab', 'action-window'].includes(name)) {
+      // ignore duplicate connection requests from the same port (identified by id)
+      if (id && pm.ports.some((p) => p.id === id)) return
+
       // eslint-disable-next-line no-param-reassign
-      port.id = nanoid()
+      port.id = id || nanoid()
+      // eslint-disable-next-line no-param-reassign
+      port.name = name
       pm.addPort(port)
       mainCtrl.ui.addView({ id: port.id, type: port.name })
 
@@ -711,6 +717,7 @@ const init = async () => {
       )
 
       port.onDisconnect.addListener(() => {
+        console.log('onDisconnect', port)
         pm.dispose(port.id)
         pm.removePort(port.id)
         mainCtrl.ui.removeView(port.id)

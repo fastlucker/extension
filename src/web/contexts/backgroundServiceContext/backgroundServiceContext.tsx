@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -31,6 +32,8 @@ let connectPort: () => Promise<void> = () => Promise.resolve()
 // based on the state of the background process and for sending dApps-initiated
 // actions to the background for further processing.
 if (isExtension) {
+  const portId = nanoid()
+
   connectPort = async () => {
     pm = new PortMessenger()
     backgroundReady = false
@@ -39,7 +42,7 @@ if (isExtension) {
     if (getUiType().isTab) portName = 'tab'
     if (getUiType().isActionWindow) portName = 'action-window'
 
-    pm.connect(portName)
+    pm.connect({ id: portId, name: portName })
     // connect to the portMessenger initialized in the background
     // @ts-ignore
     pm.addListener(pm.ports[0].id, (messageType, { method, params, forceEmit }) => {
@@ -64,9 +67,11 @@ if (isExtension) {
       }
     })
 
+    // Use at least 500ms; on slower PCs, background responses can be slightly delayed,
+    // causing multiple recursive connectPort calls and slowing down window initialization.
     setTimeout(() => {
       if (!backgroundReady) connectPort()
-    }, 150)
+    }, 500)
   }
 
   connectPort()
