@@ -713,7 +713,6 @@ const init = async () => {
         )
 
         pm.addDisconnectListener(port.id, (disconnectedPort) => {
-          console.log('in')
           mainCtrl.ui.removeView(port.id)
           handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
@@ -723,9 +722,7 @@ const init = async () => {
           // state will remain reset until an automatic update is triggered.
           // Example: the user has the dashboard opened in tab, opens the popup
           // and closes it immediately.
-          if (disconnectedPort.name === 'popup') {
-            mainCtrl.portfolio.forceEmitUpdate()
-          }
+          if (disconnectedPort.name === 'popup') mainCtrl.portfolio.forceEmitUpdate()
           if (disconnectedPort.name === 'tab' || disconnectedPort.name === 'action-window') {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             ledgerCtrl.cleanUp()
@@ -734,7 +731,7 @@ const init = async () => {
         })
       })
 
-      // ignore executions of an already existing port (identified by id)
+      // ignore executions if the port was already added (identified by id)
       if (isAlreadyAdded) return
 
       mainCtrl.phishing.updateIfNeeded()
