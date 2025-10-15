@@ -144,9 +144,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
               weight="number_medium"
               fontSize={12}
             >
-              {`${totalBalanceGasTankDetails.balanceFormatted} ${
-                totalBalanceGasTankDetails.token?.symbol || ''
-              }`}
+              {`${totalBalanceGasTankDetails.balanceUSDFormatted}`}
             </Text>
             <Text
               style={[spacings.mlMi, { opacity: 0.57, lineHeight: GAS_TANK_BUTTON_LINE_HEIGHT }]}
