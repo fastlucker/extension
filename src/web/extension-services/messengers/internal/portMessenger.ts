@@ -53,7 +53,7 @@ export class PortMessenger {
 
     if (index >= 0) {
       const oldPort = this.ports[index]
-      this.#forceRemovePort(oldPort)
+      this.#removePort(oldPort)
       oldPort.disconnect()
 
       this.ports[index] = port
@@ -71,7 +71,7 @@ export class PortMessenger {
     if (!id && !name) return
 
     if (this.ports[0]) {
-      this.#forceRemovePort(this.ports[0])
+      this.#removePort(this.ports[0])
       this.ports[0].disconnect()
     }
 
@@ -116,7 +116,7 @@ export class PortMessenger {
     }
 
     const listener = (p: chrome.runtime.Port) => {
-      this.#forceRemovePort(port)
+      this.#removePort(port)
       callback(p)
     }
 
@@ -136,7 +136,7 @@ export class PortMessenger {
     }
   }
 
-  #forceRemovePort(port: Port) {
+  #removePort(port: Port) {
     this.ports = this.ports.filter((p) => p.id !== port.id)
     const listener = this.#portListeners.get(port.id)
 
@@ -153,7 +153,5 @@ export class PortMessenger {
       port.onDisconnect.removeListener(disconnectListener)
       this.#portDisconnectListeners.delete(port.id)
     }
-
-    port.disconnect()
   }
 }
