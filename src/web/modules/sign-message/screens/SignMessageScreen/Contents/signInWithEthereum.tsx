@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import NetworkBadge from '@common/components/NetworkBadge'
+import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import useTheme from '@common/hooks/useTheme'
@@ -23,6 +24,16 @@ interface Props {
   isLedgerConnected: boolean
   handleDismissLedgerConnectModal: () => void
 }
+
+const DEFAULT_AUTO_LOGIN_DURATION_OPTION = { label: '24 hours', value: '24' }
+
+const AUTO_LOGIN_DURATION_OPTIONS = [
+  { label: '1 hour', value: '1' },
+  { label: '4 hours', value: '4' },
+  { label: '8 hours', value: '8' },
+  DEFAULT_AUTO_LOGIN_DURATION_OPTION,
+  { label: '7 days', value: '168' }
+]
 
 const Label = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -127,14 +138,31 @@ const SignInWithEthereum = ({
     ].filter((row) => !!row.value)
   }, [network, siweMessageToSign?.parsedMessage])
 
-  const updateIsAutoLoginEnabled = (enabled: boolean) => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_UPDATE',
-      params: {
-        isAutoLoginEnabledByUser: enabled
-      }
-    })
-  }
+  const updateIsAutoLoginEnabled = useCallback(
+    (enabled: boolean) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_UPDATE',
+        params: {
+          isAutoLoginEnabledByUser: enabled
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const updateAutoLoginExpirationTime = useCallback(
+    (hours: number) => {
+      const autoLoginDuration = hours * 60 * 60 * 1000
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_UPDATE',
+        params: {
+          autoLoginDuration
+        }
+      })
+    },
+    [dispatch]
+  )
 
   // @TODO: Error handling
   if (!siweMessageToSign) return null
@@ -181,17 +209,46 @@ const SignInWithEthereum = ({
           {rows.map((row) => (
             <Row key={row.label}>
               <Label>{t(row.label)}</Label>
-              <Value>{row.value}</Value>
+              {row.label === 'Resources' && Array.isArray(row.value) ? (
+                <View>
+                  {row.value.map((resource: string) => (
+                    <Value key={resource}>{resource}</Value>
+                  ))}
+                </View>
+              ) : (
+                <Value>{row.value}</Value>
+              )}
             </Row>
           ))}
         </View>
         {siweMessageToSign.autoLoginStatus !== 'unsupported' && (
-          <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
-            <Toggle isOn={isAutoLoginEnabledByUser} onToggle={updateIsAutoLoginEnabled} />
+          <View
+            style={[flexbox.flex1, flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}
+          >
+            <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
+              <Toggle isOn={isAutoLoginEnabledByUser} onToggle={updateIsAutoLoginEnabled} />
 
-            <Text fontSize={14} appearance="secondaryText" style={spacings.mrSm}>
-              {t('Auto-login on this network for the next 24 hours')}
-            </Text>
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrSm}>
+                {t('Auto-login on this network for the next')}
+              </Text>
+            </View>
+            <Select
+              options={AUTO_LOGIN_DURATION_OPTIONS}
+              setValue={({ value }) => {
+                updateAutoLoginExpirationTime(Number(value))
+              }}
+              containerStyle={{ width: 120, marginBottom: 0 }}
+              size="sm"
+              value={
+                AUTO_LOGIN_DURATION_OPTIONS.find(
+                  (option) =>
+                    // Convert the duration to hours for comparison with the option values
+                    Number(option.value) === siweMessageToSign.autoLoginDuration / (60 * 60 * 1000)
+                ) || DEFAULT_AUTO_LOGIN_DURATION_OPTION
+              }
+              withSearch={false}
+              disabled={!isAutoLoginEnabledByUser}
+            />
           </View>
         )}
         {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
