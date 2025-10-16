@@ -89,7 +89,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   // Purposely don't disable the button (but block the onPress action) in
   // case of a tooltip, because it should be clickable to show the tooltip.
   const doesHaveTooltip = buttonState === 'soon'
-  const disabled = !hasGasTank && !doesHaveTooltip
+  const disabled = (!hasGasTank && !doesHaveTooltip) || buttonState === 'error'
   const handleOnPress = useCallback(() => {
     if (doesHaveTooltip) return
 
@@ -202,7 +202,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
             weight="number_bold"
             fontSize={12}
           >
-            {t('Gas Tank Error')}
+            {t('Gas Tank Unavailable')}
           </Text>
         )}
       </AnimatedPressable>
