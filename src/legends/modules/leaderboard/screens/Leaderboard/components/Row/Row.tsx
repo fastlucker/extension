@@ -103,12 +103,13 @@ const Row: FC<Props> = ({
       isFeeToken: false
     }
   })
+
   return (
     <div
       key={account}
       className={`${styles.row} ${isConnectedAccountRow ? styles.currentUserRow : ''} ${
         rank <= 3 ? styles[`rankedRow${rank}`] : ''
-      }`}
+      } ${reward ? styles.withReward : ''}`}
       ref={isConnectedAccountRow ? currentUserRef : null}
       style={calculateRowStyle(isConnectedAccountRow, stickyPosition)}
     >
@@ -144,15 +145,14 @@ const Row: FC<Props> = ({
         </h5>
       )}
       {typeof reward !== 'undefined' && (
-        <h5 className={`${styles.cell} ${styles.weight}`}>
+        <h5 className={`${styles.cell} ${styles.reward}`}>
           {typeof reward === 'number' ? prettifyProjectedRewards(reward) : reward}
         </h5>
       )}
       {typeof reward !== 'undefined' && (
-        <h5 className={`${styles.cell} ${styles.weight}`}>
+        <h5 className={`${styles.cell} ${styles.dollarReward}`}>
           {Number(tokenBalanceInUSD).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 0
           })}
         </h5>
       )}{' '}

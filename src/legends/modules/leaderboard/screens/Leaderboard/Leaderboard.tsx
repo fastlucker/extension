@@ -158,7 +158,10 @@ const LeaderboardContainer: React.FC = () => {
               </button>
             </div>
             <Podium data={leaderboardData.slice(0, 3)} />
-            <div ref={tableRef} className={styles.table}>
+            <div
+              ref={tableRef}
+              className={`${styles.table} ${leaderboardData[0].reward ? styles.withReward : ''}`}
+            >
               <div className={styles.header}>
                 <div className={styles.cell}>
                   <h5>#</h5>
