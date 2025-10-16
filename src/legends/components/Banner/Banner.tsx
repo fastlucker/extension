@@ -18,7 +18,7 @@ const Banner: React.FC<Props> = ({ activeProposals }) => {
           <div className={styles.title}>
             🗳️ {activeProposals[0].title} Vote until{' '}
             {new Date(activeProposals[0].end * 1000).toLocaleString('en', {
-              month: 'short',
+              month: 'long',
               day: 'numeric'
             })}
             !
@@ -29,7 +29,7 @@ const Banner: React.FC<Props> = ({ activeProposals }) => {
               🗳️ {activeProposals.length} governance proposals are live, vote until{' '}
               {new Date(activeProposals.sort((a, b) => a.end - b.end)[0].end * 1000).toLocaleString(
                 'en',
-                { month: 'short', day: 'numeric' }
+                { month: 'long', day: 'numeric' }
               )}
               !
             </div>
