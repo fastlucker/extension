@@ -71,7 +71,7 @@ if (isExtension) {
     // Use at least 1000ms; on slower PCs, background responses can be slightly delayed,
     // causing multiple recursive connectPort calls and slowing down window initialization.
     // Once MAX_RETRIES is reached, it will stop retrying and wait indefinitely for the background to send 'portReady'
-    // because if the 'portReady' res from the background is delayed more than 500ms the connection will never resolve calling the recursion forever
+    // because if the 'portReady' res from the background is delayed more than 1000ms the connection will never resolve calling the recursion forever
     setTimeout(() => {
       if (!backgroundReady && retries < MAX_RETRIES) {
         retries++
