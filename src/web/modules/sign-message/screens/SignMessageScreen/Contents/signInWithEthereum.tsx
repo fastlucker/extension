@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -229,35 +230,53 @@ const SignInWithEthereum = ({
             </Row>
           ))}
         </View>
-        {siweMessageToSign.autoLoginStatus !== 'unsupported' && (
-          <View
-            style={[flexbox.flex1, flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}
-          >
-            <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
-              <Toggle isOn={isAutoLoginEnabledByUser} onToggle={updateIsAutoLoginEnabled} />
+        {siweMessageToSign.autoLoginStatus !== 'unsupported' &&
+          siweMessageToSign.siweValidityStatus === 'valid' && (
+            <View
+              style={[flexbox.flex1, flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}
+            >
+              <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
+                <Toggle isOn={isAutoLoginEnabledByUser} onToggle={updateIsAutoLoginEnabled} />
 
-              <Text fontSize={14} appearance="secondaryText" style={spacings.mrSm}>
-                {t('Auto-login on this network for the next')}
-              </Text>
+                <Text fontSize={14} appearance="secondaryText" style={spacings.mrSm}>
+                  {t('Auto-login on this network for the next')}
+                </Text>
+              </View>
+              <Select
+                options={AUTO_LOGIN_DURATION_OPTIONS}
+                setValue={({ value }) => {
+                  updateAutoLoginExpirationTime(Number(value))
+                }}
+                containerStyle={{ width: 120, marginBottom: 0 }}
+                size="sm"
+                value={
+                  AUTO_LOGIN_DURATION_OPTIONS.find(
+                    (option) =>
+                      // Convert the duration to hours for comparison with the option values
+                      Number(option.value) ===
+                      siweMessageToSign.autoLoginDuration / (60 * 60 * 1000)
+                  ) || DEFAULT_AUTO_LOGIN_DURATION_OPTION
+                }
+                withSearch={false}
+                disabled={!isAutoLoginEnabledByUser}
+              />
             </View>
-            <Select
-              options={AUTO_LOGIN_DURATION_OPTIONS}
-              setValue={({ value }) => {
-                updateAutoLoginExpirationTime(Number(value))
-              }}
-              containerStyle={{ width: 120, marginBottom: 0 }}
-              size="sm"
-              value={
-                AUTO_LOGIN_DURATION_OPTIONS.find(
-                  (option) =>
-                    // Convert the duration to hours for comparison with the option values
-                    Number(option.value) === siweMessageToSign.autoLoginDuration / (60 * 60 * 1000)
-                ) || DEFAULT_AUTO_LOGIN_DURATION_OPTION
-              }
-              withSearch={false}
-              disabled={!isAutoLoginEnabledByUser}
-            />
-          </View>
+          )}
+        {siweMessageToSign.siweValidityStatus === 'domain-mismatch' && (
+          <Alert
+            type="error"
+            title={t('Deceptive app request')}
+            text={t(
+              "The app you're attempting to sign in to does not match the domain in the message. This may be a phishing attempt."
+            )}
+          />
+        )}
+        {siweMessageToSign.siweValidityStatus === 'invalid' && (
+          <Alert
+            type="error"
+            title={t('Invalid Sign-In request')}
+            text={t('The Sign-In message is invalid. Please verify its contents before signing.')}
+          />
         )}
         {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
           <HardwareWalletSigningModal
