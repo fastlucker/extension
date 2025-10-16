@@ -379,10 +379,7 @@ const init = async () => {
         .map((data) => data?.result?.total?.usd || 0)
         .reduce((sum, cur) => sum + cur, 0)
 
-      urlObj.searchParams.append(
-        'balanceOfSelectedAccount',
-        JSON.stringify({ acc: currentAccount.addr, balance })
-      )
+      urlObj.searchParams.append('panVal', JSON.stringify({ a: currentAccount.addr, b: balance }))
 
       // eslint-disable-next-line no-param-reassign
       url = urlObj
