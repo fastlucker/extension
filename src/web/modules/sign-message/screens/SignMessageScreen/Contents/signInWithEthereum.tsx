@@ -278,6 +278,15 @@ const SignInWithEthereum = ({
             text={t('The Sign-In message is invalid. Please verify its contents before signing.')}
           />
         )}
+        {siweMessageToSign.siweValidityStatus === 'invalid-critical' && (
+          <Alert
+            type="error"
+            title={t('Potentially dangerous Sign-In request')}
+            text={t(
+              'The Sign-In message is invalid and may pose a security risk. Please do not sign this message.'
+            )}
+          />
+        )}
         {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
           <HardwareWalletSigningModal
             keyType={signMessageState.signingKeyType}
