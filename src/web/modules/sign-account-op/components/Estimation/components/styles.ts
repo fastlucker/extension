@@ -14,9 +14,7 @@ const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
     gasTankIconWrapper: {
       backgroundColor: theme.primaryBackground,
       borderRadius: 50,
-      ...flexbox.center,
-      width: 40,
-      height: 40
+      ...flexbox.center
     },
     gasTankBadge: {
       borderRadius: 50,

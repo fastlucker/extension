@@ -94,8 +94,8 @@ const PayOption = ({
           <View style={styles.gasTankIconWrapper}>
             <GasTankIcon
               color={themeType === THEME_TYPES.DARK ? '#8B3DFF' : theme.primaryLight}
-              width={40}
-              height={40}
+              width={24}
+              height={24}
             />
           </View>
         ) : (
