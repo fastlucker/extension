@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ErrorRef } from '@ambire-common/interfaces/eventEmitter'
+import { captureMessage } from '@common/config/analytics/CrashAnalytics.web'
 import { ToastOptions } from '@common/contexts/toastContext'
 import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
 import useNavigation from '@common/hooks/useNavigation'
@@ -73,6 +74,13 @@ if (isExtension) {
     // Once MAX_RETRIES is reached, it will stop retrying and wait indefinitely for the background to send 'portReady'
     // because if the 'portReady' res from the background is delayed more than 1000ms the connection will never resolve calling the recursion forever
     setTimeout(() => {
+      if (!backgroundReady && retries === MAX_RETRIES) {
+        captureMessage(
+          `Error: Failed to connect with the service worker after maximum retries. Window type: ${portName}`,
+          { level: 'fatal' }
+        )
+      }
+
       if (!backgroundReady && retries < MAX_RETRIES) {
         retries++
         connectPort()
