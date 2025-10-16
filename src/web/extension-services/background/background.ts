@@ -682,7 +682,7 @@ const init = async () => {
               console.error(`${type} action failed:`, err)
               captureBackgroundException(err, {
                 extra: {
-                  action: JSON.stringify(action),
+                  action: stringify(action),
                   portId: port.id,
                   windowId
                 }
