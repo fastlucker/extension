@@ -16,23 +16,24 @@ import { OneClickEstimationProps } from '@web/modules/sign-account-op/components
 import { getIsSignLoading } from '@web/modules/sign-account-op/utils/helpers'
 
 const PRIMARY_BUTTON_LABELS: Record<
-  OneClickEstimationProps['updateType'] | 'Sign',
-  { default: string; isLoading: string; notLoading: string }
+  OneClickEstimationProps['updateType'] | 'Sign' | 'HW',
+  { default: string; isLoading: string }
 > = {
   'Swap&Bridge': {
     default: 'Swap',
-    isLoading: 'Swapping...',
-    notLoading: 'Swap'
+    isLoading: 'Swapping...'
   },
   'Transfer&TopUp': {
     default: 'Send',
-    isLoading: 'Sending...',
-    notLoading: 'Send'
+    isLoading: 'Sending...'
   },
   Sign: {
+    default: 'Sign',
+    isLoading: 'Signing...'
+  },
+  HW: {
     default: 'Begin signing',
-    isLoading: 'Signing...',
-    notLoading: 'Sign'
+    isLoading: 'Signing...'
   }
 }
 
@@ -42,7 +43,7 @@ type Props = {
   handleUpdate: (params: SignAccountOpUpdateProps) => void
   signAccountOpState: ISignAccountOpController | null
   isOneClickSign?: boolean
-  updateType?: OneClickEstimationProps['updateType'] | 'Sign'
+  updateType?: OneClickEstimationProps['updateType'] | undefined
 }
 
 const useSign = ({
@@ -51,7 +52,7 @@ const useSign = ({
   handleBroadcast,
   handleUpdate,
   isOneClickSign,
-  updateType = 'Sign'
+  updateType = undefined
 }: Props) => {
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
@@ -271,9 +272,12 @@ const useSign = ({
     [signAccountOpState?.accountKeyStoreKeys]
   )
 
-  const isAtLeastOneOfTheKeysInvolvedExternal =
-    (!!signingKeyType && signingKeyType !== 'internal') ||
-    (!!feePayerKeyType && feePayerKeyType !== 'internal')
+  const isAtLeastOneOfTheKeysInvolvedExternal = useMemo(
+    () =>
+      (!!signingKeyType && signingKeyType !== 'internal') ||
+      (!!feePayerKeyType && feePayerKeyType !== 'internal'),
+    [feePayerKeyType, signingKeyType]
+  )
 
   const renderedButNotNecessarilyVisibleModal: 'warnings' | 'ledger-connect' | 'hw-sign' | null =
     useMemo(() => {
@@ -300,18 +304,13 @@ const useSign = ({
     ])
 
   const primaryButtonText = useMemo(() => {
-    if (isAtLeastOneOfTheKeysInvolvedExternal)
-      return t('{{primaryButtonTextDefault}}', {
-        primaryButtonTextDefault: PRIMARY_BUTTON_LABELS[updateType].default
-      })
+    const buttonLabelType = updateType || (isAtLeastOneOfTheKeysInvolvedExternal ? 'HW' : 'Sign')
 
-    return isSignLoading
-      ? t('{{primaryButtonTextIsLoading}}', {
-          primaryButtonTextIsLoading: PRIMARY_BUTTON_LABELS[updateType].isLoading
-        })
-      : t('{{primaryButtonTextNotLoading}}', {
-          primaryButtonTextNotLoading: PRIMARY_BUTTON_LABELS[updateType].notLoading
-        })
+    return t(
+      isSignLoading
+        ? PRIMARY_BUTTON_LABELS[buttonLabelType].isLoading
+        : PRIMARY_BUTTON_LABELS[buttonLabelType].default
+    )
   }, [isAtLeastOneOfTheKeysInvolvedExternal, isSignLoading, t, updateType])
 
   // When being done, there is a corner case if the sign succeeds, but the broadcast fails.
