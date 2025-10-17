@@ -221,6 +221,7 @@ const selectors = {
   txnConfirmed: 'txn-confirmed',
   maxAmountButton: 'max-amount-button',
   transactionConfirmedText: 'transaction-confirmed-text',
+  closeTransactionProgressPopUpButton: '//div[contains(text(),"Close")]',
   // Top up
   modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',
