@@ -33,7 +33,6 @@ const HumanizerAddress: FC<Props> = ({
 }) => {
   const { styles } = useTheme(getStyles)
 
-  console.log('humanizer address', address)
   const addressInfo: any = useMemo(
     () => HUMANIZER_META.knownAddresses[getAddress(address)],
     [address]
