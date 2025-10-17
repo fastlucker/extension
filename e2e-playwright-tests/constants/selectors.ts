@@ -220,6 +220,7 @@ const selectors = {
   goDashboardButton: 'go-dashboard-button',
   txnConfirmed: 'txn-confirmed',
   maxAmountButton: 'max-amount-button',
+  transactionConfirmedText: 'transaction-confirmed-text',
   // Top up
   modalGasTankBalance: 'gas-tank-balance',
   topUpButton: 'top-up-gas-tank-modal-button',

@@ -472,9 +472,10 @@ export class SwapAndBridgePage extends BasePage {
     await expect(this.page.locator(selectors.dashboard.grantApprovalText)).toContainText(
       'Grant approval'
     )
-    await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
-      'Confirmed'
-    )
+    // await expect(this.page.locator(selectors.dashboard.confirmedTransactionPill)).toContainText(
+    //   'Confirmed'
+    // )
+    await this.compareText(selectors.transactionConfirmedText, 'confirmed')
   }
 
   // approve the high impact modal if appears
