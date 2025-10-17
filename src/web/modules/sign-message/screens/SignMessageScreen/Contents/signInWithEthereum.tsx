@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { AUTO_LOGIN_DURATION_OPTIONS } from '@ambire-common/controllers/autoLogin/autoLogin'
+import { SiweMessage } from '@ambire-common/interfaces/userRequest'
 import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Select from '@common/components/Select'
@@ -72,11 +73,9 @@ const SignInWithEthereum = ({
   const { dispatch } = useBackgroundService()
 
   const siweMessageToSign = useMemo(() => {
-    if (signMessageState.messageToSign?.content.kind === 'siwe') {
-      return signMessageState.messageToSign.content
-    }
-
-    return null
+    // It's validated beforehand. This component is never rendered if the
+    // message is not a SIWE one.
+    return signMessageState.messageToSign!.content as SiweMessage
   }, [signMessageState.messageToSign])
   const isAutoLoginEnabledByUser = siweMessageToSign?.isAutoLoginEnabledByUser || false
 
@@ -161,9 +160,6 @@ const SignInWithEthereum = ({
     },
     [dispatch]
   )
-
-  // @TODO: Error handling
-  if (!siweMessageToSign) return null
 
   return (
     <TabLayoutWrapperMainContent style={spacings.mbLg}>
