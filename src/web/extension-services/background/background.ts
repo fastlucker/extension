@@ -369,7 +369,7 @@ const init = async () => {
     // on the relayer side we will simply use middleware that captures all routes and looks for the specific params balanceOfSelectedAccount
     // we want to attach balanceOfSelectedAccount only if the user has key for the selectedAccount
     const shouldAttachBalance =
-      url.toString().startsWith(`${'https://cena.ambire.com'}`) && hasCurrentAccountKeys
+      url.toString().startsWith('https://cena.ambire.com') && hasCurrentAccountKeys
     if (shouldAttachBalance) {
       const urlObj = new URL(url.toString())
       const balancesOnMultipleChains = mainCtrl.portfolio.getLatestPortfolioState(
