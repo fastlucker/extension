@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { AUTO_LOGIN_DURATION_OPTIONS } from '@ambire-common/controllers/autoLogin/autoLogin'
 import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
 import Select from '@common/components/Select'
@@ -25,16 +26,6 @@ interface Props {
   isLedgerConnected: boolean
   handleDismissLedgerConnectModal: () => void
 }
-
-const DEFAULT_AUTO_LOGIN_DURATION_OPTION = { label: '24 hours', value: '24' }
-
-const AUTO_LOGIN_DURATION_OPTIONS = [
-  { label: '1 hour', value: '1' },
-  { label: '4 hours', value: '4' },
-  { label: '8 hours', value: '8' },
-  DEFAULT_AUTO_LOGIN_DURATION_OPTION,
-  { label: '7 days', value: '168' }
-]
 
 const Label = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -160,9 +151,7 @@ const SignInWithEthereum = ({
   )
 
   const updateAutoLoginExpirationTime = useCallback(
-    (hours: number) => {
-      const autoLoginDuration = hours * 60 * 60 * 1000
-
+    (autoLoginDuration: number) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_MESSAGE_UPDATE',
         params: {
@@ -249,14 +238,11 @@ const SignInWithEthereum = ({
                 }}
                 containerStyle={{ width: 120, marginBottom: 0 }}
                 size="sm"
-                value={
-                  AUTO_LOGIN_DURATION_OPTIONS.find(
-                    (option) =>
-                      // Convert the duration to hours for comparison with the option values
-                      Number(option.value) ===
-                      siweMessageToSign.autoLoginDuration / (60 * 60 * 1000)
-                  ) || DEFAULT_AUTO_LOGIN_DURATION_OPTION
-                }
+                value={AUTO_LOGIN_DURATION_OPTIONS.find(
+                  (option) =>
+                    // Convert the duration to hours for comparison with the option values
+                    Number(option.value) === siweMessageToSign.autoLoginDuration
+                )}
                 withSearch={false}
                 disabled={!isAutoLoginEnabledByUser}
               />
