@@ -197,7 +197,7 @@ const LeaderboardContainer: React.FC = () => {
                 )}
                 {leaderboardData.some((i) => i.reward) && (
                   <div className={styles.cell}>
-                    <h5 className={styles.weightText}> $ Reward</h5>
+                    <h5 className={styles.weightText}>$Reward</h5>
                     <InfoIcon
                       width={10}
                       height={10}

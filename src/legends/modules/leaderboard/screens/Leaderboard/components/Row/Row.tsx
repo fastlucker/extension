@@ -85,7 +85,7 @@ const Row: FC<Props> = ({
   }, [])
   const formattedXp = formatXp(xp)
 
-  const amountFormatted = reward && Math.round(reward * 1e18)
+  const amountFormatted = reward ? Math.round(reward * 1e18) : 0
   const tokenBalanceInUSD = getTokenBalanceInUSD({
     chainId: BigInt(1),
     amount: BigInt(amountFormatted || 1),
@@ -151,11 +151,12 @@ const Row: FC<Props> = ({
       )}
       {typeof reward !== 'undefined' && (
         <h5 className={`${styles.cell} ${styles.dollarReward}`}>
+          $
           {Number(tokenBalanceInUSD).toLocaleString(undefined, {
             maximumFractionDigits: 0
           })}
         </h5>
-      )}{' '}
+      )}
       <h5 className={styles.cell}>{formattedXp}</h5>
     </div>
   )
