@@ -145,17 +145,17 @@ const Row: FC<Props> = ({
         </h5>
       )}
       {typeof reward !== 'undefined' && (
-        <h5 className={`${styles.cell} ${styles.reward}`}>
-          {typeof reward === 'number' ? prettifyProjectedRewards(reward) : reward}
-        </h5>
-      )}
-      {typeof reward !== 'undefined' && (
-        <h5 className={`${styles.cell} ${styles.dollarReward}`}>
-          $
-          {Number(tokenBalanceInUSD).toLocaleString(undefined, {
-            maximumFractionDigits: 0
-          })}
-        </h5>
+        <>
+          <h5 className={`${styles.cell} ${styles.reward}`}>
+            {typeof reward === 'number' ? prettifyProjectedRewards(reward) : reward}
+          </h5>
+          <h5 className={`${styles.cell} ${styles.dollarReward}`}>
+            $
+            {Number(tokenBalanceInUSD).toLocaleString(undefined, {
+              maximumFractionDigits: 0
+            })}
+          </h5>
+        </>
       )}
       <h5 className={styles.cell}>{formattedXp}</h5>
     </div>
