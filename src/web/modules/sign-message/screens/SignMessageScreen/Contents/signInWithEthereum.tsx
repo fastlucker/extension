@@ -217,9 +217,7 @@ const SignInWithEthereum = ({
         </View>
         {siweMessageToSign.autoLoginStatus !== 'unsupported' &&
           siweMessageToSign.siweValidityStatus === 'valid' && (
-            <View
-              style={[flexbox.flex1, flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}
-            >
+            <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
               <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
                 <Toggle isOn={isAutoLoginEnabledByUser} onToggle={updateIsAutoLoginEnabled} />
 
