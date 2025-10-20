@@ -16519,7 +16519,7 @@ sisteransi@^1.0.5:
   resolved "https://registry.npmjs.org/sisteransi/-/sisteransi-1.0.5.tgz"
   integrity sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==
 
-siwe@^3.0.0:
+siwe@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/siwe/-/siwe-3.0.0.tgz#0508c3fca521c476a07d907a9b5b96a03c27c0f2"
   integrity sha512-P2/ry7dHYJA6JJ5+veS//Gn2XDwNb3JMvuD6xiXX8L/PJ1SNVD4a3a8xqEbmANx+7kNQcD8YAh1B9bNKKvRy/g==
