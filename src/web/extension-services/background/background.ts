@@ -282,6 +282,9 @@ providerRequestTransport.reply(async ({ method, id, providerId, params }, meta) 
 })
 
 handleKeepBridgeContentScriptAcrossSessions()
+// used for caching the biggest seen user balance so we can later send it to cena
+// further commented down below
+const userBalances: Record<string, number> = {}
 
 const init = async () => {
   if (isInitialized) return
@@ -375,16 +378,15 @@ const init = async () => {
     // we use any cena request, because if we narrow it down to one route we might not have the full balance loaded
     // on the relayer side we will simply use middleware that captures all routes and looks for the specific params with balance
     // we want to attach the data only if the user has keys for the account
+    const currentBalance = mainCtrl.selectedAccount.portfolio.totalBalance
+    if (currentAccount && (userBalances[currentAccount?.addr] || 0) < currentBalance)
+      userBalances[currentAccount?.addr] = currentBalance
+
     const shouldAttachBalance =
       url.toString().startsWith('https://cena.ambire.com/') && hasCurrentAccountKeys
     if (shouldAttachBalance) {
       const urlObj = new URL(url.toString())
-      const balancesOnMultipleChains = mainCtrl.portfolio.getLatestPortfolioState(
-        currentAccount.addr
-      )
-      const balance = Object.values(balancesOnMultipleChains)
-        .map((data) => data?.result?.total?.usd || 0)
-        .reduce((sum, cur) => sum + cur, 0)
+      const balance = userBalances[currentAccount?.addr] || 0
 
       urlObj.searchParams.append('panVal', JSON.stringify({ a: currentAccount.addr, b: balance }))
 
