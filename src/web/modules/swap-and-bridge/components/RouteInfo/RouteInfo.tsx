@@ -113,8 +113,9 @@ const RouteInfo: FC<Props> = ({
                 >
                   <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                     <Text appearance="tertiaryText" fontSize={14} weight="medium">
-                      {t('Ambire fee: {{fee}}', {
-                        fee: isOG ? "0% - you're an OG 🎉" : `${FEE_PERCENT}%`
+                      {t('Ambire fee: {{fee}}{{ogText}}', {
+                        fee: `${quote?.withConvenienceFee ? FEE_PERCENT : 0}%`,
+                        ogText: isOG ? " - you're an OG 🎉" : ''
                       })}
                     </Text>
                     {quote?.selectedRoute?.serviceTime ? (
