@@ -357,6 +357,13 @@ const init = async () => {
       }
     }
 
+    // we want to calculate the TVL of our users
+    // we can achieve this by making a relayer (server-side trusted environment) script that gets the balances of all our users
+    // but doing this with all our users would be 'expensive'.
+    // we already calculate the user balance in the extension, but is not 100% trusted as any user can modify it
+    // that why we will use the user balance from the extension as a 'hint' so we can determine
+    // on which accounts we should execute the 'expensive' script on the backend
+    // those addresses should be 1) loaded with key in the extension 2) have more than $0 balance
     const currentAccount = mainCtrl.selectedAccount.account
     const hasCurrentAccountKeys =
       currentAccount &&
@@ -365,9 +372,9 @@ const init = async () => {
         keys: mainCtrl.keystore.keys,
         accounts: mainCtrl.accounts.accounts
       })
-    // we use any velcro request, because if we narrow it down to only /multi-hints there might be no loaded balance at all
-    // on the relayer side we will simply use middleware that captures all routes and looks for the specific params balanceOfSelectedAccount
-    // we want to attach balanceOfSelectedAccount only if the user has key for the selectedAccount
+    // we use any cena request, because if we narrow it down to one route we might not have the full balance loaded
+    // on the relayer side we will simply use middleware that captures all routes and looks for the specific params with balance
+    // we want to attach the data only if the user has keys for the account
     const shouldAttachBalance =
       url.toString().startsWith('https://cena.ambire.com') && hasCurrentAccountKeys
     if (shouldAttachBalance) {
