@@ -16,7 +16,7 @@ export type SendType = <TMessageType extends MessageType>(
 ) => void
 
 export type SendPortType = <TMessageType extends MessageType>(
-  portId: string,
+  port: Port,
   type: MessageType,
   message: TMessageType extends '> background' ? ActionType : PortMessageType,
   meta?: MessageMeta
@@ -68,7 +68,7 @@ export class PortMessenger {
       this.ports.push(port)
     }
 
-    this.sendToPort(port.id, '> ui', { method: 'portReady', params: {} })
+    this.sendToPort(port, '> ui', { method: 'portReady', params: {} })
     onPortAddOrUpdate(port)
   }
 
@@ -145,11 +145,7 @@ export class PortMessenger {
   }
 
   // sends a message to a specific port
-  sendToPort: SendPortType = (portId, type, message, meta = {}) => {
-    const port = this.ports.find((p) => p.id === portId)
-
-    if (!port) return
-
+  sendToPort: SendPortType = (port, type, message, meta = {}) => {
     try {
       port.postMessage({ messageType: type, message: stringify(message), meta: stringify(meta) })
     } catch (error: any) {
