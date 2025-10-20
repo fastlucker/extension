@@ -389,15 +389,7 @@ const init = async () => {
       urlObj.searchParams.append('panVal', JSON.stringify({ a: currentAccount.addr, b: balance }))
 
       // eslint-disable-next-line no-param-reassign
-      url = urlObj
-        .toString()
-        .replace(/%7B/g, '{')
-        .replace(/%7D/g, '}')
-        .replace(/%2C/g, ',')
-        .replace(/%3A/g, ':')
-        .replace(/%22/g, '"')
-        .replace(/%5B/g, '[')
-        .replace(/%5D/g, ']')
+      url = decodeURIComponent(urlObj.toString())
     }
 
     // Use the native fetch (instead of node-fetch or whatever else) since
