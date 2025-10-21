@@ -282,9 +282,6 @@ providerRequestTransport.reply(async ({ method, id, providerId, params }, meta) 
 })
 
 handleKeepBridgeContentScriptAcrossSessions()
-// used for caching the biggest seen user balance so we can later send it to cena
-// further commented down below
-const userBalances: Record<string, number> = {}
 
 const init = async () => {
   if (isInitialized) return
@@ -305,13 +302,17 @@ const init = async () => {
     isUnlocked: boolean
     ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
     autoLockIntervalId?: ReturnType<typeof setInterval>
+    userBalances: Record<string, number>
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
       While the flag is truthy and there are new updates coming for that ctrl in the same tick, they will be debounced and only one event will be executed at the end
     */
     isUnlocked: false,
-    ctrlOnUpdateIsDirtyFlags: {}
+    ctrlOnUpdateIsDirtyFlags: {},
+    // used for caching the biggest seen user balance so we can later send it to cena
+    // further commented down below
+    userBalances: {}
   }
 
   const pm = new PortMessenger()
@@ -379,14 +380,17 @@ const init = async () => {
     // on the relayer side we will simply use middleware that captures all routes and looks for the specific params with balance
     // we want to attach the data only if the user has keys for the account
     const currentBalance = mainCtrl.selectedAccount.portfolio.totalBalance
-    if (currentAccount && (userBalances[currentAccount?.addr] || 0) < currentBalance)
-      userBalances[currentAccount?.addr] = currentBalance
+    if (
+      currentAccount &&
+      (backgroundState.userBalances[currentAccount?.addr] || 0) < currentBalance
+    )
+      backgroundState.userBalances[currentAccount?.addr] = currentBalance
 
     const shouldAttachBalance =
       url.toString().startsWith('https://cena.ambire.com/') && hasCurrentAccountKeys
     if (shouldAttachBalance) {
       const urlObj = new URL(url.toString())
-      const balance = userBalances[currentAccount?.addr] || 0
+      const balance = backgroundState.userBalances[currentAccount?.addr] || 0
 
       urlObj.searchParams.append('panVal', JSON.stringify({ a: currentAccount.addr, b: balance }))
 
