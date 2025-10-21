@@ -223,7 +223,7 @@ export class SwapAndBridgePage extends BasePage {
       await expect(signButton).toBeVisible({ timeout: 5000 })
       await expect(signButton).toBeEnabled({ timeout: 5000 })
       await page.getByTestId(selectors.signTransactionButton).click()
-      await page.waitForTimeout(2000)
+      await page.waitForTimeout(3000)
 
       // close transaction progress pop up
       await page.locator(selectors.closeTransactionProgressPopUpButton).click()
