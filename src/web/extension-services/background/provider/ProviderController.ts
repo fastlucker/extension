@@ -544,16 +544,22 @@ export class ProviderController {
     }
   }
 
-  walletGetCurrentAutoLoginPolicy = ({ session: { origin } }: DappProviderRequest) => {
+  walletGetCurrentAutoLoginPolicy = ({ session: { origin, id } }: DappProviderRequest) => {
+    const appCurrentChainId = this.mainCtrl.dapps.getDapp(id)?.chainId
+
+    if (!this.mainCtrl.autoLogin.settings.enabled)
+      return {
+        activePolicy: null
+      }
+
     const policy = this.mainCtrl.autoLogin.getAccountPolicyForOrigin(
       this.mainCtrl.selectedAccount.account?.addr || '',
-      origin
+      origin,
+      appCurrentChainId
     )
 
     return {
-      activePolicy: policy,
-      expires: policy ? policy.defaultExpiration : null,
-      willingToCreatePolicy: this.mainCtrl.autoLogin.settings.enabled
+      activePolicy: policy
     }
   }
 
