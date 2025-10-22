@@ -313,10 +313,10 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     const callsCount = getCallsCount(isSendingBatch ? accountUserRequests : networkUserRequests)
 
     if (!callsCount) {
-      return t('Send')
+      return t('Proceed')
     }
 
-    return t('Send ({{count}})', {
+    return t('Proceed ({{count}})', {
       count: callsCount
     })
   }, [accountUserRequests, isSendingBatch, networkUserRequests, t])
