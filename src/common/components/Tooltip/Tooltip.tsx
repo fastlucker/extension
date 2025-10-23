@@ -1,4 +1,5 @@
 import React from 'react'
+import { ViewStyle } from 'react-native'
 import { ITooltip, Tooltip as ReactTooltip } from 'react-tooltip'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
@@ -6,7 +7,11 @@ import useTheme from '@common/hooks/useTheme'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { Portal } from '@gorhom/portal'
 
-type Props = ITooltip & { tooltipRef?: any; withPortal?: boolean }
+type Props = Omit<ITooltip, 'style'> & {
+  tooltipRef?: any
+  withPortal?: boolean
+  style: ViewStyle & ITooltip['style']
+}
 
 const TooltipInner = ({ tooltipRef, style, border, ...rest }: Props) => {
   const { theme } = useTheme()

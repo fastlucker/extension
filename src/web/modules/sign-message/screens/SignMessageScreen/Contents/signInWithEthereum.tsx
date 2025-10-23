@@ -9,6 +9,7 @@ import NetworkBadge from '@common/components/NetworkBadge'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
@@ -36,9 +37,15 @@ const Label = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-const Value = ({ children }: { children: React.ReactNode }) => {
+const Value = ({ children, tooltipId = '' }: { children: React.ReactNode; tooltipId?: string }) => {
   return (
-    <Text appearance="secondaryText" fontSize={14}>
+    <Text
+      appearance="secondaryText"
+      fontSize={14}
+      dataSet={{
+        tooltipId
+      }}
+    >
       {children}
     </Text>
   )
@@ -203,15 +210,31 @@ const SignInWithEthereum = ({
           {rows.map((row) => (
             <Row key={row.label}>
               <Label>{t(row.label)}</Label>
-              {row.label === 'Resources' && Array.isArray(row.value) ? (
+              {row.label === 'Resources' && Array.isArray(row.value) && (
                 <View style={flexbox.alignEnd}>
                   {row.value.map((resource: string) => (
                     <Value key={resource}>{resource}</Value>
                   ))}
                 </View>
-              ) : (
-                <Value>{row.value}</Value>
               )}
+              {row.label === 'Nonce' && typeof row.value === 'string' && (
+                <>
+                  <Value tooltipId="nonce">
+                    {row.value.length > 45 ? `${row.value.slice(0, 45)}...` : row.value}
+                  </Value>
+                  <Tooltip
+                    content={row.value}
+                    id="nonce"
+                    // @ts-ignore
+                    style={{
+                      ...flexbox.wrap,
+                      ...flexbox.flex1,
+                      wordBreak: 'break-all'
+                    }}
+                  />
+                </>
+              )}
+              {row.label !== 'Resources' && row.label !== 'Nonce' && <Value>{row.value}</Value>}
             </Row>
           ))}
         </View>
