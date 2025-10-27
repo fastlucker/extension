@@ -6,6 +6,7 @@ import { AUTO_LOGIN_DURATION_OPTIONS } from '@ambire-common/controllers/autoLogi
 import { SiweMessage } from '@ambire-common/interfaces/userRequest'
 import Alert from '@common/components/Alert'
 import NetworkBadge from '@common/components/NetworkBadge'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
@@ -193,7 +194,7 @@ const SignInWithEthereum = ({
   )
 
   return (
-    <TabLayoutWrapperMainContent style={spacings.mbLg}>
+    <TabLayoutWrapperMainContent>
       <View
         style={[
           flexbox.directionRow,
@@ -226,60 +227,70 @@ const SignInWithEthereum = ({
         </View>
         <View
           style={{
-            backgroundColor: theme.primaryBackground,
-            borderWidth: 1,
-            borderColor: theme.secondaryBorder,
-            paddingHorizontal: SPACING_SM * responsiveSizeMultiplier,
-            paddingVertical: SPACING * responsiveSizeMultiplier,
-            marginBottom: SPACING * responsiveSizeMultiplier,
-            borderRadius: BORDER_RADIUS_PRIMARY
+            flexGrow: 0,
+            flexShrink: 1
           }}
         >
-          <View
+          <ScrollableWrapper
             style={{
-              marginBottom: SPACING_SM * responsiveSizeMultiplier
+              backgroundColor: theme.primaryBackground,
+              borderWidth: 1,
+              borderColor: theme.secondaryBorder,
+              paddingHorizontal: SPACING_SM * responsiveSizeMultiplier,
+              paddingVertical: SPACING * responsiveSizeMultiplier,
+              marginBottom: SPACING * responsiveSizeMultiplier,
+              borderRadius: BORDER_RADIUS_PRIMARY,
+              minHeight: 200
             }}
+            contentContainerStyle={flexbox.flex1}
           >
-            <Label responsiveSizeMultiplier={responsiveSizeMultiplier}>{t('Message')}</Label>
-            <Value responsiveSizeMultiplier={responsiveSizeMultiplier}>
-              {siweMessageToSign.parsedMessage.statement}
-            </Value>
-          </View>
-          {rows.map((row) => (
-            <Row responsiveSizeMultiplier={responsiveSizeMultiplier} key={row.label}>
-              <Label responsiveSizeMultiplier={responsiveSizeMultiplier}>{t(row.label)}</Label>
-              {row.label === 'Resources' && Array.isArray(row.value) && (
-                <View style={flexbox.alignEnd}>
-                  {row.value.map((resource: string) => (
-                    <Value responsiveSizeMultiplier={responsiveSizeMultiplier} key={resource}>
-                      {resource}
+            <View
+              style={{
+                marginBottom: SPACING_SM * responsiveSizeMultiplier
+              }}
+            >
+              <Label responsiveSizeMultiplier={responsiveSizeMultiplier}>{t('Message')}</Label>
+              <Value responsiveSizeMultiplier={responsiveSizeMultiplier}>
+                {siweMessageToSign.parsedMessage.statement}
+              </Value>
+            </View>
+            {rows.map((row) => (
+              <Row responsiveSizeMultiplier={responsiveSizeMultiplier} key={row.label}>
+                <Label responsiveSizeMultiplier={responsiveSizeMultiplier}>{t(row.label)}</Label>
+                {row.label === 'Resources' && Array.isArray(row.value) && (
+                  <View style={flexbox.alignEnd}>
+                    {row.value.map((resource: string) => (
+                      <Value responsiveSizeMultiplier={responsiveSizeMultiplier} key={resource}>
+                        {resource}
+                      </Value>
+                    ))}
+                  </View>
+                )}
+                {row.label === 'Nonce' && typeof row.value === 'string' && (
+                  <>
+                    <Value responsiveSizeMultiplier={responsiveSizeMultiplier} tooltipId="nonce">
+                      {row.value.length > 45 ? `${row.value.slice(0, 45)}...` : row.value}
                     </Value>
-                  ))}
-                </View>
-              )}
-              {row.label === 'Nonce' && typeof row.value === 'string' && (
-                <>
-                  <Value responsiveSizeMultiplier={responsiveSizeMultiplier} tooltipId="nonce">
-                    {row.value.length > 45 ? `${row.value.slice(0, 45)}...` : row.value}
-                  </Value>
-                  <Tooltip
-                    content={row.value}
-                    id="nonce"
-                    // @ts-ignore
-                    style={{
-                      ...flexbox.wrap,
-                      ...flexbox.flex1,
-                      wordBreak: 'break-all'
-                    }}
-                  />
-                </>
-              )}
-              {row.label !== 'Resources' && row.label !== 'Nonce' && (
-                <Value responsiveSizeMultiplier={responsiveSizeMultiplier}>{row.value}</Value>
-              )}
-            </Row>
-          ))}
+                    <Tooltip
+                      content={row.value}
+                      id="nonce"
+                      // @ts-ignore
+                      style={{
+                        ...flexbox.wrap,
+                        ...flexbox.flex1,
+                        wordBreak: 'break-all'
+                      }}
+                    />
+                  </>
+                )}
+                {row.label !== 'Resources' && row.label !== 'Nonce' && (
+                  <Value responsiveSizeMultiplier={responsiveSizeMultiplier}>{row.value}</Value>
+                )}
+              </Row>
+            ))}
+          </ScrollableWrapper>
         </View>
+
         {siweMessageToSign.autoLoginStatus !== 'unsupported' &&
           siweMessageToSign.siweValidityStatus === 'valid' && (
             <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
