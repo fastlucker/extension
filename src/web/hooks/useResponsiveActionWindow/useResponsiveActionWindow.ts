@@ -11,8 +11,8 @@ const useResponsiveActionWindow = ({ maxBreakpoints }: Props = {}) => {
 
   const breakpoints = useMemo(() => {
     return [
-      [minHeightSize(600), 0.75],
-      [minHeightSize(650), 0.8],
+      [minHeightSize(600), 0.8],
+      [minHeightSize(650), 0.85],
       [minHeightSize(700), 0.9],
       [minHeightSize(750), 0.95]
     ]
