@@ -2,17 +2,40 @@ import { useMemo } from 'react'
 
 import useWindowSize from '@common/hooks/useWindowSize'
 
-const useResponsiveActionWindow = () => {
+type Props = {
+  maxBreakpoints?: number
+}
+
+const useResponsiveActionWindow = ({ maxBreakpoints }: Props = {}) => {
   const { minHeightSize } = useWindowSize()
 
-  const responsiveSizeMultiplier = useMemo(() => {
-    if (minHeightSize(600)) return 0.75
-    if (minHeightSize(650)) return 0.8
-    if (minHeightSize(700)) return 0.9
-    if (minHeightSize(750)) return 0.95
-
-    return 1
+  const breakpoints = useMemo(() => {
+    return [
+      [minHeightSize(600), 0.75],
+      [minHeightSize(650), 0.8],
+      [minHeightSize(700), 0.9],
+      [minHeightSize(750), 0.95]
+    ]
   }, [minHeightSize])
+
+  const limitedBreakpoints = useMemo(() => {
+    if (maxBreakpoints && breakpoints.length > maxBreakpoints && maxBreakpoints > 0) {
+      return breakpoints.slice(-maxBreakpoints)
+    }
+    return breakpoints
+  }, [breakpoints, maxBreakpoints])
+
+  const responsiveSizeMultiplier = useMemo(() => {
+    let multiplier = 1
+
+    limitedBreakpoints.reverse().forEach(([condition, value]) => {
+      if (condition) {
+        multiplier = value as number
+      }
+    })
+
+    return multiplier
+  }, [limitedBreakpoints])
 
   return { responsiveSizeMultiplier }
 }
