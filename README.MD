@@ -10,8 +10,8 @@
   </a>
 
   <p>
-    Your Web3 wallet that just works.<br>
-    A self-custodial browser wallet extension built for Ethereum and EVM networks.<br />
+    Your Web3 wallet that just works. EIP-7702 ready.<br>
+    <em>A self-custodial browser wallet extension built for Ethereum and EVM networks.</em><br />
     <a href="https://www.ambire.com/get-extension" target="_blank">
       <strong>Download Ambire extension 🔥</strong>
     </a>
