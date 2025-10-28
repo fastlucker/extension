@@ -144,8 +144,35 @@ function captureBackgroundExceptionFromControllerError(error: ErrorRef, controll
   })
 }
 
-const INVICTUS_ERROR_PREFIX = 'Invictus RPC error'
-const INVICTUS_200_ERROR_PREFIX = 'Invictus RPC error (2XX)'
+const prefixes = {
+  invictus: {
+    normal: 'Invictus RPC error',
+    status200: 'Invictus RPC error (2XX)'
+  },
+  customRpc: {
+    normal: 'Custom RPC error',
+    status200: 'Custom RPC error (2XX)'
+  }
+}
+
+const getMessagePrefix = (extraData: { [key: string]: any }) => {
+  const { providerUrl, isProviderInvictus, statusCode, shortMessage } = extraData
+  let is200Status = false
+
+  if (statusCode === undefined && shortMessage !== 'missing revert data') {
+    // Ethers doesn't return a status code for 2XX responses, so we treat undefined as 2XX
+    // and have handling just in case statusCode is explicitly set to 200-299
+    is200Status = true
+  } else if (typeof statusCode === 'number' && statusCode >= 200 && statusCode < 300) {
+    is200Status = true
+  }
+
+  const providerUrlPart = providerUrl ? `(${providerUrl})` : ''
+  const prefixSet = isProviderInvictus ? prefixes.invictus : prefixes.customRpc
+  const prefix = is200Status ? prefixSet.status200 : prefixSet.normal
+
+  return `${prefix} ${providerUrlPart}: `
+}
 
 /**
  * In Sentry we can "fingerprint" errors by their message. This function is used to
@@ -165,32 +192,13 @@ function formatErrorsBeforeSendingToSentry(
       // except the message. We need to use the contexts to get the extra info.
       // Note: this is possible because of the extraErrorDataIntegration from Sentry
       const extraData = contexts?.ProviderError || {}
-      const {
-        isProviderInvictus,
-        error: nestedError,
-        statusCode,
-        providerUrl,
-        data,
-        info,
-        transaction
-      } = extraData
+      const { error: nestedError, code, data, info, transaction } = extraData
 
-      if (
-        isProviderInvictus &&
-        // Check if it's a relevant provider error
-        (data || info || nestedError || transaction) &&
-        !message.startsWith(INVICTUS_ERROR_PREFIX) &&
-        !message.startsWith(INVICTUS_200_ERROR_PREFIX)
-      ) {
-        // Ethers doesn't return a status code for 2XX responses, so we treat undefined as 2XX
-        // and have handling just in case statusCode is explicitly set to 200-299
-        const is200Status =
-          !statusCode || (typeof statusCode === 'number' && statusCode >= 200 && statusCode < 300)
-        const providerUrlPart = providerUrl ? `(${providerUrl})` : ''
+      if (data || info || nestedError || code || transaction) {
+        const prefix = getMessagePrefix(extraData)
+
         // eslint-disable-next-line no-param-reassign
-        error.value = `${
-          is200Status ? INVICTUS_200_ERROR_PREFIX : INVICTUS_ERROR_PREFIX
-        } ${providerUrlPart}: ${message}`
+        error.value = `${prefix}${message}`
       }
     }
   })
@@ -302,13 +310,17 @@ const init = async () => {
     isUnlocked: boolean
     ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
     autoLockIntervalId?: ReturnType<typeof setInterval>
+    userBalances: Record<string, number>
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
       While the flag is truthy and there are new updates coming for that ctrl in the same tick, they will be debounced and only one event will be executed at the end
     */
     isUnlocked: false,
-    ctrlOnUpdateIsDirtyFlags: {}
+    ctrlOnUpdateIsDirtyFlags: {},
+    // used for caching the biggest seen user balance so we can later send it to cena
+    // further commented down below
+    userBalances: {}
   }
 
   const pm = new PortMessenger()
@@ -355,6 +367,43 @@ const init = async () => {
         // eslint-disable-next-line no-param-reassign
         url = urlObj.toString().replace(/%2C/g, ',')
       }
+    }
+
+    // we want to calculate the TVL of our users
+    // we can achieve this by making a relayer (server-side trusted environment) script that gets the balances of all our users
+    // but doing this with all our users would be 'expensive'.
+    // we already calculate the user balance in the extension, but is not 100% trusted as any user can modify it
+    // that why we will use the user balance from the extension as a 'hint' so we can determine
+    // on which accounts we should execute the 'expensive' script on the backend
+    // those addresses should be 1) loaded with key in the extension 2) have more than $0 balance
+    const currentAccount = mainCtrl.selectedAccount.account
+    const hasCurrentAccountKeys =
+      currentAccount &&
+      getAccountKeysCount({
+        accountAddr: currentAccount.addr,
+        keys: mainCtrl.keystore.keys,
+        accounts: mainCtrl.accounts.accounts
+      })
+    // we use any cena request, because if we narrow it down to one route we might not have the full balance loaded
+    // on the relayer side we will simply use middleware that captures all routes and looks for the specific params with balance
+    // we want to attach the data only if the user has keys for the account
+    const currentBalance = mainCtrl.selectedAccount.portfolio.totalBalance
+    if (
+      currentAccount &&
+      (backgroundState.userBalances[currentAccount?.addr] || 0) < currentBalance
+    )
+      backgroundState.userBalances[currentAccount?.addr] = currentBalance
+
+    const shouldAttachBalance =
+      url.toString().startsWith('https://cena.ambire.com/') && hasCurrentAccountKeys
+    if (shouldAttachBalance) {
+      const urlObj = new URL(url.toString())
+      const balance = backgroundState.userBalances[currentAccount?.addr] || 0
+
+      urlObj.searchParams.append('panVal', JSON.stringify({ a: currentAccount.addr, b: balance }))
+
+      // eslint-disable-next-line no-param-reassign
+      url = decodeURIComponent(urlObj.toString())
     }
 
     // Use the native fetch (instead of node-fetch or whatever else) since
@@ -659,7 +708,7 @@ const init = async () => {
       pm.addOrUpdatePort(port, () => {
         mainCtrl.ui.addView({ id: port.id, type: port.name })
 
-        pm.addListener(
+        pm.addConnectListener(
           port.id,
           // @ts-ignore
           async (messageType, action: Action, meta: MessageMeta = {}) => {
