@@ -2,7 +2,11 @@
 
 <div align="center">
   <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
-    <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./mockups/mockup-dashboard-dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="./mockups/mockup-dashboard-light.png">
+      <img src="./mockups/mockup-dashboard-light.png" alt="Ambire Wallet Dashboard" />
+    </picture>
   </a>
 
   <p>
