@@ -24,7 +24,7 @@
     <br />
     🐞
     <a href="https://github.com/AmbireTech/extension/issues">Report a Bug</a> ·
-    <a href="https://forum.ambire.com/" target="_blank">Request Features</a>
+    <a href="https://help.ambire.com/hc/en-us/requests/new" target="_blank">Get help</a>
   </p>
 </div>
 
