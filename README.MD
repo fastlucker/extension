@@ -8,13 +8,13 @@
   <p>
     Your Web3 wallet that just works.<br>
     A self-custodial browser wallet extension built for Ethereum and EVM networks.<br />
-    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
-      <strong>Download Extension for Webkit Browsers 🔥</strong>
+    <a href="https://www.ambire.com/get-extension" target="_blank">
+      <strong>Download Ambire extension 🔥</strong>
     </a>
     <br />
-    <em>(Chrome, Brave, Opera, Edge, Arc)</em>
+    <em>(Chrome, Firefox, Brave, Opera, Edge, Arc)</em>
     <br /><br />
-    💌 Request Invite Code:
+    👥 Join the community:
     <a href="https://discord.com/invite/Ambire" target="_blank">Discord</a> |
     <a href="https://t.me/AmbireOfficial" target="_blank">Telegram</a>
     <br />
