@@ -6,7 +6,8 @@
   </a>
 
   <p>
-    The secure & easy-to-use Web3 wallet. EIP-7702 ready.<br />
+    Your Web3 wallet that just works.<br>
+    A self-custodial browser wallet extension built for Ethereum and EVM networks.<br />
     <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
       <strong>Download Extension for Webkit Browsers 🔥</strong>
     </a>
