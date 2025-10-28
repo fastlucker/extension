@@ -5,7 +5,7 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="./mockups/mockup-dashboard-dark.png">
       <source media="(prefers-color-scheme: light)" srcset="./mockups/mockup-dashboard-light.png">
-      <img src="./mockups/mockup-dashboard-light.png" alt="Ambire Wallet Dashboard" />
+      <img src="./mockups/mockup-dashboard-light.png" alt="Ambire Wallet Dashboard" width="672" height="672" />
     </picture>
   </a>
 
